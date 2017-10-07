@@ -1,4 +1,6 @@
-# Python-Anomaly-Detection(Pyador)
+# py-Anomaly-Detection
+
+Python-Anomaly-Detection(Pyador)
 
 ### Note: the project is still under development as of Oct 7th 2017.
 **A Python Toolkit for Unsupervised Anomaly Detection**
