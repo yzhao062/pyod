@@ -1,13 +1,17 @@
+import unittest
+
 from pyador.util.data_prep import numerical_check
 
-def test_integrity_check():
 
-    # test different dtypes, dataframes and series
+class MyTestCase(unittest.TestCase):
+    def test_numerical_test(self):
+        self.assertEqual(True, False)
+        # test on series and dataframe
 
-    pass
+    def test_integrity_check(self):
+        self.assertEqual(True, False)
+        # test different dtypes, dataframes and series
 
-def test_numerical_test():
 
-    # test on series and dataframe
-
-    pass
+if __name__ == '__main__':
+    unittest.main()
