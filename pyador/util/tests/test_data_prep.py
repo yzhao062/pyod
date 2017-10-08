@@ -16,8 +16,8 @@ t_df = pd.DataFrame([[1, "194611010TRH", "NBA", 0],
                      [2, "194611020CHS", "NBA", 1],
                      [3, "194611020DTF", "NBA", 0],
                      [3, "194611020DTF", "NBA", 1],
-                     ], columns=["gameorder", "game_id", "lg_id", "iscopy"
-                                 ])
+                     ], columns=["gameorder", "game_id", "lg_id", "iscopy"])
+
 t_num_df = pd.DataFrame([[1, 0, 1293.277],
                          [1, 1, 1306.723],
                          [2, 0, np.nan],
