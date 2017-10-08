@@ -42,7 +42,7 @@ def _integrity_check(df):
         raise TypeError("Pyador only supports pandas dataframe")
 
 
-def _missing_check(df, imputation="zero", verbose=False):
+def _missing_check(df, imputation="zero", verbose=True):
     '''check the missing percentage. Impute the missing values if necessary
     Note: for numerical variables and categorical variables we should handle
     differently
@@ -53,6 +53,8 @@ def _missing_check(df, imputation="zero", verbose=False):
     '''
     n_df = df.shape[0]
     cols = df.columns.tolist()
+    if verbose:
+        print("\nMissing value check and imputation starts...")
 
     for col in cols:
         missing = n_df - np.count_nonzero(df[col].isnull().values)
@@ -60,9 +62,8 @@ def _missing_check(df, imputation="zero", verbose=False):
 
         if mis_perc > 0:
             if verbose:
-                print("{col} missing percentage is {miss}%" \
+                print("    {col} missing percentage is {miss}%" \
                       .format(col=col, miss=mis_perc))
-
             # impute categorical var by NaN
             if not is_numeric_dtype(df[col]):
                 df[col].fillna('NaN', inplace=True)
@@ -75,7 +76,7 @@ def _missing_check(df, imputation="zero", verbose=False):
     return df
 
 
-def _cat_to_num(df):
+def _cat_to_num(df, verbose=True):
     '''convert categorical variables into numerical format
 
     :param df:
@@ -83,10 +84,17 @@ def _cat_to_num(df):
     '''
     cat_vars = df.select_dtypes(exclude=[np.number]).columns
     le_dict = {}
-
+    if verbose:
+        print("\nAutomatic variable type conversion starts...")
     for cat_var in cat_vars:
+
         # append num_ to variable name
         num_name = "num_" + cat_var
+
+        if verbose:
+            print("    Convert {cat_var}  to numerical as {num_name}" \
+                  .format(cat_var=cat_var, num_name=num_name))
+
         le = LabelEncoder()
 
         # build encoder and save in the dictionary
@@ -95,9 +103,12 @@ def _cat_to_num(df):
         le_dict[num_name] = le_copy
 
         tran_df = pd.DataFrame(tran_np, columns=[num_name])
-        print("{col} is converted to {num_name}".
-              format(col=cat_var, num_name=num_name))
+        # print("{col} is converted to {num_name}".
+        #       format(col=cat_var, num_name=num_name))
         # print (le.classes_)
         df = pd.concat([df, tran_df], axis=1)
 
-    return df, le_dict
+    # extract numerical variables into a new df
+    num_df = df.select_dtypes(include=[np.number])
+
+    return df, num_df, le_dict
