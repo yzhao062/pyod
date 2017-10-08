@@ -1,0 +1,6 @@
+#TODO: should start from a clean env for testing the dependency
+
+pandas
+numpy
+scipy
+sklearn

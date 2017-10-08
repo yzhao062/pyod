@@ -7,28 +7,36 @@ Unsupervised anamoly detection toolbox in Python
 
 import os, errno
 import pyador.local as const
-from .util.data_prep import miss_check
-from .util.data_prep import integrity_check
+from .util.data_prep import _missing_check
+from .util.data_prep import _integrity_check
+from .util.data_prep import _cat_to_num
 
 
 class Pyador:
     def __init__(self, X, n=None, frac=None):
         self._setup()
+        self._arg_check(X, n, frac)
+        self.X = _missing_check(self.X)
+        self.X, self.le_dict = _cat_to_num(self.X)
 
+    def _arg_check(self, X, n, frac):
         # check data type
-        integrity_check(X)
+        if _integrity_check(X):
+            self.X = X
 
+        # check the validity of the arguments
         if n is not None:
             self.n = n
+
         if frac is not None:
+            if not 0 < frac < 1:
+                raise ValueError("frac should be between 0 to 1")
+
             self.frac = frac
 
         if hasattr(self, "n") and hasattr(self, "frac"):
             raise ValueError("n and frac cannot be used at the same time. " \
                              "Use either n or frac instead")
-
-        self.n = n
-        self.X = X
 
     def debug(self):
         print(self.X.shape)
@@ -46,6 +54,7 @@ class Pyador:
         :return:
         '''
         # create output folder
+        # TODO: design the structure of the output
         output_dir = const.OUTPUT
 
         try:
