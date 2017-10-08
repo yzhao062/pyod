@@ -1,6 +1,4 @@
-# py-Anomaly-Detection
-
-Python-Anomaly-Detection(Pyador)
+# *Py*thon-*A*nomaly-*D*etect*or* (Pyador)
 
 ### Note: the project is still under development as of Oct 7th 2017.
 **A Python Toolkit for Unsupervised Anomaly Detection**
@@ -20,7 +18,7 @@ Before using the toolkit, please be advised the purpose of the tool is only for 
    3. Using the decision tree classification rule as the anamoly determination rule
    4. Output feature importance ranking based on the decision tree result
 5. Provide related visuals
-	6. Correlation Matrix
-	7. 2-D data visulization using multi-dimensional scaling
+	1. Correlation Matrix
+	2. 2-D data visulization using multi-dimensional scaling
 6. TODO
 
