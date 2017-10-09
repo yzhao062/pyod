@@ -13,6 +13,5 @@ if __name__ == "__main__":
     clf = Pyador(frac=0.05)
     clf._debug()
 
-    y_predict = clf.fit_predict(X)
-
-    print(y_predict[0:500])
+    y_pred, X_train, Y_train = clf.fit(X)
+    # print(X_train.shape, Y_train.shape)

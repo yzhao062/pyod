@@ -7,7 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 from pandas.api.types import is_numeric_dtype
 
 
-def _numerical_check(df):
+def numerical_check(df):
     ''' function to check if the dataframe are fully numerical
 
     :param df:
@@ -15,7 +15,7 @@ def _numerical_check(df):
     '''
 
     # check if it is a pandas framework or series
-    _integrity_check(df)
+    integrity_check(df)
 
     # count how many pandas
     num_vars = df.select_dtypes(include=[np.number])
@@ -27,7 +27,7 @@ def _numerical_check(df):
         return False
 
 
-def _integrity_check(df):
+def integrity_check(df):
     ''' check if the input data is compliant with the model requirement
 
     :param df:
@@ -42,7 +42,7 @@ def _integrity_check(df):
         raise TypeError("Pyador only supports pandas dataframe")
 
 
-def _missing_check(df, imputation="zero", verbose=True):
+def missing_check(df, imputation="zero", verbose=True):
     '''check the missing percentage. Impute the missing values if necessary
     Note: for numerical variables and categorical variables we should handle
     differently
@@ -76,7 +76,7 @@ def _missing_check(df, imputation="zero", verbose=True):
     return df
 
 
-def _cat_to_num(df, verbose=True):
+def cat_to_num(df, verbose=True):
     '''convert categorical variables into numerical format
 
     :param df:
@@ -110,5 +110,9 @@ def _cat_to_num(df, verbose=True):
 
     # extract numerical variables into a new df
     num_df = df.select_dtypes(include=[np.number])
+    num_vars = num_df.columns.tolist()
 
-    return df, num_df, le_dict
+    return {"df": df,
+            "num_df": num_df,
+            "num_vars": num_vars,
+            "le_dict": le_dict}

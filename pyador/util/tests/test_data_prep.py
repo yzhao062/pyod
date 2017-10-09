@@ -4,10 +4,10 @@ import pandas as pd
 import numpy as np
 
 from pandas.util.testing import assert_frame_equal
-from pyador.util.data_prep import _numerical_check
-from pyador.util.data_prep import _integrity_check
-from pyador.util.data_prep import _cat_to_num
-from pyador.util.data_prep import _missing_check
+from pyador.util.data_prep import numerical_check
+from pyador.util.data_prep import integrity_check
+from pyador.util.data_prep import cat_to_num
+from pyador.util.data_prep import missing_check
 
 
 class UtilTestCases(unittest.TestCase):
@@ -45,24 +45,24 @@ class UtilTestCases(unittest.TestCase):
                                                "iscopy"])
 
     def test_integrity(self):
-        self.assertEqual(_integrity_check(self.t_df), True)
+        self.assertEqual(integrity_check(self.t_df), True)
 
         with self.assertRaises(TypeError):
-            _integrity_check(self.t_series)
+            integrity_check(self.t_series)
 
         with self.assertRaises(TypeError):
-            _integrity_check(self.t_var)
+            integrity_check(self.t_var)
 
         with self.assertRaises(TypeError):
-            _integrity_check(self.t_str)
+            integrity_check(self.t_str)
 
     def test_numerical_check(self):
-        self.assertEqual(_numerical_check(self.t_df), False)
-        self.assertEqual(_numerical_check(self.t_num_df), True)
+        self.assertEqual(numerical_check(self.t_df), False)
+        self.assertEqual(numerical_check(self.t_num_df), True)
 
     # TODO: supplement more testcases for util functions
     def test_missing_check(self):
-        assert_frame_equal(_missing_check(self.t_df), self.t_miss_df)
+        assert_frame_equal(missing_check(self.t_df), self.t_miss_df)
 
     def test_cat_to_num(self):
         self.assertEqual(True, True)

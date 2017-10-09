@@ -34,7 +34,11 @@ class PyadorTestCases(unittest.TestCase):
 
     def test_data_quality(self):
         t1 = pyador.Pyador(200)
-        X, num_X, le_dict = t1._data_check_fix(self.t_df)
+        para = t1._data_check_fix(self.t_df)
+        X = para["df"]
+        # num_X = para["num_df"]
+        # num_vars = para["num_vars"]
+        le_dict = para["le_dict"]
 
         n_cat_var = self.t_df.select_dtypes(exclude=[np.number]).shape[1]
         (m, n) = self.t_df.shape
