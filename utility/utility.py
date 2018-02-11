@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import roc_auc_score
 
 
 def get_precn(y, y_pred):

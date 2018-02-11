@@ -1,11 +1,11 @@
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import roc_auc_score
 from scipy.stats import scoreatpercentile
-from utility import get_precn
+from utility.utility import get_precn
+
 
 class Knn(object):
     '''
@@ -37,7 +37,8 @@ class Knn(object):
                                   return_distance=True)
 
         dist_arr = result[0]
-        ind_array = result[1]
+        # unused. To delete
+        #ind_array = result[1]
 
         if self.method == 'largest':
             dist = dist_arr[:, -1]
@@ -55,8 +56,6 @@ class Knn(object):
 
         # initialize the output score
         pred_score = np.zeros([X_test.shape[0], 1])
-        # initialize the output label
-        pred_label = np.zeros([X_test.shape[0], 1])
 
         for i in range(X_test.shape[0]):
             x_i = X_test[i, :]
@@ -73,16 +72,14 @@ class Knn(object):
                 dist = np.median(dist_arr, axis=1)
 
             pred_score_i = dist[-1]
-            pred_label_i = (pred_score_i > self.threshold).astype('int')
 
             # record the current item
             pred_score[i, :] = pred_score_i
-            pred_label[i, :] = pred_label_i
 
-        return pred_score, pred_label
+        return pred_score
 
     def evaluate(self, X_test, y_test):
-        pred_score, _ = self.sample_scores(X_test)
+        pred_score = self.sample_scores(X_test)
         roc = np.round(roc_auc_score(y_test, pred_score), decimals=4)
         prec_n = np.round(get_precn(y_test, pred_score), decimals=4)
 
@@ -91,13 +88,12 @@ class Knn(object):
 
     def predict(self, X_test):
 
-        _, pred_label = self.sample_scores(X_test)
-        return pred_label
+        pred_score = self.sample_scores(X_test)
+        return (pred_score > self.threshold).astype('int')
 
-#############################################################################
+##############################################################################
 # samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
 #
 # clf = Knn()
 # clf.fit(samples)
 # print(clf.sample_scores(np.asarray([[2, 3], [6, 8]])))
-# clf.evaluate(np.asarray([[2, 3], [6, 8]]), np.asarray([[0],[1]]))
