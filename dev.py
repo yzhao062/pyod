@@ -1,25 +1,47 @@
-import os
-import pandas as pd
-from pyador.pyador import Pyador
-from pyador import local as const
-import numpy as np
-from models.knn import Knn
+import matplotlib.pyplot as plt
+from utility.load_data import generate_data
+from utility.utility import get_precn
+from utility.utility import roc_auc_score
+from models.hbos import Hbos
 
 if __name__ == "__main__":
-    # dev_file = os.path.join(const.DEV_DIR, const.DEV_FILE)
-    # X = pd.read_csv(dev_file)
-    # print("training data is %s " % dev_file)
-    # print("data shape is %s" % (X.shape,))
-    #
-    # # initialize the program with fraud percentage
-    # clf = Pyador(frac=0.05)
-    # clf._debug()
-    #
-    # y_pred, X_train, Y_train = clf.fit(X)
-    # print(X_train.shape, Y_train.shape)
-    samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
+    X_train, y_train, c_train, X_test, y_test, c_test = generate_data(n=1000,
+                                                                      contamination=0.1,
+                                                                      n_test=500)
+    # train a HBOS detector
+    clf = Hbos(contamination=0.1)
+    clf.fit(X_train)
 
-    clf = Knn()
-    clf.fit(samples)
-    print(clf.sample_scores(np.asarray([[2, 3], [6, 8]])))
-    clf.evaluate(np.asarray([[2, 3], [6, 8]]), np.asarray([[0], [1]]))
+    y_train_pred = clf.y_pred
+    y_train_score = clf.decision_scores
+
+    y_test_pred = clf.predict(X_test)
+    y_test_score = clf.decision_function(X_test)
+
+    print('Precision@n on train data is', get_precn(y_train, y_train_score))
+    print('ROC on train data is', roc_auc_score(y_train, y_train_score))
+
+    print('Precision@n on test data is', get_precn(y_test, y_test_score))
+    print('ROC on test data is', roc_auc_score(y_test, y_test_score))
+
+
+    # plot the results
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(221)
+    plt.scatter(X_train[:, 0], X_train[:, 1], c=c_train)
+    plt.title('train data')
+
+    ax = fig.add_subplot(222)
+    plt.scatter(X_test[:, 0], X_test[:, 1], c=c_test)
+    plt.title('test data')
+
+    ax = fig.add_subplot(223)
+    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train_pred)
+    plt.title('y_pred_train by HBOS')
+
+    ax = fig.add_subplot(224)
+    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
+    plt.title('y_pred_test by HBOS')
+
+    plt.savefig('sample.png', dpi=300)
+    plt.show()

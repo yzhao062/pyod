@@ -21,24 +21,14 @@ class Knn(object):
     def fit(self, X_train):
         self.X_train = X_train
         self._isfitted = True
-
-        self.distance = self.decision_scores()
         self.tree = KDTree(X_train)
-
-    def decision_scores(self):
-
-        if not self._isfitted:
-            NotFittedError('Knn is not fitted yet')
 
         neigh = NearestNeighbors()
         neigh.fit(self.X_train)
 
         result = neigh.kneighbors(n_neighbors=self.n_neighbors,
                                   return_distance=True)
-
         dist_arr = result[0]
-        # unused. To delete
-        #ind_array = result[1]
 
         if self.method == 'largest':
             dist = dist_arr[:, -1]
@@ -48,11 +38,14 @@ class Knn(object):
             dist = np.median(dist_arr, axis=1)
 
         threshold = scoreatpercentile(dist, 100 * (1 - self.contamination))
+
         self.threshold = threshold
+        self.decision_scores = dist.ravel()
 
-        return dist.ravel()
+    def decision_function(self, X_test):
 
-    def sample_scores(self, X_test):
+        if not self._isfitted:
+            NotFittedError('Knn is not fitted yet')
 
         # initialize the output score
         pred_score = np.zeros([X_test.shape[0], 1])
@@ -91,9 +84,10 @@ class Knn(object):
         pred_score = self.sample_scores(X_test)
         return (pred_score > self.threshold).astype('int')
 
+
 ##############################################################################
 # samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
 #
 # clf = Knn()
 # clf.fit(samples)
-# print(clf.sample_scores(np.asarray([[2, 3], [6, 8]])))
+# print(clf.decision_function(np.asarray([[2, 3], [6, 8]])))
