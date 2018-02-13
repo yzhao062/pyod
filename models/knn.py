@@ -41,6 +41,7 @@ class Knn(object):
 
         self.threshold = threshold
         self.decision_scores = dist.ravel()
+        self.y_pred = (self.decision_scores > self.threshold).astype('int')
 
     def decision_function(self, X_test):
 

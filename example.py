@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt
 from utility.load_data import generate_data
 from utility.utility import get_precn
@@ -5,9 +6,15 @@ from utility.utility import roc_auc_score
 from models.hbos import Hbos
 
 if __name__ == "__main__":
-    X_train, y_train, c_train, X_test, y_test, c_test = generate_data(n=1000,
-                                                                      contamination=0.1,
-                                                                      n_test=500)
+    # percentage of outliers
+    contamination = 0.1
+    n_train = 1000
+    n_test = 500
+
+    X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
+        n=n_train,
+        contamination=contamination,
+        n_test=n_test)
     # train a HBOS detector
     clf = Hbos(contamination=0.1)
     clf.fit(X_train)
@@ -23,7 +30,6 @@ if __name__ == "__main__":
 
     print('Precision@n on test data is', get_precn(y_test, y_test_score))
     print('ROC on test data is', roc_auc_score(y_test, y_test_score))
-
 
     # plot the results
     fig = plt.figure(figsize=(12, 10))
@@ -43,5 +49,5 @@ if __name__ == "__main__":
     plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
     plt.title('y_pred_test by HBOS')
 
-    plt.savefig('sample.png', dpi=300)
+    plt.savefig(os.path.join('figures', 'sample.png'), dpi=300)
     plt.show()
