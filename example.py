@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 from utility.load_data import generate_data
 from utility.utility import get_precn
-from utility.utility import roc_auc_score
+from sklearn.metrics import roc_auc_score
 from models.hbos import Hbos
 
 if __name__ == "__main__":

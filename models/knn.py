@@ -2,9 +2,7 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 from sklearn.exceptions import NotFittedError
-from sklearn.metrics import roc_auc_score
 from scipy.stats import scoreatpercentile
-from utility.utility import get_precn
 
 
 class Knn(object):
@@ -72,19 +70,10 @@ class Knn(object):
 
         return pred_score
 
-    def evaluate(self, X_test, y_test):
-        pred_score = self.sample_scores(X_test)
-        roc = np.round(roc_auc_score(y_test, pred_score), decimals=4)
-        prec_n = np.round(get_precn(y_test, pred_score), decimals=4)
-
-        print("precision@n", prec_n)
-        print("roc", roc)
-
     def predict(self, X_test):
 
         pred_score = self.sample_scores(X_test)
         return (pred_score > self.threshold).astype('int')
-
 
 ##############################################################################
 # samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
