@@ -41,7 +41,7 @@ class Hbos(object):
             bin_ind = np.digitize(X[:, i], bin_edges[:, i], right=False)
 
             # very important to do scaling. Not necessary to use min max
-            density_norm = MinMaxScaler().fit_transform(
+            density_norm = (
                 hist[:, i].reshape(-1, 1))
             out_score = np.log(1 / (density_norm + self.alpha))
 

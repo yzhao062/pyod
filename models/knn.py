@@ -72,12 +72,20 @@ class Knn(object):
 
     def predict(self, X_test):
 
-        pred_score = self.sample_scores(X_test)
+        pred_score = self.decision_function(X_test)
         return (pred_score > self.threshold).astype('int')
+
 
 ##############################################################################
 # samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
 #
 # clf = Knn()
 # clf.fit(samples)
-# print(clf.decision_function(np.asarray([[2, 3], [6, 8]])))
+#
+# scores = clf.decision_function(np.asarray([[2, 3], [6, 8]])).ravel()
+# assert (scores[0] == [2])
+# assert (scores[1] == [5])
+# #
+# labels = clf.predict(np.asarray([[2, 3], [6, 8]])).ravel()
+# assert (labels[0] == [0])
+# assert (labels[1] == [1])
