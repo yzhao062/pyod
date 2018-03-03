@@ -1,8 +1,11 @@
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 from sklearn.exceptions import NotFittedError
 from scipy.stats import scoreatpercentile
+from scipy.stats import rankdata
+from scipy.special import erf
 
 
 class Knn(object):
@@ -21,7 +24,7 @@ class Knn(object):
         self._isfitted = True
         self.tree = KDTree(X_train)
 
-        neigh = NearestNeighbors()
+        neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
         neigh.fit(self.X_train)
 
         result = neigh.kneighbors(n_neighbors=self.n_neighbors,
@@ -35,11 +38,13 @@ class Knn(object):
         elif self.method == 'median':
             dist = np.median(dist_arr, axis=1)
 
-        threshold = scoreatpercentile(dist, 100 * (1 - self.contamination))
-
-        self.threshold = threshold
+        self.threshold = scoreatpercentile(dist,
+                                           100 * (1 - self.contamination))
         self.decision_scores = dist.ravel()
         self.y_pred = (self.decision_scores > self.threshold).astype('int')
+
+        self.mu = np.mean(self.decision_scores)
+        self.sigma = np.std(self.decision_scores)
 
     def decision_function(self, X_test):
 
@@ -71,10 +76,43 @@ class Knn(object):
         return pred_score
 
     def predict(self, X_test):
-
         pred_score = self.decision_function(X_test)
         return (pred_score > self.threshold).astype('int')
 
+    def predict_proba(self, X_test, method='linear'):
+        test_scores = self.decision_function(X_test)
+        train_scores = self.decision_scores
+
+        if method == 'linear':
+            scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
+            proba = scaler.transform(test_scores.reshape(-1, 1))
+            return proba.clip(0, 1)
+        else:
+            # turn output into probability
+            pre_erf_score = (test_scores - self.mu) / (self.sigma * np.sqrt(2))
+            erf_score = erf(pre_erf_score)
+            proba = erf_score.clip(0)
+
+            # TODO: move to testing code
+            assert (proba.min() >= 0)
+            assert (proba.max() <= 1)
+            return proba
+
+    def predict_rank(self, X_test):
+        test_scores = self.decision_function(X_test)
+        train_scores = self.decision_scores
+
+        ranks = np.zeros([X_test.shape[0], 1])
+
+        for i in range(test_scores.shape[0]):
+            train_scores_i = np.append(train_scores.reshape(-1, 1),
+                                       test_scores[i])
+
+            ranks[i] = rankdata(train_scores_i)[-1]
+
+        # return normalized ranks
+        ranks_norm = ranks / ranks.max()
+        return ranks_norm
 
 ##############################################################################
 # samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]

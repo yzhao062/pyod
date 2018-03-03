@@ -1,22 +1,16 @@
 import numpy as np
 import math
-import pandas as pd
-import scipy as sc
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from scipy.stats import scoreatpercentile
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import precision_score
-from utility.utility import get_precn
-from models.knn import Knn
+from sklearn.preprocessing import MinMaxScaler
 
+from scipy.stats import scoreatpercentile
+from scipy.stats import rankdata
+from scipy.special import erf
 
 class Hbos(object):
 
-    def __init__(self, bins=10, alpha=0.3, beta=0.5, contamination=0.05):
+    def __init__(self, bins=10, beta=0.5, contamination=0.05):
 
         self.bins = bins
-        self.alpha = alpha
         self.beta = beta
         self.contamination = contamination
 
@@ -28,6 +22,7 @@ class Hbos(object):
         hist = np.zeros([self.bins, self.d])
         bin_edges = np.zeros([self.bins + 1, self.d])
 
+        # build the bins
         for i in range(self.d):
             hist[:, i], bin_edges[:, i] = np.histogram(X[:, i], bins=self.bins,
                                                        density=True)
@@ -41,9 +36,8 @@ class Hbos(object):
             bin_ind = np.digitize(X[:, i], bin_edges[:, i], right=False)
 
             # very important to do scaling. Not necessary to use min max
-            density_norm = (
-                hist[:, i].reshape(-1, 1))
-            out_score = np.log(1 / (density_norm + self.alpha))
+            out_score = np.max(hist[:, i]) - hist[:, i]
+            out_score = MinMaxScaler().fit_transform(out_score.reshape(-1, 1))
 
             for j in range(self.n):
                 # out sample left
@@ -75,6 +69,8 @@ class Hbos(object):
         self.bin_edges = bin_edges
         self.decision_scores = out_scores_sum
         self.y_pred = (self.decision_scores > self.threshold).astype('int')
+        self.mu = np.mean(self.decision_scores)
+        self.sigma = np.std(self.decision_scores)
 
     def decision_function(self, X_test):
 
@@ -87,10 +83,8 @@ class Hbos(object):
                                   right=False)
 
             # very important to do scaling. Not necessary to use minmax
-            density_norm = MinMaxScaler().fit_transform(
-                self.hist[:, i].reshape(-1, 1))
-
-            out_score = np.log(1 / (density_norm + self.alpha))
+            out_score = np.max(self.hist[:, i]) - self.hist[:, i]
+            out_score = MinMaxScaler().fit_transform(out_score.reshape(-1, 1))
 
             for j in range(n_test):
                 # out sample left
@@ -121,6 +115,41 @@ class Hbos(object):
     def predict(self, X_test):
         pred_score = self.decision_function(X_test)
         return (pred_score > self.threshold).astype('int')
+
+    def predict_proba(self, X_test, method='linear'):
+        train_scores = self.decision_scores
+        test_scores = self.decision_function(X_test)
+
+        if method == 'linear':
+            scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
+            proba = scaler.transform(test_scores.reshape(-1, 1))
+            return proba.clip(0, 1)
+        else:
+            #        # turn output into probability
+            pre_erf_score = (test_scores - self.mu) / (self.sigma * np.sqrt(2))
+            erf_score = erf(pre_erf_score)
+            proba = erf_score.clip(0)
+
+            # TODO: move to testing code
+            assert (proba.min() >= 0)
+            assert (proba.max() <= 1)
+            return proba
+
+    def predict_rank(self, X_test):
+        test_scores = self.decision_function(X_test)
+        train_scores = self.decision_scores
+
+        ranks = np.zeros([X_test.shape[0], 1])
+
+        for i in range(test_scores.shape[0]):
+            train_scores_i = np.append(train_scores.reshape(-1, 1),
+                                       test_scores[i])
+
+            ranks[i] = rankdata(train_scores_i)[-1]
+
+        # return normalized ranks
+        ranks_norm = ranks / ranks.max()
+        return ranks_norm
 
 ##############################################################################
 
