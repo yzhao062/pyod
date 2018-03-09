@@ -2,5 +2,4 @@ scipy==0.19.1
 pandas==0.21.0
 matplotlib==2.0.2
 numpy==1.13.1
-hdbscan==0.8.12
 scikit_learn==0.19.1

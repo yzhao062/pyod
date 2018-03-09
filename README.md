@@ -1,6 +1,6 @@
 # Python Outlier Detection (PyOD)
 
-### Note: the project is still under development as of Feb 7th 2018.
+### Note: the project is still under development as of March 7th 2018.
 
 ------------
 
@@ -14,7 +14,8 @@ PyOD is a **Python-based toolkit** to identify anomalies in data with unsupervis
   5. **Average KNN Outlier Detection (implemented)**
   6. **Median KNN Outlier Detection (implemented)**
   7. **Global-Local Outlier Score From Hierarchies (implemented)**
-  8. More to add
+  8. **Histogram-based Outlier Score (HBOS) (implemented)**
+  9. More to add
 - Ensemble Framework
   1. Feature bagging
   2. More to add
