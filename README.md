@@ -7,18 +7,21 @@
 ### Quick Introduction
 PyOD is a **Python-based toolkit** to identify anomalies in data with unsupervised and supervised approach. The toolkits consist of two major functionalities:
 - Individual Algorithms
-  1.  Local Outlier Factor (wrapped on sklearn implementation)
-  2. Isolation Forest (wrapped on sklearn implementation)
-  3. One-Class support vector machines (wrapped on sklearn implementation)
+  1.  Local Outlier Factor (wrapped on sklearn implementation) [1]
+  2. Isolation Forest (wrapped on sklearn implementation) [2]
+  3. One-Class Support Vector Machines (wrapped on sklearn implementation) [3]
   4. **KNN Outlier Detection (implemented)**
   5. **Average KNN Outlier Detection (implemented)**
   6. **Median KNN Outlier Detection (implemented)**
-  7. **Global-Local Outlier Score From Hierarchies (implemented)**
-  8. **Histogram-based Outlier Score (HBOS) (implemented)**
+  7. **Global-Local Outlier Score From Hierarchies (implemented)** [4]
+  8. **Histogram-based Outlier Score (HBOS) (implemented)** [5]
   9. More to add
+
 - Ensemble Framework
   1. Feature bagging
-  2. More to add
+  2. Average of Maximum (AOM) [6]
+  3. Maximum of Average (MOA) [6]
+  4. Threshold Sum (Thresh) [6]
   
 Before using the toolkit, please be advised the purpose of the tool is only for quick exploration. Using it as the final result should be understood with cautions. Fine-tunning may be needed to generate meaningful solution. I would recommend to use this as the first-step data exploration tool, and build your model/reuse the this model to get more accurate results.
 
@@ -66,3 +69,12 @@ Here is a sample output:
 
 To check the result of the classification visually:
 ![sample figure](https://github.com/yzhao062/Pyod/blob/master/figures/sample.png "sample figure")
+
+### Reference
+[1]
+[2]
+[3]
+[4]
+[5]
+[6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles. ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
+

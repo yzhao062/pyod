@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.io import loadmat
 
 
 def generate_data(n=1000, contamination=0.1, n_test=500):
@@ -40,3 +41,20 @@ def generate_data(n=1000, contamination=0.1, n_test=500):
     c_test[n_inliers_test:] = 'r'
 
     return X, y, c, X_test, y_test, c_test
+
+def load_cardio():
+
+    mat = loadmat('cardio.mat')
+    X = mat['X']
+    y = mat['y'].ravel()
+
+    return X, y
+
+def load_letter():
+
+    mat = loadmat('letter.mat')
+    X = mat['X']
+    y = mat['y'].ravel()
+
+    return X, y
+

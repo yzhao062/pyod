@@ -1,6 +1,5 @@
 import hdbscan
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 from utility.utility import get_precn
 from scipy.stats import scoreatpercentile
 

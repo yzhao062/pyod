@@ -1,6 +1,6 @@
 import os
 import matplotlib.pyplot as plt
-from utility.load_data import generate_data
+from data.load_data import generate_data
 from utility.utility import get_precn
 from sklearn.metrics import roc_auc_score
 from models.hbos import Hbos
@@ -15,6 +15,7 @@ if __name__ == "__main__":
         n=n_train,
         contamination=contamination,
         n_test=n_test)
+
     # train a HBOS detector
     clf = Hbos(contamination=0.1)
     clf.fit(X_train)
