@@ -1,6 +1,6 @@
 import hdbscan
 import numpy as np
-from utility.utility import get_precn
+from utility.utility import precision_n_scores
 from scipy.stats import scoreatpercentile
 
 
@@ -41,6 +41,6 @@ class Glosh(object):
 
     def evaluate(self, X_test, y_test):
         pred_score = self.sample_scores(X_test)
-        prec_n = (get_precn(y_test, pred_score))
+        prec_n = (precision_n_scores(y_test, pred_score))
 
         print("precision@n", prec_n)

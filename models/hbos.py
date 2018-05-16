@@ -1,10 +1,10 @@
 import numpy as np
 import math
-from sklearn.preprocessing import MinMaxScaler
 
 from scipy.stats import scoreatpercentile
 from scipy.stats import rankdata
 from scipy.special import erf
+from sklearn.preprocessing import MinMaxScaler
 
 class Hbos(object):
 

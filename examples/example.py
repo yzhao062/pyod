@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 from data.load_data import generate_data
-from utility.utility import get_precn
+from utility.utility import precision_n_scores
 from sklearn.metrics import roc_auc_score
 from models.hbos import Hbos
 
@@ -26,10 +26,10 @@ if __name__ == "__main__":
     y_test_pred = clf.predict(X_test)
     y_test_score = clf.decision_function(X_test)
 
-    print('Precision@n on train data is', get_precn(y_train, y_train_score))
+    print('Precision@n on train data is', precision_n_scores(y_train, y_train_score))
     print('ROC on train data is', roc_auc_score(y_train, y_train_score))
 
-    print('Precision@n on test data is', get_precn(y_test, y_test_score))
+    print('Precision@n on test data is', precision_n_scores(y_test, y_test_score))
     print('ROC on test data is', roc_auc_score(y_test, y_test_score))
 
     # plot the results

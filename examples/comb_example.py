@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from data.load_data import load_cardio, load_letter
 from models.knn import Knn
 from models.combination import aom
-from utility.utility import get_precn
+from utility.utility import precision_n_scores
 
 if __name__ == "__main__":
 
