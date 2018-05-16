@@ -2,6 +2,16 @@ import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
 
+def scores_to_lables(pred_scores, outlier_perc=0.05):
+    '''
+    turn raw outlier scores to binary labels (0 or 1)
+    :param pred_scores: raw outlier scores
+    :param outlier_perc: percentage of outliers
+    :return: binary labels (1 stands for outlier)
+    '''
+    threshold = scoreatpercentile(pred_scores, 100 * (1 - outlier_perc))
+    pred_labels = (pred_scores > threshold).astype('int')
+    return pred_labels
 
 def precision_n_scores(y, y_pred):
     '''
@@ -11,9 +21,9 @@ def precision_n_scores(y, y_pred):
     :return: score
     '''
     # calculate the percentage of outliers
-    out_perc = np.count_nonzero(y) / len(y)
+    outlier_perc = np.count_nonzero(y) / len(y)
 
-    threshold = scoreatpercentile(y_pred, 100 * (1 - out_perc))
+    threshold = scoreatpercentile(y_pred, 100 * (1 - outlier_perc))
     y_pred = (y_pred > threshold).astype('int')
     return precision_score(y, y_pred)
 
