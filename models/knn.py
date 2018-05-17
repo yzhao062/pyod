@@ -77,7 +77,7 @@ class Knn(object):
 
     def predict(self, X_test):
         pred_score = self.decision_function(X_test)
-        return (pred_score > self.threshold).astype('int')
+        return (pred_score > self.threshold).astype('int').ravel()
 
     def predict_proba(self, X_test, method='linear'):
         test_scores = self.decision_function(X_test)
