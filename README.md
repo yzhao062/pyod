@@ -1,9 +1,20 @@
 # Python Outlier Detection (PyOD)
 
-### Note: the project is currently under development without unit tests as of May 16th 2018. 
-##### PyOD have been used in the following research projects:
+**Note: the project is currently under development without unit tests as of May 16th 2018. PyOD have been used in the following research projects:**
 - Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *International Joint Conference on Neural Networks*, IEEE, 2018.
-- Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles" *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
+- Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
+
+More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources](https://github.com/yzhao062/anomaly-detection-resources)
+<!-- TOC -->
+
+- [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
+    - [Quick Introduction](#quick-introduction)
+    - [API Cheatsheet](#api-cheatsheet)
+    - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+    - [Quick Start for Merging Outlier Scores](#quick-start-for-merging-outlier-scores)
+    - [Reference](#reference)
+
+<!-- /TOC -->
 
 ------------
 
@@ -137,7 +148,7 @@ Finally, all four combination methods are evaluated with 20 iterations:
 ### Reference
 [1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM sigmod record*, pp. 93-104. ACM.
 
-[2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In* ICDM'08*, pp. 413-422. IEEE.
+[2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *ICDM'08*, pp. 413-422. IEEE.
 
 [3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*, pp. 1741-1745. IEEE.
 
