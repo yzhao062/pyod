@@ -1,3 +1,6 @@
+'''
+Example of using kNN for outlier detection
+'''
 import os
 import sys
 
@@ -8,7 +11,7 @@ import matplotlib.pyplot as plt
 from data.load_data import generate_data
 from utility.utility import precision_n_scores
 from sklearn.metrics import roc_auc_score
-from models.hbos import Hbos
+from models.knn import Knn
 
 if __name__ == "__main__":
     # percentage of outliers
@@ -22,7 +25,7 @@ if __name__ == "__main__":
         n_test=n_test)
 
     # train a HBOS detector
-    clf = Hbos(contamination=0.1)
+    clf = Knn(n_neighbors=10, contamination=contamination, method='largest')
     clf.fit(X_train)
 
     y_train_pred = clf.y_pred
@@ -60,5 +63,5 @@ if __name__ == "__main__":
     plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
     plt.title('y_pred_test by HBOS')
 
-    plt.savefig(os.path.join('example_figs', 'sample.png'), dpi=300)
+    plt.savefig(os.path.join('example_figs', 'knn.png'), dpi=300)
     plt.show()
