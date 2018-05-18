@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from scipy.io import loadmat
 
@@ -44,7 +45,7 @@ def generate_data(n=1000, contamination=0.1, n_test=500):
 
 def load_cardio():
 
-    mat = loadmat('cardio.mat')
+    mat = loadmat(os.path.join('resources', 'cardio.mat'))
     X = mat['X']
     y = mat['y'].ravel()
 
@@ -52,7 +53,7 @@ def load_cardio():
 
 def load_letter():
 
-    mat = loadmat('letter.mat')
+    mat = loadmat(os.path.join('resources', 'letters.mat'))
     X = mat['X']
     y = mat['y'].ravel()
 
