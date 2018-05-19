@@ -6,14 +6,15 @@
 
 More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources](https://github.com/yzhao062/anomaly-detection-resources)
 
+
 <!-- TOC -->
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-		- [Quick Introduction](#quick-introduction)
-		- [API Cheatsheet](#api-cheatsheet)
-		- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-		- [Quick Start for Merging Outlier Scores](#quick-start-for-merging-outlier-scores)
-		- [Reference](#reference)
+	- [Quick Introduction](#quick-introduction)
+	- [API Cheatsheet](#api-cheatsheet)
+	- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+	- [Quick Start for Merging Outlier Scores](#quick-start-for-merging-outlier-scores)
+	- [Reference](#reference)
 
 <!-- /TOC -->
 
