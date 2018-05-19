@@ -5,11 +5,9 @@
 - Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
 
 More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources](https://github.com/yzhao062/anomaly-detection-resources)
-
 <!-- TOC -->
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-	- [<!-- /TOC -->](#toc)
 		- [Quick Introduction](#quick-introduction)
 		- [API Cheatsheet](#api-cheatsheet)
 		- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
@@ -17,15 +15,8 @@ More anomaly detection related resources, e.g., books, papers and videos, can be
 		- [Reference](#reference)
 
 <!-- /TOC -->
-		- [Quick Introduction](#quick-introduction)
-		- [API Cheatsheet](#api-cheatsheet)
-		- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-		- [Quick Start for Merging Outlier Scores](#quick-start-for-merging-outlier-scores)
-		- [Reference](#reference)
 
-<!-- /TOC -->
-------------
-
+---
 ### Quick Introduction
 PyOD is a **Python3-based toolkit** to identify outliers in data with both (**mainly**) unsupervised and supervised algorithms. The toolkit consists of three major groups of functionalities:
 - Individual Algorithms:  
