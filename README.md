@@ -17,6 +17,13 @@ More anomaly detection related resources, e.g., books, papers and videos, can be
 		- [Reference](#reference)
 
 <!-- /TOC -->
+		- [Quick Introduction](#quick-introduction)
+		- [API Cheatsheet](#api-cheatsheet)
+		- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+		- [Quick Start for Merging Outlier Scores](#quick-start-for-merging-outlier-scores)
+		- [Reference](#reference)
+
+<!-- /TOC -->
 ------------
 
 ### Quick Introduction
@@ -30,6 +37,7 @@ PyOD is a **Python3-based toolkit** to identify outliers in data with both (**ma
   6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
   7. **Global-Local Outlier Score From Hierarchies** [4]
   8. **Histogram-based Outlier Score, HBOS** [5]
+  9. **Angle-Based Outlier Setection, ABOD** [7]
 
 - Ensemble Framework (Outlier Score Combination Frameworks)
   1. **Feature bagging**
@@ -150,15 +158,16 @@ Finally, all four combination methods are evaluated with 20 iterations:
 	moa roc: 0.925871697126
 	
 ### Reference
-[1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM sigmod record*, pp. 93-104. ACM.
+[1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM SIGMOD Record*, pp. 93-104. ACM.
 
-[2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *ICDM'08*, pp. 413-422. IEEE.
+[2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *ICDM '08*, pp. 413-422. IEEE.
 
 [3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*, pp. 1741-1745. IEEE.
 
-[4] Campello, R.J., Moulavi, D., Zimek, A. and Sander, J., 2015. Hierarchical density estimates for data clustering, visualization, and outlier detection. *ACM Transactions on Knowledge Discovery from Data (TKDD)*, 10(1), pp.5.
+[4] Campello, R.J., Moulavi, D., Zimek, A. and Sander, J., 2015. Hierarchical density estimates for data clustering, visualization, and outlier detection. *TKDD*, 10(1), pp.5.
 
 [5] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*, pp.59-63.
 
 [6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.*ACM SIGKDD Explorations Newsletter*, 17(1), pp.24-47.
 
+[7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*, pp. 444-452. ACM.

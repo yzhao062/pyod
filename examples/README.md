@@ -4,5 +4,6 @@ Examples are structured as follows:
 The implemented examples includes:
 - kNN: knn_example.py
 - HBOS: hbos_example.py
+- ABOD: abod_example.py
 - Combination Frameworks: comb_example.py
 
