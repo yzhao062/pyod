@@ -1,6 +1,19 @@
 import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
+from sklearn.preprocessing import StandardScaler
+
+
+def standardizer(X_train, X_test):
+    '''
+    normalization function wrapper
+    :param X_train:
+    :param X_test:
+    :return: X_train and X_test after the Z-score normalization
+    '''
+    scaler = StandardScaler().fit(X_train)
+    return scaler.transform(X_train), scaler.transform(X_test)
+
 
 def scores_to_lables(pred_scores, outlier_perc=0.05):
     '''
@@ -12,6 +25,7 @@ def scores_to_lables(pred_scores, outlier_perc=0.05):
     threshold = scoreatpercentile(pred_scores, 100 * (1 - outlier_perc))
     pred_labels = (pred_scores > threshold).astype('int')
     return pred_labels
+
 
 def precision_n_scores(y, y_pred):
     '''
@@ -47,6 +61,7 @@ def get_top_n(value_list, n, top=True):
     else:
         return np.where(np.less(value_list, threshold))
 
+
 def get_label_n(y, y_pred):
     '''
     function to turn scores into binary labels by assign 1 to top n scores
@@ -62,6 +77,7 @@ def get_label_n(y, y_pred):
     threshold = scoreatpercentile(y_pred, 100 * (1 - out_perc))
     y_pred = (y_pred > threshold).astype('int')
     return y_pred
+
 
 def argmaxp(a, p):
     '''

@@ -8,14 +8,15 @@ sys.path.append("..")
 import pathlib
 
 import matplotlib.pyplot as plt
-from data.load_data import generate_data
-from utility.utility import precision_n_scores
+from matplotlib.lines import Line2D
 from sklearn.metrics import roc_auc_score
+
+from data.load_data import generate_data
 from models.knn import Knn
+from utility.utility import precision_n_scores
 
 if __name__ == "__main__":
-    # percentage of outliers
-    contamination = 0.1
+    contamination = 0.1  # percentage of outliers
     n_train = 1000
     n_test = 500
 
@@ -24,7 +25,7 @@ if __name__ == "__main__":
         contamination=contamination,
         n_test=n_test)
 
-    # train a HBOS detector
+    # train a kNN detector (default version)
     clf = Knn(n_neighbors=10, contamination=contamination, method='largest')
     clf.fit(X_train)
 
@@ -34,14 +35,16 @@ if __name__ == "__main__":
     y_test_pred = clf.predict(X_test)
     y_test_score = clf.decision_function(X_test)
 
-    print('Precision@n on train data is',
-          precision_n_scores(y_train, y_train_score))
-    print('ROC on train data is', roc_auc_score(y_train, y_train_score))
+    print('Train ROC:{roc}, precision@n:{prn}'.format(
+        roc=roc_auc_score(y_train, y_train_score),
+        prn=precision_n_scores(y_train, y_train_score)))
 
-    print('Precision@n on test data is',
-          precision_n_scores(y_test, y_test_score))
-    print('ROC on test data is', roc_auc_score(y_test, y_test_score))
+    print('Test ROC:{roc}, precision@n:{prn}'.format(
+        roc=roc_auc_score(y_test, y_test_score),
+        prn=precision_n_scores(y_test, y_test_score)))
 
+    #######################################################################
+    # Visualizations
     # initialize the log directory if it does not exist
     pathlib.Path('example_figs').mkdir(parents=True, exist_ok=True)
 
@@ -49,19 +52,33 @@ if __name__ == "__main__":
     fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(221)
     plt.scatter(X_train[:, 0], X_train[:, 1], c=c_train)
-    plt.title('train data')
+    plt.title('Train ground truth')
+    legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
+                              markerfacecolor='b', markersize=8),
+                       Line2D([0], [0], marker='o', color='w', label='outlier',
+                              markerfacecolor='r', markersize=8)]
+
+    plt.legend(handles=legend_elements, loc='best')
 
     ax = fig.add_subplot(222)
     plt.scatter(X_test[:, 0], X_test[:, 1], c=c_test)
-    plt.title('test data')
+    plt.title('Test ground truth')
+    plt.legend(handles=legend_elements, loc='best')
 
     ax = fig.add_subplot(223)
     plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train_pred)
-    plt.title('y_pred_train by HBOS')
+    plt.title('Train prediction by kNN')
+    legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
+                              markerfacecolor='0', markersize=8),
+                       Line2D([0], [0], marker='o', color='w', label='outlier',
+                              markerfacecolor='yellow', markersize=8)]
+    plt.legend(handles=legend_elements, loc='best')
 
     ax = fig.add_subplot(224)
     plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
-    plt.title('y_pred_test by HBOS')
+    plt.title('Test prediction by kNN')
+    plt.legend(handles=legend_elements, loc='best')
 
     plt.savefig(os.path.join('example_figs', 'knn.png'), dpi=300)
+
     plt.show()
