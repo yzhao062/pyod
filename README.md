@@ -1,46 +1,47 @@
 # Python Outlier Detection (PyOD)
 
-**Note: the project is currently under development without unit tests as of May 16th 2018. PyOD have been used in the following research projects:**
-- Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *International Joint Conference on Neural Networks*, IEEE, 2018.
+**Note: the project is under development without test coverages. However, PyOD have been successfully used in the following research projects:**
+- Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
 - Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
 
 More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources](https://github.com/yzhao062/anomaly-detection-resources)
+
 <!-- TOC -->
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-    - [Quick Introduction](#quick-introduction)
-    - [API Cheatsheet](#api-cheatsheet)
-    - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-    - [Quick Start for Merging Outlier Scores](#quick-start-for-merging-outlier-scores)
-    - [Reference](#reference)
+	- [<!-- /TOC -->](#toc)
+		- [Quick Introduction](#quick-introduction)
+		- [API Cheatsheet](#api-cheatsheet)
+		- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+		- [Quick Start for Merging Outlier Scores](#quick-start-for-merging-outlier-scores)
+		- [Reference](#reference)
 
 <!-- /TOC -->
-
 ------------
 
 ### Quick Introduction
-PyOD is a **Python-based toolkit** to identify outliers in data with (**mainly**) unsupervised and supervised approach. The toolkits consist of three major functionalities:
-- Individual Algorithms  
-  1. Local Outlier Factor (wrapped on sklearn implementation) [1]
-  2. Isolation Forest (wrapped on sklearn implementation) [2]
-  3. One-Class Support Vector Machines (wrapped on sklearn implementation) [3]
-  4. KNN Outlier Detection 
-  5. Average KNN Outlier Detection
-  6. Median KNN Outlier Detection
-  7. Global-Local Outlier Score From Hierarchies [4]
-  8. Histogram-based Outlier Score (HBOS) [5]
-  9. More to add
+PyOD is a **Python3-based toolkit** to identify outliers in data with both (**mainly**) unsupervised and supervised algorithms. The toolkit consists of three major groups of functionalities:
+- Individual Algorithms:  
+  1. **Local Outlier Factor, LOF** (wrapped on sklearn implementation) [1]
+  2. **Isolation Forest, iForest** (wrapped on sklearn implementation) [2]
+  3. **One-Class Support Vector Machines** (wrapped on sklearn implementation) [3]
+  4. **kNN** Outlier Detection (use the distance to the kth nearst neighbor as the outlier score)
+  5. **Average KNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
+  6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
+  7. **Global-Local Outlier Score From Hierarchies** [4]
+  8. **Histogram-based Outlier Score, HBOS** [5]
 
 - Ensemble Framework (Outlier Score Combination Frameworks)
-  1. Feature bagging
-  2. Average of Maximum (AOM) [6]
-  3. Maximum of Average (MOA) [6]
-  4. Threshold Sum (Thresh) [6]
+  1. **Feature bagging**
+  2. **Average of Maximum (AOM)** [6]
+  3. **Maximum of Average (MOA)** [6]
+  4. **Threshold Sum (Thresh)** [6]
+
 - Utility functions:
-   1. scores_to_lables: converting raw outlier scores to binary labels
-   2. precision_n_scores: one of the popular evaluation metrics for outlier mining (precision @ rank n)
+   1. **scores_to_lables()**: converting raw outlier scores to binary labels
+   2. **precision_n_scores()**: one of the popular evaluation metrics for outlier mining (precision @ rank n)
   
-Before using the toolkit, please be advised the purpose of the tool is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful solution. I would recommend to use this as the first-step data exploration tool, and build your model/reuse the this model to get more accurate results.
+ Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration. Due to the limited time, the unit test is not supplied.
 
 ------------
 ### API Cheatsheet
@@ -55,49 +56,52 @@ For all algorithms implemented/wrapped in PyOD, the similar API is forced for co
 ------------
 
 ### Quick Start for Outlier Detection
-"example.py" is an example to demo the basic API of PyOD.
-It first generate some sample data to run.  normal data is generated by a 2-d gaussian distribution, and outliers are generated by a 2-d uniform distribution.
-````python
-# percentage of outliers
-contamination = 0.1
-n_train = 1000
-n_test = 500
+"examples/knn_example.py" is an example to demo the basic API of PyOD with kNN detector. **It is noted the APIs for other detectors are similar**.
 
-# generate sample data
-X_train, y_train, c_train, X_test, y_test, c_test = generate_data(n=n_train, contamination=contamination, n_test=n_test)
-````
-Then it initializes the classifier, fit the model, and make the prediction.
-```python
-# train a HBOS detector
-clf = Hbos(contamination=0.1)
-clf.fit(X_train)
+1. Generate sample data first; normal data is generated by a 2-d gaussian distribution, and outliers are generated by a 2-d uniform distribution.
+	````python
+	# percentage of outliers
+	contamination = 0.1
+	n_train = 1000
+	n_test = 500
 
-# get the outlier score of the training data
-y_train_pred = clf.y_pred
-y_train_score = clf.decision_scores
+	# generate sample data
+	X_train, y_train, c_train, X_test, y_test, c_test = 
+		generate_data(n=n_train, contamination=contamination, n_test=n_test)
+	````
 
-# make the prediction on the test data
-y_test_pred = clf.predict(X_test)
-y_test_score = clf.decision_function(X_test)
-```
-The evaluation of the data is generated by:
-```python
-print('Precision@n on train data is', get_precn(y_train, y_train_score))
-print('ROC on train data is', roc_auc_score(y_train, y_train_score))
+2. Initialize a kNN detector, fit the model, and make the prediction.
+	```python
+	# train a kNN detector (default version)
+    clf = Knn(n_neighbors=10, contamination=contamination, method='largest')
+    clf.fit(X_train)
 
-print('Precision@n on test data is', get_precn(y_test, y_test_score))
-print('ROC on test data is', roc_auc_score(y_test, y_test_score))
-```
-Here is a sample output:
+    # get the prediction on the training data
+    y_train_pred = clf.y_pred
+    y_train_score = clf.decision_scores
 
-	Precision@n on train data is 0.78 
-	ROC on train data is 0.9360
-	Precision@n on test data is 0.8780
-	ROC on test data is 0.9872
+    # get the prediction on the test data
+    y_test_pred = clf.predict(X_test)
+    y_test_score = clf.decision_function(X_test)
+	```
+3. Evaluate the prediction by ROC and P@n:
+	```python
+    print('Train ROC:{roc}, precision@n:{prn}'.format(
+        roc=roc_auc_score(y_train, y_train_score),
+        prn=precision_n_scores(y_train, y_train_score)))
 
+    print('Test ROC:{roc}, precision@n:{prn}'.format(
+        roc=roc_auc_score(y_test, y_test_score),
+        prn=precision_n_scores(y_test, y_test_score)))
+	```
+	See a sample output:
+	````python
+	Train ROC:0.9473, precision@n:0.7857
+	Test ROC:0.992, precision@n:0.9
+	````
     
 To check the result of the classification visually:
-![sample figure](https://github.com/yzhao062/Pyod/blob/master/figures/sample.png "sample figure")
+![kNN example figure](https://github.com/yzhao062/Pyod/blob/master/examples/example_figs/knn.png)
 
 ### Quick Start for Merging Outlier Scores
 
