@@ -1,6 +1,3 @@
-'''
-Example of using kNN for outlier detection
-'''
 import os
 import sys
 
@@ -9,11 +6,10 @@ import pathlib
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from sklearn.metrics import roc_auc_score
-
 from data.load_data import generate_data
-from models.knn import Knn
 from utility.utility import precision_n_scores
+from sklearn.metrics import roc_auc_score
+from models.hbos import Hbos
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
@@ -25,8 +21,8 @@ if __name__ == "__main__":
         contamination=contamination,
         n_test=n_test)
 
-    # train a kNN detector (default version)
-    clf = Knn(n_neighbors=10, contamination=contamination, method='largest')
+    # train a HBOS detector (default version)
+    clf = Hbos()
     clf.fit(X_train)
 
     y_train_pred = clf.y_pred
@@ -67,7 +63,7 @@ if __name__ == "__main__":
 
     ax = fig.add_subplot(223)
     plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train_pred)
-    plt.title('Train prediction by kNN')
+    plt.title('Train prediction by HBOS')
     legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
                               markerfacecolor='0', markersize=8),
                        Line2D([0], [0], marker='o', color='w', label='outlier',
@@ -76,9 +72,9 @@ if __name__ == "__main__":
 
     ax = fig.add_subplot(224)
     plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
-    plt.title('Test prediction by kNN')
+    plt.title('Test prediction by HBOS')
     plt.legend(handles=legend_elements, loc=4)
 
-    plt.savefig(os.path.join('example_figs', 'knn.png'), dpi=300)
+    plt.savefig(os.path.join('example_figs', 'hbos.png'), dpi=300)
 
     plt.show()
