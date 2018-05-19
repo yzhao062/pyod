@@ -5,6 +5,7 @@
 - Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
 
 More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources](https://github.com/yzhao062/anomaly-detection-resources)
+
 <!-- TOC -->
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
