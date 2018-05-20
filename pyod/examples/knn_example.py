@@ -17,25 +17,25 @@ from utils.utility import precision_n_scores
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 1000
-    n_test = 500
+    n_train = 1000  # number of training points
+    n_test = 500  # number of testing points
 
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
         n=n_train,
         contamination=contamination,
         n_test=n_test)
 
-    # train a kNN detector (default version)
-    clf = Knn(n_neighbors=10, contamination=contamination, method='largest')
+    # train a k-NN detector (default parameters, k=10)
+    clf = Knn()
     clf.fit(X_train)
 
-    # get the prediction on the training data
+    # get the prediction label and scores on the training data
     y_train_pred = clf.y_pred
     y_train_score = clf.decision_scores
 
     # get the prediction on the test data
-    y_test_pred = clf.predict(X_test)
-    y_test_score = clf.decision_function(X_test)
+    y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
+    y_test_score = clf.decision_function(X_test)  # outlier scores
 
     print('Train ROC:{roc}, precision@n:{prn}'.format(
         roc=roc_auc_score(y_train, y_train_score),

@@ -43,19 +43,18 @@ def generate_data(n=1000, contamination=0.1, n_test=500):
 
     return X, y, c, X_test, y_test, c_test
 
-def load_cardio():
 
+def load_cardio():
     mat = loadmat(os.path.join('resources', 'cardio.mat'))
     X = mat['X']
     y = mat['y'].ravel()
 
     return X, y
 
-def load_letter():
 
+def load_letter():
     mat = loadmat(os.path.join('resources', 'letters.mat'))
     X = mat['X']
     y = mat['y'].ravel()
 
     return X, y
-

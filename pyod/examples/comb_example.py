@@ -102,11 +102,11 @@ if __name__ == "__main__":
 
     ##########################################################################
     print('summary of {ite} iterations'.format(ite=ite))
-    print('comb by mean, ROC: {roc}, precision@n: {prn}'.format(roc=np.mean(roc_mean),
-                                                        prn=np.mean(prn_mean)))
-    print('comb by max, ROC: {roc}, precision@n: {prn}'.format(roc=np.mean(roc_max),
-                                                       prn=np.mean(prn_max)))
-    print('comb by aom, ROC: {roc}, precision@n: {prn}'.format(roc=np.mean(roc_aom),
-                                                       prn=np.mean(prn_aom)))
-    print('comb by moa, ROC: {roc}, precision@n: {prn}'.format(roc=np.mean(roc_moa),
-                                                       prn=np.mean(prn_moa)))
+    print('comb by mean, ROC: {roc}, precision@n: {prn}'.format(
+        roc=np.mean(roc_mean), prn=np.mean(prn_mean)))
+    print('comb by max, ROC: {roc}, precision@n: {prn}'.format(
+        roc=np.mean(roc_max), prn=np.mean(prn_max)))
+    print('comb by aom, ROC: {roc}, precision@n: {prn}'.format(
+        roc=np.mean(roc_aom), prn=np.mean(prn_aom)))
+    print('comb by moa, ROC: {roc}, precision@n: {prn}'.format(
+        roc=np.mean(roc_moa), prn=np.mean(prn_moa)))

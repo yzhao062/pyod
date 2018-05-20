@@ -1,3 +1,6 @@
+
+### This functionality is not ready. Please do not use (May 20 2018).
+
 One of the ensemble framework, **Pyador**, follows the procedures 
 **It follows the following procedure**:
 1. Take in the cleaned data in Pandas format.
