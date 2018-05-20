@@ -137,34 +137,33 @@ The walkthrough of the code example is provided:
 
 1. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
     ```python
-      # initialize 20 base detectors for combination
-      k_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140,
-                          150, 160, 170, 180, 190, 200]
+    # initialize 20 base detectors for combination
+    k_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140,
+                        150, 160, 170, 180, 190, 200]
 
-      train_scores = np.zeros([X_train.shape[0], n_clf])
-      test_scores = np.zeros([X_test.shape[0], n_clf])
+    train_scores = np.zeros([X_train.shape[0], n_clf])
+    test_scores = np.zeros([X_test.shape[0], n_clf])
 
-      for i in range(n_clf):
-              k = k_list[i]
+    for i in range(n_clf):
+            k = k_list[i]
 
-              clf = Knn(n_neighbors=k, method='largest')
-              clf.fit(X_train_norm)
+            clf = Knn(n_neighbors=k, method='largest')
+            clf.fit(X_train_norm)
 
-              train_scores[:, i] = clf.decision_scores.ravel()
-              test_scores[:, i] = clf.decision_function(X_test_norm).ravel()
+            train_scores[:, i] = clf.decision_scores.ravel()
+            test_scores[:, i] = clf.decision_function(X_test_norm).ravel()
     ```
 2. Then the output codes are standardized into zero mean and unit std before combination.
     ```python
-      # scores have to be normalized before combination
-      train_scores_norm, test_scores_norm = standardizer(train_scores,
-                                                          test_scores)
+    # scores have to be normalized before combination
+    train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
     ```
 3. Then four different combination algorithms are applied as described above:
     ```python
-      comb_by_mean = np.mean(test_scores_norm, axis=1)
-      comb_by_max = np.max(test_scores_norm, axis=1)
-      comb_by_aom = aom(test_scores_norm, 5, 20) # 5 groups
-      comb_by_moa = moa(test_scores_norm, 5, 20)) # 5 groups
+    comb_by_mean = np.mean(test_scores_norm, axis=1)
+    comb_by_max = np.max(test_scores_norm, axis=1)
+    comb_by_aom = aom(test_scores_norm, 5, 20) # 5 groups
+    comb_by_moa = moa(test_scores_norm, 5, 20)) # 5 groups
     ```
 4. Finally, all four combination methods are evaluated with 20 iterations:
     ````bash
