@@ -1,2 +1,3 @@
 v<0.1.0>, <05/20/2018> -- Initial release.
 v<0.1.1>, <05/20/2018> -- Hot fixes for broken documentation.
+v<0.1.2>, <05/20/2018> -- Hot fixes for broken dependency.
