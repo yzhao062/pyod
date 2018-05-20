@@ -1,28 +1,25 @@
 # Python Outlier Detection (PyOD)
 
-**Note: the project is under development without test coverages. However, PyOD have been successfully used in the following research projects:**
-- Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
-- Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
+**Note: PyOD is still under development without full test coverages. However, it has been successfully used in the various academic research projects** [8, 9].
 
 More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources](https://github.com/yzhao062/anomaly-detection-resources)
-
 
 <!-- TOC -->
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-    - [Quick Introduction](#quick-introduction)
-    - [Installation](#installation)
-    - [API Cheatsheet](#api-cheatsheet)
-    - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-    - [Quick Start for Merging Outlier Scores from Various Base Detectors](#quick-start-for-merging-outlier-scores-from-various-base-detectors)
-    - [Reference](#reference)
+        - [Quick Introduction](#quick-introduction)
+        - [Installation](#installation)
+        - [API Cheatsheet](#api-cheatsheet)
+        - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+        - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+        - [Reference](#reference)
 
 <!-- /TOC -->
 
 ---
 ### Quick Introduction
-PyOD is a **Python3-based toolkit** to identify outliers in data with both (**mainly**) unsupervised and supervised algorithms. The toolkit consists of three major groups of functionalities:
-- Individual Algorithms:  
+PyOD is a **Python-based toolkit** to identify outliers in data with both unsupervised and supervised algorithms. It strives to provide unified APIs across for different anomaly detection algorithms. The toolkit consists of three major groups of functionalities:
+- Individual Detection Algorithms:  
   1. **Local Outlier Factor, LOF** (wrapped on sklearn implementation) [1]
   2. **Isolation Forest, iForest** (wrapped on sklearn implementation) [2]
   3. **One-Class Support Vector Machines** (wrapped on sklearn implementation) [3]
@@ -43,15 +40,15 @@ PyOD is a **Python3-based toolkit** to identify outliers in data with both (**ma
    1. **scores_to_lables()**: converting raw outlier scores to binary labels
    2. **precision_n_scores()**: one of the popular evaluation metrics for outlier mining (precision @ rank n)
   
- Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration. Due to the limited time, the unit test is not supplied.
+ Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration only. Due to the restriction of time, the unit tests are not supplied but have been planned to implement.
 
 ### Installation
 
-It is advised to install with pip using the command below:
-````bash
+It is advised to install with **pip** to manage the package:
+````cmd
 pip install pyod
 ````
-Alternatively, downloading/cloning the repository also works.
+Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works.
 
 ------------
 ### API Cheatsheet
@@ -118,10 +115,11 @@ from pyod.util.utility import precision_n_scores
 	Test ROC:0.992, precision@n:0.9
 	````
     
-To check the result of the classification visually:
+To check the result of the classification visually ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/pyod/examples/example_figs/knn.png)):
 ![kNN example figure](https://github.com/yzhao062/Pyod/blob/master/pyod/examples/example_figs/knn.png)
 
-### Quick Start for Merging Outlier Scores from Various Base Detectors
+---
+### Quick Start for Combining Outlier Scores from Various Base Detectors
 
 "comb_example.py" is a quick demo for showing the API for combining multiple algorithms. Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
 
@@ -189,3 +187,7 @@ The walkthrough of the code example is provided:
 [6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.*ACM SIGKDD Explorations Newsletter*, 17(1), pp.24-47.
 
 [7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*, pp. 444-452. ACM.
+
+[8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
+
+[9] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
