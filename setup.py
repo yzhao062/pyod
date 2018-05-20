@@ -29,7 +29,7 @@ setup(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Education',
         'Intended Audience :: Financial and Insurance Industry',
-        'Intended Audience :: Science/Research,'
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3 :: Only',
     ],
