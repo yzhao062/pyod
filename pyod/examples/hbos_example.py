@@ -1,16 +1,13 @@
 import os
-import sys
-
-sys.path.append("..")
 import pathlib
 
 from sklearn.metrics import roc_auc_score
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-from data.load_data import generate_data
-from utils.utility import precision_n_scores
-from models.hbos import Hbos
+from pyod.data.load_data import generate_data
+from pyod.utils.utility import precision_n_scores
+from pyod.models.hbos import Hbos
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers

@@ -2,18 +2,15 @@
 Example of using ABOD for outlier detection
 '''
 import os
-import sys
-
-sys.path.append("..")
 import pathlib
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from sklearn.metrics import roc_auc_score
 
-from data.load_data import generate_data
-from models.abod import ABOD
-from utils.utility import precision_n_scores
+from pyod.data.load_data import generate_data
+from pyod.models.abod import ABOD
+from pyod.utils.utility import precision_n_scores
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers

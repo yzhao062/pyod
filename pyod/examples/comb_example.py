@@ -8,19 +8,15 @@ Four combination frameworks are demonstrated
 4. Maximum of Average (MOA)
 
 '''
-import sys
-
-# temporary solution for relative imports
-sys.path.append("..")
 import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 
-from data.load_data import load_cardio, load_letter
-from models.knn import Knn
-from models.combination import aom, moa
-from utils.utility import precision_n_scores
-from utils.utility import standardizer
+from pyod.data.load_data import load_cardio, load_letter
+from pyod.models.knn import Knn
+from pyod.models.combination import aom, moa
+from pyod.utils.utility import precision_n_scores
+from pyod.utils.utility import standardizer
 
 if __name__ == "__main__":
 
