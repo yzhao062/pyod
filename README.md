@@ -9,12 +9,12 @@ More anomaly detection related resources, e.g., books, papers and videos, can be
 <!-- TOC -->
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-		- [Quick Introduction](#quick-introduction)
-		- [Installation](#installation)
-		- [API Cheatsheet](#api-cheatsheet)
-		- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-		- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-		- [Reference](#reference)
+	- [Quick Introduction](#quick-introduction)
+	- [Installation](#installation)
+	- [API Cheatsheet](#api-cheatsheet)
+	- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+	- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+	- [Reference](#reference)
 
 <!-- /TOC -->
 
