@@ -1,4 +1,4 @@
-recursive-include data *
-recursive-include examples *
+recursive-include pyod/data *.mat
+recursive-include pyod/examples/example_figs *.png
 include README.md
 include requirements.txt

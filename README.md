@@ -9,12 +9,12 @@ More anomaly detection related resources, e.g., books, papers and videos, can be
 <!-- TOC -->
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-    - [Quick Introduction](#quick-introduction)
-    - [Installation](#installation)
-    - [API Cheatsheet](#api-cheatsheet)
-    - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-    - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-    - [Reference](#reference)
+        - [Quick Introduction](#quick-introduction)
+        - [Installation](#installation)
+        - [API Cheatsheet](#api-cheatsheet)
+        - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+        - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+        - [Reference](#reference)
 
 <!-- /TOC -->
 
@@ -48,10 +48,13 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
 
 It is advised to install with **pip** to manage the package:
 ````cmd
-pip install pyod
+pip install pyod==0.1.2
 ````
-Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works.
+pip can be unstable sometimes. For instance, the latested version is not fetched. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works after. You could unzip the files and execute the following command in the folder where the files get decompressed.
 
+````cmd
+python setup.py install
+````
 ------------
 ### API Cheatsheet
 For all algorithms implemented/wrapped in PyOD, the similar API is forced for consistency.

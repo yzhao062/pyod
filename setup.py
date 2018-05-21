@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 # read the contents of README file
 from os import path
@@ -13,7 +13,6 @@ with open(path.join(this_directory, 'requirements.txt')) as f:
 
 setup(
     name='pyod',
-    packages=['pyod'],
     version='0.1.2',
     description='A Python Outlier Detection (Anomaly Detection) Toolbox',
     long_description=long_description,
@@ -23,6 +22,8 @@ setup(
     url='https://github.com/yzhao062/Pyod',
     download_url='https://github.com/yzhao062/Pyod/archive/master.zip',
     keywords=['outlier detection', 'anomaly detection', 'outlier ensembles'],
+	packages= find_packages(),
+    include_package_data=True,
     install_requires=requirements,
     setup_requires=['setuptools>=38.6.0'],
     classifiers=[
