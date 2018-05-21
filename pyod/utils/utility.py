@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 def standardizer(X_train, X_test):
     '''
-    normalization function wrapper
+    normalization function wrapper, z- normalization function
     :param X_train:
     :param X_test:
     :return: X_train and X_test after the Z-score normalization
@@ -29,7 +29,7 @@ def scores_to_lables(pred_scores, outlier_perc=0.05):
 
 def precision_n_scores(y, y_pred):
     '''
-    Utlity function to calculate precision@n
+    Utlity function to calculate precision@ rank n
     :param y: ground truth
     :param y_pred: number of outliers
     :return: score

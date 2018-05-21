@@ -1,6 +1,6 @@
 import hdbscan
 import numpy as np
-from pyod.utils import precision_n_scores
+from pyod.utils.utility import precision_n_scores
 from scipy.stats import scoreatpercentile
 
 

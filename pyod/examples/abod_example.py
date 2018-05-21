@@ -18,9 +18,7 @@ if __name__ == "__main__":
     n_test = 100
 
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
-        n=n_train,
-        contamination=contamination,
-        n_test=n_test)
+        n_train=n_train, n_test=n_test, contamination=contamination)
 
     # train a ABOD detector (default version)
     clf = ABOD(contamination=contamination, fast_method=False)

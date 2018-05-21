@@ -6,7 +6,7 @@ from scipy.stats import rankdata
 from scipy.special import erf
 from sklearn.preprocessing import MinMaxScaler
 
-class Hbos(object):
+class HBOS(object):
 
     def __init__(self, bins=10, beta=0.5, contamination=0.05):
 

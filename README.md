@@ -1,24 +1,20 @@
 # Python Outlier Detection (PyOD)
 
+**[Current version: 0.1.3](https://pypi.org/project/pyod/)**
+
 **Note: PyOD is still under development without full test coverages. However, it has been successfully used in the various academic research projects** [8, 9].
 
-More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources](https://github.com/yzhao062/anomaly-detection-resources)
-
----
-
-<!-- TOC -->
-
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-	- [Quick Introduction](#quick-introduction)
-	- [Installation](#installation)
-	- [API Cheatsheet](#api-cheatsheet)
-	- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-	- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-	- [Reference](#reference)
+    - [Quick Introduction](#quick-introduction)
+    - [Installation (**Current version: 0.1.3**)](#installation-current-version-013)
+    - [API Cheatsheet](#api-cheatsheet)
+    - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+    - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+    - [Reference](#reference)
 
-<!-- /TOC -->
 
----
+More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources.](https://github.com/yzhao062/anomaly-detection-resources)
+
 ### Quick Introduction
 PyOD is a **Python-based toolkit** to identify outliers in data with both unsupervised and supervised algorithms. It strives to provide unified APIs across for different anomaly detection algorithms. The toolkit consists of three major groups of functionalities:
 - Individual Detection Algorithms:  
@@ -44,17 +40,24 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
   
  Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration only. Due to the restriction of time, the unit tests are not supplied but have been planned to implement.
 
-### Installation
+### Installation (**[Current version: 0.1.3](https://pypi.org/project/pyod/)**)
 
 It is advised to install with **pip** to manage the package:
 ````cmd
-pip install pyod==0.1.2
+pip install pyod
 ````
-pip can be unstable sometimes. For instance, the latested version is not fetched. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works after. You could unzip the files and execute the following command in the folder where the files get decompressed.
+Pypi can be unstable sometimes. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
 
 ````cmd
 python setup.py install
 ````
+Library Dependency (work only with **Python 3**):
+- scipy>=0.19.1
+- pandas>=0.21
+- numpy>=1.13
+- scikit_learn>=0.19.1
+- matplotlib>=2.0.2 **(optinal)**
+
 ------------
 ### API Cheatsheet
 For all algorithms implemented/wrapped in PyOD, the similar API is forced for consistency.
@@ -76,12 +79,57 @@ Import utility functions:
 ````python
 from pyod.util.utility import precision_n_scores
 ````
+Full package structure can be found below:
+
+````
+pyod
+│  
+├───data
+│       load_data.py
+|           generate_data(): generae and load sample data
+|           load_cardio(): load cardio data
+|           load_letter(): load letter data
+├───examples
+│       abod_example.py: Example of using ABOD for outlier detection
+│       comb_example.py: Example of combining multiple base outlier scores
+│       hbos_example.py: Example of using HBOS for outlier detection
+│       knn_example.py: Example of using kNN for outlier detection
+├───models
+│       abod.py: 
+|           class ABOD(), from pyod.models.abod import ABOD
+│       combination.py
+|           amo(), from pyod.models.combination import aom
+|           moa(), from pyod.models.combination import moa
+│       glosh.py: class Glosh(), from pyod.models.glosh import Glosh
+│       hbos.py: class HBOS(), from pyod.models.hbos import HBOS
+│       iforest: class IForest(), from pyod.models.iforest import IForest
+│       knn.py: class Knn(), from pyod.models.knn import Knn
+│       lof.py: class Lof(), from pyod.models.lof import Lof
+│       ocsvm.py: class OCSVM(), from pyod.models.ocsvm import OCSVM
+│
+├───utils
+        stat_models.py
+        utility.py
+            standardizer(): z- normalization function
+            scores_to_lables(): turn raw outlier scores to binary labels (0 or 1)
+            precision_n_scores(): Utlity function to calculate precision@n
+````
+
 ------------
 
 ### Quick Start for Outlier Detection
 See pyod/examples for more examples.
 
-"examples/knn_example.py" is an example to demo the basic API of PyOD with kNN detector. **It is noted the APIs for other detectors are similar**.
+"examples/knn_example.py" demonstrates the basic APIs of PyOD with kNN detector. **It is noted the APIs for other detectors are similar**.
+
+0. Import models
+    ````python
+    from pyod.data.load_data import generate_data
+    from pyod.models.knn import Knn # kNN detector
+
+    from pyod.utils.utility import precision_n_scores
+    from sklearn.metrics import roc_auc_score
+    ````
 
 1. Generate sample data first; normal data is generated by a 2-d gaussian distribution, and outliers are generated by a 2-d uniform distribution.
     ````python
@@ -129,7 +177,7 @@ To check the result of the classification visually ([knn_figure](https://github.
 ---
 ### Quick Start for Combining Outlier Scores from Various Base Detectors
 
-"comb_example.py" is a quick demo for showing the API for combining multiple algorithms. Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
+"examples/comb_example.py" is a quick demo for showing the API for combining multiple algorithms. Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
 
 **Key Step: conducting Z-score normalization on raw scores before the combination.**
 Four combination mechanisms are shown in this demo:
@@ -141,23 +189,33 @@ To better understand the merging techniques, refer to [6].
 
 The walkthrough of the code example is provided:
 
+0. Import models
+    ````python
+    from pyod.data.load_data import load_cardio, load_letter
+    from pyod.models.knn import Knn
+    from pyod.models.combination import aom, moa # combination methods
+    from pyod.utils.utility import precision_n_scores
+    from pyod.utils.utility import standardizer
+    from sklearn.metrics import roc_auc_score
+    ````
+
 1. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
     ```python
     # initialize 20 base detectors for combination
     k_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140,
-                        150, 160, 170, 180, 190, 200]
+                150, 160, 170, 180, 190, 200]
 
     train_scores = np.zeros([X_train.shape[0], n_clf])
     test_scores = np.zeros([X_test.shape[0], n_clf])
 
     for i in range(n_clf):
-            k = k_list[i]
+        k = k_list[i]
 
-            clf = Knn(n_neighbors=k, method='largest')
-            clf.fit(X_train_norm)
+        clf = Knn(n_neighbors=k, method='largest')
+        clf.fit(X_train_norm)
 
-            train_scores[:, i] = clf.decision_scores.ravel()
-            test_scores[:, i] = clf.decision_function(X_test_norm).ravel()
+        train_scores[:, i] = clf.decision_scores.ravel()
+        test_scores[:, i] = clf.decision_function(X_test_norm).ravel()
     ```
 2. Then the output codes are standardized into zero mean and unit std before combination.
     ```python
@@ -179,7 +237,9 @@ The walkthrough of the code example is provided:
     comb by aom, ROC: 0.9260, precision@n: 0.5630
     comb by moa, ROC: 0.9244, precision@n: 0.5523
     ````
-    
+
+---    
+
 ### Reference
 [1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM SIGMOD Record*, pp. 93-104. ACM.
 

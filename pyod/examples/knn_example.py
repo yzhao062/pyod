@@ -18,9 +18,7 @@ if __name__ == "__main__":
     n_test = 500  # number of testing points
 
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
-        n=n_train,
-        contamination=contamination,
-        n_test=n_test)
+        n_train=n_train, n_test=n_test, contamination=contamination)
 
     # train a k-NN detector (default parameters, k=10)
     clf = Knn()

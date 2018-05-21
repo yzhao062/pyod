@@ -1,3 +1,6 @@
+'''
+Example of using HBOS for outlier detection
+'''
 import os
 import pathlib
 
@@ -7,7 +10,7 @@ from matplotlib.lines import Line2D
 
 from pyod.data.load_data import generate_data
 from pyod.utils.utility import precision_n_scores
-from pyod.models.hbos import Hbos
+from pyod.models.hbos import HBOS
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
@@ -15,12 +18,10 @@ if __name__ == "__main__":
     n_test = 500
 
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
-        n=n_train,
-        contamination=contamination,
-        n_test=n_test)
+        n_train=n_train, n_test=n_test, contamination=contamination)
 
     # train a HBOS detector (default version)
-    clf = Hbos()
+    clf = HBOS()
     clf.fit(X_train)
 
     # get the prediction on the training data
