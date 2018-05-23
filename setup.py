@@ -14,7 +14,7 @@ with open(path.join(this_directory, 'requirements.txt'),
 
 setup(
     name='pyod',
-    version='0.2.0',
+    version='0.2.1',
     description='A Python Outlier Detection (Anomaly Detection) Toolbox',
     long_description=long_description,
     long_description_content_type='text/markdown',

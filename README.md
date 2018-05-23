@@ -2,13 +2,13 @@
 
 **Note: PyOD is under development with limited test coverages. However, it has been successfully used in various academic research projects** [8, 9].
 
-- **[Current version: 0.2.0](https://pypi.org/project/pyod/)**.
+- **[Current version: 0.2.1](https://pypi.org/project/pyod/)**.
 
 - **[Github repository with examples](https://github.com/yzhao062/Pyod)**.
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
     - [Quick Introduction](#quick-introduction)
-    - [Installation (**Current version: 0.2.0**)](#installation-current-version-020)
+    - [Installation (**Current version: 0.2.1**)](#installation-current-version-020)
     - [API Cheatsheet](#api-cheatsheet)
     - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
     - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
@@ -42,11 +42,11 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
   
  Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration only. Due to the restriction of time, the unit tests are not supplied but have been planned to implement.
 
-### Installation (**[Current version: 0.2.0](https://pypi.org/project/pyod/)**)
+### Installation (**[Current version: 0.2.1](https://pypi.org/project/pyod/)**)
 
 It is advised to install with **pip** to manage the package:
 ````cmd
-pip install pyod==0.2.0
+pip install pyod==0.2.1
 ````
 Pypi can be unstable sometimes. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
 
@@ -198,16 +198,18 @@ To better understand the merging techniques, refer to [6].
 
 The walkthrough of the code example is provided:
 
-0. Import models
+0. Import models and generate sample data
     ````python
-    from pyod.data.load_data import load_cardio, load_letter
     from pyod.models.knn import Knn
     from pyod.models.combination import aom, moa # combination methods
+    from pyod.utils.load_data import generate_data
     from pyod.utils.utility import precision_n_scores
     from pyod.utils.utility import standardizer
     from sklearn.metrics import roc_auc_score
+    
+    X, y, _ = generate_data(train_only=True)  # load data
     ````
-
+    
 1. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
     ```python
     # initialize 20 base detectors for combination

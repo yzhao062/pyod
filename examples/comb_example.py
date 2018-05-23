@@ -18,7 +18,7 @@ import sys
 sys.path.append("..")
 from pyod.models.knn import Knn
 from pyod.models.combination import aom, moa
-from pyod.utils.load_data import load_cardio
+from pyod.utils.load_data import generate_data
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import standardizer
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     n_clf = 20  # number of base detectors
     ite = 10  # number of iterations
-    X, y = load_cardio()  # load data
+    X, y, _ = generate_data(contamination=0.05, train_only=True)  # load data
 
     # lists for storing roc information
     roc_mean = []
