@@ -1,12 +1,14 @@
 # Python Outlier Detection (PyOD)
 
-**[Current version: 0.1.3](https://pypi.org/project/pyod/)**
+**Note: PyOD is under development with limited test coverages. However, it has been successfully used in various academic research projects** [8, 9].
 
-**Note: PyOD is still under development without full test coverages. However, it has been successfully used in the various academic research projects** [8, 9].
+- **[Current version: 0.2.0](https://pypi.org/project/pyod/)**.
+
+- **[Github repository with examples](https://github.com/yzhao062/Pyod)**.
 
 - [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
     - [Quick Introduction](#quick-introduction)
-    - [Installation (**Current version: 0.1.3**)](#installation-current-version-013)
+    - [Installation (**Current version: 0.2.0**)](#installation-current-version-020)
     - [API Cheatsheet](#api-cheatsheet)
     - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
     - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
@@ -40,11 +42,11 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
   
  Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration only. Due to the restriction of time, the unit tests are not supplied but have been planned to implement.
 
-### Installation (**[Current version: 0.1.3](https://pypi.org/project/pyod/)**)
+### Installation (**[Current version: 0.2.0](https://pypi.org/project/pyod/)**)
 
 It is advised to install with **pip** to manage the package:
 ````cmd
-pip install pyod
+pip install pyod==0.2.0
 ````
 Pypi can be unstable sometimes. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
 
@@ -68,38 +70,42 @@ For all algorithms implemented/wrapped in PyOD, the similar API is forced for co
 - **predict_proba()**: returning outlier probability of test data (0 to 1)
 - **predict_rank()**: returning outlier rank of test data (data outlyness rank in training data)
 
-Import outlier detection models:
+Import outlier detection models, such like:
 ````python
 from pyod.models.knn import Knn
 from pyod.models.abod import ABOD
 from pyod.models.hbos import HBOS
+...
 ````
 
 Import utility functions:
 ````python
 from pyod.util.utility import precision_n_scores
+...
 ````
 Full package structure can be found below:
 
 ````
-pyod
+examples (excluded from installation, only available on Github)
+│
+│
+├───abod_example.py: Example of using ABOD for outlier detection
+│   comb_example.py: Example of combining multiple base outlier scores
+│   hbos_example.py: Example of using HBOS for outlier detection
+│   knn_example.py: Example of using kNN for outlier detection
+pyod (main package)
 │  
 ├───data
 │       load_data.py
-|           generate_data(): generae and load sample data
-|           load_cardio(): load cardio data
-|           load_letter(): load letter data
-├───examples
-│       abod_example.py: Example of using ABOD for outlier detection
-│       comb_example.py: Example of combining multiple base outlier scores
-│       hbos_example.py: Example of using HBOS for outlier detection
-│       knn_example.py: Example of using kNN for outlier detection
+│           generate_data(): generae and load sample data
+│           load_cardio(): load cardio data
+│           load_letter(): load letter data
 ├───models
 │       abod.py: 
-|           class ABOD(), from pyod.models.abod import ABOD
+│           class ABOD(), from pyod.models.abod import ABOD
 │       combination.py
-|           amo(), from pyod.models.combination import aom
-|           moa(), from pyod.models.combination import moa
+│           amo(), from pyod.models.combination import aom
+│           moa(), from pyod.models.combination import moa
 │       glosh.py: class Glosh(), from pyod.models.glosh import Glosh
 │       hbos.py: class HBOS(), from pyod.models.hbos import HBOS
 │       iforest: class IForest(), from pyod.models.iforest import IForest
@@ -108,19 +114,22 @@ pyod
 │       ocsvm.py: class OCSVM(), from pyod.models.ocsvm import OCSVM
 │
 ├───utils
-        stat_models.py
-        utility.py
-            standardizer(): z- normalization function
-            scores_to_lables(): turn raw outlier scores to binary labels (0 or 1)
-            precision_n_scores(): Utlity function to calculate precision@n
+│       stat_models.py
+│       utility.py
+│           standardizer(): z- normalization function
+│           scores_to_lables(): turn raw outlier scores to binary labels (0 or 1)
+│           precision_n_scores(): Utlity function to calculate precision@n
+│  
+├───test (excluded from installation, only available on Github)
+│       test_abod.py
+│       test_hbos.py
+│       test_knn.py
+│       test_utility.py
 ````
-
 ------------
 
 ### Quick Start for Outlier Detection
-See pyod/examples for more examples.
-
-"examples/knn_example.py" demonstrates the basic APIs of PyOD with kNN detector. **It is noted the APIs for other detectors are similar**.
+See examples for more demos. "examples/knn_example.py" demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**.
 
 0. Import models
     ````python
@@ -171,8 +180,8 @@ See pyod/examples for more examples.
     Test ROC:0.992, precision@n:0.9
     ````
     
-To check the result of the classification visually ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/pyod/examples/example_figs/knn.png)):
-![kNN example figure](https://github.com/yzhao062/Pyod/blob/master/pyod/examples/example_figs/knn.png)
+To check the result of the classification visually ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/examples/example_figs/knn.png)):
+![kNN example figure](https://github.com/yzhao062/Pyod/blob/master/examples/example_figs/knn.png)
 
 ---
 ### Quick Start for Combining Outlier Scores from Various Base Detectors
@@ -237,7 +246,6 @@ The walkthrough of the code example is provided:
     comb by aom, ROC: 0.9260, precision@n: 0.5630
     comb by moa, ROC: 0.9244, precision@n: 0.5523
     ````
-
 ---    
 
 ### Reference
