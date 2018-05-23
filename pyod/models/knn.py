@@ -1,11 +1,13 @@
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.neighbors import NearestNeighbors
-from sklearn.neighbors import KDTree
-from sklearn.exceptions import NotFittedError
 from scipy.stats import scoreatpercentile
 from scipy.stats import rankdata
 from scipy.special import erf
+
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import KDTree
+from sklearn.utils import check_array
+from sklearn.exceptions import NotFittedError
 
 
 class Knn(object):
@@ -20,12 +22,17 @@ class Knn(object):
         self.method = method
 
     def fit(self, X_train):
-        self.X_train = X_train
+
+        if not (0. < self.contamination <= .5):
+            raise ValueError("contamination must be in (0, 0.5], "
+                             "got: %f" % self.contamination)
+
+        X_train = check_array(X_train)
         self._isfitted = True
         self.tree = KDTree(X_train)
 
         neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
-        neigh.fit(self.X_train)
+        neigh.fit(X_train)
 
         result = neigh.kneighbors(n_neighbors=self.n_neighbors,
                                   return_distance=True)
@@ -46,10 +53,14 @@ class Knn(object):
         self.mu = np.mean(self.decision_scores)
         self.sigma = np.std(self.decision_scores)
 
+        return self
+
     def decision_function(self, X_test):
 
         if not self._isfitted:
             NotFittedError('Knn is not fitted yet')
+
+        X_test = check_array(X_test)
 
         # initialize the output score
         pred_score = np.zeros([X_test.shape[0], 1])

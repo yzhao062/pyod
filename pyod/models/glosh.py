@@ -1,15 +1,22 @@
-import hdbscan
 import numpy as np
-from pyod.utils.utility import precision_n_scores
 from scipy.stats import scoreatpercentile
+from sklearn.utils import check_array
+
+import hdbscan
+from pyod.utils.utility import precision_n_scores
 
 
 class Glosh(object):
     def __init__(self, min_cluster_size=5, contamination=0.05):
         self.min_cluster_size = min_cluster_size
-        self.contamination = 0.05
+        self.contamination = contamination
 
     def fit(self, X_train):
+        if not (0. < self.contamination <= .5):
+            raise ValueError("contamination must be in (0, 0.5], "
+                             "got: %f" % self.contamination)
+
+        X_train = check_array(X_train)
         self.X_train = X_train
         clusterer = hdbscan.HDBSCAN()
         clusterer.fit(self.X_train)
@@ -18,7 +25,9 @@ class Glosh(object):
         self.threshold = scoreatpercentile(self.scores,
                                            100 * (1 - self.contamination))
 
-    def sample_scores(self, X_test):
+    def decision_function(self, X_test):
+
+        X_test = check_array(X_test)
         # initialize the outputs
         pred_score = np.zeros([X_test.shape[0], 1])
 
@@ -36,11 +45,11 @@ class Glosh(object):
         return pred_score
 
     def predict(self, X_test):
-        pred_score = self.sample_scores(X_test)
+        pred_score = self.decision_function(X_test)
         return (pred_score > self.threshold).astype('int')
 
     def evaluate(self, X_test, y_test):
-        pred_score = self.sample_scores(X_test)
+        pred_score = self.decision_function(X_test)
         prec_n = (precision_n_scores(y_test, pred_score))
 
         print("precision@n", prec_n)

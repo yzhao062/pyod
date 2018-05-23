@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.utils import check_array
+
 
 def aom(scores, n_buckets, n_estimators, standard=True):
     '''
@@ -13,7 +15,7 @@ def aom(scores, n_buckets, n_estimators, standard=True):
     :param standard:
     :return:
     '''
-    scores = np.asarray(scores)
+    scores = check_array(scores)
     if scores.shape[1] != n_estimators:
         raise ValueError('score matrix should be n_samples by n_estimaters')
 
@@ -22,6 +24,9 @@ def aom(scores, n_buckets, n_estimators, standard=True):
     # standardized scores
     # TODO: implement standardization check here to make sure the score
     # if actually normalized before combination
+
+    # TODO: replace random sampling methods
+    # TODO: check number of estimatoes and scores match
 
     n_estimators_per_bucket = int(n_estimators / n_buckets)
     if n_estimators % n_buckets != 0:
@@ -58,7 +63,7 @@ def moa(scores, n_buckets, n_estimators):
     :param standard:
     :return:
     '''
-    scores = np.asarray(scores)
+    scores = check_array(scores)
     if scores.shape[1] != n_estimators:
         raise ValueError('score matrix should be n_samples by n_estimaters')
 

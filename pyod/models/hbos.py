@@ -1,10 +1,12 @@
-import numpy as np
 import math
 
+import numpy as np
 from scipy.stats import scoreatpercentile
 from scipy.stats import rankdata
 from scipy.special import erf
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.utils import check_array
+
 
 class HBOS(object):
 
@@ -14,9 +16,15 @@ class HBOS(object):
         self.beta = beta
         self.contamination = contamination
 
-    def fit(self, X):
+    def fit(self, X_train):
 
-        self.n, self.d = X.shape[0], X.shape[1]
+        if not (0. < self.contamination <= .5):
+            raise ValueError("contamination must be in (0, 0.5], "
+                             "got: %f" % self.contamination)
+
+        X_train = check_array(X_train)
+
+        self.n, self.d = X_train.shape[0], X_train.shape[1]
         out_scores = np.zeros([self.n, self.d])
 
         hist = np.zeros([self.bins, self.d])
@@ -24,7 +32,8 @@ class HBOS(object):
 
         # build the bins
         for i in range(self.d):
-            hist[:, i], bin_edges[:, i] = np.histogram(X[:, i], bins=self.bins,
+            hist[:, i], bin_edges[:, i] = np.histogram(X_train[:, i],
+                                                       bins=self.bins,
                                                        density=True)
             # check the integrity
             assert (
@@ -33,7 +42,7 @@ class HBOS(object):
         # calculate the threshold
         for i in range(self.d):
             # find histogram assignments of data points
-            bin_ind = np.digitize(X[:, i], bin_edges[:, i], right=False)
+            bin_ind = np.digitize(X_train[:, i], bin_edges[:, i], right=False)
 
             # very important to do scaling. Not necessary to use min max
             out_score = np.max(hist[:, i]) - hist[:, i]
@@ -42,7 +51,7 @@ class HBOS(object):
             for j in range(self.n):
                 # out sample left
                 if bin_ind[j] == 0:
-                    dist = np.abs(X[j, i] - bin_edges[0, i])
+                    dist = np.abs(X_train[j, i] - bin_edges[0, i])
                     bin_width = bin_edges[1, i] - bin_edges[0, i]
                     # assign it to bin 0
                     if dist < bin_width * self.beta:
@@ -52,7 +61,7 @@ class HBOS(object):
 
                 # out sample right
                 elif bin_ind[j] == bin_edges.shape[0]:
-                    dist = np.abs(X[j, i] - bin_edges[-1, i])
+                    dist = np.abs(X_train[j, i] - bin_edges[-1, i])
                     bin_width = bin_edges[-1, i] - bin_edges[-2, i]
                     # assign it to bin k
                     if dist < bin_width * self.beta:
@@ -74,6 +83,7 @@ class HBOS(object):
 
     def decision_function(self, X_test):
 
+        X_test = check_array(X_test)
         n_test = X_test.shape[0]
         out_scores = np.zeros([n_test, self.d])
 

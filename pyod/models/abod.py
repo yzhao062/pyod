@@ -2,6 +2,7 @@ from itertools import combinations
 
 import numpy as np
 from scipy.stats import scoreatpercentile
+from sklearn.utils import check_array
 from sklearn.exceptions import NotFittedError
 
 
@@ -11,12 +12,17 @@ class ABOD:
     support original ABOD and fast ABOD
     '''
 
-    def __init__(self, contamination=0.1, fast_method=False):
+    def __init__(self, contamination=0.05, fast_method=False):
         self.contamination = contamination
         self.fast_method = fast_method
 
     def fit(self, X_train):
-        self.X_train = np.asarray(X_train)
+        if not (0. < self.contamination <= .5):
+            raise ValueError("contamination must be in (0, 0.5], "
+                             "got: %f" % self.contamination)
+
+        X_train = check_array(X_train)
+        self.X_train = X_train
         self._isfitted = True
         self.n = X_train.shape[0]
         self.decision_scores = np.zeros([self.n, 1])
@@ -46,7 +52,7 @@ class ABOD:
             # calculate the variance of the wcos
             self.decision_scores[i, 0] = np.var(wcos_list)
 
-        self.decision_scores = self.decision_scores.ravel()
+        self.decision_scores = self.decision_scores.ravel() * -1
         self.threshold = scoreatpercentile(self.decision_scores,
                                            100 * self.contamination)
         self.y_pred = (self.decision_scores < self.threshold).astype('int')
@@ -56,6 +62,7 @@ class ABOD:
         if not self._isfitted:
             NotFittedError('ABOD is not fitted yet')
 
+        X_test = check_array(X_test)
         # initialize the output score
         pred_score = np.zeros([X_test.shape[0], 1])
 
