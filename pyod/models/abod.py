@@ -52,7 +52,7 @@ class ABOD:
             # calculate the variance of the wcos
             self.decision_scores[i, 0] = np.var(wcos_list)
 
-        self.decision_scores = self.decision_scores.ravel() * -1
+        self.decision_scores = self.decision_scores.ravel()
         self.threshold = scoreatpercentile(self.decision_scores,
                                            100 * self.contamination)
         self.y_pred = (self.decision_scores < self.threshold).astype('int')
