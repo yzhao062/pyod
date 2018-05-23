@@ -93,13 +93,9 @@ examples (excluded from installation, only available on Github)
 │   comb_example.py: Example of combining multiple base outlier scores
 │   hbos_example.py: Example of using HBOS for outlier detection
 │   knn_example.py: Example of using kNN for outlier detection
+│
+│
 pyod (main package)
-│  
-├───data
-│       load_data.py
-│           generate_data(): generae and load sample data
-│           load_cardio(): load cardio data
-│           load_letter(): load letter data
 ├───models
 │       abod.py: 
 │           class ABOD(), from pyod.models.abod import ABOD
@@ -119,6 +115,10 @@ pyod (main package)
 │           standardizer(): z- normalization function
 │           scores_to_lables(): turn raw outlier scores to binary labels (0 or 1)
 │           precision_n_scores(): Utlity function to calculate precision@n
+│       load_data.py
+│           generate_data(): generate sample data
+│           load_cardio(): load cardio data
+│           load_letter(): load letter data
 │  
 ├───test (excluded from installation, only available on Github)
 │       test_abod.py
@@ -133,9 +133,9 @@ See examples for more demos. "examples/knn_example.py" demonstrates the basic AP
 
 0. Import models
     ````python
-    from pyod.data.load_data import generate_data
-    from pyod.models.knn import Knn # kNN detector
+    from pyod.models.knn import Knn  # kNN detector
 
+    from pyod.utils.load_data import generate_data
     from pyod.utils.utility import precision_n_scores
     from sklearn.metrics import roc_auc_score
     ````
