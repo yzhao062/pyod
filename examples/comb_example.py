@@ -11,7 +11,11 @@ Four combination frameworks are demonstrated
 import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
+# temporary solution for relative imports in case pyod is not installed
+# if pyod is installed, no need to import sys and sys.path.append("..")
+import sys
 
+sys.path.append("..")
 from pyod.data.load_data import load_cardio, load_letter
 from pyod.models.knn import Knn
 from pyod.models.combination import aom, moa

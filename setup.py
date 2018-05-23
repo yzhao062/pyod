@@ -13,7 +13,7 @@ with open(path.join(this_directory, 'requirements.txt')) as f:
 
 setup(
     name='pyod',
-    version='0.1.3',
+    version='0.2.0',
     description='A Python Outlier Detection (Anomaly Detection) Toolbox',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -22,7 +22,7 @@ setup(
     url='https://github.com/yzhao062/Pyod',
     download_url='https://github.com/yzhao062/Pyod/archive/master.zip',
     keywords=['outlier detection', 'anomaly detection', 'outlier ensembles'],
-	packages= find_packages(),
+    packages=find_packages(exclude=['test', 'examples']),
     include_package_data=True,
     install_requires=requirements,
     setup_requires=['setuptools>=38.6.0'],

@@ -7,7 +7,11 @@ import pathlib
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from sklearn.metrics import roc_auc_score
+# temporary solution for relative imports in case pyod is not installed
+# if pyod is installed, no need to import sys and sys.path.append("..")
+import sys
 
+sys.path.append("..")
 from pyod.data.load_data import generate_data
 from pyod.models.abod import ABOD
 from pyod.utils.utility import precision_n_scores
@@ -15,7 +19,7 @@ from pyod.utils.utility import precision_n_scores
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
     n_train = 200
-    n_test = 100
+    n_test = 50
 
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
         n_train=n_train, n_test=n_test, contamination=contamination)
