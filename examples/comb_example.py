@@ -16,9 +16,9 @@ from sklearn.model_selection import train_test_split
 import sys
 
 sys.path.append("..")
-from pyod.data.load_data import load_cardio, load_letter
 from pyod.models.knn import Knn
 from pyod.models.combination import aom, moa
+from pyod.utils.load_data import load_cardio
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import standardizer
 

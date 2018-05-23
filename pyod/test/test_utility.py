@@ -1,18 +1,10 @@
 import unittest
-from sklearn.utils.testing import assert_almost_equal
-from sklearn.utils.testing import assert_array_equal
-from sklearn.utils.testing import assert_array_almost_equal
-from sklearn.utils.testing import assert_equal
-from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_greater
-from sklearn.metrics import roc_auc_score
 
 import sys
 
 # temporary solution for relative imports
 sys.path.append("..")
-from pyod.utils.utility import precision_n_scores
-from pyod.data.load_data import generate_data
+from pyod.utils.load_data import generate_data
 
 
 class TestUtils(unittest.TestCase):

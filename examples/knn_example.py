@@ -13,8 +13,8 @@ from sklearn.metrics import roc_auc_score
 import sys
 
 sys.path.append("..")
-from pyod.data.load_data import generate_data
 from pyod.models.knn import Knn
+from pyod.utils.load_data import generate_data
 from pyod.utils.utility import precision_n_scores
 
 if __name__ == "__main__":

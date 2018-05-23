@@ -13,9 +13,10 @@ from matplotlib.lines import Line2D
 import sys
 
 sys.path.append("..")
-from pyod.data.load_data import generate_data
-from pyod.utils.utility import precision_n_scores
 from pyod.models.hbos import HBOS
+from pyod.utils.load_data import generate_data
+from pyod.utils.utility import precision_n_scores
+
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
