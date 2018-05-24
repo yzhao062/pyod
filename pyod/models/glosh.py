@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.utils import check_array
 
+# TODO: fix broken model here
 import hdbscan
 from .base import BaseDetector
 
