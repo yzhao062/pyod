@@ -30,7 +30,7 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
   4. **kNN** Outlier Detection (use the distance to the kth nearst neighbor as the outlier score)
   5. **Average KNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
   6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
-  7. **Global-Local Outlier Score From Hierarchies** [4]
+  7. **Global-Local Outlier Score From Hierarchies** [4] ***Broken, to fix***
   8. **Histogram-based Outlier Score, HBOS** [5]
   9. **Angle-Based Outlier Setection, ABOD** [7]
 
@@ -63,7 +63,7 @@ Library Dependency (work only with **Python 3**):
 - pandas>=0.21
 - numpy>=1.13
 - scikit_learn>=0.19.1
-- matplotlib>=2.0.2 **(optinal)**
+- matplotlib>=2.0.2 **(optional)**
 
 ------------
 ### API Cheatsheet
