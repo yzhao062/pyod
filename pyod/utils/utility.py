@@ -29,7 +29,7 @@ def scores_to_lables(pred_scores, outlier_perc=0.05):
 
 def precision_n_scores(y, y_pred):
     '''
-    Utlity function to calculate precision@ rank n
+    Utlity function to calculate precision@ rank n_train
     :param y: ground truth
     :param y_pred: number of outliers
     :return: score
@@ -44,7 +44,7 @@ def precision_n_scores(y, y_pred):
 
 def get_top_n(value_list, n, top=True):
     '''
-    return the index of top n elements in the list
+    return the index of top n_train elements in the list
     :param value_list: a list
     :param n:
     :param top:
@@ -64,7 +64,7 @@ def get_top_n(value_list, n, top=True):
 
 def get_label_n(y, y_pred):
     '''
-    function to turn scores into binary labels by assign 1 to top n scores
+    function to turn scores into binary labels by assign 1 to top n_train scores
     Example y: [0,1,1,0,0,0]
             y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
             return [0, 1, 0, 0, 1]

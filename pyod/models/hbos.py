@@ -2,19 +2,19 @@ import math
 
 import numpy as np
 from scipy.stats import scoreatpercentile
-from scipy.stats import rankdata
-from scipy.special import erf
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import check_array
 
+from .base import BaseDetector
 
-class HBOS(object):
 
-    def __init__(self, bins=10, beta=0.5, contamination=0.05):
+class HBOS(BaseDetector):
 
+    def __init__(self, bins=10, beta=0.5, contamination=0.1):
+
+        super().__init__(contamination=contamination)
         self.bins = bins
         self.beta = beta
-        self.contamination = contamination
 
     def fit(self, X_train):
 
@@ -121,45 +121,6 @@ class HBOS(object):
 
         out_scores_sum = np.sum(out_scores, axis=1)
         return out_scores_sum
-
-    def predict(self, X_test):
-        pred_score = self.decision_function(X_test)
-        return (pred_score > self.threshold).astype('int')
-
-    def predict_proba(self, X_test, method='linear'):
-        train_scores = self.decision_scores
-        test_scores = self.decision_function(X_test)
-
-        if method == 'linear':
-            scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
-            proba = scaler.transform(test_scores.reshape(-1, 1))
-            return proba.clip(0, 1)
-        else:
-            #        # turn output into probability
-            pre_erf_score = (test_scores - self.mu) / (self.sigma * np.sqrt(2))
-            erf_score = erf(pre_erf_score)
-            proba = erf_score.clip(0)
-
-            # TODO: move to testing code
-            assert (proba.min() >= 0)
-            assert (proba.max() <= 1)
-            return proba
-
-    def predict_rank(self, X_test):
-        test_scores = self.decision_function(X_test)
-        train_scores = self.decision_scores
-
-        ranks = np.zeros([X_test.shape[0], 1])
-
-        for i in range(test_scores.shape[0]):
-            train_scores_i = np.append(train_scores.reshape(-1, 1),
-                                       test_scores[i])
-
-            ranks[i] = rankdata(train_scores_i)[-1]
-
-        # return normalized ranks
-        ranks_norm = ranks / ranks.max()
-        return ranks_norm
 
 ##############################################################################
 

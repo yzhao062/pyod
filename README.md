@@ -1,21 +1,25 @@
 # Python Outlier Detection (PyOD)
+![alt text](https://travis-ci.org/yzhao062/Pyod.svg?branch=master "build status") [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod)
 
 **Note: PyOD is under development with limited test coverages. However, it has been successfully used in various academic research projects** [8, 9].
 
-- **[Current version: 0.2.1](https://pypi.org/project/pyod/)**.
+- **[Current version on PyPI](https://pypi.org/project/pyod/)**.
 
 - **[Github repository with examples](https://github.com/yzhao062/Pyod)**.
 
-- [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-    - [Quick Introduction](#quick-introduction)
-    - [Installation (**Current version: 0.2.1**)](#installation-current-version-020)
-    - [API Cheatsheet](#api-cheatsheet)
-    - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-    - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-    - [Reference](#reference)
+- More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources.](https://github.com/yzhao062/anomaly-detection-resources)
 
+**Table of Contents**:
+<!-- TOC -->
 
-More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources.](https://github.com/yzhao062/anomaly-detection-resources)
+- [Quick Introduction](#quick-introduction)
+- [Installation](#installation)
+- [API Cheatsheet](#api-cheatsheet)
+- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+- [Reference](#reference)
+
+<!-- /TOC -->
 
 ### Quick Introduction
 PyOD is a **Python-based toolkit** to identify outliers in data with both unsupervised and supervised algorithms. It strives to provide unified APIs across for different anomaly detection algorithms. The toolkit consists of three major groups of functionalities:
@@ -42,13 +46,14 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
   
  Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration only. Due to the restriction of time, the unit tests are not supplied but have been planned to implement.
 
-### Installation (**[Current version: 0.2.1](https://pypi.org/project/pyod/)**)
+### Installation
 
 It is advised to install with **pip** to manage the package:
 ````cmd
-pip install pyod==0.2.1
+pip install pyod
+pip install pyod==x.y.z
 ````
-Pypi can be unstable sometimes. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
+Please check the version number(x.y.z) is consistent with the current version number. Pypi can be unstable sometimes. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
 
 ````cmd
 python setup.py install
@@ -166,11 +171,11 @@ See examples for more demos. "examples/knn_example.py" demonstrates the basic AP
     ```
 3. Evaluate the prediction by ROC and Precision@rank *n* (p@n):
     ```python
-    print('Train ROC:{roc}, precision@n:{prn}'.format(
+    print(n_train.format(
         roc=roc_auc_score(y_train, y_train_score),
         prn=precision_n_scores(y_train, y_train_score)))
 
-    print('Test ROC:{roc}, precision@n:{prn}'.format(
+    print(n_train.format(
         roc=roc_auc_score(y_test, y_test_score),
         prn=precision_n_scores(y_test, y_test_score)))
     ```

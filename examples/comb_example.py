@@ -8,14 +8,16 @@ Four combination frameworks are demonstrated
 4. Maximum of Average (MOA)
 
 '''
+import os, sys
+
+# temporary solution for relative imports in case pyod is not installed
+# if pyod is installed, no need to use the following line
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
-# temporary solution for relative imports in case pyod is not installed
-# if pyod is installed, no need to import sys and sys.path.append("..")
-import sys
 
-sys.path.append("..")
 from pyod.models.knn import Knn
 from pyod.models.combination import aom, moa
 from pyod.utils.load_data import generate_data
@@ -72,7 +74,7 @@ if __name__ == "__main__":
         prn_mean.append(precision_n_scores(y_test, comb_by_mean))
         print('ite', t + 1, 'comb by mean,',
               'ROC:', roc_auc_score(y_test, comb_by_mean),
-              'precision@n:', precision_n_scores(y_test, comb_by_mean))
+              'precision@n_train:', precision_n_scores(y_test, comb_by_mean))
 
         # combination by max
         comb_by_max = np.max(test_scores_norm, axis=1)
@@ -80,7 +82,7 @@ if __name__ == "__main__":
         prn_max.append(precision_n_scores(y_test, comb_by_max))
         print('ite', t + 1, 'comb by max,', 'ROC:',
               roc_auc_score(y_test, comb_by_max),
-              'precision@n:', precision_n_scores(y_test, comb_by_max))
+              'precision@n_train:', precision_n_scores(y_test, comb_by_max))
 
         # combination by aom
         comb_by_aom = aom(test_scores_norm, 5, 20)
@@ -88,7 +90,7 @@ if __name__ == "__main__":
         prn_aom.append(precision_n_scores(y_test, comb_by_aom))
         print('ite', t + 1, 'comb by aom,', 'ROC:',
               roc_auc_score(y_test, comb_by_aom),
-              'precision@n:', precision_n_scores(y_test, comb_by_aom))
+              'precision@n_train:', precision_n_scores(y_test, comb_by_aom))
 
         # combination by moa
         comb_by_moa = moa(test_scores_norm, 5, 20)
@@ -96,17 +98,17 @@ if __name__ == "__main__":
         prn_moa.append(precision_n_scores(y_test, comb_by_moa))
         print('ite', t + 1, 'comb by moa,', 'ROC:',
               roc_auc_score(y_test, comb_by_moa),
-              'precision@n:', precision_n_scores(y_test, comb_by_moa))
+              'precision@n_train:', precision_n_scores(y_test, comb_by_moa))
 
         print()
 
     ##########################################################################
     print('summary of {ite} iterations'.format(ite=ite))
-    print('comb by mean, ROC: {roc}, precision@n: {prn}'.format(
+    print('comb by mean, ROC: {roc}, precision@n_train: {prn}'.format(
         roc=np.mean(roc_mean), prn=np.mean(prn_mean)))
-    print('comb by max, ROC: {roc}, precision@n: {prn}'.format(
+    print('comb by max, ROC: {roc}, precision@n_train: {prn}'.format(
         roc=np.mean(roc_max), prn=np.mean(prn_max)))
-    print('comb by aom, ROC: {roc}, precision@n: {prn}'.format(
+    print('comb by aom, ROC: {roc}, precision@n_train: {prn}'.format(
         roc=np.mean(roc_aom), prn=np.mean(prn_aom)))
-    print('comb by moa, ROC: {roc}, precision@n: {prn}'.format(
+    print('comb by moa, ROC: {roc}, precision@n_train: {prn}'.format(
         roc=np.mean(roc_moa), prn=np.mean(prn_moa)))

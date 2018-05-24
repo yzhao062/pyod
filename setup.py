@@ -1,4 +1,5 @@
 from setuptools import find_packages, setup
+from pyod import __version__
 
 # read the contents of README file
 from os import path
@@ -14,7 +15,7 @@ with open(path.join(this_directory, 'requirements.txt'),
 
 setup(
     name='pyod',
-    version='0.2.1',
+    version=__version__,
     description='A Python Outlier Detection (Anomaly Detection) Toolbox',
     long_description=long_description,
     long_description_content_type='text/markdown',

@@ -60,7 +60,7 @@ def generate_data(n_train=1000, n_test=500, contamination=0.1,
     y_test[n_inliers_test:] = 1
     c_test[n_inliers_test:] = 'r'
 
-    return X_train, y_train, c_train, X_test, y_test, c_test
+    return X_train, y_train.ravel(), c_train, X_test, y_test.ravel(), c_test
 
 
 def load_cardio():

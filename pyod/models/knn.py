@@ -1,24 +1,22 @@
 import numpy as np
 from scipy.stats import scoreatpercentile
-from scipy.stats import rankdata
-from scipy.special import erf
-
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
 from sklearn.exceptions import NotFittedError
 
+from .base import BaseDetector
 
-class Knn(object):
+
+class Knn(BaseDetector):
     '''
     Knn class for outlier detection
     support original knn, average knn, and median knn
     '''
 
     def __init__(self, n_neighbors=1, contamination=0.05, method='largest'):
+        super().__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
-        self.contamination = contamination
         self.method = method
 
     def fit(self, X_train):
@@ -85,45 +83,6 @@ class Knn(object):
             pred_score[i, :] = pred_score_i
 
         return pred_score
-
-    def predict(self, X_test):
-        pred_score = self.decision_function(X_test)
-        return (pred_score > self.threshold).astype('int').ravel()
-
-    def predict_proba(self, X_test, method='linear'):
-        test_scores = self.decision_function(X_test)
-        train_scores = self.decision_scores
-
-        if method == 'linear':
-            scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
-            proba = scaler.transform(test_scores.reshape(-1, 1))
-            return proba.clip(0, 1)
-        else:
-            # turn output into probability
-            pre_erf_score = (test_scores - self.mu) / (self.sigma * np.sqrt(2))
-            erf_score = erf(pre_erf_score)
-            proba = erf_score.clip(0)
-
-            # TODO: move to testing code
-            assert (proba.min() >= 0)
-            assert (proba.max() <= 1)
-            return proba
-
-    def predict_rank(self, X_test):
-        test_scores = self.decision_function(X_test)
-        train_scores = self.decision_scores
-
-        ranks = np.zeros([X_test.shape[0], 1])
-
-        for i in range(test_scores.shape[0]):
-            train_scores_i = np.append(train_scores.reshape(-1, 1),
-                                       test_scores[i])
-
-            ranks[i] = rankdata(train_scores_i)[-1]
-
-        # return normalized ranks
-        ranks_norm = ranks / ranks.max()
-        return ranks_norm
 
 ##############################################################################
 # samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]

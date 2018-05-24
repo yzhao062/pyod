@@ -4,16 +4,17 @@ import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.utils import check_array
 from sklearn.exceptions import NotFittedError
+from .base import BaseDetector
 
 
-class ABOD:
+class ABOD(BaseDetector):
     '''
     ABOD class for outlier detection
     support original ABOD and fast ABOD
     '''
 
-    def __init__(self, contamination=0.05, fast_method=False):
-        self.contamination = contamination
+    def __init__(self, contamination=0.1, fast_method=False):
+        super().__init__(contamination=contamination)
         self.fast_method = fast_method
 
     def fit(self, X_train):
@@ -24,16 +25,17 @@ class ABOD:
         X_train = check_array(X_train)
         self.X_train = X_train
         self._isfitted = True
-        self.n = X_train.shape[0]
-        self.decision_scores = np.zeros([self.n, 1])
+        self.n_train = X_train.shape[0]
+        self.decision_scores = np.zeros([self.n_train, 1])
 
-        for i in range(self.n):
+        for i in range(self.n_train):
             curr_pt = X_train[i, :]
-            wcos_list = []
 
             # get the index pairs of the neighbors
-            ind = list(range(0, self.n))
+            ind = list(range(0, self.n_train))
             ind.remove(i)
+
+            wcos_list = []
             curr_pair_inds = list(combinations(ind, 2))
 
             for j, (a_ind, b_ind) in enumerate(curr_pair_inds):
@@ -68,10 +70,11 @@ class ABOD:
 
         for i in range(X_test.shape[0]):
             curr_pt = X_test[i, :]
-            wcos_list = []
 
             # get the index pairs of the neighbors
-            ind = list(range(0, self.n))
+            ind = list(range(0, self.n_train))
+
+            wcos_list = []
             curr_pair_inds = list(combinations(ind, 2))
 
             for j, (a_ind, b_ind) in enumerate(curr_pair_inds):
@@ -91,10 +94,6 @@ class ABOD:
             pred_score[i, :] = np.var(wcos_list)
 
         return pred_score
-
-    def predict(self, X_test):
-        pred_score = self.decision_function(X_test)
-        return (pred_score < self.threshold).astype('int').ravel()
 
     # def predict_proba(self, X_test, method='linear'):
     #     test_scores = self.decision_function(X_test)

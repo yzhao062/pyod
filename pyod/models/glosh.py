@@ -4,12 +4,13 @@ from sklearn.utils import check_array
 
 import hdbscan
 from pyod.utils.utility import precision_n_scores
+from .base import BaseDetector
 
 
-class Glosh(object):
-    def __init__(self, min_cluster_size=5, contamination=0.05):
+class Glosh(BaseDetector):
+    def __init__(self, min_cluster_size=5, contamination=0.1):
+        super().__init__(contamination=contamination)
         self.min_cluster_size = min_cluster_size
-        self.contamination = contamination
 
     def fit(self, X_train):
         if not (0. < self.contamination <= .5):
@@ -43,13 +44,3 @@ class Glosh(object):
             # record the current item
             pred_score[i, :] = clusterer.outlier_scores_[-1]
         return pred_score
-
-    def predict(self, X_test):
-        pred_score = self.decision_function(X_test)
-        return (pred_score > self.threshold).astype('int')
-
-    def evaluate(self, X_test, y_test):
-        pred_score = self.decision_function(X_test)
-        prec_n = (precision_n_scores(y_test, pred_score))
-
-        print("precision@n", prec_n)
