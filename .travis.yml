@@ -7,3 +7,6 @@ install:
 # command to run tests
 script:
   - py.test
+
+after_success:
+  - coveralls

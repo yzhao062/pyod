@@ -1,5 +1,5 @@
 # Python Outlier Detection (PyOD)
-[![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod)
+[![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master)](https://coveralls.io/github/yzhao062/Pyod?branch=master)
 
 **Note: PyOD is under development with limited test coverages. However, it has been successfully used in various academic research projects** [8, 9].
 
