@@ -3,7 +3,6 @@ from scipy.stats import scoreatpercentile
 from sklearn.utils import check_array
 
 import hdbscan
-from pyod.utils.utility import precision_n_scores
 from .base import BaseDetector
 
 

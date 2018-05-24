@@ -3,3 +3,4 @@ pandas>=0.21
 matplotlib>=2.0.2
 numpy>=1.13
 scikit_learn>=0.19.1
+hdbscan
