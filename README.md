@@ -1,7 +1,7 @@
 # Python Outlier Detection (PyOD)
 [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master)](https://coveralls.io/github/yzhao062/Pyod?branch=master)
 
-**Note: PyOD is under development with limited test coverages. However, it has been successfully used in various academic research projects** [8, 9].
+**Note: PyOD has been successfully used in various academic research projects [8, 9] and been under active development. However, full documentation and unit tests are temporarily unavailable yet planned for future release**. The purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results.
 
 - **[Current version on PyPI](https://pypi.org/project/pyod/)**.
 
@@ -12,6 +12,7 @@
 **Table of Contents**:
 <!-- TOC -->
 
+[Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
 - [Quick Introduction](#quick-introduction)
 - [Installation](#installation)
 - [API Cheatsheet](#api-cheatsheet)
@@ -30,7 +31,7 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
   4. **kNN** Outlier Detection (use the distance to the kth nearst neighbor as the outlier score)
   5. **Average KNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
   6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
-  7. **Global-Local Outlier Score From Hierarchies** [4] ***Broken, to fix***
+  7. *Broken, to fix*: **Global-Local Outlier Score From Hierarchies** [4]
   8. **Histogram-based Outlier Score, HBOS** [5]
   9. **Angle-Based Outlier Setection, ABOD** [7]
 
@@ -43,8 +44,6 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
 - Utility functions:
    1. **scores_to_lables()**: converting raw outlier scores to binary labels
    2. **precision_n_scores()**: one of the popular evaluation metrics for outlier mining (precision @ rank n)
-  
- Please be advised the purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results. It is recommended to be used for the first-step data exploration only. Due to the restriction of time, the unit tests are not supplied but have been planned to implement.
 
 ### Installation
 
@@ -69,11 +68,13 @@ Library Dependency (work only with **Python 3**):
 ### API Cheatsheet
 For all algorithms implemented/wrapped in PyOD, the similar API is forced for consistency.
 
-- **fit()**: fitting the model with the training data
+- **fit()**: fit the model with the training data
+- **fit_predict()**: fit and return the binary lables (0 is normal and 1 is outliers) 
 - **decision_function()**: return raw outlier scores for test data
-- **predict()**: returning binary outlier labels of test data
-- **predict_proba()**: returning outlier probability of test data (0 to 1)
-- **predict_rank()**: returning outlier rank of test data (data outlyness rank in training data)
+- **predict()**: return binary outlier labels of test data
+- **predict_proba()**: return outlier probability of test data (0 to 1)
+- **predict_rank()**: return outlier rank of test data (data outlyness rank in training data)
+- **evaluate()**: print out the roc and precision @ rank n of the data
 
 Import outlier detection models, such like:
 ````python
@@ -97,7 +98,10 @@ examples (excluded from installation, only available on Github)
 ├───abod_example.py: Example of using ABOD for outlier detection
 │   comb_example.py: Example of combining multiple base outlier scores
 │   hbos_example.py: Example of using HBOS for outlier detection
+│   iforest_example.py: Example of using Isolation Forest for outlier detection
 │   knn_example.py: Example of using kNN for outlier detection
+│   lof_example.py: Example of using LOF for outlier detection
+│   ocsvm_example.py: Example of using one-class SVM for outlier detection
 │
 │
 pyod (main package)
@@ -111,7 +115,7 @@ pyod (main package)
 │       hbos.py: class HBOS(), from pyod.models.hbos import HBOS
 │       iforest: class IForest(), from pyod.models.iforest import IForest
 │       knn.py: class Knn(), from pyod.models.knn import Knn
-│       lof.py: class Lof(), from pyod.models.lof import Lof
+│       lof.py: class LOF(), from pyod.models.lof import LOF
 │       ocsvm.py: class OCSVM(), from pyod.models.ocsvm import OCSVM
 │
 ├───utils
@@ -129,6 +133,9 @@ pyod (main package)
 │       test_abod.py
 │       test_hbos.py
 │       test_knn.py
+│       test_lof.py
+│       test_iforest.py
+│       test_ocsvm.py
 │       test_utility.py
 ````
 ------------
