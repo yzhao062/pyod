@@ -14,9 +14,15 @@ class Knn(BaseDetector):
     support original knn, average knn, and median knn
     '''
 
-    def __init__(self, n_neighbors=1, contamination=0.05, method='largest'):
+    def __init__(self, n_neighbors=1, contamination=0.1, method='largest'):
+        '''
+
+        :param n_neighbors:
+        :param contamination:
+        :param method: {'largest', 'mean', 'median'}
+        '''
         super().__init__(contamination=contamination)
-        self.n_neighbors = n_neighbors
+        self.n_neighbors_ = n_neighbors
         self.method = method
 
     def fit(self, X_train):
@@ -29,10 +35,10 @@ class Knn(BaseDetector):
         self._isfitted = True
         self.tree = KDTree(X_train)
 
-        neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
+        neigh = NearestNeighbors(n_neighbors=self.n_neighbors_)
         neigh.fit(X_train)
 
-        result = neigh.kneighbors(n_neighbors=self.n_neighbors,
+        result = neigh.kneighbors(n_neighbors=self.n_neighbors_,
                                   return_distance=True)
         dist_arr = result[0]
 
@@ -43,10 +49,10 @@ class Knn(BaseDetector):
         elif self.method == 'median':
             dist = np.median(dist_arr, axis=1)
 
-        self.threshold = scoreatpercentile(dist,
-                                           100 * (1 - self.contamination))
+        self.threshold_ = scoreatpercentile(dist,
+                                            100 * (1 - self.contamination))
         self.decision_scores = dist.ravel()
-        self.y_pred = (self.decision_scores > self.threshold).astype('int')
+        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
 
         self.mu = np.mean(self.decision_scores)
         self.sigma = np.std(self.decision_scores)
@@ -56,7 +62,7 @@ class Knn(BaseDetector):
     def decision_function(self, X_test):
 
         if not self._isfitted:
-            NotFittedError('Knn is not fitted yet')
+            NotFittedError('Model is not fitted yet')
 
         X_test = check_array(X_test)
 
@@ -68,7 +74,7 @@ class Knn(BaseDetector):
             x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
 
             # get the distance of the current point
-            dist_arr, ind_arr = self.tree.query(x_i, k=self.n_neighbors)
+            dist_arr, ind_arr = self.tree.query(x_i, k=self.n_neighbors_)
 
             if self.method == 'largest':
                 dist = dist_arr[:, -1]

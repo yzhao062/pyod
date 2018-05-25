@@ -1,54 +1,77 @@
-import numpy as np
 from sklearn.neighbors import LocalOutlierFactor
-from sklearn.preprocessing import MinMaxScaler
-from scipy.stats import rankdata
-from scipy.special import erf
+from scipy.stats import scoreatpercentile
+from sklearn.exceptions import NotFittedError
+from .base import BaseDetector
 
-class Lof(LocalOutlierFactor):
+
+class LOF(BaseDetector):
+    '''
+    Wrapper of Sklearn LOF Class with more functionalities.
+    Unsupervised Outlier Detection using Local Outlier Factor (LOF)
+
+    The anomaly score of each sample is called Local Outlier Factor.
+    It measures the local deviation of density of a given sample with
+    respect to its neighbors.
+    It is local in that the anomaly score depends on how isolated the object
+    is with respect to the surrounding neighborhood.
+    More precisely, locality is given by k-nearest neighbors, whose distance
+    is used to estimate the local density.
+    By comparing the local density of a sample to the local densities of
+    its neighbors, one can identify samples that have a substantially lower
+    density than their neighbors. These are considered outliers.
+    '''
+
+    def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,
+                 metric='minkowski', p=2, metric_params=None,
+                 contamination=0.1, n_jobs=1):
+        super().__init__(contamination=contamination)
+        self.n_neighbors = n_neighbors
+        self.algorithm = algorithm
+        self.leaf_size = leaf_size
+        self.metric = metric
+        self.p = p
+        self.metric_params = metric_params
+        self.contamination = contamination
+        self.n_jobs = n_jobs
+
+        self.detector_ = LocalOutlierFactor(n_neighbors=self.n_neighbors,
+                                            algorithm=self.algorithm,
+                                            leaf_size=self.leaf_size,
+                                            metric=self.metric,
+                                            p=self.p,
+                                            metric_params=self.metric_params,
+                                            contamination=self.contamination,
+                                            n_jobs=self.n_jobs)
+
     def fit(self, X_train, y=None):
-        self.X_train = X_train
-        super().fit(X=X_train, y=y)
+        self._isfitted = True
+        self.detector_.fit(X=X_train, y=y)
+        self.decision_scores = self.detector_.negative_outlier_factor_ * -1
+        self.threshold_ = scoreatpercentile(self.decision_scores,
+                                            100 * (1 - self.contamination))
+        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
+
         return self
 
-    def predict(self, X_test):
-        return self._predict(X=X_test)
-
     def decision_function(self, X_test):
-        return self._decision_function(X_test)
+        if not self._isfitted:
+            NotFittedError('Model is not fitted yet')
 
-    def predict_proba(self, X_test, method='linear'):
-        train_scores = self.negative_outlier_factor_ * -1
-        test_scores = self.decision_function(X_test) * -1
-        if method == 'linear':
-            scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
-            proba = scaler.transform(test_scores.reshape(-1, 1))
-            return proba.clip(0, 1)
-        else:
-            mu = np.mean(train_scores)
-            sigma = np.std(train_scores)
+        # invert scores. Outliers comes with higher scores
+        return self.detector_._decision_function(X_test) * -1
 
-            # turn output into probability
-            pre_erf_score = (test_scores - mu) / (sigma * np.sqrt(2))
-            erf_score = erf(pre_erf_score)
-            proba = erf_score.clip(0)
+    @property
+    def negative_outlier_factor_(self):
+        '''
+        decorator for sklearn LOF attributes
+        :return:
+        '''
+        return self.detector_.negative_outlier_factor_
 
-            # TODO: move to testing code
-            assert (proba.min() >= 0)
-            assert (proba.max() <= 1)
-
-            return proba
-
-    def predict_rank(self, X_test):
-
-        train_scores = self.decision_function(self.X_train) * -1
-        test_scores = self.decision_function(X_test) * -1
-        ranks = np.zeros([X_test.shape[0], 1])
-
-        for i in range(test_scores.shape[0]):
-            train_scores_i = np.append(train_scores.reshape(-1, 1),
-                                       test_scores[i])
-            ranks[i] = rankdata(train_scores_i)[-1]
-
-        # return normalized ranks
-        ranks_norm = ranks / ranks.max()
-        return ranks_norm
+    @property
+    def n_neighbors_(self):
+        '''
+        decorator for sklearn LOF attributes
+        :return:
+        '''
+        return self.detector_.n_neighbors_

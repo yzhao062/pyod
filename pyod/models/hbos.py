@@ -39,7 +39,7 @@ class HBOS(BaseDetector):
             assert (
                 math.isclose(np.sum(hist[:, i] * np.diff(bin_edges[:, i])), 1))
 
-        # calculate the threshold
+        # calculate the threshold_
         for i in range(self.d):
             # find histogram assignments of data points
             bin_ind = np.digitize(X_train[:, i], bin_edges[:, i], right=False)
@@ -72,12 +72,12 @@ class HBOS(BaseDetector):
                     out_scores[j, i] = out_score[bin_ind[j] - 1]
 
         out_scores_sum = np.sum(out_scores, axis=1)
-        self.threshold = scoreatpercentile(out_scores_sum,
-                                           100 * (1 - self.contamination))
+        self.threshold_ = scoreatpercentile(out_scores_sum,
+                                            100 * (1 - self.contamination))
         self.hist = hist
         self.bin_edges = bin_edges
         self.decision_scores = out_scores_sum
-        self.y_pred = (self.decision_scores > self.threshold).astype('int')
+        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
         self.mu = np.mean(self.decision_scores)
         self.sigma = np.std(self.decision_scores)
 
@@ -171,7 +171,7 @@ class HBOS(BaseDetector):
 #     roc_result_hbos.append(roc_auc_score(y_test, pred_score_hbos))
 #     prec_result_hbos.append(get_precn(y_test, pred_score_hbos))
 #
-#     clf_knn = Knn(n_neighbors=10, contamination=contamination, method='mean')
+#     clf_knn = Knn(n_neighbors_=10, contamination=contamination, method='mean')
 #     clf_knn.fit(X)
 #     pred_score_knn = clf_knn.sample_scores(X_test)
 #     roc_result_knn.append(roc_auc_score(y_test, pred_score_knn))

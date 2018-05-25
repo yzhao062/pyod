@@ -54,15 +54,15 @@ class ABOD(BaseDetector):
             # calculate the variance of the wcos
             self.decision_scores[i, 0] = np.var(wcos_list)
 
-        self.decision_scores = self.decision_scores.ravel()
-        self.threshold = scoreatpercentile(self.decision_scores,
-                                           100 * self.contamination)
-        self.y_pred = (self.decision_scores < self.threshold).astype('int')
+        self.decision_scores = self.decision_scores.ravel() * -1
+        self.threshold_ = scoreatpercentile(self.decision_scores,
+                                            100 * (1 - self.contamination))
+        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
 
     def decision_function(self, X_test):
 
         if not self._isfitted:
-            NotFittedError('ABOD is not fitted yet')
+            NotFittedError('Model is not fitted yet')
 
         X_test = check_array(X_test)
         # initialize the output score
@@ -93,9 +93,10 @@ class ABOD(BaseDetector):
             # record the current item
             pred_score[i, :] = np.var(wcos_list)
 
-        return pred_score
+        # outliers have higher scores
+        return pred_score * -1
 
-    # def predict_proba(self, X_test, method='linear'):
+        # def predict_proba(self, X_test, method='linear'):
     #     test_scores = self.decision_function(X_test)
     #     train_scores = self.decision_scores
     #

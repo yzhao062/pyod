@@ -6,6 +6,7 @@ from scipy.special import erf
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
+from sklearn.exceptions import NotFittedError
 from ..utils.utility import precision_n_scores
 
 
@@ -14,20 +15,34 @@ class BaseDetector(ABC):
     @abstractmethod
     def __init__(self, contamination=0.1):
         self.contamination = contamination
+        self.threshold_ = None
+        self.decision_scores = None
+        self.y_pred = None
+        self._isfitted = False
 
     @abstractmethod
     def decision_function(self, X_test):
         pass
 
     @abstractmethod
-    def fit(self, X_train):
+    def fit(self):
         pass
 
+    def fit_predict(self, X):
+        self.fit(X)
+        return self.y_pred
+
     def predict(self, X_test):
+        if not self._isfitted:
+            NotFittedError('Model is not fitted yet')
+
         pred_score = self.decision_function(X_test)
-        return (pred_score > self.threshold).astype('int').ravel()
+        return (pred_score > self.threshold_).astype('int').ravel()
 
     def predict_proba(self, X_test, method='linear'):
+        if not self._isfitted:
+            NotFittedError('Model is not fitted yet')
+
         test_scores = self.decision_function(X_test)
         train_scores = self.decision_scores
 
@@ -44,6 +59,9 @@ class BaseDetector(ABC):
             return proba
 
     def predict_rank(self, X_test):
+        if not self._isfitted:
+            NotFittedError('Model is not fitted yet')
+
         test_scores = self.decision_function(X_test)
         train_scores = self.decision_scores
 
