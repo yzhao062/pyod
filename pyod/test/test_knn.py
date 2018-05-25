@@ -29,15 +29,16 @@ class TestKnn(unittest.TestCase):
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        if not hasattr(self.clf, 'decision_scores'):
+        if not hasattr(self.clf,
+                       'decision_scores') or self.clf.decision_scores is None:
             self.assertRaises(AttributeError, 'decision_scores is not set')
-        if not hasattr(self.clf, 'y_pred'):
+        if not hasattr(self.clf, 'y_pred') or self.clf.y_pred is None:
             self.assertRaises(AttributeError, 'y_pred is not set')
-        if not hasattr(self.clf, 'threshold'):
-            self.assertRaises(AttributeError, 'threshold is not set')
-        if not hasattr(self.clf, 'mu'):
+        if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
+            self.assertRaises(AttributeError, 'threshold_ is not set')
+        if not hasattr(self.clf, 'mu') or self.clf.mu is None:
             self.assertRaises(AttributeError, 'mu is not set')
-        if not hasattr(self.clf, 'sigma'):
+        if not hasattr(self.clf, 'sigma') or self.clf.sigma is None:
             self.assertRaises(AttributeError, 'sigma is not set')
 
     def test_train_scores(self):
@@ -65,6 +66,13 @@ class TestKnn(unittest.TestCase):
         pred_proba = self.clf.predict_proba(self.X_test)
         assert_greater_equal(pred_proba.min(), 0)
         assert_less_equal(pred_proba.max(), 1)
+
+    def test_fit_predict(self):
+        pred_labels = self.clf.fit_predict(self.X_train)
+        assert_equal(pred_labels.shape, self.y_train.shape)
+
+    def test_evaluate(self):
+        self.clf.evaluate(self.X_test, self.y_test)
 
     def tearDown(self):
         pass

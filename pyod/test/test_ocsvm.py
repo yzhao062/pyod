@@ -11,13 +11,13 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.metrics import roc_auc_score
 
-from pyod.models.abod import ABOD
+from pyod.models.ocsvm import OCSVM
 from pyod.utils.load_data import generate_data
 
 
-class TestABOD(unittest.TestCase):
+class TestOCSVM(unittest.TestCase):
     def setUp(self):
-        self.n_train = 50
+        self.n_train = 100
         self.n_test = 50
         self.contamination = 0.1
         self.roc_floor = 0.6
@@ -25,7 +25,7 @@ class TestABOD(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
 
-        self.clf = clf = ABOD(contamination=self.contamination)
+        self.clf = clf = OCSVM()
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -36,6 +36,20 @@ class TestABOD(unittest.TestCase):
             self.assertRaises(AttributeError, 'y_pred is not set')
         if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
             self.assertRaises(AttributeError, 'threshold_ is not set')
+        if not hasattr(self.clf,
+                       'support_') or self.clf.support_ is None:
+            self.assertRaises(AttributeError, 'support_ is not set')
+        if not hasattr(self.clf,
+                       'support_vectors_') or self.clf.support_vectors_ is None:
+            self.assertRaises(AttributeError, 'support_vectors_ is not set')
+        if not hasattr(self.clf, 'dual_coef_') or self.clf.dual_coef_ is None:
+            self.assertRaises(AttributeError, 'dual_coef_ is not set')
+
+        # only available for linear kernel
+        # if not hasattr(self.clf, 'coef_') or self.clf.coef_ is None:
+        #     self.assertRaises(AttributeError, 'coef_ is not set')
+        if not hasattr(self.clf, 'intercept_') or self.clf.intercept_ is None:
+            self.assertRaises(AttributeError, 'intercept_ is not set')
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores), self.X_train.shape[0])
