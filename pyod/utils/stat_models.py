@@ -8,6 +8,8 @@ def wpearsonr(x, y, w=None):
     # https://stats.stackexchange.com/questions/221246/such-thing-as-a-weighted-correlation
 
     # unweighted version
+    # note the return is different
+    # TODO: fix output differences
     if w is None:
         return pearsonr(x, y)
 
