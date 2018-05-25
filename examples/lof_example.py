@@ -1,5 +1,5 @@
 '''
-Example of using ABOD for outlier detection
+Example of using LOF for outlier detection
 '''
 import os, sys
 
@@ -12,29 +12,29 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from sklearn.metrics import roc_auc_score
 
-from pyod.models.abod import ABOD
+from pyod.models.lof import LOF
 from pyod.utils.load_data import generate_data
 from pyod.utils.utility import precision_n_scores
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 200
-    n_test = 50
+    n_train = 1000  # number of training points
+    n_test = 500  # number of testing points
 
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
         n_train=n_train, n_test=n_test, contamination=contamination)
 
-    # train a ABOD detector (default version)
-    clf = ABOD(contamination=contamination, fast_method=False)
+    # train a k-NN detector (default parameters, k=10)
+    clf = LOF()
     clf.fit(X_train)
 
-    # get the prediction on the training data
+    # get the prediction label and scores on the training data
     y_train_pred = clf.y_pred
     y_train_score = clf.decision_scores
 
     # get the prediction on the test data
-    y_test_pred = clf.predict(X_test)
-    y_test_score = clf.decision_function(X_test)
+    y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
+    y_test_score = clf.decision_function(X_test)  # outlier scores
 
     print('Train ROC:{roc}, precision@n_train:{prn}'.format(
         roc=roc_auc_score(y_train, y_train_score),
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     ax = fig.add_subplot(223)
     plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train_pred)
-    plt.title('Train prediction by ABOD')
+    plt.title('Train prediction by LOF')
     legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
                               markerfacecolor='0', markersize=8),
                        Line2D([0], [0], marker='o', color='w', label='outlier',
@@ -77,9 +77,9 @@ if __name__ == "__main__":
 
     ax = fig.add_subplot(224)
     plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
-    plt.title('Test prediction by ABOD')
+    plt.title('Test prediction by LOF')
     plt.legend(handles=legend_elements, loc=4)
 
-    plt.savefig(os.path.join('example_figs', 'abod.png'), dpi=300)
+    plt.savefig(os.path.join('example_figs', 'LOF.png'), dpi=300)
 
     plt.show()
