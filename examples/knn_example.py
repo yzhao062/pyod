@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from sklearn.metrics import roc_auc_score
 
-from pyod.models.knn import Knn
+from pyod.models.knn import KNN
 from pyod.utils.load_data import generate_data
 from pyod.utils.utility import precision_n_scores
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         n_train=n_train, n_test=n_test, contamination=contamination)
 
     # train a k-NN detector (default parameters, k=10)
-    clf = Knn()
+    clf = KNN()
     clf.fit(X_train)
 
     # get the prediction label and scores on the training data

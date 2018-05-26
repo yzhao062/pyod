@@ -1,7 +1,9 @@
 # Python Outlier Detection (PyOD)
-[![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master)](https://coveralls.io/github/yzhao062/Pyod?branch=master)
+[![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master)](https://coveralls.io/github/yzhao062/Pyod?branch=master) [![Code Health](https://landscape.io/github/yzhao062/Pyod/master/landscape.svg?style=flat)](https://landscape.io/github/yzhao062/Pyod/master)
 
-**Note: PyOD has been successfully used in various academic research projects [8, 9] and been under active development. However, full documentation and unit tests are temporarily unavailable yet planned for future release**. The purpose of the toolkit is for quick exploration. Using it as the final output should be understood with cautions. Fine-tunning may be needed to generate meaningful results.
+**Note: PyOD has been successfully used in various academic researches [8, 9] and under active development. However, full documentation and unit tests are temporarily unavailable yet planned for future release**. The purpose of the toolkit is for quick exploration. Using it as the final output should be cautious. Fine-tunning may be needed to generate meaningful results.
+
+The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to drop an email if you have any questions. PR and issue are also welcome for feature requests and bugs. Apologies for incomplete ducomentation.
 
 - **[Current version on PyPI](https://pypi.org/project/pyod/)**.
 
@@ -23,19 +25,21 @@
 <!-- /TOC -->
 
 ### Quick Introduction
-PyOD is a **Python-based toolkit** to identify outliers in data with both unsupervised and supervised algorithms. It strives to provide unified APIs across for different anomaly detection algorithms. The toolkit consists of three major groups of functionalities:
+PyOD is a **Python-based toolkit** to identify outliers in data with both unsupervised and supervised algorithms. It strives to provide unified APIs across for different anomaly detection algorithms. The toolkit consists of three major groups of functionalities: (i) **outlier detection algorithms**; (ii) **outlier ensemble frameworks** and (iii) **outlier detection utility functions**.
+
 - Individual Detection Algorithms:  
-  1. **Local Outlier Factor, LOF** (wrapped on sklearn implementation) [1]
-  2. **Isolation Forest, iForest** (wrapped on sklearn implementation) [2]
-  3. **One-Class Support Vector Machines** (wrapped on sklearn implementation) [3]
+  1. **Local Outlier Factor, LOF** [1]
+  2. **Isolation Forest, iForest** [2]
+  3. **One-Class Support Vector Machines** [3]
   4. **kNN** Outlier Detection (use the distance to the kth nearst neighbor as the outlier score)
   5. **Average KNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
   6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
   7. *Broken, to fix*: **Global-Local Outlier Score From Hierarchies** [4]
   8. **Histogram-based Outlier Score, HBOS** [5]
   9. **Angle-Based Outlier Setection, ABOD** [7]
+  10. More to add...
 
-- Ensemble Framework (Outlier Score Combination Frameworks)
+- Outlier Ensemble Framework (Outlier Score Combination Frameworks)
   1. **Feature bagging**
   2. **Average of Maximum (AOM)** [6]
   3. **Maximum of Average (MOA)** [6]
@@ -47,9 +51,13 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
 
 ### Installation
 
-It is advised to install with **pip** to manage the package:
+It is advised to use **pip** to install **the latest version**:
 ````cmd
 pip install pyod
+pip install --upgrade pyod
+````
+or 
+````cmd
 pip install pyod==x.y.z
 ````
 Please check the version number(x.y.z) is consistent with the current version number. Pypi can be unstable sometimes. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
@@ -62,17 +70,17 @@ Library Dependency (work only with **Python 3**):
 - pandas>=0.21
 - numpy>=1.13
 - scikit_learn>=0.19.1
-- matplotlib>=2.0.2 **(optional)**
+- matplotlib>=2.0.2 **(optional but required for running examples)**
 
 ------------
 ### API Cheatsheet
 For all algorithms implemented/wrapped in PyOD, the similar API is forced for consistency.
 
 - **fit()**: fit the model with the training data
-- **fit_predict()**: fit and return the binary lables (0 is normal and 1 is outliers) 
-- **decision_function()**: return raw outlier scores for test data
-- **predict()**: return binary outlier labels of test data
-- **predict_proba()**: return outlier probability of test data (0 to 1)
+- **fit_predict()**: fit and return the binary outlier lables (0 is normal and 1 is outliers) 
+- **decision_function()**: return raw outlier scores
+- **predict()**: return binary outlier labels of test data. The model must be fitted first.
+- **predict_proba()**: return outlier probability of test data (0 to 1). The model must be fitted first.
 - **predict_rank()**: return outlier rank of test data (data outlyness rank in training data)
 - **evaluate()**: print out the roc and precision @ rank n of the data
 
@@ -114,7 +122,7 @@ pyod (main package)
 │       glosh.py: class Glosh(), from pyod.models.glosh import Glosh
 │       hbos.py: class HBOS(), from pyod.models.hbos import HBOS
 │       iforest: class IForest(), from pyod.models.iforest import IForest
-│       knn.py: class Knn(), from pyod.models.knn import Knn
+│       knn.py: class KNN(), from pyod.models.knn import Knn
 │       lof.py: class LOF(), from pyod.models.lof import LOF
 │       ocsvm.py: class OCSVM(), from pyod.models.ocsvm import OCSVM
 │
@@ -126,11 +134,10 @@ pyod (main package)
 │           precision_n_scores(): Utlity function to calculate precision@n
 │       load_data.py
 │           generate_data(): generate sample data
-│           load_cardio(): load cardio data
-│           load_letter(): load letter data
 │  
 ├───test (excluded from installation, only available on Github)
 │       test_abod.py
+|       test_combination.py
 │       test_hbos.py
 │       test_knn.py
 │       test_lof.py
@@ -145,7 +152,7 @@ See examples for more demos. "examples/knn_example.py" demonstrates the basic AP
 
 0. Import models
     ````python
-    from pyod.models.knn import Knn  # kNN detector
+    from pyod.models.knn import KNN  # kNN detector
 
     from pyod.utils.load_data import generate_data
     from pyod.utils.utility import precision_n_scores
@@ -165,7 +172,7 @@ See examples for more demos. "examples/knn_example.py" demonstrates the basic AP
 2. Initialize a kNN detector, fit the model, and make the prediction.
     ```python
     # train a k-NN detector (default parameters, k=10)
-    clf = Knn()
+    clf = KNN()
     clf.fit(X_train)
 
     # get the prediction label and scores on the training data
@@ -234,7 +241,7 @@ The walkthrough of the code example is provided:
     for i in range(n_clf):
         k = k_list[i]
 
-        clf = Knn(n_neighbors=k, method='largest')
+        clf = KNN(n_neighbors=k, method='largest')
         clf.fit(X_train_norm)
 
         train_scores[:, i] = clf.decision_scores.ravel()
@@ -249,11 +256,18 @@ The walkthrough of the code example is provided:
     ```python
     comb_by_mean = np.mean(test_scores_norm, axis=1)
     comb_by_max = np.max(test_scores_norm, axis=1)
-    comb_by_aom = aom(test_scores_norm, 5, 20) # 5 groups
-    comb_by_moa = moa(test_scores_norm, 5, 20)) # 5 groups
+    comb_by_aom = aom(test_scores_norm, 5) # 5 groups
+    comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
     ```
 4. Finally, all four combination methods are evaluated with 20 iterations:
     ````bash
+    Combining 20 kNN detectors
+    ite 1 comb by mean, ROC: 0.9014 precision@n_train: 0.4531
+    ite 1 comb by max, ROC: 0.9014 precision@n_train: 0.5
+    ite 1 comb by aom, ROC: 0.9081 precision@n_train: 0.5
+    ite 1 comb by moa, ROC: 0.9052 precision@n_train: 0.4843
+    ...
+    
     Summary of 10 iterations
     comb by mean, ROC: 0.9196, precision@n: 0.5464
     comb by max, ROC: 0.9198, precision@n: 0.5532

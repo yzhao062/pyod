@@ -17,18 +17,34 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
+from scipy.io import loadmat
 
-from pyod.models.knn import Knn
+from pyod.models.knn import KNN
 from pyod.models.combination import aom, moa
-from pyod.utils.load_data import generate_data
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import standardizer
+from pyod.utils.load_data import generate_data
 
 if __name__ == "__main__":
 
     n_clf = 20  # number of base detectors
     ite = 10  # number of iterations
-    X, y, _ = generate_data(contamination=0.05, train_only=True)  # load data
+
+    try:
+        mat_file = 'cardio.mat'
+        mat = loadmat(os.path.join('example_data', mat_file))
+
+    except TypeError:
+        print('{data_file} does not exist. Use generated data'.format(
+            data_file=mat_file))
+        X, y, _ = generate_data(train_only=True)  # load data
+    except IOError:
+        print('{data_file} does not exist. Use generated data'.format(
+            data_file=mat_file))
+        X, y, _ = generate_data(train_only=True)  # load data
+    else:
+        X = mat['X']
+        y = mat['y'].ravel()
 
     # lists for storing roc information
     roc_mean = []
@@ -41,6 +57,7 @@ if __name__ == "__main__":
     prn_aom = []
     prn_moa = []
 
+    print('Combining {n_clf} kNN detectors'.format(n_clf=n_clf))
     for t in range(ite):
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=0.4)
@@ -58,7 +75,7 @@ if __name__ == "__main__":
         for i in range(n_clf):
             k = k_list[i]
 
-            clf = Knn(n_neighbors=k, method='largest')
+            clf = KNN(n_neighbors=k, method='largest')
             clf.fit(X_train_norm)
 
             train_scores[:, i] = clf.decision_scores.ravel()
@@ -85,7 +102,7 @@ if __name__ == "__main__":
               'precision@n_train:', precision_n_scores(y_test, comb_by_max))
 
         # combination by aom
-        comb_by_aom = aom(test_scores_norm, 5, 20)
+        comb_by_aom = aom(test_scores_norm, 5)
         roc_aom.append(roc_auc_score(y_test, comb_by_aom))
         prn_aom.append(precision_n_scores(y_test, comb_by_aom))
         print('ite', t + 1, 'comb by aom,', 'ROC:',
@@ -93,7 +110,7 @@ if __name__ == "__main__":
               'precision@n_train:', precision_n_scores(y_test, comb_by_aom))
 
         # combination by moa
-        comb_by_moa = moa(test_scores_norm, 5, 20)
+        comb_by_moa = moa(test_scores_norm, 5)
         roc_moa.append(roc_auc_score(y_test, comb_by_moa))
         prn_moa.append(precision_n_scores(y_test, comb_by_moa))
         print('ite', t + 1, 'comb by moa,', 'ROC:',

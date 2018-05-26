@@ -5,6 +5,8 @@ The implemented examples includes:
 - kNN: knn_example.py
 - HBOS: hbos_example.py
 - ABOD: abod_example.py
+- ... other individual algorithms
+
 - Combination Frameworks: comb_example.py
 
 Note, the examples import the models by usuing:
