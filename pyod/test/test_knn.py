@@ -11,7 +11,7 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.metrics import roc_auc_score
 
-from pyod.models.knn import Knn
+from pyod.models.knn import KNN
 from pyod.utils.load_data import generate_data
 
 
@@ -25,7 +25,7 @@ class TestKnn(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
 
-        self.clf = clf = Knn(contamination=self.contamination)
+        self.clf = clf = KNN(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
