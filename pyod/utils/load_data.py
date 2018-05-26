@@ -1,9 +1,8 @@
 '''
 Utility functions for loading sample data and create pseudo data
 '''
-import os
 import numpy as np
-from scipy.io import loadmat
+from sklearn.utils import check_X_y
 
 
 def generate_data(n_train=1000, n_test=500, contamination=0.1,
@@ -41,6 +40,7 @@ def generate_data(n_train=1000, n_test=500, contamination=0.1,
     c_train = np.full([X_train.shape[0]], 'b', dtype=str)
     y_train[n_inliers:, ] = 1
     c_train[n_inliers:, ] = 'r'
+    X_train, y_train = check_X_y(X_train, y_train.ravel())
 
     if train_only:
         return X_train, y_train, c_train
@@ -59,29 +59,6 @@ def generate_data(n_train=1000, n_test=500, contamination=0.1,
 
     y_test[n_inliers_test:] = 1
     c_test[n_inliers_test:] = 'r'
+    X_test, y_test = check_X_y(X_test, y_test.ravel())
 
-    return X_train, y_train.ravel(), c_train, X_test, y_test.ravel(), c_test
-
-
-def load_cardio():
-    '''
-    load cardio data
-    :return:
-    '''
-    mat = loadmat(os.path.join('resources', 'cardio.mat'))
-    X = mat['X']
-    y = mat['y'].ravel()
-
-    return X, y
-
-
-def load_letter():
-    '''
-    load letter data
-    :return:
-    '''
-    mat = loadmat(os.path.join('resources', 'letters.mat'))
-    X = mat['X']
-    y = mat['y'].ravel()
-
-    return X, y
+    return X_train, y_train, c_train, X_test, y_test, c_test

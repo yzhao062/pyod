@@ -2,6 +2,31 @@ import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.utils import column_or_1d
+
+
+def check_parameter_range(para, low=None, high=None):
+    '''
+    check if input parameter is with in the range low and high
+    :param para:
+    :param low:
+    :param high:
+    :return:
+    '''
+    if low is None and high is None:
+        raise ValueError('both low and high bounds are undefined')
+
+    if low is not None and high is not None:
+        if low >= high:
+            raise ValueError('low is equal or larger than high')
+
+    if not isinstance(para, int) and not isinstance(para, float):
+        raise TypeError('{para} is not numerical'.format(para=para))
+
+    if para < low or para > high:
+        return False
+    else:
+        return True
 
 
 def standardizer(X_train, X_test):
@@ -15,7 +40,7 @@ def standardizer(X_train, X_test):
     return scaler.transform(X_train), scaler.transform(X_test)
 
 
-def scores_to_lables(pred_scores, outlier_perc=0.05):
+def scores_to_lables(pred_scores, outlier_perc=1):
     '''
     turn raw outlier scores to binary labels (0 or 1)
     :param pred_scores: raw outlier scores
@@ -27,19 +52,53 @@ def scores_to_lables(pred_scores, outlier_perc=0.05):
     return pred_labels
 
 
-def precision_n_scores(y, y_pred):
+def precision_n_scores(y, y_pred, n=None):
     '''
     Utlity function to calculate precision@ rank n_train
     :param y: ground truth
     :param y_pred: number of outliers
-    :return: score
+    :param n: number of outliers, if not defined, infer using ground truth
+    :return: precison at rank n score
     '''
+
+    # turn prediction scores into binary labels
+    y_pred = get_label_n(y, y_pred, n)
+
+    # enforce formats of y and y_pred
+    y = column_or_1d(y)
+    y_pred = column_or_1d(y_pred)
+
+    return precision_score(y, y_pred)
+
+
+def get_label_n(y, y_pred, n=None):
+    '''
+    Function to turn scores into binary labels by assign 1 to top n_train scores
+    Example y: [0,1,1,0,0,0]
+            y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
+            return [0, 1, 0, 0, 1]
+    :param y: ground truth
+    :param y_pred: number of outliers
+    :param n: number of outliers, if not defined, infer using ground truth
+    :return: binary labels 0: normal points and 1: outliers
+    '''
+    # enforce formats of imputs
+    y = column_or_1d(y)
+    y_pred = column_or_1d(y_pred)
+
+    if y.shape != y_pred.shape:
+        ValueError('ground truth y and prediction y_pred shape does not match')
+
     # calculate the percentage of outliers
-    outlier_perc = np.count_nonzero(y) / len(y)
+    if n is not None:
+        outlier_perc = n / y.shape[0]
+    else:
+        outlier_perc = np.count_nonzero(y) / y.shape[0]
 
     threshold = scoreatpercentile(y_pred, 100 * (1 - outlier_perc))
     y_pred = (y_pred > threshold).astype('int')
-    return precision_score(y, y_pred)
+
+    return y_pred
 
 
 def get_top_n(value_list, n, top=True):
@@ -60,23 +119,6 @@ def get_top_n(value_list, n, top=True):
         return np.where(np.greater_equal(value_list, threshold))
     else:
         return np.where(np.less(value_list, threshold))
-
-
-def get_label_n(y, y_pred):
-    '''
-    function to turn scores into binary labels by assign 1 to top n_train scores
-    Example y: [0,1,1,0,0,0]
-            y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
-            return [0, 1, 0, 0, 1]
-    :param y:
-    :param y_pred:
-    :return:
-    '''
-    # calculate the percentage of outlier scores
-    out_perc = np.count_nonzero(y) / len(y)
-    threshold = scoreatpercentile(y_pred, 100 * (1 - out_perc))
-    y_pred = (y_pred > threshold).astype('int')
-    return y_pred
 
 
 def argmaxp(a, p):

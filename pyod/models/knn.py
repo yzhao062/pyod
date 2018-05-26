@@ -8,7 +8,7 @@ from sklearn.exceptions import NotFittedError
 from .base import BaseDetector
 
 
-class Knn(BaseDetector):
+class KNN(BaseDetector):
     '''
     Knn class for outlier detection
     support original knn, average knn, and median knn
