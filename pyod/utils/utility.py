@@ -11,11 +11,18 @@ from sklearn.utils import column_or_1d
 def check_parameter_range(para, low=None, high=None):
     """
     check if input parameter is with in the range low and high
+
     :param para: the input parameter to check
-    :type para:
-    :param low:
-    :param high:
-    :return:
+    :type para: int, float
+
+    :param low: lower bound of the range
+    :type low: int, float
+
+    :param high: higher bound of the range
+    :type high: int, float
+
+    :return: whether the parameter is within the range of (low, high)
+    :rtype: bool
     """
     if low is None and high is None:
         raise ValueError('both low and high bounds are undefined')
@@ -36,20 +43,24 @@ def check_parameter_range(para, low=None, high=None):
 def standardizer(X_train, X_test):
     """
     normalization function wrapper, z- normalization function
+
     :param X_train:
     :param X_test:
     :return: X_train and X_test after the Z-score normalization
+    :rtype: tuple(ndarray, ndarray)
     """
     scaler = StandardScaler().fit(X_train)
-    return scaler.transform(X_train), scaler.transform(X_test)
+    return (scaler.transform(X_train), scaler.transform(X_test))
 
 
-def scores_to_lables(pred_scores, outlier_perc=1):
+def scores_to_lables(pred_scores, outlier_perc=0.1):
     """
     turn raw outlier scores to binary labels (0 or 1)
+
     :param pred_scores: raw outlier scores
     :param outlier_perc: percentage of outliers
     :return: binary labels (1 stands for outlier)
+    :rtype: int
     """
     threshold = scoreatpercentile(pred_scores, 100 * (1 - outlier_perc))
     pred_labels = (pred_scores > threshold).astype('int')
@@ -58,11 +69,13 @@ def scores_to_lables(pred_scores, outlier_perc=1):
 
 def precision_n_scores(y, y_pred, n=None):
     """
-    Utlity function to calculate precision@ rank n_train
+    Utlity function to calculate precision@ rank
+
     :param y: ground truth
     :param y_pred: number of outliers
     :param n: number of outliers, if not defined, infer using ground truth
     :return: precison at rank n score
+    :rtype: float
     """
 
     # turn prediction scores into binary labels

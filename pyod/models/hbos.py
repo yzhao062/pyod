@@ -81,15 +81,15 @@ class HBOS(BaseDetector):
         self.mu = np.mean(self.decision_scores)
         self.sigma = np.std(self.decision_scores)
 
-    def decision_function(self, X_test):
+    def decision_function(self, X):
 
-        X_test = check_array(X_test)
-        n_test = X_test.shape[0]
+        X = check_array(X)
+        n_test = X.shape[0]
         out_scores = np.zeros([n_test, self.d])
 
         for i in range(self.d):
             # find histogram assignments of data points
-            bin_ind = np.digitize(X_test[:, i], self.bin_edges[:, i],
+            bin_ind = np.digitize(X[:, i], self.bin_edges[:, i],
                                   right=False)
 
             # very important to do scaling. Not necessary to use minmax
@@ -99,7 +99,7 @@ class HBOS(BaseDetector):
             for j in range(n_test):
                 # out sample left
                 if bin_ind[j] == 0:
-                    dist = np.abs(X_test[j, i] - self.bin_edges[0, i])
+                    dist = np.abs(X[j, i] - self.bin_edges[0, i])
                     bin_width = self.bin_edges[1, i] - self.bin_edges[0, i]
                     # assign it to bin 0
                     if dist < bin_width * self.beta:
@@ -109,7 +109,7 @@ class HBOS(BaseDetector):
 
                 # out sample right
                 elif bin_ind[j] == self.bin_edges.shape[0]:
-                    dist = np.abs(X_test[j, i] - self.bin_edges[-1, i])
+                    dist = np.abs(X[j, i] - self.bin_edges[-1, i])
                     bin_width = self.bin_edges[-1, i] - self.bin_edges[-2, i]
                     # assign it to bin k
                     if dist < bin_width * self.beta:

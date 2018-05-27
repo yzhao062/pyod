@@ -59,17 +59,17 @@ class ABOD(BaseDetector):
                                             100 * (1 - self.contamination))
         self.y_pred = (self.decision_scores > self.threshold_).astype('int')
 
-    def decision_function(self, X_test):
+    def decision_function(self, X):
 
         if not self._isfitted:
             NotFittedError('Model is not fitted yet')
 
-        X_test = check_array(X_test)
+        X = check_array(X)
         # initialize the output score
-        pred_score = np.zeros([X_test.shape[0], 1])
+        pred_score = np.zeros([X.shape[0], 1])
 
-        for i in range(X_test.shape[0]):
-            curr_pt = X_test[i, :]
+        for i in range(X.shape[0]):
+            curr_pt = X[i, :]
 
             # get the index pairs of the neighbors
             ind = list(range(0, self.n_train))

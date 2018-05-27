@@ -1,3 +1,7 @@
+"""
+Abstract base class for outlier detector models
+"""
+
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -14,6 +18,10 @@ class BaseDetector(ABC):
 
     @abstractmethod
     def __init__(self, contamination=0.1):
+        """
+        :param contamination: percentage of outliers, range in (0, 0.5]
+        :type contamination: float
+        """
         self.contamination = contamination
         self.threshold_ = None
         self.decision_scores = None
@@ -21,7 +29,17 @@ class BaseDetector(ABC):
         self._isfitted = False
 
     @abstractmethod
-    def decision_function(self, X_test):
+    def decision_function(self, X):
+        """
+        Anomaly score of X of the base classifiers.
+        The anomaly score of an input sample is computed based on different detector algorithms.
+        For consistency, outliers have larger anomaly scores.
+
+        :param X: The training input samples. Sparse matrices are accepted only if they are supported by the base estimator.
+        :type X: {array-like, sparse matrix}
+        :return: scores: The anomaly score of the input samples. The lower, the more abnormal.
+        :rtype: array of shape (n_samples,)
+        """
         pass
 
     @abstractmethod

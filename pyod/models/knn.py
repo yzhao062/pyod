@@ -59,18 +59,18 @@ class KNN(BaseDetector):
 
         return self
 
-    def decision_function(self, X_test):
+    def decision_function(self, X):
 
         if not self._isfitted:
             NotFittedError('Model is not fitted yet')
 
-        X_test = check_array(X_test)
+        X = check_array(X)
 
         # initialize the output score
-        pred_score = np.zeros([X_test.shape[0], 1])
+        pred_score = np.zeros([X.shape[0], 1])
 
-        for i in range(X_test.shape[0]):
-            x_i = X_test[i, :]
+        for i in range(X.shape[0]):
+            x_i = X[i, :]
             x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
 
             # get the distance of the current point

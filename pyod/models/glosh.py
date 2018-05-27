@@ -26,14 +26,14 @@ class Glosh(BaseDetector):
         self.threshold = scoreatpercentile(self.scores,
                                            100 * (1 - self.contamination))
 
-    def decision_function(self, X_test):
+    def decision_function(self, X):
 
-        X_test = check_array(X_test)
+        X = check_array(X)
         # initialize the outputs
-        pred_score = np.zeros([X_test.shape[0], 1])
+        pred_score = np.zeros([X.shape[0], 1])
 
-        for i in range(X_test.shape[0]):
-            x_i = X_test[i, :]
+        for i in range(X.shape[0]):
+            x_i = X[i, :]
 
             x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
             x_comb = np.concatenate((self.X_train, x_i), axis=0)

@@ -53,12 +53,12 @@ class LOF(BaseDetector):
 
         return self
 
-    def decision_function(self, X_test):
+    def decision_function(self, X):
         if not self._isfitted:
             NotFittedError('Model is not fitted yet')
 
         # invert scores. Outliers comes with higher scores
-        return self.detector_._decision_function(X_test) * -1
+        return self.detector_._decision_function(X) * -1
 
     @property
     def negative_outlier_factor_(self):

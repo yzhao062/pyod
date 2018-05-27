@@ -20,8 +20,10 @@ def generate_data(n_train=1000, n_test=500, contamination=0.1,
 
     :param n_test: number of test points to generate
     :type n_test: int
+
     :param contamination: percentage of outliers
     :type contamination: float
+
     :return: training data and test data (c_train and c_test are colors)
     :rtype: tuple, (ndarry, ndarry, list, ndarry, ndarry, list)
     """
