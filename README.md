@@ -1,11 +1,13 @@
 # Python Outlier Detection (PyOD)
 [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master)](https://coveralls.io/github/yzhao062/Pyod?branch=master) [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest)
 
-**Note: PyOD has been successfully used in various academic researches [8, 9] and under active development. However, full documentation and unit tests are temporarily unavailable yet planned for future release**. The purpose of the toolkit is for quick exploration. Using it as the final output should be cautious. Fine-tunning may be needed to generate meaningful results.
+**Note: PyOD has been successfully used in various academic researches [8, 9] and under active development**. The purpose of the toolkit is for quick exploration. Using it as the final output should be cautious. Fine-tunning may be needed to generate meaningful results.
 
-The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to drop an email if you have any questions. PR and issue are also welcome for feature requests and bugs. Apologies for incomplete ducomentation.
+The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to drop an email if you have any questions. PR and issue are also welcome for feature requests and bugs. 
 
-- **[Current version on PyPI](https://pypi.org/project/pyod/)**.
+- [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) **[Documentation & API Reference](https://http://pyod.readthedocs.io)**
+
+- [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) **[Current version on PyPI](https://pypi.org/project/pyod/)**.
 
 - **[Github repository with examples](https://github.com/yzhao062/Pyod)**.
 
@@ -14,13 +16,13 @@ The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to d
 **Table of Contents**:
 <!-- TOC -->
 
-[Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-- [Quick Introduction](#quick-introduction)
-- [Installation](#installation)
-- [API Cheatsheet](#api-cheatsheet)
-- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-- [Reference](#reference)
+- [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
+        - [Quick Introduction](#quick-introduction)
+        - [Installation](#installation)
+        - [API Cheatsheet & Reference](#api-cheatsheet-reference)
+        - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+        - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+        - [Reference](#reference)
 
 <!-- /TOC -->
 
@@ -73,8 +75,11 @@ Library Dependency (work only with **Python 3**):
 - matplotlib>=2.0.2 **(optional but required for running examples)**
 
 ------------
-### API Cheatsheet
-For all algorithms implemented/wrapped in PyOD, the similar API is forced for consistency.
+### API Cheatsheet & Reference
+
+Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html)
+
+API cheatsheet:
 
 - **fit()**: fit the model with the training data
 - **fit_predict()**: fit and return the binary outlier lables (0 is normal and 1 is outliers) 
@@ -97,54 +102,11 @@ Import utility functions:
 from pyod.util.utility import precision_n_scores
 ...
 ````
-Full package structure can be found below:
 
-````
-examples (excluded from installation, only available on Github)
-│
-│
-├───abod_example.py: Example of using ABOD for outlier detection
-│   comb_example.py: Example of combining multiple base outlier scores
-│   hbos_example.py: Example of using HBOS for outlier detection
-│   iforest_example.py: Example of using Isolation Forest for outlier detection
-│   knn_example.py: Example of using kNN for outlier detection
-│   lof_example.py: Example of using LOF for outlier detection
-│   ocsvm_example.py: Example of using one-class SVM for outlier detection
-│
-│
-pyod (main package)
-├───models
-│       abod.py: 
-│           class ABOD(), from pyod.models.abod import ABOD
-│       combination.py
-│           amo(), from pyod.models.combination import aom
-│           moa(), from pyod.models.combination import moa
-│       glosh.py: class Glosh(), from pyod.models.glosh import Glosh
-│       hbos.py: class HBOS(), from pyod.models.hbos import HBOS
-│       iforest: class IForest(), from pyod.models.iforest import IForest
-│       knn.py: class KNN(), from pyod.models.knn import Knn
-│       lof.py: class LOF(), from pyod.models.lof import LOF
-│       ocsvm.py: class OCSVM(), from pyod.models.ocsvm import OCSVM
-│
-├───utils
-│       stat_models.py
-│       utility.py
-│           standardizer(): z- normalization function
-│           scores_to_lables(): turn raw outlier scores to binary labels (0 or 1)
-│           precision_n_scores(): Utlity function to calculate precision@n
-│       load_data.py
-│           generate_data(): generate sample data
-│  
-├───test (excluded from installation, only available on Github)
-│       test_abod.py
-|       test_combination.py
-│       test_hbos.py
-│       test_knn.py
-│       test_lof.py
-│       test_iforest.py
-│       test_ocsvm.py
-│       test_utility.py
-````
+Full package structure can be found below:
+- http://pyod.readthedocs.io/en/latest/genindex.html
+- http://pyod.readthedocs.io/en/latest/py-modindex.html
+
 ------------
 
 ### Quick Start for Outlier Detection
@@ -278,19 +240,11 @@ The walkthrough of the code example is provided:
 
 ### Reference
 [1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM SIGMOD Record*, pp. 93-104. ACM.
-
 [2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *ICDM '08*, pp. 413-422. IEEE.
-
 [3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*, pp. 1741-1745. IEEE.
-
 [4] Campello, R.J., Moulavi, D., Zimek, A. and Sander, J., 2015. Hierarchical density estimates for data clustering, visualization, and outlier detection. *TKDD*, 10(1), pp.5.
-
 [5] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*, pp.59-63.
-
 [6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.*ACM SIGKDD Explorations Newsletter*, 17(1), pp.24-47.
-
 [7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*, pp. 444-452. ACM.
-
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
-
 [9] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
