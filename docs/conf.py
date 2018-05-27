@@ -12,10 +12,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+
 import os
 import sys
-sys.path.insert(0, os.path.abspath('C:/Users/yzhao066/Desktop/Pyod/'))
 
+sys.path.insert(0, os.path.abspath('..'))
+from pyod import __version__
 
 # -- Project information -----------------------------------------------------
 
@@ -24,10 +26,9 @@ copyright = '2018, Yue Zhao'
 author = 'Yue Zhao'
 
 # The short X.Y version
-version = ''
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = '0.2.4'
-
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -74,13 +75,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -108,7 +108,6 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pyoddoc'
-
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -138,7 +137,6 @@ latex_documents = [
      'Yue Zhao', 'manual'),
 ]
 
-
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
@@ -147,7 +145,6 @@ man_pages = [
     (master_doc, 'pyod', 'pyod Documentation',
      [author], 1)
 ]
-
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -159,7 +156,6 @@ texinfo_documents = [
      author, 'pyod', 'One line description of project.',
      'Miscellaneous'),
 ]
-
 
 # -- Extension configuration -------------------------------------------------
 

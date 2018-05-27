@@ -1,0 +1,6 @@
+API Reference
+============
+
+.. toctree::
+
+    pyod

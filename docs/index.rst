@@ -18,8 +18,11 @@ The toolkit consists of three major groups of functionalities:
    :caption: Contents:
 
    install
+   api
+   example
 
-
+Check `Github Repository <https://github.com/yzhao062/Pyod>`_
+and `PyPI <https://pypi.org/project/pyod/>`_ for more information.
 
 
 ==================
