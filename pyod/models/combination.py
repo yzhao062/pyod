@@ -7,7 +7,7 @@ from ..utils.utility import check_parameter_range
 
 
 def aom(scores, n_buckets, method='static', replace=False, random_state=None):
-    '''
+    """
     Average of Maximum - An ensemble method for outlier detection
 
     First dividing detectors into subgroups, take the maximum score as the
@@ -24,7 +24,7 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
     :param replace:
     :param random_state:
     :return:
-    '''
+    """
 
     # TODO: add one more parameter for max number of estimators
     #       for now it is fixed to n_estimators/2
@@ -83,7 +83,7 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
 
 
 def moa(scores, n_buckets, method='static', replace=False, random_state=None):
-    '''
+    """
     Maximization of Average - An ensemble method for outlier detection
 
     First dividing detectors into subgroups, take the averafe score as the
@@ -100,7 +100,7 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
     :param replace:
     :param random_state:
     :return:
-    '''
+    """
 
     # TODO: add one more parameter for max number of estimators
     #       for now it is fixed to n_estimators/2

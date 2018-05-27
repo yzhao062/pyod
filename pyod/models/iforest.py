@@ -5,7 +5,7 @@ from .base import BaseDetector
 
 
 class IForest(BaseDetector):
-    '''
+    """
     Wrapper of Sklearn Isolation Forest Class with more functionalities.
 
     The IsolationForest 'isolates' observations by randomly selecting a feature
@@ -22,7 +22,7 @@ class IForest(BaseDetector):
     Random partitioning produces noticeably shorter paths for anomalies.
     Hence, when a forest of random trees collectively produce shorter path
     lengths for particular samples, they are highly likely to be anomalies.
-    '''
+    """
 
     def __init__(self, n_estimators=100,
                  max_samples="auto",
@@ -32,7 +32,7 @@ class IForest(BaseDetector):
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
-        '''
+        """
 
         :param n_estimators: int, optional (default=100).
             The number of base estimators in the ensemble.
@@ -47,7 +47,7 @@ class IForest(BaseDetector):
         :param n_jobs:
         :param random_state:
         :param verbose:
-        '''
+        """
         super().__init__(contamination=contamination)
         self.n_estimators = n_estimators
         self.max_samples = max_samples
@@ -88,24 +88,24 @@ class IForest(BaseDetector):
 
     @property
     def estimators_(self):
-        '''
+        """
         decorator for sklearn Isolation Forest attributes
         :return:
-        '''
+        """
         return self.detector_.estimators_
 
     @property
     def estimators_samples_(self):
-        '''
+        """
         decorator for sklearn Isolation Forest attributes
         :return:
-        '''
+        """
         return self.detector_.estimators_samples_
 
     @property
     def max_samples_(self):
-        '''
+        """
         decorator for sklearn Isolation Forest attributes
         :return:
-        '''
+        """
         return self.detector_.max_samples_

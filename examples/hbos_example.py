@@ -1,6 +1,6 @@
-'''
+"""
 Example of using HBOS for outlier detection
-'''
+"""
 import os, sys
 
 # temporary solution for relative imports in case pyod is not installed

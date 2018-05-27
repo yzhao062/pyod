@@ -8,10 +8,10 @@ from .base import BaseDetector
 
 
 class ABOD(BaseDetector):
-    '''
+    """
     ABOD class for outlier detection
     support original ABOD and fast ABOD
-    '''
+    """
 
     def __init__(self, contamination=0.1, fast_method=False):
         super().__init__(contamination=contamination)

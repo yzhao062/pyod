@@ -1,4 +1,4 @@
-'''
+"""
 Example of combining multiple base outlier scores
 Four combination frameworks are demonstrated
 
@@ -7,7 +7,7 @@ Four combination frameworks are demonstrated
 3. Average of Maximum (AOM)
 4. Maximum of Average (MOA)
 
-'''
+"""
 import os, sys
 
 # temporary solution for relative imports in case pyod is not installed

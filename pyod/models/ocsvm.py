@@ -5,7 +5,7 @@ from .base import BaseDetector
 
 
 class OCSVM(BaseDetector):
-    '''
+    """
 
     Wrapper of Sklearn one-class SVM Class with more functionalities.
     Unsupervised Outlier Detection.
@@ -13,7 +13,7 @@ class OCSVM(BaseDetector):
     Estimate the support of a high-dimensional distribution.
 
     The implementation is based on libsvm.
-    '''
+    """
 
     def __init__(self, kernel='rbf', degree=3, gamma='auto', coef0=0.0,
                  tol=1e-3, nu=0.5, shrinking=True, cache_size=200,
@@ -63,40 +63,40 @@ class OCSVM(BaseDetector):
 
     @property
     def support_(self):
-        '''
+        """
         decorator for sklearn Oneclass SVM attributes
         :return:
-        '''
+        """
         return self.detector_.support_
 
     @property
     def support_vectors_(self):
-        '''
+        """
         decorator for sklearn Oneclass SVM attributes
         :return:
-        '''
+        """
         return self.detector_.support_vectors_
 
     @property
     def dual_coef_(self):
-        '''
+        """
         decorator for sklearn Oneclass SVM attributes
         :return:
-        '''
+        """
         return self.detector_.dual_coef_
 
     @property
     def coef_(self):
-        '''
+        """
         decorator for sklearn Oneclass SVM attributes
         :return:
-        '''
+        """
         return self.detector_.coef_
 
     @property
     def intercept_(self):
-        '''
+        """
         decorator for sklearn Oneclass SVM attributes
         :return:
-        '''
+        """
         return self.detector_.intercept_

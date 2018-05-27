@@ -5,7 +5,7 @@ from .base import BaseDetector
 
 
 class LOF(BaseDetector):
-    '''
+    """
     Wrapper of Sklearn LOF Class with more functionalities.
     Unsupervised Outlier Detection using Local Outlier Factor (LOF)
 
@@ -19,7 +19,7 @@ class LOF(BaseDetector):
     By comparing the local density of a sample to the local densities of
     its neighbors, one can identify samples that have a substantially lower
     density than their neighbors. These are considered outliers.
-    '''
+    """
 
     def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,
                  metric='minkowski', p=2, metric_params=None,
@@ -62,16 +62,16 @@ class LOF(BaseDetector):
 
     @property
     def negative_outlier_factor_(self):
-        '''
+        """
         decorator for sklearn LOF attributes
         :return:
-        '''
+        """
         return self.detector_.negative_outlier_factor_
 
     @property
     def n_neighbors_(self):
-        '''
+        """
         decorator for sklearn LOF attributes
         :return:
-        '''
+        """
         return self.detector_.n_neighbors_

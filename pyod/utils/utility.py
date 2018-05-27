@@ -1,3 +1,6 @@
+"""
+A set of utility functions to support outlier detection
+"""
 import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
@@ -6,13 +9,14 @@ from sklearn.utils import column_or_1d
 
 
 def check_parameter_range(para, low=None, high=None):
-    '''
+    """
     check if input parameter is with in the range low and high
-    :param para:
+    :param para: the input parameter to check
+    :type para:
     :param low:
     :param high:
     :return:
-    '''
+    """
     if low is None and high is None:
         raise ValueError('both low and high bounds are undefined')
 
@@ -30,36 +34,36 @@ def check_parameter_range(para, low=None, high=None):
 
 
 def standardizer(X_train, X_test):
-    '''
+    """
     normalization function wrapper, z- normalization function
     :param X_train:
     :param X_test:
     :return: X_train and X_test after the Z-score normalization
-    '''
+    """
     scaler = StandardScaler().fit(X_train)
     return scaler.transform(X_train), scaler.transform(X_test)
 
 
 def scores_to_lables(pred_scores, outlier_perc=1):
-    '''
+    """
     turn raw outlier scores to binary labels (0 or 1)
     :param pred_scores: raw outlier scores
     :param outlier_perc: percentage of outliers
     :return: binary labels (1 stands for outlier)
-    '''
+    """
     threshold = scoreatpercentile(pred_scores, 100 * (1 - outlier_perc))
     pred_labels = (pred_scores > threshold).astype('int')
     return pred_labels
 
 
 def precision_n_scores(y, y_pred, n=None):
-    '''
+    """
     Utlity function to calculate precision@ rank n_train
     :param y: ground truth
     :param y_pred: number of outliers
     :param n: number of outliers, if not defined, infer using ground truth
     :return: precison at rank n score
-    '''
+    """
 
     # turn prediction scores into binary labels
     y_pred = get_label_n(y, y_pred, n)
@@ -72,7 +76,7 @@ def precision_n_scores(y, y_pred, n=None):
 
 
 def get_label_n(y, y_pred, n=None):
-    '''
+    """
     Function to turn scores into binary labels by assign 1 to top n_train scores
     Example y: [0,1,1,0,0,0]
             y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
@@ -81,7 +85,7 @@ def get_label_n(y, y_pred, n=None):
     :param y_pred: number of outliers
     :param n: number of outliers, if not defined, infer using ground truth
     :return: binary labels 0: normal points and 1: outliers
-    '''
+    """
     # enforce formats of imputs
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
@@ -102,13 +106,13 @@ def get_label_n(y, y_pred, n=None):
 
 
 def get_top_n(value_list, n, top=True):
-    '''
+    """
     return the index of top n_train elements in the list
     :param value_list: a list
     :param n:
     :param top:
     :return:
-    '''
+    """
     value_list = np.asarray(value_list)
     length = value_list.shape[0]
 
@@ -122,12 +126,12 @@ def get_top_n(value_list, n, top=True):
 
 
 def argmaxp(a, p):
-    '''
+    """
     Utlity function to return the index of top p values in a
     :param a: list variable
     :param p: number of elements to select
     :return: index of top p elements in a
-    '''
+    """
 
     a = np.asarray(a).ravel()
     length = a.shape[0]

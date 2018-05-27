@@ -1,4 +1,4 @@
-'''Testing utilities.'''
+"""Testing utilities."""
 import os, sys
 
 # temporary solution for relative imports in case pyod is not installed

@@ -9,18 +9,18 @@ from .base import BaseDetector
 
 
 class KNN(BaseDetector):
-    '''
+    """
     Knn class for outlier detection
     support original knn, average knn, and median knn
-    '''
+    """
 
     def __init__(self, n_neighbors=1, contamination=0.1, method='largest'):
-        '''
+        """
 
         :param n_neighbors:
         :param contamination:
         :param method: {'largest', 'mean', 'median'}
-        '''
+        """
         super().__init__(contamination=contamination)
         self.n_neighbors_ = n_neighbors
         self.method = method
