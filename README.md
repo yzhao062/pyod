@@ -5,7 +5,7 @@
 
 The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to drop an email if you have any questions. PR and issue are also welcome for feature requests and bugs. 
 
-- [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) **[Documentation & API Reference](https://http://pyod.readthedocs.io)**
+- [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) **[Documentation & API Reference](https://pyod.readthedocs.io)**
 
 - [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) **[Current version on PyPI](https://pypi.org/project/pyod/)**.
 
@@ -16,13 +16,13 @@ The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to d
 **Table of Contents**:
 <!-- TOC -->
 
-- [Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
-        - [Quick Introduction](#quick-introduction)
-        - [Installation](#installation)
-        - [API Cheatsheet & Reference](#api-cheatsheet-reference)
-        - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-        - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-        - [Reference](#reference)
+[Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
+- [Quick Introduction](#quick-introduction)
+- [Installation](#installation)
+- [API Cheatsheet & Reference](#api-cheatsheet-reference)
+- [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
+- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+- [Reference](#reference)
 
 <!-- /TOC -->
 
@@ -50,6 +50,8 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
 - Utility functions:
    1. **scores_to_lables()**: converting raw outlier scores to binary labels
    2. **precision_n_scores()**: one of the popular evaluation metrics for outlier mining (precision @ rank n)
+
+------------
 
 ### Installation
 
@@ -91,7 +93,7 @@ API cheatsheet:
 
 Import outlier detection models, such like:
 ````python
-from pyod.models.knn import Knn
+from pyod.models.knn import KNN
 from pyod.models.abod import ABOD
 from pyod.models.hbos import HBOS
 ...
@@ -240,11 +242,19 @@ The walkthrough of the code example is provided:
 
 ### Reference
 [1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM SIGMOD Record*, pp. 93-104. ACM.
+
 [2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *ICDM '08*, pp. 413-422. IEEE.
+
 [3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*, pp. 1741-1745. IEEE.
+
 [4] Campello, R.J., Moulavi, D., Zimek, A. and Sander, J., 2015. Hierarchical density estimates for data clustering, visualization, and outlier detection. *TKDD*, 10(1), pp.5.
+
 [5] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*, pp.59-63.
+
 [6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.*ACM SIGKDD Explorations Newsletter*, 17(1), pp.24-47.
+
 [7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*, pp. 444-452. ACM.
+
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
+
 [9] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.

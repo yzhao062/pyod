@@ -69,7 +69,7 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
 
 1. Import models and generate sample data: ::
 
-    from pyod.models.knn import Knn
+    from pyod.models.knn import KNN
     from pyod.models.combination import aom, moa # combination methods
     from pyod.utils.load_data import generate_data
     from pyod.utils.utility import precision_n_scores
