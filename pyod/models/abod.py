@@ -106,8 +106,8 @@ class ABOD(BaseDetector):
     #         return proba.clip(0, 1)
     #     else:
     #         # turn output into probability
-    #         pre_erf_score = (test_scores - self.mu) / (
-    #                 self.sigma * np.sqrt(2))
+    #         pre_erf_score = (test_scores - self._mu) / (
+    #                 self._sigma * np.sqrt(2))
     #         erf_score = erf(pre_erf_score)
     #         proba = erf_score.clip(0)
     #

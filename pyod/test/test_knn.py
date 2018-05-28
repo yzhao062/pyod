@@ -36,10 +36,10 @@ class TestKnn(unittest.TestCase):
             self.assertRaises(AttributeError, 'y_pred is not set')
         if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
             self.assertRaises(AttributeError, 'threshold_ is not set')
-        if not hasattr(self.clf, 'mu') or self.clf.mu is None:
-            self.assertRaises(AttributeError, 'mu is not set')
-        if not hasattr(self.clf, 'sigma') or self.clf.sigma is None:
-            self.assertRaises(AttributeError, 'sigma is not set')
+        if not hasattr(self.clf, '_mu') or self.clf._mu is None:
+            self.assertRaises(AttributeError, '_mu is not set')
+        if not hasattr(self.clf, '_sigma') or self.clf._sigma is None:
+            self.assertRaises(AttributeError, '_sigma is not set')
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores), self.X_train.shape[0])

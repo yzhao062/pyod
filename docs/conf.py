@@ -70,7 +70,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'pyod.test.rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -130,7 +130,7 @@ latex_elements = {
     # 'figure_align': 'htbp',
 }
 
-# Grouping the document tree into LaTeX files. List of tuples
+# Grouping the document tree_ into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
@@ -149,7 +149,7 @@ man_pages = [
 
 # -- Options for Texinfo output ----------------------------------------------
 
-# Grouping the document tree into Texinfo files. List of tuples
+# Grouping the document tree_ into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [

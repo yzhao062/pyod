@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
 
     pyod.models
-    pyod.test
     pyod.utils
 
 Module contents
@@ -17,3 +16,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

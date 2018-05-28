@@ -3,14 +3,14 @@ Abstract base class for outlier detector models
 """
 
 from abc import ABC, abstractmethod
-import numpy as np
 
+import numpy as np
 from scipy.stats import rankdata
 from scipy.special import erf
-
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
-from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
+
 from ..utils.utility import precision_n_scores
 
 
@@ -19,26 +19,30 @@ class BaseDetector(ABC):
     @abstractmethod
     def __init__(self, contamination=0.1):
         """
-        :param contamination: percentage of outliers, range in (0, 0.5]
-        :type contamination: float
+        :param contamination: he amount of contamination of the data set, i.e.
+            the proportion of outliers in the data set. Used when fitting to
+            define the threshold on the decision function.
+        :type contamination: float in (0, 0.5], optional (default=0.1)
         """
         self.contamination = contamination
         self.threshold_ = None
         self.decision_scores = None
+        self._mu = None
+        self._sigma = None
         self.y_pred = None
-        self._isfitted = False
 
     @abstractmethod
     def decision_function(self, X):
         """
-        Anomaly score of X of the base classifiers.
-        The anomaly score of an input sample is computed based on different detector algorithms.
+        Anomaly score of X of the base classifiers. The anomaly score of an
+        input sample is computed based on different detector algorithms.
         For consistency, outliers have larger anomaly scores.
 
-        :param X: The training input samples. Sparse matrices are accepted only if they are supported by the base estimator.
-        :type X: {array-like, sparse matrix}
-        :return: scores: The anomaly score of the input samples. The lower, the more abnormal.
-        :rtype: array of shape (n_samples,)
+        :param X: The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+        :type X: numpy array of shape (n_samples, n_features)
+        :return: scores: The anomaly score of the input samples.
+        :rtype: array, shape (n_samples,)
         """
         pass
 
@@ -47,38 +51,76 @@ class BaseDetector(ABC):
         pass
 
     def fit_predict(self, X):
+        """
+        Fit detector and predict if a particular sample is an outlier or not.
+
+        :param X: The input samples
+        :type X: numpy array of shape (n_samples, n_features)
+        :return: For each observation, tells whether or not
+            it should be considered as an outlier according to the fitted model.
+            0 stands for inliers and 1 for outliers.
+        :rtype: array, shape (n_samples,)
+        """
         self.fit(X)
         return self.y_pred
 
-    def predict(self, X_test):
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+    def predict(self, X):
+        """
+        Predict if a particular sample is an outlier or not.
 
-        pred_score = self.decision_function(X_test)
+        :param X: The input samples
+        :type X: numpy array of shape (n_samples, n_features)
+        :return: For each observation, tells whether or not
+            it should be considered as an outlier according to the fitted model.
+            0 stands for inliers and 1 for outliers.
+        :rtype: array, shape (n_samples,)
+        """
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
+
+        pred_score = self.decision_function(X)
         return (pred_score > self.threshold_).astype('int').ravel()
 
-    def predict_proba(self, X_test, method='linear'):
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+    def predict_proba(self, X, method='linear'):
+        """
+        Return the probability of a sample being outlier. Two approaches are possible:
+            1. simply use Min-max conversion to linearly transform the outlier
+                scores into the range of [0,1]. The model must be fitted first.
+            2. use unifying socres, see reference below
 
-        test_scores = self.decision_function(X_test)
+        Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011, April.
+        Interpreting and unifying outlier scores. In Proc' SIAM, 2011.
+
+        :param X: The input samples
+        :type X: numpy array of shape (n_samples, n_features)
+        :param method: probability conversion method. It must be one of
+            'linear' or 'unify'.
+        :type method: str, optional (default='linear')
+        :return: For each observation, return the outlier probability, ranging
+            in [0,1]
+        :rtype: array, shape (n_samples,)
+        """
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
+
+        test_scores = self.decision_function(X)
         train_scores = self.decision_scores
 
         if method == 'linear':
             scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
             proba = scaler.transform(test_scores.reshape(-1, 1))
             return proba.clip(0, 1)
-        else:
+
+        elif method == 'unify':
             # turn output into probability
             pre_erf_score = (test_scores - self.mu) / (self.sigma * np.sqrt(2))
             erf_score = erf(pre_erf_score)
             proba = erf_score.clip(0)
-
             return proba
+        else:
+            ValueError(method, 'is not a valid probability conversion method')
 
     def predict_rank(self, X_test):
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
 
         test_scores = self.decision_function(X_test)
         train_scores = self.decision_scores

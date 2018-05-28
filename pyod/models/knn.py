@@ -4,39 +4,66 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
 from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
 
 class KNN(BaseDetector):
     """
-    Knn class for outlier detection
-    support original knn, average knn, and median knn
+    kNN class for outlier detection.
+    For an observation, its distance to its kth nearest neighbor could be
+    viewed as the outlying score. It could be viewed as a way to measure
+    the density. More to see the references below.
+
+
+    Three kNN detectors are supported:
+    largest: use the distance to the kth neighbor as the outlier score
+    mean: use the average of all k neighbors as the outlier score
+    median: use the median of the distance to k neighbors as the outlier score
+
+    --------------------------------------------------------------------------
+
+    Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May.
+    Efficient algorithms for mining outliers from large data sets. In ACM
+    Sigmod Record (Vol. 29, No. 2, pp. 427-438). ACM.
+
+    Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high
+    dimensional spaces. In European Conference on Principles of Data Mining and Knowledge Discovery,
+    pp. 15-27.
+
     """
 
-    def __init__(self, n_neighbors=1, contamination=0.1, method='largest'):
+    def __init__(self, n_neighbors=5, contamination=0.1, method='largest'):
         """
-
-        :param n_neighbors:
-        :param contamination:
-        :param method: {'largest', 'mean', 'median'}
+        :param n_neighbors: Number of neighbors to use by default
+            for kneighbors queries.
+        :type n_neighbors: int, optional (default=5)
+        :param contamination: he amount of contamination of the data set, i.e.
+            the proportion of outliers in the data set. Used when fitting to
+            define the threshold on the decision function.
+        :type contamination: float in (0, 0.5], optional (default=0.1)
+        :param method: {'largest', 'mean', 'median'},
+            largest: use the distance to the kth neighbor as the outlier score
+            mean: use the average of all k neighbors as the outlier score
+            median: use the median of the distance to k neighbors as the outlier score
+        :type method: str, optional (default='largest')
         """
         super().__init__(contamination=contamination)
         self.n_neighbors_ = n_neighbors
         self.method = method
 
-    def fit(self, X_train):
+    def fit(self, X):
 
         if not (0. < self.contamination <= .5):
             raise ValueError("contamination must be in (0, 0.5], "
                              "got: %f" % self.contamination)
 
-        X_train = check_array(X_train)
-        self._isfitted = True
-        self.tree = KDTree(X_train)
+        X = check_array(X)
+        self.tree_ = KDTree(X)
 
         neigh = NearestNeighbors(n_neighbors=self.n_neighbors_)
-        neigh.fit(X_train)
+        neigh.fit(X)
 
         result = neigh.kneighbors(n_neighbors=self.n_neighbors_,
                                   return_distance=True)
@@ -54,15 +81,14 @@ class KNN(BaseDetector):
         self.decision_scores = dist.ravel()
         self.y_pred = (self.decision_scores > self.threshold_).astype('int')
 
-        self.mu = np.mean(self.decision_scores)
-        self.sigma = np.std(self.decision_scores)
+        self._mu = np.mean(self.decision_scores)
+        self._sigma = np.std(self.decision_scores)
 
         return self
 
     def decision_function(self, X):
 
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+        check_is_fitted(self, ['tree_'])
 
         X = check_array(X)
 
@@ -74,7 +100,7 @@ class KNN(BaseDetector):
             x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
 
             # get the distance of the current point
-            dist_arr, ind_arr = self.tree.query(x_i, k=self.n_neighbors_)
+            dist_arr, ind_arr = self.tree_.query(x_i, k=self.n_neighbors_)
 
             if self.method == 'largest':
                 dist = dist_arr[:, -1]

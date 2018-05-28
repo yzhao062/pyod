@@ -11,6 +11,7 @@ pyod.utils.load\_data module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.utils.stat\_models module
 ------------------------------
@@ -19,6 +20,7 @@ pyod.utils.stat\_models module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.utils.utility module
 -------------------------
@@ -27,6 +29,7 @@ pyod.utils.utility module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 
 Module contents
@@ -36,3 +39,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

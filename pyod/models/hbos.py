@@ -78,8 +78,8 @@ class HBOS(BaseDetector):
         self.bin_edges = bin_edges
         self.decision_scores = out_scores_sum
         self.y_pred = (self.decision_scores > self.threshold_).astype('int')
-        self.mu = np.mean(self.decision_scores)
-        self.sigma = np.std(self.decision_scores)
+        self._mu = np.mean(self.decision_scores)
+        self._sigma = np.std(self.decision_scores)
 
     def decision_function(self, X):
 

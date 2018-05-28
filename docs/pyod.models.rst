@@ -11,6 +11,7 @@ pyod.models.abod module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.base module
 -----------------------
@@ -19,6 +20,7 @@ pyod.models.base module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.combination module
 ------------------------------
@@ -27,6 +29,7 @@ pyod.models.combination module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.glosh module
 ------------------------
@@ -35,6 +38,7 @@ pyod.models.glosh module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.hbos module
 -----------------------
@@ -43,6 +47,7 @@ pyod.models.hbos module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.iforest module
 --------------------------
@@ -51,6 +56,7 @@ pyod.models.iforest module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.knn module
 ----------------------
@@ -59,6 +65,7 @@ pyod.models.knn module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.lof module
 ----------------------
@@ -67,6 +74,7 @@ pyod.models.lof module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 pyod.models.ocsvm module
 ------------------------
@@ -75,6 +83,7 @@ pyod.models.ocsvm module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 
 Module contents
@@ -84,3 +93,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

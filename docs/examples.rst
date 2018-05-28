@@ -11,6 +11,7 @@ examples.abod\_example module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 examples.comb\_example module
 -----------------------------
@@ -19,6 +20,7 @@ examples.comb\_example module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 examples.hbos\_example module
 -----------------------------
@@ -27,6 +29,7 @@ examples.hbos\_example module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 examples.iforest\_example module
 --------------------------------
@@ -35,6 +38,7 @@ examples.iforest\_example module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 examples.knn\_example module
 ----------------------------
@@ -43,6 +47,7 @@ examples.knn\_example module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 examples.lof\_example module
 ----------------------------
@@ -51,6 +56,7 @@ examples.lof\_example module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 examples.ocsvm\_example module
 ------------------------------
@@ -59,6 +65,7 @@ examples.ocsvm\_example module
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
 
 Module contents
@@ -68,3 +75,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
