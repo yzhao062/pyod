@@ -16,21 +16,18 @@ class KNN(BaseDetector):
     viewed as the outlying score. It could be viewed as a way to measure
     the density. More to see the references below.
 
-
     Three kNN detectors are supported:
     largest: use the distance to the kth neighbor as the outlier score
     mean: use the average of all k neighbors as the outlier score
     median: use the median of the distance to k neighbors as the outlier score
 
-    --------------------------------------------------------------------------
+    .. [1] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May.
+           Efficient algorithms for mining outliers from large data sets. In
+           ACM Sigmod Record (Vol. 29, No. 2, pp. 427-438). ACM.
 
-    Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May.
-    Efficient algorithms for mining outliers from large data sets. In ACM
-    Sigmod Record (Vol. 29, No. 2, pp. 427-438). ACM.
-
-    Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high
-    dimensional spaces. In European Conference on Principles of Data Mining and Knowledge Discovery,
-    pp. 15-27.
+    .. [2] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection
+           in high dimensional spaces. In European Conference on Principles of
+           Data Mining and Knowledge Discovery,pp. 15-27.
 
     """
 

@@ -82,12 +82,14 @@ class BaseDetector(ABC):
 
     def predict_proba(self, X, method='linear'):
         """
-        Return the probability of a sample being outlier. Two approaches are possible:
-            1. simply use Min-max conversion to linearly transform the outlier
-                scores into the range of [0,1]. The model must be fitted first.
-            2. use unifying socres, see reference below
+        Return the probability of a sample being outlier. Two approaches
+        are possible:
 
-        Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011, April.
+        1. simply use Min-max conversion to linearly transform the outlier
+           scores into the range of [0,1]. The model must be fitted first.
+        2. use unifying scores, see reference [1] below.
+
+        [1] Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011, April.
         Interpreting and unifying outlier scores. In Proc' SIAM, 2011.
 
         :param X: The input samples
