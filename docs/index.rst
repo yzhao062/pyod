@@ -27,7 +27,7 @@ It strives to provide an unified APIs across various anomaly detection algorithm
 This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
-PyOD has been successfully used in academic researches [8, 9] and under active development.
+PyOD has been successfully used in academic researches [4, 8] and under active development.
 However, the purpose of the toolkit is quick exploration.
 Using it as the final output should be cautious,
 and fine-tunning may be needed to generate meaningful results.
@@ -52,7 +52,6 @@ The toolkit consists of three major groups of functionalities:
     * kNN Outlier Detection :class:`pyod.models.knn.KNN`
     * Average KNN Outlier Detection :class:`pyod.models.knn.KNN`
     * Median KNN Outlier Detection :class:`pyod.models.knn.KNN`
-    * Broken, to fix: Global-Local Outlier Score From Hierarchies [4]
     * Histogram-based Outlier Score, HBOS [5] :class:`pyod.models.hbos.HBOS`
     * Angle-Based Outlier Setection, ABOD [7] :class:`pyod.models.abod.ABOD`
 
@@ -86,7 +85,7 @@ Reference
 
 [3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*, pp. 1741-1745. IEEE.
 
-[4] Campello, R.J., Moulavi, D., Zimek, A. and Sander, J., 2015. Hierarchical density estimates for data clustering, visualization, and outlier detection. *TKDD*, 10(1), pp.5.
+[4] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
 
 [5] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*, pp.59-63.
 
@@ -95,8 +94,6 @@ Reference
 [7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*, pp. 444-452. ACM.
 
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
-
-[9] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
 
 ==================
 

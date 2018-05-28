@@ -31,15 +31,6 @@ pyod.models.combination module
     :show-inheritance:
     :inherited-members:
 
-pyod.models.glosh module
-------------------------
-
-.. automodule:: pyod.models.glosh
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
-
 pyod.models.hbos module
 -----------------------
 

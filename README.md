@@ -5,7 +5,7 @@
 
 PyOD is a **Python-based toolkit** to **identify outlying objects** in data with both unsupervised and supervised approaches. It strives to provide an unified APIs across various anomaly detection algorithms. This exciting yet challenging field is commonly referred as ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
 
-**PyOD has been successfully used in academic researches [8, 9] and under active development**. However, the purpose of the toolkit is quick exploration. Using it as the final output should be cautious, and fine-tunning may be needed to generate meaningful results. The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
+**PyOD has been successfully used in academic researches [4, 8] and under active development**. However, the purpose of the toolkit is quick exploration. Using it as the final output should be cautious, and fine-tunning may be needed to generate meaningful results. The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
 
 **Table of Contents**:
 <!-- TOC -->
@@ -44,10 +44,9 @@ PyOD toolkit consists of three major groups of functionalities: (i) **outlier de
   4. **kNN** Outlier Detection (use the distance to the kth nearst neighbor as the outlier score)
   5. **Average KNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
   6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
-  7. *Broken, to fix*: **Global-Local Outlier Score From Hierarchies** [4]
-  8. **Histogram-based Outlier Score, HBOS** [5]
-  9. **Angle-Based Outlier Setection, ABOD** [7]
-  10. More to add...
+  7. **Histogram-based Outlier Score, HBOS** [5]
+  8. **Angle-Based Outlier Setection, ABOD** [7]
+  9. More to add...
 
 - Outlier Ensemble Framework (Outlier Score Combination Frameworks)
   1. **Feature bagging**
@@ -255,7 +254,7 @@ The walkthrough of the code example is provided:
 
 [3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*, pp. 1741-1745. IEEE.
 
-[4] Campello, R.J., Moulavi, D., Zimek, A. and Sander, J., 2015. Hierarchical density estimates for data clustering, visualization, and outlier detection. *TKDD*, 10(1), pp.5.
+[4] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
 
 [5] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*, pp.59-63.
 
@@ -265,4 +264,3 @@ The walkthrough of the code example is provided:
 
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
 
-[9] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
