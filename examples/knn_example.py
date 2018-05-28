@@ -6,7 +6,10 @@ import os, sys
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import pathlib
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path  # python 2 backport
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -47,7 +50,7 @@ if __name__ == "__main__":
     #######################################################################
     # Visualizations
     # initialize the log directory if it does not exist
-    pathlib.Path('example_figs').mkdir(parents=True, exist_ok=True)
+    Path('example_figs').mkdir(parents=True, exist_ok=True)
 
     # plot the results
     fig = plt.figure(figsize=(12, 10))
