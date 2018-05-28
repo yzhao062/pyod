@@ -72,14 +72,11 @@ class HBOS(BaseDetector):
                     out_scores[j, i] = out_score[bin_ind[j] - 1]
 
         out_scores_sum = np.sum(out_scores, axis=1)
-        self.threshold_ = scoreatpercentile(out_scores_sum,
-                                            100 * (1 - self.contamination))
         self.hist = hist
         self.bin_edges = bin_edges
         self.decision_scores = out_scores_sum
-        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
-        self._mu = np.mean(self.decision_scores)
-        self._sigma = np.std(self.decision_scores)
+        self._process_decision_scores()
+        return self
 
     def decision_function(self, X):
 

@@ -1,9 +1,7 @@
 import numpy as np
-from scipy.stats import scoreatpercentile
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
-from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
@@ -73,14 +71,8 @@ class KNN(BaseDetector):
         elif self.method == 'median':
             dist = np.median(dist_arr, axis=1)
 
-        self.threshold_ = scoreatpercentile(dist,
-                                            100 * (1 - self.contamination))
         self.decision_scores = dist.ravel()
-        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
-
-        self._mu = np.mean(self.decision_scores)
-        self._sigma = np.std(self.decision_scores)
-
+        self._process_decision_scores()
         return self
 
     def decision_function(self, X):
@@ -119,9 +111,9 @@ class KNN(BaseDetector):
 # clf = Knn()
 # clf.fit(samples)
 #
-# scores = clf.decision_function(np.asarray([[2, 3], [6, 8]])).ravel()
-# assert (scores[0] == [2])
-# assert (scores[1] == [5])
+# decision_scores = clf.decision_function(np.asarray([[2, 3], [6, 8]])).ravel()
+# assert (decision_scores[0] == [2])
+# assert (decision_scores[1] == [5])
 # #
 # labels = clf.predict(np.asarray([[2, 3], [6, 8]])).ravel()
 # assert (labels[0] == [0])

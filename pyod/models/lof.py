@@ -47,17 +47,14 @@ class LOF(BaseDetector):
         self._isfitted = True
         self.detector_.fit(X=X_train, y=y)
         self.decision_scores = self.detector_.negative_outlier_factor_ * -1
-        self.threshold_ = scoreatpercentile(self.decision_scores,
-                                            100 * (1 - self.contamination))
-        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
-
+        self._process_decision_scores()
         return self
 
     def decision_function(self, X):
         if not self._isfitted:
             NotFittedError('Model is not fitted yet')
 
-        # invert scores. Outliers comes with higher scores
+        # invert decision_scores. Outliers comes with higher decision_scores
         return self.detector_._decision_function(X) * -1
 
     @property

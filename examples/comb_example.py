@@ -1,5 +1,5 @@
 """
-Example of combining multiple base outlier scores
+Example of combining multiple base outlier decision_scores
 Four combination frameworks are demonstrated
 
 1. Mean: take the average of all base detectors
@@ -81,7 +81,7 @@ if __name__ == "__main__":
             train_scores[:, i] = clf.decision_scores.ravel()
             test_scores[:, i] = clf.decision_function(X_test_norm).ravel()
 
-        # scores have to be normalized before combination
+        # decision_scores have to be normalized before combination
         train_scores_norm, test_scores_norm = standardizer(train_scores,
                                                            test_scores)
 

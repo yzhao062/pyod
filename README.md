@@ -139,13 +139,13 @@ See examples for more demos. "examples/knn_example.py" demonstrates the basic AP
     clf = KNN()
     clf.fit(X_train)
 
-    # get the prediction label and scores on the training data
+    decision_scores
     y_train_pred = clf.y_pred
     y_train_score = clf.decision_scores
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
-    y_test_score = clf.decision_function(X_test)  # outlier scores
+    y_test_score = clf.decision_function(X_test)  decision_scores
     ```
 3. Evaluate the prediction by ROC and Precision@rank *n* (p@n):
     ```python
@@ -213,7 +213,7 @@ The walkthrough of the code example is provided:
     ```
 2. Then the output codes are standardized into zero mean and unit std before combination.
     ```python
-    # scores have to be normalized before combination
+    decision_scores
     train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
     ```
 3. Then four different combination algorithms are applied as described above:

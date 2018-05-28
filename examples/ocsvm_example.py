@@ -28,13 +28,13 @@ if __name__ == "__main__":
     clf = OCSVM()
     clf.fit(X_train)
 
-    # get the prediction label and scores on the training data
+    # get the prediction label and decision_scores on the training data
     y_train_pred = clf.y_pred
     y_train_score = clf.decision_scores
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
-    y_test_score = clf.decision_function(X_test)  # outlier scores
+    y_test_score = clf.decision_function(X_test)  # outlier decision_scores
 
     print('Train ROC:{roc}, precision@n_train:{prn}'.format(
         roc=roc_auc_score(y_train, y_train_score),

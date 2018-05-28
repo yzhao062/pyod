@@ -3,7 +3,7 @@ from itertools import combinations
 import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.utils import check_array
-from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 from .base import BaseDetector
 
 
@@ -16,6 +16,10 @@ class ABOD(BaseDetector):
     def __init__(self, contamination=0.1, fast_method=False):
         super().__init__(contamination=contamination)
         self.fast_method = fast_method
+        self.X_train = None
+
+        # TODO: verify if n_train is needed
+        self.n_train = None
 
     def fit(self, X_train):
         if not (0. < self.contamination <= .5):
@@ -24,7 +28,6 @@ class ABOD(BaseDetector):
 
         X_train = check_array(X_train)
         self.X_train = X_train
-        self._isfitted = True
         self.n_train = X_train.shape[0]
         self.decision_scores = np.zeros([self.n_train, 1])
 
@@ -55,14 +58,13 @@ class ABOD(BaseDetector):
             self.decision_scores[i, 0] = np.var(wcos_list)
 
         self.decision_scores = self.decision_scores.ravel() * -1
-        self.threshold_ = scoreatpercentile(self.decision_scores,
-                                            100 * (1 - self.contamination))
-        self.y_pred = (self.decision_scores > self.threshold_).astype('int')
+        self._process_decision_scores()
+        return self
 
     def decision_function(self, X):
 
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+        check_is_fitted(self,
+                        ['X_train', 'decision_scores', 'threshold_', 'y_pred'])
 
         X = check_array(X)
         # initialize the output score
@@ -93,41 +95,5 @@ class ABOD(BaseDetector):
             # record the current item
             pred_score[i, :] = np.var(wcos_list)
 
-        # outliers have higher scores
+        # outliers have higher decision_scores
         return pred_score * -1
-
-        # def predict_proba(self, X_test, method='linear'):
-    #     test_scores = self.decision_function(X_test)
-    #     train_scores = self.decision_scores
-    #
-    #     if method == 'linear':
-    #         scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
-    #         proba = scaler.transform(test_scores.reshape(-1, 1))
-    #         return proba.clip(0, 1)
-    #     else:
-    #         # turn output into probability
-    #         pre_erf_score = (test_scores - self._mu) / (
-    #                 self._sigma * np.sqrt(2))
-    #         erf_score = erf(pre_erf_score)
-    #         proba = erf_score.clip(0)
-    #
-    #         # TODO: move to testing code
-    #         assert (proba.min() >= 0)
-    #         assert (proba.max() <= 1)
-    #         return proba
-    #
-    # def predict_rank(self, X_test):
-    #     test_scores = self.decision_function(X_test)
-    #     train_scores = self.decision_scores
-    #
-    #     ranks = np.zeros([X_test.shape[0], 1])
-    #
-    #     for i in range(test_scores.shape[0]):
-    #         train_scores_i = np.append(train_scores.reshape(-1, 1),
-    #                                    test_scores[i])
-    #
-    #         ranks[i] = rankdata(train_scores_i)[-1]
-    #
-    #     # return normalized ranks
-    #     ranks_norm = ranks / ranks.max()
-    #     return ranks_norm

@@ -9,6 +9,7 @@ from sklearn.utils.testing import assert_equal
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
+from sklearn.utils.testing import assert_raises
 from sklearn.metrics import roc_auc_score
 
 from pyod.models.abod import ABOD
@@ -25,7 +26,7 @@ class TestABOD(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
 
-        self.clf = clf = ABOD(contamination=self.contamination)
+        self.clf = ABOD(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -58,10 +59,19 @@ class TestABOD(unittest.TestCase):
         assert_greater_equal(pred_proba.min(), 0)
         assert_less_equal(pred_proba.max(), 1)
 
-    def test_prediction_proba(self):
-        pred_proba = self.clf.predict_proba(self.X_test)
+    def test_prediction_proba_linear(self):
+        pred_proba = self.clf.predict_proba(self.X_test, method='linear')
         assert_greater_equal(pred_proba.min(), 0)
         assert_less_equal(pred_proba.max(), 1)
+
+    def test_prediction_proba_unify(self):
+        pred_proba = self.clf.predict_proba(self.X_test, method='unify')
+        assert_greater_equal(pred_proba.min(), 0)
+        assert_less_equal(pred_proba.max(), 1)
+
+    def test_prediction_proba_parameter(self):
+        with assert_raises(ValueError):
+            self.clf.predict_proba(self.X_test, method='something')
 
     def test_fit_predict(self):
         pred_labels = self.clf.fit_predict(self.X_train)

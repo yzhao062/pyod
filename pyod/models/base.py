@@ -7,6 +7,8 @@ from abc import ABC, abstractmethod
 import numpy as np
 from scipy.stats import rankdata
 from scipy.special import erf
+from scipy.stats import scoreatpercentile
+
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
@@ -36,18 +38,18 @@ class BaseDetector(ABC):
         """
         Anomaly score of X of the base classifiers. The anomaly score of an
         input sample is computed based on different detector algorithms.
-        For consistency, outliers have larger anomaly scores.
+        For consistency, outliers have larger anomaly decision_scores.
 
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
-        :return: scores: The anomaly score of the input samples.
+        :return: decision_scores: The anomaly score of the input samples.
         :rtype: array, shape (n_samples,)
         """
         pass
 
     @abstractmethod
-    def fit(self):
+    def fit(self, X):
         pass
 
     def fit_predict(self, X):
@@ -86,11 +88,11 @@ class BaseDetector(ABC):
         are possible:
 
         1. simply use Min-max conversion to linearly transform the outlier
-           scores into the range of [0,1]. The model must be fitted first.
-        2. use unifying scores, see reference [1] below.
+           decision_scores into the range of [0,1]. The model must be fitted first.
+        2. use unifying decision_scores, see reference [1] below.
 
         [1] Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011, April.
-        Interpreting and unifying outlier scores. In Proc' SIAM, 2011.
+        Interpreting and unifying outlier decision_scores. In Proc' SIAM, 2011.
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
@@ -113,12 +115,14 @@ class BaseDetector(ABC):
 
         elif method == 'unify':
             # turn output into probability
-            pre_erf_score = (test_scores - self.mu) / (self.sigma * np.sqrt(2))
+            pre_erf_score = (test_scores - self._mu) / (
+                    self._sigma * np.sqrt(2))
             erf_score = erf(pre_erf_score)
             proba = erf_score.clip(0)
             return proba
         else:
-            ValueError(method, 'is not a valid probability conversion method')
+            raise ValueError(method,
+                             'is not a valid probability conversion method')
 
     def predict_rank(self, X_test):
 
@@ -145,3 +149,24 @@ class BaseDetector(ABC):
         roc = roc_auc_score(y_test, pred_score)
         print("roc", prec_n)
         print("precision@n_train", prec_n)
+
+    def _process_decision_scores(self):
+        """
+        Internal function to calculate key attributes:
+        threshold: used to decide the binary label
+        y_pred: binary lables of training data
+
+        :return: self
+        :rtype: object
+        """
+
+        self.threshold_ = scoreatpercentile(self.decision_scores,
+                                            100 * (1 - self.contamination))
+        self.y_pred = (self.decision_scores > self.threshold_).astype(
+            'int').ravel()
+
+        # calculate for predict_proba
+        self._mu = np.mean(self.decision_scores)
+        self._sigma = np.std(self.decision_scores)
+
+        return self

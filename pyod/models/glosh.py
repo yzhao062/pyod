@@ -22,9 +22,9 @@ class Glosh(BaseDetector):
         clusterer = hdbscan.HDBSCAN()
         clusterer.fit(self.X_train)
 
-        self.scores = clusterer.outlier_scores_
-        self.threshold = scoreatpercentile(self.scores,
-                                           100 * (1 - self.contamination))
+        self.decision_scores = clusterer.outlier_scores_
+        self._process_decision_scores()
+        return self
 
     def decision_function(self, X):
 
