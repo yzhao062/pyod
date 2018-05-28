@@ -7,16 +7,19 @@ PyOD Documentation
 ================================
 .. image:: https://badge.fury.io/py/pyod.svg
     :target: https://badge.fury.io/py/pyod
+.. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
+    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 .. image:: https://travis-ci.org/yzhao062/Pyod.svg?branch=master
     :target: https://travis-ci.org/yzhao062/Pyod
 .. image:: https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master
     :target: https://coveralls.io/github/yzhao062/Pyod?branch=master
 .. image:: https://img.shields.io/github/stars/yzhao062/Pyod.svg
     :alt: GitHub stars
-    :target: https://github.com/yzhao062/Pyod/stargazers
-.. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
-    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+    :target: https://github.com/yzhao062/Pyod
+.. image:: https://img.shields.io/github/forks/yzhao062/Pyod.svg
+    :alt: GitHub forks
+    :target: https://github.com/yzhao062/Pyod
 
 **Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a Python-based toolkit to identify outliers in data with both unsupervised and supervised algorithms.
 It strives to provide unified APIs across for different anomaly detection algorithms.
