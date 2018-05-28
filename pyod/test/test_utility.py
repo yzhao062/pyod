@@ -26,7 +26,6 @@ class TestUtils(unittest.TestCase):
         self.n_train = 1000
         self.n_test = 500
         self.contamination = 0.1
-        pass
 
     def test_data_generate(self):
         X_train, y_train, _, X_test, y_test, _ = generate_data(
