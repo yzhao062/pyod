@@ -77,7 +77,8 @@ class KNN(BaseDetector):
 
     def decision_function(self, X):
 
-        check_is_fitted(self, ['tree_'])
+        check_is_fitted(self,
+                        ['tree_', 'decision_scores', 'threshold_', 'y_pred'])
 
         X = check_array(X)
 

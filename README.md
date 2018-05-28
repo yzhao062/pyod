@@ -1,22 +1,16 @@
 # Python Outlier Detection (PyOD)
 [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master)](https://coveralls.io/github/yzhao062/Pyod?branch=master) 
 
-**Note: PyOD has been successfully used in various academic researches [8, 9] and under active development**. The purpose of the toolkit is for quick exploration. Using it as the final output should be cautious. Fine-tunning may be needed to generate meaningful results.
+--------------------------
 
-The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to drop an email if you have any questions. PR and issue are also welcome for feature requests and bugs. 
+PyOD is a **Python-based toolkit** to **identify outlying objects** in data with both unsupervised and supervised approaches. It strives to provide an unified APIs across various anomaly detection algorithms. This exciting yet challenging field is commonly referred as ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
 
-- [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) **[Documentation & API Reference](https://pyod.readthedocs.io)**
-
-- [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) **[Current version on PyPI](https://pypi.org/project/pyod/)**.
-
-- **[Github repository with examples](https://github.com/yzhao062/Pyod)**.
-
-- More anomaly detection related resources, e.g., books, papers and videos, can be found at [anomaly-detection-resources.](https://github.com/yzhao062/anomaly-detection-resources)
+**PyOD has been successfully used in academic researches [8, 9] and under active development**. However, the purpose of the toolkit is quick exploration. Using it as the final output should be cautious, and fine-tunning may be needed to generate meaningful results. The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
 
 **Table of Contents**:
 <!-- TOC -->
 
-[Python Outlier Detection (PyOD)](#python-outlier-detection-pyod)
+- [Key Links & Resources](#key-links-resources)
 - [Quick Introduction](#quick-introduction)
 - [Installation](#installation)
 - [API Cheatsheet & Reference](#api-cheatsheet-reference)
@@ -26,8 +20,22 @@ The authours can be reached out by yuezhao@cs.toronto.edu. Please feel free to d
 
 <!-- /TOC -->
 
+------------------------------
+# Key Links & Resources
+
+- **[Documentation & API Reference](https://pyod.readthedocs.io)** [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest)
+
+- **[Current version on PyPI](https://pypi.org/project/pyod/)** [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) 
+
+- **[Github repository with examples](https://github.com/yzhao062/Pyod/examples)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
+
+- **Anomaly detection related resources**, e.g., books, papers and videos, can be found at **[anomaly-detection-resources.](https://github.com/yzhao062/anomaly-detection-resources)**
+
+-----------------------------------
+
 ### Quick Introduction
-PyOD is a **Python-based toolkit** to identify outliers in data with both unsupervised and supervised algorithms. It strives to provide unified APIs across for different anomaly detection algorithms. The toolkit consists of three major groups of functionalities: (i) **outlier detection algorithms**; (ii) **outlier ensemble frameworks** and (iii) **outlier detection utility functions**.
+
+PyOD toolkit consists of three major groups of functionalities: (i) **outlier detection algorithms**; (ii) **outlier ensemble frameworks** and (iii) **outlier detection utility functions**.
 
 - Individual Detection Algorithms:  
   1. **Local Outlier Factor, LOF** [1]
@@ -55,21 +63,21 @@ PyOD is a **Python-based toolkit** to identify outliers in data with both unsupe
 
 ### Installation
 
-It is advised to use **pip** to install **the latest version**:
+It is advised to use **pip** for installation. Please make sure **the latest version** is installed since PyOD is currently updated on **a daily basis**:
 ````cmd
 pip install pyod
-pip install --upgrade pyod
+pip install --upgrade pyod # make sure the latest version is installed!
 ````
 or 
 ````cmd
-pip install pyod==x.y.z
+pip install pyod==x.y.z  # (x.y.z) is the current version number
 ````
-Please check the version number(x.y.z) is consistent with the current version number. Pypi can be unstable sometimes. Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
+ Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
 
 ````cmd
 python setup.py install
 ````
-Library Dependency (work only with **Python 3**):
+Library Dependency (work only with **Python 3.5+**,  e.g. 3.5 & 3.6):
 - scipy>=0.19.1
 - pandas>=0.21
 - numpy>=1.13
@@ -83,13 +91,13 @@ Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html)
 
 API cheatsheet:
 
-- **fit()**: fit the model with the training data
-- **fit_predict()**: fit and return the binary outlier lables (0 is normal and 1 is outliers) 
-- **decision_function()**: return raw outlier scores
-- **predict()**: return binary outlier labels of test data. The model must be fitted first.
-- **predict_proba()**: return outlier probability of test data (0 to 1). The model must be fitted first.
-- **predict_rank()**: return outlier rank of test data (data outlyness rank in training data)
-- **evaluate()**: print out the roc and precision @ rank n of the data
+- **fit(X)**: fit the model with the training data X
+- **fit_predict(X)**: fit and return the binary outlier lables of X (0 is normal and 1 is outliers) 
+- **decision_function(X)**: return raw outlier scores of X
+- **predict(X)**: return binary outlier labels of X. The model must be fitted first.
+- **predict_proba(X)**: return outlier probability of data X (0 to 1). The model must be fitted first.
+- **predict_rank(X)**: return outlier rank of data X (data outlyness rank in training data)
+- **evaluate(X, y)**: print out the roc and precision @ rank n of the data
 
 Import outlier detection models, such like:
 ````python

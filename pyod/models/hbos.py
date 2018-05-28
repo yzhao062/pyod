@@ -1,9 +1,9 @@
 import math
 
 import numpy as np
-from scipy.stats import scoreatpercentile
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
@@ -79,7 +79,7 @@ class HBOS(BaseDetector):
         return self
 
     def decision_function(self, X):
-
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
         X = check_array(X)
         n_test = X.shape[0]
         out_scores = np.zeros([n_test, self.d])

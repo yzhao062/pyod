@@ -1,6 +1,5 @@
 from sklearn.neighbors import LocalOutlierFactor
-from scipy.stats import scoreatpercentile
-from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 from .base import BaseDetector
 
 
@@ -44,15 +43,13 @@ class LOF(BaseDetector):
                                             n_jobs=self.n_jobs)
 
     def fit(self, X_train, y=None):
-        self._isfitted = True
         self.detector_.fit(X=X_train, y=y)
         self.decision_scores = self.detector_.negative_outlier_factor_ * -1
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
 
         # invert decision_scores. Outliers comes with higher decision_scores
         return self.detector_._decision_function(X) * -1

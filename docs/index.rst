@@ -21,11 +21,31 @@ PyOD Documentation
     :alt: GitHub forks
     :target: https://github.com/yzhao062/Pyod
 
-**Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a Python-based toolkit to identify outliers in data with both unsupervised and supervised algorithms.
-It strives to provide unified APIs across for different anomaly detection algorithms.
+**Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a Python-based toolkit
+to **identify outlying objects** in data with both unsupervised and supervised algorithms.
+It strives to provide an unified APIs across various anomaly detection algorithms.
+This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
+or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
+
+PyOD has been successfully used in academic researches [8, 9] and under active development.
+However, the purpose of the toolkit is quick exploration.
+Using it as the final output should be cautious,
+and fine-tunning may be needed to generate meaningful results.
+The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions,
+pull requests and issues are welcome. **Enjoy catching outliers!**
+
+**Key Links**:
+
+- `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_
+- `Current version on PyPI <https://pypi.org/project/pyod/>`_
+- `anomaly-detection-resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+
+Important Functions
+================================
 The toolkit consists of three major groups of functionalities:
 
-1. Outlier detection algorithms
+1. **Outlier detection algorithms**
     * Local Outlier Factor, LOF [1] :class:`pyod.models.lof.LOF`
     * Isolation Forest, iForest [2] :class:`pyod.models.iforest.IForest`
     * One-Class Support Vector Machines [3] :class:`pyod.models.ocsvm.OCSVM`
@@ -36,19 +56,16 @@ The toolkit consists of three major groups of functionalities:
     * Histogram-based Outlier Score, HBOS [5] :class:`pyod.models.hbos.HBOS`
     * Angle-Based Outlier Setection, ABOD [7] :class:`pyod.models.abod.ABOD`
 
-2. Outlier ensemble frameworks :mod:`pyod.models.combination`.
+2. **Outlier ensemble frameworks**, see :mod:`pyod.models.combination`.
     * Feature bagging
     * Average of Maximum (AOM) [6] :func:`pyod.models.combination.aom`
     * Maximum of Average (MOA) [6] :func:`pyod.models.combination.moa`
     * Threshold Sum (Thresh) [6]
 
-3. Outlier detection utility functions. See :mod:`pyod.utils`.
+3. **Outlier detection utility functions**, see :mod:`pyod.utils`.
     * :func:`pyod.utils.utility.scores_to_lables`: converting raw outlier scores to binary labels
     * :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
     * :func:`pyod.utils.load_data.generate_data`: generate pseudo data for outlier detection experiment
-
-More anomaly detection related resources, e.g., books, papers and videos,
-can be found at `anomaly-detection-resources <https://github.com/yzhao062/anomaly-detection-resources>`_.
 
 Contents
 ====================
@@ -59,14 +76,6 @@ Contents
    install
    example
    api
-
-Check `Github Repository <https://github.com/yzhao062/Pyod>`_
-and `PyPI <https://pypi.org/project/pyod/>`_ for more information.
-
-PyOD has been successfully used in various academic researches [8, 9] and under active development.
-However, full documentation and unit tests are temporarily unavailable yet planned for future release.
-The purpose of the toolkit is for quick exploration. Using it as the final output should be cautious.
-Fine-tunning may be needed to generate meaningful results.
 
 Reference
 ++++++++++++

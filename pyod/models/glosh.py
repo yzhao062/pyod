@@ -1,6 +1,6 @@
 import numpy as np
-from scipy.stats import scoreatpercentile
 from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 
 # TODO: fix broken model here
 import hdbscan
@@ -27,7 +27,7 @@ class Glosh(BaseDetector):
         return self
 
     def decision_function(self, X):
-
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
         X = check_array(X)
         # initialize the outputs
         pred_score = np.zeros([X.shape[0], 1])

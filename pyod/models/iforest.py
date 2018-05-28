@@ -1,6 +1,5 @@
 from sklearn.ensemble import IsolationForest
-from scipy.stats import scoreatpercentile
-from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 from .base import BaseDetector
 
 
@@ -77,11 +76,8 @@ class IForest(BaseDetector):
         self._process_decision_scores()
         return self
 
-        return self
-
     def decision_function(self, X):
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
         # invert decision_scores. Outliers comes with higher decision_scores
         return self.detector_.decision_function(X) * -1
 

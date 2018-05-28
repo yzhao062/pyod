@@ -1,7 +1,6 @@
 from itertools import combinations
 
 import numpy as np
-from scipy.stats import scoreatpercentile
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from .base import BaseDetector
