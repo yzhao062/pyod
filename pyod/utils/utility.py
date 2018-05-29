@@ -53,7 +53,7 @@ def standardizer(X_train, X_test):
     return (scaler.transform(X_train), scaler.transform(X_test))
 
 
-def scores_to_lables(pred_scores, outlier_perc=0.1):
+def score_to_label(pred_scores, outlier_perc=0.1):
     """
     turn raw outlier decision_scores to binary labels (0 or 1)
 

@@ -5,7 +5,7 @@
 #
 # __all__ = ['precision_n_scores',
 #            'standardizer',
-#            'scores_to_lables',
+#            'score_to_label',
 #            'get_top_n',
 #            'get_label_n',
 #            'argmaxp',
