@@ -18,6 +18,7 @@ class LOF(BaseDetector):
     By comparing the local density of a sample to the local densities of
     its neighbors, one can identify samples that have a substantially lower
     density than their neighbors. These are considered outliers.
+
     """
 
     def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,

@@ -27,33 +27,29 @@ class KNN(BaseDetector):
            in high dimensional spaces. In European Conference on Principles of
            Data Mining and Knowledge Discovery,pp. 15-27.
 
+    :param contamination: the amount of contamination of the data set, i.e.
+        the proportion of outliers in the data set. Used when fitting to
+        define the threshold on the decision function.
+    :type contamination: float in (0, 0.5], optional (default=0.1)
+
+    :param n_neighbors: Number of neighbors to use by default
+        for k neighbors queries.
+    :type n_neighbors: int, optional (default=5)
+
+    :param method: {'largest', 'mean', 'median'}
+
+        - largest: use the distance to the kth neighbor as the outlier score
+        - mean: use the average of all k neighbors as the outlier score
+        - median: use the median of the distance to k neighbors as the outlier score
+    :type method: str, optional (default='largest')
     """
 
-    def __init__(self, n_neighbors=5, contamination=0.1, method='largest'):
-        """
-        :param n_neighbors: Number of neighbors to use by default
-            for k neighbors queries.
-        :type n_neighbors: int, optional (default=5)
-        :param contamination: he amount of contamination of the data set, i.e.
-            the proportion of outliers in the data set. Used when fitting to
-            define the threshold on the decision function.
-        :type contamination: float in (0, 0.5], optional (default=0.1)
-        :param method: {'largest', 'mean', 'median'},
-            largest: use the distance to the kth neighbor as the outlier score
-            mean: use the average of all k neighbors as the outlier score
-            median: use the median of the distance to k neighbors as the outlier score
-        :type method: str, optional (default='largest')
-        """
+    def __init__(self, contamination=0.1, n_neighbors=5, method='largest'):
         super().__init__(contamination=contamination)
         self.n_neighbors_ = n_neighbors
         self.method = method
 
     def fit(self, X):
-
-        if not (0. < self.contamination <= .5):
-            raise ValueError("contamination must be in (0, 0.5], "
-                             "got: %f" % self.contamination)
-
         X = check_array(X)
         self.tree_ = KDTree(X)
 

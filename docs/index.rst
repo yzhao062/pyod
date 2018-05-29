@@ -54,6 +54,7 @@ The toolkit consists of three major groups of functionalities:
     * Median KNN Outlier Detection :class:`pyod.models.knn.KNN`
     * Histogram-based Outlier Score, HBOS [5] :class:`pyod.models.hbos.HBOS`
     * Angle-Based Outlier Detection, ABOD [7] :class:`pyod.models.abod.ABOD`
+    * Fast Angle-Based Outlier Detection, FastABOD [7] :class:`pyod.models.abod.ABOD`
 
 2. **Outlier ensemble frameworks**, see :mod:`pyod.models.combination`.
     * Feature bagging

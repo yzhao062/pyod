@@ -46,7 +46,8 @@ PyOD toolkit consists of three major groups of functionalities: (i) **outlier de
   6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
   7. **Histogram-based Outlier Score, HBOS** [5]
   8. **Angle-Based Outlier Detection, ABOD** [7]
-  9. More to add...
+  9. **Fast Angle-Based Outlier Detection, FastABOD** [7]
+  10. More to add...
 
 - Outlier Ensemble Framework (Outlier Score Combination Frameworks)
   1. **Feature bagging**

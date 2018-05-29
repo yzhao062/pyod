@@ -9,6 +9,7 @@ from sklearn.utils.testing import assert_equal
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
+from sklearn.utils.testing import assert_raises
 from sklearn.metrics import roc_auc_score
 
 from pyod.models.base import BaseDetector
@@ -47,6 +48,15 @@ class TestBASE(unittest.TestCase):
 
         self.dummy_clf = dummy(contamination=0.2)
         assert_equal(self.dummy_clf.contamination, 0.2)
+
+        with assert_raises(ValueError):
+            dummy(contamination=0.51)
+
+        with assert_raises(ValueError):
+            dummy(contamination=0)
+
+        with assert_raises(ValueError):
+            dummy(contamination=-0.5)
 
     def test_fit(self):
         class dummy(BaseDetector):

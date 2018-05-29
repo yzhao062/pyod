@@ -1,8 +1,12 @@
 Examples
 ============
+
+Example APIs
+---------------
 .. toctree::
 
-    example
+    examples
+
 
 kNN Example
 ----------------
@@ -63,7 +67,7 @@ Sample outpus: ::
 
 
 Model Combination Example
-----------------
+--------------------------
 `comb_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_ is a quick demo for showing the API for combining multiple algorithms.
 Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
 
@@ -122,9 +126,3 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
     comb by max, ROC: 0.9198, precision@n: 0.5532
     comb by aom, ROC: 0.9260, precision@n: 0.5630
     comb by moa, ROC: 0.9244, precision@n: 0.5523
-
-Example APIs
----------------
-.. toctree::
-
-    examples

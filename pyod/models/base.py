@@ -17,15 +17,22 @@ from ..utils.utility import precision_n_scores
 
 
 class BaseDetector(ABC):
+    """
+    Abstract class for all outlier detection algorithms.
+
+    :param contamination: The amount of contamination of the data set,
+        i.e. the proportion of outliers in the data set. Used when fitting to
+        define the threshold on the decision function.
+    :type contamination: float in (0., 0.5), optional (default=0.1)
+    """
 
     @abstractmethod
     def __init__(self, contamination=0.1):
-        """
-        :param contamination: he amount of contamination of the data set, i.e.
-            the proportion of outliers in the data set. Used when fitting to
-            define the threshold on the decision function.
-        :type contamination: float in (0, 0.5], optional (default=0.1)
-        """
+
+        if not (0. < contamination <= 0.5):
+            raise ValueError("contamination must be in (0, 0.5], "
+                             "got: %f" % contamination)
+
         self.contamination = contamination
 
         # TODO: clean up these initialization
@@ -45,6 +52,7 @@ class BaseDetector(ABC):
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
+
         :return: decision_scores: The anomaly score of the input samples.
         :rtype: array, shape (n_samples,)
         """
@@ -53,11 +61,12 @@ class BaseDetector(ABC):
     @abstractmethod
     def fit(self, X):
         """
-        Fit estimator.
+        Fit detector.
 
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
+
         :return: return self
         :rtype: object
         """
@@ -69,6 +78,7 @@ class BaseDetector(ABC):
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
+
         :return: For each observation, tells whether or not
             it should be considered as an outlier according to the fitted model.
             0 stands for inliers and 1 for outliers.
@@ -107,9 +117,11 @@ class BaseDetector(ABC):
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
+
         :param method: probability conversion method. It must be one of
             'linear' or 'unify'.
         :type method: str, optional (default='linear')
+
         :return: For each observation, return the outlier probability, ranging
             in [0,1]
         :rtype: array, shape (n_samples,)
@@ -198,7 +210,8 @@ class BaseDetector(ABC):
         self.y_pred = (self.decision_scores > self.threshold_).astype(
             'int').ravel()
 
-        # calculate for predict_proba
+        # calculate for predict_proba()
+
         self._mu = np.mean(self.decision_scores)
         self._sigma = np.std(self.decision_scores)
 

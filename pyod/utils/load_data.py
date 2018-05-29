@@ -21,8 +21,10 @@ def generate_data(n_train=1000, n_test=500, contamination=0.1,
     :param n_test: number of test points to generate
     :type n_test: int
 
-    :param contamination: percentage of outliers
-    :type contamination: float
+    :param contamination: The amount of contamination of the data set,
+        i.e. the proportion of outliers in the data set. Used when fitting to
+        define the threshold on the decision function.
+    :type contamination: float in (0., 0.5), optional (default=0.1)
 
     :return: training data and test data (c_train and c_test are colors)
     :rtype: tuple, (ndarry, ndarry, list, ndarry, ndarry, list)

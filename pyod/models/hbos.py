@@ -20,10 +20,6 @@ class HBOS(BaseDetector):
 
     def fit(self, X):
 
-        if not (0. < self.contamination <= .5):
-            raise ValueError("contamination must be in (0, 0.5], "
-                             "got: %f" % self.contamination)
-
         X = check_array(X)
 
         n_train, dim_train = X.shape[0], X.shape[1]

@@ -22,14 +22,14 @@ from pyod.utils.utility import precision_n_scores
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 200
-    n_test = 50
+    n_train = 1000
+    n_test = 500
 
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
         n_train=n_train, n_test=n_test, contamination=contamination)
 
     # train a ABOD detector (default version)
-    clf = ABOD(contamination=contamination, fast_method=False)
+    clf = ABOD(contamination=contamination)
     clf.fit(X_train)
 
     # get the prediction on the training data
