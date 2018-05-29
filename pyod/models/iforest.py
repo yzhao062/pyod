@@ -5,7 +5,7 @@ from .base import BaseDetector
 
 class IForest(BaseDetector):
     """
-    Wrapper of Sklearn Isolation Forest Class with more functionalities.
+    Wrapper of scikit-learn Isolation Forest Class with more functionalities.
 
     The IsolationForest 'isolates' observations by randomly selecting a feature
     and then randomly selecting a split value between the maximum and minimum
@@ -66,7 +66,6 @@ class IForest(BaseDetector):
                                          verbose=self.verbose)
 
     def fit(self, X_train, y=None, sample_weight=None):
-        self._isfitted = True
         self.detector_.fit(X_train,
                            y=None,
                            sample_weight=None)
@@ -84,7 +83,7 @@ class IForest(BaseDetector):
     @property
     def estimators_(self):
         """
-        decorator for sklearn Isolation Forest attributes
+        decorator for scikit-learn Isolation Forest attributes
         :return:
         """
         return self.detector_.estimators_
@@ -92,7 +91,7 @@ class IForest(BaseDetector):
     @property
     def estimators_samples_(self):
         """
-        decorator for sklearn Isolation Forest attributes
+        decorator for scikit-learn Isolation Forest attributes
         :return:
         """
         return self.detector_.estimators_samples_
@@ -100,7 +99,7 @@ class IForest(BaseDetector):
     @property
     def max_samples_(self):
         """
-        decorator for sklearn Isolation Forest attributes
+        decorator for scikit-learn Isolation Forest attributes
         :return:
         """
         return self.detector_.max_samples_

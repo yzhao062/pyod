@@ -5,7 +5,7 @@ from .base import BaseDetector
 
 class LOF(BaseDetector):
     """
-    Wrapper of Sklearn LOF Class with more functionalities.
+    Wrapper of scikit-learn LOF Class with more functionalities.
     Unsupervised Outlier Detection using Local Outlier Factor (LOF)
 
     The anomaly score of each sample is called Local Outlier Factor.
@@ -57,7 +57,7 @@ class LOF(BaseDetector):
     @property
     def negative_outlier_factor_(self):
         """
-        decorator for sklearn LOF attributes
+        decorator for scikit-learn LOF attributes
         :return:
         """
         return self.detector_.negative_outlier_factor_
@@ -65,7 +65,7 @@ class LOF(BaseDetector):
     @property
     def n_neighbors_(self):
         """
-        decorator for sklearn LOF attributes
+        decorator for scikit-learn LOF attributes
         :return:
         """
         return self.detector_.n_neighbors_

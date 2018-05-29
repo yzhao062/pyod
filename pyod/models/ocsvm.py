@@ -1,13 +1,12 @@
 from sklearn.svm import OneClassSVM
-from scipy.stats import scoreatpercentile
-from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 from .base import BaseDetector
 
 
 class OCSVM(BaseDetector):
     """
 
-    Wrapper of Sklearn one-class SVM Class with more functionalities.
+    Wrapper of scikit-learn one-class SVM Class with more functionalities.
     Unsupervised Outlier Detection.
 
     Estimate the support of a high-dimensional distribution.
@@ -44,7 +43,6 @@ class OCSVM(BaseDetector):
                                      random_state=self.random_state)
 
     def fit(self, X_train, y=None, sample_weight=None, **params):
-        self._isfitted = True
         self.detector_.fit(X=X_train, y=y, sample_weight=sample_weight,
                            **params)
         # invert decision_scores. Outliers comes with higher decision_scores
@@ -53,15 +51,14 @@ class OCSVM(BaseDetector):
         return self
 
     def decision_function(self, X):
-        if not self._isfitted:
-            NotFittedError('Model is not fitted yet')
+        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
         # invert decision_scores. Outliers comes with higher decision_scores
         return self.detector_.decision_function(X) * -1
 
     @property
     def support_(self):
         """
-        decorator for sklearn Oneclass SVM attributes
+        decorator for scikit-learn Oneclass SVM attributes
         :return:
         """
         return self.detector_.support_
@@ -69,7 +66,7 @@ class OCSVM(BaseDetector):
     @property
     def support_vectors_(self):
         """
-        decorator for sklearn Oneclass SVM attributes
+        decorator for scikit-learn Oneclass SVM attributes
         :return:
         """
         return self.detector_.support_vectors_
@@ -77,7 +74,7 @@ class OCSVM(BaseDetector):
     @property
     def dual_coef_(self):
         """
-        decorator for sklearn Oneclass SVM attributes
+        decorator for scikit-learn Oneclass SVM attributes
         :return:
         """
         return self.detector_.dual_coef_
@@ -85,7 +82,7 @@ class OCSVM(BaseDetector):
     @property
     def coef_(self):
         """
-        decorator for sklearn Oneclass SVM attributes
+        decorator for scikit-learn One Class SVM attributes
         :return:
         """
         return self.detector_.coef_
@@ -93,7 +90,7 @@ class OCSVM(BaseDetector):
     @property
     def intercept_(self):
         """
-        decorator for sklearn Oneclass SVM attributes
+        decorator for scikit-learn Oneclass SVM attributes
         :return:
         """
         return self.detector_.intercept_

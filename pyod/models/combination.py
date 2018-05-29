@@ -129,7 +129,7 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
                 scores_aom[:, batch_ind] = np.mean(
                     scores[:, shuffled_list[head:tail]], axis=1)
 
-                # increment indexs
+                # increment index
                 head = head + n_estimators_per_bucket
                 tail = tail + n_estimators_per_bucket
         else:

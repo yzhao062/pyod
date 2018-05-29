@@ -15,24 +15,26 @@ class HBOS(BaseDetector):
         super().__init__(contamination=contamination)
         self.bins = bins
         self.beta = beta
+        # self.hist_ = None
+        # self.bin_edges_ = None
 
-    def fit(self, X_train):
+    def fit(self, X):
 
         if not (0. < self.contamination <= .5):
             raise ValueError("contamination must be in (0, 0.5], "
                              "got: %f" % self.contamination)
 
-        X_train = check_array(X_train)
+        X = check_array(X)
 
-        self.n, self.d = X_train.shape[0], X_train.shape[1]
-        out_scores = np.zeros([self.n, self.d])
+        n_train, dim_train = X.shape[0], X.shape[1]
+        out_scores = np.zeros([n_train, dim_train])
 
-        hist = np.zeros([self.bins, self.d])
-        bin_edges = np.zeros([self.bins + 1, self.d])
+        hist = np.zeros([self.bins, dim_train])
+        bin_edges = np.zeros([self.bins + 1, dim_train])
 
         # build the bins
-        for i in range(self.d):
-            hist[:, i], bin_edges[:, i] = np.histogram(X_train[:, i],
+        for i in range(dim_train):
+            hist[:, i], bin_edges[:, i] = np.histogram(X[:, i],
                                                        bins=self.bins,
                                                        density=True)
             # check the integrity
@@ -40,18 +42,18 @@ class HBOS(BaseDetector):
                 math.isclose(np.sum(hist[:, i] * np.diff(bin_edges[:, i])), 1))
 
         # calculate the threshold_
-        for i in range(self.d):
+        for i in range(dim_train):
             # find histogram assignments of data points
-            bin_ind = np.digitize(X_train[:, i], bin_edges[:, i], right=False)
+            bin_ind = np.digitize(X[:, i], bin_edges[:, i], right=False)
 
             # very important to do scaling. Not necessary to use min max
             out_score = np.max(hist[:, i]) - hist[:, i]
             out_score = MinMaxScaler().fit_transform(out_score.reshape(-1, 1))
 
-            for j in range(self.n):
+            for j in range(n_train):
                 # out sample left
                 if bin_ind[j] == 0:
-                    dist = np.abs(X_train[j, i] - bin_edges[0, i])
+                    dist = np.abs(X[j, i] - bin_edges[0, i])
                     bin_width = bin_edges[1, i] - bin_edges[0, i]
                     # assign it to bin 0
                     if dist < bin_width * self.beta:
@@ -61,7 +63,7 @@ class HBOS(BaseDetector):
 
                 # out sample right
                 elif bin_ind[j] == bin_edges.shape[0]:
-                    dist = np.abs(X_train[j, i] - bin_edges[-1, i])
+                    dist = np.abs(X[j, i] - bin_edges[-1, i])
                     bin_width = bin_edges[-1, i] - bin_edges[-2, i]
                     # assign it to bin k
                     if dist < bin_width * self.beta:
@@ -72,32 +74,32 @@ class HBOS(BaseDetector):
                     out_scores[j, i] = out_score[bin_ind[j] - 1]
 
         out_scores_sum = np.sum(out_scores, axis=1)
-        self.hist = hist
-        self.bin_edges = bin_edges
+        self.hist_ = hist
+        self.bin_edges_ = bin_edges
         self.decision_scores = out_scores_sum
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
+        check_is_fitted(self, ['hist_', 'bin_edges_', 'decision_scores',
+                               'threshold_', 'y_pred'])
         X = check_array(X)
-        n_test = X.shape[0]
-        out_scores = np.zeros([n_test, self.d])
+        n_test, dim_test = X.shape[0], X.shape[1]
+        out_scores = np.zeros([n_test, dim_test])
 
-        for i in range(self.d):
+        for i in range(dim_test):
             # find histogram assignments of data points
-            bin_ind = np.digitize(X[:, i], self.bin_edges[:, i],
-                                  right=False)
+            bin_ind = np.digitize(X[:, i], self.bin_edges_[:, i], right=False)
 
-            # very important to do scaling. Not necessary to use minmax
-            out_score = np.max(self.hist[:, i]) - self.hist[:, i]
+            # very important to do scaling. Not necessary to use min_max
+            out_score = np.max(self.hist_[:, i]) - self.hist_[:, i]
             out_score = MinMaxScaler().fit_transform(out_score.reshape(-1, 1))
 
             for j in range(n_test):
                 # out sample left
                 if bin_ind[j] == 0:
-                    dist = np.abs(X[j, i] - self.bin_edges[0, i])
-                    bin_width = self.bin_edges[1, i] - self.bin_edges[0, i]
+                    dist = np.abs(X[j, i] - self.bin_edges_[0, i])
+                    bin_width = self.bin_edges_[1, i] - self.bin_edges_[0, i]
                     # assign it to bin 0
                     if dist < bin_width * self.beta:
                         out_scores[j, i] = out_score[bin_ind[j]]
@@ -105,9 +107,9 @@ class HBOS(BaseDetector):
                         out_scores[j, i] = np.max(out_score)
 
                 # out sample right
-                elif bin_ind[j] == self.bin_edges.shape[0]:
-                    dist = np.abs(X[j, i] - self.bin_edges[-1, i])
-                    bin_width = self.bin_edges[-1, i] - self.bin_edges[-2, i]
+                elif bin_ind[j] == self.bin_edges_.shape[0]:
+                    dist = np.abs(X[j, i] - self.bin_edges_[-1, i])
+                    bin_width = self.bin_edges_[-1, i] - self.bin_edges_[-2, i]
                     # assign it to bin k
                     if dist < bin_width * self.beta:
                         out_scores[j, i] = out_score[bin_ind[j] - 2]

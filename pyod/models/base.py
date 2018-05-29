@@ -27,11 +27,13 @@ class BaseDetector(ABC):
         :type contamination: float in (0, 0.5], optional (default=0.1)
         """
         self.contamination = contamination
-        self.threshold_ = None
-        self.decision_scores = None
-        self._mu = None
-        self._sigma = None
-        self.y_pred = None
+
+        # TODO: clean up these initialization
+        # self.threshold_ = None
+        # self.decision_scores = None
+        # self._mu = None
+        # self._sigma = None
+        # self.y_pred = None
 
     @abstractmethod
     def decision_function(self, X):

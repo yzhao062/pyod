@@ -32,7 +32,7 @@ class KNN(BaseDetector):
     def __init__(self, n_neighbors=5, contamination=0.1, method='largest'):
         """
         :param n_neighbors: Number of neighbors to use by default
-            for kneighbors queries.
+            for k neighbors queries.
         :type n_neighbors: int, optional (default=5)
         :param contamination: he amount of contamination of the data set, i.e.
             the proportion of outliers in the data set. Used when fitting to
