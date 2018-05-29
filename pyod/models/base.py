@@ -86,7 +86,7 @@ class BaseDetector(ABC):
 
     def predict_proba(self, X, method='linear'):
         """
-        Return the probability of a sample being outlier. Two approaches
+        Predict the probability of a sample being outlier. Two approaches
         are possible:
 
         1. simply use Min-max conversion to linearly transform the outlier

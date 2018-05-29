@@ -53,7 +53,7 @@ The toolkit consists of three major groups of functionalities:
     * Average KNN Outlier Detection :class:`pyod.models.knn.KNN`
     * Median KNN Outlier Detection :class:`pyod.models.knn.KNN`
     * Histogram-based Outlier Score, HBOS [5] :class:`pyod.models.hbos.HBOS`
-    * Angle-Based Outlier Setection, ABOD [7] :class:`pyod.models.abod.ABOD`
+    * Angle-Based Outlier Detection, ABOD [7] :class:`pyod.models.abod.ABOD`
 
 2. **Outlier ensemble frameworks**, see :mod:`pyod.models.combination`.
     * Feature bagging
@@ -62,9 +62,10 @@ The toolkit consists of three major groups of functionalities:
     * Threshold Sum (Thresh) [6]
 
 3. **Outlier detection utility functions**, see :mod:`pyod.utils`.
-    * :func:`pyod.utils.utility.scores_to_lables`: converting raw outlier scores to binary labels
+    * :func:`pyod.utils.utility.score_to_lable`: converting raw outlier scores to binary labels
     * :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
     * :func:`pyod.utils.load_data.generate_data`: generate pseudo data for outlier detection experiment
+    * :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
 
 Contents
 ====================
@@ -74,6 +75,7 @@ Contents
 
    install
    example
+   api_cc
    api
 
 Reference
