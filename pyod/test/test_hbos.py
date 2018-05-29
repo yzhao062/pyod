@@ -82,7 +82,7 @@ class TestHBOS(unittest.TestCase):
         assert_equal(pred_labels.shape, self.y_train.shape)
 
     def test_evaluate(self):
-        self.clf.evaluate(self.X_test, self.y_test)
+        self.clf.fit_predict_evaluate(self.X_test, self.y_test)
 
     def tearDown(self):
         pass

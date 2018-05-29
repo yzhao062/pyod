@@ -7,6 +7,6 @@ API CheatSheet
 * :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not. The model must be fitted first.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
 * :func:`pyod.models.base.BaseDetector.predict_rank`: Predict the outlyingness rank of a sample.
-* :func:`pyod.models.base.BaseDetector.evaluate`: Print out the roc and precision @ rank n.
+* :func:`pyod.models.base.BaseDetector.fit_predict_evaluate`: Fit, predict and then evaluate with ROC and Precision @ rank n.
 
 See full API reference :doc:`api`.

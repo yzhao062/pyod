@@ -38,8 +38,8 @@ class BaseDetector(ABC):
     @abstractmethod
     def decision_function(self, X):
         """
-        Anomaly score of X of the base classifiers. The anomaly score of an
-        input sample is computed based on different detector algorithms.
+        Predict Anomaly score of X of the base classifiers. The anomaly score
+        of an input sample is computed based on different detector algorithms.
         For consistency, outliers have larger anomaly decision_scores.
 
         :param X: The training input samples. Sparse matrices are accepted only
@@ -52,6 +52,15 @@ class BaseDetector(ABC):
 
     @abstractmethod
     def fit(self, X):
+        """
+        Fit estimator.
+
+        :param X: The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+        :type X: numpy array of shape (n_samples, n_features)
+        :return: return self
+        :rtype: object
+        """
         pass
 
     def fit_predict(self, X):
@@ -126,14 +135,23 @@ class BaseDetector(ABC):
             raise ValueError(method,
                              'is not a valid probability conversion method')
 
-    def predict_rank(self, X_test):
+    def predict_rank(self, X):
+        """
+        Predict the outlyingness rank of a sample in a fitted model. The
+        method is specifically for combining various outlier detectors.
+
+        :param X: The input samples
+        :type X: numpy array of shape (n_samples, n_features)
+        :return: outlyness rank of a sample
+        :rtype: array, shape (n_samples,)
+        """
 
         check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
 
-        test_scores = self.decision_function(X_test)
+        test_scores = self.decision_function(X)
         train_scores = self.decision_scores
 
-        ranks = np.zeros([X_test.shape[0], 1])
+        ranks = np.zeros([X.shape[0], 1])
 
         for i in range(test_scores.shape[0]):
             train_scores_i = np.append(train_scores.reshape(-1, 1),
@@ -145,12 +163,25 @@ class BaseDetector(ABC):
         ranks_norm = ranks / ranks.max()
         return ranks_norm
 
-    def evaluate(self, X_test, y_test):
-        pred_score = self.decision_function(X_test)
-        prec_n = (precision_n_scores(y_test, pred_score))
-        roc = roc_auc_score(y_test, pred_score)
-        print("roc", prec_n)
-        print("precision@n_train", prec_n)
+    def fit_predict_evaluate(self, X, y):
+        """
+        Fit the detector, predict on samples, and evaluate the model
+
+        :param X: The input samples
+        :type X: numpy array of shape (n_samples, n_features)
+        :param y: Outlier labels of the input samples
+        :type y: array, shape (n_samples,)
+        :return: roc score and precision @ rank n score
+        :rtype:  tuple (float, float)
+        """
+        self.fit(X)
+        roc = roc_auc_score(y, self.decision_scores)
+        prec_n = (precision_n_scores(y, self.decision_scores))
+
+        print("roc score:", roc)
+        print("precision @ rank n:", prec_n)
+
+        return (roc, prec_n)
 
     def _process_decision_scores(self):
         """

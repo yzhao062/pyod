@@ -92,12 +92,13 @@ Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html)
 API cheatsheet:
 
 - **fit(X)**: Fit detector.
-- **fit_predict(X)**: Fit detector and predict if a particular sample is an outlier or not. 
+- **fit_predict(X)**: Fit detector and predict if a particular sample is an outlier or not.
+- **fit_predict_evaluate(X, y)**: Fit, predict and then evaluate with ROC and Precision @ rank n. 
 - **decision_function(X)**: Return raw outlier scores of a sample.
 - **predict(X)**: Predict if a particular sample is an outlier or not. The model must be fitted first.
 - **predict_proba(X)**: Predict the probability of a sample being outlier. The model must be fitted first.
 - **predict_rank(X)**: Predict the outlyingness rank of a sample.
-- **evaluate(X, y)**: Print out the roc and precision @ rank n.
+
 
 Import outlier detection models, such like:
 ````python
