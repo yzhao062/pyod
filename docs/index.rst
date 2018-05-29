@@ -13,7 +13,7 @@ PyOD Documentation
 .. image:: https://travis-ci.org/yzhao062/Pyod.svg?branch=master
     :target: https://travis-ci.org/yzhao062/Pyod
 .. image:: https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master
-    :target: https://coveralls.io/github/yzhao062/Pyod?branch=master
+    :target: https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github
 .. image:: https://img.shields.io/github/stars/yzhao062/Pyod.svg
     :alt: GitHub stars
     :target: https://github.com/yzhao062/Pyod
