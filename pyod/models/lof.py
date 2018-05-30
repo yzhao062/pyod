@@ -103,8 +103,7 @@ class LOF(BaseDetector):
     :var n_neighbors_(int): The actual number of neighbors used for
         kneighbors queries.
 
-    References
-    ----------
+
     .. [1] Breunig, M. M., Kriegel, H. P., Ng, R. T., & Sander, J. (2000, May).
            LOF: identifying density-based local outliers. In ACM sigmod record.
 

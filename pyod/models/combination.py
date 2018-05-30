@@ -15,10 +15,6 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
 
     Finally, take the average of all subgroup decision_scores.
 
-    .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical
-           foundations and algorithms for outlier ensembles.
-           ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
-
     :param scores: a score matrix from different detectors
     :type scores:
 
@@ -36,6 +32,10 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
 
     :return:
     :rtype:
+
+    .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and
+           algorithms for outlier ensembles. ACM SIGKDD Explorations
+           Newsletter, 17(1), pp.24-47.
     """
 
     # TODO: add one more parameter for max number of estimators

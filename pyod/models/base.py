@@ -120,6 +120,7 @@ class BaseDetector(ABC):
             in [0,1]
         :rtype: array, shape (n_samples,)
 
+
         .. [1] Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011,
                April. Interpreting and unifying outlier decision_scores.
                In Proc' SIAM, 2011.

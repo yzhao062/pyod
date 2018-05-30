@@ -7,11 +7,11 @@ class IForest(BaseDetector):
     """
     Wrapper of scikit-learn Isolation Forest Class with more functionalities.
 
-    The IsolationForest 'isolates' observations by randomly selecting a feature
+    The IsolationForest [1, 2] 'isolates' observations by randomly selecting a feature
     and then randomly selecting a split value between the maximum and minimum
     values of the selected feature.
 
-    Since recursive partitioning can be represented by a tree_ structure, the
+    Since recursive partitioning can be represented by a tree structure, the
     number of splittings required to isolate a sample is equivalent to the path
     length from the root node to the terminating node.
 
@@ -71,8 +71,7 @@ class IForest(BaseDetector):
 
     :var max_samples_(int): The actual number of samples.
 
-    References
-    ----------
+
     .. [1] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation forest."
            Data Mining, 2008. ICDM'08. Eighth IEEE International Conference on.
     .. [2] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation-based
