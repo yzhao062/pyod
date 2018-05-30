@@ -71,6 +71,14 @@ class IForest(BaseDetector):
 
     :var max_samples_(int): The actual number of samples.
 
+    References
+    ----------
+    .. [1] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation forest."
+           Data Mining, 2008. ICDM'08. Eighth IEEE International Conference on.
+    .. [2] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation-based
+           anomaly detection." ACM Transactions on Knowledge Discovery from
+           Data (TKDD) 6.1 (2012): 3.
+
     """
 
     def __init__(self, n_estimators=100,
@@ -114,27 +122,40 @@ class IForest(BaseDetector):
         # invert decision_scores. Outliers comes with higher decision_scores
         return self.detector_.decision_function(X) * -1
 
-    # TODO: fill in the documentation
     @property
     def estimators_(self):
         """
-        decorator for scikit-learn Isolation Forest attributes
-        :return:
+        The collection of fitted sub-estimators.
+
+        Decorator for scikit-learn Isolation Forest attributes.
+
+        :return: The collection of fitted sub-estimators.
+        :rtype: list of DecisionTreeClassifier
         """
         return self.detector_.estimators_
 
     @property
     def estimators_samples_(self):
         """
-        decorator for scikit-learn Isolation Forest attributes
-        :return:
+        The subset of drawn samples (i.e., the in-bag samples) for
+        each base estimator.
+
+        Decorator for scikit-learn Isolation Forest attributes.
+
+        :return: The subset of drawn samples (i.e., the in-bag samples) for
+            each base estimator.
+        :rtype: list of arrays
         """
         return self.detector_.estimators_samples_
 
     @property
     def max_samples_(self):
         """
-        decorator for scikit-learn Isolation Forest attributes
-        :return:
+        The actual number of samples.
+
+        Decorator for scikit-learn Isolation Forest attributes.
+
+        :return: The actual number of samples
+        :rtype: int
         """
         return self.detector_.max_samples_

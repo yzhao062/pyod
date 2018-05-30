@@ -109,9 +109,6 @@ class BaseDetector(ABC):
            decision_scores into the range of [0,1]. The model must be fitted first.
         2. use unifying decision_scores, see reference [1] below.
 
-        [1] Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011, April.
-        Interpreting and unifying outlier decision_scores. In Proc' SIAM, 2011.
-
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
 
@@ -122,6 +119,10 @@ class BaseDetector(ABC):
         :return: For each observation, return the outlier probability, ranging
             in [0,1]
         :rtype: array, shape (n_samples,)
+
+        .. [1] Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011,
+               April. Interpreting and unifying outlier decision_scores.
+               In Proc' SIAM, 2011.
         """
 
         check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
@@ -201,7 +202,7 @@ class BaseDetector(ABC):
         """
         Internal function to calculate key attributes:
         threshold: used to decide the binary label
-        y_pred: binary lables of training data
+        y_pred: binary labels of training data
 
         :return: self
         :rtype: object

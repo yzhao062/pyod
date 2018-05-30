@@ -57,13 +57,21 @@ class TestParameters(unittest.TestCase):
 
     def test_check_para_range(self):
         with assert_raises(ValueError):
-            check_parameter_range(2)
+            check_parameter_range(50)
+
         with assert_raises(ValueError):
-            check_parameter_range(2, 100, 99)
+            check_parameter_range(50, 100, 99)
+
         with assert_raises(ValueError):
-            check_parameter_range(2, 100, 100)
+            check_parameter_range(50, 100, 100)
+
+        # verify parameter type correction
         with assert_raises(TypeError):
-            check_parameter_range('f', 3, 10)
+            check_parameter_range('f', 0, 100)
+
+        assert_equal(True, check_parameter_range(50, 0, 100))
+        assert_equal(False, check_parameter_range(-1, 0, 100))
+        assert_equal(False, check_parameter_range(101, 0, 100))
 
     def tearDown(self):
         pass
