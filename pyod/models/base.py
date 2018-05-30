@@ -35,13 +35,6 @@ class BaseDetector(ABC):
 
         self.contamination = contamination
 
-        # TODO: clean up these initialization
-        # self.threshold_ = None
-        # self.decision_scores = None
-        # self._mu = None
-        # self._sigma = None
-        # self.y_pred = None
-
     @abstractmethod
     def decision_function(self, X):
         """
@@ -70,6 +63,7 @@ class BaseDetector(ABC):
         :return: return self
         :rtype: object
         """
+
         pass
 
     def fit_predict(self, X):
@@ -84,6 +78,7 @@ class BaseDetector(ABC):
             0 stands for inliers and 1 for outliers.
         :rtype: array, shape (n_samples,)
         """
+
         self.fit(X)
         return self.y_pred
 
@@ -93,11 +88,13 @@ class BaseDetector(ABC):
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
+
         :return: For each observation, tells whether or not
-            it should be considered as an outlier according to the fitted model.
-            0 stands for inliers and 1 for outliers.
+            it should be considered as an outlier according to the fitted
+            model. 0 stands for inliers and 1 for outliers.
         :rtype: array, shape (n_samples,)
         """
+
         check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
 
         pred_score = self.decision_function(X)
@@ -126,6 +123,7 @@ class BaseDetector(ABC):
             in [0,1]
         :rtype: array, shape (n_samples,)
         """
+
         check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
 
         test_scores = self.decision_function(X)
@@ -154,7 +152,8 @@ class BaseDetector(ABC):
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
-        :return: outlyness rank of a sample
+
+        :return: outlying rank of a sample according to the training data
         :rtype: array, shape (n_samples,)
         """
 
@@ -181,11 +180,14 @@ class BaseDetector(ABC):
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
+
         :param y: Outlier labels of the input samples
         :type y: array, shape (n_samples,)
+
         :return: roc score and precision @ rank n score
         :rtype:  tuple (float, float)
         """
+
         self.fit(X)
         roc = roc_auc_score(y, self.decision_scores)
         prec_n = (precision_n_scores(y, self.decision_scores))
@@ -193,7 +195,7 @@ class BaseDetector(ABC):
         print("roc score:", roc)
         print("precision @ rank n:", prec_n)
 
-        return (roc, prec_n)
+        return roc, prec_n
 
     def _process_decision_scores(self):
         """

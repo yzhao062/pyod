@@ -8,22 +8,34 @@ from ..utils.utility import check_parameter_range
 
 def aom(scores, n_buckets, method='static', replace=False, random_state=None):
     """
-    Average of Maximum - An ensemble method for outlier detection
+    Average of Maximum - An ensemble method for combining multiple detectors
 
     First dividing detectors into subgroups, take the maximum score as the
     subgroup score.
 
     Finally, take the average of all subgroup decision_scores.
 
-    Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms
-    for outlier ensembles. ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
+    .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical
+           foundations and algorithms for outlier ensembles.
+           ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
 
     :param scores: a score matrix from different detectors
+    :type scores:
+
     :param n_buckets: number of subgroups
+    :type n_buckets:
+
     :param method: static or dynamic, default: static
+    :type method
+
     :param replace:
+    :type replace:
+
     :param random_state:
+    :type random_state:
+
     :return:
+    :rtype:
     """
 
     # TODO: add one more parameter for max number of estimators
@@ -84,22 +96,34 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
 
 def moa(scores, n_buckets, method='static', replace=False, random_state=None):
     """
-    Maximization of Average - An ensemble method for outlier detection
+    Maximization of Average - An ensemble method for combining multiple detectors
 
-    First dividing detectors into subgroups, take the averafe score as the
+    First dividing detectors into subgroups, take the average score as the
     subgroup score.
 
     Finally, take the maximization of all subgroup decision_scores.
 
-    Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms
-    for outlier ensembles. ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
+    .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical
+           foundations and algorithms for outlier ensembles.
+           ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
 
     :param scores: a score matrix from different detectors
+    :type scores:
+
     :param n_buckets: number of subgroups
+    :type n_buckets:
+
     :param method: static or dynamic, default: static
+    :type method
+
     :param replace:
+    :type replace:
+
     :param random_state:
+    :type random_state:
+
     :return:
+    :rtype:
     """
 
     # TODO: add one more parameter for max number of estimators

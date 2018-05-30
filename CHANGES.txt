@@ -5,6 +5,7 @@ v<0.1.3>, <05/21/2018> -- Function Signiture Improvement.
 v<0.2.0>, <05/23/2018> -- Implement tests and improve stability.
 v<0.2.1>, <05/23/2018> -- Remove data loading func due to broken dependency.
 v<0.2.2>, <05/24/2018> -- Refactor models and add more testcases
-v<0.2.3>, <05/26/2018> -- Add more testcases
-v<0.3.0>, <05/27/2018> -- Provided full documentation
-v<0.3.1>, <05/27/2018> -- Added more complete coverage for Py3.5+
+v<0.2.3>, <05/26/2018> -- Add more testcases.
+v<0.3.0>, <05/27/2018> -- Provided full documentation.
+v<0.3.1>, <05/28/2018> -- Added more complete coverage for Py3.5+.
+v<0.3.2>, <05/29/2018> -- Implemented fastABOD and added more documentations.

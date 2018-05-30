@@ -33,7 +33,7 @@ class TestBASE(unittest.TestCase):
         :return:
         """
 
-        class dummy(BaseDetector):
+        class DummyClass(BaseDetector):
             def __init__(self, contamination=0.1):
                 super().__init__(contamination=contamination)
 
@@ -43,20 +43,20 @@ class TestBASE(unittest.TestCase):
             def fit(self, X):
                 pass
 
-        self.dummy_clf = dummy()
+        self.dummy_clf = DummyClass()
         assert_equal(self.dummy_clf.contamination, 0.1)
 
-        self.dummy_clf = dummy(contamination=0.2)
+        self.dummy_clf = DummyClass(contamination=0.2)
         assert_equal(self.dummy_clf.contamination, 0.2)
 
         with assert_raises(ValueError):
-            dummy(contamination=0.51)
+            DummyClass(contamination=0.51)
 
         with assert_raises(ValueError):
-            dummy(contamination=0)
+            DummyClass(contamination=0)
 
         with assert_raises(ValueError):
-            dummy(contamination=-0.5)
+            DummyClass(contamination=-0.5)
 
     def test_fit(self):
         class dummy(BaseDetector):

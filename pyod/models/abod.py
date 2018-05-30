@@ -164,7 +164,8 @@ class ABOD(BaseDetector):
 
         return pred_score
 
-    def _calculate_wocs(self, curr_pt, X, X_ind):
+    @staticmethod
+    def _calculate_wocs(curr_pt, X, X_ind):
         """
         Calculated the variance of weighted cosine of a point
         wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)

@@ -5,7 +5,6 @@ from .base import BaseDetector
 
 class OCSVM(BaseDetector):
     """
-
     Wrapper of scikit-learn one-class SVM Class with more functionalities.
     Unsupervised Outlier Detection.
 
