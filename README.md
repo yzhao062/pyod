@@ -1,5 +1,9 @@
 # Python Outlier Detection (PyOD)
 [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master&service=github)](https://coveralls.io/github/yzhao062/Pyod?branch=master) 
+[![GitHub stars](https://img.shields.io/github/stars/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/stargazers) 
+[![GitHub forks](https://img.shields.io/github/forks/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/network)
+
+
 
 --------------------------
 
@@ -27,7 +31,7 @@ PyOD is a **Python-based toolkit** to **identify outlying objects** in data with
 
 - **[Current version on PyPI](https://pypi.org/project/pyod/)** [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) 
 
-- **[Github repository with examples](https://github.com/yzhao062/Pyod/examples)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
+- **[Github repository with examples](https://github.com/yzhao062/Pyod)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
 
 - **Anomaly detection related resources**, e.g., books, papers and videos, can be found at **[anomaly-detection-resources.](https://github.com/yzhao062/anomaly-detection-resources)**
 
