@@ -190,7 +190,7 @@ class BaseDetector(ABC):
 
         self.fit(X)
         roc = roc_auc_score(y, self.decision_scores)
-        prec_n = (precision_n_scores(y, self.decision_scores))
+        prec_n = precision_n_scores(y, self.decision_scores)
 
         print("roc score:", roc)
         print("precision @ rank n:", prec_n)

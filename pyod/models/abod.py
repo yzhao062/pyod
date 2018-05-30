@@ -9,6 +9,37 @@ from .base import BaseDetector
 from ..utils.utility import check_parameter_range
 
 
+def _calculate_wocs(curr_pt, X, X_ind):
+    """
+    Calculated the variance of weighted cosine of a point
+    wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
+
+    :param curr_pt: the sample to be calculated
+    :type curr_pt: array, shape (1, n_features)
+    :param X: the training dataset
+    :type X: numpy array of shape (n_samples, n_features)
+    :param X_ind: the valid index of the training data
+    :type X_ind: list
+    :return: the variance of cosine angle
+    :rtype: float
+    """
+    wcos_list = []
+    curr_pair_inds = list(combinations(X_ind, 2))
+    for j, (a_ind, b_ind) in enumerate(curr_pair_inds):
+        a = X[a_ind, :]
+        b = X[b_ind, :]
+
+        a_curr = a - curr_pt
+        b_curr = b - curr_pt
+
+        # wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
+        wcos = np.dot(a_curr, b_curr) / (
+                np.linalg.norm(a_curr, 2) ** 2) / (
+                       np.linalg.norm(b_curr, 2) ** 2)
+        wcos_list.append(wcos)
+    return np.var(wcos_list)
+
+
 class ABOD(BaseDetector):
     """
     ABOD class for Angle-base Outlier Detection.
@@ -75,8 +106,9 @@ class ABOD(BaseDetector):
             X_ind = list(range(0, self.n_train))
             X_ind.remove(i)
 
-            wcos_list = self._calculate_wocs(curr_pt, self.X_train, X_ind)
-            self.decision_scores[i, 0] = np.var(wcos_list)
+            self.decision_scores[i, 0] = _calculate_wocs(curr_pt,
+                                                         self.X_train,
+                                                         X_ind)
 
     def _fit_fast(self):
         """
@@ -98,9 +130,9 @@ class ABOD(BaseDetector):
         for i in range(self.n_train):
             curr_pt = self.X_train[i, :]
             X_ind = self.result[i, :]
-            self.decision_scores[i, 0] = self._calculate_wocs(curr_pt,
-                                                              self.X_train,
-                                                              X_ind)
+            self.decision_scores[i, 0] = _calculate_wocs(curr_pt,
+                                                         self.X_train,
+                                                         X_ind)
 
     def decision_function(self, X):
 
@@ -133,8 +165,8 @@ class ABOD(BaseDetector):
             curr_pt = X[i, :]
             # get the index pairs of the neighbors
             X_ind = list(range(0, self.n_train))
-            pred_score[i, :] = self._calculate_wocs(curr_pt, self.X_train,
-                                                    X_ind)
+            pred_score[i, :] = _calculate_wocs(curr_pt, self.X_train,
+                                               X_ind)
 
         return pred_score
 
@@ -159,38 +191,7 @@ class ABOD(BaseDetector):
         for i in range(X.shape[0]):
             curr_pt = X[i, :]
             X_ind = ind_arr[i, :]
-            pred_score[i, :] = self._calculate_wocs(curr_pt, self.X_train,
-                                                    X_ind)
+            pred_score[i, :] = _calculate_wocs(curr_pt, self.X_train,
+                                               X_ind)
 
         return pred_score
-
-    @staticmethod
-    def _calculate_wocs(curr_pt, X, X_ind):
-        """
-        Calculated the variance of weighted cosine of a point
-        wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
-
-        :param curr_pt: the sample to be calculated
-        :type curr_pt: array, shape (1, n_features)
-        :param X: the training dataset
-        :type X: numpy array of shape (n_samples, n_features)
-        :param X_ind: the valid index of the training data
-        :type X_ind: list
-        :return: the variance of cosine angle
-        :rtype: float
-        """
-        wcos_list = []
-        curr_pair_inds = list(combinations(X_ind, 2))
-        for j, (a_ind, b_ind) in enumerate(curr_pair_inds):
-            a = X[a_ind, :]
-            b = X[b_ind, :]
-
-            a_curr = a - curr_pt
-            b_curr = b - curr_pt
-
-            # wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
-            wcos = np.dot(a_curr, b_curr) / (
-                    np.linalg.norm(a_curr, 2) ** 2) / (
-                           np.linalg.norm(b_curr, 2) ** 2)
-            wcos_list.append(wcos)
-        return np.var(wcos_list)
