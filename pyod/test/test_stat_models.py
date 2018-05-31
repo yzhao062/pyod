@@ -20,17 +20,17 @@ from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.stat_models import wpearsonr
+from pyod.utils.stat_models import pearsonr_mat
 
 
 class TestStatModels(unittest.TestCase):
     def setUp(self):
-        self.n_train = 1000
-        self.n_test = 500
-        self.contamination = 0.1
-
         self.a = [1, 2, 3, 2, 3, 1, 0, 5]
         self.b = [1, 2, 1, 2, 2, 1, 0, 2]
         self.w = [2, 2, 1, 2, 4, 1, 0, 2]
+
+        self.mat = np.random.rand(10, 20)
+        self.w_mat = np.random.rand(10, 1)
 
     def test_wpearsonr(self):
         # TODO: if unweight version changes, wp[0] format should be changed
@@ -39,6 +39,11 @@ class TestStatModels(unittest.TestCase):
 
         wp = wpearsonr(self.a, self.b, w=self.w)
         assert_allclose(wp, 0.5477226, atol=0.01)
+
+    def test_pearsonr_mat(self):
+        # TODO: verify the values
+        pear_mat = pearsonr_mat(self.mat, self.w_mat)
+        assert_equal(pear_mat.shape, (10, 10))
 
     def tearDown(self):
         pass

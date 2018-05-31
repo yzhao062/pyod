@@ -2,10 +2,30 @@ import numpy as np
 
 from scipy.special import betainc
 from scipy.stats import pearsonr
+from sklearn.utils.validation import check_array
+from sklearn.utils import check_consistent_length
 
 
 def wpearsonr(x, y, w=None):
-    # https://stats.stackexchange.com/questions/221246/such-thing-as-a-weighted-correlation
+    """
+    Utility function to calculate the weighted Pearson correlation of two
+    samples.
+
+    See https://stats.stackexchange.com/questions/221246/such-thing-as-a-weighted-correlation
+    for more information
+
+    :param x: Input x
+    :type x: array, shape (n,)
+
+    :param y: Input y
+    :type y: array, shape (n,)
+
+    :param w: Weights
+    :type w: array, shape (n,)
+
+    :return: Weighted Pearson Correlation between x and y
+    :rtype: float [-1,1]
+    """
 
     # unweighted version
     # note the return is different
@@ -17,6 +37,7 @@ def wpearsonr(x, y, w=None):
     y = np.asarray(y)
     w = np.asarray(w)
 
+    check_consistent_length([x, y, w])
     n = len(x)
 
     w_sum = w.sum()
@@ -56,6 +77,7 @@ def _betai(a, b, x):
 
 
 def pearsonr_mat(mat, w=None):
+    mat = check_array(mat)
     n_row = mat.shape[0]
     n_col = mat.shape[1]
     pear_mat = np.full([n_row, n_row], 1).astype(float)
