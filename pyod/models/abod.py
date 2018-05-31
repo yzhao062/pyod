@@ -1,3 +1,4 @@
+import warnings
 from itertools import combinations
 
 import numpy as np
@@ -5,6 +6,7 @@ from sklearn.neighbors import KDTree
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.multiclass import check_classification_targets
 from .base import BaseDetector
 from ..utils.utility import check_parameter_range
 
@@ -37,6 +39,8 @@ def _calculate_wocs(curr_pt, X, X_ind):
                 np.linalg.norm(a_curr, 2) ** 2) / (
                        np.linalg.norm(b_curr, 2) ** 2)
         wcos_list.append(wcos)
+
+    # print(wcos_list, len(wcos_list))
     return np.var(wcos_list)
 
 
@@ -73,13 +77,21 @@ class ABOD(BaseDetector):
     def __init__(self, contamination=0.1, n_neighbors=10, method='fast'):
         super().__init__(contamination=contamination)
         self.method = method
-        self.n_neighbors_ = n_neighbors
+        self.n_neighbors = n_neighbors
 
-    def fit(self, X):
+    def fit(self, X, y=None):
         X = check_array(X)
-        self.X_train = X
-        self.n_train = X.shape[0]
-        self.decision_scores = np.zeros([self.n_train, 1])
+        self.X_train_ = X
+        self.n_train_ = X.shape[0]
+        self.decision_scores_ = np.zeros([self.n_train_, 1])
+
+        self.classes_ = 2  # default as binary classification
+        if y is not None:
+            check_classification_targets(y)
+            print(np.unique(y, return_counts=True))
+            self.classes_ = len(np.unique(y))
+            warnings.warn(
+                "y should not be presented in unsupervised learning.")
 
         if self.method == 'fast':
             self._fit_fast()
@@ -89,7 +101,7 @@ class ABOD(BaseDetector):
             raise ValueError(self.method, "is not a valid method")
 
         # flip the scores
-        self.decision_scores = self.decision_scores.ravel() * -1
+        self.decision_scores_ = self.decision_scores_.ravel() * -1
         self._process_decision_scores()
         return self
 
@@ -99,51 +111,53 @@ class ABOD(BaseDetector):
         O(n^3). For internal use only
         :return: None
         """
-        for i in range(self.n_train):
-            curr_pt = self.X_train[i, :]
+        for i in range(self.n_train_):
+            curr_pt = self.X_train_[i, :]
 
             # get the index pairs of the neighbors, remove itself from index
-            X_ind = list(range(0, self.n_train))
+            X_ind = list(range(0, self.n_train_))
             X_ind.remove(i)
 
-            self.decision_scores[i, 0] = _calculate_wocs(curr_pt,
-                                                         self.X_train,
-                                                         X_ind)
+            self.decision_scores_[i, 0] = _calculate_wocs(curr_pt,
+                                                          self.X_train_,
+                                                          X_ind)
+        return self
 
     def _fit_fast(self):
         """
-        Fast ABOD method. Only use n_neighbors_ for angle calculation
+        Fast ABOD method. Only use n_neighbors for angle calculation
         Internal use only
         :return: None
         """
 
-        # make sure the n_neighbors_ is in the range
-        check_parameter_range(self.n_neighbors_, 1, self.n_train)
+        # make sure the n_neighbors is in the range
+        check_parameter_range(self.n_neighbors, 1, self.n_train_)
 
-        self.tree_ = KDTree(self.X_train)
+        self.tree_ = KDTree(self.X_train_)
 
-        neigh = NearestNeighbors(n_neighbors=self.n_neighbors_)
-        neigh.fit(self.X_train)
-        self.result = neigh.kneighbors(n_neighbors=self.n_neighbors_,
+        neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
+        neigh.fit(self.X_train_)
+        self.result = neigh.kneighbors(n_neighbors=self.n_neighbors,
                                        return_distance=False)
 
-        for i in range(self.n_train):
-            curr_pt = self.X_train[i, :]
+        for i in range(self.n_train_):
+            curr_pt = self.X_train_[i, :]
             X_ind = self.result[i, :]
-            self.decision_scores[i, 0] = _calculate_wocs(curr_pt,
-                                                         self.X_train,
-                                                         X_ind)
+            self.decision_scores_[i, 0] = _calculate_wocs(curr_pt,
+                                                          self.X_train_,
+                                                          X_ind)
+        return self
 
     def decision_function(self, X):
 
         check_is_fitted(self,
-                        ['X_train', 'n_train', 'decision_scores', 'threshold_',
-                         'y_pred'])
-
+                        ['X_train_', 'n_train_', 'decision_scores_',
+                         'threshold_',
+                         'labels_'])
         X = check_array(X)
 
         if self.method == 'fast':  # fast ABOD
-            # outliers have higher decision_scores
+            # outliers have higher decision_scores_
             return self._decision_function_fast(X) * -1
         else:  # default ABOD
             return self._decision_function_default(X) * -1
@@ -155,7 +169,7 @@ class ABOD(BaseDetector):
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
-        :return: decision_scores: The anomaly score of the input samples.
+        :return: decision_scores_: The anomaly score of the input samples.
         :rtype: array, shape (n_samples,)
         """
         # initialize the output score
@@ -164,11 +178,10 @@ class ABOD(BaseDetector):
         for i in range(X.shape[0]):
             curr_pt = X[i, :]
             # get the index pairs of the neighbors
-            X_ind = list(range(0, self.n_train))
-            pred_score[i, :] = _calculate_wocs(curr_pt, self.X_train,
-                                               X_ind)
+            X_ind = list(range(0, self.n_train_))
+            pred_score[i, :] = _calculate_wocs(curr_pt, self.X_train_, X_ind)
 
-        return pred_score
+        return pred_score.ravel()
 
     def _decision_function_fast(self, X):
         """
@@ -177,7 +190,7 @@ class ABOD(BaseDetector):
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
-        :return: decision_scores: The anomaly score of the input samples.
+        :return: decision_scores_: The anomaly score of the input samples.
         :rtype: array, shape (n_samples,)
         """
 
@@ -186,12 +199,18 @@ class ABOD(BaseDetector):
         pred_score = np.zeros([X.shape[0], 1])
 
         # get the indexs of the X's k nearest training points
-        _, ind_arr = self.tree_.query(X, k=self.n_neighbors_)
+        _, ind_arr = self.tree_.query(X, k=self.n_neighbors)
+
+        # TODO: DELETE
+        # print(X.shape)
+        # print(self.X_train_.shape)
+        # print(ind_arr)
 
         for i in range(X.shape[0]):
             curr_pt = X[i, :]
             X_ind = ind_arr[i, :]
-            pred_score[i, :] = _calculate_wocs(curr_pt, self.X_train,
-                                               X_ind)
+            pred_score[i, :] = _calculate_wocs(curr_pt, self.X_train_, X_ind)
 
-        return pred_score
+        # TODO: DELETE
+        # print(pred_score)
+        return pred_score.ravel()

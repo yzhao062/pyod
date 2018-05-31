@@ -1,9 +1,11 @@
 import math
+import warnings
 
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.multiclass import check_classification_targets
 
 from .base import BaseDetector
 
@@ -18,9 +20,17 @@ class HBOS(BaseDetector):
         # self.hist_ = None
         # self.bin_edges_ = None
 
-    def fit(self, X):
+    def fit(self, X, y=None):
 
         X = check_array(X)
+
+        self.classes_ = 2  # default as binary classification
+        if y is not None:
+            check_classification_targets(y)
+            print(np.unique(y, return_counts=True))
+            self.classes_ = len(np.unique(y))
+            warnings.warn(
+                "y should not be presented in unsupervised learning.")
 
         n_train, dim_train = X.shape[0], X.shape[1]
         out_scores = np.zeros([n_train, dim_train])
@@ -72,13 +82,13 @@ class HBOS(BaseDetector):
         out_scores_sum = np.sum(out_scores, axis=1)
         self.hist_ = hist
         self.bin_edges_ = bin_edges
-        self.decision_scores = out_scores_sum
+        self.decision_scores_ = out_scores_sum
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        check_is_fitted(self, ['hist_', 'bin_edges_', 'decision_scores',
-                               'threshold_', 'y_pred'])
+        check_is_fitted(self, ['hist_', 'bin_edges_', 'decision_scores_',
+                               'threshold_', 'labels_'])
         X = check_array(X)
         n_test, dim_test = X.shape[0], X.shape[1]
         out_scores = np.zeros([n_test, dim_test])
@@ -115,7 +125,7 @@ class HBOS(BaseDetector):
                     out_scores[j, i] = out_score[bin_ind[j] - 1]
 
         out_scores_sum = np.sum(out_scores, axis=1)
-        return out_scores_sum
+        return out_scores_sum.ravel()
 
 ##############################################################################
 
@@ -161,12 +171,12 @@ class HBOS(BaseDetector):
 #     clf = Hbos(contamination=contamination, alpha=0.2, beta=0.5, bins=5)
 #     clf.fit(X)
 #     pred_score_hbos = clf.decision_function(X_test)
-#     y_pred = clf.predict(X_test)
+#     labels_ = clf.predict(X_test)
 #
 #     roc_result_hbos.append(roc_auc_score(y_test, pred_score_hbos))
 #     prec_result_hbos.append(get_precn(y_test, pred_score_hbos))
 #
-#     clf_knn = Knn(n_neighbors_=10, contamination=contamination, method='mean')
+#     clf_knn = Knn(n_neighbors=10, contamination=contamination, method='mean')
 #     clf_knn.fit(X)
 #     pred_score_knn = clf_knn.sample_scores(X_test)
 #     roc_result_knn.append(roc_auc_score(y_test, pred_score_knn))
@@ -178,5 +188,5 @@ class HBOS(BaseDetector):
 # print(np.mean(roc_result_knn), np.mean(prec_result_knn))
 #
 # plt.figure(figsize=(9, 7))
-# plt.scatter(X_test[:, 0], X_test[:, 1], c=y_pred)
+# plt.scatter(X_test[:, 0], X_test[:, 1], c=labels_)
 # plt.show()

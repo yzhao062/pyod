@@ -1,5 +1,11 @@
+import warnings
+
+import numpy as np
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.validation import check_array
+from sklearn.utils.multiclass import check_classification_targets
+
 from .base import BaseDetector
 
 
@@ -100,7 +106,7 @@ class LOF(BaseDetector):
         It is the average of the ratio of the local reachability density of
         a sample and those of its k-nearest neighbors.
 
-    :var n_neighbors_(int): The actual number of neighbors used for
+    :var n_neighbors(int): The actual number of neighbors used for
         kneighbors queries.
 
 
@@ -122,6 +128,27 @@ class LOF(BaseDetector):
         self.contamination = contamination
         self.n_jobs = n_jobs
 
+    def fit(self, X, y=None):
+        """
+        Fit the model using X as training data.
+
+        :param X: Training data. If array or matrix,
+            shape [n_samples, n_features],
+            or [n_samples, n_samples] if metric='precomputed'.
+        :type X: {array-like, sparse matrix, BallTree, KDTree}
+
+        :return: self
+        :rtype: object
+        """
+
+        self.classes_ = 2  # default as binary classification
+        if y is not None:
+            check_classification_targets(y)
+            print(np.unique(y, return_counts=True))
+            self.classes_ = len(np.unique(y))
+            warnings.warn(
+                "y should not be presented in unsupervised learning.")
+
         self.detector_ = LocalOutlierFactor(n_neighbors=self.n_neighbors,
                                             algorithm=self.algorithm,
                                             leaf_size=self.leaf_size,
@@ -130,17 +157,16 @@ class LOF(BaseDetector):
                                             metric_params=self.metric_params,
                                             contamination=self.contamination,
                                             n_jobs=self.n_jobs)
-
-    def fit(self, X_train, y=None):
-        self.detector_.fit(X=X_train, y=y)
-        self.decision_scores = self.detector_.negative_outlier_factor_ * -1
+        self.detector_.fit(X=X, y=y)
+        self.decision_scores_ = self.detector_.negative_outlier_factor_ * -1
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
+        X = check_array(X, accept_sparse='csr')
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
 
-        # invert decision_scores. Outliers comes with higher decision_scores
+        # invert decision_scores_. Outliers comes with higher decision_scores_
         return self.detector_._decision_function(X) * -1
 
     @property

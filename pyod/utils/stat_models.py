@@ -55,7 +55,7 @@ def wpearsonr(x, y, w=None):
     r = r_num / r_den
 
     r = max(min(r, 1.0), -1.0)
-    #    df = n_train - 2
+    #    df = n_train_ - 2
     #
     #    if abs(r) == 1.0:
     #        prob = 0.0

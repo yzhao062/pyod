@@ -153,8 +153,8 @@ See examples for more demos. "examples/knn_example.py" demonstrates the basic AP
     clf = KNN()
     clf.fit(X_train)
 
-    y_train_pred = clf.y_pred
-    y_train_score = clf.decision_scores
+    y_train_pred = clf.labels_
+    y_train_score = clf.decision_scores_
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
@@ -196,7 +196,7 @@ The walkthrough of the code example is provided:
 
 0. Import models and generate sample data
     ````python
-    from pyod.models.knn import Knn
+    from pyod.models.knn import KNN
     from pyod.models.combination import aom, moa # combination methods
     from pyod.utils.load_data import generate_data
     from pyod.utils.utility import precision_n_scores
@@ -221,8 +221,8 @@ The walkthrough of the code example is provided:
         clf = KNN(n_neighbors=k, method='largest')
         clf.fit(X_train_norm)
 
-        train_scores[:, i] = clf.decision_scores.ravel()
-        test_scores[:, i] = clf.decision_function(X_test_norm).ravel()
+        train_scores[:, i] = clf.decision_scores_
+        test_scores[:, i] = clf.decision_function(X_test_norm)
     ```
 2. Then the output codes are standardized into zero mean and unit std before combination.
     ```python

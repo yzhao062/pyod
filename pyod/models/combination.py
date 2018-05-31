@@ -13,7 +13,7 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
     First dividing detectors into subgroups, take the maximum score as the
     subgroup score.
 
-    Finally, take the average of all subgroup decision_scores.
+    Finally, take the average of all subgroup decision_scores_.
 
     :param scores: a score matrix from different detectors
     :type scores:
@@ -101,7 +101,7 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
     First dividing detectors into subgroups, take the average score as the
     subgroup score.
 
-    Finally, take the maximization of all subgroup decision_scores.
+    Finally, take the maximization of all subgroup decision_scores_.
 
     .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical
            foundations and algorithms for outlier ensembles.

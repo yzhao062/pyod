@@ -1,8 +1,11 @@
+import warnings
+
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.multiclass import check_classification_targets
 
 from .base import BaseDetector
 
@@ -46,17 +49,25 @@ class KNN(BaseDetector):
 
     def __init__(self, contamination=0.1, n_neighbors=5, method='largest'):
         super().__init__(contamination=contamination)
-        self.n_neighbors_ = n_neighbors
+        self.n_neighbors = n_neighbors
         self.method = method
 
-    def fit(self, X):
+    def fit(self, X, y=None):
         X = check_array(X)
         self.tree_ = KDTree(X)
 
-        neigh = NearestNeighbors(n_neighbors=self.n_neighbors_)
+        self.classes_ = 2  # default as binary classification
+        if y is not None:
+            check_classification_targets(y)
+            print(np.unique(y, return_counts=True))
+            self.classes_ = len(np.unique(y))
+            warnings.warn(
+                "y should not be presented in unsupervised learning.")
+
+        neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
         neigh.fit(X)
 
-        result = neigh.kneighbors(n_neighbors=self.n_neighbors_,
+        result = neigh.kneighbors(n_neighbors=self.n_neighbors,
                                   return_distance=True)
         dist_arr = result[0]
 
@@ -67,14 +78,15 @@ class KNN(BaseDetector):
         elif self.method == 'median':
             dist = np.median(dist_arr, axis=1)
 
-        self.decision_scores = dist.ravel()
+        self.decision_scores_ = dist.ravel()
         self._process_decision_scores()
+
         return self
 
     def decision_function(self, X):
 
         check_is_fitted(self,
-                        ['tree_', 'decision_scores', 'threshold_', 'y_pred'])
+                        ['tree_', 'decision_scores_', 'threshold_', 'labels_'])
 
         X = check_array(X)
 
@@ -86,7 +98,7 @@ class KNN(BaseDetector):
             x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
 
             # get the distance of the current point
-            dist_arr, ind_arr = self.tree_.query(x_i, k=self.n_neighbors_)
+            dist_arr, ind_arr = self.tree_.query(x_i, k=self.n_neighbors)
 
             if self.method == 'largest':
                 dist = dist_arr[:, -1]
@@ -100,7 +112,7 @@ class KNN(BaseDetector):
             # record the current item
             pred_score[i, :] = pred_score_i
 
-        return pred_score
+        return pred_score.ravel()
 
 ##############################################################################
 # samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
@@ -108,9 +120,9 @@ class KNN(BaseDetector):
 # clf = Knn()
 # clf.fit(samples)
 #
-# decision_scores = clf.decision_function(np.asarray([[2, 3], [6, 8]])).ravel()
-# assert (decision_scores[0] == [2])
-# assert (decision_scores[1] == [5])
+# decision_scores_ = clf.decision_function(np.asarray([[2, 3], [6, 8]])).ravel()
+# assert (decision_scores_[0] == [2])
+# assert (decision_scores_[1] == [5])
 # #
 # labels = clf.predict(np.asarray([[2, 3], [6, 8]])).ravel()
 # assert (labels[0] == [0])

@@ -10,6 +10,7 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import roc_auc_score
 
 from pyod.models.ocsvm import OCSVM
@@ -29,12 +30,15 @@ class TestOCSVM(unittest.TestCase):
         self.clf = OCSVM()
         self.clf.fit(self.X_train)
 
+    def test_sklearn_estimator(self):
+        check_estimator(self.clf)
+
     def test_parameters(self):
         if not hasattr(self.clf,
-                       'decision_scores') or self.clf.decision_scores is None:
-            self.assertRaises(AttributeError, 'decision_scores is not set')
-        if not hasattr(self.clf, 'y_pred') or self.clf.y_pred is None:
-            self.assertRaises(AttributeError, 'y_pred is not set')
+                       'decision_scores_') or self.clf.decision_scores_ is None:
+            self.assertRaises(AttributeError, 'decision_scores_ is not set')
+        if not hasattr(self.clf, 'labels_') or self.clf.labels_ is None:
+            self.assertRaises(AttributeError, 'labels_ is not set')
         if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
             self.assertRaises(AttributeError, 'threshold_ is not set')
         if not hasattr(self.clf,
@@ -53,7 +57,7 @@ class TestOCSVM(unittest.TestCase):
             self.assertRaises(AttributeError, 'intercept_ is not set')
 
     def test_train_scores(self):
-        assert_equal(len(self.clf.decision_scores), self.X_train.shape[0])
+        assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
 
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)

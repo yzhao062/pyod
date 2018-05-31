@@ -11,6 +11,7 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.metrics import roc_auc_score
+from sklearn.utils.estimator_checks import check_estimator
 
 from pyod.models.abod import ABOD
 from pyod.utils.load_data import generate_data
@@ -29,19 +30,22 @@ class TestFastABOD(unittest.TestCase):
         self.clf = ABOD(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
+    # def test_sklearn_estimator(self):
+    #     check_estimator(self.clf)
+
     def test_parameters(self):
         if not hasattr(self.clf,
-                       'decision_scores') or self.clf.decision_scores is None:
-            self.assertRaises(AttributeError, 'decision_scores is not set')
-        if not hasattr(self.clf, 'y_pred') or self.clf.y_pred is None:
-            self.assertRaises(AttributeError, 'y_pred is not set')
+                       'decision_scores_') or self.clf.decision_scores_ is None:
+            self.assertRaises(AttributeError, 'decision_scores_ is not set')
+        if not hasattr(self.clf, 'labels_') or self.clf.labels_ is None:
+            self.assertRaises(AttributeError, 'labels_ is not set')
         if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
             self.assertRaises(AttributeError, 'threshold_ is not set')
         if not hasattr(self.clf, 'tree_') or self.clf.tree_ is None:
             self.assertRaises(AttributeError, 'tree_ is not fit')
 
     def test_train_scores(self):
-        assert_equal(len(self.clf.decision_scores), self.X_train.shape[0])
+        assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
 
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)
@@ -88,9 +92,9 @@ class TestFastABOD(unittest.TestCase):
 
 class TestABOD(unittest.TestCase):
     def setUp(self):
-        self.n_train = 100
+        self.n_train = 50
         self.n_test = 50
-        self.contamination = 0.1
+        self.contamination = 0.2
         self.roc_floor = 0.6
         self.X_train, self.y_train, _, self.X_test, self.y_test, _ = generate_data(
             n_train=self.n_train, n_test=self.n_test,
@@ -99,17 +103,20 @@ class TestABOD(unittest.TestCase):
         self.clf = ABOD(contamination=self.contamination, method='default')
         self.clf.fit(self.X_train)
 
+    # def test_sklearn_estimator(self):
+    #     check_estimator(self.clf)
+
     def test_parameters(self):
         if not hasattr(self.clf,
-                       'decision_scores') or self.clf.decision_scores is None:
-            self.assertRaises(AttributeError, 'decision_scores is not set')
-        if not hasattr(self.clf, 'y_pred') or self.clf.y_pred is None:
-            self.assertRaises(AttributeError, 'y_pred is not set')
+                       'decision_scores_') or self.clf.decision_scores_ is None:
+            self.assertRaises(AttributeError, 'decision_scores_ is not set')
+        if not hasattr(self.clf, 'labels_') or self.clf.labels_ is None:
+            self.assertRaises(AttributeError, 'labels_ is not set')
         if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
             self.assertRaises(AttributeError, 'threshold_ is not set')
 
     def test_train_scores(self):
-        assert_equal(len(self.clf.decision_scores), self.X_train.shape[0])
+        assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
 
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)

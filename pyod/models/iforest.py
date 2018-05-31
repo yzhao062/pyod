@@ -1,5 +1,10 @@
+import warnings
+
+import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.multiclass import check_classification_targets
+
 from .base import BaseDetector
 
 
@@ -97,6 +102,15 @@ class IForest(BaseDetector):
         self.random_state = random_state
         self.verbose = verbose
 
+    def fit(self, X, y=None):
+        self.classes_ = 2  # default as binary classification
+        if y is not None:
+            check_classification_targets(y)
+            print(np.unique(y, return_counts=True))
+            self.classes_ = len(np.unique(y))
+            warnings.warn(
+                "y should not be presented in unsupervised learning.")
+
         self.detector_ = IsolationForest(n_estimators=self.n_estimators,
                                          max_samples=self.max_samples,
                                          contamination=self.contamination,
@@ -105,20 +119,18 @@ class IForest(BaseDetector):
                                          n_jobs=self.n_jobs,
                                          random_state=self.random_state,
                                          verbose=self.verbose)
-
-    def fit(self, X_train, y=None, sample_weight=None):
-        self.detector_.fit(X_train,
+        self.detector_.fit(X=X,
                            y=None,
                            sample_weight=None)
 
-        # invert decision_scores. Outliers comes with higher decision_scores
-        self.decision_scores = self.detector_.decision_function(X_train) * -1
+        # invert decision_scores_. Outliers comes with higher decision_scores_
+        self.decision_scores_ = self.detector_.decision_function(X) * -1
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
-        # invert decision_scores. Outliers comes with higher decision_scores
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        # invert decision_scores_. Outliers comes with higher decision_scores_
         return self.detector_.decision_function(X) * -1
 
     @property

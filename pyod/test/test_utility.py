@@ -99,22 +99,22 @@ class TestMetrics(unittest.TestCase):
 
     def setUp(self):
         self.y = [0, 0, 1, 1, 1, 0, 0, 0, 1, 0]
-        self.y_pred = [0.1, 0.2, 0.2, 0.8, 0.2, 0.5, 0.7, 0.9, 1, 0.3]
-        self.manual_y_pred = [0, 0, 0, 1, 0, 0, 1, 1, 1, 0]
+        self.labels_ = [0.1, 0.2, 0.2, 0.8, 0.2, 0.5, 0.7, 0.9, 1, 0.3]
+        self.manual_labels = [0, 0, 0, 1, 0, 0, 1, 1, 1, 0]
         self.outlier_perc = 0.3
 
     def test_precision_n_scores(self):
-        assert_equal(precision_score(self.y, self.manual_y_pred),
-                     precision_n_scores(self.y, self.y_pred))
+        assert_equal(precision_score(self.y, self.manual_labels),
+                     precision_n_scores(self.y, self.labels_))
 
     def test_get_label_n(self):
-        assert_allclose(self.manual_y_pred,
-                        get_label_n(self.y, self.y_pred))
+        assert_allclose(self.manual_labels,
+                        get_label_n(self.y, self.labels_))
 
     def test_get_label_n_equal_3(self):
-        manual_y_pred = [0, 0, 0, 1, 0, 0, 0, 1, 1, 0]
-        assert_allclose(manual_y_pred,
-                        get_label_n(self.y, self.y_pred, n=3))
+        manual_labels = [0, 0, 0, 1, 0, 0, 0, 1, 1, 0]
+        assert_allclose(manual_labels,
+                        get_label_n(self.y, self.labels_, n=3))
 
     def tearDown(self):
         pass

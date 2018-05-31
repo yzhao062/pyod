@@ -46,7 +46,7 @@ def standardizer(X_train, X_test):
 
     :param X_train:
     :param X_test:
-    :return: X_train and X_test after the Z-score normalization
+    :return: X_train_ and X_test after the Z-score normalization
     :rtype: tuple(ndarray, ndarray)
     """
     scaler = StandardScaler().fit(X_train)
@@ -55,9 +55,9 @@ def standardizer(X_train, X_test):
 
 def score_to_label(pred_scores, outlier_perc=0.1):
     """
-    turn raw outlier decision_scores to binary labels (0 or 1)
+    turn raw outlier decision_scores_ to binary labels (0 or 1)
 
-    :param pred_scores: raw outlier decision_scores
+    :param pred_scores: raw outlier decision_scores_
     :param outlier_perc: percentage of outliers
     :return: binary labels (1 stands for outlier)
     :rtype: int
@@ -78,10 +78,10 @@ def precision_n_scores(y, y_pred, n=None):
     :rtype: float
     """
 
-    # turn prediction decision_scores into binary labels
+    # turn prediction decision_scores_ into binary labels
     y_pred = get_label_n(y, y_pred, n)
 
-    # enforce formats of y and y_pred
+    # enforce formats of y and labels_
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
 
@@ -90,11 +90,11 @@ def precision_n_scores(y, y_pred, n=None):
 
 def get_label_n(y, y_pred, n=None):
     """
-    Function to turn decision_scores into binary labels by assign 1 to top
-    n_train decision_scores.
+    Function to turn decision_scores_ into binary labels by assign 1 to top
+    n_train_ decision_scores_.
 
     Example y: [0,1,1,0,0,0]
-            y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
+            labels_: [0.1, 0.5, 0.3, 0.2, 0.7]
             return [0, 1, 0, 0, 1]
 
     :param y: ground truth
@@ -108,7 +108,8 @@ def get_label_n(y, y_pred, n=None):
     y_pred = column_or_1d(y_pred)
 
     if y.shape != y_pred.shape:
-        ValueError('ground truth y and prediction y_pred shape does not match')
+        ValueError(
+            'ground truth y and prediction labels_ shape does not match')
 
     # calculate the percentage of outliers
     if n is not None:
@@ -124,7 +125,7 @@ def get_label_n(y, y_pred, n=None):
 
 def get_top_n(value_list, n, top=True):
     """
-    return the index of top n_train elements in the list
+    return the index of top n_train_ elements in the list
     :param value_list: a list
     :param n:
     :param top:

@@ -32,18 +32,18 @@ if __name__ == "__main__":
     clf.fit(X_train)
 
     # get the prediction on the training data
-    y_train_pred = clf.y_pred
-    y_train_score = clf.decision_scores
+    y_train_pred = clf.labels_
+    y_train_score = clf.decision_scores_
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)
     y_test_score = clf.decision_function(X_test)
 
-    print('Train ROC:{roc}, precision@n_train:{prn}'.format(
+    print('Train ROC:{roc}, precision@n_train_:{prn}'.format(
         roc=roc_auc_score(y_train, y_train_score),
         prn=precision_n_scores(y_train, y_train_score)))
 
-    print('Test ROC:{roc}, precision@n_train:{prn}'.format(
+    print('Test ROC:{roc}, precision@n_train_:{prn}'.format(
         roc=roc_auc_score(y_test, y_test_score),
         prn=precision_n_scores(y_test, y_test_score)))
 

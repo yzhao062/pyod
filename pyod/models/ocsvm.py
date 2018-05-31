@@ -1,5 +1,10 @@
+import warnings
+
+import numpy as np
 from sklearn.svm import OneClassSVM
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.multiclass import check_classification_targets
+
 from .base import BaseDetector
 
 
@@ -97,7 +102,16 @@ class OCSVM(BaseDetector):
         self.max_iter = max_iter
         self.random_state = random_state
 
-        self.detector_ = OneClassSVM(kernel=kernel,
+    def fit(self, X, y=None, sample_weight=None, **params):
+        self.classes_ = 2  # default as binary classification
+        if y is not None:
+            check_classification_targets(y)
+            print(np.unique(y, return_counts=True))
+            self.classes_ = len(np.unique(y))
+            warnings.warn(
+                "y should not be presented in unsupervised learning.")
+
+        self.detector_ = OneClassSVM(kernel=self.kernel,
                                      degree=self.degree,
                                      gamma=self.gamma,
                                      coef0=self.coef0,
@@ -108,18 +122,17 @@ class OCSVM(BaseDetector):
                                      verbose=self.verbose,
                                      max_iter=self.max_iter,
                                      random_state=self.random_state)
-
-    def fit(self, X_train, y=None, sample_weight=None, **params):
-        self.detector_.fit(X=X_train, y=y, sample_weight=sample_weight,
+        self.detector_.fit(X=X, y=y, sample_weight=sample_weight,
                            **params)
-        # invert decision_scores. Outliers comes with higher decision_scores
-        self.decision_scores = self.detector_.decision_function(X_train) * -1
+
+        # invert decision_scores_. Outliers comes with higher decision_scores_
+        self.decision_scores_ = self.detector_.decision_function(X) * -1
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        check_is_fitted(self, ['decision_scores', 'threshold_', 'y_pred'])
-        # invert decision_scores. Outliers comes with higher decision_scores
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        # invert decision_scores_. Outliers comes with higher decision_scores_
         return self.detector_.decision_function(X) * -1
 
     @property

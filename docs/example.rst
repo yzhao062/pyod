@@ -37,8 +37,8 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
     clf.fit(X_train)
 
     # get the prediction label and scores on the training data
-    y_train_pred = clf.y_pred
-    y_train_score = clf.decision_scores
+    y_train_pred = clf.labels_
+    y_train_score = clf.decision_scores_
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
@@ -61,7 +61,7 @@ Sample outpus: ::
 
 
 .. figure::  figs/knn.png
-   :align:   center
+    :align:   center
 
    kNN detector demo.
 
@@ -98,8 +98,8 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
         clf = KNN(n_neighbors=k, method='largest')
         clf.fit(X_train_norm)
 
-        train_scores[:, i] = clf.decision_scores.ravel()
-        test_scores[:, i] = clf.decision_function(X_test_norm).ravel()
+        train_scores[:, i] = clf.decision_scores_
+        test_scores[:, i] = clf.decision_function(X_test_norm)
 
 3. Then the output codes are standardized into zero mean and unit std before combination: ::
 
