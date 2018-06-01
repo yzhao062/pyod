@@ -20,6 +20,7 @@ from pyod.utils.utility import check_parameter_range
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores
+from pyod.utils.utility import argmaxn
 
 
 class TestUtils(unittest.TestCase):
@@ -27,6 +28,8 @@ class TestUtils(unittest.TestCase):
         self.n_train = 1000
         self.n_test = 500
         self.contamination = 0.1
+
+        self.value_lists = [0.1, 0.3, 0.2, -2, 1.5, 0, 1, -1, -0.5, 11]
 
     def test_data_generate(self):
         X_train, y_train, _, X_test, y_test, _ = generate_data(
@@ -48,6 +51,21 @@ class TestUtils(unittest.TestCase):
         out_perc = np.sum(y_test) / self.n_test
         assert_allclose(self.contamination, out_perc, atol=0.01)
 
+    def test_argmaxn(self):
+        ind = argmaxn(self.value_lists, 3)
+        assert_equal(len(ind), 3)
+
+        ind = argmaxn(self.value_lists, 3)
+        assert_equal(np.sum(ind), np.sum([4, 6, 9]))
+
+        ind = argmaxn(self.value_lists, 3, order='asc')
+        assert_equal(np.sum(ind), np.sum([3, 7, 8]))
+
+        with assert_raises(ValueError):
+            argmaxn(self.value_lists, -1)
+        with assert_raises(ValueError):
+            argmaxn(self.value_lists, 20)
+
     def tearDown(self):
         pass
 
@@ -66,13 +84,17 @@ class TestParameters(unittest.TestCase):
         with assert_raises(ValueError):
             check_parameter_range(50, 100, 100)
 
+        with assert_raises(ValueError):
+            check_parameter_range(-1, 0, 100)
+
+        with assert_raises(ValueError):
+            check_parameter_range(101, 0, 100)
+
         # verify parameter type correction
         with assert_raises(TypeError):
             check_parameter_range('f', 0, 100)
 
         assert_equal(True, check_parameter_range(50, 0, 100))
-        assert_equal(False, check_parameter_range(-1, 0, 100))
-        assert_equal(False, check_parameter_range(101, 0, 100))
 
     def tearDown(self):
         pass

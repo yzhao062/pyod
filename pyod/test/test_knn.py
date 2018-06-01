@@ -23,7 +23,7 @@ class TestKnn(unittest.TestCase):
         self.n_train = 100
         self.n_test = 50
         self.contamination = 0.1
-        self.roc_floor = 0.6
+        self.roc_floor = 0.75
         self.X_train, self.y_train, _, self.X_test, self.y_test, _ = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
@@ -88,6 +88,62 @@ class TestKnn(unittest.TestCase):
 
     def test_evaluate(self):
         self.clf.fit_predict_evaluate(self.X_test, self.y_test)
+
+    def tearDown(self):
+        pass
+
+
+class TestKnnMean(unittest.TestCase):
+
+    def setUp(self):
+        self.n_train = 100
+        self.n_test = 50
+        self.contamination = 0.1
+        self.roc_floor = 0.75
+        self.X_train, self.y_train, _, self.X_test, self.y_test, _ = generate_data(
+            n_train=self.n_train, n_test=self.n_test,
+            contamination=self.contamination)
+
+        self.clf = KNN(contamination=self.contamination, method='mean')
+
+    def test_fit(self):
+        self.clf.fit(self.X_train)
+
+    def test_decision_function(self):
+        self.clf.fit(self.X_train)
+        self.clf.decision_function(self.X_train)
+        self.clf.decision_function(self.X_test)
+
+    def test_sklearn_estimator(self):
+        check_estimator(self.clf)
+
+    def tearDown(self):
+        pass
+
+
+class TestKnnMedian(unittest.TestCase):
+
+    def setUp(self):
+        self.n_train = 100
+        self.n_test = 50
+        self.contamination = 0.1
+        self.roc_floor = 0.75
+        self.X_train, self.y_train, _, self.X_test, self.y_test, _ = generate_data(
+            n_train=self.n_train, n_test=self.n_test,
+            contamination=self.contamination)
+
+        self.clf = KNN(contamination=self.contamination, method='median')
+
+    def test_fit(self):
+        self.clf.fit(self.X_train)
+
+    def test_decision_function(self):
+        self.clf.fit(self.X_train)
+        self.clf.decision_function(self.X_train)
+        self.clf.decision_function(self.X_test)
+
+    def test_sklearn_estimator(self):
+        check_estimator(self.clf)
 
     def tearDown(self):
         pass

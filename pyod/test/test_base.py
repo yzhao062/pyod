@@ -132,6 +132,35 @@ class VargEstimator(BaseDetector):
     def decision_function(self, X):
         pass
 
+class Dummy1(BaseDetector):
+    def __init__(self, contamination=0.1):
+        super().__init__(contamination=contamination)
+
+    def decision_function(self, X):
+        pass
+
+    def fit(self, X, y=None):
+        pass
+
+class Dummy2(BaseDetector):
+    def __init__(self, contamination=0.1):
+        super().__init__(contamination=contamination)
+
+    def decision_function(self, X):
+        pass
+
+    def fit(self, X, y=None):
+        return X
+
+class Dummy3(BaseDetector):
+    def __init__(self, contamination=0.1):
+        super().__init__(contamination=contamination)
+
+    def decision_function(self, X):
+        pass
+
+    def fit(self, X, y=None):
+        self.labels_ = X
 
 class TestBASE(unittest.TestCase):
     def setUp(self):
@@ -149,60 +178,29 @@ class TestBASE(unittest.TestCase):
 
         :return:
         """
-
-        class DummyClass(BaseDetector):
-            def __init__(self, contamination=0.1):
-                super().__init__(contamination=contamination)
-
-            def decision_function(self, X):
-                pass
-
-            def fit(self, X, y=None):
-                pass
-
-        self.dummy_clf = DummyClass()
+        self.dummy_clf = Dummy1()
         assert_equal(self.dummy_clf.contamination, 0.1)
 
-        self.dummy_clf = DummyClass(contamination=0.2)
+        self.dummy_clf = Dummy1(contamination=0.2)
         assert_equal(self.dummy_clf.contamination, 0.2)
 
         with assert_raises(ValueError):
-            DummyClass(contamination=0.51)
+            Dummy1(contamination=0.51)
 
         with assert_raises(ValueError):
-            DummyClass(contamination=0)
+            Dummy1(contamination=0)
 
         with assert_raises(ValueError):
-            DummyClass(contamination=-0.5)
+            Dummy1(contamination=-0.5)
 
     def test_fit(self):
-        class dummy(BaseDetector):
-            def __init__(self, contamination=0.1):
-                super().__init__(contamination=contamination)
-
-            def decision_function(self, X):
-                pass
-
-            def fit(self, X, y=None):
-                return X
-
-        self.dummy_clf = dummy()
-
+        self.dummy_clf = Dummy2()
         assert_equal(self.dummy_clf.fit(0), 0)
 
     def test_fit_predict(self):
         # TODO: add more testcases
-        class dummy(BaseDetector):
-            def __init__(self, contamination=0.1):
-                super().__init__(contamination=contamination)
 
-            def decision_function(self, X):
-                pass
-
-            def fit(self, X, y=None):
-                self.labels_ = X
-
-        self.dummy_clf = dummy()
+        self.dummy_clf = Dummy3()
 
         assert_equal(self.dummy_clf.fit_predict(0), 0)
 
