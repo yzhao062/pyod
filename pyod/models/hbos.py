@@ -7,6 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils.testing import assert_allclose
 
 from .base import BaseDetector
 
@@ -44,8 +45,8 @@ class HBOS(BaseDetector):
                                                        bins=self.bins,
                                                        density=True)
             # check the integrity
-            assert (
-                math.isclose(np.sum(hist[:, i] * np.diff(bin_edges[:, i])), 1))
+            assert_allclose(1, np.sum(hist[:, i] * np.diff(bin_edges[:, i])),
+                            atol=0.1)
 
         # calculate the threshold_
         for i in range(dim_train):
