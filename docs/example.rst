@@ -61,10 +61,9 @@ Sample outputs: ::
 
 
 .. figure:: figs/knn.png
-   :align: center
+   :alt: kNN demo
 
-   kNN detector demo.
-
+   kNN demo outputs for the prediction on both training and test data.
 
 Model Combination Example
 --------------------------
