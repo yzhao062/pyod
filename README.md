@@ -11,7 +11,7 @@ PyOD provides:
 
 - **Unified APIs** across various anomaly detection algorithms. All implemented algorithms are **scikit-learn compatible**.
 - Not only individual outlier detection methods, but also **Detector Combination Frameworks** for ensemble learning.
-- All models are accompanied with detailed **API Reference, Examples and Tests**.
+- **Detailed API Reference, Examples and Tests** for better readability and reliability.
 
 **The toolbox has been successfully used in various academic researches [4, 8] and under active development**. However, 
 the purpose of the toolkit is quick exploration. Using it as the final output should be cautious, and fine-tunning may be needed to generate meaningful results. The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
