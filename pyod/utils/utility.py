@@ -9,12 +9,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import column_or_1d
 
 
-def check_parameter_range(para, low=None, high=None):
+def check_parameter_range(param, low=None, high=None):
     """
     check if input parameter is with in the range low and high
 
-    :param para: the input parameter to check
-    :type para: int, float
+    :param param: the input parameter to check
+    :type param: int, float
 
     :param low: lower bound of the range
     :type low: int, float
@@ -25,18 +25,20 @@ def check_parameter_range(para, low=None, high=None):
     :return: whether the parameter is within the range of (low, high)
     :rtype: bool
     """
-    if low is None and high is None:
-        raise ValueError('both low and high bounds are undefined')
+    if low is None or high is None:
+        raise ValueError('either low or high bounds is undefined')
 
     if low is not None and high is not None:
         if low >= high:
             raise ValueError('low is equal or larger than high')
 
-    if not isinstance(para, int) and not isinstance(para, float):
-        raise TypeError('{para} is not numerical'.format(para=para))
+    if not isinstance(param, int) and not isinstance(param, float):
+        raise TypeError('{param} is not numerical'.format(param=param))
 
-    if para < low or para > high:
-        return False
+    if param < low or param > high:
+        raise ValueError(
+            '{param} is not in the range of {low} and {high}'.format(
+                param=param, low=low, high=high))
     else:
         return True
 
@@ -124,35 +126,34 @@ def get_label_n(y, y_pred, n=None):
     return y_pred
 
 
-def get_top_n(value_list, n, top=True):
+def argmaxn(value_list, n, order='desc'):
     """
-    return the index of top n_train_ elements in the list
-    :param value_list: a list
-    :param n:
-    :param top:
-    :return:
+    Return the index of top n elements in the list if order is set to 'desc',
+    otherwise return the index of n smallest elements
+
+    :param value_list: a list containing all values
+    :type value_list: list, array
+    :param n: the number of the elements to select
+    :type n: int
+    :param order: the order to sort {'desc', 'asc'}
+    :type order: str, optional (default='desc')
+    :return: the index of the top n elements
+    :rtype: list
     """
-    value_list = np.asarray(value_list)
-    length = value_list.shape[0]
+    value_list = column_or_1d(value_list)
+    length = len(value_list)
+
+    # validate the choice of n
+    check_parameter_range(n, 1, length)
+
+    # for the smallest n, flip the value
+    if order != 'desc':
+        n = length - n
 
     value_sorted = np.partition(value_list, length - n)
     threshold = value_sorted[int(length - n)]
 
-    if top:
-        return np.where(np.greater_equal(value_list, threshold))
-    else:
-        return np.where(np.less(value_list, threshold))
-
-
-def argmaxp(a, p):
-    """
-    Utlity function to return the index of top p values in a
-    :param a: list variable
-    :param p: number of elements to select
-    :return: index of top p elements in a
-    """
-
-    a = np.asarray(a).ravel()
-    length = a.shape[0]
-    pth = np.argpartition(a, length - p)
-    return pth[length - p:]
+    if order == 'desc':
+        return np.where(np.greater_equal(value_list, threshold))[0]
+    else:  # return the index of n smallest elements
+        return np.where(np.less(value_list, threshold))[0]
