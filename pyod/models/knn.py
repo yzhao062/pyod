@@ -49,7 +49,7 @@ class KNN(BaseDetector):
     """
 
     def __init__(self, contamination=0.1, n_neighbors=5, method='largest'):
-        super().__init__(contamination=contamination)
+        super(KNN, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
         self.method = method
 

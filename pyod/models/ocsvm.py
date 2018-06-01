@@ -90,7 +90,7 @@ class OCSVM(BaseDetector):
     def __init__(self, kernel='rbf', degree=3, gamma='auto', coef0=0.0,
                  tol=1e-3, nu=0.5, shrinking=True, cache_size=200,
                  verbose=False, max_iter=-1, random_state=None):
-        super().__init__()
+        super(OCSVM, self).__init__()
         self.kernel = kernel
         self.degree = degree
         self.gamma = gamma

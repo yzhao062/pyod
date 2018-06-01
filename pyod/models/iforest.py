@@ -94,7 +94,7 @@ class IForest(BaseDetector):
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
-        super().__init__(contamination=contamination)
+        super(IForest, self).__init__(contamination=contamination)
         self.n_estimators = n_estimators
         self.max_samples = max_samples
         self.max_features = max_features

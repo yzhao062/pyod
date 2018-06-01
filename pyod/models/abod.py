@@ -83,7 +83,7 @@ class ABOD(BaseDetector):
     """
 
     def __init__(self, contamination=0.1, n_neighbors=5, method='fast'):
-        super().__init__(contamination=contamination)
+        super(ABOD, self).__init__(contamination=contamination)
         self.method = method
         self.n_neighbors = n_neighbors
 

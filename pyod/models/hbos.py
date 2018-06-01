@@ -16,7 +16,7 @@ class HBOS(BaseDetector):
 
     def __init__(self, bins=10, beta=0.5, contamination=0.1):
 
-        super().__init__(contamination=contamination)
+        super(HBOS, self).__init__(contamination=contamination)
         self.bins = bins
         self.beta = beta
         # self.hist_ = None

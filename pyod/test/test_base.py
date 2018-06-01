@@ -132,9 +132,10 @@ class VargEstimator(BaseDetector):
     def decision_function(self, X):
         pass
 
+
 class Dummy1(BaseDetector):
     def __init__(self, contamination=0.1):
-        super().__init__(contamination=contamination)
+        super(Dummy1, self).__init__(contamination=contamination)
 
     def decision_function(self, X):
         pass
@@ -142,9 +143,10 @@ class Dummy1(BaseDetector):
     def fit(self, X, y=None):
         pass
 
+
 class Dummy2(BaseDetector):
     def __init__(self, contamination=0.1):
-        super().__init__(contamination=contamination)
+        super(Dummy2, self).__init__(contamination=contamination)
 
     def decision_function(self, X):
         pass
@@ -152,15 +154,17 @@ class Dummy2(BaseDetector):
     def fit(self, X, y=None):
         return X
 
+
 class Dummy3(BaseDetector):
     def __init__(self, contamination=0.1):
-        super().__init__(contamination=contamination)
+        super(Dummy3, self).__init__(contamination=contamination)
 
     def decision_function(self, X):
         pass
 
     def fit(self, X, y=None):
         self.labels_ = X
+
 
 class TestBASE(unittest.TestCase):
     def setUp(self):
