@@ -2,6 +2,9 @@
 """
 A set of utility functions to support outlier detection
 """
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
@@ -110,15 +113,17 @@ def get_label_n(y, y_pred, n=None):
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
 
+    y_len = len(y)  # the length of targets
+
     if y.shape != y_pred.shape:
         ValueError(
             'ground truth y and prediction labels_ shape does not match')
 
     # calculate the percentage of outliers
     if n is not None:
-        outlier_perc = n / y.shape[0]
+        outlier_perc = n / y_len
     else:
-        outlier_perc = np.count_nonzero(y) / y.shape[0]
+        outlier_perc = np.count_nonzero(y) / y_len
 
     threshold = scoreatpercentile(y_pred, 100 * (1 - outlier_perc))
     y_pred = (y_pred > threshold).astype('int')

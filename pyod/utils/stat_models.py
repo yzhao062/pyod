@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 
-from scipy.special import betainc
 from scipy.stats import pearsonr
 from sklearn.utils.validation import check_array
 from sklearn.utils import check_consistent_length
+
+
+# TODO: disable p value calculation due to python 2.7 break
+# from scipy.special import betainc
 
 
 def wpearsonr(x, y, w=None):
@@ -56,6 +63,8 @@ def wpearsonr(x, y, w=None):
     r = r_num / r_den
 
     r = max(min(r, 1.0), -1.0)
+
+    # TODO: disable p value calculation due to python 2.7 break
     #    df = n_train_ - 2
     #
     #    if abs(r) == 1.0:
@@ -70,11 +79,11 @@ def wpearsonr(x, y, w=None):
 #      PROBABILITY CALCULATIONS     #
 #####################################
 
-
-def _betai(a, b, x):
-    x = np.asarray(x)
-    x = np.where(x < 1.0, x, 1.0)  # if x > 1 then return 1.0
-    return betainc(a, b, x)
+# TODO: disable p value calculation due to python 2.7 break
+# def _betai(a, b, x):
+#     x = np.asarray(x)
+#     x = np.where(x < 1.0, x, 1.0)  # if x > 1 then return 1.0
+#     return betainc(a, b, x)
 
 
 def pearsonr_mat(mat, w=None):

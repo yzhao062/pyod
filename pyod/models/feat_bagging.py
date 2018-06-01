@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 # %%
+
+from __future__ import division
+from __future__ import print_function
+
 from sklearn.ensemble import BaggingClassifier
 
 from sklearn.utils.estimator_checks import check_estimator

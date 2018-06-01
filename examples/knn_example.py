@@ -2,7 +2,12 @@
 """
 Example of using kNN for outlier detection
 """
-import os, sys
+
+from __future__ import division
+from __future__ import print_function
+
+import os
+import sys
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line

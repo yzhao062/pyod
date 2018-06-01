@@ -2,6 +2,10 @@
 """
 Utility functions for loading sample data and create pseudo data
 """
+
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 from sklearn.utils import check_X_y
 

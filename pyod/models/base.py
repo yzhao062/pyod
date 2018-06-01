@@ -2,13 +2,16 @@
 """
 Base class for all outlier detector models
 """
+from __future__ import division
+from __future__ import print_function
 
 import copy
 import warnings
 from collections import defaultdict
 
-import six
 import abc
+from sklearn.externals.funcsigs import signature
+from sklearn.externals import six
 
 import numpy as np
 from scipy import sparse
@@ -18,7 +21,6 @@ from scipy.stats import scoreatpercentile
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
-from sklearn.externals.funcsigs import signature
 
 from ..utils.utility import precision_n_scores
 

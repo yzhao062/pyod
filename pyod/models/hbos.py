@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import math
+
+from __future__ import division
+from __future__ import print_function
+
 import warnings
 
 import numpy as np

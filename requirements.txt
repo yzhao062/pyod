@@ -1,5 +1,7 @@
-scipy>=0.19.1
-pandas>=0.21
-matplotlib>=2.0.2
+matplotlib                       # needed for running examples
+nose                             # needed for running tests
 numpy>=1.13
+pathlib2 ; python_version < '3'  # needed if python 2.7
+pytest                           # needed for running tests
+scipy>=0.19.1
 scikit_learn>=0.19.1
