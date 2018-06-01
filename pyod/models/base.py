@@ -5,9 +5,7 @@ Base class for all outlier detector models
 
 import copy
 import warnings
-from inspect import signature
 from collections import defaultdict
-# from abc import ABC, abstractmethod
 
 import six
 import abc
@@ -20,6 +18,7 @@ from scipy.stats import scoreatpercentile
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
+from sklearn.externals.funcsigs import signature
 
 from ..utils.utility import precision_n_scores
 
