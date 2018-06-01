@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 A set of utility functions to support outlier detection
 """

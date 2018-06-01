@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example of using one class SVM for outlier detection
 """

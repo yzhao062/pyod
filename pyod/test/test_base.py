@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os, sys
 
 # temporary solution for relative imports in case pyod is not installed
@@ -94,7 +95,9 @@ class DeprecatedAttributeEstimator(BaseDetector):
 
 
 class Buggy(BaseDetector):
-    " A buggy estimator that does not set its parameters right. "
+    """
+    A buggy estimator that does not set its parameters right.
+    """
 
     def __init__(self, a=None):
         self.a = 1

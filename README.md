@@ -3,13 +3,18 @@
 [![GitHub stars](https://img.shields.io/github/stars/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/stargazers) 
 [![GitHub forks](https://img.shields.io/github/forks/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/network)
 
-
-
 --------------------------
 
-PyOD is a **Python-based toolkit** to **identify outlying objects** in data with both unsupervised and supervised approaches. It strives to provide an unified APIs across various anomaly detection algorithms. This exciting yet challenging field is commonly referred as ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
+PyOD is a comprehensive **Python toolkit** to **identify outlying objects** in data with both unsupervised and supervised approaches. 
+This exciting yet challenging field is commonly referred as ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
+PyOD provides:
 
-**PyOD has been successfully used in academic researches [4, 8] and under active development**. However, the purpose of the toolkit is quick exploration. Using it as the final output should be cautious, and fine-tunning may be needed to generate meaningful results. The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
+- **Unified APIs** across various anomaly detection algorithms. All implemented algorithms are **scikit-learn compatible**.
+- Not only individual outlier detection methods, but also **Detector Combination Frameworks** for ensemble learning.
+- All models are accompanied with detailed **API Reference, Examples and Tests**.
+
+**The toolbox has been successfully used in various academic researches [4, 8] and under active development**. However, 
+the purpose of the toolkit is quick exploration. Using it as the final output should be cautious, and fine-tunning may be needed to generate meaningful results. The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
 
 **Table of Contents**:
 <!-- TOC -->
@@ -63,7 +68,7 @@ PyOD toolkit consists of three major groups of functionalities: (i) **outlier de
    1. **score_to_lable()**: convert raw outlier scores to binary labels
    2. **precision_n_scores()**: one of the popular evaluation metrics for outlier mining (precision @ rank n)
    3. **generate_data()**: generate pseudo data for outlier detection experiment
-   4. **wpearson()**: weighted pearson is useful in pseudo ground truth generation
+   4. **wpearsonr()**: weighted pearson is useful in pseudo ground truth generation
 ------------
 
 ### Installation

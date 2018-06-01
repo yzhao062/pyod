@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .abod import ABOD
 from .hbos import HBOS
 from .iforest import IForest

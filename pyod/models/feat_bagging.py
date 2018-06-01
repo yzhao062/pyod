@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # %%
 from sklearn.ensemble import BaggingClassifier
 
@@ -9,6 +10,7 @@ from sklearn.base import BaseEstimator
 from .base import BaseDetector
 
 
+# TODO: place holder only
 class FeatureBagging(BaseDetector):
     def __init__(self, base_estimator, n_estimators=10, contamination=0.1,
                  min_features=0.5):
@@ -18,10 +20,7 @@ class FeatureBagging(BaseDetector):
         self.min_features_ = min_features
 
     def fit(self, X, y=None):
-
-        self.base_estimator_
-        # for i in range(self.n_estimators_):
-
+        pass
 
     def decision_function(self, X):
         pass

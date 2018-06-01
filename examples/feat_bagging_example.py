@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # %%
 """
 Example of using Feature Bagging for outlier detection
@@ -29,33 +30,16 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import IsolationForest
 
 from sklearn.neighbors import LocalOutlierFactor
+import numpy as np
 
-contamination = 0.1  # percentage of outliers
-n_train = 100
-n_test = 50
+if __name__ == "__main__":
+    contamination = 0.1  # percentage of outliers
+    n_train = 100
+    n_test = 50
 
-X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
-    n_train=n_train, n_test=n_test, contamination=contamination)
+    X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
+        n_train=n_train, n_test=n_test, contamination=contamination)
 
-# clf = FeatureBagging(base_estimator=KNN(n_neighbors=6))
-#clf = KNN()
-clf = LOF()
-#clf = LocalOutlierFactor()
-clf.fit(X_train, y_train)
-sc = clf.predict_proba(X_test)
 
-#print(hasattr(clf, "predict_proba"))
-# print(clf.predict_proba(X_test).shape)
 
-# clf = KNN()
-# clf.fit(X_train_)
-# print(clf.predict_proba(X_test).shape)
-#
-check_estimator(clf)
-#clf2 = clone(clf)
-
-#clf = LogisticRegression()
-#clf.fit(X_train_, y_train)
-#check_estimator(clf)
-#
-# scores = clf.predict_proba(X_test)
+# TODO: place holder only

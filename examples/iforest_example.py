@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example of using IForest for outlier detection
 """

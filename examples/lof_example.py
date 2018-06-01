@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example of using LOF for outlier detection
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os, sys
 
 # temporary solution for relative imports in case pyod is not installed
@@ -30,8 +31,8 @@ class TestFastABOD(unittest.TestCase):
         self.clf = ABOD(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
-    # def test_sklearn_estimator(self):
-    #     check_estimator(self.clf)
+    def test_sklearn_estimator(self):
+        check_estimator(self.clf)
 
     def test_parameters(self):
         if not hasattr(self.clf,
@@ -103,8 +104,8 @@ class TestABOD(unittest.TestCase):
         self.clf = ABOD(contamination=self.contamination, method='default')
         self.clf.fit(self.X_train)
 
-    # def test_sklearn_estimator(self):
-    #     check_estimator(self.clf)
+    def test_sklearn_estimator(self):
+        check_estimator(self.clf)
 
     def test_parameters(self):
         if not hasattr(self.clf,

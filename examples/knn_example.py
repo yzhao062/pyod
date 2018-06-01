@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example of using kNN for outlier detection
 """

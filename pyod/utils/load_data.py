@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utility functions for loading sample data and create pseudo data
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Base class for all outlier detector models
 """

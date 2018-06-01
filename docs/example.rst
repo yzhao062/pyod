@@ -54,14 +54,14 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         roc=roc_auc_score(y_test, y_test_score),
         prn=precision_n_scores(y_test, y_test_score)))
 
-Sample outpus: ::
+Sample outputs: ::
 
     Train ROC:0.9473, precision@n:0.7857
     Test ROC:0.992, precision@n:0.9
 
 
-.. figure::  figs/knn.png
-    :align:   center
+.. figure:: figs/knn.png
+   :align: center
 
    kNN detector demo.
 

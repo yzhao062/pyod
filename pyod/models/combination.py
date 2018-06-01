@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 from numpy.random import RandomState
 from sklearn.utils import check_array

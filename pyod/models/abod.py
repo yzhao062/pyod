@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import warnings
 from itertools import combinations
 
@@ -30,6 +31,14 @@ def _calculate_wocs(curr_pt, X, X_ind):
     for j, (a_ind, b_ind) in enumerate(curr_pair_inds):
         a = X[a_ind, :]
         b = X[b_ind, :]
+
+        # TODO: implement a faster solution
+        # curr_pt_mat = np.tile(curr_pt, (n, 1)) # broadcast
+        # Broadcast and do mat comparison to find the index
+
+        # skip if no angle can be formed
+        if np.array_equal(a, curr_pt) or np.array_equal(b, curr_pt):
+            continue
 
         a_curr = a - curr_pt
         b_curr = b - curr_pt
@@ -74,7 +83,7 @@ class ABOD(BaseDetector):
     :type method: str
     """
 
-    def __init__(self, contamination=0.1, n_neighbors=10, method='fast'):
+    def __init__(self, contamination=0.1, n_neighbors=5, method='fast'):
         super().__init__(contamination=contamination)
         self.method = method
         self.n_neighbors = n_neighbors
@@ -137,12 +146,12 @@ class ABOD(BaseDetector):
 
         neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
         neigh.fit(self.X_train_)
-        self.result = neigh.kneighbors(n_neighbors=self.n_neighbors,
-                                       return_distance=False)
+        ind_arr = neigh.kneighbors(n_neighbors=self.n_neighbors,
+                                   return_distance=False)
 
         for i in range(self.n_train_):
             curr_pt = self.X_train_[i, :]
-            X_ind = self.result[i, :]
+            X_ind = ind_arr[i, :]
             self.decision_scores_[i, 0] = _calculate_wocs(curr_pt,
                                                           self.X_train_,
                                                           X_ind)

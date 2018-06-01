@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example of combining multiple base outlier decision_scores_
 Four combination frameworks are demonstrated
@@ -30,8 +31,9 @@ if __name__ == "__main__":
     n_clf = 20  # number of base detectors
     ite = 10  # number of iterations
 
+    mat_file = 'cardio.mat'
+
     try:
-        mat_file = 'cardio.mat'
         mat = loadmat(os.path.join('example_data', mat_file))
 
     except TypeError:
