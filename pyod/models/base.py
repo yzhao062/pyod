@@ -7,10 +7,12 @@ import copy
 import warnings
 from inspect import signature
 from collections import defaultdict
-from abc import ABC, abstractmethod
+# from abc import ABC, abstractmethod
+
+import six
+import abc
 
 import numpy as np
-import six
 from scipy import sparse
 from scipy.stats import rankdata
 from scipy.special import erf
@@ -190,7 +192,8 @@ def _pprint(params, offset=0, printer=repr):
     return lines
 
 
-class BaseDetector(ABC):
+@six.add_metaclass(abc.ABCMeta)
+class BaseDetector(object):
     """
     Abstract class for all outlier detection algorithms.
 
@@ -200,7 +203,7 @@ class BaseDetector(ABC):
     :type contamination: float in (0., 0.5), optional (default=0.1)
     """
 
-    @abstractmethod
+    @abc.abstractmethod
     def __init__(self, contamination=0.1):
 
         if not (0. < contamination <= 0.5):
@@ -209,7 +212,7 @@ class BaseDetector(ABC):
 
         self.contamination = contamination
 
-    @abstractmethod
+    @abc.abstractmethod
     def decision_function(self, X):
         """
         Predict Anomaly score of X of the base classifiers. The anomaly score
@@ -225,7 +228,7 @@ class BaseDetector(ABC):
         """
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def fit(self, X, y=None):
         """
         Fit detector.
