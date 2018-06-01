@@ -216,7 +216,7 @@ class BaseDetector(object):
     @abc.abstractmethod
     def decision_function(self, X):
         """
-        Predict Anomaly score of X of the base classifiers. The anomaly score
+        Predict anomaly score of X of the base classifiers. The anomaly score
         of an input sample is computed based on different detector algorithms.
         For consistency, outliers have larger anomaly decision_scores_.
 

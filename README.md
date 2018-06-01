@@ -7,14 +7,15 @@
 
 PyOD is a comprehensive **Python toolkit** to **identify outlying objects** in data with both unsupervised and supervised approaches. 
 This exciting yet challenging field is commonly referred as ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
-PyOD provides:
+Unlike existing libraries, PyOD provides:
 
-- **Unified APIs** across various anomaly detection algorithms. All implemented algorithms are **scikit-learn compatible**.
-- Not only individual outlier detection methods, but also **Detector Combination Frameworks** for ensemble learning.
+- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
+- **Compatibility with Python 2 and 3**. All implemented algorithms are **scikit-learn compatible** as well.
+- Additional functionalities, e.g., **Detector Combination Frameworks** for ensemble learning.
 - **Detailed API Reference, Examples and Tests** for better readability and reliability.
 
-**The toolbox has been successfully used in various academic researches [4, 8] and under active development**. However, 
-the purpose of the toolkit is quick exploration. Using it as the final output should be cautious, and fine-tunning may be needed to generate meaningful results. The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
+**The toolbox has been successfully used in various academic researches [4, 8] and commercial products. It is currently under active development**. However, 
+the primary purpose of the toolkit is quick exploration. Using it as the final output should be cautious; fine-tunning may be needed to generate meaningful results. The authors can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
 
 **Table of Contents**:
 <!-- TOC -->
@@ -38,7 +39,7 @@ the purpose of the toolkit is quick exploration. Using it as the final output sh
 
 - **[Github repository with examples](https://github.com/yzhao062/Pyod)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
 
-- **Anomaly detection related resources**, e.g., books, papers and videos, can be found at **[anomaly-detection-resources.](https://github.com/yzhao062/anomaly-detection-resources)**
+- **[Anomaly detection resources](https://github.com/yzhao062/anomaly-detection-resources)**, e.g., courses, books, papers and videos.
 
 -----------------------------------
 
@@ -50,9 +51,9 @@ PyOD toolkit consists of three major groups of functionalities: (i) **outlier de
   1. **Local Outlier Factor, LOF** [1]
   2. **Isolation Forest, iForest** [2]
   3. **One-Class Support Vector Machines** [3]
-  4. **kNN** Outlier Detection (use the distance to the kth nearst neighbor as the outlier score)
-  5. **Average KNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
-  6. **Median KNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
+  4. **k Nearest Neighbors Detector** (use the distance to the kth nearst neighbor as the outlier score)
+  5. **Average kNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
+  6. **Median kNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
   7. **Histogram-based Outlier Score, HBOS** [5]
   8. **Angle-Based Outlier Detection, ABOD** [7]
   9. **Fast Angle-Based Outlier Detection, FastABOD** [7]
@@ -73,7 +74,7 @@ PyOD toolkit consists of three major groups of functionalities: (i) **outlier de
 
 ### Installation
 
-It is advised to use **pip** for installation. Please make sure **the latest version** is installed since PyOD is currently updated on **a daily basis**:
+It is advised to use **pip**. Please make sure **the latest version** is installed since PyOD is currently updated on **a daily basis**:
 ````cmd
 pip install pyod
 pip install --upgrade pyod # make sure the latest version is installed!
@@ -87,42 +88,32 @@ pip install pyod==x.y.z  # (x.y.z) is the current version number
 ````cmd
 python setup.py install
 ````
-Library Dependency (work only with **Python 3.5+**,  e.g. 3.5 & 3.6):
-- scipy>=0.19.1
-- pandas>=0.21
-- numpy>=1.13
-- scikit_learn>=0.19.1
-- matplotlib>=2.0.2 **(optional but required for running examples)**
+Python Version:
+- Python 2: 2.7 only
+- Python 3: 3.4, 3.5 or 3.6
 
+Library Dependency: 
+````cmd
+matplotlib                       # needed for running examples
+nose                             # needed for running tests
+numpy>=1.13
+pathlib2 ; python_version < '3'  # needed if python 2.7
+pytest                           # needed for running tests
+scipy>=0.19.1
+scikit_learn>=0.19.1
+````
 ------------
 ### API Cheatsheet & Reference
 
-Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html)
-
-API cheatsheet:
+Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html). API cheatsheet for all detectors:
 
 - **fit(X)**: Fit detector.
 - **fit_predict(X)**: Fit detector and predict if a particular sample is an outlier or not.
-- **fit_predict_evaluate(X, y)**: Fit, predict and then evaluate with ROC and Precision @ rank n. 
-- **decision_function(X)**: Return raw outlier scores of a sample.
+- **fit_predict_evaluate(X, y)**: Fit, predict and then evaluate with predefined metrics (ROC and precision @ rank n).
+- **decision_function(X)**: Predict anomaly score of X of the base classifiers.
 - **predict(X)**: Predict if a particular sample is an outlier or not. The model must be fitted first.
 - **predict_proba(X)**: Predict the probability of a sample being outlier. The model must be fitted first.
 - **predict_rank(X)**: Predict the outlyingness rank of a sample.
-
-
-Import outlier detection models, such like:
-````python
-from pyod.models.knn import KNN
-from pyod.models.abod import ABOD
-from pyod.models.hbos import HBOS
-...
-````
-
-Import utility functions:
-````python
-from pyod.util.utility import precision_n_scores
-...
-````
 
 Full package structure can be found below:
 - http://pyod.readthedocs.io/en/latest/genindex.html
@@ -131,7 +122,7 @@ Full package structure can be found below:
 ------------
 
 ### Quick Start for Outlier Detection
-See examples for more demos. "examples/knn_example.py" demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**.
+See **examples folder** for more demos. "examples/knn_example.py" demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**.
 
 0. Import models
     ````python
@@ -154,10 +145,11 @@ See examples for more demos. "examples/knn_example.py" demonstrates the basic AP
 
 2. Initialize a kNN detector, fit the model, and make the prediction.
     ```python
-    # train a k-NN detector (default parameters, k=5)
+    # train a k-NN detector (using default parameters, k=5)
     clf = KNN()
     clf.fit(X_train)
 
+    # get the prediction labels and decision_scores_ on X_train
     y_train_pred = clf.labels_
     y_train_score = clf.decision_scores_
 
@@ -187,10 +179,10 @@ To check the result of the classification visually ([knn_figure](https://github.
 ---
 ### Quick Start for Combining Outlier Scores from Various Base Detectors
 
-"examples/comb_example.py" is a quick demo for showing the API for combining multiple algorithms. Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
+"examples/comb_example.py" illustrates the APIs for combining multiple base detectors. Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
 
-**Key Step: conducting Z-score normalization on raw scores before the combination.**
-Four combination mechanisms are shown in this demo:
+**Key Step: conducting Z-score normalization on raw scores before the combination.** Four combination mechanisms are shown in this demo:
+
 1. Mean: use the mean value of all scores as the final output.
 2. Max: use the max value of all scores as the final output.
 3. Average of Maximum (AOM): first randomly split n detectors in to p groups. For each group, use the maximum within the group as the group output. Use the average of all group outputs as the final output.

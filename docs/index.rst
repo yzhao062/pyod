@@ -25,24 +25,25 @@ PyOD Documentation
 to **identify outlying objects** in data with both unsupervised and supervised approaches.
 This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-PyOD provides:
+Unlike existing libraries, PyOD provides:
 
-- **Unified APIs** across various anomaly detection algorithms. All implemented algorithms are **scikit-learn compatible**.
-- Not only individual outlier detection methods, but also **Detector Combination Frameworks** for ensemble learning.
-- **Detailed API Reference, Examples and Test Cases** for better readability and reliability.
+- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
+- **Compatibility with Python 2 and 3**. All implemented algorithms are **scikit-learn compatible** as well.
+- Additional functionalities, e.g., **Detector Combination Frameworks** for ensemble learning.
+- **Detailed API Reference, Examples and Tests** for better readability and reliability.
 
-PyOD has been successfully used in academic researches [4, 8] and under active development.
-However, the purpose of the toolkit is quick exploration.
-Using it as the final output should be cautious,
-and fine-tunning may be needed to generate meaningful results.
-The authours can be reached out at yuezhao@cs.toronto.edu; comments, questions,
-pull requests and issues are welcome. **Enjoy catching outliers!**
+**The toolbox has been successfully used in various academic researches [4, 8] and commercial products.
+It is currently under active development**. However,
+the primary purpose of the toolkit is quick exploration. Using it as the final output should be cautious;
+fine-tunning may be needed to generate meaningful results.
+The authors can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome.
+**Enjoy catching outliers!**
 
 **Key Links**:
 
 - `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_
 - `Current version on PyPI <https://pypi.org/project/pyod/>`_
-- `anomaly-detection-resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+- `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
 Important Functions

@@ -23,7 +23,8 @@ setup(
     author_email='yuezhao@cs.toronto.edu',
     url='https://github.com/yzhao062/Pyod',
     download_url='https://github.com/yzhao062/Pyod/archive/master.zip',
-    keywords=['outlier detection', 'anomaly detection', 'outlier ensembles'],
+    keywords=['outlier detection', 'anomaly detection', 'outlier ensembles',
+              'data mining'],
     packages=find_packages(exclude=['test']),
     include_package_data=True,
     install_requires=requirements,
@@ -34,6 +35,8 @@ setup(
         'Intended Audience :: Financial and Insurance Industry',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
 

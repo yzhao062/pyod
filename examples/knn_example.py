@@ -37,7 +37,7 @@ if __name__ == "__main__":
     clf = KNN()
     clf.fit(X_train)
 
-    # get the prediction label and decision_scores_ on the training data
+    # get the prediction labels and decision_scores_ on X_train
     y_train_pred = clf.labels_
     y_train_score = clf.decision_scores_
 
