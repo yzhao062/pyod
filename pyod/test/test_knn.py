@@ -95,3 +95,17 @@ class TestKnn(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+##############################################################################
+# samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
+#
+# clf = Knn()
+# clf.fit(samples)
+#
+# decision_scores_ = clf.decision_function(np.asarray([[2, 3], [6, 8]])).ravel()
+# assert (decision_scores_[0] == [2])
+# assert (decision_scores_[1] == [5])
+# #
+# labels = clf.predict(np.asarray([[2, 3], [6, 8]])).ravel()
+# assert (labels[0] == [0])
+# assert (labels[1] == [1])

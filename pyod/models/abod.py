@@ -49,7 +49,6 @@ def _calculate_wocs(curr_pt, X, X_ind):
                        np.linalg.norm(b_curr, 2) ** 2)
         wcos_list.append(wcos)
 
-    # print(wcos_list, len(wcos_list))
     return np.var(wcos_list)
 
 
@@ -97,7 +96,6 @@ class ABOD(BaseDetector):
         self.classes_ = 2  # default as binary classification
         if y is not None:
             check_classification_targets(y)
-            print(np.unique(y, return_counts=True))
             self.classes_ = len(np.unique(y))
             warnings.warn(
                 "y should not be presented in unsupervised learning.")
@@ -210,16 +208,9 @@ class ABOD(BaseDetector):
         # get the indexs of the X's k nearest training points
         _, ind_arr = self.tree_.query(X, k=self.n_neighbors)
 
-        # TODO: DELETE
-        # print(X.shape)
-        # print(self.X_train_.shape)
-        # print(ind_arr)
-
         for i in range(X.shape[0]):
             curr_pt = X[i, :]
             X_ind = ind_arr[i, :]
             pred_score[i, :] = _calculate_wocs(curr_pt, self.X_train_, X_ind)
 
-        # TODO: DELETE
-        # print(pred_score)
         return pred_score.ravel()

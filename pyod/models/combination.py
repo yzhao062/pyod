@@ -85,7 +85,6 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
             ind = sample_without_replacement(n_estimators,
                                              max_estimator_per_bucket,
                                              random_state=random_state)
-            # print('max:', max_estimator_per_bucket, ind)
             scores_aom[:, i] = np.max(scores[:, ind], axis=1)
 
     else:
@@ -173,7 +172,6 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
             ind = sample_without_replacement(n_estimators,
                                              max_estimator_per_bucket,
                                              random_state=random_state)
-            # print('max:', max_estimator_per_bucket, ind)
             scores_aom[:, i] = np.mean(scores[:, ind], axis=1)
 
     else:

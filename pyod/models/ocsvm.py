@@ -107,7 +107,6 @@ class OCSVM(BaseDetector):
         self.classes_ = 2  # default as binary classification
         if y is not None:
             check_classification_targets(y)
-            print(np.unique(y, return_counts=True))
             self.classes_ = len(np.unique(y))
             warnings.warn(
                 "y should not be presented in unsupervised learning.")

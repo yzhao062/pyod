@@ -60,7 +60,6 @@ class KNN(BaseDetector):
         self.classes_ = 2  # default as binary classification
         if y is not None:
             check_classification_targets(y)
-            print(np.unique(y, return_counts=True))
             self.classes_ = len(np.unique(y))
             warnings.warn(
                 "y should not be presented in unsupervised learning.")
@@ -68,9 +67,8 @@ class KNN(BaseDetector):
         neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
         neigh.fit(X)
 
-        result = neigh.kneighbors(n_neighbors=self.n_neighbors,
-                                  return_distance=True)
-        dist_arr = result[0]
+        dist_arr, _ = neigh.kneighbors(n_neighbors=self.n_neighbors,
+                                       return_distance=True)
 
         if self.method == 'largest':
             dist = dist_arr[:, -1]
@@ -99,7 +97,7 @@ class KNN(BaseDetector):
             x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
 
             # get the distance of the current point
-            dist_arr, ind_arr = self.tree_.query(x_i, k=self.n_neighbors)
+            dist_arr, _ = self.tree_.query(x_i, k=self.n_neighbors)
 
             if self.method == 'largest':
                 dist = dist_arr[:, -1]
@@ -114,17 +112,3 @@ class KNN(BaseDetector):
             pred_score[i, :] = pred_score_i
 
         return pred_score.ravel()
-
-##############################################################################
-# samples = [[-1, 0], [0., 0.], [1., 1], [2., 5.], [3, 1]]
-#
-# clf = Knn()
-# clf.fit(samples)
-#
-# decision_scores_ = clf.decision_function(np.asarray([[2, 3], [6, 8]])).ravel()
-# assert (decision_scores_[0] == [2])
-# assert (decision_scores_[1] == [5])
-# #
-# labels = clf.predict(np.asarray([[2, 3], [6, 8]])).ravel()
-# assert (labels[0] == [0])
-# assert (labels[1] == [1])
