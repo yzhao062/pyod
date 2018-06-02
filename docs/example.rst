@@ -15,14 +15,8 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 
     .. code-block:: python
 
-        import numpy as np
-        from sklearn.metrics import roc_auc_score
-
         from pyod.models.knn import KNN # kNN detector
-
         from pyod.utils.data import generate_data
-        from pyod.utils.data import visualize
-        from pyod.utils.utility import precision_n_scores
 
 2. Generate sample data with :func:`pyod.utils.data.generate_data`:
 
@@ -57,6 +51,10 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 
     .. code-block:: python
 
+        import numpy as np
+        from sklearn.metrics import roc_auc_score
+        from pyod.utils.utility import precision_n_scores
+
         # evaluate and print the results
         print('{clf_name} Train ROC:{roc}, precision @ rank n:{prn}'.format(
             clf_name=clf_name,
@@ -77,6 +75,13 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 
 6. Generate the visualizations by :func:`pyod.utils.data.visualize`
 
+    .. code-block:: python
+
+        from pyod.utils.data import visualize
+
+        visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
+          y_test_pred, save_figure=True)
+
 .. figure:: figs/KNN.png
     :alt: kNN demo
 
@@ -90,15 +95,8 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
 
     .. code-block:: python
 
-        import numpy as np
-        from sklearn.metrics import roc_auc_score
-        from sklearn.model_selection import train_test_split
-        from scipy.io import loadmat
-
         from pyod.models.knn import KNN  # kNN detector
         from pyod.models.combination import aom, moa, average, maximization
-        from pyod.utils.utility import precision_n_scores
-        from pyod.utils.utility import standardizer
         from pyod.utils.data import generate_data
 
         X, y= generate_data(train_only=True)  # load data
@@ -127,6 +125,8 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
 3. Then the output codes are standardized into zero average and unit std before combination:
 
     .. code-block:: python
+
+        from pyod.utils.utility import standardizer
 
         # scores have to be normalized before combination
         train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
