@@ -8,7 +8,7 @@ from sklearn.ensemble import BaggingClassifier
 
 from sklearn.utils.estimator_checks import check_estimator
 from pyod.models.knn import KNN
-from pyod.utils.load_data import generate_data
+from pyod.utils.data import generate_data
 from sklearn.base import BaseEstimator
 
 from .base import BaseDetector

@@ -19,7 +19,7 @@ from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.metrics import precision_score
 
-from pyod.utils.load_data import generate_data
+from pyod.utils.data import generate_data
 from pyod.utils.utility import check_parameter_range
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
@@ -36,7 +36,7 @@ class TestUtils(unittest.TestCase):
         self.value_lists = [0.1, 0.3, 0.2, -2, 1.5, 0, 1, -1, -0.5, 11]
 
     def test_data_generate(self):
-        X_train, y_train, _, X_test, y_test, _ = generate_data(
+        X_train, y_train, X_test, y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
 

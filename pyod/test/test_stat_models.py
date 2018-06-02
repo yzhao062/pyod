@@ -19,7 +19,7 @@ from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.metrics import precision_score
 
-from pyod.utils.load_data import generate_data
+from pyod.utils.data import generate_data
 from pyod.utils.utility import check_parameter_range
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n

@@ -27,7 +27,7 @@ from pyod.models.knn import KNN
 from pyod.models.lof import LOF
 from pyod.models.iforest import IForest
 from pyod.models.base import clone
-from pyod.utils.load_data import generate_data
+from pyod.utils.data import generate_data
 from pyod.utils.utility import precision_n_scores
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.linear_model import LogisticRegression

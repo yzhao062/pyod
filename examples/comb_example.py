@@ -28,7 +28,7 @@ from pyod.models.knn import KNN
 from pyod.models.combination import aom, moa, average, maximization
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import standardizer
-from pyod.utils.load_data import generate_data
+from pyod.utils.data import generate_data
 
 if __name__ == "__main__":
 
@@ -43,11 +43,11 @@ if __name__ == "__main__":
     except TypeError:
         print('{data_file} does not exist. Use generated data'.format(
             data_file=mat_file))
-        X, y, _ = generate_data(train_only=True)  # load data
+        X, y = generate_data(train_only=True)  # load data
     except IOError:
         print('{data_file} does not exist. Use generated data'.format(
             data_file=mat_file))
-        X, y, _ = generate_data(train_only=True)  # load data
+        X, y = generate_data(train_only=True)  # load data
     else:
         X = mat['X']
         y = mat['y'].ravel()

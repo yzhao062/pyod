@@ -20,7 +20,7 @@ from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import roc_auc_score
 
 from pyod.models.knn import KNN
-from pyod.utils.load_data import generate_data
+from pyod.utils.data import generate_data
 
 
 class TestKnn(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestKnn(unittest.TestCase):
         self.n_test = 50
         self.contamination = 0.1
         self.roc_floor = 0.75
-        self.X_train, self.y_train, _, self.X_test, self.y_test, _ = generate_data(
+        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
 
@@ -105,7 +105,7 @@ class TestKnnMean(unittest.TestCase):
         self.n_test = 50
         self.contamination = 0.1
         self.roc_floor = 0.75
-        self.X_train, self.y_train, _, self.X_test, self.y_test, _ = generate_data(
+        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
 
@@ -133,7 +133,7 @@ class TestKnnMedian(unittest.TestCase):
         self.n_test = 50
         self.contamination = 0.1
         self.roc_floor = 0.75
-        self.X_train, self.y_train, _, self.X_test, self.y_test, _ = generate_data(
+        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
 

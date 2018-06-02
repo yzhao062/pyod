@@ -71,9 +71,9 @@ The toolkit consists of three major groups of functionalities:
     * Threshold Sum (Thresh) [6]
 
 3. **Outlier detection utility functions**, see :mod:`pyod.utils`.
-    * :func:`pyod.utils.utility.score_to_lable`: converting raw outlier scores to binary labels
+    * :func:`pyod.utils.utility.score_to_label`: converting raw outlier scores to binary labels
     * :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
-    * :func:`pyod.utils.load_data.generate_data`: generate pseudo data for outlier detection experiment
+    * :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
     * :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
 
 Contents

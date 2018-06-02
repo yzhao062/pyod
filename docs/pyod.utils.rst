@@ -4,10 +4,10 @@ pyod.utils package
 Submodules
 ----------
 
-pyod.utils.load\_data module
+pyod.utils.data module
 ----------------------------
 
-.. automodule:: pyod.utils.load_data
+.. automodule:: pyod.utils.data
     :members:
     :undoc-members:
     :show-inheritance:

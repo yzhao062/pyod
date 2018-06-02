@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Example of using IForest for outlier detection
+Example of using Isolation Forest for outlier detection
 """
 from __future__ import division
 from __future__ import print_function
@@ -11,83 +11,48 @@ import sys
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path  # python 2 backport
 
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
+import numpy as np
 from sklearn.metrics import roc_auc_score
 
 from pyod.models.iforest import IForest
-from pyod.utils.load_data import generate_data
+
+from pyod.utils.data import generate_data
+from pyod.utils.data import visualize
 from pyod.utils.utility import precision_n_scores
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 1000  # number of training points
-    n_test = 500  # number of testing points
+    n_train = 200  # number of training points
+    n_test = 100  # number of testing points
 
-    X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
+    X_train, y_train, X_test, y_test = generate_data(
         n_train=n_train, n_test=n_test, contamination=contamination)
 
-    # train a k-NN detector (default parameters, k=10)
-    clf = IForest(contamination=contamination)
+    # train IForest detector
+    clf_name = 'IForest'
+    clf = IForest()
     clf.fit(X_train)
 
     # get the prediction label and decision_scores_ on the training data
-    y_train_pred = clf.labels_
-    y_train_score = clf.decision_scores_
+    y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
+    y_train_scores = clf.decision_scores_  # raw outlier scores
 
     # get the prediction on the test data
-    y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
-    y_test_score = clf.decision_function(X_test)  # outlier decision_scores_
+    y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
+    y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-    print('Train ROC:{roc}, precision@n_train_:{prn}'.format(
-        roc=roc_auc_score(y_train, y_train_score),
-        prn=precision_n_scores(y_train, y_train_score)))
+    # evaluate and print the results
+    print('{clf_name} Train ROC:{roc}, precision @ rank n:{prn}'.format(
+        clf_name=clf_name,
+        roc=np.round(roc_auc_score(y_train, y_train_scores), decimals=4),
+        prn=np.round(precision_n_scores(y_train, y_train_scores), decimals=4)))
 
-    print('Test ROC:{roc}, precision@n_train_:{prn}'.format(
-        roc=roc_auc_score(y_test, y_test_score),
-        prn=precision_n_scores(y_test, y_test_score)))
+    print('{clf_name} Test ROC:{roc}, precision @ rank n:{prn}'.format(
+        clf_name=clf_name,
+        roc=np.round(roc_auc_score(y_test, y_test_scores), decimals=4),
+        prn=np.round(precision_n_scores(y_test, y_test_scores), decimals=4)))
 
-    #######################################################################
-    # Visualizations
-    # initialize the log directory if it does not exist
-    Path('example_figs').mkdir(parents=True, exist_ok=True)
-
-    # plot the results
-    fig = plt.figure(figsize=(12, 10))
-    ax = fig.add_subplot(221)
-    plt.scatter(X_train[:, 0], X_train[:, 1], c=c_train)
-    plt.title('Train ground truth')
-    legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
-                              markerfacecolor='b', markersize=8),
-                       Line2D([0], [0], marker='o', color='w', label='outlier',
-                              markerfacecolor='r', markersize=8)]
-
-    plt.legend(handles=legend_elements, loc=4)
-
-    ax = fig.add_subplot(222)
-    plt.scatter(X_test[:, 0], X_test[:, 1], c=c_test)
-    plt.title('Test ground truth')
-    plt.legend(handles=legend_elements, loc=4)
-
-    ax = fig.add_subplot(223)
-    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train_pred)
-    plt.title('Train prediction by IForest')
-    legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
-                              markerfacecolor='0', markersize=8),
-                       Line2D([0], [0], marker='o', color='w', label='outlier',
-                              markerfacecolor='yellow', markersize=8)]
-    plt.legend(handles=legend_elements, loc=4)
-
-    ax = fig.add_subplot(224)
-    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
-    plt.title('Test prediction by IForest')
-    plt.legend(handles=legend_elements, loc=4)
-
-    plt.savefig(os.path.join('example_figs', 'IForest.png'), dpi=300)
-
-    plt.show()
+    # visualize the results
+    visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
+              y_test_pred, save_figure=False)
