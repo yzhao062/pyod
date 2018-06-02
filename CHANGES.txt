@@ -13,3 +13,4 @@ v<0.3.3>, <05/29/2018> -- Urgent bug fix.
 v<0.3.4>, <05/29/2018> -- Another urgent bug fix.
 v<0.4.0>, <05/31/2018> -- Refactor all models to be sklearn compatible.
 v<0.4.1>, <06/01/2018> -- Support Python 2.7, 3.4, 3.5 and 3.6.
+v<0.4.2>, <06/01/2018> -- Fix Python 2.7 installation issue.
