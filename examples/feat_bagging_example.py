@@ -33,6 +33,8 @@ from sklearn.utils.estimator_checks import check_estimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import IsolationForest
 
+from pyod.models.combination import average
+
 from sklearn.neighbors import LocalOutlierFactor
 import numpy as np
 
@@ -44,6 +46,11 @@ if __name__ == "__main__":
     X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
         n_train=n_train, n_test=n_test, contamination=contamination)
 
+    X = np.asarray([[1, 2],
+                    [3, 4],
+                    [5, 6]])
+    w = [[0.2], [0.6]]
 
+    average(X, w)
 
 # TODO: place holder only

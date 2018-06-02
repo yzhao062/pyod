@@ -51,20 +51,23 @@ Important Functions
 The toolkit consists of three major groups of functionalities:
 
 1. **Outlier detection algorithms**
-    * Local Outlier Factor, LOF [1] :class:`pyod.models.lof.LOF`
-    * Isolation Forest, iForest [2] :class:`pyod.models.iforest.IForest`
-    * One-Class Support Vector Machines [3] :class:`pyod.models.ocsvm.OCSVM`
-    * kNN Outlier Detection :class:`pyod.models.knn.KNN`
-    * Average KNN Outlier Detection :class:`pyod.models.knn.KNN`
-    * Median KNN Outlier Detection :class:`pyod.models.knn.KNN`
-    * Histogram-based Outlier Score, HBOS [5] :class:`pyod.models.hbos.HBOS`
-    * Angle-Based Outlier Detection, ABOD [7] :class:`pyod.models.abod.ABOD`
-    * Fast Angle-Based Outlier Detection, FastABOD [7] :class:`pyod.models.abod.ABOD`
+    * Local Outlier Factor, LOF [1]: :class:`pyod.models.lof.LOF`
+    * Isolation Forest, iForest [2]: :class:`pyod.models.iforest.IForest`
+    * One-Class Support Vector Machines [3]: :class:`pyod.models.ocsvm.OCSVM`
+    * kNN Outlier Detection: :class:`pyod.models.knn.KNN`
+    * Average KNN Outlier Detection: :class:`pyod.models.knn.KNN`
+    * Median KNN Outlier Detection: :class:`pyod.models.knn.KNN`
+    * Histogram-based Outlier Score, HBOS [5]: :class:`pyod.models.hbos.HBOS`
+    * Angle-Based Outlier Detection, ABOD [7]: :class:`pyod.models.abod.ABOD`
+    * Fast Angle-Based Outlier Detection, FastABOD [7]: :class:`pyod.models.abod.ABOD`
 
 2. **Outlier ensemble frameworks**, see :mod:`pyod.models.combination`.
     * Feature bagging
-    * Average of Maximum (AOM) [6] :func:`pyod.models.combination.aom`
-    * Maximum of Average (MOA) [6] :func:`pyod.models.combination.moa`
+    * Average and Weighted Average: :func:`pyod.models.combination.average`
+    * Maximization: :func:`pyod.models.combination.maximization`
+    * Average of Maximum (AOM): [6] :func:`pyod.models.combination.aom`
+    * Maximum of Average (MOA): [6] :func:`pyod.models.combination.moa`
+
     * Threshold Sum (Thresh) [6]
 
 3. **Outlier detection utility functions**, see :mod:`pyod.utils`.

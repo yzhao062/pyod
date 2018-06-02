@@ -17,11 +17,14 @@ from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
+from sklearn.utils.testing import assert_allclose
 from sklearn.metrics import roc_auc_score
 
 import numpy as np
 from pyod.models.combination import aom
 from pyod.models.combination import moa
+from pyod.models.combination import average
+from pyod.models.combination import maximization
 
 
 class TestAOM(unittest.TestCase):
@@ -108,6 +111,24 @@ class TestMOA(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+class TestStatic(unittest.TestCase):
+    def setUp(self):
+        self.scores = np.array([[1, 2], [3, 4], [5, 6]])
+        self.weights = [[0.2], [0.6]]
+
+    def test_average(self):
+        score = average(self.scores)
+        assert_allclose(score, np.array([1.5, 3.5, 5.5]))
+
+    def test_weighted_average(self):
+        score = average(self.scores, self.weights)
+        assert_allclose(score, np.array([1.75, 3.75, 5.75]))
+
+    def test_maximization(self):
+        score = maximization(self.scores)
+        assert_allclose(score, np.array([2, 4, 6]))
 
 
 if __name__ == '__main__':

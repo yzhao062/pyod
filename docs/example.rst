@@ -70,7 +70,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         Test ROC:0.992, precision@n:0.9
 
 .. figure:: figs/knn.png
-   :alt: kNN demo
+    :alt: kNN demo
 
 
 Model Combination Example
@@ -83,7 +83,7 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
     .. code-block:: python
 
         from pyod.models.knn import KNN
-        from pyod.models.combination import aom, moa # combination methods
+        from pyod.models.combination import aom, moa, average, maximization # combination methods
         from pyod.utils.load_data import generate_data
         from pyod.utils.utility import precision_n_scores
         from pyod.utils.utility import standardizer
@@ -112,7 +112,7 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
             train_scores[:, i] = clf.decision_scores_
             test_scores[:, i] = clf.decision_function(X_test_norm)
 
-3. Then the output codes are standardized into zero mean and unit std before combination:
+3. Then the output codes are standardized into zero average and unit std before combination:
 
     .. code-block:: python
 
@@ -123,8 +123,8 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
 
     .. code-block:: python
 
-        comb_by_mean = np.mean(test_scores_norm, axis=1)
-        comb_by_max = np.max(test_scores_norm, axis=1)
+        comb_by_average = average(test_scores_norm)
+        comb_by_maximization = maximization(test_scores_norm)
         comb_by_aom = aom(test_scores_norm, 5) # 5 groups
         comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
 
@@ -133,14 +133,14 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
     .. code-block:: bash
 
         Combining 20 kNN detectors
-        ite 1 comb by mean, ROC: 0.9014 precision@n_train: 0.4531
-        ite 1 comb by max, ROC: 0.9014 precision@n_train: 0.5
+        ite 1 comb by average, ROC: 0.9014 precision@n_train: 0.4531
+        ite 1 comb by maximization, ROC: 0.9014 precision@n_train: 0.5
         ite 1 comb by aom, ROC: 0.9081 precision@n_train: 0.5
         ite 1 comb by moa, ROC: 0.9052 precision@n_train: 0.4843
         ...
 
         Summary of 10 iterations
-        comb by mean, ROC: 0.9196, precision@n: 0.5464
-        comb by max, ROC: 0.9198, precision@n: 0.5532
+        comb by average, ROC: 0.9196, precision@n: 0.5464
+        comb by maximization, ROC: 0.9198, precision@n: 0.5532
         comb by aom, ROC: 0.9260, precision@n: 0.5630
         comb by moa, ROC: 0.9244, precision@n: 0.5523

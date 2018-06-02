@@ -3,8 +3,8 @@
 Example of combining multiple base outlier decision_scores_
 Four combination frameworks are demonstrated
 
-1. Mean: take the average of all base detectors
-2. Max : take the maximum score across all detectors as the score
+1. Average: take the average of all base detectors
+2. maximization : take the maximum score across all detectors as the score
 3. Average of Maximum (AOM)
 4. Maximum of Average (MOA)
 
@@ -25,7 +25,7 @@ from sklearn.model_selection import train_test_split
 from scipy.io import loadmat
 
 from pyod.models.knn import KNN
-from pyod.models.combination import aom, moa
+from pyod.models.combination import aom, moa, average, maximization
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import standardizer
 from pyod.utils.load_data import generate_data
@@ -53,13 +53,13 @@ if __name__ == "__main__":
         y = mat['y'].ravel()
 
     # lists for storing roc information
-    roc_mean = []
-    roc_max = []
+    roc_average = []
+    roc_maximization = []
     roc_aom = []
     roc_moa = []
 
-    prn_mean = []
-    prn_max = []
+    prn_average = []
+    prn_maximization = []
     prn_aom = []
     prn_moa = []
 
@@ -91,21 +91,24 @@ if __name__ == "__main__":
         train_scores_norm, test_scores_norm = standardizer(train_scores,
                                                            test_scores)
 
-        # combination by mean
-        comb_by_mean = np.mean(test_scores_norm, axis=1)
-        roc_mean.append(roc_auc_score(y_test, comb_by_mean))
-        prn_mean.append(precision_n_scores(y_test, comb_by_mean))
-        print('ite', t + 1, 'comb by mean,',
-              'ROC:', roc_auc_score(y_test, comb_by_mean),
-              'precision@n_train_:', precision_n_scores(y_test, comb_by_mean))
+        # combination by average
+        comb_by_average = average(test_scores_norm)
+        roc_average.append(roc_auc_score(y_test, comb_by_average))
+        prn_average.append(precision_n_scores(y_test, comb_by_average))
+        print('ite', t + 1, 'comb by average,',
+              'ROC:', roc_auc_score(y_test, comb_by_average),
+              'precision@n_train:',
+              precision_n_scores(y_test, comb_by_average))
 
         # combination by max
-        comb_by_max = np.max(test_scores_norm, axis=1)
-        roc_max.append(roc_auc_score(y_test, comb_by_max))
-        prn_max.append(precision_n_scores(y_test, comb_by_max))
+        comb_by_maximization = maximization(test_scores_norm)
+        roc_maximization.append(roc_auc_score(y_test, comb_by_maximization))
+        prn_maximization.append(
+            precision_n_scores(y_test, comb_by_maximization))
         print('ite', t + 1, 'comb by max,', 'ROC:',
-              roc_auc_score(y_test, comb_by_max),
-              'precision@n_train_:', precision_n_scores(y_test, comb_by_max))
+              roc_auc_score(y_test, comb_by_maximization),
+              'precision@n_train:',
+              precision_n_scores(y_test, comb_by_maximization))
 
         # combination by aom
         comb_by_aom = aom(test_scores_norm, 5)
@@ -113,7 +116,7 @@ if __name__ == "__main__":
         prn_aom.append(precision_n_scores(y_test, comb_by_aom))
         print('ite', t + 1, 'comb by aom,', 'ROC:',
               roc_auc_score(y_test, comb_by_aom),
-              'precision@n_train_:', precision_n_scores(y_test, comb_by_aom))
+              'precision@n_train:', precision_n_scores(y_test, comb_by_aom))
 
         # combination by moa
         comb_by_moa = moa(test_scores_norm, 5)
@@ -121,17 +124,17 @@ if __name__ == "__main__":
         prn_moa.append(precision_n_scores(y_test, comb_by_moa))
         print('ite', t + 1, 'comb by moa,', 'ROC:',
               roc_auc_score(y_test, comb_by_moa),
-              'precision@n_train_:', precision_n_scores(y_test, comb_by_moa))
+              'precision@n_train:', precision_n_scores(y_test, comb_by_moa))
 
         print()
 
     ##########################################################################
     print('summary of {ite} iterations'.format(ite=ite))
-    print('comb by mean, ROC: {roc}, precision@n_train_: {prn}'.format(
-        roc=np.mean(roc_mean), prn=np.mean(prn_mean)))
-    print('comb by max, ROC: {roc}, precision@n_train_: {prn}'.format(
-        roc=np.mean(roc_max), prn=np.mean(prn_max)))
-    print('comb by aom, ROC: {roc}, precision@n_train_: {prn}'.format(
-        roc=np.mean(roc_aom), prn=np.mean(prn_aom)))
-    print('comb by moa, ROC: {roc}, precision@n_train_: {prn}'.format(
-        roc=np.mean(roc_moa), prn=np.mean(prn_moa)))
+    print('comb by average, ROC: {roc}, precision@n_train: {prn}'.format(
+        roc=np.average(roc_average), prn=np.average(prn_average)))
+    print('comb by max, ROC: {roc}, precision@n_train: {prn}'.format(
+        roc=np.average(roc_maximization), prn=np.average(prn_maximization)))
+    print('comb by aom, ROC: {roc}, precision@n_train: {prn}'.format(
+        roc=np.average(roc_aom), prn=np.average(prn_aom)))
+    print('comb by moa, ROC: {roc}, precision@n_train: {prn}'.format(
+        roc=np.average(roc_moa), prn=np.average(prn_moa)))

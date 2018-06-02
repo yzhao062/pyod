@@ -6,8 +6,10 @@ from __future__ import print_function
 import numpy as np
 from numpy.random import RandomState
 from sklearn.utils import check_array
+from sklearn.utils import column_or_1d
 from sklearn.utils import shuffle
 from sklearn.utils.random import sample_without_replacement
+from sklearn.utils.testing import assert_equal
 from ..utils.utility import check_parameter_range
 
 
@@ -183,3 +185,46 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
             '{method} is not implemented'.format(method=method))
 
     return np.max(scores_aom, axis=1)
+
+
+def average(scores, detector_weight=None):
+    """
+    Combine the outlier scores from multiple detectors by averaging
+
+    :param scores: score matrix from multiple detectors on the same samples
+    :type scores: numpy array of shape (n_samples, n_detectors)
+
+    :param detector_weight: if specified, using weighted average
+    :type detector_weight: list of shape (1, n_detectors)
+
+    :return: the combined outlier scores
+    :rtype: numpy array of shape (n_samples, )
+    """
+    scores = check_array(scores)
+
+    if detector_weight is not None:
+        detector_weight = column_or_1d(detector_weight).reshape(1, -1)
+        assert_equal(scores.shape[1], detector_weight.shape[1])
+
+        # (d1*w1 + d2*w2 + ...+ dn*wn)/(w1+w2+...+wn)
+        # generated weighted scores
+        scores = np.sum(np.multiply(scores, detector_weight), axis=1) / np.sum(
+            detector_weight)
+        return scores.ravel()
+
+    else:
+        return np.mean(scores, axis=1).ravel()
+
+
+def maximization(scores):
+    """
+    Combine the outlier scores from multiple detectors by taking the maximum
+
+    :param scores: score matrix from multiple detectors on the same samples
+    :type scores: numpy array of shape (n_samples, n_detectors)
+
+    :return: the combined outlier scores
+    :rtype: numpy array of shape (n_samples, )
+    """
+    scores = check_array(scores)
+    return np.max(scores, axis=1).ravel()

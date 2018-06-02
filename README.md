@@ -61,9 +61,11 @@ PyOD toolkit consists of three major groups of functionalities: (i) **outlier de
 
 - Outlier Ensemble Framework (Outlier Score Combination Frameworks)
   1. **Feature bagging**
-  2. **Average of Maximum (AOM)** [6]
-  3. **Maximum of Average (MOA)** [6]
-  4. **Threshold Sum (Thresh)** [6]
+  2. **Average** & **Weighted Average** [6]
+  3. **Maximization** [6]
+  4. **Average of Maximum (AOM)** [6]
+  5. **Maximum of Average (MOA)** [6]
+  6. **Threshold Sum (Thresh)** [6]
 
 - Utility functions:
    1. **score_to_lable()**: convert raw outlier scores to binary labels
@@ -183,8 +185,8 @@ To check the result of the classification visually ([knn_figure](https://github.
 
 **Key Step: conducting Z-score normalization on raw scores before the combination.** Four combination mechanisms are shown in this demo:
 
-1. Mean: use the mean value of all scores as the final output.
-2. Max: use the max value of all scores as the final output.
+1. Average: take the average of all base detectors.
+2. maximization : take the maximum score across all detectors as the score.
 3. Average of Maximum (AOM): first randomly split n detectors in to p groups. For each group, use the maximum within the group as the group output. Use the average of all group outputs as the final output.
 4. Maximum of Average (MOA): similarly to AOM, the same grouping is introduced. However, we use the average of a group as the group output, and use maximum of all group outputs as the final output.
 To better understand the merging techniques, refer to [6].
@@ -194,7 +196,7 @@ The walkthrough of the code example is provided:
 0. Import models and generate sample data
     ````python
     from pyod.models.knn import KNN
-    from pyod.models.combination import aom, moa # combination methods
+    from pyod.models.combination import aom, moa, average, maximization # combination methods
     from pyod.utils.load_data import generate_data
     from pyod.utils.utility import precision_n_scores
     from pyod.utils.utility import standardizer
@@ -228,23 +230,23 @@ The walkthrough of the code example is provided:
     ```
 3. Then four different combination algorithms are applied as described above:
     ```python
-    comb_by_mean = np.mean(test_scores_norm, axis=1)
-    comb_by_max = np.max(test_scores_norm, axis=1)
+    comb_by_average = average(test_scores_norm)
+    comb_by_maximization = maximization(test_scores_norm)
     comb_by_aom = aom(test_scores_norm, 5) # 5 groups
     comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
     ```
 4. Finally, all four combination methods are evaluated with 20 iterations:
     ````bash
     Combining 20 kNN detectors
-    ite 1 comb by mean, ROC: 0.9014 precision@n_train: 0.4531
-    ite 1 comb by max, ROC: 0.9014 precision@n_train: 0.5
+    ite 1 comb by average, ROC: 0.9014 precision@n_train: 0.4531
+    ite 1 comb by maximization, ROC: 0.9014 precision@n_train: 0.5
     ite 1 comb by aom, ROC: 0.9081 precision@n_train: 0.5
     ite 1 comb by moa, ROC: 0.9052 precision@n_train: 0.4843
     ...
     
     Summary of 10 iterations
-    comb by mean, ROC: 0.9196, precision@n: 0.5464
-    comb by max, ROC: 0.9198, precision@n: 0.5532
+    comb by average, ROC: 0.9196, precision@n: 0.5464
+    comb by maximization, ROC: 0.9198, precision@n: 0.5532
     comb by aom, ROC: 0.9260, precision@n: 0.5630
     comb by moa, ROC: 0.9244, precision@n: 0.5523
     ````
