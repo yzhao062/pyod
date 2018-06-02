@@ -3,7 +3,6 @@
 from __future__ import division
 from __future__ import print_function
 
-import warnings
 from itertools import combinations
 
 import numpy as np
@@ -11,7 +10,6 @@ from sklearn.neighbors import KDTree
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.multiclass import check_classification_targets
 from .base import BaseDetector
 from ..utils.utility import check_parameter_range
 
@@ -92,17 +90,14 @@ class ABOD(BaseDetector):
         self.n_neighbors = n_neighbors
 
     def fit(self, X, y=None):
+
+        # Validate inputs X and y (optional)
         X = check_array(X)
+        self._set_n_classes(y)
+
         self.X_train_ = X
         self.n_train_ = X.shape[0]
         self.decision_scores_ = np.zeros([self.n_train_, 1])
-
-        self.classes_ = 2  # default as binary classification
-        if y is not None:
-            check_classification_targets(y)
-            self.classes_ = len(np.unique(y))
-            warnings.warn(
-                "y should not be presented in unsupervised learning.")
 
         if self.method == 'fast':
             self._fit_fast()

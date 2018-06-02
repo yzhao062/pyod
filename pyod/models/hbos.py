@@ -3,13 +3,10 @@
 from __future__ import division
 from __future__ import print_function
 
-import warnings
-
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.multiclass import check_classification_targets
 
 from .base import BaseDetector
 
@@ -26,14 +23,9 @@ class HBOS(BaseDetector):
 
     def fit(self, X, y=None):
 
+        # Validate inputs X and y (optional)
         X = check_array(X)
-
-        self.classes_ = 2  # default as binary classification
-        if y is not None:
-            check_classification_targets(y)
-            self.classes_ = len(np.unique(y))
-            warnings.warn(
-                "y should not be presented in unsupervised learning.")
+        self._set_n_classes(y)
 
         n_train, dim_train = X.shape[0], X.shape[1]
         out_scores = np.zeros([n_train, dim_train])

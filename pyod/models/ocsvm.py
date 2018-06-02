@@ -3,12 +3,9 @@
 from __future__ import division
 from __future__ import print_function
 
-import warnings
-
-import numpy as np
 from sklearn.svm import OneClassSVM
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils import check_array
 
 from .base import BaseDetector
 
@@ -108,12 +105,9 @@ class OCSVM(BaseDetector):
         self.random_state = random_state
 
     def fit(self, X, y=None, sample_weight=None, **params):
-        self.classes_ = 2  # default as binary classification
-        if y is not None:
-            check_classification_targets(y)
-            self.classes_ = len(np.unique(y))
-            warnings.warn(
-                "y should not be presented in unsupervised learning.")
+        # Validate inputs X and y (optional)
+        X = check_array(X)
+        self._set_n_classes(y)
 
         self.detector_ = OneClassSVM(kernel=self.kernel,
                                      degree=self.degree,

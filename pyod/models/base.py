@@ -21,6 +21,7 @@ from scipy.stats import scoreatpercentile
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.multiclass import check_classification_targets
 
 from ..utils.utility import precision_n_scores
 
@@ -385,6 +386,21 @@ class BaseDetector(object):
         print("precision @ rank n:", prec_n)
 
         return roc, prec_n
+
+    def _set_n_classes(self, y):
+        """
+        Set the number of classes if y is presented, which is not expected.
+
+        :param y: Ground truth
+        :type y: numpy array of shape (n_samples,)
+        """
+
+        self.classes_ = 2  # default as binary classification
+        if y is not None:
+            check_classification_targets(y)
+            self.classes_ = len(np.unique(y))
+            warnings.warn(
+                "y should not be presented in unsupervised learning.")
 
     def _process_decision_scores(self):
         """

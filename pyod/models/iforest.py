@@ -3,12 +3,9 @@
 from __future__ import division
 from __future__ import print_function
 
-import warnings
-
-import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils import check_array
 
 from .base import BaseDetector
 
@@ -108,12 +105,9 @@ class IForest(BaseDetector):
         self.verbose = verbose
 
     def fit(self, X, y=None):
-        self.classes_ = 2  # default as binary classification
-        if y is not None:
-            check_classification_targets(y)
-            self.classes_ = len(np.unique(y))
-            warnings.warn(
-                "y should not be presented in unsupervised learning.")
+        # Validate inputs X and y (optional)
+        X = check_array(X)
+        self._set_n_classes(y)
 
         self.detector_ = IsolationForest(n_estimators=self.n_estimators,
                                          max_samples=self.max_samples,
