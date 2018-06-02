@@ -1,8 +1,6 @@
 Examples
 ============
 
-Example APIs
----------------
 .. toctree::
 
     examples
@@ -17,59 +15,69 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 
     .. code-block:: python
 
-        from pyod.models.knn import KNN  # kNN detector
-
-        from pyod.utils.load_data import generate_data
-        from pyod.utils.utility import precision_n_scores
+        import numpy as np
         from sklearn.metrics import roc_auc_score
 
-2. Generate sample data with :func:`pyod.utils.load_data.generate_data`:
+        from pyod.models.knn import KNN # kNN detector
+
+        from pyod.utils.data import generate_data
+        from pyod.utils.data import visualize
+        from pyod.utils.utility import precision_n_scores
+
+2. Generate sample data with :func:`pyod.utils.data.generate_data`:
 
     .. code-block:: python
 
         contamination = 0.1  # percentage of outliers
-        n_train = 1000  # number of training points
-        n_test = 500  # number of testing points
+        n_train = 200  # number of training points
+        n_test = 100  # number of testing points
 
-        X_train, y_train, c_train, X_test, y_test, c_test = generate_data(
+        X_train, y_train, X_test, y_test = generate_data(
             n_train=n_train, n_test=n_test, contamination=contamination)
 
-3. Initialize a :class:`pyod.models.knn.KNN` detector, fit the model, and make the prediction:
+3. Initialize a :class:`pyod.models.knn.KNN` detector, fit the model, and make
+   the prediction:
 
     .. code-block:: python
 
-        # train a k-NN detector (using default parameters, k=5)
+        # train kNN detector
+        clf_name = 'KNN'
         clf = KNN()
         clf.fit(X_train)
 
-        # get the prediction labels and decision_scores_ on X_train
-        y_train_pred = clf.labels_
-        y_train_score = clf.decision_scores_
+        # get the prediction label and decision_scores_ on the training data
+        y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
+        y_train_scores = clf.decision_scores_  # raw outlier scores
 
         # get the prediction on the test data
-        y_test_pred = clf.predict(X_test)  # outlier label (0 or 1)
-        y_test_score = clf.decision_function(X_test)
+        y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
+        y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-4. Evaluate the prediction by ROC and Precision@rank n (p@n):
+4. Evaluate the prediction by ROC and Precision\@rank n :func:`pyod.utils.utility.precision_n_scores`:
 
     .. code-block:: python
 
-        print(n_train.format(
-            roc=roc_auc_score(y_train, y_train_score),
-            prn=precision_n_scores(y_train, y_train_score)))
+        # evaluate and print the results
+        print('{clf_name} Train ROC:{roc}, precision @ rank n:{prn}'.format(
+            clf_name=clf_name,
+            roc=np.round(roc_auc_score(y_train, y_train_scores), decimals=4),
+            prn=np.round(precision_n_scores(y_train, y_train_scores), decimals=4)))
 
-        print(n_train.format(
-            roc=roc_auc_score(y_test, y_test_score),
-            prn=precision_n_scores(y_test, y_test_score)))
+        print('{clf_name} Test ROC:{roc}, precision @ rank n:{prn}'.format(
+            clf_name=clf_name,
+            roc=np.round(roc_auc_score(y_test, y_test_scores), decimals=4),
+            prn=np.round(precision_n_scores(y_test, y_test_scores), decimals=4)))
 
-5. Sample outputs and the visualization on both training and test data:
+5. See sample outputs on both training and test data:
 
     .. code-block:: bash
 
-        Train ROC:0.9473, precision@n:0.7857
-        Test ROC:0.992, precision@n:0.9
+        KNN Train ROC:0.9676, precision @ rank n:0.95
+        KNN Test ROC:1.0, precision @ rank n:1.0
 
-.. figure:: figs/knn.png
+6. Generate the visualizations by :func:`pyod.utils.data.visualize`
+
+.. figure:: figs/KNN.png
     :alt: kNN demo
 
 
@@ -82,14 +90,18 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
 
     .. code-block:: python
 
-        from pyod.models.knn import KNN
-        from pyod.models.combination import aom, moa, average, maximization # combination methods
-        from pyod.utils.load_data import generate_data
+        import numpy as np
+        from sklearn.metrics import roc_auc_score
+        from sklearn.model_selection import train_test_split
+        from scipy.io import loadmat
+
+        from pyod.models.knn import KNN  # kNN detector
+        from pyod.models.combination import aom, moa, average, maximization
         from pyod.utils.utility import precision_n_scores
         from pyod.utils.utility import standardizer
-        from sklearn.metrics import roc_auc_score
+        from pyod.utils.data import generate_data
 
-        X, y, _ = generate_data(train_only=True)  # load data
+        X, y= generate_data(train_only=True)  # load data
 
 
 2. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:

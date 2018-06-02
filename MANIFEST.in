@@ -1,4 +1,5 @@
 recursive-include examples/example_data *.mat
+recursive-include examples *.png
 recursive-include pyod/test/test_data *.mat
 include README.md
 include requirements.txt

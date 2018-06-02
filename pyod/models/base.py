@@ -53,15 +53,13 @@ def clone(estimator, safe=True):
 
     See sklearn/base.py for more information.
 
-    Parameters
-    ----------
-    estimator : estimator object, or list, tuple or set of objects
-        The estimator or group of estimators to be cloned
 
-    safe : boolean, optional
-        If safe is false, clone will fall back to a deep copy on objects
-        that are not estimators.
+    :param estimator: The estimator or group of estimators to be cloned
+    :type estimator: estimator object, or list, tuple or set of objects
 
+    :param safe: If safe is false, clone will fall back to a deep copy on
+        objects that are not estimators.
+    :type safe: bool, optional (default=True)
     """
     estimator_type = type(estimator)
     # XXX: not handling dictionaries

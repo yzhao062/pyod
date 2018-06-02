@@ -1,8 +1,5 @@
-examples package
+A List of Examples
 ================
-
-Submodules
-----------
 
 examples.abod\_example module
 -----------------------------
@@ -67,12 +64,3 @@ examples.ocsvm\_example module
     :show-inheritance:
     :inherited-members:
 
-
-Module contents
----------------
-
-.. automodule:: examples
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
