@@ -144,6 +144,7 @@ class TestMetrics(unittest.TestCase):
     def setUp(self):
         self.y = [0, 0, 1, 1, 1, 0, 0, 0, 1, 0]
         self.labels_ = [0.1, 0.2, 0.2, 0.8, 0.2, 0.5, 0.7, 0.9, 1, 0.3]
+        self.labels_short_ = [0.1, 0.2, 0.2, 0.8, 0.2, 0.5, 0.7, 0.9, 1]
         self.manual_labels = [0, 0, 0, 1, 0, 0, 1, 1, 1, 0]
         self.outlier_perc = 0.3
 
@@ -159,6 +160,10 @@ class TestMetrics(unittest.TestCase):
         manual_labels = [0, 0, 0, 1, 0, 0, 0, 1, 1, 0]
         assert_allclose(manual_labels,
                         get_label_n(self.y, self.labels_, n=3))
+
+    def test_inconsistent_length(self):
+        with assert_raises(ValueError):
+            get_label_n(self.y, self.labels_short_)
 
     def tearDown(self):
         pass
