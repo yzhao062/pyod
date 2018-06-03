@@ -4,22 +4,50 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+
+from ..utils.utility import check_parameter_range
 
 from .base import BaseDetector
 
 
 class HBOS(BaseDetector):
+    """
+    Histogram- based outlier detection (HBOS) is an efficient unsupervised
+    method [1]. It assumes the feature independence and calculates the degree
+    of outlyingness by building histograms.
 
-    def __init__(self, bins=10, beta=0.5, contamination=0.1):
+    :param n_bins: The number of bins
+    :type n_bins: int, optional (default=10)
+
+    :param alpha: The regularizer for preventing overflow
+    :type alpha: float in (0, 1), optional (default=0.1)
+
+    :param tol: The parameter to decide the flexibility while dealing
+        the samples falling outside the bins
+    :type tol: float in (0, 1), optional (default=0.1)
+
+    :param contamination: The amount of contamination of the data set, i.e.
+        the proportion of outliers in the data set. When fitting this is used
+        to define the threshold on the decision function.
+    :type contamination: float in (0., 0.5), optional (default=0.1)
+
+    .. [1] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score
+       (hbos): A fast unsupervised anomaly detection algorithm. In KI-2012:
+       Poster and Demo Track, pp.59-63.
+
+    """
+
+    def __init__(self, n_bins=10, alpha=0.1, tol=0.5, contamination=0.1):
 
         super(HBOS, self).__init__(contamination=contamination)
-        self.bins = bins
-        self.beta = beta
-        # self.hist_ = None
-        # self.bin_edges_ = None
+        self.n_bins = n_bins
+        self.alpha = alpha
+        self.tol = tol
+
+        check_parameter_range(alpha, 0, 1)
+        check_parameter_range(tol, 0, 1)
 
     def fit(self, X, y=None):
 
@@ -27,162 +55,91 @@ class HBOS(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        n_train, dim_train = X.shape[0], X.shape[1]
-        out_scores = np.zeros([n_train, dim_train])
+        n_samples, n_features = X.shape[0], X.shape[1]
+        self.hist_ = np.zeros([self.n_bins, n_features])
+        self.bin_edges_ = np.zeros([self.n_bins + 1, n_features])
 
-        hist = np.zeros([self.bins, dim_train])
-        bin_edges = np.zeros([self.bins + 1, dim_train])
+        # build the histograms for all dimensions
+        for i in range(n_features):
+            self.hist_[:, i], self.bin_edges_[:, i] = np.histogram(X[:, i],
+                                                                   bins=self.n_bins,
+                                                                   density=True)
+            # the sum of (width * height) should equal to 1
+            assert (np.isclose(1, np.sum(
+                self.hist_[:, i] * np.diff(self.bin_edges_[:, i])), atol=0.1))
 
-        # build the bins
-        for i in range(dim_train):
-            hist[:, i], bin_edges[:, i] = np.histogram(X[:, i],
-                                                       bins=self.bins,
-                                                       density=True)
-            # check the integrity
-            assert (
-                np.isclose(1, np.sum(hist[:, i] * np.diff(bin_edges[:, i])),
-                           atol=0.1))
+        outlier_scores = self._calculate_outlier_scores(X)
 
-        # calculate the threshold_
-        for i in range(dim_train):
-            # find histogram assignments of data points
-            bin_ind = np.digitize(X[:, i], bin_edges[:, i], right=False)
-
-            # very important to do scaling. Not necessary to use min max
-            out_score = np.max(hist[:, i]) - hist[:, i]
-            out_score = MinMaxScaler().fit_transform(out_score.reshape(-1, 1))
-
-            for j in range(n_train):
-                # out sample left
-                if bin_ind[j] == 0:
-                    dist = np.abs(X[j, i] - bin_edges[0, i])
-                    bin_width = bin_edges[1, i] - bin_edges[0, i]
-                    # assign it to bin 0
-                    if dist < bin_width * self.beta:
-                        out_scores[j, i] = out_score[bin_ind[j]]
-                    else:
-                        out_scores[j, i] = np.max(out_score)
-
-                # out sample right
-                elif bin_ind[j] == bin_edges.shape[0]:
-                    dist = np.abs(X[j, i] - bin_edges[-1, i])
-                    bin_width = bin_edges[-1, i] - bin_edges[-2, i]
-                    # assign it to bin k
-                    if dist < bin_width * self.beta:
-                        out_scores[j, i] = out_score[bin_ind[j] - 2]
-                    else:
-                        out_scores[j, i] = np.max(out_score)
-                else:
-                    out_scores[j, i] = out_score[bin_ind[j] - 1]
-
-        out_scores_sum = np.sum(out_scores, axis=1)
-        self.hist_ = hist
-        self.bin_edges_ = bin_edges
-        self.decision_scores_ = out_scores_sum
+        # invert decision_scores. Outliers comes with higher decision_scores_
+        self.decision_scores_ = np.sum(outlier_scores, axis=1) * -1
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        check_is_fitted(self, ['hist_', 'bin_edges_', 'decision_scores_',
-                               'threshold_', 'labels_'])
+        check_is_fitted(self, ['hist_', 'bin_edges_'])
         X = check_array(X)
-        n_test, dim_test = X.shape[0], X.shape[1]
-        out_scores = np.zeros([n_test, dim_test])
 
-        for i in range(dim_test):
-            # find histogram assignments of data points
-            bin_ind = np.digitize(X[:, i], self.bin_edges_[:, i], right=False)
+        outlier_scores = self._calculate_outlier_scores(X)
 
-            # very important to do scaling. Not necessary to use min_max
-            out_score = np.max(self.hist_[:, i]) - self.hist_[:, i]
-            out_score = MinMaxScaler().fit_transform(out_score.reshape(-1, 1))
+        return np.sum(outlier_scores, axis=1).ravel() * -1
 
-            for j in range(n_test):
-                # out sample left
-                if bin_ind[j] == 0:
-                    dist = np.abs(X[j, i] - self.bin_edges_[0, i])
+    def _calculate_outlier_scores(self, X):
+        """
+        The internal function to calculate the outlier scores based on
+        the bins and histograms constructed with the training data
+
+        :param X: The input samples
+        :type X: numpy array of shape (n_samples, n_features)
+
+        :return: outlier scores on all features (dimensions)
+        :rtype: numpy array of shape (n_samples, n_features)
+        """
+        n_samples, n_features = X.shape[0], X.shape[1]
+        outlier_scores = np.zeros([n_samples, n_features])
+        for i in range(n_features):
+
+            # Find the indices of the bins to which each value belongs.
+            # See documentation for np.digitize since it is tricky
+            # >>> x = np.array([0.2, 6.4, 3.0, 1.6, -1, 100, 10])
+            # >>> bins = np.array([0.0, 1.0, 2.5, 4.0, 10.0])
+            # >>> np.digitize(x, bins, right=True)
+            # array([1, 4, 3, 2, 0, 5, 4], dtype=int64)
+
+            bin_inds = np.digitize(X[:, i], self.bin_edges_[:, i],
+                                   right=True)
+
+            # Calculate the outlying scores on dimension i
+            # Add a regularizer for preventing overflow
+            out_score_i = np.log2(self.hist_[:, i] + self.alpha)
+
+            for j in range(n_samples):
+
+                # If the sample does not belong to any bins
+                # bin_ind == 0 (fall outside since it is too small)
+                if bin_inds[j] == 0:
+                    dist = self.bin_edges_[0, i] - X[j, i]
                     bin_width = self.bin_edges_[1, i] - self.bin_edges_[0, i]
-                    # assign it to bin 0
-                    if dist < bin_width * self.beta:
-                        out_scores[j, i] = out_score[bin_ind[j]]
-                    else:
-                        out_scores[j, i] = np.max(out_score)
 
-                # out sample right
-                elif bin_ind[j] == self.bin_edges_.shape[0]:
-                    dist = np.abs(X[j, i] - self.bin_edges_[-1, i])
+                    # If it is only slightly lower than the smallest bin edge
+                    # assign it to bin 1
+                    if dist <= bin_width * self.tol:
+                        outlier_scores[j, i] = out_score_i[0]
+                    else:
+                        outlier_scores[j, i] = np.min(out_score_i)
+
+                # If the sample does not belong to any bins
+                # bin_ind == n_bins+1 (fall outside since it is too large)
+                elif bin_inds[j] == self.n_bins + 1:
+                    dist = X[j, i] - self.bin_edges_[-1, i]
                     bin_width = self.bin_edges_[-1, i] - self.bin_edges_[-2, i]
-                    # assign it to bin k
-                    if dist < bin_width * self.beta:
-                        out_scores[j, i] = out_score[bin_ind[j] - 2]
+
+                    # If it is only slightly larger than the largest bin edge
+                    # assign it to the last bin
+                    if dist <= bin_width * self.tol:
+                        outlier_scores[j, i] = out_score_i[self.n_bins - 1]
                     else:
-                        out_scores[j, i] = np.max(out_score)
+                        outlier_scores[j, i] = np.min(out_score_i)
                 else:
-                    out_scores[j, i] = out_score[bin_ind[j] - 1]
+                    outlier_scores[j, i] = out_score_i[bin_inds[j] - 1]
 
-        out_scores_sum = np.sum(out_scores, axis=1)
-        return out_scores_sum.ravel()
-
-##############################################################################
-
-# roc_result_hbos = []
-# roc_result_knn = []
-#
-# prec_result_hbos = []
-# prec_result_knn = []
-#
-# for t in range(10):
-#     n_inliers = 1000
-#     n_outliers = 100
-#
-#     n_inliers_test = 500
-#     n_outliers_test = 50
-#
-#     offset = 2
-#     contamination = n_outliers / (n_inliers + n_outliers)
-#
-#     # generate normal data
-#     X1 = 0.3 * np.random.randn(n_inliers // 2, 2) - offset
-#     X2 = 0.3 * np.random.randn(n_inliers // 2, 2) + offset
-#     X = np.r_[X1, X2]
-#     # generate outliers
-#     X = np.r_[X, np.random.uniform(low=-6, high=6, size=(n_outliers, 2))]
-#     y = np.zeros([X.shape[0], 1])
-#     color = np.full([X.shape[0], 1], 'b', dtype=str)
-#     y[n_inliers:] = 1
-#     color[n_inliers:] = 'r'
-#
-#     # generate normal data
-#     X1_test = 0.3 * np.random.randn(n_inliers_test // 2, 2) - offset
-#     X2_test = 0.3 * np.random.randn(n_inliers_test // 2, 2) + offset
-#     X_test = np.r_[X1_test, X2_test]
-#     # generate outliers
-#     X_test = np.r_[
-#         X_test, np.random.uniform(low=-8, high=8, size=(n_outliers_test, 2))]
-#     y_test = np.zeros([X_test.shape[0], 1])
-#     color_test = np.full([X_test.shape[0], 1], 'b', dtype=str)
-#     y_test[n_inliers_test:] = 1
-#     color_test[n_inliers_test:] = 'r'
-#
-#     clf = Hbos(contamination=contamination, alpha=0.2, beta=0.5, bins=5)
-#     clf.fit(X)
-#     pred_score_hbos = clf.decision_function(X_test)
-#     labels_ = clf.predict(X_test)
-#
-#     roc_result_hbos.append(roc_auc_score(y_test, pred_score_hbos))
-#     prec_result_hbos.append(get_precn(y_test, pred_score_hbos))
-#
-#     clf_knn = Knn(n_neighbors=10, contamination=contamination, method='mean')
-#     clf_knn.fit(X)
-#     pred_score_knn = clf_knn.sample_scores(X_test)
-#     roc_result_knn.append(roc_auc_score(y_test, pred_score_knn))
-#     prec_result_knn.append(get_precn(y_test, pred_score_knn))
-#     # print(get_precn(y_test, clf.decision_function(X_test)))
-#     # print(roc_auc_score(y_test, clf.decision_function(X_test)))
-#
-# print(np.mean(roc_result_hbos), np.mean(prec_result_hbos))
-# print(np.mean(roc_result_knn), np.mean(prec_result_knn))
-#
-# plt.figure(figsize=(9, 7))
-# plt.scatter(X_test[:, 0], X_test[:, 1], c=labels_)
-# plt.show()
+        return outlier_scores

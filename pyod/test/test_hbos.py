@@ -50,6 +50,10 @@ class TestHBOS(unittest.TestCase):
             self.assertRaises(AttributeError, '_mu is not set')
         if not hasattr(self.clf, '_sigma') or self.clf._sigma is None:
             self.assertRaises(AttributeError, '_sigma is not set')
+        if not hasattr(self.clf, 'hist_') or self.clf.hist_ is None:
+            self.assertRaises(AttributeError, 'hist_ is not set')
+        if not hasattr(self.clf, 'bin_edges_') or self.clf.bin_edges_ is None:
+            self.assertRaises(AttributeError, 'bin_edges_ is not set')
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
