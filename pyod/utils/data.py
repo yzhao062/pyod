@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Utility functions for loading sample data and create pseudo data
+Utility functions for manipulating data
 """
 
 from __future__ import division
@@ -9,8 +9,11 @@ from __future__ import print_function
 import numpy as np
 from sklearn.utils import check_X_y
 from sklearn.utils import column_or_1d
+from sklearn.metrics import roc_auc_score
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+
+from pyod.utils.utility import precision_n_scores
 
 
 def generate_data(n_train=1000, n_test=500, contamination=0.1,
@@ -104,26 +107,29 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
     Utility function for visualizing the results in examples
     Internal use only
 
-    :param clf_name: name of the current detector
+    :param clf_name: The name of the detector
     :type clf_name: str
 
-    :param X_train: training data
+    :param X_train: The training samples
     :param X_train: numpy array of shape (n_samples, n_features)
 
-    :param y_train:
-    :param y_train:
+    :param y_train: The ground truth of training samples
+    :type y_train: list or array of shape (n_samples,)
 
-    :param X_test:
-    :type X_test:
+    :param X_test: The test samples
+    :type X_test: numpy array of shape (n_samples, n_features)
 
-    :param y_test:
-    :type y_test:
+    :param y_test: The ground truth of test samples
+    :type y_test: list or array of shape (n_samples,)
 
-    :param y_train_pred:
-    :param y_test_pred:
+    :param y_train_pred: The predicted outlier scores on the training samples
+    :type y_train_pred: numpy array of shape (n_samples, n_features)
 
-    :param save_figure:
-    :return:
+    :param y_test_pred: The predicted outlier scores on the test samples
+    :type y_test_pred: numpy array of shape (n_samples, n_features)
+
+    :param save_figure: If set to True, save the figure to the local
+    :type save_figure: bool, optional (default=False)
     """
 
     c_train = _get_color_codes(y_train)
@@ -164,3 +170,26 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
     if save_figure:
         plt.savefig('{clf_name}.png'.format(clf_name=clf_name), dpi=300)
     plt.show()
+
+
+def evaluate_print(clf_name, y, y_pred):
+    """
+    Utility function for visualizing the results in examples
+    Internal use only
+
+    :param clf_name: The name of the detector
+    :type clf_name: str
+
+    :param y: The ground truth
+    :type y: list or array of shape (n_samples,)
+
+    :param y_pred: The predicted outlier scores
+    :type y: list or array of shape (n_samples,)
+    """
+    y = column_or_1d(y)
+    y_pred = column_or_1d(y_pred)
+
+    print('{clf_name} ROC:{roc}, precision @ rank n:{prn}'.format(
+        clf_name=clf_name,
+        roc=np.round(roc_auc_score(y, y_pred), decimals=4),
+        prn=np.round(precision_n_scores(y, y_pred), decimals=4)))

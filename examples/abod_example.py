@@ -12,14 +12,11 @@ import sys
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import numpy as np
-from sklearn.metrics import roc_auc_score
-
 from pyod.models.abod import ABOD
 
 from pyod.utils.data import generate_data
+from pyod.utils.data import evaluate_print
 from pyod.utils.data import visualize
-from pyod.utils.utility import precision_n_scores
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
@@ -43,15 +40,10 @@ if __name__ == "__main__":
     y_test_scores = clf.decision_function(X_test)  # outlier scores
 
     # evaluate and print the results
-    print('{clf_name} Train ROC:{roc}, precision @ rank n:{prn}'.format(
-        clf_name=clf_name,
-        roc=np.round(roc_auc_score(y_train, y_train_scores), decimals=4),
-        prn=np.round(precision_n_scores(y_train, y_train_scores), decimals=4)))
-
-    print('{clf_name} Test ROC:{roc}, precision @ rank n:{prn}'.format(
-        clf_name=clf_name,
-        roc=np.round(roc_auc_score(y_test, y_test_scores), decimals=4),
-        prn=np.round(precision_n_scores(y_test, y_test_scores), decimals=4)))
+    print("\nOn Training Data:")
+    evaluate_print(clf_name, y_train, y_train_scores)
+    print("\nOn Test Data:")
+    evaluate_print(clf_name, y_test, y_test_scores)
 
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,

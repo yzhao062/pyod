@@ -153,7 +153,7 @@ class IForest(BaseDetector):
 
         :return: The subset of drawn samples (i.e., the in-bag samples) for
             each base estimator.
-        :rtype: list of arrays
+        :rtype: list or arrays
         """
         return self.detector_.estimators_samples_
 

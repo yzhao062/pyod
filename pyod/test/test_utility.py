@@ -20,6 +20,9 @@ from sklearn.utils.testing import assert_raises
 from sklearn.metrics import precision_score
 
 from pyod.utils.data import generate_data
+from pyod.utils.data import visualize
+from pyod.utils.data import evaluate_print
+
 from pyod.utils.utility import check_parameter_range
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
@@ -69,6 +72,19 @@ class TestUtils(unittest.TestCase):
             argmaxn(self.value_lists, -1)
         with assert_raises(ValueError):
             argmaxn(self.value_lists, 20)
+
+    def test_evaluate_print(self):
+        X_train, y_train, X_test, y_test = generate_data(
+            n_train=self.n_train, n_test=self.n_test,
+            contamination=self.contamination)
+        evaluate_print('dummy', y_train, y_train * 0.1)
+
+    def test_visualize(self):
+        X_train, y_train, X_test, y_test = generate_data(
+            n_train=self.n_train, n_test=self.n_test,
+            contamination=self.contamination)
+        visualize('dummy', X_train, y_train, X_test, y_test, y_train * 0.1,
+                  y_test * 0.1)
 
     def tearDown(self):
         pass
