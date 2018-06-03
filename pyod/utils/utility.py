@@ -10,6 +10,7 @@ from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import column_or_1d
+from sklearn.utils.validation import check_consistent_length
 
 
 def check_parameter_range(param, low=None, high=None):
@@ -55,6 +56,7 @@ def standardizer(X_train, X_test):
     :return: X_train_ and X_test after the Z-score normalization
     :rtype: tuple(ndarray, ndarray)
     """
+    check_consistent_length(X_train, X_test)
     scaler = StandardScaler().fit(X_train)
     return (scaler.transform(X_train), scaler.transform(X_test))
 
@@ -113,11 +115,8 @@ def get_label_n(y, y_pred, n=None):
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
 
+    check_consistent_length(y, y_pred)
     y_len = len(y)  # the length of targets
-
-    if y.shape != y_pred.shape:
-        ValueError(
-            'ground truth y and prediction labels_ shape does not match')
 
     # calculate the percentage of outliers
     if n is not None:
