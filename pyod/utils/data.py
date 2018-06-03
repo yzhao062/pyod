@@ -102,7 +102,7 @@ def _get_color_codes(y):
 
 
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, save_figure=False):
+              y_test_pred, show_figure=True, save_figure=False):
     """
     Utility function for visualizing the results in examples
     Internal use only
@@ -169,7 +169,9 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
 
     if save_figure:
         plt.savefig('{clf_name}.png'.format(clf_name=clf_name), dpi=300)
-    plt.show()
+    if show_figure:
+        plt.show()
+    return
 
 
 def evaluate_print(clf_name, y, y_pred):

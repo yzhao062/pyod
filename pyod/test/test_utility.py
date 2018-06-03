@@ -84,7 +84,7 @@ class TestUtils(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
         visualize('dummy', X_train, y_train, X_test, y_test, y_train * 0.1,
-                  y_test * 0.1)
+                  y_test * 0.1, show_figure=False, save_figure=False)
 
     def tearDown(self):
         pass

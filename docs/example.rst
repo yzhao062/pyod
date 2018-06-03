@@ -75,7 +75,8 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
     .. code-block:: python
 
         visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-          y_test_pred, save_figure=True)
+                  y_test_pred, show_figure=True, save_figure=False)
+
 
 .. figure:: figs/KNN.png
     :alt: kNN demo
