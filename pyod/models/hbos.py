@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter_range
+from ..utils.utility import check_parameter
 
 from .base import BaseDetector
 
@@ -46,8 +46,8 @@ class HBOS(BaseDetector):
         self.alpha = alpha
         self.tol = tol
 
-        check_parameter_range(alpha, 0, 1)
-        check_parameter_range(tol, 0, 1)
+        check_parameter(alpha, 0, 1, param_name='alpha')
+        check_parameter(tol, 0, 1, param_name='tol')
 
     def fit(self, X, y=None):
 

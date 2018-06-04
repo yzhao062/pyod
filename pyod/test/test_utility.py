@@ -23,7 +23,7 @@ from pyod.utils.data import generate_data
 from pyod.utils.data import visualize
 from pyod.utils.data import evaluate_print
 
-from pyod.utils.utility import check_parameter_range
+from pyod.utils.utility import check_parameter
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores
@@ -95,27 +95,61 @@ class TestParameters(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_check_para_range(self):
-        with assert_raises(ValueError):
-            check_parameter_range(50)
-
-        with assert_raises(ValueError):
-            check_parameter_range(50, 100, 99)
-
-        with assert_raises(ValueError):
-            check_parameter_range(50, 100, 100)
-
-        with assert_raises(ValueError):
-            check_parameter_range(-1, 0, 100)
-
-        with assert_raises(ValueError):
-            check_parameter_range(101, 0, 100)
-
+    def test_check_parameter_range(self):
         # verify parameter type correction
         with assert_raises(TypeError):
-            check_parameter_range('f', 0, 100)
+            check_parameter('f', 0, 100)
 
-        assert_equal(True, check_parameter_range(50, 0, 100))
+        with assert_raises(TypeError):
+            check_parameter(argmaxn(), 0, 100)
+
+        # if low and high are both unset
+        with assert_raises(ValueError):
+            check_parameter(50)
+
+        # if low <= high
+        with assert_raises(ValueError):
+            check_parameter(50, 100, 99)
+
+        with assert_raises(ValueError):
+            check_parameter(50, 100, 100)
+
+        # check one side
+        with assert_raises(ValueError):
+            check_parameter(50, low=100)
+        with assert_raises(ValueError):
+            check_parameter(50, high=0)
+
+        assert_equal(True, check_parameter(50, low=10))
+        assert_equal(True, check_parameter(50, high=100))
+
+        # if check fails
+        with assert_raises(ValueError):
+            check_parameter(-1, 0, 100)
+
+        with assert_raises(ValueError):
+            check_parameter(101, 0, 100)
+
+        with assert_raises(ValueError):
+            check_parameter(0.5, 0.2, 0.3)
+
+        # if check passes
+        assert_equal(True, check_parameter(50, 0, 100))
+
+        assert_equal(True, check_parameter(0.5, 0.1, 0.8))
+
+        # if includes left or right bounds
+        with assert_raises(ValueError):
+            check_parameter(100, 0, 100, include_left=False,
+                            include_right=False)
+        assert_equal(True, check_parameter(0, 0, 100, include_left=True,
+                                           include_right=False))
+        assert_equal(True, check_parameter(0, 0, 100, include_left=True,
+                                           include_right=True))
+        assert_equal(True, check_parameter(100, 0, 100, include_left=False,
+                                           include_right=True))
+        assert_equal(True, check_parameter(100, 0, 100, include_left=True,
+                                           include_right=True))
 
     def tearDown(self):
         pass

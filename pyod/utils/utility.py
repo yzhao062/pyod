@@ -6,43 +6,83 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+import numbers
 from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import column_or_1d
 from sklearn.utils.validation import check_consistent_length
 
+MAX_INT = np.iinfo(np.int32).max
+MIN_INT = -1 * MAX_INT
 
-def check_parameter_range(param, low=None, high=None):
+
+def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
+                    include_left=False, include_right=False):
     """
     check if input parameter is with in the range low and high
 
-    :param param: the input parameter to check
+    :param param: The input parameter to check
     :type param: int, float
 
-    :param low: lower bound of the range
+    :param low: The lower bound of the range
     :type low: int, float
 
-    :param high: higher bound of the range
+    :param high: The higher bound of the range
     :type high: int, float
 
-    :return: whether the parameter is within the range of (low, high)
-    :rtype: bool
+    :param param_name: The name of the parameter
+    :type param_name: str, optional (default='')
+
+    :param include_left: Whether includes the lower bound (lower bound <=)
+    :type include_left: bool, optional (default=False)
+
+    :param include_right: Whether includes the higher bound (<= higher bound )
+    :type include_right: bool, optional (default=False)
+
+    :return: Whether the parameter is within the range of (low, high)
+    :rtype: bool or raise errors
     """
-    if low is None or high is None:
-        raise ValueError('either low or high bounds is undefined')
 
-    if low is not None and high is not None:
-        if low >= high:
-            raise ValueError('low is equal or larger than high')
+    if not isinstance(param, (numbers.Integral, np.integer, np.float)):
+        raise TypeError(
+            '{param_name} is set to {param}. '
+            'Not numerical'.format(param=param,
+                                   param_name=param_name))
 
-    if not isinstance(param, int) and not isinstance(param, float):
-        raise TypeError('{param} is not numerical'.format(param=param))
+    if low is MIN_INT and high is MAX_INT:
+        raise ValueError('Neither low nor high bounds is undefined')
 
-    if param < low or param > high:
+    if low >= high:
         raise ValueError(
-            '{param} is not in the range of {low} and {high}'.format(
-                param=param, low=low, high=high))
+            'Lower bound is equal or larger than the higher bound')
+
+    if (include_left and include_right) and (param < low or param > high):
+        raise ValueError(
+            '{param_name} is set to {param}. '
+            'Not in the range of {low} and {high}'.format(
+                param=param, low=low, high=high, param_name=param_name))
+
+    elif (include_left and not include_right) and (
+            param < low or param >= high):
+        raise ValueError(
+            '{param_name} is set to {param}. '
+            'Not in the range of {low} and {high}'.format(
+                param=param, low=low, high=high, param_name=param_name))
+
+    elif (not include_left and include_right) and (
+            param <= low or param > high):
+        raise ValueError(
+            '{param_name} is set to {param}. '
+            'Not in the range of {low} and {high}'.format(
+                param=param, low=low, high=high, param_name=param_name))
+
+    elif (not include_left and not include_right) and (
+            param <= low or param >= high):
+        raise ValueError(
+            '{param_name} is set to {param}. '
+            'Not in the range of {low} and {high}'.format(
+                param=param, low=low, high=high, param_name=param_name))
     else:
         return True
 
@@ -148,7 +188,7 @@ def argmaxn(value_list, n, order='desc'):
     length = len(value_list)
 
     # validate the choice of n
-    check_parameter_range(n, 1, length)
+    check_parameter(n, 1, length)
 
     # for the smallest n, flip the value
     if order != 'desc':

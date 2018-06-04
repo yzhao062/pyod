@@ -10,7 +10,7 @@ from sklearn.utils import column_or_1d
 from sklearn.utils import shuffle
 from sklearn.utils.random import sample_without_replacement
 from sklearn.utils.testing import assert_equal
-from ..utils.utility import check_parameter_range
+from ..utils.utility import check_parameter
 
 
 def aom(scores, n_buckets, method='static', replace=False, random_state=None):
@@ -49,7 +49,7 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
     #       for now it is fixed to n_estimators/2
     scores = check_array(scores)
     n_estimators = scores.shape[1]
-    check_parameter_range(n_buckets, 2, n_estimators)  # range check
+    check_parameter(n_buckets, 2, n_estimators, param_name='n_buckets')
 
     scores_aom = np.zeros([scores.shape[0], n_buckets])
 
@@ -102,7 +102,8 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
 
 def moa(scores, n_buckets, method='static', replace=False, random_state=None):
     """
-    Maximization of Average - An ensemble method for combining multiple detectors
+    Maximization of Average - An ensemble method for combining multiple
+    detectors
 
     First dividing detectors into subgroups, take the average score as the
     subgroup score.
@@ -136,7 +137,7 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
     #       for now it is fixed to n_estimators/2
     scores = check_array(scores)
     n_estimators = scores.shape[1]
-    check_parameter_range(n_buckets, 2, n_estimators)  # range check
+    check_parameter(n_buckets, 2, n_estimators, param_name='n_buckets')
 
     scores_aom = np.zeros([scores.shape[0], n_buckets])
 

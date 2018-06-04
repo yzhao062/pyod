@@ -20,7 +20,7 @@ from sklearn.utils.testing import assert_raises
 from sklearn.metrics import precision_score
 
 from pyod.utils.data import generate_data
-from pyod.utils.utility import check_parameter_range
+from pyod.utils.utility import check_parameter
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores

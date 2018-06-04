@@ -11,7 +11,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from .base import BaseDetector
-from ..utils.utility import check_parameter_range
+from ..utils.utility import check_parameter
 
 
 def _calculate_wocs(curr_pt, X, X_ind):
@@ -137,7 +137,7 @@ class ABOD(BaseDetector):
         """
 
         # make sure the n_neighbors is in the range
-        check_parameter_range(self.n_neighbors, 1, self.n_train_)
+        check_parameter(self.n_neighbors, 1, self.n_train_)
 
         self.tree_ = KDTree(self.X_train_)
 
