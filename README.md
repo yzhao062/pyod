@@ -5,17 +5,19 @@
 
 --------------------------
 
-PyOD is a comprehensive **Python toolkit** to **identify outlying objects** in data with both unsupervised and supervised approaches. 
-This exciting yet challenging field is commonly referred as ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
+PyOD is a comprehensive **Python toolkit** to **identify outlying objects** in 
+multivariate data with both unsupervised and supervised approaches. 
+This exciting yet challenging field is commonly referred as 
+***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
+or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)***.
+The toolkit has been successfully used in various academic researches [4, 8] and commercial products.
 Unlike existing libraries, PyOD provides:
 
-- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
-- **Compatibility with Python 2 and 3**. All implemented algorithms are **scikit-learn compatible** as well.
-- Additional functionalities, e.g., **Detector Combination Frameworks** for ensemble learning.
-- **Detailed API Reference, Examples and Tests** for better readability and reliability.
+- **Unified and consistent APIs** across various anomaly detection algorithms.
+- **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
+- **Advanced functions**, e.g., **Outlier Ensemble Frameworks** to combine multiple detectors.
+- **Detailed API Reference, Examples and Tests** for better reliability. 
 
-**The toolbox has been successfully used in various academic researches [4, 8] and commercial products. It is currently under active development**. However, 
-the primary purpose of the toolkit is quick exploration. Using it as the final output should be cautious; fine-tunning may be needed to generate meaningful results. The authors can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome. **Enjoy catching outliers!**
 
 **Table of Contents**:
 <!-- TOC -->
@@ -51,16 +53,16 @@ PyOD toolkit consists of three major groups of functionalities: (i) **outlier de
   1. **Local Outlier Factor, LOF** [1]
   2. **Isolation Forest, iForest** [2]
   3. **One-Class Support Vector Machines** [3]
-  4. **k Nearest Neighbors Detector** (use the distance to the kth nearst neighbor as the outlier score)
-  5. **Average kNN** Outlier Detection (use the average distance to k nearst neighbors as the outlier score)
-  6. **Median kNN** Outlier Detection (use the median distance to k nearst neighbors as the outlier score)
+  4. **k Nearest Neighbors Detector (kNN)** (use the distance to the kth nearest neighbor as the outlier score)
+  5. **Average kNN** Outlier Detection (use the average distance to k nearest neighbors as the outlier score)
+  6. **Median kNN** Outlier Detection (use the median distance to k nearest neighbors as the outlier score)
   7. **Histogram-based Outlier Score, HBOS** [5]
   8. **Angle-Based Outlier Detection, ABOD** [7]
   9. **Fast Angle-Based Outlier Detection, FastABOD** [7]
   10. More to add...
 
 - Outlier Ensemble Framework (Outlier Score Combination Frameworks)
-  1. **Feature bagging**
+  1. **Feature bagging** [9]
   2. **Average** & **Weighted Average** [6]
   3. **Maximization** [6]
   4. **Average of Maximum (AOM)** [6]
@@ -96,11 +98,10 @@ Python Version:
 
 Library Dependency: 
 ````cmd
-matplotlib                       # needed for running examples
-nose                             # needed for running tests
+matplotlib                       # optional. Only needed for running examples
+nose                             # optional. Only needed for running tests
 numpy>=1.13
-pathlib2 ; python_version < '3'  # needed if python 2.7
-pytest                           # needed for running tests
+pytest                           # optional. Only needed for running tests
 scipy>=0.19.1
 scikit_learn>=0.19.1
 ````
@@ -124,31 +125,14 @@ Full package structure can be found below:
 ------------
 
 ### Quick Start for Outlier Detection
-See **examples folder** for more demos. "examples/knn_example.py" demonstrates 
-the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**.
+See **examples directory** for more demos. ["examples/knn_example.py"](https://github.com/yzhao062/Pyod/blob/master/examples/knn_example.py)
+demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**. 
 
-0. Import models
-    ````python
+1. Initialize a kNN detector, fit the model, and make the prediction.
+    ```python
+    
     from pyod.models.knn import KNN   # kNN detector
  
-    from pyod.utils.data import generate_data
-    from pyod.utils.data import evaluate_print
-    from pyod.utils.data import visualize
-    ````
-
-1. Generate sample data first; normal data is generated by a 2-d Gaussian 
-distribution, and outliers are generated by a 2-d uniform distribution.
-    ````python
-    contamination = 0.1  # percentage of outliers
-    n_train = 200  # number of training points
-    n_test = 100  # number of testing points
-
-    X_train, y_train, X_test, y_test = generate_data(
-        n_train=n_train, n_test=n_test, contamination=contamination)
-    ````
-
-2. Initialize a kNN detector, fit the model, and make the prediction.
-    ```python
     # train kNN detector
     clf_name = 'KNN'
     clf = KNN()
@@ -162,7 +146,7 @@ distribution, and outliers are generated by a 2-d uniform distribution.
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
     y_test_scores = clf.decision_function(X_test)  # outlier scores
     ```
-3. Evaluate the prediction by ROC and Precision@rank *n* (p@n):
+2. Evaluate the prediction by ROC and Precision@rank *n* (p@n):
     ```python
     # evaluate and print the results
     print("\nOn Training Data:")
@@ -170,7 +154,7 @@ distribution, and outliers are generated by a 2-d uniform distribution.
     print("\nOn Test Data:")
     evaluate_print(clf_name, y_test, y_test_scores)
     ```
- 4. See a sample output & visualization
+ 3. See a sample output & visualization
     ````python
     On Training Data:
     KNN ROC:1.0, precision @ rank n:1.0
@@ -183,7 +167,7 @@ distribution, and outliers are generated by a 2-d uniform distribution.
               y_test_pred, show_figure=True, save_figure=False)
     ````
     
-To check the result of the classification visually ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/examples/KNN.png)):
+Visualization ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/examples/KNN.png)):
 ![kNN example figure](https://github.com/yzhao062/Pyod/blob/master/examples/KNN.png)
 
 ---
@@ -241,7 +225,7 @@ The walkthrough of the code example is provided:
     comb_by_aom = aom(test_scores_norm, 5) # 5 groups
     comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
     ```
-4. Finally, all four combination methods are evaluated with 20 iterations:
+4. Finally, all four combination methods are evaluated with 10 iterations:
     ````bash
     Combining 20 kNN detectors
     ite 1 comb by average, ROC: 0.9014 precision@n_train: 0.4531
@@ -275,3 +259,4 @@ The walkthrough of the code example is provided:
 
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
 
+[9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.

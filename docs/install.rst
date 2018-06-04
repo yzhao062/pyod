@@ -32,10 +32,9 @@ Library Dependency:
 
 .. code-block:: bash
 
-    - matplotlib                       # needed for running examples
-    - nose                             # needed for running tests
+    - matplotlib                       # optional. Only needed for running examples
+    - nose                             # optional. Only needed for running tests
     - numpy>=1.13
-    - pathlib2 ; python_version < '3'  # needed if python 2.7
-    - pytest                           # needed for running tests
+    - pytest                           # optional. Only needed for running tests
     - scipy>=0.19.1
     - scikit_learn>=0.19.1

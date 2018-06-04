@@ -25,19 +25,13 @@ PyOD Documentation
 to **identify outlying objects** in data with both unsupervised and supervised approaches.
 This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
+The toolkit has been successfully used in various academic researches [4, 8] and commercial products.
 Unlike existing libraries, PyOD provides:
 
-- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
-- **Compatibility with Python 2 and 3**. All implemented algorithms are **scikit-learn compatible** as well.
-- Additional functionalities, e.g., **Detector Combination Frameworks** for ensemble learning.
-- **Detailed API Reference, Examples and Tests** for better readability and reliability.
-
-**The toolbox has been successfully used in various academic researches [4, 8] and commercial products.
-It is currently under active development**. However,
-the primary purpose of the toolkit is quick exploration. Using it as the final output should be cautious;
-fine-tunning may be needed to generate meaningful results.
-The authors can be reached out at yuezhao@cs.toronto.edu; comments, questions, pull requests and issues are welcome.
-**Enjoy catching outliers!**
+- **Unified and consistent APIs** across various anomaly detection algorithms.
+- **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
+- **Advanced functions**, e.g., **Outlier Ensemble Frameworks** to combine multiple detectors.
+- **Detailed API Reference, Examples and Tests** for better reliability.
 
 **Key Links**:
 
@@ -62,12 +56,11 @@ The toolkit consists of three major groups of functionalities:
     * Fast Angle-Based Outlier Detection, FastABOD [7]: :class:`pyod.models.abod.ABOD`
 
 2. **Outlier ensemble frameworks**, see :mod:`pyod.models.combination`.
-    * Feature bagging
+    * Feature bagging: :class:`pyod.models.feature_bagging.FeatureBagging`
     * Average and Weighted Average: :func:`pyod.models.combination.average`
     * Maximization: :func:`pyod.models.combination.maximization`
     * Average of Maximum (AOM): [6] :func:`pyod.models.combination.aom`
     * Maximum of Average (MOA): [6] :func:`pyod.models.combination.moa`
-
     * Threshold Sum (Thresh) [6]
 
 3. **Outlier detection utility functions**, see :mod:`pyod.utils`.

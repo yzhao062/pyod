@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from sklearn.metrics import roc_auc_score
 
-from pyod.models.feat_bagging import FeatureBagging
+from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.knn import KNN
 from pyod.models.lof import LOF
 from pyod.models.iforest import IForest

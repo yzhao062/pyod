@@ -40,6 +40,15 @@ pyod.models.hbos module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.feature\_bagging module
+-----------------------
+
+.. automodule:: pyod.models.feature_bagging
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.iforest module
 --------------------------
 
@@ -75,7 +84,6 @@ pyod.models.ocsvm module
     :undoc-members:
     :show-inheritance:
     :inherited-members:
-
 
 Module contents
 ---------------
