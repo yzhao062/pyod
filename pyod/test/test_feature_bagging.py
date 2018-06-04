@@ -22,82 +22,86 @@ from sklearn.metrics import roc_auc_score
 from scipy.io import loadmat
 
 from pyod.models.feature_bagging import FeatureBagging
-from pyod.models.lof import LOF
+from pyod.utils.data import generate_data
 
 
-# TODO: finish the tests once the main model is ready
-#       Placeholder only
 class TestFeatureBagging(unittest.TestCase):
     def setUp(self):
-        mat_file = 'cardio.mat'
-        mat = loadmat(os.path.join('test_data', mat_file))
-        X = mat['X']
-        y = mat['y'].ravel()
+        self.n_train = 100
+        self.n_test = 50
+        self.contamination = 0.1
+        self.roc_floor = 0.6
+        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
+            n_train=self.n_train, n_test=self.n_test,
+            contamination=self.contamination)
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            test_size=0.4)
-
-        self.clf = FeatureBagging(base_estimator=LOF(),
-                                  contamination=self.contamination)
+        self.clf = FeatureBagging(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
-    # def test_sklearn_estimator(self):
-    #     check_estimator(self.clf)
-    #
-    # def test_parameters(self):
-    #     if not hasattr(self.clf,
-    #                    'decision_scores_') or self.clf.decision_scores_ is None:
-    #         self.assertRaises(AttributeError, 'decision_scores_ is not set')
-    #     if not hasattr(self.clf, 'labels_') or self.clf.labels_ is None:
-    #         self.assertRaises(AttributeError, 'labels_ is not set')
-    #     if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
-    #         self.assertRaises(AttributeError, 'threshold_ is not set')
-    #     if not hasattr(self.clf, '_mu') or self.clf._mu is None:
-    #         self.assertRaises(AttributeError, '_mu is not set')
-    #     if not hasattr(self.clf, '_sigma') or self.clf._sigma is None:
-    #         self.assertRaises(AttributeError, '_sigma is not set')
-    #
-    # def test_train_scores(self):
-    #     assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
-    #
-    # def test_prediction_scores(self):
-    #     pred_scores = self.clf.decision_function(self.X_test)
-    #
-    #     # check score shapes
-    #     assert_equal(pred_scores.shape[0], self.X_test.shape[0])
-    #
-    #     # check performance
-    #     assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
-    #
-    # def test_prediction_labels(self):
-    #     pred_labels = self.clf.predict(self.X_test)
-    #     assert_equal(pred_labels.shape, self.y_test.shape)
-    #
-    # def test_prediction_proba(self):
-    #     pred_proba = self.clf.predict_proba(self.X_test)
-    #     assert_greater_equal(pred_proba.min(), 0)
-    #     assert_less_equal(pred_proba.max(), 1)
-    #
-    # def test_prediction_proba_linear(self):
-    #     pred_proba = self.clf.predict_proba(self.X_test, method='linear')
-    #     assert_greater_equal(pred_proba.min(), 0)
-    #     assert_less_equal(pred_proba.max(), 1)
-    #
-    # def test_prediction_proba_unify(self):
-    #     pred_proba = self.clf.predict_proba(self.X_test, method='unify')
-    #     assert_greater_equal(pred_proba.min(), 0)
-    #     assert_less_equal(pred_proba.max(), 1)
-    #
-    # def test_prediction_proba_parameter(self):
-    #     with assert_raises(ValueError):
-    #         self.clf.predict_proba(self.X_test, method='something')
-    #
-    # def test_fit_predict(self):
-    #     pred_labels = self.clf.fit_predict(self.X_train)
-    #     assert_equal(pred_labels.shape, self.y_train.shape)
-    #
-    # def test_evaluate(self):
-    #     self.clf.fit_predict_evaluate(self.X_test, self.y_test)
+    def test_sklearn_estimator(self):
+        check_estimator(self.clf)
+
+    def test_parameters(self):
+        if not hasattr(self.clf,
+                       'decision_scores_') or self.clf.decision_scores_ is None:
+            self.assertRaises(AttributeError, 'decision_scores_ is not set')
+        if not hasattr(self.clf, 'labels_') or self.clf.labels_ is None:
+            self.assertRaises(AttributeError, 'labels_ is not set')
+        if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
+            self.assertRaises(AttributeError, 'threshold_ is not set')
+        if not hasattr(self.clf, '_mu') or self.clf._mu is None:
+            self.assertRaises(AttributeError, '_mu is not set')
+        if not hasattr(self.clf, '_sigma') or self.clf._sigma is None:
+            self.assertRaises(AttributeError, '_sigma is not set')
+        if not hasattr(self.clf,
+                       'estimators_') or self.clf.estimators_ is None:
+            self.assertRaises(AttributeError, 'estimators_ is not set')
+        if not hasattr(self.clf,
+                       'estimators_features_') or self.clf.estimators_features_ is None:
+            self.assertRaises(AttributeError,
+                              'estimators_features_ is not set')
+
+    def test_train_scores(self):
+        assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
+
+    def test_prediction_scores(self):
+        pred_scores = self.clf.decision_function(self.X_test)
+
+        # check score shapes
+        assert_equal(pred_scores.shape[0], self.X_test.shape[0])
+
+        # check performance
+        assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
+
+    def test_prediction_labels(self):
+        pred_labels = self.clf.predict(self.X_test)
+        assert_equal(pred_labels.shape, self.y_test.shape)
+
+    def test_prediction_proba(self):
+        pred_proba = self.clf.predict_proba(self.X_test)
+        assert_greater_equal(pred_proba.min(), 0)
+        assert_less_equal(pred_proba.max(), 1)
+
+    def test_prediction_proba_linear(self):
+        pred_proba = self.clf.predict_proba(self.X_test, method='linear')
+        assert_greater_equal(pred_proba.min(), 0)
+        assert_less_equal(pred_proba.max(), 1)
+
+    def test_prediction_proba_unify(self):
+        pred_proba = self.clf.predict_proba(self.X_test, method='unify')
+        assert_greater_equal(pred_proba.min(), 0)
+        assert_less_equal(pred_proba.max(), 1)
+
+    def test_prediction_proba_parameter(self):
+        with assert_raises(ValueError):
+            self.clf.predict_proba(self.X_test, method='something')
+
+    def test_fit_predict(self):
+        pred_labels = self.clf.fit_predict(self.X_train)
+        assert_equal(pred_labels.shape, self.y_train.shape)
+
+    def test_evaluate(self):
+        self.clf.fit_predict_evaluate(self.X_test, self.y_test)
 
     def tearDown(self):
         pass
