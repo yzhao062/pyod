@@ -21,7 +21,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 from scipy.io import loadmat
 
-from pyod.models.feat_bagging import FeatureBagging
+from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.lof import LOF
 
 
