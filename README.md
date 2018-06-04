@@ -9,7 +9,7 @@ PyOD is a comprehensive **Python toolkit** to **identify outlying objects** in
 multivariate data with both unsupervised and supervised approaches. 
 This exciting yet challenging field is commonly referred as 
 ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
-or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)***.
+or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
 The toolkit has been successfully used in various academic researches [4, 8] and commercial products.
 Unlike existing libraries, PyOD provides:
 

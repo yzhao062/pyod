@@ -56,11 +56,11 @@ The toolkit consists of three major groups of functionalities:
     * Fast Angle-Based Outlier Detection, FastABOD [7]: :class:`pyod.models.abod.ABOD`
 
 2. **Outlier ensemble frameworks**, see :mod:`pyod.models.combination`.
-    * Feature bagging: :class:`pyod.models.feature_bagging.FeatureBagging`
+    * Feature bagging [9]: :class:`pyod.models.feature_bagging.FeatureBagging`
     * Average and Weighted Average: :func:`pyod.models.combination.average`
     * Maximization: :func:`pyod.models.combination.maximization`
-    * Average of Maximum (AOM): [6] :func:`pyod.models.combination.aom`
-    * Maximum of Average (MOA): [6] :func:`pyod.models.combination.moa`
+    * Average of Maximum (AOM) [6]: :func:`pyod.models.combination.aom`
+    * Maximum of Average (MOA) [6]: :func:`pyod.models.combination.moa`
     * Threshold Sum (Thresh) [6]
 
 3. **Outlier detection utility functions**, see :mod:`pyod.utils`.
@@ -98,6 +98,8 @@ Reference
 [7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*, pp. 444-452. ACM.
 
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
+
+[9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 ==================
 
