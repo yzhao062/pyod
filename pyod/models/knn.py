@@ -88,7 +88,7 @@ class KNN(BaseDetector):
         X = check_array(X)
 
         # initialize the output score
-        pred_score = np.zeros([X.shape[0], 1])
+        pred_scores = np.zeros([X.shape[0], 1])
 
         for i in range(X.shape[0]):
             x_i = X[i, :]
@@ -107,6 +107,6 @@ class KNN(BaseDetector):
             pred_score_i = dist[-1]
 
             # record the current item
-            pred_score[i, :] = pred_score_i
+            pred_scores[i, :] = pred_score_i
 
-        return pred_score.ravel()
+        return pred_scores.ravel()

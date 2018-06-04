@@ -46,7 +46,8 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
     """
 
     # TODO: add one more parameter for max number of estimators
-    #       for now it is fixed to n_estimators/2
+    # use random_state instead
+    # for now it is fixed at n_estimators/2
     scores = check_array(scores)
     n_estimators = scores.shape[1]
     check_parameter(n_buckets, 2, n_estimators, param_name='n_buckets')

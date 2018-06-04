@@ -89,6 +89,17 @@ def generate_data(n_train=1000, n_test=500, contamination=0.1,
 
 
 def _get_color_codes(y):
+    """
+    Internal function to generate color codes for inliers and outliers
+    Inliers (0): blue
+    Outlier (1): red
+
+    :param y: The binary labels of the groud truth, where 0 is inlier
+    :type y: list, array, numpy array of shape (n_samples,)
+
+    :return: The list of color codes ['r', 'b', ..., 'b']
+    :rtype: list
+    """
     y = column_or_1d(y)
 
     # inliers are assigned blue
@@ -176,7 +187,7 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
 
 def evaluate_print(clf_name, y, y_pred):
     """
-    Utility function for visualizing the results in examples
+    Utility function for evaluating and printing the results for examples
     Internal use only
 
     :param clf_name: The name of the detector

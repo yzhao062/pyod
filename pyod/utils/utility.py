@@ -60,28 +60,28 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
     if (include_left and include_right) and (param < low or param > high):
         raise ValueError(
             '{param_name} is set to {param}. '
-            'Not in the range of {low} and {high}'.format(
+            'Not in the range of [{low}, {high}].'.format(
                 param=param, low=low, high=high, param_name=param_name))
 
     elif (include_left and not include_right) and (
             param < low or param >= high):
         raise ValueError(
             '{param_name} is set to {param}. '
-            'Not in the range of {low} and {high}'.format(
+            'Not in the range of [{low}, {high}).'.format(
                 param=param, low=low, high=high, param_name=param_name))
 
     elif (not include_left and include_right) and (
             param <= low or param > high):
         raise ValueError(
             '{param_name} is set to {param}. '
-            'Not in the range of {low} and {high}'.format(
+            'Not in the range of ({low}, {high}].'.format(
                 param=param, low=low, high=high, param_name=param_name))
 
     elif (not include_left and not include_right) and (
             param <= low or param >= high):
         raise ValueError(
             '{param_name} is set to {param}. '
-            'Not in the range of {low} and {high}'.format(
+            'Not in the range of ({low}, {high}).'.format(
                 param=param, low=low, high=high, param_name=param_name))
     else:
         return True
@@ -117,16 +117,16 @@ def score_to_label(pred_scores, outlier_perc=0.1):
 
 def precision_n_scores(y, y_pred, n=None):
     """
-    Utlity function to calculate precision@ rank
+    Utility function to calculate precision@ rank
 
     :param y: ground truth
     :param y_pred: number of outliers
     :param n: number of outliers, if not defined, infer using ground truth
-    :return: precison at rank n score
+    :return: precision at rank n score
     :rtype: float
     """
 
-    # turn prediction decision_scores_ into binary labels
+    # turn raw prediction decision scores into binary labels
     y_pred = get_label_n(y, y_pred, n)
 
     # enforce formats of y and labels_
