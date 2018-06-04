@@ -42,6 +42,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import LocalOutlierFactor
 import numpy as np
 
+# TODO: place holder only
+
 if __name__ == "__main__":
     # contamination = 0.1  # percentage of outliers
     # n_train = 100

@@ -17,6 +17,8 @@ import numpy as np
 from sklearn.utils.validation import check_random_state
 from sklearn.utils import check_array
 from sklearn.utils.random import sample_without_replacement
+
+from .lof import LOF
 from .base import BaseDetector
 
 MAX_INT = np.iinfo(np.int32).max
@@ -65,7 +67,8 @@ class FeatureBagging(BaseDetector):
 
     """
 
-    def __init__(self, base_estimator, n_estimators=10, contamination=0.1,
+    def __init__(self, base_estimator=LOF(), n_estimators=10,
+                 contamination=0.1,
                  min_features=0.5, max_features=1,
                  bootstrap_features=False, random_state=None):
         super(FeatureBagging, self).__init__(contamination=contamination)
