@@ -19,6 +19,15 @@ examples.comb\_example module
     :show-inheritance:
     :inherited-members:
 
+examples.feature\_bagging\_example module
+-----------------------------
+
+.. automodule:: examples.feature_bagging_example
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 examples.hbos\_example module
 -----------------------------
 
