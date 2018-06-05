@@ -194,7 +194,8 @@ def argmaxn(value_list, n, order='desc'):
     length = len(value_list)
 
     # validate the choice of n
-    check_parameter(n, 1, length)
+    check_parameter(n, 1, length, include_left=True, include_right=True,
+                    param_name='n')
 
     # for the smallest n, flip the value
     if order != 'desc':
