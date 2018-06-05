@@ -138,20 +138,26 @@ def precision_n_scores(y, y_pred, n=None):
 
 def get_label_n(y, y_pred, n=None):
     """
-    Function to turn decision_scores_ into binary labels by assign 1 to top
-    n_train_ decision_scores_.
+    Function to turn raw outlier scores into binary labels by assign 1 to top
+    n outlier scores.
 
     Example y: [0,1,1,0,0,0]
             labels_: [0.1, 0.5, 0.3, 0.2, 0.7]
             return [0, 1, 0, 0, 1]
 
     :param y: ground truth
-    :param y_pred: number of outliers
+    :type y: list or numpy array of shape (n_samples,)
+
+    :param y_pred: raw outlier scores
+    :type y_pred: list or numpy array of shape (n_samples,)
+
     :param n: number of outliers, if not defined, infer using ground truth
+    :type n: int
+
     :return: binary labels 0: normal points and 1: outliers
     """
 
-    # enforce formats of imputs
+    # enforce formats of inputs
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
 
