@@ -256,8 +256,8 @@ class BaseDetector(object):
         :type y: numpy array of shape (n_samples,), optional
 
         :return: For each observation, tells whether or not
-            it should be considered as an outlier according to the fitted model.
-            0 stands for inliers and 1 for outliers.
+            it should be considered as an outlier according to the
+            fitted model. 0 stands for inliers and 1 for outliers.
         :rtype: array, shape (n_samples,)
         """
 
@@ -288,7 +288,8 @@ class BaseDetector(object):
         are possible:
 
         1. simply use Min-max conversion to linearly transform the outlier
-           decision_scores_ into the range of [0,1]. The model must be fitted first.
+           decision_scores_ into the range of [0,1]. The model must be
+           fitted first.
         2. use unifying decision_scores_, see reference [1] below.
 
         :param X: The input samples
@@ -422,6 +423,7 @@ class BaseDetector(object):
 
         return self
 
+    # noinspection PyMethodParameters
     def _get_param_names(cls):
         """
         Get parameter names for the estimator

@@ -54,11 +54,13 @@ def _calculate_wocs(curr_pt, X, X_ind):
     return np.var(wcos_list)
 
 
+# noinspection PyPep8Naming
 class ABOD(BaseDetector):
     """
     ABOD class for Angle-base Outlier Detection.
     For an observation, the variance of its weighted cosine scores to all
-    neighbors could be viewed as the outlying score. More to see the references.
+    neighbors could be viewed as the outlying score.
+    More to see the references.
 
     Two version of ABOD are supported:
     Fast ABOD: use k nearest neighbors to approximate for complexity reduction
@@ -154,6 +156,7 @@ class ABOD(BaseDetector):
                                                           X_ind)
         return self
 
+    # noinspection PyPep8Naming
     def decision_function(self, X):
 
         check_is_fitted(self,
@@ -204,7 +207,7 @@ class ABOD(BaseDetector):
         # initialize the output score
         pred_score = np.zeros([X.shape[0], 1])
 
-        # get the indexs of the X's k nearest training points
+        # get the indexes of the X's k nearest training points
         _, ind_arr = self.tree_.query(X, k=self.n_neighbors)
 
         for i in range(X.shape[0]):

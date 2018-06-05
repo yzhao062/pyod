@@ -7,6 +7,7 @@ import numpy as np
 from numpy.random import RandomState
 from sklearn.utils import check_array
 from sklearn.utils import column_or_1d
+# noinspection PyProtectedMember
 from sklearn.utils import shuffle
 from sklearn.utils.random import sample_without_replacement
 from sklearn.utils.testing import assert_equal
@@ -73,8 +74,9 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
                 scores_aom[:, batch_ind] = np.max(
                     scores[:, shuffled_list[head:tail]], axis=1)
 
-                # increment indexs
+                # increment indexes
                 head = head + n_estimators_per_bucket
+                # noinspection PyUnusedLocal
                 tail = tail + n_estimators_per_bucket
         else:
             for i in range(n_buckets):

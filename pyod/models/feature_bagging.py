@@ -315,9 +315,6 @@ class FeatureBagging(BaseDetector):
         sub-estimators.
         """
         estimator = clone(self.base_estimator_)
-
-        # TODO: this is not right, shoult automatic pass parameters of
-        # feature bagging to the base_estimators_
         estimator.set_params(**self.estimator_params)
 
         if random_state is not None:

@@ -129,6 +129,7 @@ class LOF(BaseDetector):
         self.contamination = contamination
         self.n_jobs = n_jobs
 
+    # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
         """
         Fit the model using X as training data.
@@ -163,6 +164,7 @@ class LOF(BaseDetector):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
 
         # invert decision_scores_. Outliers comes with higher decision_scores_
+        # noinspection PyProtectedMember
         return self.detector_._decision_function(X) * -1
 
     @property

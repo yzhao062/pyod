@@ -139,6 +139,9 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
     :param y_test_pred: The predicted outlier scores on the test samples
     :type y_test_pred: numpy array of shape (n_samples, n_features)
 
+    :param show_figure: If set to True, show the figure
+    :type show_figure: bool, optional (default=True)
+
     :param save_figure: If set to True, save the figure to the local
     :type save_figure: bool, optional (default=False)
     """
