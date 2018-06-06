@@ -1,46 +1,161 @@
 # -*- coding: utf-8 -*-
+"""
+Principal Component Analysis (PCA) Outlier Detector
+"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
+from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA as sklearn_PCA
+from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
 
 from .base import BaseDetector
+from ..utils.utility import check_parameter
 
 
-# TODO: placeholder, do not use
 class PCA(BaseDetector):
+    """
+    Principal component analysis (PCA) can be used in detecting outliers. PCA
+    is a linear dimensionality reduction using Singular Value Decomposition
+    of the data to project it to a lower dimensional space.
 
-    def __init__(self, n_components=None, contamination=0.1, copy=True,
-                 whiten=False, svd_solver='auto', tol=0.0,
-                 iterated_power='auto', random_state=None):
+    In this procedure, covariance matrix of the data can be decomposed to
+    orthogonal vectors, called eigenvectors, associated with eigenvalues. The
+    eigenvectors with high eigenvalues capture most of the variance in the
+    data.
+
+    Therefore, a low dimensional hyperplane constructed by k eigenvectors can
+    capture most of the variance in the data. However, outliers are different
+    from normal data points, which is more obvious on the hyperplane
+    constructed by the eigenvectors with small eigenvalues.
+
+    Therefore, outlier scores can be obtained as the sum of the projected
+    distance of a sample on all eigenvectors. See [1, 2] for more information.
+
+    Score(X) = Sum of eigenvectors j in {1,d} |X-e_{j}|/eigenvalues
+
+    :param n_components: Number of princinpal components to keep.
+        if n_components is not set all components are kept::
+
+            n_components == min(n_samples, n_features)
+
+        if n_components == 'mle' and svd_solver == 'full', Minka\'s MLE is used
+        to guess the dimension
+        if ``0 < n_components < 1`` and svd_solver == 'full', select the number
+        of components such that the amount of variance that needs to be
+        explained is greater than the percentage specified by n_components
+        n_components cannot be equal to n_features for svd_solver == 'arpack'.
+    :type n_components: int, float, None or str
+
+    :param n_selected_components:
+    :type n_selected_components:
+
+    :param contamination: The amount of contamination of the data set,
+        i.e. the proportion of outliers in the data set. Used when fitting to
+        define the threshold on the decision function.
+    :type contamination: float in (0., 0.5), optional (default=0.1)
+
+    :param copy: If False, data passed to fit are overwritten and running
+        fit(X).transform(X) will not yield the expected results,
+        use fit_transform(X) instead.
+    :type copy: bool (default True)
+
+    :param whiten: When True (False by default) the `components_` vectors are
+        multiplied by the square root of n_samples and then divided by the
+        singular values to ensure uncorrelated outputs with unit
+        component-wise variances.
+
+        Whitening will remove some information from the transformed signal
+        (the relative variance scales of the components) but can sometime
+        improve the predictive accuracy of the downstream estimators by
+        making their data respect some hard-wired assumptions.
+    :type whiten: bool, optional (default False)
+
+    :param svd_solver:
+        auto :
+            the solver is selected by a default policy based on `X.shape` and
+            `n_components`: if the input data is larger than 500x500 and the
+            number of components to extract is lower than 80% of the smallest
+            dimension of the data, then the more efficient 'randomized'
+            method is enabled. Otherwise the exact full SVD is computed and
+            optionally truncated afterwards.
+        full :
+            run exact full SVD calling the standard LAPACK solver via
+            `scipy.linalg.svd` and select the components by postprocessing
+        arpack :
+            run SVD truncated to n_components calling ARPACK solver via
+            `scipy.sparse.linalg.svds`. It requires strictly
+            0 < n_components < X.shape[1]
+        randomized :
+            run randomized SVD by the method of Halko et al.
+    :type svd_solver: str {'auto', 'full', 'arpack', 'randomized'}
+
+    :param tol: Tolerance for singular values computed by
+        svd_solver == 'arpack'.
+    :type tol: float >= 0, optional (default .0)
+
+    :param iterated_power: Number of iterations for the power method computed
+        by svd_solver == 'randomized'.
+    :type iterated_power: int >= 0, or 'auto', (default 'auto')
+
+    :param random_state: If int, random_state is the seed used by the random
+        number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
+    :type random_state: int, RandomState instance or None,
+        optional (default None)
+
+    :param weighted: If True, the eigenvalues are used in score computation.
+        The eigenvectors with samll eigenvalues comes with more importance
+        in outlier score calculation.
+    :type weighted: bool, optional (default=True)
+
+    :param standardization: If True, perform standardization first to convert
+        data to zero mean and unit variance
+    :type standardization: bool, optional (default=True)
+
+    .. [1] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A
+           novel anomaly detection scheme based on principal component
+           classifier. MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND
+           COMPUTER ENGINEERING.
+       [2] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 75-79).
+    """
+
+    def __init__(self, n_components=None, n_selected_components=None,
+                 contamination=0.1, copy=True, whiten=False, svd_solver='auto',
+                 tol=0.0, iterated_power='auto', random_state=None,
+                 weighted=True, standardization=True):
+
         super(PCA, self).__init__(contamination=contamination)
         self.n_components = n_components
+        self.n_selected_components = n_selected_components
         self.copy = copy
         self.whiten = whiten
         self.svd_solver = svd_solver
         self.tol = tol
         self.iterated_power = iterated_power
         self.random_state = random_state
+        self.weighted = weighted
+        self.standardization = standardization
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
-        """
-        Fit the model using X as training data.
-
-        :param X: Training data. If array or matrix,
-            shape [n_samples, n_features],
-            or [n_samples, n_samples] if metric='precomputed'.
-        :type X: {array-like, sparse matrix, BallTree, KDTree}
-
-        :return: self
-        :rtype: object
-        """
         # Validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
+
+        # PCA is recommended to use on the standardized data (zero mean and
+        # unit variance).
+        if self.standardization:
+            self.scaler_ = StandardScaler().fit(X)
+            X = self.scaler_.transform(X)
 
         self.detector_ = sklearn_PCA(n_components=self.n_components,
                                      copy=self.copy,
@@ -50,9 +165,50 @@ class PCA(BaseDetector):
                                      iterated_power=self.iterated_power,
                                      random_state=self.random_state)
         self.detector_.fit(X=X, y=y)
-        # self.decision_scores_ =
-        # self._process_decision_scores()
+
+        # copy the attributes from the sklearn PCA object
+        self.n_components_ = self.detector_.n_components_
+        self.components_ = self.detector_.components_
+
+        # validate the number of components to be used for outlier detection
+        if self.n_selected_components is None:
+            self.n_selected_components_ = self.n_components_
+        else:
+            self.n_selected_components_ = self.n_selected_components
+        check_parameter(self.n_selected_components_, 1, self.n_components_,
+                        include_left=True, include_right=True,
+                        param_name='n_selected_components_')
+
+        # use eigenvalues as the weights of eigenvectors
+        self.w_components_ = np.ones([self.n_components_, ])
+        if self.weighted:
+            self.w_components_ = self.detector_.explained_variance_ratio_
+
+        # outlier scores is the sum of the weighted distances between each
+        # sample to the eigenvectors. The eigenvectors with smaller
+        # eigenvalues have more influence
+        # Not all eigenvectors are used, only n_selected_components_ smallest
+        # are used since they better reflect the variance change
+
+        self.selected_components_ = self.components_[
+                                    -1 * self.n_selected_components_:, :]
+        self.selected_w_components_ = self.w_components_[
+                                      -1 * self.n_selected_components_:]
+
+        self.decision_scores_ = np.sum(
+            cdist(X, self.selected_components_) / self.selected_w_components_,
+            axis=1).ravel()
+
+        self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        pass
+        check_is_fitted(self, ['components_', 'w_components_'])
+
+        X = check_array(X)
+        if self.standardization:
+            X = self.scaler_.transform(X)
+
+        return np.sum(
+            cdist(X, self.selected_components_) / self.selected_w_components_,
+            axis=1).ravel()

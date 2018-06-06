@@ -17,19 +17,27 @@ import numpy as np
 from sklearn import decomposition
 from sklearn.preprocessing import StandardScaler
 
+from scipy.spatial.distance import euclidean
 pca = decomposition.PCA()
 
 x = np.array([[0.387, 4878, 5.42, 1.21],
               [0.723, 12104, 5.25, 2.22],
               [1, 12756, 5.52, 3.45],
-              [1.524, 6787, 3.94, 2.1], ])
+              [1.524, 6787, 3.94, 2.1],
+              [2.524, -2, -89, -2]])
 
 x_norm = StandardScaler().fit_transform(x)
 
 # train PCA detector
 clf_name = 'PCA'
-clf = PCA()
-clf.fit(x_norm)
+clf = PCA(n_components=3)
+clf.fit(x)
+
+print(clf.decision_scores_)
+print(clf.decision_function(x))
+#for i in range(x_norm.shape[0]):
+#    for j in range(3):
+#        print(i, j, euclidean(x_norm[i,:], clf.detector_.components_[j,:]))
 
 ###################################################################
 # from sklearn.metrics import precision_score

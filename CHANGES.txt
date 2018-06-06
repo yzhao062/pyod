@@ -17,4 +17,5 @@ v<0.4.2>, <06/01/2018> -- Fix Python 2.7 installation issue.
 v<0.4.3>, <06/02/2018> -- Add more models and refactored examples.
 v<0.4.4>, <06/03/2018> -- Refactor HBOS and add new models.
 v<0.4.5>, <06/04/2018> -- Implemented Feature Bagging meta framework.
-v<0.4.6>, <06/05/2018> -- Incremental changes and ducomentation improvements.
+v<0.4.6>, <06/05/2018> -- Incremental changes and documentation improvements.
+v<0.4.7>, <06/06/2018> -- Add Principal Component Analysis (PCA) detector.
