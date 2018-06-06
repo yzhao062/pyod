@@ -101,6 +101,12 @@ class TestParameters(unittest.TestCase):
             check_parameter('f', 0, 100)
 
         with assert_raises(TypeError):
+            check_parameter(1, 'f', 100)
+
+        with assert_raises(TypeError):
+            check_parameter(1, 0, 'f')
+
+        with assert_raises(TypeError):
             check_parameter(argmaxn(value_list=[1, 2, 3], n=1), 0, 100)
 
         # if low and high are both unset

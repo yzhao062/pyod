@@ -20,7 +20,7 @@ MIN_INT = -1 * MAX_INT
 def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
                     include_left=False, include_right=False):
     """
-    check if input parameter is with in the range low and high
+    Check if an input parameter is with in the range low and high bounds.
 
     :param param: The input parameter to check
     :type param: int, float
@@ -44,19 +44,30 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
     :rtype: bool or raise errors
     """
 
+    # param, low and high should all be numerical
     if not isinstance(param, (numbers.Integral, np.integer, np.float)):
         raise TypeError(
             '{param_name} is set to {param}. '
             'Not numerical'.format(param=param,
                                    param_name=param_name))
 
+    if not isinstance(low, (numbers.Integral, np.integer, np.float)):
+        raise TypeError(
+            'low is set to {low}. ''Not numerical'.format(low=low))
+    if not isinstance(high, (numbers.Integral, np.integer, np.float)):
+        raise TypeError(
+            'high is set to {high}. ''Not numerical'.format(high=high))
+
+    # at least one of the bounds should be specified
     if low is MIN_INT and high is MAX_INT:
         raise ValueError('Neither low nor high bounds is undefined')
 
+    # if wrong bound values are used
     if low >= high:
         raise ValueError(
             'Lower bound is equal or larger than the higher bound')
 
+    # value check under different bound conditions
     if (include_left and include_right) and (param < low or param > high):
         raise ValueError(
             '{param_name} is set to {param}. '
