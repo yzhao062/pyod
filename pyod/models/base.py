@@ -237,9 +237,6 @@ class BaseDetector(object):
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
 
-        :param y: ground truth
-        :type y: numpy array of shape (n_samples,), optional
-
         :return: return self
         :rtype: object
         """
@@ -251,9 +248,6 @@ class BaseDetector(object):
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
-
-        :param y: ground truth
-        :type y: numpy array of shape (n_samples,), optional
 
         :return: For each observation, tells whether or not
             it should be considered as an outlier according to the

@@ -250,11 +250,6 @@ class FeatureBagging(BaseDetector):
         return self
 
     def decision_function(self, X):
-        """
-        sklearn/ensemble/bagging.predict_proba()
-        :param X:
-        :return:
-        """
         check_is_fitted(self, ['estimators_', 'estimators_features_',
                                'decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
