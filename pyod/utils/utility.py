@@ -11,7 +11,9 @@ from scipy.stats import scoreatpercentile
 from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import column_or_1d
-from sklearn.utils.validation import check_consistent_length
+from sklearn.utils import check_array
+from sklearn.utils import check_consistent_length
+from sklearn.utils.testing import assert_equal
 
 MAX_INT = np.iinfo(np.int32).max
 MIN_INT = -1 * MAX_INT
@@ -107,7 +109,9 @@ def standardizer(X_train, X_test):
     :return: X_train_ and X_test after the Z-score normalization
     :rtype: tuple(ndarray, ndarray)
     """
-    check_consistent_length(X_train, X_test)
+    X_train = check_array(X_train)
+    X_test = check_array(X_test)
+    assert_equal(X_train.shape[1], X_test.shape[1])
     scaler = StandardScaler().fit(X_train)
     return (scaler.transform(X_train), scaler.transform(X_test))
 
