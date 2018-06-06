@@ -73,3 +73,12 @@ examples.ocsvm\_example module
     :show-inheritance:
     :inherited-members:
 
+examples.pca\_example module
+------------------------------
+
+.. automodule:: examples.pca_example
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+

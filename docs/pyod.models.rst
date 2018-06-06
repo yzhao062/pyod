@@ -85,6 +85,15 @@ pyod.models.ocsvm module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.pca module
+------------------------
+
+.. automodule:: pyod.models.pca
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 Module contents
 ---------------
 

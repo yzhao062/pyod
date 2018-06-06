@@ -42,32 +42,56 @@ Unlike existing libraries, PyOD provides:
 
 Important Functions
 ================================
-The toolkit consists of three major groups of functionalities:
+PyOD toolkit consists of three major groups of functionalities: (i) outlier
+detection algorithms; (ii) outlier ensemble frameworks and (iii) outlier
+detection utility functions.
 
-1. **Outlier detection algorithms**
-    * Local Outlier Factor, LOF [1]: :class:`pyod.models.lof.LOF`
-    * Isolation Forest, iForest [2]: :class:`pyod.models.iforest.IForest`
-    * One-Class Support Vector Machines [3]: :class:`pyod.models.ocsvm.OCSVM`
-    * kNN Outlier Detection: :class:`pyod.models.knn.KNN`
-    * Average KNN Outlier Detection: :class:`pyod.models.knn.KNN`
-    * Median KNN Outlier Detection: :class:`pyod.models.knn.KNN`
-    * Histogram-based Outlier Score, HBOS [5]: :class:`pyod.models.hbos.HBOS`
-    * Angle-Based Outlier Detection, ABOD [7]: :class:`pyod.models.abod.ABOD`
-    * Fast Angle-Based Outlier Detection, FastABOD [7]: :class:`pyod.models.abod.ABOD`
+**Individual Detection Algorithms**:
 
-2. **Outlier ensemble frameworks**, see :mod:`pyod.models.combination`.
-    * Feature bagging [9]: :class:`pyod.models.feature_bagging.FeatureBagging`
-    * Average and Weighted Average: :func:`pyod.models.combination.average`
-    * Maximization: :func:`pyod.models.combination.maximization`
-    * Average of Maximum (AOM) [6]: :func:`pyod.models.combination.aom`
-    * Maximum of Average (MOA) [6]: :func:`pyod.models.combination.moa`
-    * Threshold Sum (Thresh) [6]
+1. Linear Models for Outlier Detection:
 
-3. **Outlier detection utility functions**, see :mod:`pyod.utils`.
-    * :func:`pyod.utils.utility.score_to_label`: converting raw outlier scores to binary labels
-    * :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
-    * :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
-    * :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
+  i. **PCA: Principal Component Analysis** (use the sum of
+     weighted projected distances to the eigenvector hyperplane as the outlier
+     scores) [10]: :class:`pyod.models.pca.PCA`
+  ii. **One-Class Support Vector Machines** [3]: :class:`pyod.models.ocsvm.OCSVM`
+
+2. Proximity-Based Outlier Detection Models:
+
+  i. **LOF: Local Outlier Factor** [1]: :class:`pyod.models.lof.LOF`
+  ii. **kNN: k Nearest Neighbors** (use the distance to the kth nearest
+      neighbor as the outlier score): :class:`pyod.models.knn.KNN`
+  iii. **Average kNN** (use the average distance to k nearest neighbors as
+       the outlier score): :class:`pyod.models.knn.KNN`
+  iv. **Median kNN** (use the median distance to k nearest neighbors
+      as the outlier score): :class:`pyod.models.knn.KNN`
+  v. **HBOS: Histogram-based Outlier Score** [5]: :class:`pyod.models.hbos.HBOS`
+
+3. Probabilistic Models for Outlier Detection:
+
+  i. **ABOD: Angle-Based Outlier Detection** [7]: :class:`pyod.models.abod.ABOD`
+  ii. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [7]: :class:`pyod.models.abod.ABOD`
+
+4. Outlier Ensembles and Combination Frameworks
+
+  i. **Isolation Forest** [2]: :class:`pyod.models.iforest.IForest`
+  ii. **Feature Bagging** [9]: :class:`pyod.models.feature_bagging.FeatureBagging`
+
+**Outlier Ensembles** (Outlier Score Combination Frameworks):
+
+  1. **Feature Bagging**: build various detectors on random selected features [9]
+  2. **Average** & **Weighted Average**: simply combine scores by averaging [6]: :func:`pyod.models.combination.average`
+  3. **Maximization**: simply combine scores by taking the maximum across all
+     base detectors [6]: :func:`pyod.models.combination.maximization`
+  4. **Average of Maximum (AOM)** [6]: :func:`pyod.models.combination.aom`
+  5. **Maximum of Average (MOA)** [6]: :func:`pyod.models.combination.moa`
+  6. **Threshold Sum (Thresh)** [6]
+
+**Utility Functions for Outlier Detection**, see :mod:`pyod.utils`.
+
+  1. :func:`pyod.utils.utility.score_to_label`: converting raw outlier scores to binary labels
+  2. :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
+  3. :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
+  4. :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
 
 Contents
 ====================
@@ -100,6 +124,8 @@ Reference
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
 
 [9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
+
+[10] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
 
 ==================
 

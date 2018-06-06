@@ -47,33 +47,50 @@ Unlike existing libraries, PyOD provides:
 
 ### Quick Introduction
 
-PyOD toolkit consists of three major groups of functionalities: (i) **outlier detection algorithms**; (ii) **outlier ensemble frameworks** and (iii) **outlier detection utility functions**.
+PyOD toolkit consists of three major groups of functionalities: (i) outlier 
+detection algorithms; (ii) outlier ensemble frameworks and (iii) outlier 
+detection utility functions.
 
-- Individual Detection Algorithms:  
-  1. **Local Outlier Factor, LOF** [1]
-  2. **Isolation Forest, iForest** [2]
-  3. **One-Class Support Vector Machines** [3]
-  4. **k Nearest Neighbors Detector (kNN)** (use the distance to the kth nearest neighbor as the outlier score)
-  5. **Average kNN** Outlier Detection (use the average distance to k nearest neighbors as the outlier score)
-  6. **Median kNN** Outlier Detection (use the median distance to k nearest neighbors as the outlier score)
-  7. **Histogram-based Outlier Score, HBOS** [5]
-  8. **Angle-Based Outlier Detection, ABOD** [7]
-  9. **Fast Angle-Based Outlier Detection, FastABOD** [7]
-  10. More to add...
+***Individual Detection Algorithms***:
+  1. Linear Models for Outlier Detection:
+     1. **PCA: Principal Component Analysis** use the sum of
+       weighted projected distances to the eigenvector hyperplane 
+       as the outlier outlier scores) [10]
+     2. **One-Class Support Vector Machines** [3]
+     
+  2. Proximity-Based Outlier Detection Models:
+     1. **LOF: Local Outlier Factor** [1]
+     2. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
+     neighbor as the outlier score)
+     3. **Average kNN** Outlier Detection (use the average distance to k 
+     nearest neighbors as the outlier score)
+     4. **Median kNN** Outlier Detection (use the median distance to k nearest 
+     neighbors as the outlier score)
+     5. **HBOS: Histogram-based Outlier Score** [5]
+     
+  3. Probabilistic Models for Outlier Detection:
+     1. **ABOD: Angle-Based Outlier Detection** [7]
+     2. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [7]
+  
+  4. Outlier Ensembles and Combination Frameworks
+     1. **Isolation Forest** [2]
+     2. **Feature Bagging** [9]
 
-- Outlier Ensemble Framework (Outlier Score Combination Frameworks)
-  1. **Feature bagging** [9]
-  2. **Average** & **Weighted Average** [6]
-  3. **Maximization** [6]
+***Outlier Ensembles*** (Outlier Score Combination Frameworks):
+  1. **Feature Bagging**: build various detectors on random selected features [9]
+  2. **Average** & **Weighted Average**: simply combine scores by averaging [6]
+  3. **Maximization**: simply combine scores by taking the maximum across all 
+  base detectors [6]
   4. **Average of Maximum (AOM)** [6]
   5. **Maximum of Average (MOA)** [6]
   6. **Threshold Sum (Thresh)** [6]
 
-- Utility functions:
-   1. **score_to_lable()**: convert raw outlier scores to binary labels
-   2. **precision_n_scores()**: one of the popular evaluation metrics for outlier mining (precision @ rank n)
-   3. **generate_data()**: generate pseudo data for outlier detection experiment
-   4. **wpearsonr()**: weighted pearson is useful in pseudo ground truth generation
+***Utility Functions for Outlier Detection***:
+  1. score_to_lable(): convert raw outlier scores to binary labels
+  2. precision_n_scores(): one of the popular evaluation metrics for outlier 
+  mining (precision @ rank n)
+  3. generate_data(): generate pseudo data for outlier detection experiment
+  4. wpearsonr(): weighted pearson is useful in pseudo ground truth generation
 ------------
 
 ### Installation
@@ -260,3 +277,5 @@ The walkthrough of the code example is provided:
 [8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
 
 [9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
+
+[10] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
