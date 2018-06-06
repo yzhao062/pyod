@@ -20,7 +20,7 @@ examples.comb\_example module
     :inherited-members:
 
 examples.feature\_bagging\_example module
------------------------------
+-----------------------------------------
 
 .. automodule:: examples.feature_bagging_example
     :members:
@@ -74,7 +74,7 @@ examples.ocsvm\_example module
     :inherited-members:
 
 examples.pca\_example module
-------------------------------
+----------------------------
 
 .. automodule:: examples.pca_example
     :members:

@@ -41,7 +41,7 @@ pyod.models.hbos module
     :inherited-members:
 
 pyod.models.feature\_bagging module
------------------------
+-----------------------------------
 
 .. automodule:: pyod.models.feature_bagging
     :members:
@@ -86,7 +86,7 @@ pyod.models.ocsvm module
     :inherited-members:
 
 pyod.models.pca module
-------------------------
+----------------------
 
 .. automodule:: pyod.models.pca
     :members:

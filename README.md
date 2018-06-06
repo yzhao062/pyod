@@ -95,33 +95,31 @@ detection utility functions.
 
 ### Installation
 
-It is advised to use **pip**. Please make sure **the latest version** is installed since PyOD is currently updated on **a daily basis**:
+It is recommended to use **pip** for installation. Please make sure 
+**the latest version** is installed since PyOD is currently updated on **a daily basis**:
 ````cmd
 pip install pyod
 pip install --upgrade pyod # make sure the latest version is installed!
 ````
-or 
-````cmd
-pip install pyod==x.y.z  # (x.y.z) is the current version number
-````
- Alternatively, [downloading/cloning the Github repository](https://github.com/yzhao062/Pyod) also works. You could unzip the files and execute the following command in the folder where the files get decompressed.
+Alternatively,install from github directly (**NOT Recommended**)
 
 ````cmd
+git clone https://github.com/yzhao062/pyod.git
 python setup.py install
 ````
-Python Version:
-- Python 2: 2.7 only
-- Python 3: 3.4, 3.5 or 3.6
+**Required Dependency**: 
 
-Library Dependency: 
-````cmd
-matplotlib                       # optional. Only needed for running examples
-nose                             # optional. Only needed for running tests
-numpy>=1.13
-pytest                           # optional. Only needed for running tests
-scipy>=0.19.1
-scikit_learn>=0.19.1
-````
+- Python 2.7, 3.4, 3.5 or 3.6
+- numpy>=1.13
+- scipy>=0.19.1
+- scikit_learn>=0.19.1
+
+**Optional Dependency for examples and tests**:
+
+- matplotlib                      
+- nose                             
+- pytest                          
+
 ------------
 ### API Cheatsheet & Reference
 

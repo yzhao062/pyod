@@ -125,7 +125,7 @@ class PCA(BaseDetector):
            novel anomaly detection scheme based on principal component
            classifier. MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND
            COMPUTER ENGINEERING.
-       [2] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 75-79).
+    .. [2] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 75-79).
     """
 
     def __init__(self, n_components=None, n_selected_components=None,

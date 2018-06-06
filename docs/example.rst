@@ -7,7 +7,7 @@ Examples
 
 
 kNN Example
-----------------
+-----------
 
 Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/knn_example.py>`_
 
