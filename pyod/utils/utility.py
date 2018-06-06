@@ -63,9 +63,9 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
         raise ValueError('Neither low nor high bounds is undefined')
 
     # if wrong bound values are used
-    if low >= high:
+    if low > high:
         raise ValueError(
-            'Lower bound is equal or larger than the higher bound')
+            'Lower bound > Higher bound')
 
     # value check under different bound conditions
     if (include_left and include_right) and (param < low or param > high):
