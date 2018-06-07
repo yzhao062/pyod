@@ -14,9 +14,9 @@ Module contents
 
 .. automodule:: pyod
     :members:
-    :excluded-members: __version__
+    :exclude-members: __version__
     :undoc-members:
     :show-inheritance:
     :inherited-members:
 
-.. bibliography:: refs.bib
+.. bibliography:: zreferences.bib
