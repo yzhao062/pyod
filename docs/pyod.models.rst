@@ -53,8 +53,9 @@ pyod.models.iforest module
 --------------------------
 
 .. automodule:: pyod.models.iforest
-    :members: fit, fit_predict, fit_predict_evaluate, predict, predict_proba, predict_rank, decision_function, set_params, get_params
-    :undoc-members: __init__
+    :members:
+    :exclude-members: estimators_, max_samples_, estimators_samples_
+    :undoc-members:
     :show-inheritance:
     :inherited-members:
 
@@ -72,6 +73,7 @@ pyod.models.lof module
 
 .. automodule:: pyod.models.lof
     :members:
+    :exclude-members: negative_outlier_factor_, n_neighbors_
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -81,6 +83,7 @@ pyod.models.ocsvm module
 
 .. automodule:: pyod.models.ocsvm
     :members:
+    :exclude-members: coef_, dual_coef_, support_, support_vectors_, intercept_
     :undoc-members:
     :show-inheritance:
     :inherited-members:

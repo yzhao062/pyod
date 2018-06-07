@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""IsolationForest Outlier Detector. Implemented on scikit-learn library.
+"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
@@ -13,9 +17,10 @@ from .base import BaseDetector
 class IForest(BaseDetector):
     """Wrapper of scikit-learn Isolation Forest with more functionalities.
 
-    The IsolationForest [1, 2] 'isolates' observations by randomly selecting a
+    The IsolationForest 'isolates' observations by randomly selecting a
     feature and then randomly selecting a split value between the maximum and
     minimum values of the selected feature.
+    See :cite:`liu2008isolation,liu2012isolation` for details.
 
     Since recursive partitioning can be represented by a tree structure, the
     number of splittings required to isolate a sample is equivalent to the path
@@ -79,12 +84,6 @@ class IForest(BaseDetector):
 
     :var max_samples\_: The actual number of samples.
     :vartype max_samples\_: int
-
-    .. [1] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation forest."
-           Data Mining, 2008. ICDM'08. Eighth IEEE International Conference on.
-    .. [2] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation-based
-           anomaly detection." ACM Transactions on Knowledge Discovery from
-           Data (TKDD) 6.1 (2012): 3.
     """
 
     def __init__(self, n_estimators=100,

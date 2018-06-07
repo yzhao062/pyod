@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Principal Component Analysis (PCA) Outlier Detector
+"""Principal Component Analysis (PCA) Outlier Detector
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
@@ -36,9 +35,11 @@ class PCA(BaseDetector):
     constructed by the eigenvectors with small eigenvalues.
 
     Therefore, outlier scores can be obtained as the sum of the projected
-    distance of a sample on all eigenvectors. See [1, 2] for more information.
+    distance of a sample on all eigenvectors.
+    See :cite:`shyu2003novel,aggarwal2015outlier` for details.
 
-    Score(X) = Sum of eigenvectors j in {1,d} |X-e\_{j}|/eigenvalues
+    Score(X) = Sum of weighted euclidean distance between each sample to the
+    hyperplane constructed by the selected eigenvectors
 
     :param n_components: Number of principal components to keep.
         if n_components is not set all components are kept::
@@ -123,12 +124,6 @@ class PCA(BaseDetector):
     :param standardization: If True, perform standardization first to convert
         data to zero mean and unit variance. See http://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
     :type standardization: bool, optional (default=True)
-
-    .. [1] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A
-           novel anomaly detection scheme based on principal component
-           classifier. MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND
-           COMPUTER ENGINEERING.
-    .. [2] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 75-79).
     """
 
     def __init__(self, n_components=None, n_selected_components=None,

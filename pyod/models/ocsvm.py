@@ -71,21 +71,26 @@ class OCSVM(BaseDetector):
     :type random_state: int, RandomState instance or None, optional
         (default=None)
 
-    :var support_(array): Indices of support vectors.
+    :var support\_: Indices of support vectors.
+    :vartype support\_: array-like, shape = [n_SV]
 
-    :var support_vectors_(array): Support vectors.
+    :var support_vectors\_: Support vectors.
+    :vartype support_vectors\_: array-like, shape = [nSV, n_features]
 
-    :var dual_coef_(array): Coefficients of the support vectors in the
+    :var dual_coef\_: Coefficients of the support vectors in the
         decision function.
+    :vartype dual_coef\_: array, shape = [1, n_SV]
 
-    :var coef_(array): Weights assigned to the features (coefficients
+    :var coef\_: Weights assigned to the features (coefficients
         in the primal problem). This is only available in the case of
         a linear kernel.
 
         `coef_` is readonly property derived from `dual_coef_` and
         `support_vectors_`
+    :vartype coef\_: array, shape = [1, n_features]
 
-    :var intercept_(array): Constant in the decision function.
+    :var intercept\_: Constant in the decision function.
+    :vartype var intercept\_: array, shape = [1,]
     """
 
     def __init__(self, kernel='rbf', degree=3, gamma='auto', coef0=0.0,
@@ -135,61 +140,38 @@ class OCSVM(BaseDetector):
 
     @property
     def support_(self):
-        """
-        Indices of support vectors.
-
+        """Indices of support vectors.
         Decorator for scikit-learn One class SVM attributes.
-
-        :return: Indices of support vectors.
-        :rtype: array-like, shape = [n_SV]
         """
         return self.detector_.support_
 
     @property
     def support_vectors_(self):
-        """
-        Support vectors.
+        """Support vectors.
         Decorator for scikit-learn One class SVM attributes.
-
-        :return: Support vectors.
-        :rtype: array-like, shape = [nSV, n_features]
         """
         return self.detector_.support_vectors_
 
     @property
     def dual_coef_(self):
-        """
-        Coefficients of the support vectors in the decision function.
-
+        """Coefficients of the support vectors in the decision function.
         Decorator for scikit-learn One class SVM attributes.
-
-        :return: Coefficients of the support vectors in the decision function.
-        :rtype: array, shape = [1, n_SV]
         """
         return self.detector_.dual_coef_
 
     @property
     def coef_(self):
-        """
-        Weights assigned to the features (coefficients in the primal
+        """Weights assigned to the features (coefficients in the primal
         problem). This is only available in the case of a linear kernel.
         `coef_` is readonly property derived from `dual_coef_` and
         `support_vectors_`
-
         Decorator for scikit-learn One class SVM attributes.
-
-        :return: Weights assigned to the features
-        :rtype: array, shape = [1, n_features]
         """
         return self.detector_.coef_
 
     @property
     def intercept_(self):
-        """
-
+        """ Constant in the decision function.
         Decorator for scikit-learn One class SVM attributes.
-
-        :return: Constant in the decision function.
-        :rtype: array, shape = [1,]
         """
         return self.detector_.intercept_

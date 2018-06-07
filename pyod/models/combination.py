@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Collection of model combination functionalities.
+"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
@@ -17,7 +21,7 @@ from ..utils.utility import check_parameter
 def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
         random_state=None):
     """Average of Maximum - An ensemble method for combining multiple
-    estimators
+    estimators. See :cite:`aggarwal2015theoretical` for details.
 
     First dividing estimators into subgroups, take the maximum score as the
     subgroup score. Finally, take the average of all subgroup outlier scores.
@@ -44,10 +48,6 @@ def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
 
     :return: The combined outlier scores.
     :rtype: Numpy array of shape (n_samples,)
-
-    .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and
-           algorithms for outlier ensembles. ACM SIGKDD Explorations
-           Newsletter, 17(1), pp.24-47.
     """
 
     # TODO: add one more parameter for max number of estimators
@@ -111,7 +111,7 @@ def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
 def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
         random_state=None):
     """Maximization of Average - An ensemble method for combining multiple
-    estimators.
+    estimators. See :cite:`aggarwal2015theoretical` for details.
 
     First dividing estimators into subgroups, take the average score as the
     subgroup score. Finally, take the maximization of all subgroup outlier
@@ -139,10 +139,6 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
 
     :return: The combined outlier scores.
     :rtype: Numpy array of shape (n_samples,)
-
-    .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical
-       foundations and algorithms for outlier ensembles.
-       ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
     """
 
     # TODO: add one more parameter for max number of estimators
@@ -201,29 +197,30 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
     return np.max(scores_moa, axis=1)
 
 
-def average(scores, detector_weight=None):
+def average(scores, estimator_weight=None):
     """
     Combine the outlier scores from multiple estimators by averaging
 
     :param scores: score matrix from multiple estimators on the same samples
     :type scores: numpy array of shape (n_samples, n_estimators)
 
-    :param detector_weight: if specified, using weighted average
-    :type detector_weight: list of shape (1, n_estimators)
+    :param estimator_weight: if specified, using weighted average
+    :type estimator_weight: list of shape (1, n_estimators)
 
     :return: the combined outlier scores
     :rtype: numpy array of shape (n_samples, )
     """
     scores = check_array(scores)
 
-    if detector_weight is not None:
-        detector_weight = column_or_1d(detector_weight).reshape(1, -1)
-        assert_equal(scores.shape[1], detector_weight.shape[1])
+    if estimator_weight is not None:
+        estimator_weight = column_or_1d(estimator_weight).reshape(1, -1)
+        assert_equal(scores.shape[1], estimator_weight.shape[1])
 
         # (d1*w1 + d2*w2 + ...+ dn*wn)/(w1+w2+...+wn)
         # generated weighted scores
-        scores = np.sum(np.multiply(scores, detector_weight), axis=1) / np.sum(
-            detector_weight)
+        scores = np.sum(np.multiply(scores, estimator_weight),
+                        axis=1) / np.sum(
+            estimator_weight)
         return scores.ravel()
 
     else:

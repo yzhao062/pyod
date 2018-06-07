@@ -102,7 +102,7 @@ Contents
    install
    example
    api_cc
-   api
+   pyod
 
 Reference
 ++++++++++++

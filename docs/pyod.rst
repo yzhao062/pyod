@@ -1,5 +1,5 @@
-pyod package
-============
+API Reference
+=============
 
 Subpackages
 -----------
@@ -14,6 +14,9 @@ Module contents
 
 .. automodule:: pyod
     :members:
+    :excluded-members: __version__
     :undoc-members:
     :show-inheritance:
     :inherited-members:
+
+.. bibliography:: refs.bib

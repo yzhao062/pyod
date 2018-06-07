@@ -60,15 +60,12 @@ class ABOD(BaseDetector):
     ABOD class for Angle-base Outlier Detection.
     For an observation, the variance of its weighted cosine scores to all
     neighbors could be viewed as the outlying score.
-    More to see the references.
+    See :cite:`kriegel2008angle` for details.
 
     Two version of ABOD are supported:
     Fast ABOD: use k nearest neighbors to approximate for complexity reduction
     Original ABOD: consider all training points with high time complexity at
     O(n^3).
-
-    .. [1] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier
-           detection in high-dimensional data. In KDD ‘08, pp. 444-452. ACM.
 
     :param contamination: the amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. Used when fitting to

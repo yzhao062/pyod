@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Local Outlier Factor (LOF). Implemented on scikit-learn library.
+"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
@@ -11,10 +15,8 @@ from .base import BaseDetector
 
 
 class LOF(BaseDetector):
-    """
-    Wrapper of scikit-learn LOF Class with more functionalities.
-
-    Unsupervised Outlier Detection using Local Outlier Factor (LOF)
+    """Wrapper of scikit-learn LOF Class with more functionalities.
+    Unsupervised Outlier Detection using Local Outlier Factor (LOF).
 
     The anomaly score of each sample is called Local Outlier Factor.
     It measures the local deviation of density of a given sample with
@@ -26,6 +28,7 @@ class LOF(BaseDetector):
     By comparing the local density of a sample to the local densities of
     its neighbors, one can identify samples that have a substantially lower
     density than their neighbors. These are considered outliers.
+    See :cite:`breunig2000lof` for details.
 
     :param n_neighbors: Number of neighbors to use by default for
         k neighbors.
@@ -65,12 +68,13 @@ class LOF(BaseDetector):
 
         Valid values for metric are:
 
-            - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1', 'l2','manhattan']
-            - from scipy.spatial.distance: ['braycurtis', 'canberra', 'chebyshev',
-                'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski',
-                'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto',
-                'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath',
-                'sqeuclidean', 'yule']
+            - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1',
+                'l2','manhattan']
+            - from scipy.spatial.distance: ['braycurtis', 'canberra',
+                'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard',
+                'kulsinski', 'mahalanobis', 'matching', 'minkowski',
+                'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+                'sokalsneath', 'sqeuclidean', 'yule']
 
         See the documentation for scipy.spatial.distance for details on these
         metrics:
@@ -97,7 +101,7 @@ class LOF(BaseDetector):
         Affects only kneighbors and kneighbors_graph methods.
     :type n_jobs: int, optional (default=1)
 
-    :var negative_outlier_factor_(array):
+    :var negative_outlier_factor\_:
         The opposite LOF of the training samples. The lower, the more abnormal.
         Inliers tend to have a LOF score close to 1, while outliers tend
         to have a larger LOF score.
@@ -106,14 +110,11 @@ class LOF(BaseDetector):
         supposed 'degree of abnormality'.
         It is the average of the ratio of the local reachability density of
         a sample and those of its k-nearest neighbors.
+    :vartype negative_outlier_factor\_: numpy array, shape (n_samples,)
 
-    :var n_neighbors(int): The actual number of neighbors used for
+    :var n_neighbors\_: The actual number of neighbors used for
         kneighbors queries.
-
-
-    .. [1] Breunig, M. M., Kriegel, H. P., Ng, R. T., & Sander, J. (2000, May).
-           LOF: identifying density-based local outliers. In ACM sigmod record.
-
+    :vartype n_neighbors\_: int
     """
 
     def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,
@@ -131,8 +132,7 @@ class LOF(BaseDetector):
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
-        """
-        Fit the model using X as training data.
+        """Fit the model using X as training data.
 
         :param X: Training data. If array or matrix,
             shape [n_samples, n_features],
@@ -180,20 +180,12 @@ class LOF(BaseDetector):
         a sample and those of its k-nearest neighbors.
 
         Decorator for scikit-learn LOF attributes.
-
-        :return: The opposite LOF of the training samples.
-        :rtype: numpy array, shape (n_samples,)
         """
         return self.detector_.negative_outlier_factor_
 
     @property
     def n_neighbors_(self):
-        """
-        The actual number of neighbors used for kneighbors queries.
-
+        """The actual number of neighbors used for kneighbors queries.
         Decorator for scikit-learn LOF attributes.
-
-        :return: The actual number of neighbors used for kneighbors queries.
-        :rtype: int
         """
         return self.detector_.n_neighbors_

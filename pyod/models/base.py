@@ -277,7 +277,7 @@ class BaseDetector(object):
         1. simply use Min-max conversion to linearly transform the outlier
            scores into the range of [0,1]. The model must be
            fitted first.
-        2. use unifying scores, see reference [1] below.
+        2. use unifying scores, see :cite:`kriegel2011interpreting`.
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
@@ -290,10 +290,6 @@ class BaseDetector(object):
             in [0,1]
         :rtype: array, shape (n_samples,)
 
-
-        .. [1] Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011,
-               April. Interpreting and unifying outlier scores.
-               In Proc' SIAM, 2011.
         """
 
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])

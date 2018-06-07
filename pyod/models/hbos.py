@@ -16,7 +16,8 @@ class HBOS(BaseDetector):
     """
     Histogram- based outlier detection (HBOS) is an efficient unsupervised
     method [1]. It assumes the feature independence and calculates the degree
-    of outlyingness by building histograms.
+    of outlyingness by building histograms. See :cite:`goldstein2012histogram`
+    for details.
 
     :param n_bins: The number of bins
     :type n_bins: int, optional (default=10)
@@ -32,11 +33,6 @@ class HBOS(BaseDetector):
         the proportion of outliers in the data set. When fitting this is used
         to define the threshold on the decision function.
     :type contamination: float in (0., 0.5), optional (default=0.1)
-
-    .. [1] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score
-       (hbos): A fast unsupervised anomaly detection algorithm. In KI-2012:
-       Poster and Demo Track, pp.59-63.
-
     """
 
     def __init__(self, n_bins=10, alpha=0.1, tol=0.5, contamination=0.1):

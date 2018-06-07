@@ -46,6 +46,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
+    'sphinxcontrib.bibtex',
     # 'numpydoc',
 ]
 
@@ -165,22 +166,3 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
-
-# Functional
-from sphinx.domains.python import PythonDomain
-
-
-# -- Added for surpressing warnings like below:
-#  WARNING: more than one target found for cross-reference '
-# See https://github.com/sphinx-doc/sphinx/issues/3866
-class PatchedPythonDomain(PythonDomain):
-    def resolve_xref(self, env, fromdocname, builder, typ, target, node,
-                     contnode):
-        if 'refspecific' in node:
-            del node['refspecific']
-        return super(PatchedPythonDomain, self).resolve_xref(
-            env, fromdocname, builder, typ, target, node, contnode)
-
-
-def setup(sphinx):
-    sphinx.override_domain(PatchedPythonDomain)
