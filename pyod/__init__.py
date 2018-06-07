@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = '0.4.7'
+__version__ = '0.4.8'
 
 from . import models
 from . import utils
