@@ -9,4 +9,4 @@ API CheatSheet
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
 * :func:`pyod.models.base.BaseDetector.predict_rank`: Predict the outlyingness rank of a sample.
 
-See full API reference :doc:`api`.
+See full API reference :doc:`pyod`.

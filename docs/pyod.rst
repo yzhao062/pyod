@@ -19,4 +19,3 @@ Module contents
     :show-inheritance:
     :inherited-members:
 
-.. bibliography:: zreferences.bib

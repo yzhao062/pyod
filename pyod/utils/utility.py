@@ -101,11 +101,11 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
 
 
 def standardizer(X_train, X_test):
-    """
-    normalization function wrapper, z- normalization function
+    """Normalization function wrapper, z- normalization function
 
     :param X_train:
     :param X_test:
+
     :return: X_train_ and X_test after the Z-score normalization
     :rtype: tuple(ndarray, ndarray)
     """
