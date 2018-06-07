@@ -27,9 +27,7 @@ from ..utils.utility import precision_n_scores
 
 
 def _first_and_last_element(arr):
-    """
-    Returns first and last element of numpy array or sparse matrix.
-
+    """Returns first and last element of numpy array or sparse matrix.
     See sklearn/base.py for more information.
     """
 
@@ -44,8 +42,7 @@ def _first_and_last_element(arr):
 
 
 def clone(estimator, safe=True):
-    """
-    Constructs a new estimator with the same parameters.
+    """Constructs a new estimator with the same parameters.
 
     Clone does a deep copy of the model in an estimator
     without actually copying attached data. It yields a new estimator
@@ -139,8 +136,7 @@ def clone(estimator, safe=True):
 
 
 def _pprint(params, offset=0, printer=repr):
-    """
-    Pretty print the dictionary 'params'
+    """Pretty print the dictionary 'params'
 
     See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
     and sklearn/base.py for more information.
@@ -194,8 +190,7 @@ def _pprint(params, offset=0, printer=repr):
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseDetector(object):
-    """
-    Abstract class for all outlier detection algorithms.
+    """Abstract class for all outlier detection algorithms.
 
     :param contamination: The amount of contamination of the data set,
         i.e. the proportion of outliers in the data set. Used when fitting to
@@ -214,10 +209,11 @@ class BaseDetector(object):
 
     @abc.abstractmethod
     def decision_function(self, X):
-        """
-        Predict anomaly score of X of the base classifiers. The anomaly score
-        of an input sample is computed based on different detector algorithms.
-        For consistency, outliers have larger anomaly scores.
+        """Predict anomaly score of X of the base classifiers.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
 
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
@@ -230,8 +226,7 @@ class BaseDetector(object):
 
     @abc.abstractmethod
     def fit(self, X, y=None):
-        """
-        Fit detector.
+        """Fit detector.
 
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
@@ -243,8 +238,8 @@ class BaseDetector(object):
         pass
 
     def fit_predict(self, X, y=None):
-        """
-        Fit detector and predict if a particular sample is an outlier or not.
+        """Fit detector and predict if a particular sample is an outlier or
+        not.
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
@@ -259,8 +254,7 @@ class BaseDetector(object):
         return self.labels_
 
     def predict(self, X):
-        """
-        Predict if a particular sample is an outlier or not.
+        """Predict if a particular sample is an outlier or not.
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
@@ -277,8 +271,7 @@ class BaseDetector(object):
         return (pred_score > self.threshold_).astype('int').ravel()
 
     def predict_proba(self, X, method='linear'):
-        """
-        Predict the probability of a sample being outlier. Two approaches
+        """Predict the probability of a sample being outlier. Two approaches
         are possible:
 
         1. simply use Min-max conversion to linearly transform the outlier
@@ -329,8 +322,7 @@ class BaseDetector(object):
                              'is not a valid probability conversion method')
 
     def predict_rank(self, X):
-        """
-        Predict the outlyingness rank of a sample in a fitted model. The
+        """Predict the outlyingness rank of a sample in a fitted model. The
         method is specifically for combining various outlier detectors.
 
         :param X: The input samples
@@ -358,8 +350,8 @@ class BaseDetector(object):
         return ranks_norm
 
     def fit_predict_evaluate(self, X, y):
-        """
-        Fit the detector, predict on samples, and evaluate the model
+        """Fit the detector, predict on samples, and evaluate the model by
+        ROC and Precision @ rank n
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
@@ -381,8 +373,8 @@ class BaseDetector(object):
         return roc, prec_n
 
     def _set_n_classes(self, y):
-        """
-        Set the number of classes if y is presented, which is not expected.
+        """Set the number of classes if y is presented, which is not expected.
+        It could be useful for multi-class outlier detection.
 
         :param y: Ground truth
         :type y: numpy array of shape (n_samples,)
@@ -396,10 +388,10 @@ class BaseDetector(object):
                 "y should not be presented in unsupervised learning.")
 
     def _process_decision_scores(self):
-        """
-        Internal function to calculate key attributes:
-        threshold: used to decide the binary label
-        labels_: binary labels of training data
+        """Internal function to calculate key attributes:
+
+        - threshold: used to decide the binary label
+        - labels_: binary labels of training data
 
         :return: self
         :rtype: object
@@ -419,8 +411,7 @@ class BaseDetector(object):
 
     # noinspection PyMethodParameters
     def _get_param_names(cls):
-        """
-        Get parameter names for the estimator
+        """Get parameter names for the estimator
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
         and sklearn/base.py for more information.

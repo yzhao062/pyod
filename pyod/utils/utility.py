@@ -117,10 +117,9 @@ def standardizer(X_train, X_test):
 
 
 def score_to_label(pred_scores, outlier_perc=0.1):
-    """
-    turn raw outlier outlier scores to binary labels (0 or 1)
+    """Turn raw outlier outlier scores to binary labels (0 or 1)
 
-    :param pred_scores: raw outlier decision_scores_
+    :param pred_scores: raw outlier scores
     :param outlier_perc: percentage of outliers
     :return: binary labels (1 stands for outlier)
     :rtype: int
@@ -157,7 +156,7 @@ def get_label_n(y, y_pred, n=None):
     n outlier scores.
 
     Example y: [0,1,1,0,0,0]
-            labels_: [0.1, 0.5, 0.3, 0.2, 0.7]
+            y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
             return [0, 1, 0, 0, 1]
 
     :param y: ground truth
