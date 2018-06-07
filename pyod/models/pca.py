@@ -40,7 +40,7 @@ class PCA(BaseDetector):
 
     Score(X) = Sum of eigenvectors j in {1,d} |X-e_{j}|/eigenvalues
 
-    :param n_components: Number of princinpal components to keep.
+    :param n_components: Number of principal components to keep.
         if n_components is not set all components are kept::
 
             n_components == min(n_samples, n_features)
@@ -53,8 +53,11 @@ class PCA(BaseDetector):
         n_components cannot be equal to n_features for svd_solver == 'arpack'.
     :type n_components: int, float, None or str
 
-    :param n_selected_components:
-    :type n_selected_components:
+    :param n_selected_components: Number of selected principal components
+        for calculating the outlier scores. It is not necessarily equal to
+        the total number of the principal components. If not set, use
+        all principal components.
+    :type n_selected_components: int, optional (default=None)
 
     :param contamination: The amount of contamination of the data set,
         i.e. the proportion of outliers in the data set. Used when fitting to
