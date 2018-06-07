@@ -70,7 +70,7 @@ class HBOS(BaseDetector):
 
         outlier_scores = self._calculate_outlier_scores(X)
 
-        # invert decision_scores. Outliers comes with higher decision_scores_
+        # Invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = np.sum(outlier_scores, axis=1) * -1
         self._process_decision_scores()
         return self

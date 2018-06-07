@@ -123,14 +123,14 @@ class OCSVM(BaseDetector):
         self.detector_.fit(X=X, y=y, sample_weight=sample_weight,
                            **params)
 
-        # invert decision_scores_. Outliers comes with higher decision_scores_
+        # invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = self.detector_.decision_function(X) * -1
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
-        # invert decision_scores_. Outliers comes with higher decision_scores_
+        # invert decision_scores_. Outliers comes with higher outlier scores
         return self.detector_.decision_function(X) * -1
 
     @property

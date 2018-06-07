@@ -166,7 +166,7 @@ class ABOD(BaseDetector):
         X = check_array(X)
 
         if self.method == 'fast':  # fast ABOD
-            # outliers have higher decision_scores_
+            # outliers have higher outlier scores
             return self._decision_function_fast(X) * -1
         else:  # default ABOD
             return self._decision_function_default(X) * -1
@@ -178,7 +178,7 @@ class ABOD(BaseDetector):
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
-        :return: decision_scores_: The anomaly score of the input samples.
+        :return: The anomaly score of the input samples.
         :rtype: array, shape (n_samples,)
         """
         # initialize the output score
@@ -199,7 +199,7 @@ class ABOD(BaseDetector):
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
-        :return: decision_scores_: The anomaly score of the input samples.
+        :return: The anomaly score of the input samples.
         :rtype: array, shape (n_samples,)
         """
 

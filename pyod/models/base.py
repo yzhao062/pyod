@@ -217,13 +217,13 @@ class BaseDetector(object):
         """
         Predict anomaly score of X of the base classifiers. The anomaly score
         of an input sample is computed based on different detector algorithms.
-        For consistency, outliers have larger anomaly decision_scores_.
+        For consistency, outliers have larger anomaly scores.
 
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
         :type X: numpy array of shape (n_samples, n_features)
 
-        :return: decision_scores_: The anomaly score of the input samples.
+        :return: The anomaly score of the input samples.
         :rtype: array, shape (n_samples,)
         """
         pass
@@ -282,9 +282,9 @@ class BaseDetector(object):
         are possible:
 
         1. simply use Min-max conversion to linearly transform the outlier
-           decision_scores_ into the range of [0,1]. The model must be
+           scores into the range of [0,1]. The model must be
            fitted first.
-        2. use unifying decision_scores_, see reference [1] below.
+        2. use unifying scores, see reference [1] below.
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
@@ -299,7 +299,7 @@ class BaseDetector(object):
 
 
         .. [1] Kriegel, H.P., Kroger, P., Schubert, E. and Zimek, A., 2011,
-               April. Interpreting and unifying outlier decision_scores_.
+               April. Interpreting and unifying outlier scores.
                In Proc' SIAM, 2011.
         """
 
@@ -451,8 +451,7 @@ class BaseDetector(object):
         return sorted([p.name for p in parameters])
 
     def get_params(self, deep=True):
-        """
-        Get parameters for this estimator.
+        """Get parameters for this estimator.
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
         and sklearn/base.py for more information.

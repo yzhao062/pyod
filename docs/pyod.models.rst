@@ -53,8 +53,8 @@ pyod.models.iforest module
 --------------------------
 
 .. automodule:: pyod.models.iforest
-    :members:
-    :undoc-members:
+    :members: fit, fit_predict, fit_predict_evaluate, predict, predict_proba, predict_rank, decision_function, set_params, get_params
+    :undoc-members: __init__
     :show-inheritance:
     :inherited-members:
 

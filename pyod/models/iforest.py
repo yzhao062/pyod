@@ -11,12 +11,11 @@ from .base import BaseDetector
 
 
 class IForest(BaseDetector):
-    """
-    Wrapper of scikit-learn Isolation Forest Class with more functionalities.
+    """Wrapper of scikit-learn Isolation Forest with more functionalities.
 
-    The IsolationForest [1, 2] 'isolates' observations by randomly selecting a feature
-    and then randomly selecting a split value between the maximum and minimum
-    values of the selected feature.
+    The IsolationForest [1, 2] 'isolates' observations by randomly selecting a
+    feature and then randomly selecting a split value between the maximum and
+    minimum values of the selected feature.
 
     Since recursive partitioning can be represented by a tree structure, the
     number of splittings required to isolate a sample is equivalent to the path
@@ -71,20 +70,21 @@ class IForest(BaseDetector):
     :param verbose: Controls the verbosity of the tree building process.
     :type verbose: int, optional (default=0)
 
-    :var estimators_(list): The collection of fitted sub-estimators.
+    :var estimators\_: The collection of fitted sub-estimators.
+    :vartype estimators\_: list
 
-    :var estimators_samples_(list): The subset of drawn samples (i.e., the
+    :var estimators_samples\_: The subset of drawn samples (i.e., the
         in-bag samples) for each base estimator.
+    :vartype estimators_samples\_: list or arrays
 
-    :var max_samples_(int): The actual number of samples.
-
+    :var max_samples\_: The actual number of samples.
+    :vartype max_samples\_: int
 
     .. [1] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation forest."
            Data Mining, 2008. ICDM'08. Eighth IEEE International Conference on.
     .. [2] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation-based
            anomaly detection." ACM Transactions on Knowledge Discovery from
            Data (TKDD) 6.1 (2012): 3.
-
     """
 
     def __init__(self, n_estimators=100,
@@ -121,50 +121,34 @@ class IForest(BaseDetector):
                            y=None,
                            sample_weight=None)
 
-        # invert decision_scores_. Outliers comes with higher decision_scores_
+        # invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = self.detector_.decision_function(X) * -1
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
-        # invert decision_scores_. Outliers comes with higher decision_scores_
+        # invert decision_scores_. Outliers comes with higher outlier scores
         return self.detector_.decision_function(X) * -1
 
     @property
     def estimators_(self):
-        """
-        The collection of fitted sub-estimators.
-
+        """The collection of fitted sub-estimators.
         Decorator for scikit-learn Isolation Forest attributes.
-
-        :return: The collection of fitted sub-estimators.
-        :rtype: list of DecisionTreeClassifier
         """
         return self.detector_.estimators_
 
     @property
     def estimators_samples_(self):
-        """
-        The subset of drawn samples (i.e., the in-bag samples) for
+        """The subset of drawn samples (i.e., the in-bag samples) for
         each base estimator.
-
         Decorator for scikit-learn Isolation Forest attributes.
-
-        :return: The subset of drawn samples (i.e., the in-bag samples) for
-            each base estimator.
-        :rtype: list or arrays
         """
         return self.detector_.estimators_samples_
 
     @property
     def max_samples_(self):
-        """
-        The actual number of samples.
-
+        """The actual number of samples.
         Decorator for scikit-learn Isolation Forest attributes.
-
-        :return: The actual number of samples
-        :rtype: int
         """
         return self.detector_.max_samples_

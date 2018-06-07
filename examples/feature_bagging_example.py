@@ -31,7 +31,7 @@ if __name__ == "__main__":
     clf = FeatureBagging()
     clf.fit(X_train)
 
-    # get the prediction label and decision_scores_ on the training data
+    # get the prediction labels and outlier scores of the training data
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
     y_train_scores = clf.decision_scores_  # raw outlier scores
 

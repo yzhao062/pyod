@@ -153,7 +153,7 @@ demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs f
     clf = KNN()
     clf.fit(X_train)
 
-    # get the prediction label and decision_scores_ on the training data
+    # get the prediction label and outlier scores of the training data
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
     y_train_scores = clf.decision_scores_  # raw outlier scores
 
