@@ -18,6 +18,7 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_allclose
+from sklearn.utils.testing import assert_raises
 from sklearn.metrics import roc_auc_score
 
 import numpy as np
@@ -35,7 +36,8 @@ class TestAOM(unittest.TestCase):
                                   [0.74, 0.85, 0.38, 0.47, 0.27, 0.69]])
 
     def test_aom_static_norepeat(self):
-        score = aom(self.scores, 3, method='static', replace=False,
+        score = aom(self.scores, 3, method='static',
+                    bootstrap_estimators=False,
                     random_state=42)
 
         assert_equal(score.shape, (4,))
@@ -53,14 +55,20 @@ class TestAOM(unittest.TestCase):
         assert_array_equal(score, manual_score)
 
     def test_aom_static_repeat(self):
-        score = aom(self.scores, 3, method='static', replace=True,
+        score = aom(self.scores, 3, method='static', bootstrap_estimators=True,
                     random_state=42)
         assert_equal(score.shape, (4,))
+
+    def test_aom_static_n_buckets(self):
+        with assert_raises(ValueError):
+            aom(self.scores, 5, method='static', bootstrap_estimators=False,
+                random_state=42)
 
         # TODO: add more complicated testcases
 
     def test_aom_dynamic_repeat(self):
-        score = aom(self.scores, 3, method='dynamic', replace=True,
+        score = aom(self.scores, 3, method='dynamic',
+                    bootstrap_estimators=True,
                     random_state=42)
         assert_equal(score.shape, (4,))
 
@@ -78,8 +86,8 @@ class TestMOA(unittest.TestCase):
                                   [0.74, 0.85, 0.38, 0.47, 0.27, 0.69]])
 
     def test_moa_static_norepeat(self):
-        score = moa(self.scores, 3, method='static', replace=False,
-                    random_state=42)
+        score = moa(self.scores, 3, method='static',
+                    bootstrap_estimators=False, random_state=42)
 
         assert_equal(score.shape, (4,))
 
@@ -96,15 +104,20 @@ class TestMOA(unittest.TestCase):
         assert_array_equal(score, manual_score)
 
     def test_moa_static_repeat(self):
-        score = moa(self.scores, 3, method='static', replace=True,
+        score = moa(self.scores, 3, method='static', bootstrap_estimators=True,
                     random_state=42)
         assert_equal(score.shape, (4,))
+
+    def test_moa_static_n_buckets(self):
+        with assert_raises(ValueError):
+            moa(self.scores, 5, method='static', bootstrap_estimators=False,
+                random_state=42)
 
         # TODO: add more complicated testcases
 
     def test_moa_dynamic_repeat(self):
-        score = moa(self.scores, 3, method='dynamic', replace=True,
-                    random_state=42)
+        score = moa(self.scores, 3, method='dynamic',
+                    bootstrap_estimators=True, random_state=42)
         assert_equal(score.shape, (4,))
 
         # TODO: add more complicated testcases

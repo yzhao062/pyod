@@ -22,13 +22,11 @@ Unlike existing libraries, PyOD provides:
 **Table of Contents**:
 <!-- TOC -->
 
-- [Key Links & Resources](#key-links-resources)
 - [Quick Introduction](#quick-introduction)
 - [Installation](#installation)
 - [API Cheatsheet & Reference](#api-cheatsheet-reference)
 - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-- [Reference](#reference)
+- [Quick Start for Combining Multiple Outlier Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
 
 <!-- /TOC -->
 
@@ -39,7 +37,7 @@ Unlike existing libraries, PyOD provides:
 
 - **[Current version on PyPI](https://pypi.org/project/pyod/)** [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) 
 
-- **[Github repository with examples](https://github.com/yzhao062/Pyod)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
+- **[Github repository with examples](https://github.com/yzhao062/Pyod/tree/master/examples)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
 
 - **[Anomaly detection resources](https://github.com/yzhao062/anomaly-detection-resources)**, e.g., courses, books, papers and videos.
 
@@ -155,7 +153,7 @@ demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs f
 
     # get the prediction label and outlier scores of the training data
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
-    y_train_scores = clf.decision_scores_  # raw outlier scores
+    y_train_scores = clf.# get the prediction labels and outlier scores of the training data_  # raw outlier scores
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
@@ -188,9 +186,12 @@ Visualization ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/example
 ---
 ### Quick Start for Combining Outlier Scores from Various Base Detectors
 
-"examples/comb_example.py" illustrates the APIs for combining multiple base detectors. Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
+"examples/comb_example.py" illustrates the APIs for combining multiple base detectors. 
+Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. 
+The task is to combine the outputs from these detectors effectively.
 
-**Key Step: conducting Z-score normalization on raw scores before the combination.** Four combination mechanisms are shown in this demo:
+**Key Step: conducting Z-score normalization on raw scores before the combination.** 
+Four combination mechanisms are shown in this demo:
 
 1. Average: take the average of all base detectors.
 2. maximization : take the maximum score across all detectors as the score.
@@ -228,7 +229,7 @@ The walkthrough of the code example is provided:
         train_scores[:, i] = clf.decision_scores_
         test_scores[:, i] = clf.decision_function(X_test_norm)
     ```
-2. Then the output codes are standardized into zero mean and unit std before combination.
+2. Then the output codes are standardized into zero mean and unit variance before combination.
     ```python
     from pyod.utils.utility import standardizer
     train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
@@ -240,20 +241,14 @@ The walkthrough of the code example is provided:
     comb_by_aom = aom(test_scores_norm, 5) # 5 groups
     comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
     ```
-4. Finally, all four combination methods are evaluated with 10 iterations:
+4. Finally, all four combination methods are evaluated with ROC and Precision
+   @ Rank n:
     ````bash
     Combining 20 kNN detectors
-    ite 1 comb by average, ROC: 0.9014 precision@n_train: 0.4531
-    ite 1 comb by maximization, ROC: 0.9014 precision@n_train: 0.5
-    ite 1 comb by aom, ROC: 0.9081 precision@n_train: 0.5
-    ite 1 comb by moa, ROC: 0.9052 precision@n_train: 0.4843
-    ...
-    
-    Summary of 10 iterations
-    comb by average, ROC: 0.9196, precision@n: 0.5464
-    comb by maximization, ROC: 0.9198, precision@n: 0.5532
-    comb by aom, ROC: 0.9260, precision@n: 0.5630
-    comb by moa, ROC: 0.9244, precision@n: 0.5523
+    Combination by Average ROC:0.9194, precision @ rank n:0.4531
+    Combination by Maximization ROC:0.9198, precision @ rank n:0.4688
+    Combination by AOM ROC:0.9257, precision @ rank n:0.4844
+    Combination by MOA ROC:0.9263, precision @ rank n:0.4688
     ````
 ---    
 

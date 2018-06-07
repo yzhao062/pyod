@@ -14,32 +14,36 @@ from sklearn.utils.testing import assert_equal
 from ..utils.utility import check_parameter
 
 
-def aom(scores, n_buckets, method='static', replace=False, random_state=None):
-    """
-    Average of Maximum - An ensemble method for combining multiple detectors
+def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
+        random_state=None):
+    """Average of Maximum - An ensemble method for combining multiple
+    estimators
 
-    First dividing detectors into subgroups, take the maximum score as the
-    subgroup score.
+    First dividing estimators into subgroups, take the maximum score as the
+    subgroup score. Finally, take the average of all subgroup outlier scores.
 
-    Finally, take the average of all subgroup outlier scores.
+    :param scores: The score matrix outputted from various estimators
+    :type scores: numpy array of shape (n_samples, n_estimators)
 
-    :param scores: a score matrix from different detectors
-    :type scores:
+    :param n_buckets: The number of subgroups to build
+    :type n_buckets: int, optional (default=5)
 
-    :param n_buckets: number of subgroups
-    :type n_buckets:
+    :param method: {'static', 'dynamic'}, if 'dynamic', build subgroups
+        randomly with dynamic bucket size.
+    :type method: str, optional (default='static')
 
-    :param method: static or dynamic, default: static
-    :type method
+    :param bootstrap_estimators: Whether estimators are drawn with replacement.
+    :type bootstrap_estimators: bool, optional (default=False)
 
-    :param replace:
-    :type replace:
+    :param random_state: If int, random_state is the seed used by the
+        random number generator; If RandomState instance, random_state is
+        the random number generator; If None, the random number generator
+        is the RandomState instance used by `np.random`.
+    :type random_state: int, RandomState instance or None,
+        optional (default=None)
 
-    :param random_state:
-    :type random_state:
-
-    :return:
-    :rtype:
+    :return: The combined outlier scores.
+    :rtype: Numpy array of shape (n_samples,)
 
     .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and
            algorithms for outlier ensembles. ACM SIGKDD Explorations
@@ -59,9 +63,10 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
 
         n_estimators_per_bucket = int(n_estimators / n_buckets)
         if n_estimators % n_buckets != 0:
-            Warning('n_estimators / n_buckets has a remainder')
+            raise ValueError('n_estimators / n_buckets has a remainder. Not '
+                             'allowed in static mode.')
 
-        if not replace:
+        if not bootstrap_estimators:
             # shuffle the estimator order
             shuffled_list = shuffle(list(range(0, n_estimators, 1)),
                                     random_state=random_state)
@@ -103,37 +108,41 @@ def aom(scores, n_buckets, method='static', replace=False, random_state=None):
     return np.mean(scores_aom, axis=1)
 
 
-def moa(scores, n_buckets, method='static', replace=False, random_state=None):
-    """
-    Maximization of Average - An ensemble method for combining multiple
-    detectors
+def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
+        random_state=None):
+    """Maximization of Average - An ensemble method for combining multiple
+    estimators.
 
-    First dividing detectors into subgroups, take the average score as the
-    subgroup score.
+    First dividing estimators into subgroups, take the average score as the
+    subgroup score. Finally, take the maximization of all subgroup outlier
+    scores.
 
-    Finally, take the maximization of all subgroup outlier scores.
+    :param scores: The score matrix outputted from various estimators
+    :type scores: numpy array of shape (n_samples, n_estimators)
+
+    :param n_buckets: The number of subgroups to build
+    :type n_buckets: int, optional (default=5)
+
+    :param method: {'static', 'dynamic'}, if 'dynamic', build subgroups
+        randomly with dynamic bucket size.
+    :type method: str, optional (default='static')
+
+    :param bootstrap_estimators: Whether estimators are drawn with replacement.
+    :type bootstrap_estimators: bool, optional (default=False)
+
+    :param random_state: If int, random_state is the seed used by the
+        random number generator; If RandomState instance, random_state is
+        the random number generator; If None, the random number generator
+        is the RandomState instance used by `np.random`.
+    :type random_state: int, RandomState instance or None,
+        optional (default=None)
+
+    :return: The combined outlier scores.
+    :rtype: Numpy array of shape (n_samples,)
 
     .. [1] Aggarwal, C.C. and Sathe, S., 2015. Theoretical
-           foundations and algorithms for outlier ensembles.
-           ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
-
-    :param scores: a score matrix from different detectors
-    :type scores:
-
-    :param n_buckets: number of subgroups
-    :type n_buckets:
-
-    :param method: static or dynamic, default: static
-    :type method
-
-    :param replace:
-    :type replace:
-
-    :param random_state:
-    :type random_state:
-
-    :return:
-    :rtype:
+       foundations and algorithms for outlier ensembles.
+       ACM SIGKDD Explorations Newsletter, 17(1), pp.24-47.
     """
 
     # TODO: add one more parameter for max number of estimators
@@ -142,15 +151,16 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
     n_estimators = scores.shape[1]
     check_parameter(n_buckets, 2, n_estimators, param_name='n_buckets')
 
-    scores_aom = np.zeros([scores.shape[0], n_buckets])
+    scores_moa = np.zeros([scores.shape[0], n_buckets])
 
     if method == 'static':
 
         n_estimators_per_bucket = int(n_estimators / n_buckets)
         if n_estimators % n_buckets != 0:
-            Warning('n_estimators / n_buckets has a remainder')
+            raise ValueError('n_estimators / n_buckets has a remainder. Not '
+                             'allowed in static mode.')
 
-        if not replace:
+        if not bootstrap_estimators:
             # shuffle the estimator order
             shuffled_list = shuffle(list(range(0, n_estimators, 1)),
                                     random_state=random_state)
@@ -160,7 +170,7 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
                 tail = i + n_estimators_per_bucket
                 batch_ind = int(i / n_estimators_per_bucket)
 
-                scores_aom[:, batch_ind] = np.mean(
+                scores_moa[:, batch_ind] = np.mean(
                     scores[:, shuffled_list[head:tail]], axis=1)
 
                 # increment index
@@ -171,7 +181,7 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
                 ind = sample_without_replacement(n_estimators,
                                                  n_estimators_per_bucket,
                                                  random_state=random_state)
-                scores_aom[:, i] = np.mean(scores[:, ind], axis=1)
+                scores_moa[:, i] = np.mean(scores[:, ind], axis=1)
 
 
     elif method == 'dynamic':  # random bucket size
@@ -182,24 +192,24 @@ def moa(scores, n_buckets, method='static', replace=False, random_state=None):
             ind = sample_without_replacement(n_estimators,
                                              max_estimator_per_bucket,
                                              random_state=random_state)
-            scores_aom[:, i] = np.mean(scores[:, ind], axis=1)
+            scores_moa[:, i] = np.mean(scores[:, ind], axis=1)
 
     else:
         raise NotImplementedError(
             '{method} is not implemented'.format(method=method))
 
-    return np.max(scores_aom, axis=1)
+    return np.max(scores_moa, axis=1)
 
 
 def average(scores, detector_weight=None):
     """
-    Combine the outlier scores from multiple detectors by averaging
+    Combine the outlier scores from multiple estimators by averaging
 
-    :param scores: score matrix from multiple detectors on the same samples
-    :type scores: numpy array of shape (n_samples, n_detectors)
+    :param scores: score matrix from multiple estimators on the same samples
+    :type scores: numpy array of shape (n_samples, n_estimators)
 
     :param detector_weight: if specified, using weighted average
-    :type detector_weight: list of shape (1, n_detectors)
+    :type detector_weight: list of shape (1, n_estimators)
 
     :return: the combined outlier scores
     :rtype: numpy array of shape (n_samples, )
@@ -222,10 +232,10 @@ def average(scores, detector_weight=None):
 
 def maximization(scores):
     """
-    Combine the outlier scores from multiple detectors by taking the maximum
+    Combine the outlier scores from multiple estimators by taking the maximum
 
-    :param scores: score matrix from multiple detectors on the same samples
-    :type scores: numpy array of shape (n_samples, n_detectors)
+    :param scores: score matrix from multiple estimators on the same samples
+    :type scores: numpy array of shape (n_samples, n_estimators)
 
     :return: the combined outlier scores
     :rtype: numpy array of shape (n_samples, )

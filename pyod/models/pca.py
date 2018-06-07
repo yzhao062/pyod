@@ -38,7 +38,7 @@ class PCA(BaseDetector):
     Therefore, outlier scores can be obtained as the sum of the projected
     distance of a sample on all eigenvectors. See [1, 2] for more information.
 
-    Score(X) = Sum of eigenvectors j in {1,d} |X-e_{j}|/eigenvalues
+    Score(X) = Sum of eigenvectors j in {1,d} |X-e\_{j}|/eigenvalues
 
     :param n_components: Number of principal components to keep.
         if n_components is not set all components are kept::
@@ -121,7 +121,7 @@ class PCA(BaseDetector):
     :type weighted: bool, optional (default=True)
 
     :param standardization: If True, perform standardization first to convert
-        data to zero mean and unit variance
+        data to zero mean and unit variance. See http://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
     :type standardization: bool, optional (default=True)
 
     .. [1] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A

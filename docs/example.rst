@@ -136,19 +136,13 @@ Given we have *n* individual outlier detectors, each of them generates an indivi
         comb_by_aom = aom(test_scores_norm, 5) # 5 groups
         comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
 
-5. Finally, all four combination methods are evaluated with 20 iterations:
+5. Finally, all four combination methods are evaluated with ROC and Precision
+   @ Rank n:
 
     .. code-block:: bash
 
         Combining 20 kNN detectors
-        ite 1 comb by average, ROC: 0.9014 precision@n_train: 0.4531
-        ite 1 comb by maximization, ROC: 0.9014 precision@n_train: 0.5
-        ite 1 comb by aom, ROC: 0.9081 precision@n_train: 0.5
-        ite 1 comb by moa, ROC: 0.9052 precision@n_train: 0.4843
-        ...
-
-        Summary of 10 iterations
-        comb by average, ROC: 0.9196, precision@n: 0.5464
-        comb by maximization, ROC: 0.9198, precision@n: 0.5532
-        comb by aom, ROC: 0.9260, precision@n: 0.5630
-        comb by moa, ROC: 0.9244, precision@n: 0.5523
+        Combination by Average ROC:0.9194, precision @ rank n:0.4531
+        Combination by Maximization ROC:0.9198, precision @ rank n:0.4688
+        Combination by AOM ROC:0.9257, precision @ rank n:0.4844
+        Combination by MOA ROC:0.9263, precision @ rank n:0.4688
