@@ -57,9 +57,8 @@ class HBOS(BaseDetector):
 
         # build the histograms for all dimensions
         for i in range(n_features):
-            self.hist_[:, i], self.bin_edges_[:, i] = np.histogram(X[:, i],
-                                                                   bins=self.n_bins,
-                                                                   density=True)
+            self.hist_[:, i], self.bin_edges_[:, i] = \
+                np.histogram(X[:, i], bins=self.n_bins, density=True)
             # the sum of (width * height) should equal to 1
             assert (np.isclose(1, np.sum(
                 self.hist_[:, i] * np.diff(self.bin_edges_[:, i])), atol=0.1))

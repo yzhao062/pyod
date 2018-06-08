@@ -20,6 +20,7 @@ from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_true
 from sklearn.utils.testing import assert_false
 from sklearn.utils.testing import assert_array_equal
+# noinspection PyProtectedMember
 from sklearn.utils.testing import assert_warns_message
 
 import numpy as np
@@ -32,6 +33,7 @@ from pyod.utils.data import generate_data
 
 # Check sklearn\tests\test_base
 # A few test classes
+# noinspection PyMissingConstructor
 class MyEstimator(BaseDetector):
 
     def __init__(self, l1=0, empty=None):
@@ -45,6 +47,7 @@ class MyEstimator(BaseDetector):
         pass
 
 
+# noinspection PyMissingConstructor
 class K(BaseDetector):
     def __init__(self, c=None, d=None):
         self.c = c
@@ -57,6 +60,7 @@ class K(BaseDetector):
         pass
 
 
+# noinspection PyMissingConstructor
 class T(BaseDetector):
     def __init__(self, a=None, b=None):
         self.a = a
@@ -69,6 +73,7 @@ class T(BaseDetector):
         pass
 
 
+# noinspection PyMissingConstructor
 class ModifyInitParams(BaseDetector):
     """Deprecated behavior.
     Equal parameters but with a type cast.
@@ -85,6 +90,7 @@ class ModifyInitParams(BaseDetector):
         pass
 
 
+# noinspection PyAbstractClass,PyMissingConstructor
 class DeprecatedAttributeEstimator(BaseDetector):
     def __init__(self, a=None, b=None):
         self.a = a
@@ -98,6 +104,7 @@ class DeprecatedAttributeEstimator(BaseDetector):
         return self._b
 
 
+# noinspection PyMissingConstructor
 class Buggy(BaseDetector):
     """
     A buggy estimator that does not set its parameters right.
@@ -120,10 +127,12 @@ class NoEstimator(object):
     def fit(self, X=None, y=None):
         return self
 
+    # noinspection PyMethodMayBeStatic
     def predict(self, X=None):
         return None
 
 
+# noinspection PyMissingConstructor
 class VargEstimator(BaseDetector):
     """scikit-learn estimators shouldn't have vargs."""
 

@@ -306,6 +306,8 @@ class FeatureBagging(BaseDetector):
         Warning: This method should be used to properly instantiate new
         sub-estimators.
         """
+
+        # TODO: add a check for estimator_param
         estimator = clone(self.base_estimator_)
         estimator.set_params(**self.estimator_params)
 

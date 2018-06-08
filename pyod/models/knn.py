@@ -37,7 +37,8 @@ class KNN(BaseDetector):
 
         - largest: use the distance to the kth neighbor as the outlier score
         - mean: use the average of all k neighbors as the outlier score
-        - median: use the median of the distance to k neighbors as the outlier score
+        - median: use the median of the distance to k neighbors as the outlier
+          score
     :type method: str, optional (default='largest')
     """
 

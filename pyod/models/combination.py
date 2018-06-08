@@ -179,7 +179,6 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
                                                  random_state=random_state)
                 scores_moa[:, i] = np.mean(scores[:, ind], axis=1)
 
-
     elif method == 'dynamic':  # random bucket size
         for i in range(n_buckets):
             # the number of estimators in a bucket should be 2 - n/2

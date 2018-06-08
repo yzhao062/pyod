@@ -11,14 +11,13 @@ from .base import BaseDetector
 
 
 class OCSVM(BaseDetector):
-    """
-    Wrapper of scikit-learn one-class SVM Class with more functionalities.
+    """Wrapper of scikit-learn one-class SVM Class with more functionalities.
     Unsupervised Outlier Detection.
 
     Estimate the support of a high-dimensional distribution.
 
     The implementation is based on libsvm.
-    Read more: http://scikit-learn.org/stable/modules/svm.html#svm-outlier-detection
+    See http://scikit-learn.org/stable/modules/svm.html#svm-outlier-detection
 
     :param kernel: Specifies the kernel type to be used in the algorithm.
         It must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or
@@ -59,7 +58,8 @@ class OCSVM(BaseDetector):
         may not work properly in a multithreaded context.
     :type verbose: bool, default: False
 
-    :param max_iter: Hard limit on iterations within solver, or -1 for no limit.
+    :param max_iter: Hard limit on iterations within solver, or -1 for no
+        limit.
     :type max_iter: int, optional (default=-1)
 
     :param random_state: The seed of the pseudo random number generator to use

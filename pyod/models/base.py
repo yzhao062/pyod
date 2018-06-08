@@ -138,21 +138,21 @@ def clone(estimator, safe=True):
 def _pprint(params, offset=0, printer=repr):
     """Pretty print the dictionary 'params'
 
-    See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-    and sklearn/base.py for more information.
+        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
+        and sklearn/base.py for more information.
 
-    :param params: The dictionary to pretty print
-    :type params: dict
+        :param params: The dictionary to pretty print
+        :type params: dict
 
-    :param offset: The offset in characters to add at the begin of each line.
-    :type offset: int
+        :param offset: The offset in characters to add at the begin of each line.
+        :type offset: int
 
-    :param printer: The function to convert entries to strings, typically
-        the builtin str or repr
-    :type printer: callable
+        :param printer: The function to convert entries to strings, typically
+            the builtin str or repr
+        :type printer: callable
 
-    :return: None
-    """
+        :return: None
+        """
 
     # Do a multi-line justified repr:
     options = np.get_printoptions()
@@ -224,6 +224,7 @@ class BaseDetector(object):
         """
         pass
 
+    # noinspection PyIncorrectDocstring
     @abc.abstractmethod
     def fit(self, X, y=None):
         """Fit detector.
@@ -237,6 +238,7 @@ class BaseDetector(object):
         """
         pass
 
+    # noinspection PyIncorrectDocstring
     def fit_predict(self, X, y=None):
         """Fit detector and predict if a particular sample is an outlier or
         not.

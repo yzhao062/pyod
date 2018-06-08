@@ -38,10 +38,11 @@ class LOF(BaseDetector):
 
     :param algorithm: Algorithm used to compute the nearest neighbors:
 
-            - 'ball_tree' will use BallTree
-            - 'kd_tree' will use KDTree
-            - 'brute' will use a brute-force search.
-            - 'auto' will attempt to decide the most appropriate algorithm based on the values passed to :meth:`fit` method.
+        - 'ball_tree' will use BallTree
+        - 'kd_tree' will use KDTree
+        - 'brute' will use a brute-force search.
+        - 'auto' will attempt to decide the most appropriate algorithm
+          based on the values passed to :meth:`fit` method.
 
         Note: fitting on sparse input will override the setting of
         this parameter, using brute force.
@@ -68,13 +69,13 @@ class LOF(BaseDetector):
 
         Valid values for metric are:
 
-            - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1',
-                'l2','manhattan']
-            - from scipy.spatial.distance: ['braycurtis', 'canberra',
-                'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard',
-                'kulsinski', 'mahalanobis', 'matching', 'minkowski',
-                'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-                'sokalsneath', 'sqeuclidean', 'yule']
+        - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1',
+          'l2','manhattan']
+        - from scipy.spatial.distance: ['braycurtis', 'canberra',
+          'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard',
+          'kulsinski', 'mahalanobis', 'matching', 'minkowski',
+          'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+          'sokalsneath', 'sqeuclidean', 'yule']
 
         See the documentation for scipy.spatial.distance for details on these
         metrics:
@@ -82,10 +83,11 @@ class LOF(BaseDetector):
     :type metric: str or callable, default 'minkowski'
 
     :param p: Parameter for the Minkowski metric for sklearn.metrics.pairwise.
-        pairwise_distances. See http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html .
+        pairwise_distances.
         When p = 1, this is equivalent to using manhattan_distance (l1), and
         euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance
         (l_p) is used.
+        See http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html
     :type p: int, optional (default=2)
 
     :param metric_params: Additional keyword arguments for the metric function.
