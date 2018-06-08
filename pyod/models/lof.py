@@ -171,8 +171,8 @@ class LOF(BaseDetector):
 
     @property
     def negative_outlier_factor_(self):
-        """
-        The opposite LOF of the training samples. The lower, the more abnormal.
+        """The opposite LOF of the training samples. The lower,
+        the more abnormal.
         Inliers tend to have a LOF score close to 1, while outliers tend
         to have a larger LOF score.
 

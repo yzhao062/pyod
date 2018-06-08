@@ -122,7 +122,8 @@ class PCA(BaseDetector):
     :type weighted: bool, optional (default=True)
 
     :param standardization: If True, perform standardization first to convert
-        data to zero mean and unit variance. See http://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
+        data to zero mean and unit variance.
+        See http://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
     :type standardization: bool, optional (default=True)
     """
 
