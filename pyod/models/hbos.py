@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Histogram-based Outlier Detection (HBOS)
+"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
@@ -26,13 +30,19 @@ class HBOS(BaseDetector):
     :type alpha: float in (0, 1), optional (default=0.1)
 
     :param tol: The parameter to decide the flexibility while dealing
-        the samples falling outside the bins
+        the samples falling outside the bins.
     :type tol: float in (0, 1), optional (default=0.1)
 
     :param contamination: The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. When fitting this is used
         to define the threshold on the decision function.
     :type contamination: float in (0., 0.5), optional (default=0.1)
+
+    :var bin_edges\_: The edges of the bins
+    :vartype bin_edges\_: numpy array of shape (n_bins + 1, n_features )
+
+    :var hist\_: The density of each histogram
+    :vartype hist\_: numpy array of shape (n_bins, n_features)
     """
 
     def __init__(self, n_bins=10, alpha=0.1, tol=0.5, contamination=0.1):
