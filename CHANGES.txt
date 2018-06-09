@@ -19,4 +19,5 @@ v<0.4.4>, <06/03/2018> -- Refactor HBOS and add new models.
 v<0.4.5>, <06/04/2018> -- Implemented Feature Bagging meta framework.
 v<0.4.6>, <06/05/2018> -- Incremental changes and documentation improvements.
 v<0.4.7>, <06/06/2018> -- Add Principal Component Analysis (PCA) detector.
-v<0.4.8>, <06/06/2018> -- Refactor documentation and add test cases.
+v<0.4.8>, <06/07/2018> -- Refactor documentation and add test cases.
+v<0.4.9>, <06/09/2018> -- Add new utility functions and improve documentations.

@@ -113,6 +113,29 @@ def _get_color_codes(y):
     return c
 
 
+def evaluate_print(clf_name, y, y_pred):
+    """
+    Utility function for evaluating and printing the results for examples
+    Internal use only
+
+    :param clf_name: The name of the detector
+    :type clf_name: str
+
+    :param y: The ground truth
+    :type y: list or array of shape (n_samples,)
+
+    :param y_pred: The predicted outlier scores
+    :type y: list or array of shape (n_samples,)
+    """
+    y = column_or_1d(y)
+    y_pred = column_or_1d(y_pred)
+
+    print('{clf_name} ROC:{roc}, precision @ rank n:{prn}'.format(
+        clf_name=clf_name,
+        roc=np.round(roc_auc_score(y, y_pred), decimals=4),
+        prn=np.round(precision_n_scores(y, y_pred), decimals=4)))
+
+
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
               y_test_pred, show_figure=True,
               save_figure=False):  # pragma: no cover
@@ -188,26 +211,3 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
     if show_figure:
         plt.show()
     return
-
-
-def evaluate_print(clf_name, y, y_pred):
-    """
-    Utility function for evaluating and printing the results for examples
-    Internal use only
-
-    :param clf_name: The name of the detector
-    :type clf_name: str
-
-    :param y: The ground truth
-    :type y: list or array of shape (n_samples,)
-
-    :param y_pred: The predicted outlier scores
-    :type y: list or array of shape (n_samples,)
-    """
-    y = column_or_1d(y)
-    y_pred = column_or_1d(y_pred)
-
-    print('{clf_name} ROC:{roc}, precision @ rank n:{prn}'.format(
-        clf_name=clf_name,
-        roc=np.round(roc_auc_score(y, y_pred), decimals=4),
-        prn=np.round(precision_n_scores(y, y_pred), decimals=4)))
