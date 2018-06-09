@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Example of using kNN for outlier detection
+"""Example of using kNN for outlier detection
 """
 from __future__ import division
 from __future__ import print_function
@@ -23,8 +22,13 @@ if __name__ == "__main__":
     n_train = 200  # number of training points
     n_test = 100  # number of testing points
 
-    X_train, y_train, X_test, y_test = generate_data(
-        n_train=n_train, n_test=n_test, contamination=contamination)
+    # Generate sample data
+    X_train, y_train, X_test, y_test = \
+        generate_data(n_train=n_train,
+                      n_test=n_test,
+                      n_features=2,
+                      contamination=contamination,
+                      random_state=42)
 
     # train kNN detector
     clf_name = 'KNN'

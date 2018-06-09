@@ -29,45 +29,15 @@ from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import standardizer
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
+from pyod.utils.data import _generate_data
+
+import matplotlib.pyplot as plt 
 
 if __name__ == "__main__":
-
-    n_clf = 20  # number of base detectors
-    ite = 10  # number of iterations
-
-    mat_file = 'cardio.mat'
-
-    try:
-        mat = loadmat(os.path.join('example_data', mat_file))
-
-    except TypeError:
-        print('{data_file} does not exist. Use generated data'.format(
-            data_file=mat_file))
-        X, y = generate_data(train_only=True)  # load data
-    except IOError:
-        print('{data_file} does not exist. Use generated data'.format(
-            data_file=mat_file))
-        X, y = generate_data(train_only=True)  # load data
-    else:
-        X = mat['X']
-        y = mat['y'].ravel()
-
-    for t in range(ite):
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            test_size=0.4)
-
-        # standardizing data for processing
-        X_train_norm, X_test_norm = standardizer(X_train, X_test)
-
-        # initialize 20 base detectors for combination
-
-        clf = PCA()
-        clf.fit(X_train_norm)
-
-        train_scores = clf.decision_scores_
-        test_scores = clf.decision_function(X_test_norm)
-        
-        print()
-        evaluate_print('PCA Train', y_train, train_scores)
-        evaluate_print('PCA Test', y_test, test_scores)
+    
+    X,y = _generate_data(100, 50, 2, 42)
+    
+    fig = plt.figure(figsize=(12, 10))
+    
+    plt.scatter(X[:,0],X[:,1], c=y)
 

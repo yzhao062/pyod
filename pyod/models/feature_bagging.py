@@ -5,7 +5,7 @@ from __future__ import print_function
 
 import numpy as np
 import numbers
-from sklearn.utils.validation import check_random_state
+from sklearn.utils import check_random_state
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.random import sample_without_replacement
