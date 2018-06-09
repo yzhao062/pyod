@@ -51,4 +51,4 @@ if __name__ == "__main__":
 
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=False)
+              y_test_pred, show_figure=True, save_figure=True)
