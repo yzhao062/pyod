@@ -8,6 +8,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
 
 from .base import BaseDetector
+from ..utils.utility import invert_order
 
 
 class OCSVM(BaseDetector):
@@ -128,15 +129,16 @@ class OCSVM(BaseDetector):
         self.detector_.fit(X=X, y=y, sample_weight=sample_weight,
                            **params)
 
-        # invert decision_scores_. Outliers comes with higher outlier scores
-        self.decision_scores_ = self.detector_.decision_function(X) * -1
+        # Invert decision_scores_. Outliers comes with higher outlier scores
+        self.decision_scores_ = invert_order(
+            self.detector_.decision_function(X))
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
-        # invert decision_scores_. Outliers comes with higher outlier scores
-        return self.detector_.decision_function(X) * -1
+        # Invert outlier scores. Outliers comes with higher outlier scores
+        return invert_order(self.detector_.decision_function(X))
 
     @property
     def support_(self):

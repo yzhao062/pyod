@@ -111,8 +111,9 @@ def standardizer(X, X_t=None):
     :param X_t: The data to be converted
     :type X_t: numpy array of shape (n_samples_new, n_features)
 
-    :return: X_train_ and X_test after the Z-score normalization
-    :rtype: tuple(ndarray, ndarray)
+    :return: X and X_t after the Z-score normalization
+    :rtype: ndarray (n_samples, n_features),
+        ndarray (n_samples_new, n_features)
     """
     X = check_array(X)
     if X_t is None:
@@ -230,3 +231,37 @@ def argmaxn(value_list, n, order='desc'):
         return np.where(np.greater_equal(value_list, threshold))[0]
     else:  # return the index of n smallest elements
         return np.where(np.less(value_list, threshold))[0]
+
+
+def invert_order(scores, method='multiplication'):
+    """ Invert the order of a list of values. The smallest value becomes
+    the largest in the inverted list. This is useful while combining
+    multiple detectors since their score order could be different.
+
+    Examples:
+        >>>scores1 = [0.1, 0.3, 0.5, 0.7, 0.2, 0.1]
+        >>>invert_order(scores1)
+        array[-0.1, -0.3, -0.5, -0.7, -0.2, -0.1]
+        >>>invert_order(scores1, method='subtraction')
+        array[0.6, 0.4, 0.2, 0, 0.5, 0.6]
+
+    :param scores: The list of values to be inverted
+    :type scores: list, array or numpy array with shape (n_samples,)
+
+    :param method: {'multiplication', 'subtraction'}:
+
+            - 'multiplication': multiply by -1
+            - 'subtraction': max(scores) - scores
+    :type method: str, optional (default='multiplication')
+
+    :return: The inverted list
+    :rtype: numpy array of shape (n_samples,)
+    """
+
+    scores = column_or_1d(scores)
+
+    if method == 'multiplication':
+        return scores.ravel() * -1
+
+    if method == 'subtraction':
+        return (scores.max() - scores).ravel()

@@ -28,6 +28,7 @@ from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import argmaxn
+from pyod.utils.utility import invert_order
 
 
 class TestUtils(unittest.TestCase):
@@ -166,6 +167,8 @@ class TestScaler(unittest.TestCase):
     def setUp(self):
         self.X_train = np.random.rand(500, 5)
         self.X_test = np.random.rand(50, 5)
+        self.scores1 = [0.1, 0.3, 0.5, 0.7, 0.2, 0.1]
+        self.scores2 = np.array([0.1, 0.3, 0.5, 0.7, 0.2, 0.1])
 
     def test_normalization(self):
         norm_X_train, norm_X_test = standardizer(self.X_train, self.X_train)
@@ -179,6 +182,18 @@ class TestScaler(unittest.TestCase):
         norm_X_train = standardizer(self.X_train)
         assert_allclose(norm_X_train.mean(), 0, atol=0.05)
         assert_allclose(norm_X_train.std(), 1, atol=0.05)
+
+    def test_invert_order(self):
+        target = np.array([-0.1, -0.3, -0.5, -0.7, -0.2, -0.1]).ravel()
+        scores1 = invert_order(self.scores1)
+        assert_allclose(scores1, target)
+
+        scores2 = invert_order(self.scores2)
+        assert_allclose(scores2, target)
+
+        target = np.array([0.6, 0.4, 0.2, 0, 0.5, 0.6]).ravel()
+        scores2 = invert_order(self.scores2, method='subtraction')
+        assert_allclose(scores2, target)
 
     def tearDown(self):
         pass

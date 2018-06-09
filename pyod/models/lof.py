@@ -12,6 +12,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
 
 from .base import BaseDetector
+from ..utils.utility import invert_order
 
 
 class LOF(BaseDetector):
@@ -157,17 +158,19 @@ class LOF(BaseDetector):
                                             contamination=self.contamination,
                                             n_jobs=self.n_jobs)
         self.detector_.fit(X=X, y=y)
-        self.decision_scores_ = self.detector_.negative_outlier_factor_ * -1
+
+        # Invert decision_scores_. Outliers comes with higher outlier scores
+        self.decision_scores_ = invert_order(
+            self.detector_.negative_outlier_factor_)
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
-        X = check_array(X, accept_sparse='csr')
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
 
-        # invert decision_scores_. Outliers comes with higher outlier scores
+        # Invert outlier scores. Outliers comes with higher outlier scores
         # noinspection PyProtectedMember
-        return self.detector_._decision_function(X) * -1
+        return invert_order(self.detector_._decision_function(X))
 
     @property
     def negative_outlier_factor_(self):
