@@ -93,6 +93,7 @@ pyod.models.pca module
 
 .. automodule:: pyod.models.pca
     :members:
+    :exclude-members: components_, explained_variance_ratio_, singular_values_, mean_
     :undoc-members:
     :show-inheritance:
     :inherited-members:

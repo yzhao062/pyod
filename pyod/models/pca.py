@@ -125,6 +125,22 @@ class PCA(BaseDetector):
         data to zero mean and unit variance.
         See http://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
     :type standardization: bool, optional (default=True)
+
+    :var components\_: Components with maximum variance.
+    :vartype components\_: array, shape (n_components, n_features)
+
+    :var explained_variance_ratio\_: Percentage of variance explained by each
+        of the selected components. If k is not set then all components are
+        stored and the sum of explained variances is equal to 1.0.
+    :vartype explained_variance_ratio\_: array, shape (n_components,)
+
+    :var singular_values\_: The singular values corresponding to each of the
+        selected components. The singular values are equal to the 2-norms of
+        the ``n_components`` variables in the lower-dimensional space.
+    :vartype singular_values\_: array, shape (n_components,)
+
+    :var mean\_: Per-feature empirical mean, estimated from the training set.
+    :vartype mean\_: array, shape (n_features,)
     """
 
     def __init__(self, n_components=None, n_selected_components=None,
@@ -211,3 +227,35 @@ class PCA(BaseDetector):
         return np.sum(
             cdist(X, self.selected_components_) / self.selected_w_components_,
             axis=1).ravel()
+
+    @property
+    def components_(self):
+        """ Components with maximum variance.
+        Decorator for scikit-learn PCA attributes.
+        """
+        return self.detector_.components_
+
+    @property
+    def explained_variance_ratio_(self):
+        """Percentage of variance explained by each of the selected components.
+        If k is not set then all components are stored and the sum of explained
+        variances is equal to 1.0.
+        Decorator for scikit-learn PCA attributes.
+        """
+        return self.detector_.explained_variance_ratio_
+
+    @property
+    def singular_values_(self):
+        """The singular values corresponding to each of the selected
+        components. The singular values are equal to the 2-norms of the
+        ``n_components`` variables in the lower-dimensional space.
+        Decorator for scikit-learn PCA attributes.
+        """
+        return self.detector_.singular_values_
+
+    @property
+    def mean_(self):
+        """Per-feature empirical mean, estimated from the training set.
+        Decorator for scikit-learn PCA attributes.
+        """
+        return self.detector_.mean_
