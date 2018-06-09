@@ -40,9 +40,10 @@ class TestUtils(unittest.TestCase):
         self.value_lists = [0.1, 0.3, 0.2, -2, 1.5, 0, 1, -1, -0.5, 11]
 
     def test_data_generate(self):
-        X_train, y_train, X_test, y_test = generate_data(
-            n_train=self.n_train, n_test=self.n_test,
-            contamination=self.contamination)
+        X_train, y_train, X_test, y_test = \
+            generate_data(n_train=self.n_train,
+                          n_test=self.n_test,
+                          contamination=self.contamination)
 
         assert_equal(y_train.shape[0], X_train.shape[0])
         assert_equal(y_test.shape[0], X_test.shape[0])
@@ -58,6 +59,35 @@ class TestUtils(unittest.TestCase):
 
         out_perc = np.sum(y_test) / self.n_test
         assert_allclose(self.contamination, out_perc, atol=0.01)
+
+    def test_data_generate2(self):
+        X_train, y_train, X_test, y_test = \
+            generate_data(n_train=self.n_train,
+                          n_test=self.n_test,
+                          n_features=3,
+                          contamination=self.contamination)
+        assert_allclose(X_train.shape, (self.n_train, 3))
+        assert_allclose(X_test.shape, (self.n_test, 3))
+
+    def test_data_generate3(self):
+        X_train, y_train, X_test, y_test = \
+            generate_data(n_train=self.n_train,
+                          n_test=self.n_test,
+                          n_features=2,
+                          contamination=self.contamination,
+                          random_state=42)
+
+        X_train2, y_train2, X_test2, y_test2 = \
+            generate_data(n_train=self.n_train,
+                          n_test=self.n_test,
+                          n_features=2,
+                          contamination=self.contamination,
+                          random_state=42)
+
+        assert_allclose(X_train, X_train2)
+        assert_allclose(X_test, X_test2)
+        assert_allclose(y_train, y_train2)
+        assert_allclose(y_test, y_test2)
 
     def test_argmaxn(self):
         ind = argmaxn(self.value_lists, 3)
@@ -75,9 +105,9 @@ class TestUtils(unittest.TestCase):
             argmaxn(self.value_lists, 20)
 
     def test_evaluate_print(self):
-        X_train, y_train, X_test, y_test = generate_data(
-            n_train=self.n_train, n_test=self.n_test,
-            contamination=self.contamination)
+        X_train, y_train, X_test, y_test = generate_data(n_train=self.n_train,
+                                                         n_test=self.n_test,
+                                                         contamination=self.contamination)
         evaluate_print('dummy', y_train, y_train * 0.1)
 
     # TODO: remove temporarily for pleasing Travis integration
