@@ -31,7 +31,7 @@ class TestKnn(unittest.TestCase):
         self.roc_floor = 0.6
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
-            contamination=self.contamination)
+            contamination=self.contamination, random_state=42)
 
         self.clf = KNN(contamination=self.contamination)
         self.clf.fit(self.X_train)
@@ -107,7 +107,7 @@ class TestKnnMean(unittest.TestCase):
         self.roc_floor = 0.75
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
-            contamination=self.contamination)
+            contamination=self.contamination, random_state=42)
 
         self.clf = KNN(contamination=self.contamination, method='mean')
 
@@ -135,7 +135,7 @@ class TestKnnMedian(unittest.TestCase):
         self.roc_floor = 0.75
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
-            contamination=self.contamination)
+            contamination=self.contamination, random_state=42)
 
         self.clf = KNN(contamination=self.contamination, method='median')
 
