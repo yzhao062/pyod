@@ -229,13 +229,6 @@ class PCA(BaseDetector):
             axis=1).ravel()
 
     @property
-    def components_(self):
-        """ Components with maximum variance.
-        Decorator for scikit-learn PCA attributes.
-        """
-        return self.detector_.components_
-
-    @property
     def explained_variance_ratio_(self):
         """Percentage of variance explained by each of the selected components.
         If k is not set then all components are stored and the sum of explained
