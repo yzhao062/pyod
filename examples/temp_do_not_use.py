@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Example of combining multiple base outlier scores. Four combination
+"""Example of combining multiple base outlier scores. Four combination
 frameworks are demonstrated:
 
 1. Average: take the average of all base detectors
@@ -9,6 +8,9 @@ frameworks are demonstrated:
 4. Maximum of Average (MOA)
 
 """
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 
