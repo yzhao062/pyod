@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+"""Example of using Angle-base outlier detection (ABOD) for outlier detection
 """
-Example of using Angle-base outlier detection (ABOD) for outlier detection
-"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 

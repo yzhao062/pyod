@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+"""Base class for all outlier detector models
 """
-Base class for all outlier detector models
-"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 

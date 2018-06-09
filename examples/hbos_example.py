@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+"""Example of using HBOS for outlier detection
 """
-Example of using HBOS for outlier detection
-"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 
@@ -53,4 +55,3 @@ if __name__ == "__main__":
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
               y_test_pred, show_figure=True, save_figure=False)
-

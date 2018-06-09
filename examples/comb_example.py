@@ -6,8 +6,10 @@ frameworks are demonstrated:
 2. maximization : take the maximum score across all detectors as the score
 3. Average of Maximum (AOM)
 4. Maximum of Average (MOA)
-
 """
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 
@@ -19,7 +21,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import numpy as np
-from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from scipy.io import loadmat
 

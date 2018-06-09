@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+"""Example of using one class SVM for outlier detection
 """
-Example of using one class SVM for outlier detection
-"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 

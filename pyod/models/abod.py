@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Angle-based Outlier Detector (ABOD)
+"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
@@ -21,10 +25,13 @@ def _calculate_wocs(curr_pt, X, X_ind):
 
     :param curr_pt: the sample to be calculated
     :type curr_pt: array, shape (1, n_features)
+
     :param X: the training dataset
     :type X: numpy array of shape (n_samples, n_features)
+
     :param X_ind: the valid index of the training data
     :type X_ind: list
+
     :return: the variance of cosine angle
     :rtype: float
     """

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Collection of model combination functionalities.
+"""A collection of model combination functionalities.
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause

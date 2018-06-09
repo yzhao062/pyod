@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""One-class SVM detector. Implemented on scikit-learn library.
+"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
