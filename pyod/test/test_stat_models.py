@@ -47,6 +47,10 @@ class TestStatModels(unittest.TestCase):
 
     def test_pearsonr_mat(self):
         # TODO: verify the values
+
+        pear_mat = pearsonr_mat(self.mat)
+        assert_equal(pear_mat.shape, (10, 10))
+
         pear_mat = pearsonr_mat(self.mat, self.w_mat)
         assert_equal(pear_mat.shape, (10, 10))
 

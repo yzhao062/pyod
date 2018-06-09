@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Utility functions for manipulating data
 """
-Utility functions for manipulating data
-"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
@@ -113,7 +114,8 @@ def _get_color_codes(y):
 
 
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=False):
+              y_test_pred, show_figure=True,
+              save_figure=False):  # pragma: no cover
     """
     Utility function for visualizing the results in examples
     Internal use only

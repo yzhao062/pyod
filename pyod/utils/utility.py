@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+"""A set of utility functions to support outlier detection.
 """
-A set of utility functions to support outlier detection
-"""
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 
@@ -21,8 +23,7 @@ MIN_INT = -1 * MAX_INT
 
 def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
                     include_left=False, include_right=False):
-    """
-    Check if an input parameter is with in the range low and high bounds.
+    """Check if an input parameter is with in the range low and high bounds.
 
     :param param: The input parameter to check
     :type param: int, float
@@ -100,20 +101,27 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
         return True
 
 
-def standardizer(X_train, X_test):
-    """Normalization function wrapper, z- normalization function
+def standardizer(X, X_t=None):
+    """Conduct Z-normalization on data to turn input samples become zero-mean
+    and unit variance.
 
-    :param X_train:
-    :param X_test:
+    :param X: The training samples
+    :type X: numpy array of shape (n_samples, n_features)
+
+    :param X_t: The data to be converted
+    :type X_t: numpy array of shape (n_samples_new, n_features)
 
     :return: X_train_ and X_test after the Z-score normalization
     :rtype: tuple(ndarray, ndarray)
     """
-    X_train = check_array(X_train)
-    X_test = check_array(X_test)
-    assert_equal(X_train.shape[1], X_test.shape[1])
-    scaler = StandardScaler().fit(X_train)
-    return (scaler.transform(X_train), scaler.transform(X_test))
+    X = check_array(X)
+    if X_t is None:
+        return StandardScaler().fit_transform(X)
+
+    X_t = check_array(X_t)
+    assert_equal(X.shape[1], X_t.shape[1])
+    scaler = StandardScaler().fit(X)
+    return scaler.transform(X), scaler.transform(X_t)
 
 
 def score_to_label(pred_scores, outlier_perc=0.1):

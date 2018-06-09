@@ -175,6 +175,11 @@ class TestScaler(unittest.TestCase):
         assert_allclose(norm_X_test.mean(), 0, atol=0.05)
         assert_allclose(norm_X_test.std(), 1, atol=0.05)
 
+        # test when X_t is not presented
+        norm_X_train = standardizer(self.X_train)
+        assert_allclose(norm_X_train.mean(), 0, atol=0.05)
+        assert_allclose(norm_X_train.std(), 1, atol=0.05)
+
     def tearDown(self):
         pass
 
