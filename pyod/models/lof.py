@@ -147,7 +147,6 @@ class LOF(BaseDetector):
         self.metric = metric
         self.p = p
         self.metric_params = metric_params
-        self.contamination = contamination
         self.n_jobs = n_jobs
 
     # noinspection PyIncorrectDocstring

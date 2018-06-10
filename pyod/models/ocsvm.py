@@ -68,6 +68,11 @@ class OCSVM(BaseDetector):
         limit.
     :type max_iter: int, optional (default=-1)
 
+    :param contamination: The amount of contamination of the data set, i.e.
+        the proportion of outliers in the data set. When fitting this is used
+        to define the threshold on the decision function.
+    :type contamination: float in (0., 0.5), optional (default=0.1)
+
     :param random_state: The seed of the pseudo random number generator to use
         when shuffling the data.
         If int, random_state is the seed used by the random number
@@ -118,8 +123,9 @@ class OCSVM(BaseDetector):
 
     def __init__(self, kernel='rbf', degree=3, gamma='auto', coef0=0.0,
                  tol=1e-3, nu=0.5, shrinking=True, cache_size=200,
-                 verbose=False, max_iter=-1, random_state=None):
-        super(OCSVM, self).__init__()
+                 verbose=False, max_iter=-1, contamination=0.1,
+                 random_state=None):
+        super(OCSVM, self).__init__(contamination=contamination)
         self.kernel = kernel
         self.degree = degree
         self.gamma = gamma
