@@ -15,11 +15,15 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
+from sklearn.utils.testing import assert_allclose
+from sklearn.utils.testing import assert_array_less
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import roc_auc_score
+from scipy.stats import rankdata
 
 from pyod.models.pca import PCA
 from pyod.utils.data import generate_data
+
 
 class TestPCA(unittest.TestCase):
     def setUp(self):
@@ -64,10 +68,7 @@ class TestPCA(unittest.TestCase):
         # check score shapes
         assert_equal(pred_scores.shape[0], self.X_test.shape[0])
 
-        # TODO: turn off performance check before a better data generation
-        # method is available.
-        # check performance
-        # assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
+        assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
 
     def test_prediction_labels(self):
         pred_labels = self.clf.predict(self.X_test)
@@ -98,6 +99,24 @@ class TestPCA(unittest.TestCase):
 
     def test_evaluate(self):
         self.clf.fit_predict_evaluate(self.X_test, self.y_test)
+
+    def test_predict_rank(self):
+        pred_socres = self.clf.decision_function(self.X_test)
+        pred_ranks = self.clf._predict_rank(self.X_test)
+
+        # assert the order is reserved
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
+        assert_array_less(-0.1, pred_ranks)
+
+    def test_predict_rank_normalized(self):
+        pred_socres = self.clf.decision_function(self.X_test)
+        pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
+
+        # assert the order is reserved
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_array_less(pred_ranks, 1.01)
+        assert_array_less(-0.1, pred_ranks)
 
     def tearDown(self):
         pass

@@ -225,6 +225,10 @@ class TestBASE(unittest.TestCase):
         # TODO: create uniform testcases
         pass
 
+    def test_rank(self):
+        # TODO: create uniform testcases
+        pass
+
     def test_repr(self):
         # Smoke test the repr of the base estimator.
         my_estimator = MyEstimator()

@@ -25,21 +25,47 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from scipy.io import loadmat
+from scipy.stats import rankdata
 
 from pyod.models.pca import PCA
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import standardizer
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
-from pyod.utils.data import _generate_data
+
+import time
+
 
 import matplotlib.pyplot as plt 
 
 if __name__ == "__main__":
     
-    X,y = _generate_data(100, 50, 2, 42)
+    X,y, Xt,yt = generate_data(10000, 5000, random_state=42)
     
-    fig = plt.figure(figsize=(12, 10))
+    X1 = X[:,0]
+    Xt1 = Xt[:,0]
     
-    plt.scatter(X[:,0],X[:,1], c=y)
+    ranks = np.zeros([Xt.shape[0], ])
+    start_time = time.clock()
+
+
+    for i in range(Xt1.shape[0]):
+        train_scores_i = np.append(X1.reshape(-1, 1), Xt1[i])
+
+        ranks[i] = rankdata(train_scores_i)[-1]
+    
+    print("--- %s seconds ---" % (time.clock() - start_time))
+    start_time = time.clock()
+    ranks1 = np.zeros([Xt.shape[0], ])
+    X1_sorted = np.sort(X1)
+#    for i in range(Xt1.shape[0]):
+#    
+#        ranks[i] = np.searchsorted(X1_sorted)
+    ranks1 = np.searchsorted(X1_sorted, Xt1)
+    
+    print("--- %s seconds ---" % (time.clock() - start_time))
+    
+
+    
+
 
