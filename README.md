@@ -129,7 +129,6 @@ Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html). API cheatsh
 - **decision_function(X)**: Predict anomaly score of X of the base classifiers.
 - **predict(X)**: Predict if a particular sample is an outlier or not. The model must be fitted first.
 - **predict_proba(X)**: Predict the probability of a sample being outlier. The model must be fitted first.
-- **predict_rank(X)**: Predict the outlyingness rank of a sample.
 
 Full package structure can be found below:
 - http://pyod.readthedocs.io/en/latest/genindex.html

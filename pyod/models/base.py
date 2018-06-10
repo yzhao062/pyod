@@ -321,33 +321,32 @@ class BaseDetector(object):
             raise ValueError(method,
                              'is not a valid probability conversion method')
 
-    def predict_rank(self, X):
+    def _predict_rank(self, X, normalized=False):
         """Predict the outlyingness rank of a sample in a fitted model. The
         method is specifically for combining various outlier detectors.
 
         :param X: The input samples
         :type X: numpy array of shape (n_samples, n_features)
 
+        :param normalized: If set to True, all ranks are normalized to [0,1]
+        :type normalized: bool, optional (default=False)
+
         :return: outlying rank of a sample according to the training data
         :rtype: array, shape (n_samples,)
         """
 
-        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        check_is_fitted(self, ['decision_scores_'])
 
         test_scores = self.decision_function(X)
         train_scores = self.decision_scores_
 
-        ranks = np.zeros([X.shape[0], 1])
+        sorted_train_scores = np.sort(train_scores)
+        ranks = np.searchsorted(sorted_train_scores, test_scores)
 
-        for i in range(test_scores.shape[0]):
-            train_scores_i = np.append(train_scores.reshape(-1, 1),
-                                       test_scores[i])
-
-            ranks[i] = rankdata(train_scores_i)[-1]
-
-        # return normalized ranks
-        ranks_norm = ranks / ranks.max()
-        return ranks_norm
+        if normalized:
+            # return normalized ranks
+            ranks = ranks / ranks.max()
+        return ranks
 
     def fit_predict_evaluate(self, X, y):
         """Fit the detector, predict on samples, and evaluate the model by

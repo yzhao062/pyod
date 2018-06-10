@@ -40,8 +40,8 @@ Unlike existing libraries, PyOD provides:
 - `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
-Important Functions
-================================
+Important Functionalities
+=========================
 PyOD toolkit consists of three major groups of functionalities: (i) outlier
 detection algorithms; (ii) outlier ensemble frameworks and (iii) outlier
 detection utility functions.
@@ -92,6 +92,20 @@ detection utility functions.
   2. :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
   3. :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
   4. :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
+
+
+Key APIs
+========
+
+The following APIs are applicable for all detector models for easy use.
+
+* :func:`pyod.models.base.BaseDetector.fit`: Fit detector.
+* :func:`pyod.models.base.BaseDetector.fit_predict`: Fit detector and predict if a particular sample is an outlier or not.
+* :func:`pyod.models.base.BaseDetector.fit_predict_evaluate`: Fit, predict and then evaluate with predefined metrics (ROC and precision @ rank n).
+* :func:`pyod.models.base.BaseDetector.decision_function`: Predict anomaly score of X of the base classifiers.
+* :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not. The model must be fitted first.
+* :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
+
 
 Contents
 ====================
