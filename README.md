@@ -89,6 +89,11 @@ detection utility functions.
   mining (precision @ rank n)
   3. generate_data(): generate pseudo data for outlier detection experiment
   4. wpearsonr(): weighted pearson is useful in pseudo ground truth generation
+  
+**Comparison of all implemented models** are made available below:
+ ([Comparision_of_All](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png)):
+![Comparision_of_All](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png)
+ 
 ------------
 
 ### Installation

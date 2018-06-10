@@ -33,7 +33,7 @@ rng = np.random.RandomState(42)
 # Example settings
 n_samples = 200
 outliers_fraction = 0.25
-clusters_separation = [0, 1, 2]
+clusters_separation = [0]
 
 # define two outlier detection tools to be compared
 classifiers = {
