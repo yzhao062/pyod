@@ -125,15 +125,15 @@ def standardizer(X, X_t=None):
     return scaler.transform(X), scaler.transform(X_t)
 
 
-def score_to_label(pred_scores, outlier_perc=0.1):
+def score_to_label(pred_scores, outliers_fraction=0.1):
     """Turn raw outlier outlier scores to binary labels (0 or 1)
 
     :param pred_scores: raw outlier scores
-    :param outlier_perc: percentage of outliers
+    :param outliers_fraction: percentage of outliers
     :return: binary labels (1 stands for outlier)
     :rtype: int
     """
-    threshold = scoreatpercentile(pred_scores, 100 * (1 - outlier_perc))
+    threshold = scoreatpercentile(pred_scores, 100 * (1 - outliers_fraction))
     pred_labels = (pred_scores > threshold).astype('int')
     return pred_labels
 
@@ -189,11 +189,11 @@ def get_label_n(y, y_pred, n=None):
 
     # calculate the percentage of outliers
     if n is not None:
-        outlier_perc = n / y_len
+        outliers_fraction = n / y_len
     else:
-        outlier_perc = np.count_nonzero(y) / y_len
+        outliers_fraction = np.count_nonzero(y) / y_len
 
-    threshold = scoreatpercentile(y_pred, 100 * (1 - outlier_perc))
+    threshold = scoreatpercentile(y_pred, 100 * (1 - outliers_fraction))
     y_pred = (y_pred > threshold).astype('int')
 
     return y_pred

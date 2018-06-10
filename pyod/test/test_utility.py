@@ -236,7 +236,7 @@ class TestMetrics(unittest.TestCase):
         self.labels_ = [0.1, 0.2, 0.2, 0.8, 0.2, 0.5, 0.7, 0.9, 1, 0.3]
         self.labels_short_ = [0.1, 0.2, 0.2, 0.8, 0.2, 0.5, 0.7, 0.9, 1]
         self.manual_labels = [0, 0, 0, 1, 0, 0, 1, 1, 1, 0]
-        self.outlier_perc = 0.3
+        self.outliers_fraction = 0.3
 
     def test_precision_n_scores(self):
         assert_equal(precision_score(self.y, self.manual_labels),
