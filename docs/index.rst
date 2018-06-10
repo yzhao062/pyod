@@ -94,8 +94,8 @@ detection utility functions.
   4. :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
 
 
-Key APIs
-========
+Key APIs & Attributes
+=====================
 
 The following APIs are applicable for all detector models for easy use.
 
@@ -105,6 +105,12 @@ The following APIs are applicable for all detector models for easy use.
 * :func:`pyod.models.base.BaseDetector.decision_function`: Predict anomaly score of X of the base classifiers.
 * :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not. The model must be fitted first.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
+
+Key Attributes of a fitted model:
+
+* :attr:`pyod.models.base.BaseDetector.decision_scores_`: The outlier scores of the training data. The higher, the more abnormal.
+  Outliers tend to have higher scores.
+* :attr:`pyod.models.base.BaseDetector.labels_`: The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
 Contents
 ========

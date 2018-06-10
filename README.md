@@ -130,6 +130,12 @@ Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html). API cheatsh
 - **predict(X)**: Predict if a particular sample is an outlier or not. The model must be fitted first.
 - **predict_proba(X)**: Predict the probability of a sample being outlier. The model must be fitted first.
 
+Key Attributes of a fitted model:
+
+- **decision_scores_**: The outlier scores of the training data. The higher, the more abnormal. 
+Outliers tend to have higher scores. 
+- **labels_**: The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
+
 Full package structure can be found below:
 - http://pyod.readthedocs.io/en/latest/genindex.html
 - http://pyod.readthedocs.io/en/latest/py-modindex.html
