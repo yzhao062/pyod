@@ -74,7 +74,7 @@ detection utility functions.
      1. **Isolation Forest** [2]
      2. **Feature Bagging** [9]
 
-***Outlier Ensembles*** (Outlier Score Combination Frameworks):
+***Outlier Detector/Scores Combination Frameworks***:
   1. **Feature Bagging**: build various detectors on random selected features [9]
   2. **Average** & **Weighted Average**: simply combine scores by averaging [6]
   3. **Maximization**: simply combine scores by taking the maximum across all 

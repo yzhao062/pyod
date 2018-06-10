@@ -111,3 +111,4 @@ Module contents
 
 .. bibliography:: zreferences.bib
    :cited:
+   :labelprefix: B

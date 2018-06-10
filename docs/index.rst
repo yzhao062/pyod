@@ -25,7 +25,7 @@ PyOD Documentation
 to **identify outlying objects** in data with both unsupervised and supervised approaches.
 This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-The toolkit has been successfully used in various academic researches [4, 8] and commercial products.
+The toolkit has been successfully used in various academic researches :cite:`a-zhao2018xgbod` and commercial products.
 Unlike existing libraries, PyOD provides:
 
 - **Unified and consistent APIs** across various anomaly detection algorithms.
@@ -52,39 +52,39 @@ detection utility functions.
 
   i. **PCA: Principal Component Analysis** (use the sum of
      weighted projected distances to the eigenvector hyperplane as the outlier
-     scores) [10]: :class:`pyod.models.pca.PCA`
-  ii. **One-Class Support Vector Machines** [3]: :class:`pyod.models.ocsvm.OCSVM`
+     scores) :cite:`a-shyu2003novel`: :class:`pyod.models.pca.PCA`
+  ii. **One-Class Support Vector Machines** :cite:`a-ma2003time`: :class:`pyod.models.ocsvm.OCSVM`
 
 2. Proximity-Based Outlier Detection Models:
 
-  i. **LOF: Local Outlier Factor** [1]: :class:`pyod.models.lof.LOF`
+  i. **LOF: Local Outlier Factor** :cite:`a-breunig2000lof`: :class:`pyod.models.lof.LOF`
   ii. **kNN: k Nearest Neighbors** (use the distance to the kth nearest
-      neighbor as the outlier score): :class:`pyod.models.knn.KNN`
+      neighbor as the outlier score) :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`: :class:`pyod.models.knn.KNN`
   iii. **Average kNN** (use the average distance to k nearest neighbors as
        the outlier score): :class:`pyod.models.knn.KNN`
   iv. **Median kNN** (use the median distance to k nearest neighbors
       as the outlier score): :class:`pyod.models.knn.KNN`
-  v. **HBOS: Histogram-based Outlier Score** [5]: :class:`pyod.models.hbos.HBOS`
+  v. **HBOS: Histogram-based Outlier Score** :cite:`a-goldstein2012histogram`: :class:`pyod.models.hbos.HBOS`
 
 3. Probabilistic Models for Outlier Detection:
 
-  i. **ABOD: Angle-Based Outlier Detection** [7]: :class:`pyod.models.abod.ABOD`
-  ii. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [7]: :class:`pyod.models.abod.ABOD`
+  i. **ABOD: Angle-Based Outlier Detection** cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
+  ii. **FastABOD: Fast Angle-Based Outlier Detection using approximation** cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
 
 4. Outlier Ensembles and Combination Frameworks
 
-  i. **Isolation Forest** [2]: :class:`pyod.models.iforest.IForest`
-  ii. **Feature Bagging** [9]: :class:`pyod.models.feature_bagging.FeatureBagging`
+  i. **Isolation Forest** :cite:`a-liu2008isolation,a-liu2012isolation`: :class:`pyod.models.iforest.IForest`
+  ii. **Feature Bagging** :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
 
-**Outlier Ensembles** (Outlier Score Combination Frameworks):
+**Outlier Detector/Scores Combination Frameworks**:
 
-  1. **Feature Bagging**: build various detectors on random selected features [9]
-  2. **Average** & **Weighted Average**: simply combine scores by averaging [6]: :func:`pyod.models.combination.average`
+  1. **Feature Bagging**: build various detectors on random selected features :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
+  2. **Average** & **Weighted Average**: simply combine scores by averaging :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.average`
   3. **Maximization**: simply combine scores by taking the maximum across all
-     base detectors [6]: :func:`pyod.models.combination.maximization`
-  4. **Average of Maximum (AOM)** [6]: :func:`pyod.models.combination.aom`
-  5. **Maximum of Average (MOA)** [6]: :func:`pyod.models.combination.moa`
-  6. **Threshold Sum (Thresh)** [6]
+     base detectors :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.maximization`
+  4. **Average of Maximum (AOM)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.aom`
+  5. **Maximum of Average (MOA)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.moa`
+  6. **Threshold Sum (Thresh)** :cite:`a-aggarwal2015theoretical`
 
 **Utility Functions for Outlier Detection**, see :mod:`pyod.utils`.
 
@@ -106,9 +106,8 @@ The following APIs are applicable for all detector models for easy use.
 * :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not. The model must be fitted first.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
 
-
 Contents
-====================
+========
 
 .. toctree::
    :maxdepth: 2
@@ -118,31 +117,16 @@ Contents
    api_cc
    pyod
 
-Reference
-++++++++++++
-
-[1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM SIGMOD Record*, pp. 93-104. ACM.
-
-[2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *ICDM '08*, pp. 413-422. IEEE.
-
-[3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*, pp. 1741-1745. IEEE.
-
-[4] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed*, 2018. Submitted, under review.
-
-[5] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*, pp.59-63.
-
-[6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.*ACM SIGKDD Explorations Newsletter*, 17(1), pp.24-47.
-
-[7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*, pp. 444-452. ACM.
-
-[8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*, 2018.
-
-[9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
-
-[10] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
-
-==================
+Quick Links
+===========
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. rubric:: References
+
+.. bibliography:: zreferences.bib
+   :cited:
+   :labelprefix: A
+   :keyprefix: a-
