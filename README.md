@@ -91,7 +91,8 @@ detection utility functions.
   4. wpearsonr(): weighted pearson is useful in pseudo ground truth generation
   
 **Comparison of all implemented models** are made available below:
- ([Comparision_of_All](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png)):
+ ([Figure](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png), 
+ [Code](https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py)):
 ![Comparision_of_All](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png)
  
 ------------

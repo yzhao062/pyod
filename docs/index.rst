@@ -93,7 +93,7 @@ detection utility functions.
   3. :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
   4. :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
 
-**Comparison of all implemented models** are made available below:
+**Comparison of all implemented models** are made available below (`Code <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_):
 
 .. figure:: figs/ALL.png
     :alt: Comparison of all implemented models
