@@ -20,6 +20,8 @@ PyOD Documentation
 .. image:: https://img.shields.io/github/forks/yzhao062/Pyod.svg
     :alt: GitHub forks
     :target: https://github.com/yzhao062/Pyod
+.. image:: https://mybinder.org/badge.svg
+    :target: https://mybinder.org/v2/gh/yzhao062/Pyod/master
 
 **Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a comprehensive Python toolkit
 to **identify outlying objects** in data with both unsupervised and supervised approaches.
@@ -28,16 +30,17 @@ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 The toolkit has been successfully used in various academic researches :cite:`a-zhao2018xgbod` and commercial products.
 Unlike existing libraries, PyOD provides:
 
-- **Unified and consistent APIs** across various anomaly detection algorithms.
+- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
 - **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
 - **Advanced functions**, e.g., **Outlier Ensemble Frameworks** to combine multiple detectors.
-- **Detailed API Reference, Examples and Tests** for better reliability.
+- **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
 
 **Key Links**:
 
 - `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_
-- `Current version on PyPI <https://pypi.org/project/pyod/>`_
+- `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_
 - `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
 
 
 Important Functionalities
@@ -93,7 +96,10 @@ detection utility functions.
   3. :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
   4. :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
 
-**Comparison of all implemented models** are made available below (`Code <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_):
+**Comparison of all implemented models** are made available below
+(`Code <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_, `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_):
+
+For Jupyter Notebooks, please navigate to "/notebooks/Compare All Models.ipynb"
 
 .. figure:: figs/ALL.png
     :alt: Comparison of all implemented models

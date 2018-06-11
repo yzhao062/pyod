@@ -2,7 +2,7 @@
 [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) [![Build Status](https://travis-ci.org/yzhao062/Pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master&service=github)](https://coveralls.io/github/yzhao062/Pyod?branch=master) 
 [![GitHub stars](https://img.shields.io/github/stars/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/stargazers) 
 [![GitHub forks](https://img.shields.io/github/forks/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/network)
-
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 --------------------------
 
 PyOD is a comprehensive **Python toolkit** to **identify outlying objects** in 
@@ -13,10 +13,10 @@ or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
 The toolkit has been successfully used in various academic researches [4, 8] and commercial products.
 Unlike existing libraries, PyOD provides:
 
-- **Unified and consistent APIs** across various anomaly detection algorithms.
+- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
 - **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
 - **Advanced functions**, e.g., **Outlier Ensemble Frameworks** to combine multiple detectors.
-- **Detailed API Reference, Examples and Tests** for better reliability. 
+- **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
 
 
 **Table of Contents**:
@@ -35,7 +35,7 @@ Unlike existing libraries, PyOD provides:
 
 - **[Documentation & API Reference](https://pyod.readthedocs.io)** [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest)
 
-- **[Current version on PyPI](https://pypi.org/project/pyod/)** [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) 
+- **[Execute Interactive Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master/)** [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 
 - **[Github repository with examples](https://github.com/yzhao062/Pyod/tree/master/examples)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
 
@@ -92,7 +92,11 @@ detection utility functions.
   
 **Comparison of all implemented models** are made available below:
  ([Figure](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png), 
- [Code](https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py)):
+ [Code](https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py),
+ [Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master)):
+ 
+For Jupyter Notebooks, please navigate to "/notebooks/Compare All Models.ipynb"
+ 
 ![Comparision_of_All](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png)
  
 ------------
