@@ -28,23 +28,31 @@ from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
 from pyod.models.iforest import IForest
 
-rng = np.random.RandomState(42)
-
-# Example settings
+# Define the number of inliers and outliers
 n_samples = 200
 outliers_fraction = 0.25
 clusters_separation = [0]
 
-# define two outlier detection tools to be compared
+# Compare given classifiers under given settings
+xx, yy = np.meshgrid(np.linspace(-7, 7, 100), np.linspace(-7, 7, 100))
+n_inliers = int((1. - outliers_fraction) * n_samples)
+n_outliers = int(outliers_fraction * n_samples)
+ground_truth = np.zeros(n_samples, dtype=int)
+ground_truth[-n_outliers:] = 1
+
+random_state = np.random.RandomState(42)
+# Define nine outlier detection tools to be compared
 classifiers = {'Angle-based Outlier Detector (ABOD)':
                    ABOD(n_neighbors=10,
                         contamination=outliers_fraction),
                'Feature Bagging':
                    FeatureBagging(LOF(n_neighbors=35),
-                                  contamination=outliers_fraction),
+                                  contamination=outliers_fraction,
+                                  random_state=random_state),
                'Histogram-base Outlier Detection (HBOS)': HBOS(
                    contamination=outliers_fraction),
-               'Isolation Forest': IForest(contamination=outliers_fraction),
+               'Isolation Forest': IForest(contamination=outliers_fraction,
+                                           random_state=random_state),
                'Local Outlier Factor (LOF)':
                    LOF(n_neighbors=35,
                        contamination=outliers_fraction),
@@ -56,13 +64,6 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                'Principal Component Analysis (PCA)': PCA(
                    contamination=outliers_fraction),
                }
-
-# Compare given classifiers under given settings
-xx, yy = np.meshgrid(np.linspace(-7, 7, 100), np.linspace(-7, 7, 100))
-n_inliers = int((1. - outliers_fraction) * n_samples)
-n_outliers = int(outliers_fraction * n_samples)
-ground_truth = np.zeros(n_samples, dtype=int)
-ground_truth[-n_outliers:] = 1
 
 # Fit the problem with varying cluster separation
 for i, offset in enumerate(clusters_separation):
