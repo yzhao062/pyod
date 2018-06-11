@@ -33,21 +33,22 @@ rng = np.random.RandomState(42)
 # Example settings
 n_samples = 200
 outliers_fraction = 0.25
-clusters_separation = [0, 1, 2]
+clusters_separation = [0]
 
 # define two outlier detection tools to be compared
 classifiers = {
-    'Angle-based Outlier Detector (ABOD)': ABOD(
-        contamination=outliers_fraction),
+
     'Feature Bagging': FeatureBagging(contamination=outliers_fraction),
     'Histogram-base Outlier Detection (HBOS)': HBOS(
         contamination=outliers_fraction),
     'Isolation Forest': IForest(contamination=outliers_fraction),
-    'Local Outlier Factor (LOF)': LOF(contamination=outliers_fraction),
+    'Local Outlier Factor (LOF)': LOF(contamination=outliers_fraction, n_neighbors=35),
     'K Nearest Neighbors (KNN)': KNN(contamination=outliers_fraction),
     'Average KNN': KNN(contamination=outliers_fraction, method='mean'),
     'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
     'Principal Component Analysis (PCA)': PCA(
+        contamination=outliers_fraction),
+    'Angle-based Outlier Detector (ABOD)': ABOD(
         contamination=outliers_fraction),
 }
 
@@ -69,7 +70,7 @@ for i, offset in enumerate(clusters_separation):
     X = np.r_[X, np.random.uniform(low=-6, high=6, size=(n_outliers, 2))]
 
     # Fit the model
-    plt.figure(figsize=(12, 12))
+    plt.figure(figsize=(12, 14))
     for i, (clf_name, clf) in enumerate(classifiers.items()):
         # fit the data and tag outliers
         clf.fit(X)

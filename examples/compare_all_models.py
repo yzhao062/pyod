@@ -36,20 +36,26 @@ outliers_fraction = 0.25
 clusters_separation = [0]
 
 # define two outlier detection tools to be compared
-classifiers = {
-    'Angle-based Outlier Detector (ABOD)': ABOD(
-        contamination=outliers_fraction),
-    'Feature Bagging': FeatureBagging(contamination=outliers_fraction),
-    'Histogram-base Outlier Detection (HBOS)': HBOS(
-        contamination=outliers_fraction),
-    'Isolation Forest': IForest(contamination=outliers_fraction),
-    'Local Outlier Factor (LOF)': LOF(contamination=outliers_fraction),
-    'K Nearest Neighbors (KNN)': KNN(contamination=outliers_fraction),
-    'Average KNN': KNN(contamination=outliers_fraction, method='mean'),
-    'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
-    'Principal Component Analysis (PCA)': PCA(
-        contamination=outliers_fraction),
-}
+classifiers = {'Angle-based Outlier Detector (ABOD)':
+                   ABOD(n_neighbors=10,
+                        contamination=outliers_fraction),
+               'Feature Bagging':
+                   FeatureBagging(LOF(n_neighbors=35),
+                                  contamination=outliers_fraction),
+               'Histogram-base Outlier Detection (HBOS)': HBOS(
+                   contamination=outliers_fraction),
+               'Isolation Forest': IForest(contamination=outliers_fraction),
+               'Local Outlier Factor (LOF)':
+                   LOF(n_neighbors=35,
+                       contamination=outliers_fraction),
+               'K Nearest Neighbors (KNN)': KNN(
+                   contamination=outliers_fraction),
+               'Average KNN': KNN(contamination=outliers_fraction,
+                                  method='mean'),
+               'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
+               'Principal Component Analysis (PCA)': PCA(
+                   contamination=outliers_fraction),
+               }
 
 # Compare given classifiers under given settings
 xx, yy = np.meshgrid(np.linspace(-7, 7, 100), np.linspace(-7, 7, 100))
