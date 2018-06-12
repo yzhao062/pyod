@@ -32,12 +32,11 @@ from pyod.utils.data import evaluate_print
 
 if __name__ == "__main__":
 
-    n_clf = 20  # number of base detectors
-
+    # Define data file and read X and y
+    # Generate some data if the source data is missing
     mat_file = 'cardio.mat'
-
     try:
-        mat = loadmat(os.path.join('example_data', mat_file))
+        mat = loadmat(os.path.join('data', mat_file))
 
     except TypeError:
         print('{data_file} does not exist. Use generated data'.format(
@@ -51,19 +50,21 @@ if __name__ == "__main__":
         X = mat['X']
         y = mat['y'].ravel()
 
-    print('Combining {n_clf} kNN detectors'.format(n_clf=n_clf))
-
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
 
     # standardizing data for processing
     X_train_norm, X_test_norm = standardizer(X_train, X_test)
 
-    # initialize 20 base detectors for combination
+    n_clf = 20  # number of base detectors
+
+    # Initialize 20 base detectors for combination
     k_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140,
               150, 160, 170, 180, 190, 200]
 
     train_scores = np.zeros([X_train.shape[0], n_clf])
     test_scores = np.zeros([X_test.shape[0], n_clf])
+
+    print('Combining {n_clf} kNN detectors'.format(n_clf=n_clf))
 
     for i in range(n_clf):
         k = k_list[i]
@@ -74,21 +75,21 @@ if __name__ == "__main__":
         train_scores[:, i] = clf.decision_scores_
         test_scores[:, i] = clf.decision_function(X_test_norm)
 
-    # decision scores have to be normalized before combination
+    # Decision scores have to be normalized before combination
     train_scores_norm, test_scores_norm = standardizer(train_scores,
                                                        test_scores)
-    # combination by average
+    # Combination by average
     y_by_average = average(test_scores_norm)
     evaluate_print('Combination by Average', y_test, y_by_average)
 
-    # combination by max
+    # Combination by max
     y_by_maximization = maximization(test_scores_norm)
     evaluate_print('Combination by Maximization', y_test, y_by_maximization)
 
-    # combination by aom
+    # Combination by aom
     y_by_aom = aom(test_scores_norm, n_buckets=5)
     evaluate_print('Combination by AOM', y_test, y_by_aom)
 
-    # combination by moa
+    # Combination by moa
     y_by_moa = moa(test_scores_norm, n_buckets=5)
     evaluate_print('Combination by MOA', y_test, y_by_moa)

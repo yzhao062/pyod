@@ -1,3 +1,2 @@
-.ipynb linguist-documentation
 docs/* linguist-documentation
-notebooks/* linguist-documentation
+notebooks/Compare All Models.ipynb linguist-documentation

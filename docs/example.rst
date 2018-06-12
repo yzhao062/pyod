@@ -83,9 +83,14 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 
 
 Model Combination Example
---------------------------
+-------------------------
 `comb_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_ is a quick demo for showing the API for combining multiple algorithms.
 Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
+
+**Model combination example** is made available below
+(`Code <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_, `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_):
+
+For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
 
 1. Import models and generate sample data:
 

@@ -35,7 +35,7 @@ Unlike existing libraries, PyOD provides:
 
 - **[Documentation & API Reference](https://pyod.readthedocs.io)** [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest)
 
-- **[Execute Interactive Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master/)** [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
+- **[Interactive Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master/)** [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 
 - **[Github repository with examples](https://github.com/yzhao062/Pyod/tree/master/examples)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
 
@@ -95,7 +95,7 @@ detection utility functions.
  [Code](https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py),
  [Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master)):
  
-For Jupyter Notebooks, please navigate to "/notebooks/Compare All Models.ipynb"
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
  
 ![Comparision_of_All](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png)
  
@@ -201,10 +201,14 @@ Visualization ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/example
 ---
 ### Quick Start for Combining Outlier Scores from Various Base Detectors
 
-"examples/comb_example.py" illustrates the APIs for combining multiple base detectors. 
-Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. 
-The task is to combine the outputs from these detectors effectively.
+"examples/comb_example.py" illustrates the APIs for combining multiple base detectors 
+([Code](https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py),
+[Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master)).
 
+For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
+
+Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. 
+The task is to combine the outputs from these detectors effectively 
 **Key Step: conducting Z-score normalization on raw scores before the combination.** 
 Four combination mechanisms are shown in this demo:
 
