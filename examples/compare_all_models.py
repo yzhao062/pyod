@@ -19,14 +19,15 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 
-from pyod.models.lof import LOF
-from pyod.models.knn import KNN
 from pyod.models.abod import ABOD
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.hbos import HBOS
+from pyod.models.iforest import IForest
+from pyod.models.knn import KNN
+from pyod.models.lof import LOF
+from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
-from pyod.models.iforest import IForest
 
 # Define the number of inliers and outliers
 n_samples = 200
@@ -53,13 +54,13 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                    contamination=outliers_fraction),
                'Isolation Forest': IForest(contamination=outliers_fraction,
                                            random_state=random_state),
+               'K Nearest Neighbors (KNN)': KNN(
+                   contamination=outliers_fraction),
                'Local Outlier Factor (LOF)':
                    LOF(n_neighbors=35,
                        contamination=outliers_fraction),
-               'K Nearest Neighbors (KNN)': KNN(
+               'Minimum Covariance Determinant (MCD)': MCD(
                    contamination=outliers_fraction),
-               'Average KNN': KNN(contamination=outliers_fraction,
-                                  method='mean'),
                'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
                'Principal Component Analysis (PCA)': PCA(
                    contamination=outliers_fraction),
