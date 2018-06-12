@@ -1,3 +1,3 @@
 docs/* linguist-documentation
 notebooks/*.ipynb linguist-documentation
-notebooks/Model Combination.ipynb linguist-documentation=false
+examples/*.ipynb linguist-documentation=false
