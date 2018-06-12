@@ -50,6 +50,28 @@ class TestMCD(unittest.TestCase):
         if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
             self.assertRaises(AttributeError, 'threshold_ is not set')
 
+        if not hasattr(self.clf,
+                       'raw_location_') or self.clf.raw_location_ is None:
+            self.assertRaises(AttributeError, 'raw_location_ is not set')
+
+        if not hasattr(self.clf,
+                       'raw_covariance_') or self.clf.raw_covariance_ is None:
+            self.assertRaises(AttributeError, 'raw_covariance_ is not set')
+
+        if not hasattr(self.clf,
+                       'raw_support_') or self.clf.raw_support_ is None:
+            self.assertRaises(AttributeError, 'raw_support_ is not set')
+
+        if not hasattr(self.clf, 'location_') or self.clf.location_ is None:
+            self.assertRaises(AttributeError, 'location_ is not set')
+        if not hasattr(self.clf,
+                       'covariance_') or self.clf.covariance_ is None:
+            self.assertRaises(AttributeError, 'covariance_ is not set')
+        if not hasattr(self.clf, 'precision_') or self.clf.precision_ is None:
+            self.assertRaises(AttributeError, 'precision_ is not set')
+        if not hasattr(self.clf, 'support_') or self.clf.support_ is None:
+            self.assertRaises(AttributeError, 'support_ is not set')
+
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
 
