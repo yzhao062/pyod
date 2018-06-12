@@ -364,7 +364,7 @@ class BaseDetector(object):
             ranks = ranks / ranks.max()
         return ranks
 
-    def fit_predict_evaluate(self, X, y):
+    def fit_predict_score(self, X, y, scoring='roc_auc_score'):
         """Fit the detector, predict on samples, and evaluate the model by
         ROC and Precision @ rank n
 
@@ -374,18 +374,61 @@ class BaseDetector(object):
         :param y: Outlier labels of the input samples
         :type y: array, shape (n_samples,)
 
-        :return: roc score and precision @ rank n score
-        :rtype:  tuple (float, float)
+        :param scoring: Evaluation metric
+
+                -' roc_auc_score': ROC score
+                - 'prc_n_score': Precision @ rank n score
+        :type scoring: str, optional (default='roc_auc_score')
+
+        :return: Evaluation score
+        :rtype: float
         """
 
         self.fit(X)
-        roc = roc_auc_score(y, self.decision_scores_)
-        prec_n = precision_n_scores(y, self.decision_scores_)
 
-        print("roc score:", roc)
-        print("precision @ rank n:", prec_n)
+        if scoring == 'roc_auc_score':
+            score = roc_auc_score(y, self.decision_scores_)
+        elif scoring == 'prc_n_score':
+            score = precision_n_scores(y, self.decision_scores_)
+        else:
+            raise NotImplementedError('PyOD built-in scoring only supports '
+                                      'ROC and Precision @ rank n')
 
-        return roc, prec_n
+        print("{metric}: {score}".format(metric=scoring, score=score))
+
+        return score
+
+    # def score(self, X, y, scoring='roc_auc_score'):
+    #     """Returns the evaluation resulted on the given test data and labels.
+    #     ROC is chosen as the default evaluation metric
+    #
+    #     :param X: The input samples
+    #     :type X: numpy array of shape (n_samples, n_features)
+    #
+    #     :param y: Outlier labels of the input samples
+    #     :type y: array, shape (n_samples,)
+    #
+    #     :param scoring: Evaluation metric
+    #
+    #             -' roc_auc_score': ROC score
+    #             - 'prc_n_score': Precision @ rank n score
+    #     :type scoring: str, optional (default='roc_auc_score')
+    #
+    #     :return: Evaluation score
+    #     :rtype: float
+    #     """
+    #     check_is_fitted(self, ['decision_scores_'])
+    #     if scoring == 'roc_auc_score':
+    #         score = roc_auc_score(y, self.decision_function(X))
+    #     elif scoring == 'prc_n_score':
+    #         score = precision_n_scores(y, self.decision_function(X))
+    #     else:
+    #         raise NotImplementedError('PyOD built-in scoring only supports '
+    #                                   'ROC and Precision @ rank n')
+    #
+    #     print("{metric}: {score}".format(metric=scoring, score=score))
+    #
+    #     return score
 
     def _set_n_classes(self, y):
         """Set the number of classes if y is presented, which is not expected.

@@ -91,8 +91,15 @@ class TestFastABOD(unittest.TestCase):
         pred_labels = self.clf.fit_predict(self.X_train)
         assert_equal(pred_labels.shape, self.y_train.shape)
 
-    def test_evaluate(self):
-        self.clf.fit_predict_evaluate(self.X_test, self.y_test)
+    def test_fit_predict_score(self):
+        self.clf.fit_predict_score(self.X_test, self.y_test)
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring='roc_auc_score')
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring='prc_n_score')
+        with assert_raises(NotImplementedError):
+            self.clf.fit_predict_score(self.X_test, self.y_test,
+                                       scoring='something')
 
     def tearDown(self):
         pass
@@ -162,8 +169,22 @@ class TestABOD(unittest.TestCase):
         pred_labels = self.clf.fit_predict(self.X_train)
         assert_equal(pred_labels.shape, self.y_train.shape)
 
-    def test_evaluate(self):
-        self.clf.fit_predict_evaluate(self.X_test, self.y_test)
+    def test_fit_predict_score(self):
+        self.clf.fit_predict_score(self.X_test, self.y_test)
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring='roc_auc_score')
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring='prc_n_score')
+        with assert_raises(NotImplementedError):
+            self.clf.fit_predict_score(self.X_test, self.y_test,
+                                       scoring='something')
+
+    # def test_score(self):
+    #     self.clf.score(self.X_test, self.y_test)
+    #     self.clf.score(self.X_test, self.y_test, scoring='roc_auc_score')
+    #     self.clf.score(self.X_test, self.y_test, scoring='prc_n_score')
+    #     with assert_raises(NotImplementedError):
+    #         self.clf.score(self.X_test, self.y_test, scoring='something')
 
     def test_predict_rank(self):
         pred_socres = self.clf.decision_function(self.X_test)
@@ -171,7 +192,7 @@ class TestABOD(unittest.TestCase):
 
         # assert the order is reserved
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3.5)
-        assert_array_less(pred_ranks, self.X_train.shape[0]+1)
+        assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
     def test_predict_rank_normalized(self):
@@ -182,7 +203,6 @@ class TestABOD(unittest.TestCase):
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3.5)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
-
 
     def tearDown(self):
         pass
