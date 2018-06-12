@@ -7,6 +7,7 @@ from .hbos import HBOS
 from .iforest import IForest
 from .knn import KNN
 from .lof import LOF
+from .mcd import MCD
 from .ocsvm import OCSVM
 from .pca import PCA
 
@@ -18,5 +19,6 @@ __all__ = ['ABOD',
            'IForest',
            'KNN',
            'LOF',
+           'MCD',
            'OCSVM',
            'PCA']

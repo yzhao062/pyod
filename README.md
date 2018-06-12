@@ -54,7 +54,9 @@ detection utility functions.
      1. **PCA: Principal Component Analysis** use the sum of
        weighted projected distances to the eigenvector hyperplane 
        as the outlier outlier scores) [10]
-     2. **One-Class Support Vector Machines** [3]
+     2. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances 
+       as the outlier scores) [11, 12]
+     3. **One-Class Support Vector Machines** [3]
      
   2. Proximity-Based Outlier Detection Models:
      1. **LOF: Local Outlier Factor** [1]
@@ -135,7 +137,7 @@ Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html). API cheatsh
 
 - **fit(X)**: Fit detector.
 - **fit_predict(X)**: Fit detector and predict if a particular sample is an outlier or not.
-- **fit_predict_evaluate(X, y)**: Fit, predict and then evaluate with predefined metrics (ROC and precision @ rank n).
+- **fit_predict_score(X, y)**: Fit, predict and then evaluate with predefined metrics (ROC and precision @ rank n).
 - **decision_function(X)**: Predict anomaly score of X of the base classifiers.
 - **predict(X)**: Predict if a particular sample is an outlier or not. The model must be fitted first.
 - **predict_proba(X)**: Predict the probability of a sample being outlier. The model must be fitted first.
@@ -291,3 +293,7 @@ The walkthrough of the code example is provided:
 [9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 [10] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
+
+[11] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*, 41(3), pp.212-223.
+
+[12] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*, 44(4), pp.625-638.

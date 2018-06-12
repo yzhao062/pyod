@@ -42,7 +42,6 @@ Unlike existing libraries, PyOD provides:
 - `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
-
 Important Functionalities
 =========================
 PyOD toolkit consists of three major groups of functionalities: (i) outlier
@@ -56,7 +55,9 @@ detection utility functions.
   i. **PCA: Principal Component Analysis** (use the sum of
      weighted projected distances to the eigenvector hyperplane as the outlier
      scores) :cite:`a-shyu2003novel`: :class:`pyod.models.pca.PCA`
-  ii. **One-Class Support Vector Machines** :cite:`a-ma2003time`: :class:`pyod.models.ocsvm.OCSVM`
+  ii. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances
+      as the outlier scores) :cite:`a-rousseeuw1999fast,a-hardin2004outlier`: :class:`pyod.models.mcd.MCD`
+  iii. **One-Class Support Vector Machines** :cite:`a-ma2003time`: :class:`pyod.models.ocsvm.OCSVM`
 
 2. Proximity-Based Outlier Detection Models:
 

@@ -78,6 +78,16 @@ pyod.models.lof module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.mcd module
+----------------------
+
+.. automodule:: pyod.models.mcd
+    :members:
+    :exclude-members: raw_location_, raw_covariance_, raw_support_, location_, covariance_, precision_, support_
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.ocsvm module
 ------------------------
 
