@@ -9,6 +9,11 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+# read the contents of requirements.txt
+with open(path.join(this_directory, 'requirements.txt'),
+          encoding='utf-8') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='pyod',
     version=__version__,
@@ -21,15 +26,9 @@ setup(
     download_url='https://github.com/yzhao062/Pyod/archive/master.zip',
     keywords=['outlier detection', 'anomaly detection', 'outlier ensembles',
               'data mining'],
-    packages=find_packages(exclude=['examples,*test']),
+    packages=find_packages(exclude=['test']),
     include_package_data=True,
-    install_requires=[
-        'numpy>=1.13',
-        'scipy>=0.19.1',
-        'scikit_learn>=0.19.1',
-        'nose',
-        'matplotlib',
-    ],
+    install_requires=requirements,
     setup_requires=['setuptools>=38.6.0'],
     classifiers=[
         'Development Status :: 3 - Alpha',

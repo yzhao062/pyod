@@ -123,12 +123,8 @@ python setup.py install
 - numpy>=1.13
 - scipy>=0.19.1
 - scikit_learn>=0.19.1
-
-**Optional Dependency for examples and tests**:
-
 - matplotlib                      
-- nose                             
-- pytest                          
+- nose                      
 
 ------------
 ### API Cheatsheet & Reference
