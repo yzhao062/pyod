@@ -3,6 +3,6 @@ dependencies:
   - numpy
   - pandas
   - scipy
-  - scikit_learn
+  - scikit-learn
   - nose
   - matplotlib
