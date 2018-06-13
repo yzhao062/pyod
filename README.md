@@ -126,6 +126,8 @@ python setup.py install
 - matplotlib                      
 - nose                      
 
+**Known Issue**: PyOD depends on matplotlib, which would throw errors in conda 
+virtual environment on mac OS. See reasons and solutions [here](https://github.com/yzhao062/Pyod/issues/6).
 ------------
 ### API Cheatsheet & Reference
 
