@@ -128,7 +128,9 @@ python setup.py install
 
 **Known Issue**: PyOD depends on matplotlib, which would throw errors in conda 
 virtual environment on mac OS. See reasons and solutions [here](https://github.com/yzhao062/Pyod/issues/6).
+
 ------------
+
 ### API Cheatsheet & Reference
 
 Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html). API cheatsheet for all detectors:
