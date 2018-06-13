@@ -1,0 +1,8 @@
+name: pyod
+dependencies:
+  - numpy
+  - pandas
+  - scipy
+  - scikit_learn
+  - nose
+  - matplotlib
