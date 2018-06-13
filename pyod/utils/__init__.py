@@ -8,7 +8,7 @@ from .utility import argmaxn
 from .utility import invert_order
 from .data import generate_data
 from .data import evaluate_print
-from .data import visualize
+from .data import get_color_codes
 from .stat_models import wpearsonr
 from .stat_models import pearsonr_mat
 
@@ -21,6 +21,6 @@ __all__ = ['check_parameter',
            'invert_order',
            'generate_data',
            'evaluate_print',
-           'visualize',
+           'get_color_codes',
            'wpearsonr',
            'pearsonr_mat']

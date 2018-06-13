@@ -1,4 +1,5 @@
-recursive-include examples/data *.mat
-recursive-include pyod/test/data *.mat
+prune examples
+prune notebooks
+prune pyod/test
 include README.md
 include requirements.txt

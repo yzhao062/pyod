@@ -26,7 +26,7 @@ setup(
     download_url='https://github.com/yzhao062/Pyod/archive/master.zip',
     keywords=['outlier detection', 'anomaly detection', 'outlier ensembles',
               'data mining'],
-    packages=find_packages(exclude=['examples,*test']),
+    packages=find_packages(exclude=['test']),
     include_package_data=True,
     install_requires=requirements,
     setup_requires=['setuptools>=38.6.0'],

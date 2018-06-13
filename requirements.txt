@@ -1,6 +1,5 @@
 numpy>=1.13
 scipy>=0.19.1
 scikit_learn>=0.19.1
-matplotlib                       # optional. Only needed to running examples
-nose                             # optional. Only needed to running tests
-pytest                           # optional. Only needed to running tests
+nose
+matplotlib

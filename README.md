@@ -123,14 +123,14 @@ python setup.py install
 - numpy>=1.13
 - scipy>=0.19.1
 - scikit_learn>=0.19.1
-
-**Optional Dependency for examples and tests**:
-
 - matplotlib                      
-- nose                             
-- pytest                          
+- nose                      
+
+**Known Issue**: PyOD depends on matplotlib, which would throw errors in conda 
+virtual environment on mac OS. See reasons and solutions [here](https://github.com/yzhao062/Pyod/issues/6).
 
 ------------
+
 ### API Cheatsheet & Reference
 
 Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html). API cheatsheet for all detectors:
