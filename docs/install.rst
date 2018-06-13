@@ -27,4 +27,4 @@ Alternatively, install from github directly (**not recommended**)
 - nose
 
 **Known Issue**: PyOD depends on matplotlib, which would throw errors in conda
-virtual environment on mac OS. See causes and solutions `here<https://github.com/yzhao062/Pyod/issues/6>`_
+virtual environment on mac OS. See causes and solutions `here <https://github.com/yzhao062/Pyod/issues/6>`_
