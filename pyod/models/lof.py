@@ -104,17 +104,6 @@ class LOF(BaseDetector):
         Affects only kneighbors and kneighbors_graph methods.
     :type n_jobs: int, optional (default=1)
 
-    :var negative_outlier_factor\_:
-        The opposite LOF of the training samples. The lower, the more abnormal.
-        Inliers tend to have a LOF score close to 1, while outliers tend
-        to have a larger LOF score.
-
-        The local outlier factor (LOF) of a sample captures its
-        supposed 'degree of abnormality'.
-        It is the average of the ratio of the local reachability density of
-        a sample and those of its k-nearest neighbors.
-    :vartype negative_outlier_factor\_: numpy array, shape (n_samples,)
-
     :var n_neighbors\_: The actual number of neighbors used for
         kneighbors queries.
     :vartype n_neighbors\_: int
@@ -187,22 +176,6 @@ class LOF(BaseDetector):
         # Invert outlier scores. Outliers comes with higher outlier scores
         # noinspection PyProtectedMember
         return invert_order(self.detector_._decision_function(X))
-
-    @property
-    def negative_outlier_factor_(self):
-        """The opposite LOF of the training samples. The lower,
-        the more abnormal.
-        Inliers tend to have a LOF score close to 1, while outliers tend
-        to have a larger LOF score.
-
-        The local outlier factor (LOF) of a sample captures its
-        supposed 'degree of abnormality'.
-        It is the average of the ratio of the local reachability density of
-        a sample and those of its k-nearest neighbors.
-
-        Decorator for scikit-learn LOF attributes.
-        """
-        return self.detector_.negative_outlier_factor_
 
     @property
     def n_neighbors_(self):
