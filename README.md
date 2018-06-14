@@ -27,7 +27,7 @@ Unlike existing libraries, PyOD provides:
 - [API Cheatsheet & Reference](#api-cheatsheet-reference)
 - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
 - [Quick Start for Combining Multiple Outlier Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-
+- [How to Contribute & Collaborate](#How-to-Contribute-&-Collaborate)
 <!-- /TOC -->
 
 ------------------------------
@@ -272,6 +272,29 @@ The walkthrough of the code example is provided:
     Combination by MOA ROC:0.9263, precision @ rank n:0.4688
     ````
 ---    
+
+### How to Contribute & Collaborate
+
+You are welcome to contribute to this exciting project, and we are pursuing 
+the toolkit in prestigious academic venues, e.g., 
+[JMLR](http://www.jmlr.org/mloss/) (Track for open-source software).
+
+If you are interested in contributing: 
+
+- Please first check Issue lists for "help wanted" tag and comment the one 
+you are interested
+
+- Fork the repository and add your improvement/modification/fix
+
+- Create a pull request
+
+To make sure the code has the same style and standard, please refer to models,
+such as abod.py, hbos.py or feature bagging for example.
+
+You are also welcome to propose your ideas by open an issue or drop me an email
+at yuezhao@cs.toronto.edu
+
+---
 
 ### Reference
 [1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM SIGMOD Record*, pp. 93-104. ACM.
