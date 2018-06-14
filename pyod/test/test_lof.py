@@ -10,13 +10,15 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import unittest
+from sklearn.utils.testing import assert_allclose
+from sklearn.utils.testing import assert_array_less
 from sklearn.utils.testing import assert_equal
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_array_less
+from sklearn.utils.testing import assert_true
+
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
@@ -42,21 +44,18 @@ class TestLOF(unittest.TestCase):
         check_estimator(self.clf)
 
     def test_parameters(self):
-        if not hasattr(self.clf,
-                       'decision_scores_') or self.clf.decision_scores_ is None:
-            self.assertRaises(AttributeError, 'decision_scores_ is not set')
-        if not hasattr(self.clf, 'labels_') or self.clf.labels_ is None:
-            self.assertRaises(AttributeError, 'labels_ is not set')
-        if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
-            self.assertRaises(AttributeError, 'threshold_ is not set')
-        if not hasattr(self.clf,
-                       'negative_outlier_factor_') or self.clf.negative_outlier_factor_ is None:
-            self.assertRaises(AttributeError,
-                              'negative_outlier_factor_ is not set')
-
-        if not hasattr(self.clf,
-                       'n_neighbors') or self.clf.n_neighbors_ is None:
-            self.assertRaises(AttributeError, 'n_neighbors is not set')
+        assert_true(hasattr(self.clf, 'decision_scores_') and
+                    self.clf.decision_scores_ is not None)
+        assert_true(hasattr(self.clf, 'labels_') and
+                    self.clf.labels_ is not None)
+        assert_true(hasattr(self.clf, 'threshold_') and
+                    self.clf.threshold_ is not None)
+        assert_true(hasattr(self.clf, '_mu') and
+                    self.clf._mu is not None)
+        assert_true(hasattr(self.clf, '_sigma') and
+                    self.clf._sigma is not None)
+        assert_true(hasattr(self.clf, 'n_neighbors_') and
+                    self.clf.n_neighbors_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
@@ -113,7 +112,7 @@ class TestLOF(unittest.TestCase):
 
         # assert the order is reserved
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
-        assert_array_less(pred_ranks, self.X_train.shape[0]+1)
+        assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
     def test_predict_rank_normalized(self):

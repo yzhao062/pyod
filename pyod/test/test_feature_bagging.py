@@ -11,13 +11,15 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import unittest
+from sklearn.utils.testing import assert_allclose
+from sklearn.utils.testing import assert_array_less
 from sklearn.utils.testing import assert_equal
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_array_less
+from sklearn.utils.testing import assert_true
+
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
@@ -43,24 +45,20 @@ class TestFeatureBagging(unittest.TestCase):
         check_estimator(self.clf)
 
     def test_parameters(self):
-        if not hasattr(self.clf,
-                       'decision_scores_') or self.clf.decision_scores_ is None:
-            self.assertRaises(AttributeError, 'decision_scores_ is not set')
-        if not hasattr(self.clf, 'labels_') or self.clf.labels_ is None:
-            self.assertRaises(AttributeError, 'labels_ is not set')
-        if not hasattr(self.clf, 'threshold_') or self.clf.threshold_ is None:
-            self.assertRaises(AttributeError, 'threshold_ is not set')
-        if not hasattr(self.clf, '_mu') or self.clf._mu is None:
-            self.assertRaises(AttributeError, '_mu is not set')
-        if not hasattr(self.clf, '_sigma') or self.clf._sigma is None:
-            self.assertRaises(AttributeError, '_sigma is not set')
-        if not hasattr(self.clf,
-                       'estimators_') or self.clf.estimators_ is None:
-            self.assertRaises(AttributeError, 'estimators_ is not set')
-        if not hasattr(self.clf,
-                       'estimators_features_') or self.clf.estimators_features_ is None:
-            self.assertRaises(AttributeError,
-                              'estimators_features_ is not set')
+        assert_true(hasattr(self.clf, 'decision_scores_') and
+                    self.clf.decision_scores_ is not None)
+        assert_true(hasattr(self.clf, 'labels_') and
+                    self.clf.labels_ is not None)
+        assert_true(hasattr(self.clf, 'threshold_') and
+                    self.clf.threshold_ is not None)
+        assert_true(hasattr(self.clf, '_mu') and
+                    self.clf._mu is not None)
+        assert_true(hasattr(self.clf, '_sigma') and
+                    self.clf._sigma is not None)
+        assert_true(hasattr(self.clf, 'estimators_') and
+                    self.clf.estimators_ is not None)
+        assert_true(hasattr(self.clf, 'estimators_features_') and
+                    self.clf.estimators_features_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
