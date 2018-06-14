@@ -45,6 +45,72 @@ class KNN(BaseDetector):
               outlier score
     :type method: str, optional (default='largest')
 
+    :param radius: Range of parameter space to use by default for
+        radius_neighbors queries. Not applicable
+    :type radius: float, optional (default = 1.0)
+
+    :param algorithm: Algorithm used to compute the nearest neighbors:
+
+            - 'ball_tree' will use BallTree
+            - 'kd_tree' will use KDTree
+            - 'brute' will use a brute-force search.
+            - 'auto' will attempt to decide the most appropriate algorithm
+              based on the values passed to :meth:`fit` method.
+
+        Note: fitting on sparse input will override the setting of
+        this parameter, using brute force.
+
+    :type algorithm: {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
+
+    :param leaf_size: Leaf size passed to BallTree or KDTree. This can
+        affect the speed of the construction and query, as well as the memory
+        required to store the tree. The optimal value depends on the
+        nature of the problem.
+    :type leaf_size: int, optional (default=30)
+
+    :param metric: metric used for the distance computation. Any metric from
+        scikit-learn or scipy.spatial.distance can be used.
+
+        If 'precomputed', the training input X is expected to be a distance
+        matrix.
+
+        If metric is a callable function, it is called on each
+        pair of instances (rows) and the resulting value recorded. The callable
+        should take two arrays as input and return one value indicating the
+        distance between them. This works for Scipy's metrics, but is less
+        efficient than passing the metric name as a string.
+
+        Valid values for metric are:
+
+        - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1',
+          'l2','manhattan']
+        - from scipy.spatial.distance: ['braycurtis', 'canberra',
+          'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard',
+          'kulsinski', 'mahalanobis', 'matching', 'minkowski',
+          'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+          'sokalsneath', 'sqeuclidean', 'yule']
+
+        See the documentation for scipy.spatial.distance for details on these
+        metrics:
+        http://docs.scipy.org/doc/scipy/reference/spatial.distance.html
+    :type metric: str or callable, default 'minkowski'
+
+    :param p: Parameter for the Minkowski metric for sklearn.metrics.pairwise.
+        pairwise_distances.
+        When p = 1, this is equivalent to using manhattan_distance (l1), and
+        euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance
+        (l_p) is used.
+        See http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html
+    :type p: int, optional (default=2)
+
+    :param metric_params: Additional keyword arguments for the metric function.
+    :type metric_params: dict, optional (default=None)
+
+    :param n_jobs: The number of parallel jobs to run for neighbors search.
+        If ``-1``, then the number of jobs is set to the number of CPU cores.
+        Affects only kneighbors and kneighbors_graph methods.
+    :type n_jobs: int, optional (default=1)
+
     :var decision_scores\_: The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
         scores. This value is available once the detector is
@@ -63,10 +129,30 @@ class KNN(BaseDetector):
     :vartype labels\_: int, either 0 or 1
     """
 
-    def __init__(self, contamination=0.1, n_neighbors=5, method='largest'):
+    def __init__(self, contamination=0.1, n_neighbors=5, method='largest',
+                 radius=1.0, algorithm='auto', leaf_size=30,
+                 metric='minkowski', p=2, metric_params=None, n_jobs=1,
+                 **kwargs):
         super(KNN, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
         self.method = method
+        self.radius = radius
+        self.algorithm = algorithm
+        self.leaf_size = leaf_size
+        self.metric = metric
+        self.p = p
+        self.metric_params = metric_params
+        self.n_jobs = n_jobs
+
+        self.neigh_ = NearestNeighbors(n_neighbors=self.n_neighbors,
+                                       radius=self.radius,
+                                       algorithm=self.algorithm,
+                                       leaf_size=self.leaf_size,
+                                       metric=self.metric,
+                                       p=self.p,
+                                       metric_params=self.metric_params,
+                                       n_jobs=self.n_jobs,
+                                       **kwargs)
 
     def fit(self, X, y=None):
 
@@ -74,13 +160,11 @@ class KNN(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        self.tree_ = KDTree(X)
+        self.tree_ = KDTree(X, leaf_size=self.leaf_size, metric=self.metric)
+        self.neigh_.fit(X)
 
-        neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
-        neigh.fit(X)
-
-        dist_arr, _ = neigh.kneighbors(n_neighbors=self.n_neighbors,
-                                       return_distance=True)
+        dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
+                                             return_distance=True)
 
         if self.method == 'largest':
             dist = dist_arr[:, -1]

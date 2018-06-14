@@ -52,8 +52,7 @@ classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
         contamination=outliers_fraction),
     'Isolation Forest': IForest(contamination=outliers_fraction,
                                 random_state=random_state),
-    'K Nearest Neighbors (KNN)': KNN(
-        contamination=outliers_fraction),
+    'K Nearest Neighbors (KNN)': KNN(contamination=outliers_fraction),
     'Local Outlier Factor (LOF)': LOF(
         contamination=outliers_fraction),
     'Minimum Covariance Determinant (MCD)': MCD(
@@ -62,3 +61,6 @@ classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
     'Principal Component Analysis (PCA)': PCA(
         contamination=outliers_fraction),
 }
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import BaggingClassifier
