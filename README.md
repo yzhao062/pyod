@@ -27,7 +27,7 @@ Unlike existing libraries, PyOD provides:
 - [API Cheatsheet & Reference](#api-cheatsheet-reference)
 - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
 - [Quick Start for Combining Multiple Outlier Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-- [How to Contribute & Collaborate](#How-to-Contribute-&-Collaborate)
+- [How to Contribute and Collaborate?](#How-to-Contribute-and-Collaborate)
 <!-- /TOC -->
 
 ------------------------------
@@ -273,10 +273,10 @@ The walkthrough of the code example is provided:
     ````
 ---    
 
-### How to Contribute & Collaborate
+### How to Contribute and Collaborate
 
 You are welcome to contribute to this exciting project, and we are pursuing 
-the toolkit in prestigious academic venues, e.g., 
+to publish the toolkit in prestigious academic venues, e.g., 
 [JMLR](http://www.jmlr.org/mloss/) (Track for open-source software).
 
 If you are interested in contributing: 
