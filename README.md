@@ -27,7 +27,8 @@ Unlike existing libraries, PyOD provides:
 - [API Cheatsheet & Reference](#api-cheatsheet-reference)
 - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
 - [Quick Start for Combining Multiple Outlier Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-- [How to Contribute and Collaborate?](#How-to-Contribute-and-Collaborate)
+- [How to Contribute and Collaborate?](#how-to-contribute-and-collaborate)
+
 <!-- /TOC -->
 
 ------------------------------
