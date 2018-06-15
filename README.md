@@ -65,7 +65,7 @@ detection utility functions.
   2. Proximity-Based Outlier Detection Models:
      1. **LOF: Local Outlier Factor** [1]
      2. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
-     neighbor as the outlier score)
+     neighbor as the outlier score) [13, 14]
      3. **Average kNN** Outlier Detection (use the average distance to k 
      nearest neighbors as the outlier score)
      4. **Median kNN** Outlier Detection (use the median distance to k nearest 
@@ -324,3 +324,7 @@ at yuezhao@cs.toronto.edu
 [11] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*, 41(3), pp.212-223.
 
 [12] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*, 44(4), pp.625-638.
+
+[13] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*, 29(2), pp. 427-438).
+
+[14] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
