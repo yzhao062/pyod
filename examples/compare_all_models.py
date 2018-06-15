@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Compare all detection algorithms
+"""Compare all detection algorithms by plotting decision boundaries and
+the number of decision boundaries.
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
@@ -66,7 +67,7 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                    contamination=outliers_fraction),
                }
 
-# Fit the problem with varying cluster separation
+# Fit the problem with varying cluster separations
 for i, offset in enumerate(clusters_separation):
     np.random.seed(42)
     # Data generation
