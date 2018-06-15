@@ -19,6 +19,7 @@ from ..utils.utility import check_parameter
 
 
 class PCA(BaseDetector):
+    # noinspection PyPep8
     """
     Principal component analysis (PCA) can be used in detecting outliers. PCA
     is a linear dimensionality reduction using Singular Value Decomposition

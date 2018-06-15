@@ -137,23 +137,24 @@ def clone(estimator, safe=True):
 
 
 def _pprint(params, offset=0, printer=repr):
+    # noinspection PyPep8
     """Pretty print the dictionary 'params'
 
-        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-        and sklearn/base.py for more information.
+    See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
+    and sklearn/base.py for more information.
 
-        :param params: The dictionary to pretty print
-        :type params: dict
+    :param params: The dictionary to pretty print
+    :type params: dict
 
-        :param offset: The offset in characters to add at the begin of each line.
-        :type offset: int
+    :param offset: The offset in characters to add at the begin of each line.
+    :type offset: int
 
-        :param printer: The function to convert entries to strings, typically
-            the builtin str or repr
-        :type printer: callable
+    :param printer: The function to convert entries to strings, typically
+        the builtin str or repr
+    :type printer: callable
 
-        :return: None
-        """
+    :return: None
+    """
 
     # Do a multi-line justified repr:
     options = np.get_printoptions()
@@ -469,6 +470,7 @@ class BaseDetector(object):
 
     # noinspection PyMethodParameters
     def _get_param_names(cls):
+        # noinspection PyPep8
         """Get parameter names for the estimator
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
@@ -500,6 +502,7 @@ class BaseDetector(object):
         return sorted([p.name for p in parameters])
 
     def get_params(self, deep=True):
+        # noinspection PyPep8
         """Get parameters for this estimator.
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
@@ -537,6 +540,7 @@ class BaseDetector(object):
         return out
 
     def set_params(self, **params):
+        # noinspection PyPep8
         """Set the parameters of this estimator.
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
@@ -576,6 +580,7 @@ class BaseDetector(object):
         return self
 
     def __repr__(self):
+        # noinspection PyPep8
         """
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
         and sklearn/base.py for more information.

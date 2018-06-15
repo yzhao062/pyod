@@ -11,6 +11,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import unittest
+# noinspection PyProtectedMember
 from sklearn.utils.testing import assert_allclose
 from sklearn.utils.testing import assert_array_less
 from sklearn.utils.testing import assert_equal

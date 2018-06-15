@@ -16,6 +16,7 @@ from ..utils.utility import invert_order
 
 
 class LOF(BaseDetector):
+    # noinspection PyPep8
     """Wrapper of scikit-learn LOF Class with more functionalities.
     Unsupervised Outlier Detection using Local Outlier Factor (LOF).
 

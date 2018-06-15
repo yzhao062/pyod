@@ -19,6 +19,7 @@ from sklearn.utils import check_consistent_length
 
 
 def wpearsonr(x, y, w=None):
+    # noinspection PyPep8
     """
     Utility function to calculate the weighted Pearson correlation of two
     samples.

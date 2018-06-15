@@ -16,6 +16,7 @@ from .base import BaseDetector
 
 
 class KNN(BaseDetector):
+    # noinspection PyPep8
     """kNN class for outlier detection.
     For an observation, its distance to its kth nearest neighbor could be
     viewed as the outlying score. It could be viewed as a way to measure

@@ -90,7 +90,6 @@ def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
                                                  random_state=random_state)
                 scores_aom[:, i] = np.max(scores[:, ind], axis=1)
 
-
     elif method == 'dynamic':  # random bucket size
         for i in range(n_buckets):
             # the number of estimators in a bucket should be 2 - n/2
