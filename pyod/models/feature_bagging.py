@@ -11,6 +11,7 @@ import numbers
 from sklearn.utils import check_random_state
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.random import sample_without_replacement
 
 from .lof import LOF
@@ -102,6 +103,7 @@ def _set_random_states(estimator, random_state=None):
         estimator.set_params(**to_set)
 
 
+# TODO: should support parallelization at the model level
 class FeatureBagging(BaseDetector):
     """
     A feature bagging detector is a meta estimator that fits a number of
@@ -144,6 +146,10 @@ class FeatureBagging(BaseDetector):
     :param bootstrap_features: Whether features are drawn with replacement.
     :type bootstrap_features: bool, optional (default=False)
 
+    :param n_jobs: The number of jobs to run in parallel for both `fit` and
+        `predict`. If -1, then the number of jobs is set to the number of cores
+    :type n_jobs: int, optional (default=1)
+
     :param random_state: If int, random_state is the seed used by the
         random number generator; If RandomState instance, random_state is
         the random number generator; If None, the random number generator
@@ -179,8 +185,8 @@ class FeatureBagging(BaseDetector):
     :vartype labels\_: int, either 0 or 1
     """
 
-    def __init__(self, base_estimator=None, n_estimators=10,
-                 contamination=0.1, max_features=1.0, bootstrap_features=False,
+    def __init__(self, base_estimator=None, n_estimators=10, contamination=0.1,
+                 max_features=1.0, bootstrap_features=False, n_jobs=1,
                  random_state=None, combination='average',
                  estimator_params={}):
 
@@ -190,6 +196,7 @@ class FeatureBagging(BaseDetector):
         self.max_features = max_features
         self.bootstrap_features = bootstrap_features
         self.combination = combination
+        self.n_jobs = n_jobs
         self.random_state = random_state
         self.estimator_params = estimator_params
 
@@ -207,7 +214,7 @@ class FeatureBagging(BaseDetector):
                         param_name='n_features')
 
         # check parameters
-        self._validate_estimator(default=LOF())
+        self._validate_estimator(default=LOF(n_jobs=self.n_jobs))
 
         # use at least half of the features
         self.min_features_ = int(0.5 * self.n_features_)
@@ -317,6 +324,9 @@ class FeatureBagging(BaseDetector):
 
         if self.base_estimator_ is None:
             raise ValueError("base_estimator cannot be None")
+
+        # make sure estimator is consistent with sklearn
+        check_estimator(self.base_estimator_)
 
     def _make_estimator(self, append=True, random_state=None):
         """Make and configure a copy of the `base_estimator_` attribute.

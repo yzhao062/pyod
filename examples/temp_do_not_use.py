@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Compare all detection algorithms
+"""Example of using Minimum Covariance Determinant (MCD) for outlier detection
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
@@ -14,53 +14,43 @@ import sys
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import numpy as np
-from scipy import stats
+from sklearn.utils import check_X_y
 import matplotlib.pyplot as plt
-import matplotlib.font_manager
+from matplotlib.lines import Line2D
 
-from pyod.models.abod import ABOD
-from pyod.models.feature_bagging import FeatureBagging
-from pyod.models.hbos import HBOS
-from pyod.models.iforest import IForest
-from pyod.models.knn import KNN
-from pyod.models.lof import LOF
-from pyod.models.mcd import MCD
-from pyod.models.ocsvm import OCSVM
-from pyod.models.pca import PCA
+from pyod.models.cblof import CBLOF
+from pyod.utils.data import generate_data
+from pyod.utils.data import get_color_codes
+from pyod.utils.data import evaluate_print
 
-# Define the number of inliers and outliers
-n_samples = 200
-outliers_fraction = 0.25
-clusters_separation = [0]
+if __name__ == "__main__":
+    contamination = 0.1  # percentage of outliers
+    n_train = 200  # number of training points
+    n_test = 100  # number of testing points
 
-# Compare given classifiers under given settings
-xx, yy = np.meshgrid(np.linspace(-7, 7, 100), np.linspace(-7, 7, 100))
-n_inliers = int((1. - outliers_fraction) * n_samples)
-n_outliers = int(outliers_fraction * n_samples)
-ground_truth = np.zeros(n_samples, dtype=int)
-ground_truth[-n_outliers:] = 1
+    # Generate sample data
+    X_train, y_train, X_test, y_test = \
+        generate_data(n_train=n_train,
+                      n_test=n_test,
+                      n_features=2,
+                      contamination=contamination,
+                      random_state=42)
 
-random_state = np.random.RandomState(42)
-# Define nine outlier detection tools to be compared
-classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
-    contamination=outliers_fraction),
-    'Feature Bagging': FeatureBagging(
-        contamination=outliers_fraction,
-        random_state=random_state),
-    'Histogram-base Outlier Detection (HBOS)': HBOS(
-        contamination=outliers_fraction),
-    'Isolation Forest': IForest(contamination=outliers_fraction,
-                                random_state=random_state),
-    'K Nearest Neighbors (KNN)': KNN(contamination=outliers_fraction),
-    'Local Outlier Factor (LOF)': LOF(
-        contamination=outliers_fraction),
-    'Minimum Covariance Determinant (MCD)': MCD(
-        contamination=outliers_fraction),
-    'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
-    'Principal Component Analysis (PCA)': PCA(
-        contamination=outliers_fraction),
-}
+    # train kNN detector
+    clf_name = 'CBLOF'
+    clf = CBLOF()
+    clf.fit(X_train)
 
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import BaggingClassifier
+    # get the prediction labels and outlier scores of the training data
+    y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
+    y_train_scores = clf.decision_scores_  # raw outlier scores
+
+    # get the prediction on the test data
+    y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
+    y_test_scores = clf.decision_function(X_test)  # outlier scores
+
+    # evaluate and print the results
+    print("\nOn Training Data:")
+    evaluate_print(clf_name, y_train, y_train_scores)
+    print("\nOn Test Data:")
+    evaluate_print(clf_name, y_test, y_test_scores)

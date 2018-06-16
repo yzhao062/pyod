@@ -94,9 +94,8 @@ for i in range(ite):
 
         classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
             contamination=outliers_fraction),
-            'Feature Bagging': FeatureBagging(
-                contamination=outliers_fraction,
-                random_state=random_state),
+            'Feature Bagging': FeatureBagging(contamination=outliers_fraction,
+                                              random_state=random_state),
             'Histogram-base Outlier Detection (HBOS)': HBOS(
                 contamination=outliers_fraction),
             'Isolation Forest': IForest(contamination=outliers_fraction,
