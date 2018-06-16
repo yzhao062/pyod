@@ -64,13 +64,14 @@ detection utility functions.
      
   2. Proximity-Based Outlier Detection Models:
      1. **LOF: Local Outlier Factor** [1]
-     2. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
-     neighbor as the outlier score) [13, 14]
-     3. **Average kNN** Outlier Detection (use the average distance to k 
-     nearest neighbors as the outlier score)
-     4. **Median kNN** Outlier Detection (use the median distance to k nearest 
+     2. **CBLOF: Clustering-Based Local Outlier Factor** [15] (work in progress)
+     3. **HBOS: Histogram-based Outlier Score** [5]
+     4. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
+     neighbor as the outlier score) [13]
+     5. **Average kNN or kNN Sum** Outlier Detection (use the average distance to k 
+     nearest neighbors as the outlier score or sum all k distances) [14]
+     6. **Median kNN** Outlier Detection (use the median distance to k nearest 
      neighbors as the outlier score)
-     5. **HBOS: Histogram-based Outlier Score** [5]
      
   3. Probabilistic Models for Outlier Detection:
      1. **ABOD: Angle-Based Outlier Detection** [7]
@@ -328,3 +329,5 @@ at yuezhao@cs.toronto.edu
 [13] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*, 29(2), pp. 427-438).
 
 [14] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
+
+[15] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*, 24(9-10), pp.1641-1650.

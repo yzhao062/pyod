@@ -62,6 +62,7 @@ detection utility functions.
 2. Proximity-Based Outlier Detection Models:
 
   i. **LOF: Local Outlier Factor** :cite:`a-breunig2000lof`: :class:`pyod.models.lof.LOF`
+  ii. **CBLOF: Clustering-Based Local Outlier Factor** :cite:`a-he2003discovering`: :class:`pyod.models.cblof.CBLOF`
   ii. **kNN: k Nearest Neighbors** (use the distance to the kth nearest
       neighbor as the outlier score) :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`: :class:`pyod.models.knn.KNN`
   iii. **Average kNN** (use the average distance to k nearest neighbors as
