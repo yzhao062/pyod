@@ -25,6 +25,7 @@ from pyod.utils.utility import check_parameter
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores
+from pyod.utils.stat_models import pairwise_distances_no_broadcast
 from pyod.utils.stat_models import wpearsonr
 from pyod.utils.stat_models import pearsonr_mat
 
@@ -37,6 +38,19 @@ class TestStatModels(unittest.TestCase):
 
         self.mat = np.random.rand(10, 20)
         self.w_mat = np.random.rand(10, 1)
+
+        self.X = np.array([[1, 2, 3],
+                           [3, 4, 5],
+                           [3, 6, 7],
+                           [4, 1, 1]])
+        self.Y = np.array([[2, 2, 2],
+                           [3, 3, 3],
+                           [4, 4, 3],
+                           [0, 1, 2]])
+
+    def test_pairwise_distances_no_broadcast(self):
+        assert_allclose(pairwise_distances_no_broadcast(self.X, self.Y),
+                        [1.41421356, 2.23606798, 4.58257569, 4.12310563])
 
     def test_wpearsonr(self):
         # TODO: if unweight version changes, wp[0] format should be changed

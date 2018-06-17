@@ -11,17 +11,40 @@ import numpy as np
 
 from scipy.stats import pearsonr
 from sklearn.utils.validation import check_array
-from sklearn.utils import check_consistent_length
+from sklearn.utils.testing import assert_allclose
+from sklearn.utils.validation import check_consistent_length
 
 
 # TODO: disable p value calculation due to python 2.7 break
 # from scipy.special import betainc
 
+def pairwise_distances_no_broadcast(X, Y):
+    """Utility function to calculate row-wise euclidean distance of two matrix.
+    Different from pair-wise calculation, this function would not broadcast.
+
+    For instance, X and Y are both (4,3) matrices, the function would return
+    a distance vector with shape (4,), instead of (4,4)
+
+    :param X: First input samples
+    :param X: array of shape (n_samples, n_features)
+
+    :param Y: Second input samples
+    :type Y: array of shape (n_samples, n_features)
+
+    :return: Row-wise euclidean distnace of X and Y
+    :rtype: array of shape (n_samples,)
+    """
+    X = check_array(X)
+    Y = check_array(Y)
+    assert_allclose(X.shape, Y.shape)
+    euclidean_sq = np.square(Y - X)
+
+    return np.sqrt(np.sum(euclidean_sq, axis=1)).ravel()
+
 
 def wpearsonr(x, y, w=None):
     # noinspection PyPep8
-    """
-    Utility function to calculate the weighted Pearson correlation of two
+    """Utility function to calculate the weighted Pearson correlation of two
     samples.
 
     See https://stats.stackexchange.com/questions/221246/such-thing-as-a-weighted-correlation
