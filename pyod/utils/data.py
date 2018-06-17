@@ -92,7 +92,7 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
     """
     # initialize a random state and seeds for the instance
     random_state = check_random_state(random_state)
-    offset_ = random_state.random_integers(low=offset)
+    offset_ = random_state.randint(low=offset)
     coef_ = random_state.random_sample() + 0.001  # in case of underflow
 
     n_outliers_train = int(n_train * contamination)
