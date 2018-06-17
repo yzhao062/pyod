@@ -38,7 +38,7 @@ class TestMCD(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
 
-        self.clf = MCD(contamination=self.contamination)
+        self.clf = MCD(contamination=self.contamination, random_state=42)
         self.clf.fit(self.X_train)
 
     def test_sklearn_estimator(self):

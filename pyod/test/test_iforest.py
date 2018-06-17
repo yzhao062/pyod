@@ -39,7 +39,7 @@ class TestIForest(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
 
-        self.clf = IForest(contamination=self.contamination)
+        self.clf = IForest(contamination=self.contamination, random_state=42)
         self.clf.fit(self.X_train)
 
     def test_sklearn_estimator(self):
@@ -117,7 +117,7 @@ class TestIForest(unittest.TestCase):
         pred_ranks = self.clf._predict_rank(self.X_test)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=4)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3)
         assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
@@ -126,7 +126,7 @@ class TestIForest(unittest.TestCase):
         pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=4)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
