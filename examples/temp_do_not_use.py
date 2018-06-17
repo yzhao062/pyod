@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example of using Minimum Covariance Determinant (MCD) for outlier detection
+"""Example of using LOF for outlier detection
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
@@ -23,10 +23,17 @@ from pyod.utils.data import generate_data
 from pyod.utils.data import get_color_codes
 from pyod.utils.data import evaluate_print
 
+
+
+import numpy as np
+
+
+
+
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 200  # number of training points
-    n_test = 100  # number of testing points
+    n_train = 2000  # number of training points
+    n_test = 500  # number of testing points
 
     # Generate sample data
     X_train, y_train, X_test, y_test = \
@@ -36,21 +43,27 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train kNN detector
+    # train CBLOF detector
     clf_name = 'CBLOF'
-    clf = CBLOF()
+#    clf = CBLOF(random_state=42)
+    clf = CBLOF(use_weights=True)
     clf.fit(X_train)
+    
 
-    # get the prediction labels and outlier scores of the training data
-    y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
-    y_train_scores = clf.decision_scores_  # raw outlier scores
+    
+    
+    #
+    # # get the prediction labels and outlier scores of the training data
+    # y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
+    # y_train_scores = clf.decision_scores_  # raw outlier scores
+    #
+    # # get the prediction on the test data
+    # y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
+    # y_test_scores = clf.decision_function(X_test)  # outlier scores
+    #
+    # # evaluate and print the results
+    # print("\nOn Training Data:")
+    # evaluate_print(clf_name, y_train, y_train_scores)
+    # print("\nOn Test Data:")
+    # evaluate_print(clf_name, y_test, y_test_scores)
 
-    # get the prediction on the test data
-    y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
-    y_test_scores = clf.decision_function(X_test)  # outlier scores
-
-    # evaluate and print the results
-    print("\nOn Training Data:")
-    evaluate_print(clf_name, y_train, y_train_scores)
-    print("\nOn Test Data:")
-    evaluate_print(clf_name, y_test, y_test_scores)

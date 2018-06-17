@@ -7,6 +7,8 @@
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
+from scipy.spatial.distance import cdist
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
@@ -14,6 +16,7 @@ from sklearn.utils.estimator_checks import check_estimator
 
 from .base import BaseDetector
 from ..utils.utility import check_parameter
+from ..utils.stat_models import pairwise_distances_no_broadcast
 
 __all__ = ['CBLOF']
 
@@ -36,14 +39,24 @@ class CBLOF(BaseDetector):
 
     See :cite:`he2003discovering` for details.
 
+    :param n_clusters: The number of clusters to form as well as the number of
+        centroids to generate.
+    :type n_clusters: int, optional (default=8)
+
     :param contamination: The amount of contamination of the data set,
         i.e. the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
     :type contamination: float in (0., 0.5), optional (default=0.1)
 
-    :param n_jobs: The number of jobs to run in parallel for both `fit` and
-        `predict`. If -1, then the number of jobs is set to the number of cores
-    :type n_jobs: int, optional (default=1)
+    :param alpha: Coefficient for deciding small and large clusters.
+    :type alpha: float in (0.5, 1), optional (default=0.9)
+
+    :param beta: Coefficient for deciding small and large clusters.
+    :type beta: int or float in (1,), optional (default=5).
+
+    :param use_weights: If set to True, the size of clusters are used as
+        weights.
+    :type use_weights: bool, optional (default=False)
 
     :param random_state: If int, random_state is the seed used by the random
         number generator; If RandomState instance, random_state is the random
@@ -70,13 +83,15 @@ class CBLOF(BaseDetector):
     :vartype labels\_: int, either 0 or 1
     """
 
-    def __init__(self, algorithm=None, alpha=0.9, beta=5, contamination=0.1,
-                 n_jobs=1, random_state=None):
+    def __init__(self, n_clusters=8, contamination=0.1,
+                 clustering_estimator=None, alpha=0.9, beta=5,
+                 use_weights=False, random_state=None):
         super(CBLOF, self).__init__(contamination=contamination)
-        self.algorithm = algorithm
+        self.n_clusters = n_clusters
+        self.clustering_estimator = clustering_estimator
         self.alpha = alpha
         self.beta = beta
-        self.n_jobs = n_jobs
+        self.use_weights = use_weights
         self.random_state = random_state
 
     # noinspection PyIncorrectDocstring
@@ -94,24 +109,111 @@ class CBLOF(BaseDetector):
         # Validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
-
         # check parameters
         # number of clusters are default to 8
-        self._validate_estimator(default=MiniBatchKMeans(n_jobs=self.n_jobs))
+        self._validate_estimator(
+            default=MiniBatchKMeans(n_clusters=self.n_clusters,
+                                    random_state=self.random_state))
 
-        self.base_estimator_.fit(X=X, y=y)
+        check_parameter(self.alpha, low=0, high=1, param_name='alpha',
+                        include_left=False, include_right=False)
 
-        # Use mahalanabis distance as the outlier score
-        self.decision_scores_ = self.detector_.dist_
+        check_parameter(self.beta, low=1, param_name='beta',
+                        include_left=False)
+
+        self.clustering_estimator_.fit(X=X, y=y)
+        # Get the lables of the clustering results
+        # labels_ is consistent across sklearn clustering algorithms
+        self.cluster_labels_ = self.clustering_estimator_.labels_
+        self.cluster_centers_ = self.clustering_estimator_.cluster_centers_
+
+        # Sort the index of clusters by the number of elements
+        size_clusters = np.bincount(self.cluster_labels_)
+        sorted_cluster_indices = np.argsort(size_clusters)
+
+        # Initialize the lists of index that fulfill the requirements by
+        # either alpha or beta
+        alpha_list = []
+        beta_list = []
+        for i in range(1, self.n_clusters):
+            print(i, size_clusters)
+            print(np.sum(size_clusters[sorted_cluster_indices[-1 * i:]]))
+
+            temp_sum = np.sum(size_clusters[sorted_cluster_indices[-1 * i:]])
+            if temp_sum >= X.shape[0] * self.alpha:
+                # print('stop', i, 'alpha')
+                alpha_list.append(i)
+
+            if size_clusters[sorted_cluster_indices[i]] / size_clusters[
+                sorted_cluster_indices[i - 1]] >= self.beta:
+                # print('stop', i, 'beta')
+                beta_list.append(i)
+
+        # Find the separation index fulfills both alpha and beta
+        intersection = np.intersect1d(alpha_list, beta_list)
+
+        if len(intersection) > 0:
+            self.clustering_threshold_ = intersection[0]
+        elif len(alpha_list) > 0:
+            self.clustering_threshold_ = alpha_list[0]
+        elif len(beta_list) > 0:
+            self.clustering_threshold_ = beta_list[0]
+        else:
+            raise ValueError("Could not form valid cluster separation. Try "
+                             "reset n_clusters or change clustering method")
+
+        # print(self.clustering_threshold_)
+
+        # Weights are calculated as the number of elements in the cluster
+        self.weights_ = size_clusters[self.cluster_labels_]
+
+        self.small_cluster_labels_ = sorted_cluster_indices[
+                                     0:self.clustering_threshold_]
+        self.large_cluster_labels_ = sorted_cluster_indices[
+                                     self.clustering_threshold_:]
+
+        self.small_cluster_centers_ = self.cluster_centers_[
+            self.small_cluster_labels_]
+
+        self.large_cluster_centers_ = self.cluster_centers_[
+            self.large_cluster_labels_]
+
+        print(self.small_cluster_labels_)
+        print(self.large_cluster_labels_)
+
+        self.decision_scores_ = np.zeros([X.shape[0], ])
+
+        small_indices = np.where(
+            np.isin(self.cluster_labels_, self.small_cluster_labels_))[0]
+        large_indices = np.where(
+            np.isin(self.cluster_labels_, self.large_cluster_labels_))[0]
+
+        print(len(small_indices), len(large_indices))
+
+        # Calculate the outlier factor for the samples in small clusters
+        dist_to_large_center = cdist(X[small_indices, :],
+                                     self.large_cluster_centers_)
+
+        self.decision_scores_[small_indices] = np.min(dist_to_large_center,
+                                                      axis=1)
+
+        # Calculate the outlier factor for the samples in large clusters
+        large_centers = self.cluster_centers_[
+            self.cluster_labels_[large_indices]]
+
+        self.decision_scores_[large_indices] = pairwise_distances_no_broadcast(
+            X[large_indices, :], large_centers)
+
+        if self.use_weights:
+            self.decision_scores_ = self.decision_scores_ * self.weights_
+
         self._process_decision_scores()
         return self
 
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
-
-        # Computer mahalanobis distance of the samples
-        return self.detector_.mahalanobis(X)
+        pass
 
     def _validate_estimator(self, default=None):
         """Check the value of alpha and beta and clustering algorithm.
@@ -123,12 +225,13 @@ class CBLOF(BaseDetector):
         check_parameter(self.beta, 0, param_name='alpha',
                         include_left=False, include_right=False)
 
-        if self.base_estimator is not None:
-            self.base_estimator_ = self.base_estimator
+        if self.clustering_estimator is not None:
+            self.clustering_estimator_ = self.clustering_estimator
         else:
-            self.base_estimator_ = default
+            self.clustering_estimator_ = default
 
-        if self.base_estimator_ is None:
+        # make sure the base clustering algorithm is valid
+        if self.clustering_estimator_ is None:
             raise ValueError("clustering algorithm cannot be None")
 
-        check_estimator(self.base_estimator_)
+        check_estimator(self.clustering_estimator_)

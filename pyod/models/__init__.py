@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from .abod import ABOD
 from .base import clone
+from .cblof import CBLOF
 from .combination import aom, moa, average, maximization
 from .feature_bagging import FeatureBagging
 from .hbos import HBOS
