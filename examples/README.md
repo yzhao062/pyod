@@ -1,19 +1,39 @@
-Examples are structured as follows:
-- Each example is structued as XXX_example.py
+### How to run examples?
 
-The implemented examples includes:
+First pyod should be installed or you should download the github respository.
+````cmd
+pip install pyod
+pip install --upgrade pyod # make sure the latest version is installed!
+````
+
+After that, you could simply copy & paste the code and run with it.
+
+### Introduction of Examples
+Examples are structured as follows:
+- Examples are named as XXX_example.py, in whhich XXX is the model name.
+- All examples can find corresponding models at pyod/models/
+
+For instance: 
 - kNN: knn_example.py
 - HBOS: hbos_example.py
 - ABOD: abod_example.py
 - ... other individual algorithms
-
 - Combination Frameworks: comb_example.py
 
+Additionally, compare_all_models.py is for comparing all implemented algorithms.
+Some examples have a Jupyter Notebook version at [Jupyter Notebooks](https://github.com/yzhao062/Pyod/tree/master/notebooks)
+
+### What if I see "xxx module could be found" or "Unresolved reference"
 Note, the examples import the models by usuing:
+
+**First check pyod is installed with pip.**
+
+If you have not but simply download the github repositoty, please make
+sure the following codes are presented at the top of the code.
+
 ```python
 import sys
 sys.path.append("..")
-
 ```
 This is a **temporary solution** for relative imports in case **pyod is not installed**.
 

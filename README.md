@@ -163,6 +163,7 @@ Full package structure can be found below:
 See **examples directory** for more demos. ["examples/knn_example.py"](https://github.com/yzhao062/Pyod/blob/master/examples/knn_example.py)
 demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**. 
 
+More detailed instruction of running examples can be found [here.](https://github.com/yzhao062/Pyod/blob/master/examples)
 1. Initialize a kNN detector, fit the model, and make the prediction.
     ```python
     
