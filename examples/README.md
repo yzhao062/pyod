@@ -8,6 +8,8 @@ pip install --upgrade pyod # make sure the latest version is installed!
 
 After that, you could simply copy & paste the code and run with it.
 
+---
+
 ### Introduction of Examples
 Examples are structured as follows:
 - Examples are named as XXX_example.py, in whhich XXX is the model name.
@@ -22,6 +24,8 @@ For instance:
 
 Additionally, compare_all_models.py is for comparing all implemented algorithms.
 Some examples have a Jupyter Notebook version at [Jupyter Notebooks](https://github.com/yzhao062/Pyod/tree/master/notebooks)
+
+---
 
 ### What if I see "xxx module could be found" or "Unresolved reference"
 Note, the examples import the models by usuing:
