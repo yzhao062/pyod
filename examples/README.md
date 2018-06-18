@@ -28,12 +28,12 @@ Some examples have a Jupyter Notebook version at [Jupyter Notebooks](https://git
 ---
 
 ### What if I see "xxx module could be found" or "Unresolved reference"
-Note, the examples import the models by usuing:
 
 **First check pyod is installed with pip.**
 
-If you have not but simply download the github repositoty, please make
-sure the following codes are presented at the top of the code.
+If you have not but simply download the github repository, please make
+sure the following codes are presented at the top of the code. The examples 
+import the models by relying the code below if pyod is not installed:
 
 ```python
 import sys
