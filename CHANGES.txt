@@ -25,3 +25,4 @@ v<0.5.0>, <06/10/2018> -- Refactor models and improve documentation.
 v<0.5.1>, <06/12/2018> -- Add MCD detector and more Jupyter notebooks.
 v<0.5.2>, <06/13/2018> -- Incremental changes.
 v<0.5.3>, <06/14/2018> -- Incremental changes.
+v<0.5.4>, <06/18/2018> -- Add CBLOF model and incremental improvements.

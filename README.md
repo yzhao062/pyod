@@ -64,7 +64,7 @@ detection utility functions.
      
   2. Proximity-Based Outlier Detection Models:
      1. **LOF: Local Outlier Factor** [1]
-     2. **CBLOF: Clustering-Based Local Outlier Factor** [15] (work in progress)
+     2. **CBLOF: Clustering-Based Local Outlier Factor** [15]
      3. **HBOS: Histogram-based Outlier Score** [5]
      4. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
      neighbor as the outlier score) [13]

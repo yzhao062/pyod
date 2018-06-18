@@ -23,7 +23,7 @@ pyod.models.base module
     :inherited-members:
 
 pyod.models.cblof module
------------------------
+------------------------
 
 .. automodule:: pyod.models.cblof
     :members:

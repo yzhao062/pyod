@@ -13,6 +13,7 @@ from .ocsvm import OCSVM
 from .pca import PCA
 
 __all__ = ['ABOD',
+           'CBLOF',
            'clone',
            'aom', 'moa', 'average', 'maximization',
            'FeatureBagging',
