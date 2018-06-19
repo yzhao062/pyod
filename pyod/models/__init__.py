@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .abod import ABOD
-from .base import clone
 from .cblof import CBLOF
 from .combination import aom, moa, average, maximization
 from .feature_bagging import FeatureBagging
@@ -14,7 +13,6 @@ from .pca import PCA
 
 __all__ = ['ABOD',
            'CBLOF',
-           'clone',
            'aom', 'moa', 'average', 'maximization',
            'FeatureBagging',
            'HBOS',

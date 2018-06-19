@@ -25,9 +25,9 @@ from sklearn.utils.testing import assert_warns_message
 
 import numpy as np
 import scipy.sparse as sp
+from sklearn.base import clone
 
 from pyod.models.base import BaseDetector
-from pyod.models.base import clone
 from pyod.utils.data import generate_data
 
 
@@ -88,48 +88,6 @@ class ModifyInitParams(BaseDetector):
 
     def decision_function(self, X):
         pass
-
-
-# noinspection PyAbstractClass,PyMissingConstructor
-class DeprecatedAttributeEstimator(BaseDetector):
-    def __init__(self, a=None, b=None):
-        self.a = a
-        if b is not None:
-            DeprecationWarning("b is deprecated and renamed 'a'")
-            self.a = b
-
-    @property
-    @deprecated("Parameter 'b' is deprecated and renamed to 'a'")
-    def b(self):
-        return self._b
-
-
-# noinspection PyMissingConstructor
-class Buggy(BaseDetector):
-    """
-    A buggy estimator that does not set its parameters right.
-    """
-
-    def __init__(self, a=None):
-        self.a = 1
-
-    def fit(self, X, y=None):
-        pass
-
-    def decision_function(self, X):
-        pass
-
-
-class NoEstimator(object):
-    def __init__(self):
-        pass
-
-    def fit(self, X=None, y=None):
-        return self
-
-    # noinspection PyMethodMayBeStatic
-    def predict(self, X=None):
-        return None
 
 
 # noinspection PyMissingConstructor
@@ -259,92 +217,6 @@ class TestBASE(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-
-#############################################################################
-# The tests
-class TestSklearnBase(unittest.TestCase):
-
-    def test_clone(self):
-        # Tests that clone creates a correct deep copy.
-        # We create an estimator, make a copy of its original state
-        # (which, in this case, is the current state of the estimator),
-        # and check that the obtained copy is a correct deep copy.
-
-        from sklearn.feature_selection import SelectFpr, f_classif
-
-        selector = SelectFpr(f_classif, alpha=0.1)
-        new_selector = clone(selector)
-        assert_true(selector is not new_selector)
-        assert_equal(selector.get_params(), new_selector.get_params())
-
-        selector = SelectFpr(f_classif, alpha=np.zeros((10, 2)))
-        new_selector = clone(selector)
-        assert_true(selector is not new_selector)
-
-    def test_clone_2(self):
-        # Tests that clone doesn't copy everything.
-        # We first create an estimator, give it an own attribute, and
-        # make a copy of its original state. Then we check that the copy doesn't
-        # have the specific attribute we manually added to the initial estimator.
-
-        from sklearn.feature_selection import SelectFpr, f_classif
-
-        selector = SelectFpr(f_classif, alpha=0.1)
-        selector.own_attribute = "test"
-        new_selector = clone(selector)
-        assert_false(hasattr(new_selector, "own_attribute"))
-
-    def test_clone_buggy(self):
-        # Check that clone raises an error on buggy estimators.
-        buggy = Buggy()
-        buggy.a = 2
-        assert_raises(RuntimeError, clone, buggy)
-
-        no_estimator = NoEstimator()
-        assert_raises(TypeError, clone, no_estimator)
-
-        varg_est = VargEstimator()
-        assert_raises(RuntimeError, clone, varg_est)
-
-    def test_clone_empty_array(self):
-        # Regression test for cloning estimators with empty arrays
-        clf = MyEstimator(empty=np.array([]))
-        clf2 = clone(clf)
-        assert_array_equal(clf.empty, clf2.empty)
-
-        clf = MyEstimator(empty=sp.csr_matrix(np.array([[0]])))
-        clf2 = clone(clf)
-        assert_array_equal(clf.empty.data, clf2.empty.data)
-
-    def test_clone_nan(self):
-        # Regression test for cloning estimators with default parameter as np.nan
-        clf = MyEstimator(empty=np.nan)
-        clf2 = clone(clf)
-
-        assert_true(clf.empty is clf2.empty)
-
-    def test_clone_copy_init_params(self):
-        # test for deprecation warning when copying or casting an init parameter
-        est = ModifyInitParams()
-        message = (
-            "Estimator ModifyInitParams modifies parameters in __init__. "
-            "This behavior is deprecated as of 0.18 and support "
-            "for this behavior will be removed in 0.20.")
-
-        assert_warns_message(DeprecationWarning, message, clone, est)
-
-    def test_clone_sparse_matrices(self):
-        sparse_matrix_classes = [
-            getattr(sp, name)
-            for name in dir(sp) if name.endswith('_matrix')]
-
-        for cls in sparse_matrix_classes:
-            sparse_matrix = cls(np.eye(5))
-            clf = MyEstimator(empty=sparse_matrix)
-            clf_cloned = clone(clf)
-            assert_true(clf.empty.__class__ is clf_cloned.empty.__class__)
-            assert_array_equal(clf.empty.toarray(), clf_cloned.empty.toarray())
 
 
 if __name__ == '__main__':
