@@ -27,7 +27,7 @@ PyOD Documentation
 to **identify outlying objects** in data with both unsupervised and supervised approaches.
 This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-The toolkit has been successfully used in various academic researches :cite:`a-zhao2018xgbod` and commercial products.
+The toolkit has been successfully used in various academic researches :cite:`a-zhao2018xgbod,a-zhao2018dcso` and commercial products.
 Unlike existing libraries, PyOD provides:
 
 - **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
