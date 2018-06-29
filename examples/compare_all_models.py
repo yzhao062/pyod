@@ -13,14 +13,17 @@ import sys
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 
+# Import all models
 from pyod.models.abod import ABOD
+from pyod.models.cblof import CBLOF
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.hbos import HBOS
 from pyod.models.iforest import IForest
@@ -35,18 +38,29 @@ n_samples = 200
 outliers_fraction = 0.25
 clusters_separation = [0]
 
-# Compare given classifiers under given settings
+# Compare given detectors under given settings
+# Initialize the data
 xx, yy = np.meshgrid(np.linspace(-7, 7, 100), np.linspace(-7, 7, 100))
 n_inliers = int((1. - outliers_fraction) * n_samples)
 n_outliers = int(outliers_fraction * n_samples)
 ground_truth = np.zeros(n_samples, dtype=int)
 ground_truth[-n_outliers:] = 1
 
+# Show the statics of the data
+print('Number of inliers: %i' % n_inliers)
+print('Number of outliers: %i' % n_outliers)
+print(
+    'Ground truth shape is {shape}. Outlier are 1 and inliers are 0.\n'.format(
+        shape=ground_truth.shape))
+print(ground_truth)
+
 random_state = np.random.RandomState(42)
 # Define nine outlier detection tools to be compared
 classifiers = {'Angle-based Outlier Detector (ABOD)':
                    ABOD(n_neighbors=10,
                         contamination=outliers_fraction),
+               'Cluster-based Local Outlier Factor (CBLOF)':
+                   CBLOF(contamination=outliers_fraction),
                'Feature Bagging':
                    FeatureBagging(LOF(n_neighbors=35),
                                   contamination=outliers_fraction,
@@ -57,6 +71,10 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                                            random_state=random_state),
                'K Nearest Neighbors (KNN)': KNN(
                    contamination=outliers_fraction),
+               'Average KNN': KNN(method='mean',
+                                  contamination=outliers_fraction),
+               'Median KNN': KNN(method='median',
+                                 contamination=outliers_fraction),
                'Local Outlier Factor (LOF)':
                    LOF(n_neighbors=35,
                        contamination=outliers_fraction),
@@ -67,7 +85,12 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                    contamination=outliers_fraction),
                }
 
-# Fit the problem with varying cluster separations
+# Show all detectors
+for i, clf in enumerate(classifiers.keys()):
+    print('Model', i + 1, clf)
+
+# Fit the models with the generated data and
+# compare model performances
 for i, offset in enumerate(clusters_separation):
     np.random.seed(42)
     # Data generation
@@ -78,8 +101,10 @@ for i, offset in enumerate(clusters_separation):
     X = np.r_[X, np.random.uniform(low=-6, high=6, size=(n_outliers, 2))]
 
     # Fit the model
-    plt.figure(figsize=(12, 12))
+    plt.figure(figsize=(15, 12))
     for i, (clf_name, clf) in enumerate(classifiers.items()):
+        print()
+        print(i + 1, 'fitting', clf_name)
         # fit the data and tag outliers
         clf.fit(X)
         scores_pred = clf.decision_function(X) * -1
@@ -91,7 +116,7 @@ for i, offset in enumerate(clusters_separation):
 
         Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()]) * -1
         Z = Z.reshape(xx.shape)
-        subplot = plt.subplot(3, 3, i + 1)
+        subplot = plt.subplot(3, 4, i + 1)
         subplot.contourf(xx, yy, Z, levels=np.linspace(Z.min(), threshold, 7),
                          cmap=plt.cm.Blues_r)
         a = subplot.contour(xx, yy, Z, levels=[threshold],
