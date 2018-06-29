@@ -325,8 +325,9 @@ class FeatureBagging(BaseDetector):
         if self.base_estimator_ is None:
             raise ValueError("base_estimator cannot be None")
 
+        # TODO: turn off estimator check due to output warnings.
         # make sure estimator is consistent with sklearn
-        check_estimator(self.base_estimator_)
+        # check_estimator(self.base_estimator_)
 
     def _make_estimator(self, append=True, random_state=None):
         """Make and configure a copy of the `base_estimator_` attribute.
