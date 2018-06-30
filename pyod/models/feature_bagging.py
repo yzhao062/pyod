@@ -146,6 +146,10 @@ class FeatureBagging(BaseDetector):
     :param bootstrap_features: Whether features are drawn with replacement.
     :type bootstrap_features: bool, optional (default=False)
 
+    :param check_estimator: If set to True, check whether the base estimator
+        is consistent with sklearn standard
+    :type check_estimator: bool, optional (default=True)
+    
     :param n_jobs: The number of jobs to run in parallel for both `fit` and
         `predict`. If -1, then the number of jobs is set to the number of cores
     :type n_jobs: int, optional (default=1)
@@ -186,15 +190,16 @@ class FeatureBagging(BaseDetector):
     """
 
     def __init__(self, base_estimator=None, n_estimators=10, contamination=0.1,
-                 max_features=1.0, bootstrap_features=False, n_jobs=1,
-                 random_state=None, combination='average',
-                 estimator_params={}):
+                 max_features=1.0, bootstrap_features=False,
+                 check_estimator=True, n_jobs=1, random_state=None,
+                 combination='average', estimator_params={}):
 
         super(FeatureBagging, self).__init__(contamination=contamination)
         self.base_estimator = base_estimator
         self.n_estimators = n_estimators
         self.max_features = max_features
         self.bootstrap_features = bootstrap_features
+        self.check_estimator = check_estimator
         self.combination = combination
         self.n_jobs = n_jobs
         self.random_state = random_state
@@ -325,9 +330,9 @@ class FeatureBagging(BaseDetector):
         if self.base_estimator_ is None:
             raise ValueError("base_estimator cannot be None")
 
-        # TODO: turn off estimator check due to output warnings.
         # make sure estimator is consistent with sklearn
-        # check_estimator(self.base_estimator_)
+        if self.check_estimator:
+            check_estimator(self.base_estimator_)
 
     def _make_estimator(self, append=True, random_state=None):
         """Make and configure a copy of the `base_estimator_` attribute.

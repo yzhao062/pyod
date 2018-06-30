@@ -76,6 +76,10 @@ class CBLOF(BaseDetector):
         weights in outlier score calculation.
     :type use_weights: bool, optional (default=False)
 
+    :param check_estimator: If set to True, check whether the base estimator
+        is consistent with sklearn standard
+    :type check_estimator: bool, optional (default=True)
+
     :param random_state: If int, random_state is the seed used by the random
         number generator; If RandomState instance, random_state is the random
         number generator; If None, the random number generator is the
@@ -123,13 +127,14 @@ class CBLOF(BaseDetector):
 
     def __init__(self, n_clusters=8, contamination=0.1,
                  clustering_estimator=None, alpha=0.9, beta=5,
-                 use_weights=False, random_state=None):
+                 use_weights=False, check_estimator=True, random_state=None):
         super(CBLOF, self).__init__(contamination=contamination)
         self.n_clusters = n_clusters
         self.clustering_estimator = clustering_estimator
         self.alpha = alpha
         self.beta = beta
         self.use_weights = use_weights
+        self.check_estimator = check_estimator
         self.random_state = random_state
 
     # noinspection PyIncorrectDocstring
@@ -194,7 +199,8 @@ class CBLOF(BaseDetector):
         if self.clustering_estimator_ is None:
             raise ValueError("clustering algorithm cannot be None")
 
-        check_estimator(self.clustering_estimator_)
+        if self.check_estimator:
+            check_estimator(self.clustering_estimator_)
 
     def _set_cluster_centers(self, X, n_features):
         # Noted not all clustering algorithms have cluster_centers_
