@@ -16,6 +16,10 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
+# supress warnings for clean output
+import warnings
+
+warnings.filterwarnings("ignore")
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
@@ -60,10 +64,12 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                    ABOD(n_neighbors=10,
                         contamination=outliers_fraction),
                'Cluster-based Local Outlier Factor (CBLOF)':
-                   CBLOF(contamination=outliers_fraction),
+                   CBLOF(contamination=outliers_fraction,
+                         check_estimator=False, random_state=random_state),
                'Feature Bagging':
                    FeatureBagging(LOF(n_neighbors=35),
                                   contamination=outliers_fraction,
+                                  check_estimator=False,
                                   random_state=random_state),
                'Histogram-base Outlier Detection (HBOS)': HBOS(
                    contamination=outliers_fraction),
@@ -76,13 +82,13 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                'Median KNN': KNN(method='median',
                                  contamination=outliers_fraction),
                'Local Outlier Factor (LOF)':
-                   LOF(n_neighbors=35,
-                       contamination=outliers_fraction),
+                   LOF(n_neighbors=35, contamination=outliers_fraction),
                'Minimum Covariance Determinant (MCD)': MCD(
                    contamination=outliers_fraction, random_state=random_state),
-               'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
+               'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
+                                              random_state=random_state),
                'Principal Component Analysis (PCA)': PCA(
-                   contamination=outliers_fraction),
+                   contamination=outliers_fraction, random_state=random_state),
                }
 
 # Show all detectors

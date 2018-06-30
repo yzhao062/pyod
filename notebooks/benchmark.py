@@ -26,6 +26,7 @@ from sklearn.model_selection import train_test_split
 from scipy.io import loadmat
 
 from pyod.models.abod import ABOD
+from pyod.models.cblof import CBLOF
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.hbos import HBOS
 from pyod.models.iforest import IForest
@@ -65,8 +66,8 @@ for i in range(ite):
     random_state = np.random.RandomState(i)
 
     df_columns = ['Data', '#Samples', '# Dimensions', 'Outlier Perc',
-                  'ABOD', 'FB', 'HBOS', 'IForest', 'KNN', 'LOF', 'MCD', 'OCSVM',
-                  'PCA']
+                  'ABOD', 'CBLOF', 'FB', 'HBOS', 'IForest', 'KNN', 'LOF',
+                  'MCD', 'OCSVM', 'PCA']
     roc_df = pd.DataFrame(columns=df_columns)
     prn_df = pd.DataFrame(columns=df_columns)
     time_df = pd.DataFrame(columns=df_columns)
@@ -83,10 +84,12 @@ for i in range(ite):
         # construct containers for saving results
         roc_list = [mat_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
         prn_list = [mat_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
-        time_list = [mat_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
+        time_list = [mat_file[:-4], X.shape[0], X.shape[1],
+                     outliers_percentage]
 
         # 60% data for training and 40% for testing
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4,
+        X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                            test_size=0.4,
                                                             random_state=random_state)
 
         # standardizing data for processing
@@ -94,7 +97,11 @@ for i in range(ite):
 
         classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
             contamination=outliers_fraction),
+            'Cluster-based Local Outlier Factor': CBLOF(
+                contamination=outliers_fraction, check_estimator=False,
+                random_state=random_state),
             'Feature Bagging': FeatureBagging(contamination=outliers_fraction,
+                                              check_estimator=False,
                                               random_state=random_state),
             'Histogram-base Outlier Detection (HBOS)': HBOS(
                 contamination=outliers_fraction),
@@ -104,10 +111,11 @@ for i in range(ite):
             'Local Outlier Factor (LOF)': LOF(
                 contamination=outliers_fraction),
             'Minimum Covariance Determinant (MCD)': MCD(
-                contamination=outliers_fraction),
-            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
+                contamination=outliers_fraction, random_state=random_state),
+            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
+                                           random_state=random_state),
             'Principal Component Analysis (PCA)': PCA(
-                contamination=outliers_fraction),
+                contamination=outliers_fraction, random_state=random_state),
         }
 
         for clf_name, clf in classifiers.items():
