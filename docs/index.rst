@@ -132,6 +132,7 @@ Contents
 
    install
    example
+   benchmark
    api_cc
    pyod
 
