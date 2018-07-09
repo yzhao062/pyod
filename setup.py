@@ -1,5 +1,6 @@
 from setuptools import find_packages, setup
-from pyod import __version__
+
+exec(open('./pyod/version.py').read())
 
 # read the contents of README file
 from os import path
