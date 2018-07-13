@@ -19,7 +19,7 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
-exec(open('./pyod/version.py').read())
+exec(open(os.path.join(os.path.sep, 'pyod', 'version.py')).read())
 
 project = 'pyod'
 copyright = '2018, Yue Zhao'
