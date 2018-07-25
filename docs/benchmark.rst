@@ -25,22 +25,36 @@ You are welcome to replicate this process by running
 ROC Performance
 ---------------
 
+**Format is pending to be fixed**
+
+ROC Performances (average of 20 independent trials)
+
 .. csv-table:: ROC Performances (average of 20 independent trials)
    :file: tables/roc.csv
    :header-rows: 1
 
-TO ADD
-
 P@N Performance
 ---------------
 
-TO ADD
+**Format is pending to be fixed**
+
+Precision @ N Performances (average of 20 independent trials)
+
+.. csv-table:: Precision @ N Performances (average of 20 independent trials)
+   :file: tables/prc.csv
+   :header-rows: 1
 
 
 Execution Time
 --------------
 
-TO ADD
+**Format is pending to be fixed**
+
+Time Complexity (average of 20 independent trials)
+
+.. csv-table:: Time Complexity (average of 20 independent trials)
+   :file: tables/time.csv
+   :header-rows: 1
 
 Conclusion
 ----------
