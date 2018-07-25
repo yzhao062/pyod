@@ -25,6 +25,10 @@ You are welcome to replicate this process by running
 ROC Performance
 ---------------
 
+.. csv-table:: ROC Performances (average of 20 independent trials)
+   :file: tables/roc.csv
+   :header-rows: 1
+
 TO ADD
 
 P@N Performance
