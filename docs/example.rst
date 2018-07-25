@@ -15,11 +15,8 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 
     .. code-block:: python
 
-        from pyod.models.knn import KNN # import kNN detector
+        from pyod.models.knn import KNN   # kNN detector
 
-        from pyod.utils.data import generate_data
-        from pyod.utils.data import evaluate_print
-        from pyod.utils.data import visualize
 
 2. Generate sample data with :func:`pyod.utils.data.generate_data`:
 
