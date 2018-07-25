@@ -15,10 +15,13 @@
 
 import os
 import sys
+from os.path import dirname, abspath
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, abspath('..'))
+pyod_dir = dirname(dirname(abspath(__file__)))
 
-from pyod.version import __version__
+version_path = os.path.join(pyod_dir, 'pyod', 'version.py')
+exec(open(version_path).read())
 # -- Project information -----------------------------------------------------
 
 project = 'pyod'
