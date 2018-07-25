@@ -139,7 +139,7 @@ virtual environment on mac OS. See reasons and solutions [here](https://github.c
 
 ### API Cheatsheet & Reference
 
-Full API Reference: (http://pyod.readthedocs.io/en/latest/api.html). API cheatsheet for all detectors:
+Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheatsheet for all detectors:
 
 - **fit(X)**: Fit detector.
 - **fit_predict(X)**: Fit detector and predict if a particular sample is an outlier or not.
