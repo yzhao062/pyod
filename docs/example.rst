@@ -67,7 +67,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         On Test Data:
         KNN ROC:0.9989, precision @ rank n:0.9
 
-6. Generate the visualizations by :func:`pyod.utils.data.visualize`
+6. Generate the visualizations by visualize function included in all examples:
 
     .. code-block:: python
 
