@@ -143,7 +143,7 @@ def precision_n_scores(y, y_pred, n=None):
     Utility function to calculate precision@ rank
 
     :param y: ground truth
-    :param y_pred: number of outliers
+    :param y_pred: predicted outlier scores as returned by fitted model (not rounded off)
     :param n: number of outliers, if not defined, infer using ground truth
     :return: precision at rank n score
     :rtype: float
