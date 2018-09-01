@@ -298,9 +298,8 @@ you are interested
 To make sure the code has the same style and standard, please refer to models,
 such as abod.py, hbos.py or feature bagging for example.
 
-You are also welcome to propose your ideas by open an issue or drop me an email
-at yuezhao@cs.toronto.edu
-
+You are also welcome to share your ideas by openning an issue or dropping me an email
+at yuezhao@cs.toronto.edu :)
 
 ---
 
