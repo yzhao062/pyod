@@ -13,7 +13,8 @@ import sys
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
 from sklearn.utils import check_X_y
 import matplotlib.pyplot as plt
