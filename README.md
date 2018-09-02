@@ -18,7 +18,7 @@ Unlike existing libraries, PyOD provides:
 
 - **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
 - **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
-- **Advanced functions**, e.g., **Outlier Ensemble Frameworks** and **Neural Networks/Deep Learning Models**
+- **Advanced functions**, e.g., **Outlier Ensemble Frameworks** and **Neural Networks/Deep Learning Models**.
 - **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
 
 **Table of Contents**:
