@@ -128,14 +128,14 @@ python setup.py install
 **Required Dependency**: 
 
 - Python 2.7, 3.4, 3.5 or 3.6
-- numpy>=1.13
-- scipy>=0.19.1
-- scikit_learn>=0.19.1 
-- nose
 - keras
-- numba
+- nose
 - matplotlib (optional, required for running examples)   
-- tensorflow (optional, required if calling AutoEncoder, other backend works)               
+- numpy>=1.13
+- numba>=0.35
+- scipy>=0.19.1
+- scikit_learn>=0.19.1
+- tensorflow (optional, required if calling AutoEncoder, other backend works)             
 
 **Known Issue**: PyOD depends on matplotlib, which would throw errors in conda 
 virtual environment on mac OS. See reasons and solutions [here](https://github.com/yzhao062/Pyod/issues/6).
