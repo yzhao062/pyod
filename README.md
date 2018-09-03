@@ -18,18 +18,17 @@ Unlike existing libraries, PyOD provides:
 
 - **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
 - **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
-- **Advanced functions**, e.g., **Outlier Ensemble Frameworks** and **Neural Networks/Deep Learning Models**.
+- **Advanced functions**, e.g., **Neural Networks/Deep Learning Models** and **Outlier Ensemble Frameworks**.
 - **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
 
 **Table of Contents**:
 <!-- TOC -->
-
 - [Quick Introduction](#quick-introduction)
 - [Installation](#installation)
-- [API Cheatsheet & Reference](#api-cheatsheet-reference)
+- [API Cheatsheet & Reference](#api-cheatsheet--reference)
 - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
-- [Quick Start for Combining Multiple Outlier Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
-- [How to Contribute and Collaborate?](#how-to-contribute-and-collaborate)
+- [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
+- [How to Contribute and Collaborate](#how-to-contribute-and-collaborate)
 - [Benchmark](#benchmark)
 
 <!-- /TOC -->
@@ -39,9 +38,9 @@ Unlike existing libraries, PyOD provides:
 
 - **[Documentation & API Reference](https://pyod.readthedocs.io)** [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest)
 
-- **[Interactive Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master/)** [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
+- **[Examples](https://github.com/yzhao062/Pyod/tree/master/examples)** **&** **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
 
-- **[Github repository with examples](https://github.com/yzhao062/Pyod/tree/master/examples)** | **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
+- **[Interactive Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master/)** [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 
 - **[Anomaly detection resources](https://github.com/yzhao062/anomaly-detection-resources)**, e.g., courses, books, papers and videos.
 
@@ -63,14 +62,14 @@ detection utility functions.
      3. **One-Class Support Vector Machines** [3]
      
   2. Proximity-Based Outlier Detection Models:
-     1. **LOF: Local Outlier Factor** [1]
-     2. **CBLOF: Clustering-Based Local Outlier Factor** [15]
-     3. **HBOS: Histogram-based Outlier Score** [5]
-     4. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
+     4. **LOF: Local Outlier Factor** [1]
+     5. **CBLOF: Clustering-Based Local Outlier Factor** [15]
+     6. **HBOS: Histogram-based Outlier Score** [5]
+     7. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
      neighbor as the outlier score) [13]
-     5. **Average kNN or kNN Sum** Outlier Detection (use the average distance to k 
+     1. **Average kNN or kNN Sum** Outlier Detection (use the average distance to k 
      nearest neighbors as the outlier score or sum all k distances) [14]
-     6. **Median kNN** Outlier Detection (use the median distance to k nearest 
+     1. **Median kNN** Outlier Detection (use the median distance to k nearest 
      neighbors as the outlier score)
      
   3. Probabilistic Models for Outlier Detection:
@@ -78,10 +77,10 @@ detection utility functions.
      2. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [7]
   
   4. Outlier Ensembles and Combination Frameworks
-     1. **Isolation Forest** [2]
-     2. **Feature Bagging** [9]
+     3. **Isolation Forest** [2]
+     4. **Feature Bagging** [9]
   5. Neural Networks and Deep Learning Models (implemented in Keras)
-     1. **AutoEncoder with Fully Connected NN (work in progress)**
+     5. **AutoEncoder with Fully Connected NN (work in progress)**
 
 ***Outlier Detector/Scores Combination Frameworks***:
   1. **Feature Bagging**: build various detectors on random selected features [9]
