@@ -29,8 +29,8 @@ from pyod.utils.data import generate_data
 
 class TestAutoEncoder(unittest.TestCase):
     def setUp(self):
-        self.n_train = 10000
-        self.n_test = 5000
+        self.n_train = 6000
+        self.n_test = 1000
         self.n_features = 300
         self.contamination = 0.1
         self.roc_floor = 0.8
