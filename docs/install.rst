@@ -19,15 +19,20 @@ Alternatively, install from github directly (**not recommended**)
 
 **Required Dependency**:
 
-- Python 2.7, 3.4, 3.5 or 3.6
+- Python 2.7, 3.5 or 3.6
 - keras
-- nose
 - matplotlib (optional, required for running examples)
+- nose
 - numpy>=1.13
 - numba>=0.35
 - scipy>=0.19.1
 - scikit_learn>=0.19.1
-- tensorflow (optional, required if calling AutoEncoder, other backend works) 
+- tensorflow (optional, required if calling AutoEncoder, other backend works)
 
-**Known Issue**: PyOD depends on matplotlib, which would throw errors in conda
+**Known Issue 1**: PyOD depends on matplotlib, which would throw errors in conda
 virtual environment on mac OS. See causes and solutions `here <https://github.com/yzhao062/Pyod/issues/6>`_
+
+**Known Issue 2**: PyOD builds on various packages, which most of them you should have
+already installed. If you are installing PyOD in a fresh state (virtualenv),
+downloading and installing the dependencies, e.g., TensorFlow, may take
+**5-10 mins**.
