@@ -4,3 +4,4 @@ scikit_learn>=0.19.1
 nose
 matplotlib
 keras
+tensorflow

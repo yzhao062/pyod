@@ -131,7 +131,9 @@ python setup.py install
 - scipy>=0.19.1
 - scikit_learn>=0.19.1
 - matplotlib                      
-- nose                      
+- nose
+- keras
+- tensorflow                      
 
 **Known Issue**: PyOD depends on matplotlib, which would throw errors in conda 
 virtual environment on mac OS. See reasons and solutions [here](https://github.com/yzhao062/Pyod/issues/6).
