@@ -3,4 +3,4 @@ scipy>=0.19.1
 scikit_learn>=0.19.1
 nose
 keras
-numba
+numba==0.35
