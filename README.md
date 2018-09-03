@@ -81,7 +81,7 @@ detection utility functions.
      2. **Feature Bagging** [9]
      
   5. Neural Networks and Deep Learning Models (implemented in Keras)
-     1. **AutoEncoder with Fully Connected NN [16]**
+     1. **AutoEncoder with Fully Connected NN ** [16, Chapter 3]
 
 ***Outlier Detector/Scores Combination Frameworks***:
   1. **Feature Bagging**: build various detectors on random selected features [9]

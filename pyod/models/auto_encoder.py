@@ -30,15 +30,12 @@ class AutoEncoder(BaseDetector):
     errors. See :cite:`aggarwal2015outlier` Chapter 3 for details.
 
     :param hidden_neurons: Number of neurons per hidden layers.
-
     :type hidden_neurons: list, optional (default=[64, 32, 32, 64])
 
     :param hidden_activation: Activation function to use for hidden layers.
         All hidden layers are forced to use the same type of activation.
         See https://keras.io/activations/
     :type hidden_activation: str, optional (default='relu')
-
-    Warning: THIS IS
 
     :param output_activation:
     :type output_activation:
