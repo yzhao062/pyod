@@ -5,3 +5,4 @@ scikit_learn>=0.19.1
 matplotlib
 nose
 pytest
+keras
