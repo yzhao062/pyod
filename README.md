@@ -11,19 +11,18 @@
 PyOD is a *comprehensive* and *efficient* **Python toolkit** to **identify outlying objects** in 
 multivariate data. This exciting yet challenging field is commonly referred as 
 ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
-or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
+or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .Since 2017, PyOD has been successfully used in various academic researches [4, 8] and commercial products.
+PyOD is featured for:
 
-Since 2017, PyOD has been successfully used in various academic researches [4, 8] and commercial products.
-Unlike existing libraries, PyOD provides:
-
-- **Unified APIs** across various anomaly detection algorithms for easy use.
-- **Advanced functions**, e.g., **Neural Networks/Deep Learning Models** and **Outlier Ensemble Frameworks**.
+- **Unified APIs, detailed documentation and interactive examples** across various anomaly detection algorithms for short learning curve.
+- **Advanced anomaly detection models**, e.g., **Neural Networks/Deep Learning** and **Outlier Ensembles**.
 - **Optimized performance with JIT compilation and parallelization**, when the condition allows.
-- **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
-- **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
+- **Compatibility with both Python 2 & 3**. All implemented algorithms are also **scikit-learn compatible**.
+
 
 **Table of Contents**:
 <!-- TOC -->
+- [Key Links & Resources](#key-links-and-resources)
 - [Quick Introduction](#quick-introduction)
 - [Installation](#installation)
 - [API Cheatsheet & Reference](#api-cheatsheet--reference)
@@ -35,7 +34,8 @@ Unlike existing libraries, PyOD provides:
 <!-- /TOC -->
 
 ------------------------------
-# Key Links & Resources
+
+### Key Links and Resources
 
 - **[Documentation & API Reference](https://pyod.readthedocs.io)** [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest)
 
