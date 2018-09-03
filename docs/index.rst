@@ -23,16 +23,19 @@ PyOD Documentation
 .. image:: https://mybinder.org/badge.svg
     :target: https://mybinder.org/v2/gh/yzhao062/Pyod/master
 
-**Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a comprehensive Python toolkit
-to **identify outlying objects** in data with both unsupervised and supervised approaches.
+**Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a *comprehensive* and
+*efficient* **Python toolkit** to **identify outlying objects** in multivariate data.
 This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-The toolkit has been successfully used in various academic researches :cite:`a-zhao2018xgbod,a-zhao2018dcso` and commercial products.
+
+Since 2017, PyOD has been successfully used in various academic researches
+:cite:`a-zhao2018xgbod,a-zhao2018dcso` and commercial products.
 Unlike existing libraries, PyOD provides:
 
-- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
-- **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
+- **Unified APIs** across various anomaly detection algorithms for easy use.
 - **Advanced functions**, e.g., **Neural Networks/Deep Learning Models** and **Outlier Ensemble Frameworks**.
+- **Optimized performance with JIT compilation and parallelization**, when the condition allows.
+- **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
 - **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
 
 **Key Links**:

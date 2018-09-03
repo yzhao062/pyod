@@ -5,4 +5,7 @@ dependencies:
   - scipy
   - scikit-learn
   - nose
+  - keras
+  - nose
   - matplotlib
+  - tensorflow

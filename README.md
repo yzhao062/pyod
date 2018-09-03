@@ -8,17 +8,18 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 --------------------------
 
-PyOD is a comprehensive **Python toolkit** to **identify outlying objects** in 
-multivariate data with both unsupervised and supervised approaches. 
-This exciting yet challenging field is commonly referred as 
+PyOD is a *comprehensive* and *efficient* **Python toolkit** to **identify outlying objects** in 
+multivariate data. This exciting yet challenging field is commonly referred as 
 ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
-or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
-The toolkit has been successfully used in various academic researches [4, 8] and commercial products.
+or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
+
+Since 2017, PyOD has been successfully used in various academic researches [4, 8] and commercial products.
 Unlike existing libraries, PyOD provides:
 
-- **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
-- **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
+- **Unified APIs** across various anomaly detection algorithms for easy use.
 - **Advanced functions**, e.g., **Neural Networks/Deep Learning Models** and **Outlier Ensemble Frameworks**.
+- **Optimized performance with JIT compilation and parallelization**, when the condition allows.
+- **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
 - **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
 
 **Table of Contents**:
@@ -129,11 +130,12 @@ python setup.py install
 - Python 2.7, 3.4, 3.5 or 3.6
 - numpy>=1.13
 - scipy>=0.19.1
-- scikit_learn>=0.19.1
-- matplotlib                      
+- scikit_learn>=0.19.1 
 - nose
 - keras
-- tensorflow                      
+- numba
+- matplotlib (optional, required for running examples)   
+- tensorflow (optional, required if calling AutoEncoder, other backend works)               
 
 **Known Issue**: PyOD depends on matplotlib, which would throw errors in conda 
 virtual environment on mac OS. See reasons and solutions [here](https://github.com/yzhao062/Pyod/issues/6).
