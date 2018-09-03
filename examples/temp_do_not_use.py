@@ -107,6 +107,33 @@ train_error = pairwise_distances_no_broadcast(X_train_norm, pred_train)
 test_error = pairwise_distances_no_broadcast(X_test_norm, pred_test)
 
 #%%
+from __future__ import division
+from __future__ import print_function
+
+import os
+import sys
+
+# temporary solution for relative imports in case pyod is not installed
+# if pyod is installed, no need to use the following line
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
+
+from sklearn.utils import check_X_y
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
+from pyod.models.cblof import CBLOF
+from pyod.utils.data import generate_data
+from pyod.utils.data import get_color_codes
+from pyod.utils.data import evaluate_print
+from pyod.utils.utility import standardizer
+
+import numpy as np
+import keras
+from keras.datasets import mnist
+from keras.models import Model, Sequential
+from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape, Dropout
+from keras import regularizers
 from pyod.models.auto_encoder import AutoEncoder
 contamination = 0.1  # percentage of outliers
 n_train = 50000  # number of training points
@@ -122,7 +149,12 @@ X_train, y_train, X_test, y_test = \
     
 clf = AutoEncoder(epochs=20)
 clf.fit(X_train)
-pred_scores = clf.decision_scores_
+#%%
+train_scores = clf.decision_scores_
+test_scores = clf.decision_function(X_test)
+
+evaluate_print("AE", y_train, train_scores)
+evaluate_print("AE", y_test, test_scores)
 
 
 

@@ -29,15 +29,59 @@ class AutoEncoder(BaseDetector):
     detect outlying objects in the data by calculating the reconstruction
     errors. See :cite:`aggarwal2015outlier` Chapter 3 for details.
 
-    :param dim_encoding: The number of neurons in the encoding layer
-    :type n_bins: int, optional (default=32)
+    :param hidden_neurons: Number of neurons per hidden layers.
 
-    :param alpha: The regularizer for preventing overflow
-    :type alpha: float in (0, 1), optional (default=0.1)
+    :type hidden_neurons: list, optional (default=[64, 32, 32, 64])
 
-    :param tol: The parameter to decide the flexibility while dealing
-        the samples falling outside the bins.
-    :type tol: float in (0, 1), optional (default=0.1)
+    :param hidden_activation: Activation function to use for hidden layers.
+        All hidden layers are forced to use the same type of activation.
+        See https://keras.io/activations/
+    :type hidden_activation: str, optional (default='relu')
+
+    Warning: THIS IS
+
+    :param output_activation:
+    :type output_activation:
+
+    :param loss: String (name of objective function) or objective function.
+        See https://keras.io/losses/
+    :type loss: str or obj, optional (default=keras.losses.mean_squared_error)
+
+    :param optimizer: String (name of optimizer) or optimizer instance.
+        See https://keras.io/optimizers/
+    :type optimizer: str, optional (default='adam')
+
+    :param epochs: Number of epochs to train the model.
+    :type epochs: int, optional (default=100)
+
+    :param batch_size: Number of samples per gradient update.
+    :type batch_size: int, optional (default=32)
+
+    :param dropout_rate:
+    :type dropout_rate:
+
+    :param l2_regularizer:
+    :type l2_regularizer:
+
+    :param validation_size:
+    :type validation_size:
+
+    :param preprocessing:
+    :type preprocessing:
+
+    :param verbose: Verbosity mode.
+
+        - 0 = silent
+        - 1 = progress bar
+        - 2 = one line per epoch.
+    :type verbose: int, optional (default=1)
+
+    :param random_state: If int, random_state is the seed used by the random
+        number generator; If RandomState instance, random_state is the random
+        number generator; If None, the random number generator is the
+        RandomState instance used by `np.random`.
+    :type random_state: int, RandomState instance or None, optional
+        (default=None)
 
     :param contamination: The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. When fitting this is used
@@ -70,22 +114,23 @@ class AutoEncoder(BaseDetector):
 
     def __init__(self, hidden_neurons=[64, 32, 32, 64],
                  hidden_activation='relu', output_activation='sigmoid',
-                 loss_function=mean_squared_error, optimizer='adam',
-                 epochs=100, batch_size=64, dropout_rate=0.2,
-                 l2_regularizer=0.1, validation_size=0.1, verbose=True,
-                 random_state=None, contamination=0.1):
+                 loss=mean_squared_error, optimizer='adam',
+                 epochs=100, batch_size=32, dropout_rate=0.2,
+                 l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
+                 verbose=1, random_state=None, contamination=0.1):
         super(AutoEncoder, self).__init__(contamination=contamination)
         self.hidden_neurons = hidden_neurons
         self.hidden_neurons_ = hidden_neurons
         self.hidden_activation = hidden_activation
         self.output_activation = output_activation
-        self.loss_function = loss_function
+        self.loss = loss
         self.optimizer = optimizer
         self.epochs = epochs
         self.batch_size = batch_size
         self.dropout_rate = dropout_rate
         self.l2_regularizer = l2_regularizer
         self.validation_size = validation_size
+        self.preprocessing = preprocessing
         self.verbose = verbose
         self.random_state = random_state
 
@@ -117,7 +162,7 @@ class AutoEncoder(BaseDetector):
                         activity_regularizer=l2(self.l2_regularizer)))
 
         # Compile model
-        model.compile(loss=self.loss_function, optimizer=self.optimizer)
+        model.compile(loss=self.loss, optimizer=self.optimizer)
         print(model.summary())
         return model
 
@@ -130,9 +175,15 @@ class AutoEncoder(BaseDetector):
         self.n_samples_, self.n_features_ = X.shape[0], X.shape[1]
 
         # Standardize data for better performance
-        self.scaler_ = StandardScaler()
-        X_norm = self.scaler_.fit_transform(X)
-        np.random.shuffle(X_norm)  # shuffle for validation
+        if self.preprocessing:
+            self.scaler_ = StandardScaler()
+            X_norm = self.scaler_.fit_transform(X)
+        else:
+            X_norm = np.copy(X)
+
+        # Shuffle the data for validation as Keras do not shuffling for
+        # Validation Split
+        np.random.shuffle(X_norm)
 
         # Validate and complete the number of hidden neurons
         if np.min(self.hidden_neurons) > self.n_features_:
@@ -153,8 +204,12 @@ class AutoEncoder(BaseDetector):
                                         validation_split=self.validation_size,
                                         verbose=self.verbose).history
         # Predict on X itself and calculate the reconstruction error as
-        # the outlier scores
-        X_norm = self.scaler_.transform(X)
+        # the outlier scores. Noted X_norm was shuffled has to recreate
+        if self.preprocessing:
+            X_norm = self.scaler_.transform(X)
+        else:
+            X_norm = np.copy(X)
+
         pred_scores = self.model_.predict(X_norm)
         self.decision_scores_ = pairwise_distances_no_broadcast(X_norm,
                                                                 pred_scores)
@@ -162,9 +217,14 @@ class AutoEncoder(BaseDetector):
         return self
 
     def decision_function(self, X):
-        check_is_fitted(self, ['hist_', 'bin_edges_'])
+        check_is_fitted(self, ['model_', 'history_'])
         X = check_array(X)
 
-        outlier_scores = self._calculate_outlier_scores(X)
+        if self.preprocessing:
+            X_norm = self.scaler_.transform(X)
+        else:
+            X_norm = np.copy(X)
 
-        return np.sum(outlier_scores, axis=1).ravel() * -1
+        # Predict on X and return the reconstruction errors
+        pred_scores = self.model_.predict(X_norm)
+        return pairwise_distances_no_broadcast(X_norm, pred_scores)

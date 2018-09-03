@@ -62,14 +62,14 @@ detection utility functions.
      3. **One-Class Support Vector Machines** [3]
      
   2. Proximity-Based Outlier Detection Models:
-     4. **LOF: Local Outlier Factor** [1]
-     5. **CBLOF: Clustering-Based Local Outlier Factor** [15]
-     6. **HBOS: Histogram-based Outlier Score** [5]
-     7. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
+     1. **LOF: Local Outlier Factor** [1]
+     2. **CBLOF: Clustering-Based Local Outlier Factor** [15]
+     3. **HBOS: Histogram-based Outlier Score** [5]
+     4. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
      neighbor as the outlier score) [13]
-     1. **Average kNN or kNN Sum** Outlier Detection (use the average distance to k 
+     5. **Average kNN or kNN Sum** Outlier Detection (use the average distance to k 
      nearest neighbors as the outlier score or sum all k distances) [14]
-     1. **Median kNN** Outlier Detection (use the median distance to k nearest 
+     6. **Median kNN** Outlier Detection (use the median distance to k nearest 
      neighbors as the outlier score)
      
   3. Probabilistic Models for Outlier Detection:
@@ -77,10 +77,11 @@ detection utility functions.
      2. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [7]
   
   4. Outlier Ensembles and Combination Frameworks
-     3. **Isolation Forest** [2]
-     4. **Feature Bagging** [9]
+     1. **Isolation Forest** [2]
+     2. **Feature Bagging** [9]
+     
   5. Neural Networks and Deep Learning Models (implemented in Keras)
-     5. **AutoEncoder with Fully Connected NN (work in progress)**
+     1. **AutoEncoder with Fully Connected NN [16]**
 
 ***Outlier Detector/Scores Combination Frameworks***:
   1. **Feature Bagging**: build various detectors on random selected features [9]
@@ -371,3 +372,5 @@ TO ADD
 [14] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
 
 [15] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*, 24(9-10), pp.1641-1650.
+
+[16] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.

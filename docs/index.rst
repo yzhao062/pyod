@@ -32,7 +32,7 @@ Unlike existing libraries, PyOD provides:
 
 - **Unified and consistent APIs** across various anomaly detection algorithms for easy use.
 - **Compatibility with both Python 2 and 3**. All implemented algorithms are also **scikit-learn compatible**.
-- **Advanced functions**, e.g., **Outlier Ensemble Frameworks** to combine multiple detectors.
+- **Advanced functions**, e.g., **Neural Networks/Deep Learning Models** and **Outlier Ensemble Frameworks**.
 - **Detailed API Reference, Interactive Examples in Jupyter Notebooks** for better reliability.
 
 **Key Links**:
@@ -80,6 +80,9 @@ detection utility functions.
 
   i. **Isolation Forest** :cite:`a-liu2008isolation,a-liu2012isolation`: :class:`pyod.models.iforest.IForest`
   ii. **Feature Bagging** :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
+
+5. Neural Networks and Deep Learning Models (implemented in Keras):
+  i. **AutoEncoder with Fully Connected NN** :cite:`a-aggarwal2015outlier`: :class:`pyod.models.auto_encoder.AutoEncoder`
 
 **Outlier Detector/Scores Combination Frameworks**:
 
