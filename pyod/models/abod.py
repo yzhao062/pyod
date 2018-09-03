@@ -10,12 +10,33 @@ from __future__ import print_function
 from itertools import combinations
 
 import numpy as np
+from numba import njit
 from sklearn.neighbors import KDTree
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from .base import BaseDetector
 from ..utils.utility import check_parameter
+
+
+@njit
+def _wcos(curr_pt, a, b):
+    """
+    Calculate weighted cosine using optimized numba code
+    # TODO: fill out the documentation
+    :param curr_pt:
+    :param a:
+    :param b:
+    :return:
+    """
+    a_curr = a - curr_pt
+    b_curr = b - curr_pt
+
+    # wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
+    wcos = np.dot(a_curr, b_curr) / (
+            np.linalg.norm(a_curr, 2) ** 2) / (
+                   np.linalg.norm(b_curr, 2) ** 2)
+    return wcos
 
 
 def _calculate_wocs(curr_pt, X, X_ind):
@@ -41,23 +62,11 @@ def _calculate_wocs(curr_pt, X, X_ind):
         a = X[a_ind, :]
         b = X[b_ind, :]
 
-        # TODO: implement a faster solution
-        # curr_pt_mat = np.tile(curr_pt, (n, 1)) # broadcast
-        # Broadcast and do mat comparison to find the index
-
         # skip if no angle can be formed
         if np.array_equal(a, curr_pt) or np.array_equal(b, curr_pt):
             continue
-
-        a_curr = a - curr_pt
-        b_curr = b - curr_pt
-
-        # wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
-        wcos = np.dot(a_curr, b_curr) / (
-                np.linalg.norm(a_curr, 2) ** 2) / (
-                       np.linalg.norm(b_curr, 2) ** 2)
-        wcos_list.append(wcos)
-
+        # add the weighted cosine to the list
+        wcos_list.append(_wcos(curr_pt, a, b))
     return np.var(wcos_list)
 
 

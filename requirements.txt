@@ -2,5 +2,5 @@ numpy>=1.13
 scipy>=0.19.1
 scikit_learn>=0.19.1
 nose
-matplotlib
 keras
+numba
