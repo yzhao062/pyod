@@ -37,8 +37,9 @@ class AutoEncoder(BaseDetector):
         See https://keras.io/activations/
     :type hidden_activation: str, optional (default='relu')
 
-    :param output_activation:
-    :type output_activation:
+    :param output_activation: Activation function to use for output layer.
+        See https://keras.io/activations/
+    :type output_activation: str, optional (default='sigmoid')
 
     :param loss: String (name of objective function) or objective function.
         See https://keras.io/losses/
@@ -54,17 +55,19 @@ class AutoEncoder(BaseDetector):
     :param batch_size: Number of samples per gradient update.
     :type batch_size: int, optional (default=32)
 
-    :param dropout_rate:
-    :type dropout_rate:
+    :param dropout_rate: The dropout to be used across all layers.
+    :type dropout_rate: float in (0., 1), optional (default=0.2)
 
-    :param l2_regularizer:
-    :type l2_regularizer:
+    :param l2_regularizer: The regularization strength of activity_regularizer
+        applied on each layer. By default, l2 regularizer is used. See
+        https://keras.io/regularizers/
+    :type l2_regularizer: float in (0., 1), optional (default=0.1)
 
-    :param validation_size:
-    :type validation_size:
+    :param validation_size: The percentage of data to be used for validation.
+    :type validation_size: float in (0., 1), optional (default=0.1)
 
-    :param preprocessing:
-    :type preprocessing:
+    :param preprocessing: If True, apply standardization on the data.
+    :type preprocessing: bool, optional (default=True)
 
     :param verbose: Verbosity mode.
 
@@ -85,11 +88,18 @@ class AutoEncoder(BaseDetector):
         to define the threshold on the decision function.
     :type contamination: float in (0., 0.5), optional (default=0.1)
 
-    :var bin_edges\_: The edges of the bins
-    :vartype bin_edges\_: numpy array of shape (n_bins + 1, n_features )
+    :var encoding_dim\_: The number of neurons in the encoding layer
+    :vartype encoding_dim\_: int
 
-    :var hist\_: The density of each histogram
-    :vartype hist\_: numpy array of shape (n_bins, n_features)
+    :var compression_rate\_: The ratio between the original feature and the
+        the number of neurons in the encoding layer
+    :vartype compression_rate\_: float
+
+    :var model\_: The AutoEncoder
+    :vartype model\_: Object
+
+    :var history\_: The AutoEncoder training history
+    :vartype history\_: Object
 
     :var decision_scores\_: The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
@@ -133,6 +143,7 @@ class AutoEncoder(BaseDetector):
 
         # Verify the network design is valid
         if not self.hidden_neurons == self.hidden_neurons[::-1]:
+            print(self.hidden_neurons)
             raise ValueError("Hidden units should be symmetric")
 
         check_parameter(dropout_rate, 0, 1, param_name='alpha')
@@ -200,6 +211,8 @@ class AutoEncoder(BaseDetector):
                                         shuffle=True,
                                         validation_split=self.validation_size,
                                         verbose=self.verbose).history
+        # Reverse the operation for consistency
+        self.hidden_neurons_.pop(0)
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
         if self.preprocessing:
