@@ -6,3 +6,4 @@ matplotlib
 nose
 pytest
 keras
+tensorflow
