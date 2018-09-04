@@ -22,12 +22,19 @@ from ..utils.utility import check_parameter
 @njit
 def _wcos(curr_pt, a, b):
     """
-    Calculate weighted cosine using optimized numba code
-    # TODO: fill out the documentation
-    :param curr_pt:
-    :param a:
-    :param b:
-    :return:
+    Internal function to calculate weighted cosine using optimized numba code
+
+    :param curr_pt: Current sample to be calculated
+    :type curr_pt: numpy array of shape (n_samples, n_features)
+
+    :param a: training sample a
+    :type a: numpy array of shape (n_samples, n_features)
+
+    :param b: training sample b
+    :type b: numpy array of shape (n_samples, n_features)
+    
+    :return: Cosine similarity between a-curr_pt and b-curr_point
+    :rtype: float
     """
     a_curr = a - curr_pt
     b_curr = b - curr_pt
@@ -63,6 +70,7 @@ def _calculate_wocs(curr_pt, X, X_ind):
         b = X[b_ind, :]
 
         # skip if no angle can be formed
+        # array_equal is not supported in numba
         if np.array_equal(a, curr_pt) or np.array_equal(b, curr_pt):
             continue
         # add the weighted cosine to the list

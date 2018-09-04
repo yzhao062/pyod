@@ -90,10 +90,10 @@ class HBOS(BaseDetector):
                 self.hist_[:, i] * np.diff(self.bin_edges_[:, i])), atol=0.1))
 
         # outlier_scores = self._calculate_outlier_scores(X)
-        outlier_scores = self._calculate_outlier_scores(X, self.bin_edges_,
-                                                        self.hist_,
-                                                        self.n_bins,
-                                                        self.alpha, self.tol)
+        outlier_scores = _calculate_outlier_scores(X, self.bin_edges_,
+                                                   self.hist_,
+                                                   self.n_bins,
+                                                   self.alpha, self.tol)
 
         # Invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = np.sum(outlier_scores, axis=1) * -1
@@ -105,88 +105,88 @@ class HBOS(BaseDetector):
         X = check_array(X)
 
         # outlier_scores = self._calculate_outlier_scores(X)
-        outlier_scores = self._calculate_outlier_scores(X, self.bin_edges_,
-                                                        self.hist_,
-                                                        self.n_bins,
-                                                        self.alpha, self.tol)
+        outlier_scores = _calculate_outlier_scores(X, self.bin_edges_,
+                                                   self.hist_,
+                                                   self.n_bins,
+                                                   self.alpha, self.tol)
         return np.sum(outlier_scores, axis=1).ravel() * -1
 
-    @staticmethod
-    @njit
-    def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha, tol):
-        """
-        The internal function to calculate the outlier scores based on
-        the bins and histograms constructed with the training data. The program
-        is optimized through numba
 
-        :param X: The input samples
-        :type X: numpy array of shape (n_samples, n_features)
+@njit
+def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha, tol):
+    """
+    The internal function to calculate the outlier scores based on
+    the bins and histograms constructed with the training data. The program
+    is optimized through numba
 
-        :param bin_edges: The edges of the bins
-        :type bin_edges: numpy array of shape (n_bins + 1, n_features )
+    :param X: The input samples
+    :type X: numpy array of shape (n_samples, n_features)
 
-        :param hist: The density of each histogram
-        :type hist: numpy array of shape (n_bins, n_features)
+    :param bin_edges: The edges of the bins
+    :type bin_edges: numpy array of shape (n_bins + 1, n_features )
 
-        :param n_bins: The number of bins
-        :type n_bins: int, optional (default=10)
+    :param hist: The density of each histogram
+    :type hist: numpy array of shape (n_bins, n_features)
 
-        :param alpha: The regularizer for preventing overflow
-        :type alpha: float in (0, 1), optional (default=0.1)
+    :param n_bins: The number of bins
+    :type n_bins: int, optional (default=10)
 
-        :param tol: The parameter to decide the flexibility while dealing
-            the samples falling outside the bins.
-        :type tol: float in (0, 1), optional (default=0.1)
+    :param alpha: The regularizer for preventing overflow
+    :type alpha: float in (0, 1), optional (default=0.1)
 
-        :return: outlier scores on all features (dimensions)
-        :rtype: numpy array of shape (n_samples, n_features)
-        """
-        n_samples, n_features = X.shape[0], X.shape[1]
-        outlier_scores = np.zeros(shape=(n_samples, n_features))
+    :param tol: The parameter to decide the flexibility while dealing
+        the samples falling outside the bins.
+    :type tol: float in (0, 1), optional (default=0.1)
 
-        for i in range(n_features):
+    :return: outlier scores on all features (dimensions)
+    :rtype: numpy array of shape (n_samples, n_features)
+    """
+    n_samples, n_features = X.shape[0], X.shape[1]
+    outlier_scores = np.zeros(shape=(n_samples, n_features))
 
-            # Find the indices of the bins to which each value belongs.
-            # See documentation for np.digitize since it is tricky
-            # >>> x = np.array([0.2, 6.4, 3.0, 1.6, -1, 100, 10])
-            # >>> bins = np.array([0.0, 1.0, 2.5, 4.0, 10.0])
-            # >>> np.digitize(x, bins, right=True)
-            # array([1, 4, 3, 2, 0, 5, 4], dtype=int64)
+    for i in range(n_features):
 
-            bin_inds = np.digitize(X[:, i], bin_edges[:, i], right=True)
+        # Find the indices of the bins to which each value belongs.
+        # See documentation for np.digitize since it is tricky
+        # >>> x = np.array([0.2, 6.4, 3.0, 1.6, -1, 100, 10])
+        # >>> bins = np.array([0.0, 1.0, 2.5, 4.0, 10.0])
+        # >>> np.digitize(x, bins, right=True)
+        # array([1, 4, 3, 2, 0, 5, 4], dtype=int64)
 
-            # Calculate the outlying scores on dimension i
-            # Add a regularizer for preventing overflow
-            out_score_i = np.log2(hist[:, i] + alpha)
+        bin_inds = np.digitize(X[:, i], bin_edges[:, i], right=True)
 
-            for j in range(n_samples):
+        # Calculate the outlying scores on dimension i
+        # Add a regularizer for preventing overflow
+        out_score_i = np.log2(hist[:, i] + alpha)
 
-                # If the sample does not belong to any bins
-                # bin_ind == 0 (fall outside since it is too small)
-                if bin_inds[j] == 0:
-                    dist = bin_edges[0, i] - X[j, i]
-                    bin_width = bin_edges[1, i] - bin_edges[0, i]
+        for j in range(n_samples):
 
-                    # If it is only slightly lower than the smallest bin edge
-                    # assign it to bin 1
-                    if dist <= bin_width * tol:
-                        outlier_scores[j, i] = out_score_i[0]
-                    else:
-                        outlier_scores[j, i] = np.min(out_score_i)
+            # If the sample does not belong to any bins
+            # bin_ind == 0 (fall outside since it is too small)
+            if bin_inds[j] == 0:
+                dist = bin_edges[0, i] - X[j, i]
+                bin_width = bin_edges[1, i] - bin_edges[0, i]
 
-                # If the sample does not belong to any bins
-                # bin_ind == n_bins+1 (fall outside since it is too large)
-                elif bin_inds[j] == n_bins + 1:
-                    dist = X[j, i] - bin_edges[-1, i]
-                    bin_width = bin_edges[-1, i] - bin_edges[-2, i]
-
-                    # If it is only slightly larger than the largest bin edge
-                    # assign it to the last bin
-                    if dist <= bin_width * tol:
-                        outlier_scores[j, i] = out_score_i[n_bins - 1]
-                    else:
-                        outlier_scores[j, i] = np.min(out_score_i)
+                # If it is only slightly lower than the smallest bin edge
+                # assign it to bin 1
+                if dist <= bin_width * tol:
+                    outlier_scores[j, i] = out_score_i[0]
                 else:
-                    outlier_scores[j, i] = out_score_i[bin_inds[j] - 1]
+                    outlier_scores[j, i] = np.min(out_score_i)
 
-        return outlier_scores
+            # If the sample does not belong to any bins
+            # bin_ind == n_bins+1 (fall outside since it is too large)
+            elif bin_inds[j] == n_bins + 1:
+                dist = X[j, i] - bin_edges[-1, i]
+                bin_width = bin_edges[-1, i] - bin_edges[-2, i]
+
+                # If it is only slightly larger than the largest bin edge
+                # assign it to the last bin
+                if dist <= bin_width * tol:
+                    outlier_scores[j, i] = out_score_i[n_bins - 1]
+                else:
+                    outlier_scores[j, i] = np.min(out_score_i)
+            else:
+                outlier_scores[j, i] = out_score_i[bin_inds[j] - 1]
+
+    return outlier_scores
