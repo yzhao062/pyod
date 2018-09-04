@@ -131,13 +131,13 @@ python setup.py install
 **Required Dependency**: 
 
 - Python 2.7, 3.5 or 3.6
-- keras
-- matplotlib (optional, required for running examples)   
 - nose
 - numpy>=1.13
 - numba>=0.35
 - scipy>=0.19.1
 - scikit_learn>=0.19.1
+- keras (optional, required if calling AutoEncoder, other backend works)   
+- matplotlib (optional, required for running examples)   
 - tensorflow (optional, required if calling AutoEncoder, other backend works)             
 
 **Known Issue 1**: PyOD depends on matplotlib, which would throw errors in conda 
@@ -146,7 +146,13 @@ virtual environment on mac OS. See reasons and solutions [here](https://github.c
 **Known Issue 2**: PyOD builds on various packages, which most of them you should have
 already installed. If you are installing PyOD in a fresh state (virtualenv),
 downloading and installing the dependencies, e.g., TensorFlow, may take 
-**5-10 mins**.
+**3-5 mins**.
+
+**Known Issue 3**: If you are willing to run examples, matplotlib is required.
+PyOD does not list it as a required package for eliminating the dependency.
+Similarly, Keras and TensorFlow are listed as optional. However, they are 
+both required if you want to use neural network based models, such as
+AutoEncoder.
 
 ------------
 
