@@ -75,7 +75,7 @@ detection utility functions.
 3. Probabilistic Models for Outlier Detection:
 
   i. **ABOD: Angle-Based Outlier Detection** :cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
-  ii. **FastABOD: Fast Angle-Based Outlier Detection using approximation** cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
+  ii. **FastABOD: Fast Angle-Based Outlier Detection using approximation** :cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
 
 4. Outlier Ensembles and Combination Frameworks
 
@@ -84,7 +84,8 @@ detection utility functions.
 
 5. Neural Networks and Deep Learning Models (implemented in Keras):
   i. **AutoEncoder with Fully Connected NN** :cite:`a-aggarwal2015outlier`: :class:`pyod.models.auto_encoder.AutoEncoder`
-     FAQ regarding AutoEncoder in PyOD and debugging advices: `known issues <https://github.com/yzhao062/Pyod/issues/19>`_
+
+    FAQ regarding AutoEncoder in PyOD and debugging advices: `known issues <https://github.com/yzhao062/Pyod/issues/19>`_
 
 **Outlier Detector/Scores Combination Frameworks**:
 
