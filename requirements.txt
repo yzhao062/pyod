@@ -1,3 +1,4 @@
+matplotlib
 nose
 numpy>=1.13
 numba>=0.35

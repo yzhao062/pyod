@@ -27,3 +27,5 @@ v<0.5.2>, <06/13/2018> -- Incremental changes.
 v<0.5.3>, <06/14/2018> -- Incremental changes.
 v<0.5.4>, <06/18/2018> -- Add CBLOF model and incremental improvements.
 v<0.5.7>, <09/03/2018> -- Add AutoEncoder with fully connected architecture.
+v<0.5.8>, <09/04/2018> -- Remove keras, tensorflow and matplotlib as dependency.
+v<0.5.9>, <09/04/2018> -- Optimize models with numba for fast execution

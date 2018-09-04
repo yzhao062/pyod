@@ -16,7 +16,7 @@ PyOD is featured for:
 
 - **Unified APIs, detailed documentation and interactive examples** across various anomaly detection algorithms for short learning curve.
 - **Advanced anomaly detection models**, e.g., **Neural Networks/Deep Learning** and **Outlier Ensembles**.
-- **Optimized performance with JIT compilation and parallelization**, when the condition allows.
+- **Optimized performance with JIT compilation and parallelization**, using numba and multithreading.
 - **Compatibility with both Python 2 & 3**. All implemented algorithms are also **scikit-learn compatible**.
 
 **Important Notes**:
@@ -36,7 +36,7 @@ It is fairly easy to install and an instruction is provided [here](https://githu
 - [Quick Start for Outlier Detection](#quick-start-for-outlier-detection)
 - [Quick Start for Combining Outlier Scores from Various Base Detectors](#quick-start-for-combining-outlier-scores-from-various-base-detectors)
 - [How to Contribute and Collaborate](#how-to-contribute-and-collaborate)
-- [Benchmark](#benchmark)
+- [Algorithm Benchmark](#algorithm-benchmark)
 
 <!-- /TOC -->
 
@@ -333,7 +333,7 @@ at yuezhao@cs.toronto.edu :)
 
 ---
 
-### Benchmark
+### Algorithm Benchmark
 
 To provide an overview and quick guidance of the implemented models, benchmark
 is supplied.
@@ -350,24 +350,9 @@ are provided:
 - Precision @ rank n (P@N)
 - Execution time
 
+Check the latest result [here](https://pyod.readthedocs.io/en/latest/benchmark.html). 
 You are welcome to replicate this process by running
 [benchmark.py](https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py).
-
-#### ROC Performance
-
-TO ADD
-
-#### P@N Performance
-
-TO ADD
-
-#### Execution Time
-
-TO ADD
-
-#### Conclusion
-
-TO ADD
 
 ---
 
