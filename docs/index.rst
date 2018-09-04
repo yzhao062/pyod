@@ -36,6 +36,14 @@ Since 2017, PyOD has been successfully used in various academic researches
 - **Optimized performance with JIT compilation and parallelization**, when the condition allows.
 - **Compatibility with both Python 2 & 3**. All implemented algorithms are also **scikit-learn compatible**.
 
+**Important Notes**:
+PyOD contains some neural network based models, e.g., AutoEncoders, which are
+implemented in keras. To eliminate the dependency on too many packages,
+PyOD would **NOT** install **keras** and **tensorflow** automatically. This would
+reduce the risk of damaging your local libraries if you have these libs already.
+It is fairly easy to install and an instruction is provided `here <https://github.com/yzhao062/Pyod/issues/19>`_.
+
+
 **Key Links**:
 
 - `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_

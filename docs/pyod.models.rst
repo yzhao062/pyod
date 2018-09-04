@@ -14,7 +14,7 @@ pyod.models.abod module
     :inherited-members:
 
 pyod.models.auto\_encoder module
------------------------
+--------------------------------
 
 .. automodule:: pyod.models.auto_encoder
     :members:

@@ -17,7 +17,7 @@ Alternatively, install from github directly (**not recommended**)
     git clone https://github.com/yzhao062/pyod.git
     python setup.py install
 
-**Required Dependency**:
+**Required Dependencies**:
 
 - Python 2.7, 3.5 or 3.6
 - nose
@@ -25,6 +25,9 @@ Alternatively, install from github directly (**not recommended**)
 - numba>=0.35
 - scipy>=0.19.1
 - scikit_learn>=0.19.1
+
+**Optional Dependencies (required for running examples or AutoEncoder)**:
+
 - keras (optional, required if calling AutoEncoder, other backend works)
 - matplotlib (optional, required for running examples)
 - tensorflow (optional, required if calling AutoEncoder, other backend works)
@@ -41,4 +44,4 @@ downloading and installing the dependencies, e.g., TensorFlow, may take
 PyOD does not list it as a required package for eliminating the dependency.
 Similarly, Keras and TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
-AutoEncoder.
+AutoEncoder. See causes and solutions `here <https://github.com/yzhao062/Pyod/issues/19>`_
