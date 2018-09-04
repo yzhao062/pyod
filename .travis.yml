@@ -10,7 +10,7 @@ python:
 #  - "3.7-dev"  # 3.7 development branch
 #  - "nightly"
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements_travis.txt
   - pip install pytest
   - pip install pytest-cov
   - pip install coveralls
