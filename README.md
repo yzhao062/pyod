@@ -8,7 +8,7 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 --------------------------
 
-PyOD is a *comprehensive* and *efficient* **Python toolkit** to **identify outlying objects** in 
+PyOD is a comprehensive and efficient **Python toolkit** to **identify outlying objects** in 
 multivariate data. This exciting yet challenging field is commonly referred as 
 ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
 or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .Since 2017, PyOD has been successfully used in various academic researches [4, 8] and commercial products.
