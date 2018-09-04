@@ -32,7 +32,7 @@ def _wcos(curr_pt, a, b):
 
     :param b: training sample b
     :type b: numpy array of shape (n_samples, n_features)
-    
+
     :return: Cosine similarity between a-curr_pt and b-curr_point
     :rtype: float
     """

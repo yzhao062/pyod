@@ -40,6 +40,7 @@ from pyod.utils.utility import standardizer
 from pyod.utils.utility import precision_n_scores
 from sklearn.metrics import roc_auc_score
 
+#TODO: add neural networks and update output precision (=4)
 # Define data file and read X and y
 mat_file_list = ['arrhythmia.mat',
                  'cardio.mat',
