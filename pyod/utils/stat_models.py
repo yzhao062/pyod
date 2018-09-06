@@ -74,7 +74,7 @@ def wpearsonr(x, y, w=None):
     w = np.asarray(w)
 
     check_consistent_length([x, y, w])
-    n = len(x)
+    # n = len(x)
 
     w_sum = w.sum()
     mx = np.sum(x * w) / w_sum

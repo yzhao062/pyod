@@ -22,6 +22,7 @@ from ..utils.stat_models import pairwise_distances_no_broadcast
 from .base import BaseDetector
 
 
+# noinspection PyUnresolvedReferences
 class AutoEncoder(BaseDetector):
     """
     Auto Encoder (AE) is a type of neural networks for learning useful data
@@ -174,6 +175,7 @@ class AutoEncoder(BaseDetector):
         print(model.summary())
         return model
 
+    # noinspection PyUnresolvedReferences
     def fit(self, X, y=None):
         # Validate inputs X and y (optional)
         X = check_array(X)

@@ -167,6 +167,7 @@ class KNN(BaseDetector):
         dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                              return_distance=True)
 
+        dist = np.zeros(shape=(X.shape[0], 1))
         if self.method == 'largest':
             dist = dist_arr[:, -1]
         elif self.method == 'mean':
