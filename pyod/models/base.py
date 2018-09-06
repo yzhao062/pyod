@@ -40,6 +40,7 @@ def _first_and_last_element(arr):
         # the time of writing, in this case indexing is fast
         return arr[0, 0], arr[-1, -1]
 
+
 def _pprint(params, offset=0, printer=repr):
     # noinspection PyPep8
     """Pretty print the dictionary 'params'

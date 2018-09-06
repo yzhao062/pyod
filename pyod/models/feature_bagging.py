@@ -192,7 +192,7 @@ class FeatureBagging(BaseDetector):
     def __init__(self, base_estimator=None, n_estimators=10, contamination=0.1,
                  max_features=1.0, bootstrap_features=False,
                  check_estimator=True, n_jobs=1, random_state=None,
-                 combination='average', estimator_params={}):
+                 combination='average', estimator_params=None):
 
         super(FeatureBagging, self).__init__(contamination=contamination)
         self.base_estimator = base_estimator
@@ -203,7 +203,10 @@ class FeatureBagging(BaseDetector):
         self.combination = combination
         self.n_jobs = n_jobs
         self.random_state = random_state
-        self.estimator_params = estimator_params
+        if estimator_params != None:
+            self.estimator_params = estimator_params
+        else:
+            self.estimator_params = {}
 
     def fit(self, X, y=None):
         random_state = check_random_state(self.random_state)
