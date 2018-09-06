@@ -22,7 +22,7 @@ from ..utils.stat_models import pairwise_distances_no_broadcast
 from .base import BaseDetector
 
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPep8Naming,PyTypeChecker
 class AutoEncoder(BaseDetector):
     """
     Auto Encoder (AE) is a type of neural networks for learning useful data
