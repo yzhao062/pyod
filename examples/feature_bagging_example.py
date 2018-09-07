@@ -110,7 +110,7 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 200  # number of training points
+    n_train = 2000  # number of training points
     n_test = 100  # number of testing points
 
     # Generate sample data

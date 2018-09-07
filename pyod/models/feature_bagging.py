@@ -14,9 +14,11 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.random import sample_without_replacement
+from sklearn.externals.joblib import Parallel, delayed
 
 from .lof import LOF
 from .base import BaseDetector
+from .base import _partition_estimators
 from .combination import average, maximization
 from ..utils.utility import check_parameter
 
@@ -103,6 +105,22 @@ def _set_random_states(estimator, random_state=None):
         estimator.set_params(**to_set)
 
 
+def _parallel_decision_function(estimators, estimators_features, X):
+    n_samples = X.shape[0]
+    scores = np.zeros((n_samples, len(estimators)))
+
+    for i, (estimator, features) in enumerate(
+            zip(estimators, estimators_features)):
+        if hasattr(estimator, 'decision_function'):
+            estimator_score = estimator.decision_function(
+                X[:, features])
+            scores[:, i] = estimator_score
+        else:
+            raise NotImplementedError(
+                'current base detector has no decision_function')
+    return scores
+
+
 # TODO: should support parallelization at the model level
 class FeatureBagging(BaseDetector):
     """
@@ -166,6 +184,9 @@ class FeatureBagging(BaseDetector):
         - if 'max': take the maximum scores of all detectors
     :type combination: str, optional (default='average')
 
+    :param verbose: Controls the verbosity of the building process.
+    :type verbose: int, optional (default=0)
+
     :param estimator_params: The list of attributes to use as parameters
         when instantiating a new base estimator. If none are given,
         default parameters are used.
@@ -192,7 +213,7 @@ class FeatureBagging(BaseDetector):
     def __init__(self, base_estimator=None, n_estimators=10, contamination=0.1,
                  max_features=1.0, bootstrap_features=False,
                  check_estimator=True, n_jobs=1, random_state=None,
-                 combination='average', estimator_params=None):
+                 combination='average', verbose=0, estimator_params=None):
 
         super(FeatureBagging, self).__init__(contamination=contamination)
         self.base_estimator = base_estimator
@@ -203,6 +224,7 @@ class FeatureBagging(BaseDetector):
         self.combination = combination
         self.n_jobs = n_jobs
         self.random_state = random_state
+        self.verbose = verbose
         if estimator_params != None:
             self.estimator_params = estimator_params
         else:
@@ -291,14 +313,25 @@ class FeatureBagging(BaseDetector):
                              "match the input. Model n_features is {0} and "
                              "input n_features is {1}."
                              "".format(self.n_features_, X.shape[1]))
+
+        # Parallel loop
+        # n_jobs, n_estimators, starts = _partition_estimators(self.n_estimators,
+        #                                                      self.n_jobs)
+        # all_pred_scores = Parallel(n_jobs=n_jobs, verbose=self.verbose)(
+        #     delayed(_parallel_decision_function)(
+        #         self.estimators_[starts[i]:starts[i + 1]],
+        #         self.estimators_features_[starts[i]:starts[i + 1]],
+        #         X)
+        #     for i in range(n_jobs))
+        #
+        # # Reduce
+        # all_pred_scores = np.concatenate(all_pred_scores, axis=1)
         all_pred_scores = self._predict_decision_scores(X)
 
         if self.combination == 'average':
-            pred_scores = average(all_pred_scores)
+            return average(all_pred_scores)
         else:
-            pred_scores = maximization(all_pred_scores)
-
-        return pred_scores
+            return maximization(all_pred_scores)
 
     def _predict_decision_scores(self, X):
         all_pred_scores = np.zeros([X.shape[0], self.n_estimators])
