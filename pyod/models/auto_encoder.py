@@ -159,9 +159,9 @@ class AutoEncoder(BaseDetector):
         model.add(Dropout(self.dropout_rate))
 
         # Additional layers
-        for i in range(1, len(self.hidden_neurons_)):
+        for i, hidden_neurons in enumerate(self.hidden_neurons_, 1):
             model.add(Dense(
-                self.hidden_neurons_[i],
+                hidden_neurons,
                 activation=self.hidden_activation,
                 activity_regularizer=l2(self.l2_regularizer)))
             model.add(Dropout(self.dropout_rate))
