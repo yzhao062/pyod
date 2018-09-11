@@ -14,17 +14,16 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .Since 2017, PyOD has been successfully used in various academic researches [4, 8] and commercial products.
 PyOD is featured for:
 
-- **Unified APIs, detailed documentation and interactive examples** across various anomaly detection algorithms for short learning curve.
-- **Advanced anomaly detection models**, e.g., **Neural Networks/Deep Learning** and **Outlier Ensembles**.
-- **Optimized performance with JIT compilation and parallelization**, using numba and multithreading.
+- **Unified APIs, detailed documentation and interactive examples** across various anomaly detection algorithms.
+- **Advanced anomaly detection models**, including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
+- **Optimized performance with JIT and parallelization**, using numba and multiprocessing.
 - **Compatibility with both Python 2 & 3**. All implemented algorithms are also **scikit-learn compatible**.
 
 **Important Notes**:
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
-implemented in keras. To eliminate the dependency on too many packages, 
-PyOD would **NOT** install **keras** and **tensorflow** automatically. This would
-reduce the risk of damaging your local libraries if you have these libs already.
-It is fairly easy to install and an instruction is provided [here](https://github.com/yzhao062/Pyod/issues/19).
+implemented in keras. However, PyOD would **NOT** install **keras** and **tensorflow** automatically. This would
+reduce the risk of damaging your local installations. You are responsible to install keras and tensorflow if you want
+to use neural net based models. An instruction is provided [here](https://github.com/yzhao062/Pyod/issues/19).
 
 
 **Table of Contents**:
