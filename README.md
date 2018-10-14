@@ -23,7 +23,7 @@ PyOD is featured for:
 **Important Notes**:
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
 implemented in keras. However, PyOD would **NOT** install **keras** and **tensorflow** automatically. This would
-reduce the risk of damaging your local installations. You are responsible to install keras and tensorflow if you want
+reduce the risk of damaging your local installations. You are responsible for installing keras and tensorflow if you want
 to use neural net based models. An instruction is provided [here](https://github.com/yzhao062/Pyod/issues/19).
 
 
@@ -389,4 +389,4 @@ You are welcome to replicate this process by running
 
 [16] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.
 
-[17] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. SCP: Selective Combination in Parallel Outlier Ensembles. *Siam International Conference on Data Mining (SDM)*. **Currently Under Review**.
+[17] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. SCP: Selective Combination in Parallel Outlier Ensembles. *SIAM International Conference on Data Mining (SDM)*. **Currently Under Review**.
