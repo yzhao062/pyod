@@ -11,7 +11,8 @@
 PyOD is a comprehensive and efficient **Python toolkit** to **identify outlying objects** in 
 multivariate data. This exciting yet challenging field is commonly referred as 
 ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
-or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .Since 2017, PyOD has been successfully used in various academic researches [4, 8] and commercial products.
+or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
+Since 2017, PyOD has been successfully used in various academic researches [4, 8, 17] and commercial products.
 PyOD is featured for:
 
 - **Unified APIs, detailed documentation and interactive examples** across various anomaly detection algorithms.
@@ -387,3 +388,5 @@ You are welcome to replicate this process by running
 [15] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*, 24(9-10), pp.1641-1650.
 
 [16] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.
+
+[17] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. SCP: Selective Combination in Parallel Outlier Ensembles. *Siam International Conference on Data Mining (SDM)*. **Currently Under Review**.
