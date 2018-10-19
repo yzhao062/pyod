@@ -18,7 +18,7 @@ PyOD is featured for:
 - **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 - **Advanced models**, including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
 - **Optimized performance with JIT and parallelization** when possible, using numba and parallelization.
-- **Compatible with both Python 2 & 3** (scikit-learn compatible as well)
+- **Compatible with both Python 2 & 3** (scikit-learn compatible as well).
 
 **Important Notes**:
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
