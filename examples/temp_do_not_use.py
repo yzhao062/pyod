@@ -27,27 +27,23 @@ from pyod.utils.data import evaluate_print
 from pyod.utils.utility import standardizer
 
 import numpy as np
-import keras
-from keras.datasets import mnist
-from keras.models import Model, Sequential
-from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape, Dropout
-from keras import regularizers
+from pyod.models.knn import KNN  
+from sklearn.neighbors import NearestNeighbors
 
-# Loads the training and test data sets (ignoring class labels)
-#(x_train, _), (x_test, _) = mnist.load_data()
-contamination = 0.1  # percentage of outliers
-n_train = 50000  # number of training points
-n_test = 5000  # number of testing points
+contamination = 0.1  
+n_train = 200  
+n_test = 100 
 
-# Generate sample data
-X_train, y_train, X_test, y_test = \
-    generate_data(n_train=n_train,
-                  n_test=n_test,
-                  n_features=400,
-                  contamination=contamination,
-                  random_state=42)
+X_train, y_train, X_test, y_test = generate_data(n_train=n_train, n_test=n_test, contamination=contamination)
 
-X_train_norm, X_test_norm = standardizer(X_train, X_test)
+#Doesn't work (Must provide either V or VI for Mahalanobis distance)
+clf = KNN(algorithm='brute', metric='mahalanobis', metric_params={'V': np.cov(X_train)})
+clf.fit(X_train)
+
+#Works
+#nn = NearestNeighbors(algorithm='brute', metric='mahalanobis', metric_params={'V': np.cov(X_train)})
+#nn.fit(X_train)
+#nb = nn.kneighbors(n_neighbors=10,return_distance=True)
 
 #%%
 # input dimension = 128
