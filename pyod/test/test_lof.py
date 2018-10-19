@@ -110,6 +110,8 @@ class TestLOF(unittest.TestCase):
     def test_predict_rank(self):
         pred_socres = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test)
+        print(pred_ranks)
+        print(pred_ranks)
 
         # assert the order is reserved
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)

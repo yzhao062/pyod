@@ -12,7 +12,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
 
 from .base import BaseDetector
-from ..utils.utility import invert_order
+from ..utils.utility import invert_order, _sklearn_version_20
 
 
 class LOF(BaseDetector):
@@ -172,11 +172,15 @@ class LOF(BaseDetector):
         return self
 
     def decision_function(self, X):
+
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
 
         # Invert outlier scores. Outliers comes with higher outlier scores
         # noinspection PyProtectedMember
-        return invert_order(self.detector_._decision_function(X))
+        if _sklearn_version_20():
+            return invert_order(self.detector_._score_samples(X))
+        else:
+            return invert_order(self.detector_._decision_function(X))
 
     @property
     def n_neighbors_(self):

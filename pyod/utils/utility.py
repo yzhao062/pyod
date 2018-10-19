@@ -9,13 +9,15 @@ from __future__ import print_function
 
 import numpy as np
 import numbers
-from scipy.stats import scoreatpercentile
+
+import sklearn
 from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import column_or_1d
 from sklearn.utils import check_array
 from sklearn.utils import check_consistent_length
 from sklearn.utils.testing import assert_equal
+from scipy.stats import scoreatpercentile
 
 MAX_INT = np.iinfo(np.int32).max
 MIN_INT = -1 * MAX_INT
@@ -265,3 +267,17 @@ def invert_order(scores, method='multiplication'):
 
     if method == 'subtraction':
         return (scores.max() - scores).ravel()
+
+def _sklearn_version_20():
+    """ Utility function to decide the version of sklearn
+    In sklearn 20.0, LOF is changed. Specifically, _decision_function
+    is replaced by _score_samples
+
+    :return: True if sklearn.__version__ is newer than 0.20.0
+    """
+    sklearn_version = str(sklearn.__version__)
+    if int(sklearn_version.split(".")[1]) > 19:
+        return True
+    else:
+        return False
+
