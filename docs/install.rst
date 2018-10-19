@@ -2,8 +2,8 @@
 Installation
 ============
 
-It is recommended to use **pip** for installation.
-Please make sure **the latest version** is installed since PyOD is currently updated on **a daily basis**:
+It is recommended to use **pip** for installation. Please make sure
+**the latest version** is installed, as PyOD is updated frequently:
 
 .. code-block:: bash
 

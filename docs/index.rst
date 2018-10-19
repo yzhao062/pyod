@@ -24,23 +24,23 @@ PyOD Documentation
     :target: https://mybinder.org/v2/gh/yzhao062/Pyod/master
 
 **Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a comprehensive and
-efficient **Python toolkit** to **identify outlying objects** in multivariate data.
+scalable **Python toolkit** for **detecting outlying objects** in multivariate data.
 This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 Since 2017, PyOD has been successfully used in various academic researches
 :cite:`a-zhao2018xgbod,a-zhao2018dcso` and commercial products. PyOD is featured for:
 
-- **Unified APIs, detailed documentation and interactive examples** across various anomaly detection algorithms for short learning curve.
-- **Advanced anomaly detection models**, e.g., **Neural Networks/Deep Learning** and **Outlier Ensembles**.
-- **Optimized performance with JIT compilation and parallelization**, when the condition allows.
-- **Compatibility with both Python 2 & 3**. All implemented algorithms are also **scikit-learn compatible**.
+- **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
+- **Advanced models**, including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
+- **Optimized performance with JIT and parallelization** when possible, using numba and parallelization.
+- **Compatible with both Python 2 & 3** (scikit-learn compatible as well)
 
 **Important Notes**:
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
-implemented in keras. To eliminate the dependency on too many packages,
-PyOD would **NOT** install **keras** and **tensorflow** automatically. This would
-reduce the risk of damaging your local libraries if you have these libs already.
+implemented in keras. However, PyOD would **NOT** install **keras** and/or **tensorflow** automatically. This
+reduces the risk of damaging your local installations.
+So you should install keras and a back-end lib like tensorflow, if you want
 It is fairly easy to install and an instruction is provided `here <https://github.com/yzhao062/Pyod/issues/19>`_.
 
 
@@ -104,13 +104,6 @@ detection utility functions.
   4. **Average of Maximum (AOM)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.aom`
   5. **Maximum of Average (MOA)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.moa`
   6. **Threshold Sum (Thresh)** :cite:`a-aggarwal2015theoretical`
-
-**Utility Functions for Outlier Detection**, see :mod:`pyod.utils`.
-
-  1. :func:`pyod.utils.utility.score_to_label`: converting raw outlier scores to binary labels
-  2. :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
-  3. :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
-  4. :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
 
 **Comparison of all implemented models** are made available below
 (`Code <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_, `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_):

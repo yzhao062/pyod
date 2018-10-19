@@ -26,6 +26,8 @@ from pyod.utils.data import get_color_codes
 from pyod.utils.data import evaluate_print
 from pyod.utils.utility import standardizer
 
+from sklearn.neighbors import DistanceMetric
+
 import numpy as np
 from pyod.models.knn import KNN  
 from sklearn.neighbors import NearestNeighbors
@@ -36,9 +38,11 @@ n_test = 100
 
 X_train, y_train, X_test, y_test = generate_data(n_train=n_train, n_test=n_test, contamination=contamination)
 
+metric = DistanceMetric.get_metric('mahalanobis', V=np.cov(X_test))
 #Doesn't work (Must provide either V or VI for Mahalanobis distance)
-clf = KNN(algorithm='brute', metric='mahalanobis', metric_params={'V': np.cov(X_train)})
+clf = KNN(algorithm='brute', metric=metric.pairwise)
 clf.fit(X_train)
+# https://github.com/scikit-learn/scikit-learn/issues/8890
 
 #Works
 #nn = NearestNeighbors(algorithm='brute', metric='mahalanobis', metric_params={'V': np.cov(X_train)})
@@ -305,24 +309,6 @@ if __name__ == "__main__":
 #    # visualize the results
 #    visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
 #              y_test_pred, show_figure=True, save_figure=False)
-#%%
-import numba
-from numba import njit
-from numba import jit
-
-
-@jit('f8[:,:](f8[:,:], f8[:,:])', nopython=True)
-def calc(x,c):
-    t = np.zeros(shape=(1,2))
-    for i in range(20000):
-        c[i,:] = x [i,:]    
-    return c
-        
-
-shape0 = X_train.shape[0]
-shape1 = X_train.shape[1]
-c = np.zeros([shape0, shape1])
-t = calc(X_train, X_train)
     
 #%%
 # -*- coding: utf-8 -*-

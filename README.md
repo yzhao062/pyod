@@ -8,22 +8,23 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 --------------------------
 
-PyOD is a comprehensive and efficient **Python toolkit** to **identify outlying objects** in 
+PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in 
 multivariate data. This exciting yet challenging field is commonly referred as 
 ***[Outlier Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** 
 or ***[Anomaly Detection](https://en.wikipedia.org/wiki/Anomaly_detection)*** .
 Since 2017, PyOD has been successfully used in various academic researches [4, 8, 17] and commercial products.
 PyOD is featured for:
 
-- **Unified APIs, detailed documentation and interactive examples** across various anomaly detection algorithms.
-- **Advanced anomaly detection models**, including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
-- **Optimized performance with JIT and parallelization**, using numba and multiprocessing.
-- **Compatibility with both Python 2 & 3**. All implemented algorithms are also **scikit-learn compatible**.
+- **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
+- **Advanced models**, including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
+- **Optimized performance with JIT and parallelization** when possible, using numba and parallelization.
+- **Compatible with both Python 2 & 3** (scikit-learn compatible as well)
 
 **Important Notes**:
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
-implemented in keras. However, PyOD would **NOT** install **keras** and **tensorflow** automatically. This would
-reduce the risk of damaging your local installations. You are responsible for installing keras and tensorflow if you want
+implemented in keras. However, PyOD would **NOT** install **keras** and/or **tensorflow** automatically. This
+reduces the risk of damaging your local installations. 
+So you should install keras and a back-end lib like tensorflow, if you want
 to use neural net based models. An instruction is provided [here](https://github.com/yzhao062/Pyod/issues/19).
 
 
@@ -102,13 +103,6 @@ detection utility functions.
   4. **Average of Maximum (AOM)** [6]
   5. **Maximum of Average (MOA)** [6]
   6. **Threshold Sum (Thresh)** [6]
-
-***Utility Functions for Outlier Detection***:
-  1. score_to_lable(): convert raw outlier scores to binary labels
-  2. precision_n_scores(): one of the popular evaluation metrics for outlier 
-  mining (precision @ rank n)
-  3. generate_data(): generate pseudo data for outlier detection experiment
-  4. wpearsonr(): weighted pearson is useful in pseudo ground truth generation
   
 **Comparison of all implemented models** are made available below:
  ([Figure](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png), 
@@ -124,7 +118,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
 ### Installation
 
 It is recommended to use **pip** for installation. Please make sure 
-**the latest version** is installed since PyOD is currently updated on **a daily basis**:
+**the latest version** is installed, as PyOD is updated frequently:
 ````cmd
 pip install pyod
 pip install --upgrade pyod # make sure the latest version is installed!
@@ -144,13 +138,12 @@ python setup.py install
 - scipy>=0.19.1
 - scikit_learn>=0.19.1
 
-**Optional Dependencies (required for running examples or AutoEncoder)**: 
+**Optional Dependencies (required for running examples and AutoEncoder)**: 
 
 - keras (optional, required if calling AutoEncoder, other backend works)   
 - matplotlib (optional, required for running examples)   
 - tensorflow (optional, required if calling AutoEncoder, other backend works)   
           
-
 **Known Issue 1**: PyOD depends on matplotlib, which would throw errors in conda 
 virtual environment on mac OS. See reasons and solutions [here](https://github.com/yzhao062/Pyod/issues/6).
 

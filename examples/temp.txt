@@ -1,0 +1,14 @@
+***Utility Functions for Outlier Detection***:
+  1. score_to_lable(): convert raw outlier scores to binary labels
+  2. precision_n_scores(): one of the popular evaluation metrics for outlier
+  mining (precision @ rank n)
+  3. generate_data(): generate pseudo data for outlier detection experiment
+  4. wpearsonr(): weighted pearson is useful in pseudo ground truth generation
+
+
+**Utility Functions for Outlier Detection**, see :mod:`pyod.utils`.
+
+  1. :func:`pyod.utils.utility.score_to_label`: converting raw outlier scores to binary labels
+  2. :func:`pyod.utils.utility.precision_n_scores`: one of the popular evaluation metrics for outlier mining (precision @ rank n)
+  3. :func:`pyod.utils.data.generate_data`: generate pseudo data for outlier detection experiment
+  4. :func:`pyod.utils.stat_models.wpearsonr`:: weighted pearson is useful in pseudo ground truth generation
