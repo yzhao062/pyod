@@ -65,7 +65,7 @@ detection utility functions.
   1. Linear Models for Outlier Detection:
      1. **PCA: Principal Component Analysis** use the sum of
        weighted projected distances to the eigenvector hyperplane 
-       as the outlier outlier scores) [10]
+       as outlier scores) [10]
      2. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances 
        as the outlier scores) [11, 12]
      3. **One-Class Support Vector Machines** [3]
@@ -92,7 +92,7 @@ detection utility functions.
   5. Neural Networks and Deep Learning Models (implemented in Keras)
      1. **AutoEncoder with Fully Connected NN** [16, Chapter 3] 
         
-        FAQ regarding AutoEncoder in PyOD and debugging advices:
+        FAQ regarding AutoEncoder in PyOD and debugging advice:
         [known issues](https://github.com/yzhao062/Pyod/issues/19) 
 
 ***Outlier Detector/Scores Combination Frameworks***:

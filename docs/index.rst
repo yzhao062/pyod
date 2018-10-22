@@ -62,7 +62,7 @@ detection utility functions.
 1. Linear Models for Outlier Detection:
 
   i. **PCA: Principal Component Analysis** (use the sum of
-     weighted projected distances to the eigenvector hyperplane as the outlier
+     weighted projected distances to the eigenvector hyperplane as outlier
      scores) :cite:`a-shyu2003novel`: :class:`pyod.models.pca.PCA`
   ii. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances
       as the outlier scores) :cite:`a-rousseeuw1999fast,a-hardin2004outlier`: :class:`pyod.models.mcd.MCD`
