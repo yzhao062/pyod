@@ -1,19 +1,19 @@
 ### How to run examples?
 
-First pyod should be installed or you should download the github respository.
+First pyod should be installed or you should download the github repository.
 ````cmd
 pip install pyod
 pip install --upgrade pyod # make sure the latest version is installed!
 ````
 
-After that, you could simply copy & paste the code and run with it.
+After that, you could simply copy & paste the code or directly run the examples.
 
 ---
 
 ### Introduction of Examples
 Examples are structured as follows:
-- Examples are named as XXX_example.py, in whhich XXX is the model name.
-- All examples can find corresponding models at pyod/models/
+- Examples are named as XXX_example.py, in which XXX is the model name.
+- For all examples, you can find corresponding models at pyod/models/
 
 For instance: 
 - kNN: knn_example.py
