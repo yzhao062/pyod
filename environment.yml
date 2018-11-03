@@ -1,11 +1,11 @@
 name: pyod
 dependencies:
+  - keras
+  - matplotlib
+  - nose
+  - numba
   - numpy
   - pandas
-  - scipy
   - scikit-learn
-  - nose
-  - keras
-  - nose
-  - matplotlib
+  - scipy
   - tensorflow
