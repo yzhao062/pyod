@@ -39,6 +39,7 @@ n_test = 100
 X_train, y_train, X_test, y_test = generate_data(n_train=n_train, n_test=n_test, contamination=contamination)
 
 metric = DistanceMetric.get_metric('mahalanobis', V=np.cov(X_test))
+
 #Doesn't work (Must provide either V or VI for Mahalanobis distance)
 clf = KNN(algorithm='brute', metric=metric.pairwise)
 clf.fit(X_train)

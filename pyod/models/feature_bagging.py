@@ -225,7 +225,7 @@ class FeatureBagging(BaseDetector):
         self.n_jobs = n_jobs
         self.random_state = random_state
         self.verbose = verbose
-        if estimator_params != None:
+        if estimator_params is not None:
             self.estimator_params = estimator_params
         else:
             self.estimator_params = {}
