@@ -19,7 +19,7 @@ Alternatively, install from github directly (**not recommended**)
 
 **Required Dependencies**:
 
-- Python 2.7, 3.5 or 3.6
+- Python 2.7, 3.5, 3.6, or 3.7
 - nose
 - numpy>=1.13
 - numba>=0.35

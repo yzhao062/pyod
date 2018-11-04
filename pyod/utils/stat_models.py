@@ -11,6 +11,7 @@ import numpy as np
 
 from scipy.stats import pearsonr
 from sklearn.utils.validation import check_array
+# noinspection PyProtectedMember
 from sklearn.utils.testing import assert_allclose
 from sklearn.utils.validation import check_consistent_length
 
