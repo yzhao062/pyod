@@ -82,7 +82,6 @@ def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
                 # increment indexes
                 head = head + n_estimators_per_bucket
                 # noinspection PyUnusedLocal
-                tail = tail + n_estimators_per_bucket
         else:
             for i in range(n_buckets):
                 ind = sample_without_replacement(n_estimators,
@@ -171,7 +170,6 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
                 # increment index
                 head = head + n_estimators_per_bucket
                 # noinspection PyUnusedLocal
-                tail = tail + n_estimators_per_bucket
         else:
             for i in range(n_buckets):
                 ind = sample_without_replacement(n_estimators,
