@@ -91,6 +91,7 @@ detection utility functions.
   ii. **Feature Bagging** :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
 
 5. Neural Networks and Deep Learning Models (implemented in Keras):
+
   i. **AutoEncoder with Fully Connected NN** :cite:`a-aggarwal2015outlier`: :class:`pyod.models.auto_encoder.AutoEncoder`
 
     FAQ regarding AutoEncoder in PyOD and debugging advices: `known issues <https://github.com/yzhao062/Pyod/issues/19>`_
