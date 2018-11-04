@@ -1,10 +1,10 @@
-sphinxcontrib-bibtex
-pytest
 keras
 matplotlib
 nose
 numpy>=1.13
 numba>=0.35
+pytest
 scipy>=0.19.1
 scikit_learn>=0.19.1
+sphinxcontrib-bibtex
 tensorflow
