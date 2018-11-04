@@ -305,9 +305,8 @@ The walkthrough of the code example is provided:
 
 ### How to Contribute and Collaborate
 
-You are welcome to contribute to this exciting project, and we are pursuing 
-to publish the toolkit in prestigious academic venues, e.g., 
-[JMLR](http://www.jmlr.org/mloss/) (Track for open-source software).
+You are welcome to contribute to this exciting project, and we are preparing
+a manuscript at [JMLR](http://www.jmlr.org/mloss/) (Track for open-source software).
 
 If you are interested in contributing: 
 
@@ -319,9 +318,9 @@ you are interested
 - Create a pull request
 
 To make sure the code has the same style and standard, please refer to models,
-such as abod.py, hbos.py or feature bagging for example.
+such as abod.py, hbos.py, or feature bagging for example.
 
-You are also welcome to share your ideas by openning an issue or dropping me an email
+You are also welcome to share your ideas by opening an issue or dropping me an email
 at yuezhao@cs.toronto.edu :)
 
 ---
