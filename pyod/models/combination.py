@@ -195,8 +195,7 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
 
 
 def average(scores, estimator_weight=None):
-    """
-    Combine the outlier scores from multiple estimators by averaging
+    """Combine the outlier scores from multiple estimators by averaging
 
     :param scores: score matrix from multiple estimators on the same samples
     :type scores: numpy array of shape (n_samples, n_estimators)
@@ -225,8 +224,8 @@ def average(scores, estimator_weight=None):
 
 
 def maximization(scores):
-    """
-    Combine the outlier scores from multiple estimators by taking the maximum
+    """Combine the outlier scores from multiple estimators by taking the
+    maximum score
 
     :param scores: score matrix from multiple estimators on the same samples
     :type scores: numpy array of shape (n_samples, n_estimators)
