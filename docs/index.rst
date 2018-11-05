@@ -20,6 +20,9 @@ PyOD Documentation
 .. image:: https://img.shields.io/github/forks/yzhao062/Pyod.svg
     :alt: GitHub forks
     :target: https://github.com/yzhao062/Pyod
+.. image:: https://pepy.tech/badge/pyod
+    :alt: Downloads
+    :target: https://pepy.tech/project/pyod
 .. image:: https://mybinder.org/badge.svg
     :target: https://mybinder.org/v2/gh/yzhao062/Pyod/master
 

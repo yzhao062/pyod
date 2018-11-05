@@ -19,7 +19,7 @@ are provided:
 - Precision @ rank n (P@N)
 - Execution time
 
-You are welcome to replicate this process by running: 
+You are welcome to replicate this process by running:
 `benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_
 
 ROC Performance
