@@ -113,11 +113,12 @@ class HBOS(BaseDetector):
 
 
 @njit
-def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha, tol):
-    """
-    The internal function to calculate the outlier scores based on
+def _calculate_outlier_scores(
+        X, bin_edges, hist, n_bins, alpha, tol):  # pragma: no cover
+    """The internal function to calculate the outlier scores based on
     the bins and histograms constructed with the training data. The program
-    is optimized through numba
+    is optimized through numba. It is excluded from coverage test for
+    eliminating the redundancy.
 
     :param X: The input samples
     :type X: numpy array of shape (n_samples, n_features)
