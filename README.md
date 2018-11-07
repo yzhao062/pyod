@@ -6,6 +6,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/stargazers) 
 [![GitHub forks](https://img.shields.io/github/forks/yzhao062/Pyod.svg)](https://github.com/yzhao062/Pyod/network)
 [![Downloads](https://pepy.tech/badge/pyod)](https://pepy.tech/project/pyod)
+[![Downloads](https://pepy.tech/badge/pyod/month)](https://pepy.tech/project/pyod)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
 --------------------------
 

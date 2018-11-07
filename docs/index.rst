@@ -22,6 +22,9 @@ PyOD Documentation
     :target: https://github.com/yzhao062/Pyod
 .. image:: https://pepy.tech/badge/pyod
     :alt: Downloads
+    :target: https://pepy.tech/badge/pyod/month
+.. image:: https://pepy.tech/badge/pyod
+    :alt: Downloads per Month
     :target: https://pepy.tech/project/pyod
 .. image:: https://mybinder.org/badge.svg
     :target: https://mybinder.org/v2/gh/yzhao062/Pyod/master
