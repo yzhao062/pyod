@@ -5,27 +5,16 @@ from __future__ import print_function
 import os
 import sys
 
+import unittest
+from sklearn.utils.testing import assert_equal
+from sklearn.utils.testing import assert_raises
+from sklearn.utils.testing import assert_true
+
+import numpy as np
+
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import unittest
-
-from sklearn.utils import deprecated
-from sklearn.utils.testing import assert_equal
-from sklearn.utils.testing import assert_greater
-from sklearn.utils.testing import assert_greater_equal
-from sklearn.utils.testing import assert_less_equal
-from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_true
-from sklearn.utils.testing import assert_false
-from sklearn.utils.testing import assert_array_equal
-# noinspection PyProtectedMember
-from sklearn.utils.testing import assert_warns_message
-
-import numpy as np
-import scipy.sparse as sp
-from sklearn.base import clone
 
 from pyod.models.base import BaseDetector
 from pyod.utils.data import generate_data
@@ -33,7 +22,7 @@ from pyod.utils.data import generate_data
 
 # Check sklearn\tests\test_base
 # A few test classes
-# noinspection PyMissingConstructor
+# noinspection PyMissingConstructor,PyPep8Naming
 class MyEstimator(BaseDetector):
 
     def __init__(self, l1=0, empty=None):

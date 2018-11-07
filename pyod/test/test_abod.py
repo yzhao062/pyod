@@ -5,11 +5,8 @@ from __future__ import print_function
 import os
 import sys
 
-# temporary solution for relative imports in case pyod is not installed
-# if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import unittest
+
 # noinspection PyProtectedMember
 from sklearn.utils.testing import assert_allclose
 from sklearn.utils.testing import assert_array_less
@@ -23,6 +20,10 @@ from sklearn.utils.testing import assert_true
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
+
+# temporary solution for relative imports in case pyod is not installed
+# if pyod is installed, no need to use the following line
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.abod import ABOD
 from pyod.utils.data import generate_data
