@@ -5,25 +5,22 @@ from __future__ import print_function
 
 import os
 import sys
+
 import unittest
+# noinspection PyProtectedMember
+from sklearn.utils.testing import assert_equal
+from sklearn.utils.testing import assert_array_equal
+# noinspection PyProtectedMember
+from sklearn.utils.testing import assert_allclose
+from sklearn.utils.testing import assert_raises
+
+import numpy as np
+from sklearn.utils import shuffle
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# noinspection PyProtectedMember
-from sklearn.utils import shuffle
-from sklearn.utils.testing import assert_equal
-from sklearn.utils.testing import assert_array_equal
-from sklearn.utils.testing import assert_greater
-from sklearn.utils.testing import assert_greater_equal
-from sklearn.utils.testing import assert_less_equal
-# noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_raises
-from sklearn.metrics import roc_auc_score
-
-import numpy as np
 from pyod.models.combination import aom
 from pyod.models.combination import moa
 from pyod.models.combination import average

@@ -5,19 +5,20 @@ from __future__ import print_function
 
 import os
 import sys
+
 import unittest
-
-# temporary solution for relative imports in case pyod is not installed
-# if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import numpy as np
 from sklearn.utils.testing import assert_equal
 # noinspection PyProtectedMember
 from sklearn.utils.testing import assert_allclose
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.metrics import precision_score
+
+import numpy as np
+
+# temporary solution for relative imports in case pyod is not installed
+# if pyod is installed, no need to use the following line
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
