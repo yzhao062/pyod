@@ -12,7 +12,9 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
 
 from .base import BaseDetector
-from ..utils.utility import invert_order, _sklearn_version_20
+from ..utils.utility import invert_order
+# noinspection PyProtectedMember
+from ..utils.utility import _sklearn_version_20
 
 
 class LOF(BaseDetector):
