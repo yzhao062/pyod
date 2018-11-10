@@ -1,7 +1,7 @@
 # Python Outlier Detection (PyOD)
 [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) 
 [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) 
-[![Build Status](https://travis-ci.org/yzhao062/pyod.svg?branch=master)](https://travis-ci.org/yzhao062/Pyod) 
+[![Build Status](https://travis-ci.org/yzhao062/pyod.svg?branch=master)](https://travis-ci.org/yzhao062/pyod)
 [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master&service=github)](https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github) 
 [![GitHub stars](https://img.shields.io/github/stars/yzhao062/pyod.svg)](https://github.com/yzhao062/Pyod/stargazers) 
 [![GitHub forks](https://img.shields.io/github/forks/yzhao062/pyod.svg)](https://github.com/yzhao062/Pyod/network)

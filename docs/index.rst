@@ -11,7 +11,7 @@ PyOD Documentation
     :target: https://pyod.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 .. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
-    :target: https://travis-ci.org/yzhao062/Pyod
+    :target: https://travis-ci.org/yzhao062/pyod
 .. image:: https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master
     :target: https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github
 .. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
