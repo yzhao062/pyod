@@ -106,13 +106,13 @@ detection utility functions.
   6. **Threshold Sum (Thresh)** [6]
   
 **Comparison of all implemented models** are made available below:
- ([Figure](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png), 
+ ([Figure](https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png), 
  [Code](https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py),
  [Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master)):
  
 For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
  
-![Comparision_of_All](https://github.com/yzhao062/Pyod/blob/master/examples/ALL.png)
+![Comparision_of_All](https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png)
  
 ------------
 
@@ -227,9 +227,9 @@ More detailed instruction of running examples can be found [here.](https://githu
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
               y_test_pred, show_figure=True, save_figure=False)
     ````
-    
-Visualization ([knn_figure](https://github.com/yzhao062/Pyod/blob/master/examples/KNN.png)):
-![kNN example figure](https://github.com/yzhao062/Pyod/blob/master/examples/KNN.png)
+       
+Visualization ([knn_figure](https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/KNN.png )):
+![kNN example figure](https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/KNN.png )
 
 ---
 ### Quick Start for Combining Outlier Scores from Various Base Detectors
