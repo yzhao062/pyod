@@ -31,3 +31,4 @@ v<0.5.8>, <09/04/2018> -- Remove keras, tensorflow and matplotlib as dependency.
 v<0.5.9>, <09/04/2018> -- Optimize models with numba for fast execution.
 v<0.6.0>, <10/19/2018> -- Update LOF due to the changes in sklearn 0.20.0.
 v<0.6.1>, <11/03/2018> -- Inclusion of Python 3.7 & welcome Zain Nasrullah
+v<0.6.1>, <11/10/2018> -- Incremental changes and official release of 0.6.1
