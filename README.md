@@ -65,9 +65,8 @@ detection utility functions.
 
 ***Individual Detection Algorithms***:
   1. Linear Models for Outlier Detection:
-     1. **PCA: Principal Component Analysis** use the sum of
-       weighted projected distances to the eigenvector hyperplane 
-       as outlier scores) [10]
+     1. **PCA: Principal Component Analysis** (use the sum of
+       weighted projected distances to the eigenvector hyperplane) [10]
      2. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances 
        as the outlier scores) [11, 12]
      3. **One-Class Support Vector Machines** [3]
@@ -78,7 +77,7 @@ detection utility functions.
      3. **HBOS: Histogram-based Outlier Score** [5]
      4. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
      neighbor as the outlier score) [13]
-     5. **Average kNN or kNN Sum** Outlier Detection (use the average distance to k 
+     5. **Average kNN or kNN Sum** (use the average distance to k 
      nearest neighbors as the outlier score or sum all k distances) [14]
      6. **Median kNN** Outlier Detection (use the median distance to k nearest 
      neighbors as the outlier score)
