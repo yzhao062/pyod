@@ -10,16 +10,16 @@ PyOD Documentation
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
     :target: https://pyod.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-.. image:: https://travis-ci.org/yzhao062/Pyod.svg?branch=master
+.. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
     :target: https://travis-ci.org/yzhao062/Pyod
 .. image:: https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master
     :target: https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github
-.. image:: https://img.shields.io/github/stars/yzhao062/Pyod.svg
+.. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
     :alt: GitHub stars
-    :target: https://github.com/yzhao062/Pyod
-.. image:: https://img.shields.io/github/forks/yzhao062/Pyod.svg
+    :target: https://github.com/yzhao062/pyod
+.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
     :alt: GitHub forks
-    :target: https://github.com/yzhao062/Pyod
+    :target: https://github.com/yzhao062/pyod
 .. image:: https://pepy.tech/badge/pyod
     :alt: Downloads
     :target: https://pepy.tech/project/pyod
