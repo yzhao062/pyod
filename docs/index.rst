@@ -148,6 +148,7 @@ Contents
    example
    benchmark
    api_cc
+   todo
    pyod
 
 Quick Links
