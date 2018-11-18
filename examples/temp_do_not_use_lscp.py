@@ -85,7 +85,10 @@ np.set_printoptions(suppress=True, precision=4)
 
 class LSCP(BaseDetector):
 
-    def __init__(self, estimator_list, n_iterations=20, local_region_size=30, local_max_features=1.0, n_bins=10, random_state=42):
+    def __init__(self, estimator_list, n_iterations=20, local_region_size=30, local_max_features=1.0, n_bins=10,
+                 random_state=42, contamination=0.1):
+
+        super(LSCP, self).__init__(contamination=contamination)
         self.estimator_list = estimator_list
         self.n_clf = len(self.estimator_list)
         self.n_iterations = n_iterations
@@ -127,14 +130,13 @@ class LSCP(BaseDetector):
 
         # generate pseudo target for training --> for calculating weights
         self.training_pseudo_label_ = np.max(self.train_scores_norm_, axis=1).reshape(-1, 1)
-        self.decision_scores_ = True
-        self.threshold_ = True
-        self.labels_ = True
+        self.decision_scores_ = self._get_decision_scores(X)
+        self._process_decision_scores()
 
         return
 
     def decision_function(self, X):
-        # check whether fmodel has been fit
+        # check whether model has been fit
         check_is_fitted(self, ['training_pseudo_label_', 'train_scores_norm_', 'X_train_norm_', 'n_features_'])
 
         # check input array
@@ -144,6 +146,10 @@ class LSCP(BaseDetector):
                              "match the input. Model n_features is {0} and "
                              "input n_features is {1}."
                              "".format(self.n_features_, X.shape[1]))
+
+        return self._get_decision_scores(X)
+
+    def _get_decision_scores(self, X):
 
         # ensure local region size is within acceptable limits
         self.local_region_size = min(self.local_region_size, self.local_region_min)
@@ -179,7 +185,6 @@ class LSCP(BaseDetector):
                 test_scores_norm[i, self._get_competent_detectors(pearson_corr_scores)])
 
         return pred_scores_ens
-
 
     def _get_local_region(self, X_test_norm):
 
@@ -234,9 +239,6 @@ class LSCP(BaseDetector):
         # return np.mean(scores[candidates, :])
         return candidates
 
-    def _get_decision_scores(self):
-        pass
-
     def __len__(self):
         return len(self.estimator_list)
 
@@ -245,5 +247,30 @@ class LSCP(BaseDetector):
 
     def __iter__(self):
         return iter(self.estimator_list)
+
+if __name__ == "__main__":
+
+    from pyod.models.lof import LOF
+
+    el = [LOF(20), LOF(30)]
+    lscp = LSCP(el)
+
+    import scipy.io as scio
+    def loaddata(filename):
+        """
+        load data
+        :param filename:
+        :return:
+        """
+        mat = scio.loadmat(filename + '.mat')
+        X_orig = mat['X']
+        y_orig = mat['y'].ravel()
+        return X_orig, y_orig
+
+
+    X, y = loaddata(r"C:\Users\znasrullah001\Documents\project-files\PyOD\LSCP\datasets\cardio")
+    lscp.fit(X)
+    scores = lscp.decision_function(X)
+
 
 
