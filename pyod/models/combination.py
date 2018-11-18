@@ -18,6 +18,113 @@ from sklearn.utils.testing import assert_equal
 from ..utils.utility import check_parameter
 
 
+def _aom_moa_helper(mode, scores, n_buckets, method, bootstrap_estimators,
+                    random_state):
+    """Internal helper function for Average of Maximum (AOM) and
+    Maximum of Average (MOA). See :cite:`aggarwal2015theoretical` for details.
+
+    First dividing estimators into subgroups, take the maximum/average score
+    as the subgroup score. Finally, take the average/maximum of all subgroup
+    outlier scores.
+
+    :param mode: Define the operation model, either "AOM" or "MOA"
+    :type mode: str
+
+    :param scores: The score matrix outputted from various estimators
+    :type scores: numpy array of shape (n_samples, n_estimators)
+
+    :param n_buckets: The number of subgroups to build
+    :type n_buckets: int, optional (default=5)
+
+    :param method: {'static', 'dynamic'}, if 'dynamic', build subgroups
+        randomly with dynamic bucket size.
+    :type method: str, optional (default='static')
+
+    :param bootstrap_estimators: Whether estimators are drawn with replacement.
+    :type bootstrap_estimators: bool, optional (default=False)
+
+    :param random_state: If int, random_state is the seed used by the
+        random number generator; If RandomState instance, random_state is
+        the random number generator; If None, the random number generator
+        is the RandomState instance used by `np.random`.
+    :type random_state: int, RandomState instance or None,
+        optional (default=None)
+
+    :return: The combined outlier scores.
+    :rtype: Numpy array of shape (n_samples,)
+    """
+    if mode != 'AOM' and mode != 'MOA':
+        raise NotImplementedError(
+            '{mode} is not implemented'.format(mode=mode))
+
+    scores = check_array(scores)
+    # TODO: add one more parameter for max number of estimators
+    # use random_state instead
+    # for now it is fixed at n_estimators/2
+    n_estimators = scores.shape[1]
+    check_parameter(n_buckets, 2, n_estimators, param_name='n_buckets')
+
+    scores_buckets = np.zeros([scores.shape[0], n_buckets])
+
+    if method == 'static':
+
+        n_estimators_per_bucket = int(n_estimators / n_buckets)
+        if n_estimators % n_buckets != 0:
+            raise ValueError('n_estimators / n_buckets has a remainder. Not '
+                             'allowed in static mode.')
+
+        if not bootstrap_estimators:
+            # shuffle the estimator order
+            shuffled_list = shuffle(list(range(0, n_estimators, 1)),
+                                    random_state=random_state)
+
+            head = 0
+            for i in range(0, n_estimators, n_estimators_per_bucket):
+                tail = i + n_estimators_per_bucket
+                batch_ind = int(i / n_estimators_per_bucket)
+                if mode == 'AOM':
+                    scores_buckets[:, batch_ind] = np.max(
+                        scores[:, shuffled_list[head:tail]], axis=1)
+                else:
+                    scores_buckets[:, batch_ind] = np.mean(
+                        scores[:, shuffled_list[head:tail]], axis=1)
+
+                # increment index
+                head = head + n_estimators_per_bucket
+                # noinspection PyUnusedLocal
+        else:
+            for i in range(n_buckets):
+                ind = sample_without_replacement(n_estimators,
+                                                 n_estimators_per_bucket,
+                                                 random_state=random_state)
+                if mode == 'AOM':
+                    scores_buckets[:, i] = np.max(scores[:, ind], axis=1)
+                else:
+                    scores_buckets[:, i] = np.mean(scores[:, ind], axis=1)
+
+    elif method == 'dynamic':  # random bucket size
+        for i in range(n_buckets):
+            # the number of estimators in a bucket should be 2 - n/2
+            max_estimator_per_bucket = RandomState(seed=random_state).randint(
+                2, int(n_estimators / 2))
+            ind = sample_without_replacement(n_estimators,
+                                             max_estimator_per_bucket,
+                                             random_state=random_state)
+            if mode == 'AOM':
+                scores_buckets[:, i] = np.max(scores[:, ind], axis=1)
+            else:
+                scores_buckets[:, i] = np.mean(scores[:, ind], axis=1)
+
+    else:
+        raise NotImplementedError(
+            '{method} is not implemented'.format(method=method))
+
+    if mode == 'AOM':
+        return np.mean(scores_buckets, axis=1)
+    else:
+        return np.max(scores_buckets, axis=1)
+
+
 def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
         random_state=None):
     """Average of Maximum - An ensemble method for combining multiple
@@ -49,61 +156,8 @@ def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
     :return: The combined outlier scores.
     :rtype: Numpy array of shape (n_samples,)
     """
-
-    # TODO: add one more parameter for max number of estimators
-    # use random_state instead
-    # for now it is fixed at n_estimators/2
-    scores = check_array(scores)
-    n_estimators = scores.shape[1]
-    check_parameter(n_buckets, 2, n_estimators, param_name='n_buckets')
-
-    scores_aom = np.zeros([scores.shape[0], n_buckets])
-
-    if method == 'static':
-
-        n_estimators_per_bucket = int(n_estimators / n_buckets)
-        if n_estimators % n_buckets != 0:
-            raise ValueError('n_estimators / n_buckets has a remainder. Not '
-                             'allowed in static mode.')
-
-        if not bootstrap_estimators:
-            # shuffle the estimator order
-            shuffled_list = shuffle(list(range(0, n_estimators, 1)),
-                                    random_state=random_state)
-
-            head = 0
-            for i in range(0, n_estimators, n_estimators_per_bucket):
-                tail = i + n_estimators_per_bucket
-                batch_ind = int(i / n_estimators_per_bucket)
-
-                scores_aom[:, batch_ind] = np.max(
-                    scores[:, shuffled_list[head:tail]], axis=1)
-
-                # increment indexes
-                head = head + n_estimators_per_bucket
-                # noinspection PyUnusedLocal
-        else:
-            for i in range(n_buckets):
-                ind = sample_without_replacement(n_estimators,
-                                                 n_estimators_per_bucket,
-                                                 random_state=random_state)
-                scores_aom[:, i] = np.max(scores[:, ind], axis=1)
-
-    elif method == 'dynamic':  # random bucket size
-        for i in range(n_buckets):
-            # the number of estimators in a bucket should be 2 - n/2
-            max_estimator_per_bucket = RandomState(seed=random_state).randint(
-                2, int(n_estimators / 2))
-            ind = sample_without_replacement(n_estimators,
-                                             max_estimator_per_bucket,
-                                             random_state=random_state)
-            scores_aom[:, i] = np.max(scores[:, ind], axis=1)
-
-    else:
-        raise NotImplementedError(
-            '{method} is not implemented'.format(method=method))
-
-    return np.mean(scores_aom, axis=1)
+    return _aom_moa_helper('AOM', scores, n_buckets, method,
+                           bootstrap_estimators, random_state)
 
 
 def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
@@ -138,60 +192,8 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
     :return: The combined outlier scores.
     :rtype: Numpy array of shape (n_samples,)
     """
-
-    # TODO: add one more parameter for max number of estimators
-    #       for now it is fixed to n_estimators/2
-    scores = check_array(scores)
-    n_estimators = scores.shape[1]
-    check_parameter(n_buckets, 2, n_estimators, param_name='n_buckets')
-
-    scores_moa = np.zeros([scores.shape[0], n_buckets])
-
-    if method == 'static':
-
-        n_estimators_per_bucket = int(n_estimators / n_buckets)
-        if n_estimators % n_buckets != 0:
-            raise ValueError('n_estimators / n_buckets has a remainder. Not '
-                             'allowed in static mode.')
-
-        if not bootstrap_estimators:
-            # shuffle the estimator order
-            shuffled_list = shuffle(list(range(0, n_estimators, 1)),
-                                    random_state=random_state)
-
-            head = 0
-            for i in range(0, n_estimators, n_estimators_per_bucket):
-                tail = i + n_estimators_per_bucket
-                batch_ind = int(i / n_estimators_per_bucket)
-
-                scores_moa[:, batch_ind] = np.mean(
-                    scores[:, shuffled_list[head:tail]], axis=1)
-
-                # increment index
-                head = head + n_estimators_per_bucket
-                # noinspection PyUnusedLocal
-        else:
-            for i in range(n_buckets):
-                ind = sample_without_replacement(n_estimators,
-                                                 n_estimators_per_bucket,
-                                                 random_state=random_state)
-                scores_moa[:, i] = np.mean(scores[:, ind], axis=1)
-
-    elif method == 'dynamic':  # random bucket size
-        for i in range(n_buckets):
-            # the number of estimators in a bucket should be 2 - n/2
-            max_estimator_per_bucket = RandomState(seed=random_state).randint(
-                2, int(n_estimators / 2))
-            ind = sample_without_replacement(n_estimators,
-                                             max_estimator_per_bucket,
-                                             random_state=random_state)
-            scores_moa[:, i] = np.mean(scores[:, ind], axis=1)
-
-    else:
-        raise NotImplementedError(
-            '{method} is not implemented'.format(method=method))
-
-    return np.max(scores_moa, axis=1)
+    return _aom_moa_helper('MOA', scores, n_buckets, method,
+                           bootstrap_estimators, random_state)
 
 
 def average(scores, estimator_weight=None):
