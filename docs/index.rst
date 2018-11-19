@@ -4,7 +4,8 @@
    contain the root `toctree` directive.
 
 PyOD Documentation
-================================
+==================
+
 .. image:: https://badge.fury.io/py/pyod.svg
     :target: https://badge.fury.io/py/pyod
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest

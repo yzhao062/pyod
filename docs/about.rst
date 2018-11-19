@@ -1,4 +1,4 @@
-About US
+About us
 ========
 
 Development Team
