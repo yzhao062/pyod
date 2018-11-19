@@ -1,5 +1,5 @@
 API CheatSheet
-==================
+==============
 
 * :func:`pyod.models.base.BaseDetector.fit`: Fit detector.
 * :func:`pyod.models.base.BaseDetector.fit_predict`: Fit detector and predict if a particular sample is an outlier or not.
@@ -9,3 +9,4 @@ API CheatSheet
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
 
 See full API reference :doc:`pyod`.
+
