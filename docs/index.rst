@@ -146,13 +146,29 @@ Contents
 
 .. toctree::
    :maxdepth: 2
+   :caption: Getting Started
+
 
    install
    example
    benchmark
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Documentation
+
    api_cc
-   todo
    pyod
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Additional Information
+
+   todo
+   about
+
 
 Quick Links
 ===========
