@@ -82,6 +82,9 @@ timestamp = today.strftime("%Y%m%d_%H%M%S")
 # set numpy parameters
 np.set_printoptions(suppress=True, precision=4)
 
+# TODO: Clean up unnecessary residual comments
+# TODO: Add proper documentation
+# TODO: Design unit tests
 
 class LSCP(BaseDetector):
 
@@ -125,7 +128,7 @@ class LSCP(BaseDetector):
         # fit each base estimator and calculate standardized train scores
         for k, estimator in enumerate(self.estimator_list):
             estimator.fit(self.X_train_norm_, y)
-            train_scores[:, k] = estimator.predict(self.X_train_norm_)
+            train_scores[:, k] = estimator.decision_function(self.X_train_norm_)
         self.train_scores_norm_ = standardizer(train_scores)
 
         # generate pseudo target for training --> for calculating weights
@@ -152,8 +155,8 @@ class LSCP(BaseDetector):
     def _get_decision_scores(self, X):
 
         # ensure local region size is within acceptable limits
-        self.local_region_size = min(self.local_region_size, self.local_region_min)
-        self.local_region_size = max(self.local_region_size, self.local_region_max)
+        self.local_region_size = max(self.local_region_size, self.local_region_min)
+        self.local_region_size = min(self.local_region_size, self.local_region_max)
 
         # standardize test data and get local region for each test instance
         X_test_norm = standardizer(X)
@@ -162,7 +165,7 @@ class LSCP(BaseDetector):
         # calculate test scores
         test_scores = np.zeros([X_test_norm.shape[0], self.n_clf])
         for k, estimator in enumerate(self.estimator_list):
-            test_scores[:, k] = estimator.predict(X_test_norm)
+            test_scores[:, k] = estimator.decision_function(X_test_norm)
         test_scores_norm = standardizer(test_scores)
 
         # placeholder for predictions
@@ -269,8 +272,17 @@ if __name__ == "__main__":
 
 
     X, y = loaddata(r"C:\Users\znasrullah001\Documents\project-files\PyOD\LSCP\datasets\cardio")
-    lscp.fit(X)
-    scores = lscp.decision_function(X)
+
+    random_state = np.random.RandomState(0)
+
+    from sklearn.model_selection import train_test_split
+    # split the data into training and testing
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                        test_size=0.4,
+                                                        random_state=random_state)
+    print('train_test_split happend')
+    lscp.fit(X_train)
+    scores = lscp.decision_function(X_test)
 
 
 
