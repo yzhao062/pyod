@@ -3,6 +3,7 @@
 [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) 
 [![Build Status](https://travis-ci.org/yzhao062/pyod.svg?branch=master)](https://travis-ci.org/yzhao062/pyod)
 [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master&service=github)](https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github) 
+[![Maintainability](https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability)](https://codeclimate.com/github/yzhao062/Pyod/maintainability)
 [![GitHub stars](https://img.shields.io/github/stars/yzhao062/pyod.svg)](https://github.com/yzhao062/Pyod/stargazers) 
 [![GitHub forks](https://img.shields.io/github/forks/yzhao062/pyod.svg)](https://github.com/yzhao062/Pyod/network)
 [![Downloads](https://pepy.tech/badge/pyod)](https://pepy.tech/project/pyod)

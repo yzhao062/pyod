@@ -18,7 +18,7 @@ from sklearn.externals.joblib import Parallel, delayed
 
 from .lof import LOF
 from .base import BaseDetector
-from .base import _partition_estimators
+from models.sklearn_base import _partition_estimators
 from .combination import average, maximization
 from ..utils.utility import check_parameter
 

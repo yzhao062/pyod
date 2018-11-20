@@ -1,5 +1,5 @@
-A List of Examples
-==================
+List of Examples
+================
 
 examples.abod\_example module
 -----------------------------
