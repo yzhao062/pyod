@@ -126,6 +126,16 @@ pyod.models.pca module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.sklearn\_base module
+--------------------------------
+
+.. automodule:: pyod.models.sklearn_base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+
 Module contents
 ---------------
 
