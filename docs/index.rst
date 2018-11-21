@@ -147,6 +147,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Getting Started
 
 
@@ -157,6 +158,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Documentation
 
    api_cc
@@ -165,6 +167,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Additional Information
 
    todo
