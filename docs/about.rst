@@ -4,8 +4,8 @@ About us
 Development Team
 ----------------
 
-Yue Zhao
-
+Yue Zhao (initialized the project in 2017)
+Zain Nasrullah (joined in 2018)
 
 Citing imbalanced-learn
 -----------------------
