@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-PyOD Documentation
-==================
+Welcome to PyOD documentation!
+==============================
 
 .. image:: https://badge.fury.io/py/pyod.svg
     :target: https://badge.fury.io/py/pyod
@@ -142,8 +142,6 @@ Key Attributes of a fitted model:
   Outliers tend to have higher scores.
 * :attr:`pyod.models.base.BaseDetector.labels_`: The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
-Contents
-========
 
 .. toctree::
    :maxdepth: 2
