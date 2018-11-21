@@ -22,7 +22,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
 
-from models.sklearn_base import _pprint
+from .sklearn_base import _pprint
 from ..utils.utility import precision_n_scores
 
 

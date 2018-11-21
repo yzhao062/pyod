@@ -3,6 +3,10 @@
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
+
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 from scipy import sparse
 from sklearn.externals import six
