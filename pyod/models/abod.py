@@ -21,8 +21,8 @@ from ..utils.utility import check_parameter
 
 @njit
 def _wcos(curr_pt, a, b):
-    """
-    Internal function to calculate weighted cosine using optimized numba code
+    """Internal function to calculate weighted cosine using optimized numba
+    code
 
     :param curr_pt: Current sample to be calculated
     :type curr_pt: numpy array of shape (n_samples, n_features)
@@ -47,12 +47,11 @@ def _wcos(curr_pt, a, b):
 
 
 def _calculate_wocs(curr_pt, X, X_ind):
-    """
-    Calculated the variance of weighted cosine of a point
+    """Calculated the variance of weighted cosine of a point
     wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
 
     :param curr_pt: the sample to be calculated
-    :type curr_pt: array, shape (1, n_features)
+    :type curr_pt: numpy array, shape (1, n_features)
 
     :param X: the training dataset
     :type X: numpy array of shape (n_samples, n_features)
@@ -80,8 +79,7 @@ def _calculate_wocs(curr_pt, X, X_ind):
 
 # noinspection PyPep8Naming
 class ABOD(BaseDetector):
-    """
-    ABOD class for Angle-base Outlier Detection.
+    """ABOD class for Angle-base Outlier Detection.
     For an observation, the variance of its weighted cosine scores to all
     neighbors could be viewed as the outlying score.
     See :cite:`kriegel2008angle` for details.
@@ -153,9 +151,8 @@ class ABOD(BaseDetector):
         return self
 
     def _fit_default(self):
-        """
-        Default ABOD method. Use all training points with high complexity
-        O(n^3). For internal use only
+        """Default ABOD method. Use all training points with high complexity
+        O(n^3). For internal use only.
         :return: None
         """
         for i in range(self.n_train_):
@@ -171,8 +168,7 @@ class ABOD(BaseDetector):
         return self
 
     def _fit_fast(self):
-        """
-        Fast ABOD method. Only use n_neighbors for angle calculation
+        """Fast ABOD method. Only use n_neighbors for angle calculation
         Internal use only
         :return: None
         """
@@ -211,8 +207,7 @@ class ABOD(BaseDetector):
             return self._decision_function_default(X) * -1
 
     def _decision_function_default(self, X):
-        """
-        Internal method for predicting outlier scores using default ABOD
+        """Internal method for predicting outlier scores using default ABOD
 
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
@@ -232,8 +227,7 @@ class ABOD(BaseDetector):
         return pred_score.ravel()
 
     def _decision_function_fast(self, X):
-        """
-        Internal method for predicting outlier scores using Fast ABOD
+        """Internal method for predicting outlier scores using Fast ABOD
 
         :param X: The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
