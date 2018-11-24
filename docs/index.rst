@@ -8,6 +8,8 @@ Welcome to PyOD documentation!
 
 .. image:: https://badge.fury.io/py/pyod.svg
     :target: https://badge.fury.io/py/pyod
+.. image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
     :target: https://pyod.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
@@ -32,8 +34,7 @@ Welcome to PyOD documentation!
 .. image:: https://pepy.tech/badge/pyod/month
     :alt: Downloads per Month
     :target: https://pepy.tech/project/pyod
-.. image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
+
 
 **Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a comprehensive and
 scalable **Python toolkit** for **detecting outlying objects** in multivariate data.
