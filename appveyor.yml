@@ -17,6 +17,7 @@ skip_commits:
   files:
     - "*.yml"
     - "*.rst"
+    - "*.md"
     - "LICENSE"
 
 init:
@@ -25,7 +26,8 @@ init:
 install:
   - "%PYTHON%\\python.exe -m pip install pytest"
   - "%PYTHON%\\python.exe -m pip install pytest-cov"
-  - "%PYTHON%\\python.exe -m pip install . -r requirements_travis.txt"
+  - "%PYTHON%\\python.exe -m pip install -r requirements_travis.txt"
+
 
 test_script:
   - "%PYTHON%\\python.exe -m pytest"
