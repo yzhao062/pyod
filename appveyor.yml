@@ -11,7 +11,7 @@ environment:
 #    - PYTHON: "C:\\Python27"     # comment out due to tensorflow version
 #    - PYTHON: "C:\\Python27-x64" # comment out due to tensorflow version
     - PYTHON: "C:\\Python35-x64"
-    - PYTHON: "C:\\Python36-x32"
+#    - PYTHON: "C:\\Python36-x32"
     - PYTHON: "C:\\Python36-x64"
 
 skip_commits:
@@ -25,16 +25,23 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip setuptools"
+  - "%PYTHON%\\python.exe -m pip install wheel"
   - "%PYTHON%\\python.exe -m pip install pytest"
-  - "%PYTHON%\\python.exe -m pip install pytest-cov"
   - "%PYTHON%\\python.exe -m pip install -r requirements_travis.txt"
 
 
 test_script:
   - "%PYTHON%\\python.exe -m pytest"
 
+after_test:
+  - "%PYTHON%\\python.exe  setup.py bdist_wheel"
+
+artifacts:
+  - path: dist\*
+
 notifications:
   - provider: Email
     to:
-      - yuezhao@cs.toronto.edu
+      - yzhao062@gmail.com
     on_build_status_changed: true
