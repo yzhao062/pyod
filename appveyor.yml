@@ -1,0 +1,37 @@
+build: off
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+    -
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python27-x64"
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36-x64"
+
+skip_commits:
+  files:
+    - "*.yml"
+    - "*.rst"
+    - "LICENSE"
+
+init:
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+
+install:
+  - "%PYTHON%\\python.exe -m pip install pytest"
+  - "%PYTHON%\\python.exe -m pip install pytest-cov"
+  - "%PYTHON%\\python.exe -m pip install . -r requirements_travis.txt"
+
+test_script:
+  - "%PYTHON%\\python.exe -m pytest"
+
+notifications:
+  - provider: Email
+    to:
+      - yuezhao@cs.toronto.edu
+    on_build_status_changed: true
