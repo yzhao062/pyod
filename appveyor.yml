@@ -1,0 +1,47 @@
+build: off
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+    -
+environment:
+  matrix:
+#    - PYTHON: "C:\\Python27"     # comment out due to tensorflow version
+#    - PYTHON: "C:\\Python27-x64" # comment out due to tensorflow version
+    - PYTHON: "C:\\Python35-x64"
+#    - PYTHON: "C:\\Python36-x32"
+    - PYTHON: "C:\\Python36-x64"
+
+skip_commits:
+  files:
+    - "*.yml"
+    - "*.rst"
+    - "*.md"
+    - "LICENSE"
+
+init:
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+
+install:
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip setuptools"
+  - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHON%\\python.exe -m pip install pytest"
+  - "%PYTHON%\\python.exe -m pip install -r requirements_travis.txt"
+
+
+test_script:
+  - "%PYTHON%\\python.exe -m pytest"
+
+after_test:
+  - "%PYTHON%\\python.exe  setup.py bdist_wheel"
+
+artifacts:
+  - path: dist\*
+
+notifications:
+  - provider: Email
+    to:
+      - yzhao062@gmail.com
+    on_build_status_changed: true

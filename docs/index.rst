@@ -8,9 +8,13 @@ Welcome to PyOD documentation!
 
 .. image:: https://badge.fury.io/py/pyod.svg
     :target: https://badge.fury.io/py/pyod
+.. image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
     :target: https://pyod.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+.. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
 .. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
     :target: https://travis-ci.org/yzhao062/pyod
 .. image:: https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master
@@ -30,8 +34,7 @@ Welcome to PyOD documentation!
 .. image:: https://pepy.tech/badge/pyod/month
     :alt: Downloads per Month
     :target: https://pepy.tech/project/pyod
-.. image:: https://mybinder.org/badge.svg
-    :target: https://mybinder.org/v2/gh/yzhao062/Pyod/master
+
 
 **Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a comprehensive and
 scalable **Python toolkit** for **detecting outlying objects** in multivariate data.
@@ -57,7 +60,7 @@ It is fairly easy to install and an instruction is provided `here <https://githu
 **Key Links**:
 
 - `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_
-- `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_
+- `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
 - `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
