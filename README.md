@@ -9,7 +9,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/yzhao062/pyod.svg)](https://github.com/yzhao062/Pyod/network)
 [![Downloads](https://pepy.tech/badge/pyod)](https://pepy.tech/project/pyod)
 [![Downloads](https://pepy.tech/badge/pyod/month)](https://pepy.tech/project/pyod)
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/yzhao062/pyod/master)
 --------------------------
 
 PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in 
@@ -53,7 +53,7 @@ to use neural net based models. An instruction is provided [here](https://github
 
 - **[Examples](https://github.com/yzhao062/Pyod/tree/master/examples)** **&** **[Example Documentation](https://pyod.readthedocs.io/en/latest/example.html)**
 
-- **[Interactive Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/Pyod/master/)** [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/yzhao062/Pyod/master)
+- **[Interactive Jupyter Notebooks](https://mybinder.org/v2/gh/yzhao062/pyod/master/)** [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/yzhao062/pyod/master)
 
 - **[Anomaly detection resources](https://github.com/yzhao062/anomaly-detection-resources)**, e.g., courses, books, papers and videos.
 
