@@ -11,6 +11,8 @@ Welcome to PyOD documentation!
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
     :target: https://pyod.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+.. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
 .. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
     :target: https://travis-ci.org/yzhao062/pyod
 .. image:: https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master
