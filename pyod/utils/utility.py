@@ -103,6 +103,20 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
         return True
 
 
+def check_detector(detector):
+    """ Checks if fit and decision_function methods exist for given detector
+
+    Parameters
+    ----------
+    detector : pyod.models
+        Detector instance for which the check is performed.
+
+    """
+
+    if not hasattr(detector, 'fit') or not hasattr(detector, 'decision_function'):
+        raise ("%s is not a detector instance." % (detector))
+
+
 def standardizer(X, X_t=None):
     """Conduct Z-normalization on data to turn input samples become zero-mean
     and unit variance.

@@ -9,7 +9,6 @@ import warnings
 import numpy as np
 
 # sklearn imports
-from sklearn.utils.estimator_checks import check_estimator
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
 from sklearn.utils import check_random_state
@@ -25,26 +24,42 @@ from pyod.utils.stat_models import pearsonr
 from pyod.utils.utility import argmaxn
 from pyod.utils.utility import precision_n_scores, standardizer
 
+def check_detector(detector):
+    """ Checks if fit and decision_function methods exist for given detector
 
-def argmaxp(a, p):
-    """Utility function to return the index of top p values in a
-    :param a: list variable
-    :param p: number of elements to select
-    :return: index of top p elements in a
+    Parameters
+    ----------
+    detector : pyod.models
+        Detector instance for which the check is performed.
+
+    Returns
+    -------
+    None
+
     """
 
-    a = np.asarray(a).ravel()
-    length = a.shape[0]
-    pth = np.argpartition(a, length - p)
-    return pth[length - p:]
+    if not hasattr(detector, 'fit') or not hasattr(detector, 'decision_function'):
+        raise ("%s is not a detector instance." % (detector))
 
 
 def generate_bagging_indices(random_state, bootstrap_features, n_features,
                              min_features, max_features):
-    """
-    Randomly draw feature indices. Internal use only.
+    """ Randomly draw feature indices. Internal use only.
 
     Modified from sklearn/ensemble/bagging.py
+
+    :param random_state: Specify random state
+    :type random_state: mtrand.RandomState
+    :param bootstrap_features: Specify whether to bootstrap features during indice generation
+    :type bootstrap_features: bool
+    :param n_features: number of features to bag
+    :type n_features: int
+    :param min_features: minimum number of features
+    :type min_features: int
+    :param max_features: maximum number of features
+    :type max_features: int
+    :return:
+    :rtype:
     """
     # Get valid random state
     random_state = check_random_state(random_state)
@@ -82,6 +97,7 @@ timestamp = today.strftime("%Y%m%d_%H%M%S")
 # set numpy parameters
 np.set_printoptions(suppress=True, precision=4)
 
+
 # TODO: Clean up unnecessary residual comments
 # TODO: Add proper documentation
 # TODO: Design unit tests
@@ -113,7 +129,7 @@ class LSCP(BaseDetector):
             self.n_bins = self.n_clf
 
         for estimator in self.estimator_list:
-            check_estimator(estimator)
+            check_detector(estimator)
 
     # TODO: discuss how to standardize data for different model types
     def fit(self, X, y=None):
@@ -122,17 +138,16 @@ class LSCP(BaseDetector):
         self.n_features_ = X.shape[1]
 
         # normalize input data
-        self.X_train_norm_ = standardizer(X)
+        self.X_train_norm_ = X
         train_scores = np.zeros([self.X_train_norm_.shape[0], self.n_clf])
 
         # fit each base estimator and calculate standardized train scores
         for k, estimator in enumerate(self.estimator_list):
-            estimator.fit(self.X_train_norm_, y)
-            train_scores[:, k] = estimator.decision_function(self.X_train_norm_)
-        self.train_scores_norm_ = standardizer(train_scores)
+            estimator.fit(self.X_train_norm_)
+            train_scores[:, k] = estimator.decision_scores_
+        self.train_scores_ = train_scores
 
-        # generate pseudo target for training --> for calculating weights
-        self.training_pseudo_label_ = np.max(self.train_scores_norm_, axis=1).reshape(-1, 1)
+        # set decision scores and threshold
         self.decision_scores_ = self._get_decision_scores(X)
         self._process_decision_scores()
 
@@ -140,7 +155,7 @@ class LSCP(BaseDetector):
 
     def decision_function(self, X):
         # check whether model has been fit
-        check_is_fitted(self, ['training_pseudo_label_', 'train_scores_norm_', 'X_train_norm_', 'n_features_'])
+        check_is_fitted(self, ['training_pseudo_label_', 'train_scores_', 'X_train_norm_', 'n_features_'])
 
         # check input array
         X = check_array(X)
@@ -159,14 +174,19 @@ class LSCP(BaseDetector):
         self.local_region_size = min(self.local_region_size, self.local_region_max)
 
         # standardize test data and get local region for each test instance
-        X_test_norm = standardizer(X)
+        X_test_norm = X
         ind_arr = self._get_local_region(X_test_norm)
 
         # calculate test scores
         test_scores = np.zeros([X_test_norm.shape[0], self.n_clf])
         for k, estimator in enumerate(self.estimator_list):
             test_scores[:, k] = estimator.decision_function(X_test_norm)
-        test_scores_norm = standardizer(test_scores)
+
+        # generate standardized scores
+        train_scores_norm, test_scores_norm = standardizer(self.train_scores_, test_scores)
+
+        # generate pseudo target for training --> for calculating weights
+        self.training_pseudo_label_ = np.max(train_scores_norm, axis=1).reshape(-1, 1)
 
         # placeholder for predictions
         pred_scores_ens = np.zeros([X_test_norm.shape[0], ])
@@ -176,12 +196,12 @@ class LSCP(BaseDetector):
 
             # get pseudo target and training scores in local region of test instance
             local_pseudo_ground_truth = self.training_pseudo_label_[ind_k,].ravel()
-            local_train_scores = self.train_scores_norm_[ind_k, :]
+            local_train_scores = train_scores_norm[ind_k, :]
 
             # calculate pearson correlation between local pseudo ground truth and local train scores
             pearson_corr_scores = np.zeros([self.n_clf, ])
             for d in range(self.n_clf):
-                pearson_corr_scores[d, ] = pearsonr(local_pseudo_ground_truth, local_train_scores[:, d])[0]
+                pearson_corr_scores[d,] = pearsonr(local_pseudo_ground_truth, local_train_scores[:, d])[0]
 
             # return best score
             pred_scores_ens[i,] = np.mean(
@@ -198,9 +218,7 @@ class LSCP(BaseDetector):
             features = generate_bagging_indices(self.random_state,
                                                 bootstrap_features=False,
                                                 n_features=self.X_train_norm_.shape[1],
-                                                min_features=int(
-                                                    self.X_train_norm_.shape[
-                                                        1] * self.local_min_features),
+                                                min_features=int(self.X_train_norm_.shape[1] * self.local_min_features),
                                                 max_features=self.X_train_norm_.shape[1])
 
             tree = KDTree(self.X_train_norm_[:, features])
@@ -251,14 +269,16 @@ class LSCP(BaseDetector):
     def __iter__(self):
         return iter(self.estimator_list)
 
+
 if __name__ == "__main__":
 
     from pyod.models.lof import LOF
-
-    el = [LOF(20), LOF(30)]
-    lscp = LSCP(el)
+    from pyod.models.knn import KNN
 
     import scipy.io as scio
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import roc_auc_score
+
     def loaddata(filename):
         """
         load data
@@ -270,19 +290,27 @@ if __name__ == "__main__":
         y_orig = mat['y'].ravel()
         return X_orig, y_orig
 
-
     X, y = loaddata(r"C:\Users\znasrullah001\Documents\project-files\PyOD\LSCP\datasets\cardio")
 
     random_state = np.random.RandomState(0)
 
-    from sklearn.model_selection import train_test_split
+    el = []
+    k_list = random_state.randint(5, 200, size=50).tolist()
+    for k in k_list:
+        el.append(LOF(k))
+
+    # k_list = random_state.randint(5,30, size=20).tolist()
+    # for k in k_list:
+    #     el.append(KNN(n_neighbors=k))
+
+    # create the model
+    lscp = LSCP(el, random_state=random_state, local_region_size=100)
+
     # split the data into training and testing
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=0.4,
-                                                        random_state=random_state)
-    print('train_test_split happend')
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=random_state)
+    X_train, X_test = standardizer(X_train, X_test)
+
+    # fit and
     lscp.fit(X_train)
     scores = lscp.decision_function(X_test)
-
-
-
+    print(roc_auc_score(y_test, scores))
