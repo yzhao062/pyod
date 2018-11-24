@@ -2,7 +2,7 @@
 [![PyPI version](https://badge.fury.io/py/pyod.svg)](https://badge.fury.io/py/pyod) 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/yzhao062/pyod/master)
 [![Documentation Status](https://readthedocs.org/projects/pyod/badge/?version=latest)](https://pyod.readthedocs.io/en/latest/?badge=latest) 
-||
+|
 [![Build status](https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true)](https://ci.appveyor.com/project/yzhao062/pyod/branch/master)
 [![Build Status](https://travis-ci.org/yzhao062/pyod.svg?branch=master)](https://travis-ci.org/yzhao062/pyod)
 [![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master&service=github)](https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github) 
