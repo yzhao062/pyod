@@ -13,7 +13,7 @@ from sklearn.utils import column_or_1d
 from sklearn.utils import check_random_state
 from sklearn.metrics import roc_auc_score
 
-from pyod.utils.utility import precision_n_scores
+from .utility import precision_n_scores
 
 MAX_INT = np.iinfo(np.int32).max
 
