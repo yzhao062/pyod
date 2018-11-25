@@ -104,7 +104,7 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
 
 
 def check_detector(detector):
-    """ Checks if fit and decision_function methods exist for given detector
+    """Checks if fit and decision_function methods exist for given detector
 
     Parameters
     ----------
@@ -113,23 +113,31 @@ def check_detector(detector):
 
     """
 
-    if not hasattr(detector, 'fit') or not hasattr(detector, 'decision_function'):
-        raise AttributeError ("%s is not a detector instance." % (detector))
+    if not hasattr(detector, 'fit') or not hasattr(detector,
+                                                   'decision_function'):
+        raise AttributeError("%s is not a detector instance." % (detector))
 
 
 def standardizer(X, X_t=None):
     """Conduct Z-normalization on data to turn input samples become zero-mean
     and unit variance.
 
-    :param X: The training samples
-    :type X: numpy array of shape (n_samples, n_features)
+    Parameters
+    ----------
+    X : ndarray (n_samples, n_features)
+        The training samples
 
-    :param X_t: The data to be converted
-    :type X_t: numpy array of shape (n_samples_new, n_features)
+    X_t : ndarray (n_samples_new, n_features), default=None
+        The data to be converted
 
-    :return: X and X_t after the Z-score normalization
-    :rtype: ndarray (n_samples, n_features),
-        ndarray (n_samples_new, n_features)
+    Returns
+    -------
+    X_norm : ndarray (n_samples, n_features)
+        X after the Z-score normalization
+
+    X_t_norm : ndarray (n_samples, n_features)
+        X_t after the Z-score normalization
+
     """
     X = check_array(X)
     if X_t is None:
@@ -282,6 +290,7 @@ def invert_order(scores, method='multiplication'):
     if method == 'subtraction':
         return (scores.max() - scores).ravel()
 
+
 def _sklearn_version_20():
     """ Utility function to decide the version of sklearn
     In sklearn 20.0, LOF is changed. Specifically, _decision_function
@@ -294,4 +303,3 @@ def _sklearn_version_20():
         return True
     else:
         return False
-
