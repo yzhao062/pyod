@@ -20,15 +20,15 @@ import numpy as np
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.utils.data import generate_data
-from pyod.utils.data import evaluate_print
-
-from pyod.utils.utility import check_parameter
-from pyod.utils.utility import standardizer
-from pyod.utils.utility import get_label_n
-from pyod.utils.utility import precision_n_scores
-from pyod.utils.utility import argmaxn
-from pyod.utils.utility import invert_order
+from utils.data import generate_data
+from utils.data import evaluate_print
+from utils.utility import check_parameter
+from utils.utility import standardizer
+from utils.utility import get_label_n
+from utils.utility import precision_n_scores
+from utils.utility import argmaxn
+from utils.utility import invert_order
+from utils.utility import check_detector
 
 
 class TestUtils(unittest.TestCase):
@@ -257,6 +257,32 @@ class TestMetrics(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+class TestCheckDetector(unittest.TestCase):
+
+    def setUp(self):
+        class DummyNegativeModel():
+            def fit_negative(self):
+                return
+            def decision_function_negative(self):
+                return
+
+        class DummyPostiveModel():
+            def fit(self):
+                return
+            def decision_function(self):
+                return
+
+        self.detector_positive = DummyPostiveModel()
+        self.detector_negative = DummyNegativeModel()
+
+    def test_check_detector_positive(self):
+        check_detector(self.detector_positive)
+
+    def test_check_detector_negative(self):
+        with assert_raises(AttributeError):
+            check_detector(self.detector_negative)
 
 
 if __name__ == '__main__':
