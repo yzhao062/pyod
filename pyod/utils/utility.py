@@ -114,7 +114,7 @@ def check_detector(detector):
     """
 
     if not hasattr(detector, 'fit') or not hasattr(detector, 'decision_function'):
-        raise ("%s is not a detector instance." % (detector))
+        raise AttributeError ("%s is not a detector instance." % (detector))
 
 
 def standardizer(X, X_t=None):

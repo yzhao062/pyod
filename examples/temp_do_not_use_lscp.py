@@ -23,23 +23,7 @@ from pyod.models.base import BaseDetector
 from pyod.utils.stat_models import pearsonr
 from pyod.utils.utility import argmaxn
 from pyod.utils.utility import precision_n_scores, standardizer
-
-def check_detector(detector):
-    """ Checks if fit and decision_function methods exist for given detector
-
-    Parameters
-    ----------
-    detector : pyod.models
-        Detector instance for which the check is performed.
-
-    Returns
-    -------
-    None
-
-    """
-
-    if not hasattr(detector, 'fit') or not hasattr(detector, 'decision_function'):
-        raise ("%s is not a detector instance." % (detector))
+from pyod.utils.utility import check_detector
 
 
 def generate_bagging_indices(random_state, bootstrap_features, n_features,
@@ -47,20 +31,8 @@ def generate_bagging_indices(random_state, bootstrap_features, n_features,
     """ Randomly draw feature indices. Internal use only.
 
     Modified from sklearn/ensemble/bagging.py
-
-    :param random_state: Specify random state
-    :type random_state: mtrand.RandomState
-    :param bootstrap_features: Specify whether to bootstrap features during indice generation
-    :type bootstrap_features: bool
-    :param n_features: number of features to bag
-    :type n_features: int
-    :param min_features: minimum number of features
-    :type min_features: int
-    :param max_features: maximum number of features
-    :type max_features: int
-    :return:
-    :rtype:
     """
+
     # Get valid random state
     random_state = check_random_state(random_state)
 
@@ -298,10 +270,6 @@ if __name__ == "__main__":
     k_list = random_state.randint(5, 200, size=50).tolist()
     for k in k_list:
         el.append(LOF(k))
-
-    # k_list = random_state.randint(5,30, size=20).tolist()
-    # for k in k_list:
-    #     el.append(KNN(n_neighbors=k))
 
     # create the model
     lscp = LSCP(el, random_state=random_state, local_region_size=100)
