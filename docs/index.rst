@@ -17,11 +17,11 @@ Welcome to PyOD documentation!
     :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
 .. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
     :target: https://travis-ci.org/yzhao062/pyod
-.. image:: https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master
-    :target: https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github
+.. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
+    :target: https://coveralls.io/github/yzhao062/pyod
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
-   :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
-   :alt: Maintainability
+    :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
+    :alt: Maintainability
 .. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
     :alt: GitHub stars
     :target: https://github.com/yzhao062/pyod

@@ -5,7 +5,7 @@
 |
 [![Build status](https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true)](https://ci.appveyor.com/project/yzhao062/pyod/branch/master)
 [![Build Status](https://travis-ci.org/yzhao062/pyod.svg?branch=master)](https://travis-ci.org/yzhao062/pyod)
-[![Coverage Status](https://coveralls.io/repos/github/yzhao062/Pyod/badge.svg?branch=master&service=github)](https://coveralls.io/github/yzhao062/Pyod?branch=master&service=github) 
+[![Coverage Status](https://coveralls.io/repos/github/yzhao062/pyod/badge.svg)](https://coveralls.io/github/yzhao062/pyod)
 [![Maintainability](https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability)](https://codeclimate.com/github/yzhao062/Pyod/maintainability)
 [![GitHub stars](https://img.shields.io/github/stars/yzhao062/pyod.svg)](https://github.com/yzhao062/Pyod/stargazers) 
 [![GitHub forks](https://img.shields.io/github/forks/yzhao062/pyod.svg)](https://github.com/yzhao062/Pyod/network)
