@@ -2,4 +2,5 @@ prune examples
 prune notebooks
 prune pyod/test
 include README.md
+include README.rst
 include requirements.txt
