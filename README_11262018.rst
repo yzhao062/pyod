@@ -302,17 +302,17 @@ More detailed instruction of running examples can be found `here. <https://githu
   .. code-block:: python
 
 
-     On Training Data:
-     KNN ROC:1.0, precision @ rank n:1.0
+      On Training Data:
+      KNN ROC:1.0, precision @ rank n:1.0
 
-     On Test Data:
-     KNN ROC:0.9989, precision @ rank n:0.9
+      On Test Data:
+      KNN ROC:0.9989, precision @ rank n:0.9
 
   .. code-block:: python
 
 
-     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-             y_test_pred, show_figure=True, save_figure=False)
+      visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
+          y_test_pred, show_figure=True, save_figure=False)
 
 Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/KNN.png>`_\ ):
 
