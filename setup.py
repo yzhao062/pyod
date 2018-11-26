@@ -7,9 +7,9 @@ from io import open  # for Python 2 and 3 compatibility
 exec(open(path.join('pyod', 'version.py')).read())
 this_directory = path.abspath(path.dirname(__file__))
 
-# def readme():
-#     with open(path.join(this_directory, 'README_11262018.rst'), encoding='utf-8') as f:
-#         return f.read()
+def readme():
+    with open(path.join(this_directory, 'README.rst'), encoding='utf-8') as f:
+        return f.read()
 
 
 # read the contents of requirements.txt
@@ -17,16 +17,16 @@ with open(path.join(this_directory, 'requirements.txt'),
           encoding='utf-8') as f:
     requirements = f.read().splitlines()
 
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+# with open(path.join(this_directory, 'README_11262018.md'), encoding='utf-8') as f:
+#     long_description = f.read()
 
 setup(
     name='pyod',
     version=__version__,
     description='A Python Toolkit for Scalable Outlier Detection (Anomaly Detection)',
-    # long_description=readme(),  # commented out for now
-    long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description=readme(),  # commented out for now
+    # long_description=long_description, # commented out for now
+    # long_description_content_type='text/markdown', # commented out for now
     author='Yue Zhao',
     author_email='yuezhao@cs.toronto.edu',
     url='https://github.com/yzhao062/pyod',

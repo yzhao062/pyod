@@ -77,7 +77,7 @@ PyOD contains some neural network based models, e.g., AutoEncoders, which are
 implemented in keras. However, PyOD would **NOT** install **keras** and/or **tensorflow** automatically. This
 reduces the risk of damaging your local installations. 
 So you should install keras and a back-end lib like tensorflow, if you want
-to use neural net based models. An instruction is provided `here <https://github.com/yzhao062/Pyod/issues/19>`_.
+to use neural net based models. An instruction is provided `issue19b <https://github.com/yzhao062/Pyod/issues/19>`_.
 
 **Table of Contents**\ :
 
@@ -164,7 +164,7 @@ detection utility functions.
 
 **Comparison of all implemented models** are made available below:
  (\ `Figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png>`_\ , 
- `Code <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_\ ,
+ `compare_all_models.py <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_\ ,
  `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_\ ):
 
 For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
@@ -180,22 +180,22 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
 Installation
 ^^^^^^^^^^^^
 
-It is recommended to use **pip** for installation. Please make sure 
+It is recommended to use **pip** for installation. Please make sure
 **the latest version** is installed, as PyOD is updated frequently:
 
-.. code-block:: cmd
+.. code-block:: bash
 
    pip install pyod
    pip install --upgrade pyod # make sure the latest version is installed!
 
 Alternatively, install from github directly (\ **NOT Recommended**\ )
 
-.. code-block:: cmd
+.. code-block:: bash
 
    git clone https://github.com/yzhao062/pyod.git
    python setup.py install
 
-**Required Dependencies**\ : 
+**Required Dependencies**\ :
 
 
 * Python 2.7, 3.5, 3.6, or 3.7
@@ -205,26 +205,26 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 * scipy>=0.19.1
 * scikit_learn>=0.19.1
 
-**Optional Dependencies (required for running examples and AutoEncoder)**\ : 
+**Optional Dependencies (required for running examples and AutoEncoder)**\ :
 
 
-* keras (optional, required if calling AutoEncoder, other backend works)   
-* matplotlib (optional, required for running examples)   
-* tensorflow (optional, required if calling AutoEncoder, other backend works)   
+* keras (optional, required if calling AutoEncoder, other backend works)
+* matplotlib (optional, required for running examples)
+* tensorflow (optional, required if calling AutoEncoder, other backend works)
 
-**Known Issue 1**\ : PyOD depends on matplotlib, which would throw errors in conda 
-virtual environment on mac OS. See reasons and solutions `here <https://github.com/yzhao062/Pyod/issues/6>`_.
+**Known Issue 1**\ : PyOD depends on matplotlib, which would throw errors in conda
+virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/Pyod/issues/6>`_.
 
 **Known Issue 2**\ : PyOD builds on various packages, which most of them you should have
 already installed. If you are installing PyOD in a fresh state (virtualenv),
-downloading and installing the dependencies, e.g., TensorFlow, may take 
+downloading and installing the dependencies, e.g., TensorFlow, may take
 **3-5 mins**.
 
 **Known Issue 3**\ : If you are willing to run examples, matplotlib is required.
 PyOD does not list it as a required package for eliminating the dependency.
-Similarly, Keras and TensorFlow are listed as optional. However, they are 
+Similarly, Keras and TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
-AutoEncoder. See reasons and solutions `here <https://github.com/yzhao062/Pyod/issues/19>`_
+AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
 
 ----
 
@@ -245,7 +245,7 @@ Key Attributes of a fitted model:
 
 
 * **decision_scores**\ : The outlier scores of the training data. The higher, the more abnormal.
-  Outliers tend to have higher scores. 
+  Outliers tend to have higher scores.
 * **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
 Full package structure can be found below:
@@ -259,10 +259,10 @@ Full package structure can be found below:
 Quick Start for Outlier Detection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-See **examples directory** for more demos. `"examples/knn_example.py" <https://github.com/yzhao062/Pyod/blob/master/examples/knn_example.py>`_
-demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**. 
+See **examples directory** for more demos. `"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
+demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**.
 
-More detailed instruction of running examples can be found `here. <https://github.com/yzhao062/Pyod/blob/master/examples>`_
+More detailed instruction of running examples can be found `examples. <https://github.com/yzhao062/pyod/blob/master/examples>`_
 
 
 #. Initialize a kNN detector, fit the model, and make the prediction.
@@ -327,15 +327,15 @@ Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/Pyod/ma
 Quick Start for Combining Outlier Scores from Various Base Detectors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-"examples/comb_example.py" illustrates the APIs for combining multiple base detectors 
-(\ `Code <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_\ ,
+"examples/comb_example.py" illustrates the APIs for combining multiple base detectors
+(\ `comb_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_\ ,
 `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_\ ).
 
 For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
 
-Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. 
-The task is to combine the outputs from these detectors effectively 
-**Key Step: conducting Z-score normalization on raw scores before the combination.** 
+Given we have *n* individual outlier detectors, each of them generates an individual score for all samples.
+The task is to combine the outputs from these detectors effectively
+**Key Step: conducting Z-score normalization on raw scores before the combination.**
 Four combination mechanisms are shown in this demo:
 
 
@@ -413,7 +413,7 @@ How to Contribute and Collaborate
 You are welcome to contribute to this exciting project, and we are preparing
 a manuscript at `JMLR <http://www.jmlr.org/mloss/>`_ (Track for open-source software).
 
-If you are interested in contributing: 
+If you are interested in contributing:
 
 
 * Please first check Issue lists for "help wanted" tag and comment the one
@@ -450,7 +450,7 @@ are provided:
 * Precision @ rank n (P@N)
 * Execution time
 
-Check the latest result `here <https://pyod.readthedocs.io/en/latest/benchmark.html>`_. 
+Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
 You are welcome to replicate this process by running
 `benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_.
 
