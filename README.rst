@@ -1,7 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 Python Outlier Detection (PyOD)
 ===============================
 
@@ -84,7 +80,6 @@ So you should install keras and a back-end lib like tensorflow, if you want
 to use neural net based models. An instruction is provided `here <https://github.com/yzhao062/Pyod/issues/19>`_.
 
 **Table of Contents**\ :
-:raw-html-m2r:`<!-- TOC -->`
 
 
 * `Key Links & Resources <#key-links-and-resources>`_
@@ -95,12 +90,6 @@ to use neural net based models. An instruction is provided `here <https://github
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
 * `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
 * `Algorithm Benchmark <#algorithm-benchmark>`_
-
-
-.. raw:: html
-
-   <!-- /TOC -->
-
 
 
 ----
