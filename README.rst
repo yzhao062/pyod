@@ -267,7 +267,7 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 Key Attributes of a fitted model:
 
 
-* **decision\ *scores*\ **\ : The outlier scores of the training data. The higher, the more abnormal. 
+* **decision_scores**\ : The outlier scores of the training data. The higher, the more abnormal.
   Outliers tend to have higher scores. 
 * **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
@@ -375,7 +375,6 @@ The walkthrough of the code example is provided:
 
    .. code-block:: python
 
-
        from pyod.models.knn import KNN
        from pyod.models.combination import aom, moa, average, maximization
        from pyod.utils.data import generate_data
@@ -404,12 +403,15 @@ The walkthrough of the code example is provided:
            test_scores[:, i] = clf.decision_function(X_test_norm)
 
 #. Then the output codes are standardized into zero mean and unit variance before combination.
+
+
    .. code-block:: python
 
        from pyod.utils.utility import standardizer
        train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
 
 #. Then four different combination algorithms are applied as described above:
+
    .. code-block:: python
 
        comb_by_average = average(test_scores_norm)
@@ -419,6 +421,7 @@ The walkthrough of the code example is provided:
 
 #. Finally, all four combination methods are evaluated with ROC and Precision
    @ Rank n:
+
    .. code-block:: bash
 
        Combining 20 kNN detectors
