@@ -34,6 +34,7 @@ v<0.6.1>, <11/03/2018> -- Inclusion of Python 3.7 & welcome Zain Nasrullah.
 v<0.6.1>, <11/10/2018> -- Incremental changes and official release of 0.6.1.
 v<0.6.2>, <11/19/2018> -- Refactor base class to decrease cognitive complexity.
 v<0.6.2>, <11/24/2018> -- Add maintainability check and Appveyor CI.
-v<0.6.2>, <11/24/2018> -- Add LSCP implementation.
+v<0.6.2>, <11/24/2018> -- Add LSCP implementation (WIP).
+v<0.6.3>, <11/26/2018> -- Move from README.md to README.rst.
 
 

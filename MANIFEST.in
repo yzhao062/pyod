@@ -1,6 +1,6 @@
 prune examples
 prune notebooks
 prune pyod/test
-include README.md
+prune README.md
 include README.rst
 include requirements.txt

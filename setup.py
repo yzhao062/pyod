@@ -5,14 +5,14 @@ from os import path
 from io import open  # for Python 2 and 3 compatibility
 
 exec(open(path.join('pyod', 'version.py')).read())
+this_directory = path.abspath(path.dirname(__file__))
 
 
 def readme():
-    with open('README.rst') as f:
+    with open(path.join(this_directory, 'README.rst'), encoding='utf-8') as f:
         return f.read()
 
 
-this_directory = path.abspath(path.dirname(__file__))
 # read the contents of requirements.txt
 with open(path.join(this_directory, 'requirements.txt'),
           encoding='utf-8') as f:
