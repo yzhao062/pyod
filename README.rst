@@ -109,24 +109,10 @@ Key Links and Resources
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 
-* `Documentation & API Reference <https://pyod.readthedocs.io>`_
-    .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
-       :target: https://pyod.readthedocs.io/en/latest/?badge=latest
-       :alt: Documentation Status
+* `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_
+* `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
+* `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
-
-* 
-  **\ `Examples <https://github.com/yzhao062/Pyod/tree/master/examples>`_\ ** **&** **\ `Example Documentation <https://pyod.readthedocs.io/en/latest/example.html>`_\ **
-
-* 
-  **\ `Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master/>`_\ ** 
-  .. image:: https://mybinder.org/badge_logo.svg
-     :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
-     :alt: Binder
-
-
-* 
-  **\ `Anomaly detection resources <https://github.com/yzhao062/anomaly-detection-resources>`_\ **\ , e.g., courses, books, papers and videos.
 
 ----
 
@@ -137,7 +123,7 @@ PyOD toolkit consists of three major groups of functionalities: (i) outlier
 detection algorithms; (ii) outlier ensemble frameworks and (iii) outlier 
 detection utility functions.
 
-**\ *Individual Detection Algorithms*\ **\ :
+**Individual Detection Algorithms** :
 
 
 #. 
@@ -188,7 +174,7 @@ detection utility functions.
       FAQ regarding AutoEncoder in PyOD and debugging advice:
       `known issues <https://github.com/yzhao062/Pyod/issues/19>`_ 
 
-**\ *Outlier Detector/Scores Combination Frameworks*\ **\ :
+**Outlier Detector/Scores Combination Frameworks**:
 
 
 #. **Feature Bagging**\ : build various detectors on random selected features [9]
