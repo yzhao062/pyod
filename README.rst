@@ -19,8 +19,7 @@ Python Outlier Detection (PyOD)
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
- 
-|
+
 
 .. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
    :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
@@ -66,8 +65,8 @@ Python Outlier Detection (PyOD)
 
 PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in 
 multivariate data. This exciting yet challenging field is commonly referred as 
-**\ *\ `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_\ *\ ** 
-or **\ *\ `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_\ *\ ** .
+`Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
+or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD has been successfully used in various academic researches [4, 8, 17] and commercial products.
 PyOD is featured for:
 
@@ -110,8 +109,7 @@ Key Links and Resources
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 
-* 
-  **\ `Documentation & API Reference <https://pyod.readthedocs.io>`_\ ** 
+* `Documentation & API Reference <https://pyod.readthedocs.io>`_
   .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
      :target: https://pyod.readthedocs.io/en/latest/?badge=latest
      :alt: Documentation Status
