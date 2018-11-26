@@ -109,7 +109,7 @@ Key Links and Resources
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 
-* `Documentation & API Reference <https://pyod.readthedocs.io>`_\ 
+* `Documentation & API Reference <https://pyod.readthedocs.io>` \ 
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
