@@ -57,7 +57,7 @@ Python Outlier Detection (PyOD)
    :target: https://pepy.tech/project/pyod
    :alt: Downloads
 
--------------------------------------------------------------------------------------------------------------
+-----
 
 PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in 
 multivariate data. This exciting yet challenging field is commonly referred as 
@@ -115,9 +115,7 @@ detection utility functions.
 **Individual Detection Algorithms** :
 
 
-#. 
-   Linear Models for Outlier Detection:
-
+#. Linear Models for Outlier Detection:
 
    #. **PCA: Principal Component Analysis** (use the sum of
       weighted projected distances to the eigenvector hyperplane) [10]
@@ -125,9 +123,7 @@ detection utility functions.
       as the outlier scores) [11, 12]
    #. **One-Class Support Vector Machines** [3]
 
-#. 
-   Proximity-Based Outlier Detection Models:
-
+#. Proximity-Based Outlier Detection Models:
 
    #. **LOF: Local Outlier Factor** [1]
    #. **CBLOF: Clustering-Based Local Outlier Factor** [15]
@@ -139,32 +135,24 @@ detection utility functions.
    #. **Median kNN** Outlier Detection (use the median distance to k nearest 
       neighbors as the outlier score)
 
-#. 
-   Probabilistic Models for Outlier Detection:
-
+#. Probabilistic Models for Outlier Detection:
 
    #. **ABOD: Angle-Based Outlier Detection** [7]
    #. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [7]
 
-#. 
-   Outlier Ensembles and Combination Frameworks
-
+#. Outlier Ensembles and Combination Frameworks
 
    #. **Isolation Forest** [2]
    #. **Feature Bagging** [9]
 
-#. 
-   Neural Networks and Deep Learning Models (implemented in Keras)
+#. Neural Networks and Deep Learning Models (implemented in Keras)
 
-
-   #. 
-      **AutoEncoder with Fully Connected NN** [16, Chapter 3] 
+   #. **AutoEncoder with Fully Connected NN** [16, Chapter 3]
 
       FAQ regarding AutoEncoder in PyOD and debugging advice:
       `known issues <https://github.com/yzhao062/Pyod/issues/19>`_ 
 
 **Outlier Detector/Scores Combination Frameworks**:
-
 
 #. **Feature Bagging**\ : build various detectors on random selected features [9]
 #. **Average** & **Weighted Average**\ : simply combine scores by averaging [6]
@@ -277,8 +265,7 @@ demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs f
 More detailed instruction of running examples can be found `here. <https://github.com/yzhao062/Pyod/blob/master/examples>`_
 
 
-#. 
-   Initialize a kNN detector, fit the model, and make the prediction.
+#. Initialize a kNN detector, fit the model, and make the prediction.
 
    .. code-block:: python
 
@@ -298,10 +285,10 @@ More detailed instruction of running examples can be found `here. <https://githu
        y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
        y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-#. 
-   Evaluate the prediction by ROC and Precision@rank *n* (p@n):
+#. Evaluate the prediction by ROC and Precision@rank *n* (p@n):
 
    .. code-block:: python
+
 
        # evaluate and print the results
        print("\nOn Training Data:")
@@ -310,21 +297,22 @@ More detailed instruction of running examples can be found `here. <https://githu
        evaluate_print(clf_name, y_test, y_test_scores)
 
 
-   #. 
-      See a sample output & visualization
+#. See a sample output & visualization
 
-      .. code-block:: python
+  .. code-block:: python
 
-         On Training Data:
-         KNN ROC:1.0, precision @ rank n:1.0
 
-         On Test Data:
-         KNN ROC:0.9989, precision @ rank n:0.9
+     On Training Data:
+     KNN ROC:1.0, precision @ rank n:1.0
 
-      .. code-block:: python
+     On Test Data:
+     KNN ROC:0.9989, precision @ rank n:0.9
 
-         visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-                 y_test_pred, show_figure=True, save_figure=False)
+  .. code-block:: python
+
+
+     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
+             y_test_pred, show_figure=True, save_figure=False)
 
 Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/KNN.png>`_\ ):
 
@@ -359,8 +347,7 @@ Four combination mechanisms are shown in this demo:
 The walkthrough of the code example is provided:
 
 
-#. 
-   Import models and generate sample data
+#. Import models and generate sample data
 
    .. code-block:: python
 
@@ -370,8 +357,7 @@ The walkthrough of the code example is provided:
 
        X, y = generate_data(train_only=True)  # load data
 
-#. 
-   First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
+#. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
 
    .. code-block:: python
 
@@ -408,8 +394,7 @@ The walkthrough of the code example is provided:
        comb_by_aom = aom(test_scores_norm, 5) # 5 groups
        comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
 
-#. Finally, all four combination methods are evaluated with ROC and Precision
-   @ Rank n:
+#. Finally, all four combination methods are evaluated with ROC and Precision @ Rank n:
 
    .. code-block:: bash
 
@@ -430,15 +415,12 @@ a manuscript at `JMLR <http://www.jmlr.org/mloss/>`_ (Track for open-source soft
 If you are interested in contributing: 
 
 
-* 
-  Please first check Issue lists for "help wanted" tag and comment the one 
+* Please first check Issue lists for "help wanted" tag and comment the one
   you are interested
 
-* 
-  Fork the repository and add your improvement/modification/fix
+* Fork the repository and add your improvement/modification/fix
 
-* 
-  Create a pull request
+* Create a pull request
 
 To make sure the code has the same style and standard, please refer to models,
 such as abod.py, hbos.py, or feature bagging for example.
