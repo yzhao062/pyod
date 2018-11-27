@@ -4,8 +4,13 @@ from setuptools import find_packages, setup
 from os import path
 from io import open  # for Python 2 and 3 compatibility
 
-exec(open(path.join('pyod', 'version.py')).read())
+# get __version__ from _version.py
+ver_file = path.join('pyod', 'version.py')
+with open(ver_file) as f:
+    exec(f.read())
+
 this_directory = path.abspath(path.dirname(__file__))
+
 
 def readme():
     with open(path.join(this_directory, 'README.rst'), encoding='utf-8') as f:
