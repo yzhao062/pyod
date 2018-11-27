@@ -12,6 +12,7 @@ with open(ver_file) as f:
 this_directory = path.abspath(path.dirname(__file__))
 
 
+# read the contents of README.rst
 def readme():
     with open(path.join(this_directory, 'README.rst'), encoding='utf-8') as f:
         return f.read()
@@ -21,9 +22,6 @@ def readme():
 with open(path.join(this_directory, 'requirements.txt'),
           encoding='utf-8') as f:
     requirements = f.read().splitlines()
-
-# with open(path.join(this_directory, 'README_11262018.md'), encoding='utf-8') as f:
-#     long_description = f.read()
 
 setup(
     name='pyod',
