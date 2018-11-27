@@ -27,9 +27,7 @@ setup(
     name='pyod',
     version=__version__,
     description='A Python Toolkit for Scalable Outlier Detection (Anomaly Detection)',
-    long_description=readme(),  # commented out for now
-    # long_description=long_description, # commented out for now
-    # long_description_content_type='text/markdown', # commented out for now
+    long_description=readme(),
     author='Yue Zhao',
     author_email='yuezhao@cs.toronto.edu',
     url='https://github.com/yzhao062/pyod',
