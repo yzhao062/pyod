@@ -29,7 +29,7 @@ class SOS(BaseDetector):
     has little affinity with a dissimilar data point. A data point is 
     selected as an outlier when all the other data points have insufficient
     affinity with it.
-    Read more in the :ref:`HHERE`.
+    Read more in the :cite:`janssens2012stochastic`.
     
     Parameters
     ----------
@@ -96,11 +96,8 @@ class SOS(BaseDetector):
     >>> clf = SOS()
     >>> clf.fit(X_train)
     >>> print(clf.decision_scores_)
-    
-    Reference
-    ----------
 
-    :cite:`janssens2012stochastic`
+
     """
 
     def __init__(self, contamination=0.1, perplexity=30, metric='euclidean',
