@@ -120,7 +120,7 @@ detection utility functions.
    #. **PCA: Principal Component Analysis** (use the sum of
       weighted projected distances to the eigenvector hyperplane) [#Shyu2003A]_
    #. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances 
-      as the outlier scores) [#Rousseeuw1999A]_ [#Hardin2004Outlier]_
+      as the outlier scores) [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
    #. **One-Class Support Vector Machines** [#Ma2003Time]_
 
 #. Proximity-Based Outlier Detection Models:
@@ -131,9 +131,9 @@ detection utility functions.
    #. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
       neighbor as the outlier score) [#Ramaswamy2000Efficient]_
    #. **Average kNN or kNN Sum** (use the average distance to k 
-      nearest neighbors as the outlier score or sum all k distances) [Angiulli2002Fast]_
+      nearest neighbors as the outlier score or sum all k distances) [#Angiulli2002Fast]_
    #. **Median kNN** Outlier Detection (use the median distance to k nearest 
-      neighbors as the outlier score) [Angiulli2002Fast]_
+      neighbors as the outlier score) [#Angiulli2002Fast]_
 
 #. Probabilistic Models for Outlier Detection:
 
