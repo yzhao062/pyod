@@ -118,22 +118,22 @@ detection utility functions.
 #. Linear Models for Outlier Detection:
 
    #. **PCA: Principal Component Analysis** (use the sum of
-      weighted projected distances to the eigenvector hyperplane) [10]
+      weighted projected distances to the eigenvector hyperplane) [#Shyu2003A]_
    #. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances 
-      as the outlier scores) [11, 12]
-   #. **One-Class Support Vector Machines** [3]
+      as the outlier scores) [#Rousseeuw1999A]_ [#Hardin2004Outlier]_
+   #. **One-Class Support Vector Machines** [#Ma2003Time]_
 
 #. Proximity-Based Outlier Detection Models:
 
-   #. **LOF: Local Outlier Factor** [1]
-   #. **CBLOF: Clustering-Based Local Outlier Factor** [15]
-   #. **HBOS: Histogram-based Outlier Score** [5]
+   #. **LOF: Local Outlier Factor** [#Breunig2000LOF]_
+   #. **CBLOF: Clustering-Based Local Outlier Factor** [#He2003Discovering]_
+   #. **HBOS: Histogram-based Outlier Score** [#Goldstein2012Histogram]_
    #. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
-      neighbor as the outlier score) [13]
+      neighbor as the outlier score) [#Ramaswamy2000Efficient]_
    #. **Average kNN or kNN Sum** (use the average distance to k 
-      nearest neighbors as the outlier score or sum all k distances) [14]
+      nearest neighbors as the outlier score or sum all k distances) [Angiulli2002Fast]_
    #. **Median kNN** Outlier Detection (use the median distance to k nearest 
-      neighbors as the outlier score)
+      neighbors as the outlier score) [Angiulli2002Fast]_
 
 #. Probabilistic Models for Outlier Detection:
 
@@ -459,15 +459,11 @@ You are welcome to replicate this process by running
 Reference
 ^^^^^^^^^
 
-[1] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. In *ACM SIGMOD Record*\ , pp. 93-104. ACM.
 
-[2] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *ICDM '08*\ , pp. 413-422. IEEE.
-
-[3] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*\ , pp. 1741-1745. IEEE.
 
 [4] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed (ODD v5.0)*\ , 2018.
 
-[5] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*\ , pp.59-63.
+.. [#Goldstein2012Histogram] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*\ , pp.59-63.
 
 [6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.\ *ACM SIGKDD Explorations Newsletter*\ , 17(1), pp.24-47.
 
@@ -477,18 +473,28 @@ Reference
 
 [9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
-[10] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
+.. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
 
-[11] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
 
-[12] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*\ , 44(4), pp.625-638.
-
-[13] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438).
-
-[14] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
-
-[15] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
+.. [#He2003Discovering] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
 
 [16] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.
 
 [17] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. SCP: Selective Combination in Parallel Outlier Ensembles. *SIAM International Conference on Data Mining (SDM)*. **Currently Under Review**.
+
+
+----
+
+.. [#Angiulli2002Fast] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
+
+.. [#Breunig2000LOF] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. *ACM Sigmod Record*\ , 29(2), pp. 93-104.
+
+.. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
+
+.. [#Ma2003Time] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*\ , pp. 1741-1745. IEEE.
+
+.. [#Ramaswamy2000Efficient] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438).
+
+.. [#Rousseeuw1999A] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
+
+.. [#Hardin2004Outlier] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*\ , 44(4), pp.625-638.
