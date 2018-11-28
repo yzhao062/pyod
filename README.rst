@@ -63,7 +63,7 @@ PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying
 multivariate data. This exciting yet challenging field is commonly referred as 
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-Since 2017, PyOD has been successfully used in various academic researches [4, 8, 17] and commercial products.
+Since 2017, PyOD has been successfully used in various academic researches [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_ and commercial products.
 PyOD is featured for:
 
 
@@ -98,7 +98,7 @@ Key Links and Resources
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 
-* `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_
+* `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
 * `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
 * `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
@@ -137,30 +137,30 @@ detection utility functions.
 
 #. Probabilistic Models for Outlier Detection:
 
-   #. **ABOD: Angle-Based Outlier Detection** [7]
-   #. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [7]
+   #. **ABOD: Angle-Based Outlier Detection** [#Kriegel2008Angle]_
+   #. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [#Kriegel2008Angle]_
 
 #. Outlier Ensembles and Combination Frameworks
 
-   #. **Isolation Forest** [2]
-   #. **Feature Bagging** [9]
+   #. **Isolation Forest** [#Liu2008Isolation]_
+   #. **Feature Bagging** [#Lazarevic2005Feature]_
 
 #. Neural Networks and Deep Learning Models (implemented in Keras)
 
-   #. **AutoEncoder with Fully Connected NN** [16, Chapter 3]
+   #. **AutoEncoder with Fully Connected NN** [#Aggarwal2015Outlier]_ [Chapter 3]
 
       FAQ regarding AutoEncoder in PyOD and debugging advice:
       `known issues <https://github.com/yzhao062/Pyod/issues/19>`_ 
 
 **Outlier Detector/Scores Combination Frameworks**:
 
-#. **Feature Bagging**\ : build various detectors on random selected features [9]
-#. **Average** & **Weighted Average**\ : simply combine scores by averaging [6]
+#. **Feature Bagging**\ : build various detectors on random selected features [#Lazarevic2005Feature]_
+#. **Average** & **Weighted Average**\ : simply combine scores by averaging [#Aggarwal2015Theoretical]_
 #. **Maximization**\ : simply combine scores by taking the maximum across all 
-   base detectors [6]
-#. **Average of Maximum (AOM)** [6]
-#. **Maximum of Average (MOA)** [6]
-#. **Threshold Sum (Thresh)** [6]
+   base detectors [#Aggarwal2015Theoretical]_
+#. **Average of Maximum (AOM)** [#Aggarwal2015Theoretical]_
+#. **Maximum of Average (MOA)** [#Aggarwal2015Theoretical]_
+#. **Threshold Sum (Thresh)** [#Aggarwal2015Theoretical]_
 
 **Comparison of all implemented models** are made available below:
  (\ `Figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png>`_\ , 
@@ -460,34 +460,23 @@ Reference
 ^^^^^^^^^
 
 
+.. [#Aggarwal2015Outlier] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.
 
-[4] Y. Zhao and M.K. Hryniewicki, "DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles," *ACM SIGKDD Workshop on Outlier Detection De-constructed (ODD v5.0)*\ , 2018.
-
-.. [#Goldstein2012Histogram] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*\ , pp.59-63.
-
-[6] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.\ *ACM SIGKDD Explorations Newsletter*\ , 17(1), pp.24-47.
-
-[7] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*\ , pp. 444-452. ACM.
-
-[8] Y. Zhao and M.K. Hryniewicki, "XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning," *IEEE International Joint Conference on Neural Networks*\ , 2018.
-
-[9] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
-
-.. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
-
-
-.. [#He2003Discovering] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
-
-[16] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.
-
-[17] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. SCP: Selective Combination in Parallel Outlier Ensembles. *SIAM International Conference on Data Mining (SDM)*. **Currently Under Review**.
-
-
-----
+.. [#Aggarwal2015Theoretical] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.\ *ACM SIGKDD Explorations Newsletter*\ , 17(1), pp.24-47.
 
 .. [#Angiulli2002Fast] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
 
 .. [#Breunig2000LOF] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. *ACM Sigmod Record*\ , 29(2), pp. 93-104.
+
+.. [#Goldstein2012Histogram] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*\ , pp.59-63.
+
+.. [#Hardin2004Outlier] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*\ , 44(4), pp.625-638.
+
+.. [#He2003Discovering] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
+
+.. [#Kriegel2008Angle] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*\ , pp. 444-452. ACM.
+
+.. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
 
@@ -497,4 +486,10 @@ Reference
 
 .. [#Rousseeuw1999A] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
 
-.. [#Hardin2004Outlier] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*\ , 44(4), pp.625-638.
+.. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
+
+.. [#Zhao2018DCSO] Zhao, Y. and Hryniewicki, M.K. DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles. *ACM SIGKDD Workshop on Outlier Detection De-constructed (ODD v5.0)*\ , 2018.
+
+.. [#Zhao2018XGBOD] Zhao, Y. and Hryniewicki, M.K. XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning. *IEEE International Joint Conference on Neural Networks*\ , 2018.
+
+.. [#Zhao2019LSCP] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. LSCP: Locally Selective Combination of Parallel Outlier Ensembles. *SIAM International Conference on Data Mining (SDM)*. **Currently Under Review**.
