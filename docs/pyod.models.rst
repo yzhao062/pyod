@@ -126,6 +126,15 @@ pyod.models.pca module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.sos module
+----------------------
+
+.. automodule:: pyod.models.sos
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 
 Module contents
 ---------------

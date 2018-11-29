@@ -139,6 +139,7 @@ detection utility functions.
 
    #. **ABOD: Angle-Based Outlier Detection** [#Kriegel2008Angle]_
    #. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [#Kriegel2008Angle]_
+   #. **SOS: Stochastic Outlier Selection** [#Janssens2012Stochastic]_
 
 #. Outlier Ensembles and Combination Frameworks
 
@@ -473,6 +474,8 @@ Reference
 .. [#Hardin2004Outlier] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*\ , 44(4), pp.625-638.
 
 .. [#He2003Discovering] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
+
+.. [#Janssens2012Stochastic] Janssens, J.H.M., Huszár, F., Postma, E.O. and van den Herik, H.J., 2012. Stochastic outlier selection. Technical report TiCC TR 2012-001, Tilburg University, Tilburg Center for Cognition and Communication, Tilburg, The Netherlands.
 
 .. [#Kriegel2008Angle] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*\ , pp. 444-452. ACM.
 
