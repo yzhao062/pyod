@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""Stochastic Outlier Selection (SOS).
+Part of the codes are adapted from https://github.com/jeroenjanssens/scikit-sos
+"""
+# Author: Winston Li <jk_zhengli@hotmail.com>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 
