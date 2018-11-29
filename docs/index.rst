@@ -97,6 +97,7 @@ detection utility functions.
 
   i. **ABOD: Angle-Based Outlier Detection** :cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
   ii. **FastABOD: Fast Angle-Based Outlier Detection using approximation** :cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
+  iii. **SOS: Stochastic Outlier Selection** :cite:`a-janssens2012stochastic`: :class:`pyod.models.sos.SOS`
 
 4. Outlier Ensembles and Combination Frameworks
 
