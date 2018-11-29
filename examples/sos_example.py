@@ -18,6 +18,7 @@ from pyod.utils.data import generate_data
 from pyod.utils.data import get_color_codes
 from pyod.utils.data import evaluate_print
 
+
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
               y_test_pred, show_figure=True,
               save_figure=False):  # pragma: no cover
@@ -100,26 +101,29 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
         plt.show()
     return
 
+
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 100  # number of training points
+    n_train = 200  # number of training points
     n_test = 100  # number of testing points
 
-    #Generate sample data
+    # Generate sample data
     X_train, y_train, X_test, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
                       n_features=2,
                       contamination=contamination,
                       random_state=42)
-    
+
     # train kNN detector
-    clf_name = 'SOS'
+    clf_name = 'KNN'
     clf = SOS()
     clf.fit(X_train)
+
     # get the prediction labels and outlier scores of the training data
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
     y_train_scores = clf.decision_scores_  # raw outlier scores
+
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
     y_test_scores = clf.decision_function(X_test)  # outlier scores
@@ -132,4 +136,4 @@ if __name__ == "__main__":
 
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=True)
+              y_test_pred, show_figure=True, save_figure=False)

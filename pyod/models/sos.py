@@ -9,20 +9,21 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from numba import njit
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
-from ..utils.utility import invert_order
 
 
-def get_perplexity(D, beta):
+@njit
+def _get_perplexity(D, beta):
     """Compute the perplexity and the A-row for a specific value of the
     precision of a Gaussian distribution.
     """
 
     A = np.exp(-D * beta)
-    sumA = sum(A)
+    sumA = np.sum(A)
     H = np.log(sumA) + beta * np.sum(D * A) / sumA
     return H, A
 
@@ -114,7 +115,7 @@ class SOS(BaseDetector):
         self.metric = metric.lower()
         self.eps = eps
 
-    def x2d(self, X):
+    def _x2d(self, X):
         """Computes the dissimilarity matrix of a given dataset.
         
         Parameters
@@ -155,7 +156,7 @@ class SOS(BaseDetector):
                 D = distance.squareform(distance.pdist(X, self.metric))
         return D
 
-    def d2a(self, D):
+    def _d2a(self, D):
         """Performs a binary search to get affinities in such a way that each
         conditional Gaussian has the same perplexity. Then returns the
         affinities matrix.
@@ -181,7 +182,7 @@ class SOS(BaseDetector):
             betamin = -np.inf
             betamax = np.inf
             Di = D[i, np.concatenate((np.r_[0:i], np.r_[i + 1:n]))]
-            (H, thisA) = get_perplexity(Di, beta[i])
+            (H, thisA) = _get_perplexity(Di, beta[i])
 
             # Evaluate whether the perplexity is within tolerance
             Hdiff = H - logU
@@ -204,7 +205,7 @@ class SOS(BaseDetector):
                     else:
                         beta[i] = (beta[i] + betamin) / 2.0
                 # Recompute the values
-                (H, thisA) = get_perplexity(Di, beta[i])
+                (H, thisA) = _get_perplexity(Di, beta[i])
                 Hdiff = H - logU
                 tries += 1
 
@@ -213,7 +214,7 @@ class SOS(BaseDetector):
 
         return A
 
-    def a2b(self, A):
+    def _a2b(self, A):
         """Computes the binding probabilities of a given affinity
         matrix.
         
@@ -231,7 +232,7 @@ class SOS(BaseDetector):
         B = A / A.sum(axis=1)[:, np.newaxis]
         return B
 
-    def b2o(self, B):
+    def _b2o(self, B):
         """Computes the binding probabilities of a given affinity
         matrix.
         
@@ -263,10 +264,10 @@ class SOS(BaseDetector):
         """
         X = check_array(X)
         self._set_n_classes(y)
-        D = self.x2d(X)
-        A = self.d2a(D)
-        B = self.a2b(A)
-        O = self.b2o(B)
+        D = self._x2d(X)
+        A = self._d2a(D)
+        B = self._a2b(A)
+        O = self._b2o(B)
         # Invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = O
         self._process_decision_scores()
@@ -275,8 +276,8 @@ class SOS(BaseDetector):
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
-        D = self.x2d(X)
-        A = self.d2a(D)
-        B = self.a2b(A)
-        O = self.b2o(B)
+        D = self._x2d(X)
+        A = self._d2a(D)
+        B = self._a2b(A)
+        O = self._b2o(B)
         return O
