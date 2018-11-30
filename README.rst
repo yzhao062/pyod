@@ -163,9 +163,10 @@ Algorithm Benchmark
 ^^^^^^^^^^^^^^^^^^^
 
 **Comparison of all implemented models** are made available below:
+
 (\ `Figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png>`_\ ,
- `compare_all_models.py <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_\ ,
- `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_\ ):
+`compare_all_models.py <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_\ ,
+`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_\ ):
 
 For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
 
