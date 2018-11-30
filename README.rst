@@ -122,47 +122,28 @@ detection utility functions.
 
 **Individual Detection Algorithms** :
 
+===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
+Type                 Abbr              Algorithm                                                                                              Year   Ref                                       Materials
+===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
+Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)  2003   [#Shyu2003A]_                             `[PDF] <http://projects.laas.fr/METROSEC/DOC/FDM03.pdf>`_
+Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                   1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_  `[PDF] <http://dmrocke.ucdavis.edu/papers/HardinRocke2004.pdf>`_
+Linear Model         OCSVM             One-Class Support Vector Machines                                                                      2003   [#Ma2003Time]_                            `[PDF] <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.653.2440&rep=rep1&type=pdf>`_
+Proximity-Based      LOF               Local Outlier Factor                                                                                   2000   [#Breunig2000LOF]_
+Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                  2003   [#He2003Discovering]_
+Proximity-Based      HBOS              Histogram-based Outlier Score                                                                          2012   [#Goldstein2012Histogram]_
+Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score                 2000   [#Ramaswamy2000Efficient]_
+Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                     2002   [#Angiulli2002Fast]_
+Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                       2002   [#Angiulli2002Fast]_
+Probabilistic        ABOD              Angle-Based Outlier Detection                                                                          2008   [#Kriegel2008Angle]_
+Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                 2008   [#Kriegel2008Angle]_
+Probabilistic        SOS               Stochastic Outlier Selection**                                                                         2012   [#Janssens2012Stochastic]_
+Outlier Ensembles    IForest           Isolation Forest                                                                                       2008   [#Liu2008Isolation]_
+Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
+Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                            xxxx   [#Aggarwal2015Outlier]_ [Chapter 3]
+===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
 
-#. Linear Models for Outlier Detection:
-
-===================  =====================================================================================================  =====  ========================================  ====================================================================================================
-Abbreviation         Algorithm                                                                                              Year   Ref                                       Materials
-===================  =====================================================================================================  =====  ========================================  ====================================================================================================
-PCA                  Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)  2003   [#Shyu2003A]_                             `[PDF] <http://projects.laas.fr/METROSEC/DOC/FDM03.pdf>`_
-MCD                  Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                   1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_  `[PDF] <http://dmrocke.ucdavis.edu/papers/HardinRocke2004.pdf>`_
-OCSVM                One-Class Support Vector Machines                                                                      2003   [#Ma2003Time]_                            `[PDF] <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.653.2440&rep=rep1&type=pdf>`_
-===================  =====================================================================================================  =====  ========================================  ====================================================================================================
-
-
-#. Proximity-Based Outlier Detection Models:
-
-   #. **LOF: Local Outlier Factor** [#Breunig2000LOF]_
-   #. **CBLOF: Clustering-Based Local Outlier Factor** [#He2003Discovering]_
-   #. **HBOS: Histogram-based Outlier Score** [#Goldstein2012Histogram]_
-   #. **kNN: k Nearest Neighbors** (use the distance to the kth nearest 
-      neighbor as the outlier score) [#Ramaswamy2000Efficient]_
-   #. **Average kNN or kNN Sum** (use the average distance to k 
-      nearest neighbors as the outlier score or sum all k distances) [#Angiulli2002Fast]_
-   #. **Median kNN** Outlier Detection (use the median distance to k nearest 
-      neighbors as the outlier score) [#Angiulli2002Fast]_
-
-#. Probabilistic Models for Outlier Detection:
-
-   #. **ABOD: Angle-Based Outlier Detection** [#Kriegel2008Angle]_
-   #. **FastABOD: Fast Angle-Based Outlier Detection using approximation** [#Kriegel2008Angle]_
-   #. **SOS: Stochastic Outlier Selection** [#Janssens2012Stochastic]_
-
-#. Outlier Ensembles and Combination Frameworks
-
-   #. **Isolation Forest** [#Liu2008Isolation]_
-   #. **Feature Bagging** [#Lazarevic2005Feature]_
-
-#. Neural Networks and Deep Learning Models (implemented in Keras)
-
-   #. **AutoEncoder with Fully Connected NN** [#Aggarwal2015Outlier]_ [Chapter 3]
-
-      FAQ regarding AutoEncoder in PyOD and debugging advice:
-      `known issues <https://github.com/yzhao062/Pyod/issues/19>`_ 
+FAQ regarding AutoEncoder in PyOD and debugging advice:
+`known issues <https://github.com/yzhao062/Pyod/issues/19>`_
 
 **Outlier Detector/Scores Combination Frameworks**:
 
