@@ -25,7 +25,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements_travis.txt" }}
+          - v1-dependencies-{{ checksum "requirements_ci.txt" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
@@ -41,7 +41,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements_travis.txt" }}
+          key: v1-dependencies-{{ checksum "requirements_ci.txt" }}
 
       # run tests!
       # this example uses Django's built-in test-runner
