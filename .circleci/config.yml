@@ -36,8 +36,6 @@ jobs:
             . venv/bin/activate
             pip install -r requirements_travis.txt
             pip install pytest
-            pip install pytest-cov
-            pip install coveralls
 
       - save_cache:
           paths:
@@ -53,7 +51,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            python -m unittest
+            pytest
 
       - store_artifacts:
           path: test-reports
