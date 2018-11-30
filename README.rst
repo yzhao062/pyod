@@ -92,12 +92,12 @@ to use neural net based models. An instruction is provided `issue19b <https://gi
 
 * `Key Links & Resources <#key-links-and-resources>`_
 * `Quick Introduction <#quick-introduction>`_
+* `Algorithm Benchmark <#algorithm-benchmark>`_
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
 * `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
-* `Algorithm Benchmark <#algorithm-benchmark>`_
 
 
 ----
@@ -137,7 +137,7 @@ Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using 
 Probabilistic        SOS               Stochastic Outlier Selection**                                                                         2012   [#Janssens2012Stochastic]_
 Outlier Ensembles    IForest           Isolation Forest                                                                                       2008   [#Liu2008Isolation]_
 Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
-Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                            xxxx   [#Aggarwal2015Outlier]_ [Chapter 3]
+Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                            xxxx   [#Aggarwal2015Outlier]_ [Ch.3]
 ===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
 
 FAQ regarding AutoEncoder in PyOD and debugging advice:
