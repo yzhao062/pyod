@@ -125,11 +125,14 @@ detection utility functions.
 
 #. Linear Models for Outlier Detection:
 
-   #. **PCA: Principal Component Analysis** (use the sum of
-      weighted projected distances to the eigenvector hyperplane) [#Shyu2003A]_
-   #. **MCD: Minimum Covariance Determinant** (use the mahalanobis distances 
-      as the outlier scores) [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
-   #. **One-Class Support Vector Machines** [#Ma2003Time]_
+===================  =====================================================================================================  =====  ========================================  ====================================================================================================
+Abbreviation         Algorithm                                                                                              Year   Ref                                       Materials
+===================  =====================================================================================================  =====  ========================================  ====================================================================================================
+PCA                  Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)  2003   [#Shyu2003A]_                             `[PDF] <http://projects.laas.fr/METROSEC/DOC/FDM03.pdf>`_
+MCD                  Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                   1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_  `[PDF] <http://dmrocke.ucdavis.edu/papers/HardinRocke2004.pdf>`_
+OCSVM                One-Class Support Vector Machines                                                                      2003   [#Ma2003Time]_                            `[PDF] <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.653.2440&rep=rep1&type=pdf>`_
+===================  =====================================================================================================  =====  ========================================  ====================================================================================================
+
 
 #. Proximity-Based Outlier Detection Models:
 
