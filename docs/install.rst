@@ -6,24 +6,25 @@ It is recommended to use **pip** for installation. Please make sure
 
 .. code-block:: bash
 
-    pip install pyod
-    pip install --upgrade pyod  # make sure the latest version is installed!
+   pip install pyod
+   pip install --upgrade pyod # make sure the latest version is installed!
 
-Alternatively, install from github directly (**not recommended**)
+Alternatively, install from github directly (\ **NOT Recommended**\ )
 
 .. code-block:: bash
 
-    git clone https://github.com/yzhao062/pyod.git
-    python setup.py install
+   git clone https://github.com/yzhao062/pyod.git
+   python setup.py install
 
-**Required Dependencies**:
+**Required Dependencies**\ :
 
-- Python 2.7, 3.5, 3.6, or 3.7
-- nose
-- numpy>=1.13
-- numba>=0.35
-- scipy>=0.19.1
-- scikit_learn>=0.19.1
+
+* Python 2.7, 3.5, 3.6, or 3.7
+* numpy>=1.13
+* numba>=0.35
+* scipy>=0.19.1
+* scikit_learn>=0.19.1
+
 
 **Optional Dependencies (required for running examples or AutoEncoder)**:
 

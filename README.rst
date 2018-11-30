@@ -208,7 +208,6 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 
 
 * Python 2.7, 3.5, 3.6, or 3.7
-* nose
 * numpy>=1.13
 * numba>=0.35
 * scipy>=0.19.1
