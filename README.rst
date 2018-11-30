@@ -153,7 +153,7 @@ FAQ regarding AutoEncoder in PyOD and debugging advice:
 #. **Maximum of Average (MOA)** [#Aggarwal2015Theoretical]_
 #. **Threshold Sum (Thresh)** [#Aggarwal2015Theoretical]_
 
-**(iii) Utility Functions:
+**(iii) Utility Functions**:
 
 TODO
 
@@ -163,6 +163,7 @@ Algorithm Benchmark
 ^^^^^^^^^^^^^^^^^^^
 
 **Comparison of all implemented models** are made available below:
+
  (\ `Figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png>`_\ ,
  `compare_all_models.py <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_\ ,
  `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_\ ):
@@ -174,10 +175,8 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
    :target: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
    :alt: Comparision_of_All
 
-To provide an overview and quick guidance of the implemented models, benchmark
-is supplied.
-
-In total, 17 benchmark data are used for comparision, all datasets could be
+To provide an overview and quick guidance of the implemented models, a benchmark
+is supplied. In total, 17 benchmark data are used for comparision, all datasets could be
 downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
 For each dataset, it is first split into 60% for training and 40% for testing.
