@@ -34,7 +34,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -r requirements_travis.txt
+            pip install -r requirements_ci.txt
             pip install pytest
             pip install pytest-cov
 
