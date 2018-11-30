@@ -116,11 +116,9 @@ Key Links and Resources
 Quick Introduction
 ^^^^^^^^^^^^^^^^^^
 
-PyOD toolkit consists of three major groups of functionalities: (i) outlier 
-detection algorithms; (ii) outlier ensemble frameworks and (iii) outlier 
-detection utility functions.
+PyOD toolkit consists of three major groups of functionalities:
 
-**Individual Detection Algorithms** :
+**(i) Individual Detection Algorithms** :
 
 ===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
 Type                 Abbr              Algorithm                                                                                              Year   Ref                                       Materials
@@ -145,7 +143,7 @@ Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstr
 FAQ regarding AutoEncoder in PyOD and debugging advice:
 `known issues <https://github.com/yzhao062/Pyod/issues/19>`_
 
-**Outlier Detector/Scores Combination Frameworks**:
+**(ii) Outlier Detector/Scores Combination Frameworks**:
 
 #. **Feature Bagging**\ : build various detectors on random selected features [#Lazarevic2005Feature]_
 #. **Average** & **Weighted Average**\ : simply combine scores by averaging [#Aggarwal2015Theoretical]_
@@ -155,8 +153,17 @@ FAQ regarding AutoEncoder in PyOD and debugging advice:
 #. **Maximum of Average (MOA)** [#Aggarwal2015Theoretical]_
 #. **Threshold Sum (Thresh)** [#Aggarwal2015Theoretical]_
 
+**(iii) Utility Functions:
+
+TODO
+
+----
+
+Algorithm Benchmark
+^^^^^^^^^^^^^^^^^^^
+
 **Comparison of all implemented models** are made available below:
- (\ `Figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png>`_\ , 
+ (\ `Figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png>`_\ ,
  `compare_all_models.py <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_\ ,
  `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_\ ):
 
@@ -167,6 +174,25 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
    :target: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
    :alt: Comparision_of_All
 
+To provide an overview and quick guidance of the implemented models, benchmark
+is supplied.
+
+In total, 17 benchmark data are used for comparision, all datasets could be
+downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
+
+For each dataset, it is first split into 60% for training and 40% for testing.
+All experiments are repeated 20 times independently with different samplings.
+The mean of 20 trials are taken as the final result. Three evaluation metrics
+are provided:
+
+
+* The area under receiver operating characteristic (ROC) curve
+* Precision @ rank n (P@N)
+* Execution time
+
+Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
+You are welcome to replicate this process by running
+`benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_.
 
 ----
 
@@ -421,30 +447,6 @@ such as abod.py, hbos.py, or feature bagging for example.
 You are also welcome to share your ideas by opening an issue or dropping me an email
 at yuezhao@cs.toronto.edu :)
 
-----
-
-Algorithm Benchmark
-^^^^^^^^^^^^^^^^^^^
-
-To provide an overview and quick guidance of the implemented models, benchmark
-is supplied.
-
-In total, 17 benchmark data are used for comparision, all datasets could be
-downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
-
-For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 20 times independently with different samplings.
-The mean of 20 trials are taken as the final result. Three evaluation metrics
-are provided:
-
-
-* The area under receiver operating characteristic (ROC) curve
-* Precision @ rank n (P@N)
-* Execution time
-
-Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
-You are welcome to replicate this process by running
-`benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_.
 
 ----
 
