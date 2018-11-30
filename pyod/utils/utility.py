@@ -262,24 +262,29 @@ def invert_order(scores, method='multiplication'):
     the largest in the inverted list. This is useful while combining
     multiple detectors since their score order could be different.
 
-    Examples:
-        >>>scores1 = [0.1, 0.3, 0.5, 0.7, 0.2, 0.1]
-        >>>invert_order(scores1)
-        array[-0.1, -0.3, -0.5, -0.7, -0.2, -0.1]
-        >>>invert_order(scores1, method='subtraction')
-        array[0.6, 0.4, 0.2, 0, 0.5, 0.6]
+    Parameters
+    ----------
+    scores : list, array or numpy array with shape (n_samples,)
+        The list of values to be inverted
 
-    :param scores: The list of values to be inverted
-    :type scores: list, array or numpy array with shape (n_samples,)
+    method : str, optional (default='multiplication')
+        Methods used for order inversion. Valid methods are:
 
-    :param method: {'multiplication', 'subtraction'}:
+        - 'multiplication': multiply by -1
+        - 'subtraction': max(scores) - scores
 
-            - 'multiplication': multiply by -1
-            - 'subtraction': max(scores) - scores
-    :type method: str, optional (default='multiplication')
+    Returns
+    -------
+    inverted_scores : numpy array of shape (n_samples,)
+        The inverted list
 
-    :return: The inverted list
-    :rtype: numpy array of shape (n_samples,)
+    Examples
+    --------
+    >>> scores1 = [0.1, 0.3, 0.5, 0.7, 0.2, 0.1]
+    >>> invert_order(scores1)
+    >>> array[-0.1, -0.3, -0.5, -0.7, -0.2, -0.1]
+    >>> invert_order(scores1, method='subtraction')
+    >>> array[0.6, 0.4, 0.2, 0, 0.5, 0.6]
     """
 
     scores = column_or_1d(scores)
