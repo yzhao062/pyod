@@ -134,7 +134,7 @@ Proximity-Based      AvgKNN            Average kNN (use the average distance to 
 Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                       2002   [#Angiulli2002Fast]_
 Probabilistic        ABOD              Angle-Based Outlier Detection                                                                          2008   [#Kriegel2008Angle]_
 Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                 2008   [#Kriegel2008Angle]_
-Probabilistic        SOS               Stochastic Outlier Selection**                                                                         2012   [#Janssens2012Stochastic]_
+Probabilistic        SOS               Stochastic Outlier Selection                                                                           2012   [#Janssens2012Stochastic]_
 Outlier Ensembles    IForest           Isolation Forest                                                                                       2008   [#Liu2008Isolation]_
 Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                            xxxx   [#Aggarwal2015Outlier]_ [Ch.3]
