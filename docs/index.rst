@@ -6,35 +6,72 @@
 Welcome to PyOD documentation!
 ==============================
 
-.. image:: https://badge.fury.io/py/pyod.svg
-    :target: https://badge.fury.io/py/pyod
-.. image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
-.. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
-    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
-.. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
-.. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
-    :target: https://travis-ci.org/yzhao062/pyod
-.. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
-    :target: https://coveralls.io/github/yzhao062/pyod
-.. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
-    :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
-    :alt: Maintainability
-.. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
-    :alt: GitHub stars
-    :target: https://github.com/yzhao062/pyod
-.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
-    :alt: GitHub forks
-    :target: https://github.com/yzhao062/pyod
-.. image:: https://pepy.tech/badge/pyod
-    :alt: Downloads
-    :target: https://pepy.tech/project/pyod
-.. image:: https://pepy.tech/badge/pyod/month
-    :alt: Downloads per Month
-    :target: https://pepy.tech/project/pyod
+**Deployment & Documentation & Stats**
 
+.. image:: https://badge.fury.io/py/pyod.svg
+   :target: https://badge.fury.io/py/pyod
+   :alt: PyPI version
+
+
+.. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
+   :target: https://pyod.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+
+.. image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
+   :alt: Binder
+
+
+.. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
+   :target: https://github.com/yzhao062/Pyod/stargazers
+   :alt: GitHub stars
+
+
+.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
+   :target: https://github.com/yzhao062/Pyod/network
+   :alt: GitHub forks
+
+
+.. image:: https://pepy.tech/badge/pyod
+   :target: https://pepy.tech/project/pyod
+   :alt: Downloads
+
+
+.. image:: https://pepy.tech/badge/pyod/month
+   :target: https://pepy.tech/project/pyod
+   :alt: Downloads
+
+-----
+
+**Build Status & Code Coverage & Maintainability**
+
+
+.. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
+   :alt: Build status
+
+
+.. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
+   :target: https://travis-ci.org/yzhao062/pyod
+   :alt: Build Status
+
+
+.. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
+   :target: https://coveralls.io/github/yzhao062/pyod
+   :alt: Coverage Status
+
+
+.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
+    :target: https://circleci.com/gh/yzhao062/pyod
+
+
+.. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
+   :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
+   :alt: Maintainability
+
+
+----
 
 **Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a comprehensive and
 scalable **Python toolkit** for **detecting outlying objects** in multivariate data.
