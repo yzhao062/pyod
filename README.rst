@@ -1,6 +1,7 @@
 Python Outlier Detection (PyOD)
 ===============================
 
+**Deployment & Documentation & Stats**
 
 .. image:: https://badge.fury.io/py/pyod.svg
    :target: https://badge.fury.io/py/pyod
@@ -16,6 +17,31 @@ Python Outlier Detection (PyOD)
    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
+.. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
+   :target: https://github.com/yzhao062/Pyod/stargazers
+   :alt: GitHub stars
+
+
+.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
+   :target: https://github.com/yzhao062/Pyod/network
+   :alt: GitHub forks
+
+
+.. image:: https://pepy.tech/badge/pyod
+   :target: https://pepy.tech/project/pyod
+   :alt: Downloads
+
+
+.. image:: https://pepy.tech/badge/pyod/month
+   :target: https://pepy.tech/project/pyod
+   :alt: Downloads
+
+-----
+
+**Build Status & Code Coverage & Maintainability**
+
+.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
+    :target: https://circleci.com/gh/yzhao062/pyod
 
 .. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
    :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
@@ -35,27 +61,6 @@ Python Outlier Detection (PyOD)
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
    :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
    :alt: Maintainability
-
-
-.. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/stargazers
-   :alt: GitHub stars
- 
-
-.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/network
-   :alt: GitHub forks
-
-
-.. image:: https://pepy.tech/badge/pyod
-   :target: https://pepy.tech/project/pyod
-   :alt: Downloads
-
-
-
-.. image:: https://pepy.tech/badge/pyod/month
-   :target: https://pepy.tech/project/pyod
-   :alt: Downloads
 
 -----
 
