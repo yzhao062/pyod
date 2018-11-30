@@ -36,6 +36,7 @@ jobs:
             . venv/bin/activate
             pip install -r requirements_travis.txt
             pip install pytest
+            pip install pytest-cov
 
       - save_cache:
           paths:
