@@ -121,7 +121,7 @@ PyOD toolkit consists of three major groups of functionalities:
 **(i) Individual Detection Algorithms** :
 
 ===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
-Type                 Abbr              Algorithm                                                                                              Year   Ref                                       Materials
+Type                 Abbr              Algorithm                                                                                              Year   Ref                                       Link
 ===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
 Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)  2003   [#Shyu2003A]_                             `[PDFa] <http://projects.laas.fr/METROSEC/DOC/FDM03.pdf>`_
 Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                   1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_  `[PDFb] <http://dmrocke.ucdavis.edu/papers/HardinRocke2004.pdf>`_
@@ -145,17 +145,34 @@ FAQ regarding AutoEncoder in PyOD and debugging advice:
 
 **(ii) Outlier Detector/Scores Combination Frameworks**:
 
-#. **Feature Bagging**\ : build various detectors on random selected features [#Lazarevic2005Feature]_
-#. **Average** & **Weighted Average**\ : simply combine scores by averaging [#Aggarwal2015Theoretical]_
 #. **Maximization**\ : simply combine scores by taking the maximum across all 
    base detectors [#Aggarwal2015Theoretical]_
 #. **Average of Maximum (AOM)** [#Aggarwal2015Theoretical]_
 #. **Maximum of Average (MOA)** [#Aggarwal2015Theoretical]_
 #. **Threshold Sum (Thresh)** [#Aggarwal2015Theoretical]_
 
+===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
+Type                 Abbr              Algorithm                                                                                              Year   Ref                                       Link
+===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
+Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
+Combination          Average           Simple combination by averaging the scores                                                             2015   [#Aggarwal2015Theoretical]_
+Combination          Weighted Average  Simple combination by averaging the scores with weights                                                2015   [#Aggarwal2015Theoretical]_
+Combination          Maximization      Simple combination by taking the maxium scores                                                         2015   [#Aggarwal2015Theoretical]_
+Combination          AOM               Average of Maximum                                                                                     2015   [#Aggarwal2015Theoretical]_
+Combination          MOA               Maximization of Average                                                                                2015   [#Aggarwal2015Theoretical]_
+===================  ================  =====================================================================================================  =====  ========================================  ====================================================================================================
+
+
 **(iii) Utility Functions**:
 
-TODO
+===================  ==================  =====================================================================================================================================================  ======================================================================================================================
+Type                 Name                Function                                                                                                                                               Link
+===================  ==================  =====================================================================================================================================================  ======================================================================================================================
+Data                 generate_data       Synthesized data generation; normal data is generated by a multivariate Gaussian and outliers are generated by a uniform distribution                  `[generate_data] <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.data.generate_data>`_
+Stat                 wpearsonr           Calculate the weighted Pearson correlation of two samples                                                                                              `[wpearsonr] <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.stat_models.wpearsonr>`_
+Utility              get_label_n         Turn raw outlier scores into binary labels by assign 1 to top n outlier scores.                                                                        `[get_label_n] <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.utility.get_label_n>`_
+Utility              precision_n_scores  calculate precision @ rank n                                                                                                                           `[get_label_n] <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.utility.precision_n_scores>`_
+===================  ==================  =====================================================================================================================================================  ======================================================================================================================
 
 ----
 
