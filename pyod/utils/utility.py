@@ -163,11 +163,11 @@ def score_to_label(pred_scores, outliers_fraction=0.1):
 
 
 def precision_n_scores(y, y_pred, n=None):
-    """
-    Utility function to calculate precision@ rank
+    """Utility function to calculate precision @ rank n
 
     :param y: ground truth
-    :param y_pred: predicted outlier scores as returned by fitted model (not rounded off)
+    :param y_pred: predicted outlier scores as returned by fitted model
+        (not rounded off)
     :param n: number of outliers, if not defined, infer using ground truth
     :return: precision at rank n score
     :rtype: float
@@ -184,9 +184,8 @@ def precision_n_scores(y, y_pred, n=None):
 
 
 def get_label_n(y, y_pred, n=None):
-    """
-    Function to turn raw outlier scores into binary labels by assign 1 to top
-    n outlier scores.
+    """Function to turn raw outlier scores into binary labels by assign 1
+    to top n outlier scores.
 
     Example y: [0,1,1,0,0,0]
             y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
