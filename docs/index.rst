@@ -73,13 +73,12 @@ Welcome to PyOD documentation!
 
 ----
 
-**Py**\ thon \ **O**\ utlier \ **D**\ etection (PyOD) is a comprehensive and
-scalable **Python toolkit** for **detecting outlying objects** in multivariate data.
-This exciting yet challenging field is commonly referred as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
+PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in
+multivariate data. This exciting yet challenging field is commonly referred as
+`Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-
-Since 2017, PyOD has been successfully used in various academic researches
-:cite:`a-zhao2018xgbod,a-zhao2018dcso` and commercial products. PyOD is featured for:
+Since 2017, PyOD has been successfully used in various academic researches :cite:`a-zhao2018xgbod,a-zhao2018dcso` and commercial products.
+PyOD is featured for:
 
 - **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 - **Advanced models**, including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
