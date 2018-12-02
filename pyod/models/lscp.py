@@ -9,7 +9,6 @@ Adapted from the original implementation:
 import os
 import collections
 import sys
-import datetime
 import warnings
 
 # numpy
@@ -21,9 +20,6 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 # PYOD imports
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
-
 from pyod.models.base import BaseDetector
 from pyod.utils.stat_models import pearsonr
 from pyod.utils.utility import argmaxn
@@ -31,8 +27,6 @@ from pyod.utils.utility import generate_bagging_indices
 from pyod.utils.utility import precision_n_scores, standardizer
 from pyod.utils.utility import check_detector
 
-
-# TODO: Design unit tests
 
 class LSCP(BaseDetector):
     """ Locally Selection Combination in Parallel Outlier Ensembles
