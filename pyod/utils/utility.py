@@ -18,6 +18,8 @@ from sklearn.utils import check_array
 from sklearn.utils import check_consistent_length
 from sklearn.utils.testing import assert_equal
 from scipy.stats import scoreatpercentile
+from sklearn.utils import check_random_state
+from sklearn.utils.random import sample_without_replacement
 
 MAX_INT = np.iinfo(np.int32).max
 MIN_INT = -1 * MAX_INT
@@ -181,6 +183,76 @@ def precision_n_scores(y, y_pred, n=None):
     y_pred = column_or_1d(y_pred)
 
     return precision_score(y, y_pred)
+
+def generate_bagging_indices(random_state, bootstrap_features, n_features,
+                             min_features, max_features):
+    """ Randomly draw feature indices. Internal use only.
+
+    Modified from sklearn/ensemble/bagging.py
+
+    Parameters
+    ----------
+    random_state : RandomState
+        A random number generator instance to define the state of the random permutations generator.
+    bootstrap_features : bool
+        Specifies whether to bootstrap indice generation
+    n_features : int
+        Specifies the population size when generating indices
+    min_features : int
+        Lower limit for number of features to randomly sample
+    max_features : int
+        Upper limit for number of features to randomly sample
+
+    Returns
+    -------
+    feature_indices : numpy array, shape (n_samples, )
+        Indices for features to bag
+
+    """
+
+    # Get valid random state
+    random_state = check_random_state(random_state)
+
+    # decide number of features to draw
+    random_n_features = random_state.randint(min_features, max_features)
+
+    # Draw indices
+    feature_indices = generate_indices(random_state, bootstrap_features,
+                                        n_features, random_n_features)
+
+    return feature_indices
+
+
+def generate_indices(random_state, bootstrap, n_population, n_samples):
+    """ Draw randomly sampled indices. Internal use only.
+
+    See sklearn/ensemble/bagging.py
+
+    Parameters
+    ----------
+    random_state : RandomState
+        A random number generator instance to define the state of the random permutations generator.
+    bootstrap :  bool
+        Specifies whether to bootstrap indice generation
+    n_population : int
+        Specifies the population size when generating indices
+    n_samples : int
+        Specifies number of samples to draw
+
+    Returns
+    -------
+    indices : numpy array, shape (n_samples,)
+        randomly drawn indices
+    """
+
+    # Draw sample indices
+    if bootstrap:
+        indices = random_state.randint(0, n_population, n_samples)
+    else:
+        indices = sample_without_replacement(n_population, n_samples,
+                                             random_state=random_state)
+
+    return indices
 
 
 def get_label_n(y, y_pred, n=None):

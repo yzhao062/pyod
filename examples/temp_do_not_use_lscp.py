@@ -18,9 +18,7 @@ import numpy as np
 # sklearn imports
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
-from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.random import sample_without_replacement
 
 # PYOD imports
 sys.path.append(
@@ -29,90 +27,12 @@ sys.path.append(
 from pyod.models.base import BaseDetector
 from pyod.utils.stat_models import pearsonr
 from pyod.utils.utility import argmaxn
+from pyod.utils.utility import generate_bagging_indices
 from pyod.utils.utility import precision_n_scores, standardizer
 from pyod.utils.utility import check_detector
 
-# access the timestamp for logging purpose
-today = datetime.datetime.now()
-timestamp = today.strftime("%Y%m%d_%H%M%S")
-
-# set numpy parameters
-np.set_printoptions(suppress=True, precision=4)
-
-
-def generate_bagging_indices(random_state, bootstrap_features, n_features,
-                             min_features, max_features):
-    """ Randomly draw feature indices. Internal use only.
-
-    Modified from sklearn/ensemble/bagging.py
-
-    Parameters
-    ----------
-    random_state : RandomState
-        A random number generator instance to define the state of the random permutations generator.
-    bootstrap_features : bool
-        Specifies whether to bootstrap indice generation
-    n_features : int
-        Specifies the population size when generating indices
-    min_features : int
-        Lower limit for number of features to randomly sample
-    max_features : int
-        Upper limit for number of features to randomly sample
-
-    Returns
-    -------
-    feature_indices : numpy array, shape (n_samples, )
-        Indices for features to bag
-
-    """
-
-    # Get valid random state
-    random_state = check_random_state(random_state)
-
-    # decide number of features to draw
-    random_n_features = random_state.randint(min_features, max_features)
-
-    # Draw indices
-    feature_indices = _generate_indices(random_state, bootstrap_features,
-                                        n_features, random_n_features)
-
-    return feature_indices
-
-
-def _generate_indices(random_state, bootstrap, n_population, n_samples):
-    """ Draw randomly sampled indices. Internal use only.
-
-    See sklearn/ensemble/bagging.py
-
-    Parameters
-    ----------
-    random_state : RandomState
-        A random number generator instance to define the state of the random permutations generator.
-    bootstrap :  bool
-        Specifies whether to bootstrap indice generation
-    n_population : int
-        Specifies the population size when generating indices
-    n_samples : int
-        Specifies number of samples to draw
-
-    Returns
-    -------
-    indices : numpy array, shape (n_samples,)
-        randomly drawn indices
-    """
-
-    # Draw sample indices
-    if bootstrap:
-        indices = random_state.randint(0, n_population, n_samples)
-    else:
-        indices = sample_without_replacement(n_population, n_samples,
-                                             random_state=random_state)
-
-    return indices
-
 
 # TODO: Design unit tests
-
 
 class LSCP(BaseDetector):
     """ Locally Selection Combination in Parallel Outlier Ensembles
@@ -175,17 +95,16 @@ class LSCP(BaseDetector):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from pyod.utils.data import generate_data
+    >>> from pyod.utils.utility import standardizer
     >>> from pyod.models.lscp import LSCP
     >>> from pyod.models.lof import LOF
 
     >>> X_train, y_train, X_test, y_test = generate_data(
             n_train=50, n_test=50,
             contamination=0.1, random_state=42)
-    >>> random_state = np.random.RandomState(0)
-    >>> k_list = random_state.randint(5, 200, size=50).tolist()
-    >>> estimator_list = [LOF(k) for k in k_list]
+    >>> X_train, X_test = standardizer(X_train, X_test)
+    >>> estimator_list = [LOF(), LOF()]
     >>> clf = LSCP(estimator_list)
     >>> clf.fit(X_train)
     >>> print(clf.decision_scores_)
@@ -456,13 +375,13 @@ if __name__ == "__main__":
         el.append(LOF(k))
 
     # create the model
-    lscp = LSCP(el, random_state=random_state, local_region_size=100)
+    clf = LSCP(el, random_state=random_state, local_region_size=100)
 
     # split the data into training and testing
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=random_state)
     X_train, X_test = standardizer(X_train, X_test)
 
     # fit and predict
-    lscp.fit(X_train)
-    scores = lscp.decision_function(X_test)
+    clf.fit(X_train)
+    scores = clf.decision_function(X_test)
     print(roc_auc_score(y_test, scores))
