@@ -93,11 +93,16 @@ So you should install keras and a back-end lib like tensorflow, if you want
 It is fairly easy to install and an instruction is provided `here <https://github.com/yzhao062/Pyod/issues/19>`_.
 
 
-**Key Links**:
+Key Links and Resources
+^^^^^^^^^^^^^^^^^^^^^^^
 
-- `View the latest codes on Github <https://github.com/yzhao062/Pyod>`_
-- `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
-- `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+* `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
+* `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
+* `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+
+----
 
 
 Important Functionalities
