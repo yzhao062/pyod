@@ -8,9 +8,9 @@ Adapted from the original implementation:
 import os
 import sys
 import numpy as np
+
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
-
 
 if __name__ == "__main__":
 
@@ -22,7 +22,8 @@ if __name__ == "__main__":
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import roc_auc_score
 
-    def loaddata(filename):
+
+    def load_data(filename):
         """
         load data
         :param filename:
@@ -33,7 +34,8 @@ if __name__ == "__main__":
         y_orig = mat['y'].ravel()
         return X_orig, y_orig
 
-    X, y = loaddata(r"data/cardio.mat")
+
+    X, y = load_data(r"data/cardio.mat")
 
     random_state = np.random.RandomState(0)
 
