@@ -6,9 +6,7 @@ Adapted from the original implementation:
 # License: BSD 2 clause
 
 # system imports
-import os
 import collections
-import sys
 import warnings
 
 # numpy
