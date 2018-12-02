@@ -5,7 +5,7 @@ branches:
   # whitelist
   only:
     - master
-    -
+    - development
 environment:
   matrix:
 #    - PYTHON: "C:\\Python27"     # comment out due to tensorflow version
