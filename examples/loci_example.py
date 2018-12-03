@@ -13,7 +13,7 @@ from sklearn.utils import check_X_y
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-from pyod.models.sos import SOS
+from pyod.models.loci import LOCI
 from pyod.utils.data import generate_data
 from pyod.utils.data import get_color_codes
 from pyod.utils.data import evaluate_print
@@ -115,9 +115,9 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train SOS detector
-    clf_name = 'SOS'
-    clf = SOS()
+    # train LOCI detector
+    clf_name = 'LOCI'
+    clf = LOCI()
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
