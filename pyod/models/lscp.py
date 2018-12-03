@@ -16,6 +16,7 @@ import numpy as np
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.validation import check_random_state
 
 # PYOD imports
 from pyod.models.base import BaseDetector
@@ -105,7 +106,7 @@ class LSCP(BaseDetector):
     """
 
     def __init__(self, estimator_list, local_region_size=30, local_max_features=1.0, n_bins=10,
-                 random_state=np.random.RandomState(), contamination=0.1):
+                 random_state=None, contamination=0.1):
         super(LSCP, self).__init__(contamination=contamination)
         self.estimator_list = estimator_list
         self.n_clf = len(self.estimator_list)
@@ -121,7 +122,6 @@ class LSCP(BaseDetector):
         self.random_state = random_state
 
         assert len(estimator_list) > 1, "The estimator list has less than 2 estimators."
-        assert isinstance(self.random_state, type(np.random.RandomState())), "random state not np.random.RandomState()"
 
         if self.n_bins > self.n_clf:
             warnings.warn("Number of histogram bins greater than number of classifiers, reducing n_bins to n_clf.")
@@ -148,6 +148,7 @@ class LSCP(BaseDetector):
         -------
         None
         """
+        self.random_state = check_random_state(self.random_state)
         X = check_array(X)
         self._set_n_classes(y)
         self.n_features_ = X.shape[1]
