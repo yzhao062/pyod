@@ -115,8 +115,7 @@ def check_detector(detector):
 
     """
 
-    if not hasattr(detector, 'fit') or not hasattr(detector,
-                                                   'decision_function'):
+    if not hasattr(detector, 'fit') or not hasattr(detector, 'decision_function'):
         raise AttributeError("%s is not a detector instance." % (detector))
 
 

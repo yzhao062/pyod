@@ -121,6 +121,9 @@ class LSCP(BaseDetector):
         self.n_selected = 1
         self.random_state = random_state
 
+        assert len(estimator_list) > 1, "The estimator list has less than 2 estimators."
+        for estimator in self.estimator_list:
+            check_detector(estimator)
 
     def fit(self, X, y=None):
         """ Fit LSCP using X as training data
@@ -136,17 +139,8 @@ class LSCP(BaseDetector):
         -------
         None
         """
-
-        # check estimator list
-        assert len(self.estimator_list) > 1, "The estimator list has less than 2 estimators."
-        for estimator in self.estimator_list:
-            check_detector(estimator)
-
-        # check random state and input
         self.random_state = check_random_state(self.random_state)
         X = check_array(X)
-
-        # set class attributes
         self._set_n_classes(y)
         self.n_features_ = X.shape[1]
 
@@ -265,13 +259,12 @@ class LSCP(BaseDetector):
         # Initialize the local region list
         local_region_list = [[]] * X_test_norm.shape[0]
 
+        if self.local_max_features > 1.0:
+            warnings.warn("Local max features greater than 1.0, reducing to 1.0")
+            self.local_max_features = 1.0
+
         # perform multiple iterations
         for _ in range(self.local_region_iterations):
-
-            # raise warning on local max features
-            if self.local_max_features > 1.0:
-                warnings.warn("Local max features greater than 1.0, reducing to 1.0")
-                self.local_max_features = 1.0
 
             # randomly generate feature subspaces
             features = generate_bagging_indices(self.random_state,
