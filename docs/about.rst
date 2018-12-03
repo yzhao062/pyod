@@ -1,17 +1,21 @@
 About us
 ========
 
-Development Team
-----------------
+----
+
+Core Development Team
+---------------------
 
 Yue Zhao (initialized the project in 2017)
-(`Homepage <https://http://www.cs.toronto.edu/~yuezhao>`_,
+[`Homepage <https://http://www.cs.toronto.edu/~yuezhao>`_],
 
 Zain Nasrullah (joined in 2018)
-(`LinkedIn <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_,
+[`LinkedIn <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_],
 
 Winston (Zheng) Li (joined in 2018)
-(`LinkedIn <https://www.linkedin.com/in/winstonl/>`_,
+[`LinkedIn <https://www.linkedin.com/in/winstonl/>`_]
+
+----
 
 Citing pyod
 -----------
