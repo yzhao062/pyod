@@ -112,7 +112,7 @@ class LSCP(BaseDetector):
         self.n_clf = len(self.estimator_list)
         self.local_region_size = local_region_size
         self.local_region_min = 30
-        self.local_region_max = 100
+        self.local_region_max = 200
         self.local_max_features = local_max_features
         self.local_min_features = 0.5
         self.local_region_iterations = 20
@@ -211,9 +211,10 @@ class LSCP(BaseDetector):
             Outlier scores for test samples
         """
 
-        # ensure local region size is within acceptable limits
-        self.local_region_size = max(self.local_region_size, self.local_region_min)
-        self.local_region_size = min(self.local_region_size, self.local_region_max)
+        # raise warning if local region size is outside acceptable limits
+        if (self.local_region_size < self.local_region_min) or (self.local_region_size > self.local_region_max):
+            warnings.warn("Local region size of {} is outside recommended range [{}, {}]".format(
+                self.local_region_size, self.local_region_min, self.local_region_max))
 
         # standardize test data and get local region for each test instance
         X_test_norm = X
