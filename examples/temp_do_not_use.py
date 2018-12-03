@@ -48,55 +48,43 @@ if __name__ == "__main__":
         X = mat['X']
         y = mat['y'].ravel()
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, 
+                                                        test_size=0.4,
+                                                        random_state=1)
 #    X_train_norm, X_test_norm = X_train, X_test
     X_train_norm, X_test_norm = standardizer(X_train, X_test)
 
     estimator_list = []
+    normalization_list = []
+    
     # predefined range of k
-    k_range = [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150,
-               200, 250]
+    k_range = [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 
+               60, 70, 80, 90, 100, 150, 200, 250]
     # validate the value of k
     k_range = [k for k in k_range if k < X.shape[0]]
     
     for k in k_range:
         estimator_list.append(KNN(n_neighbors=k))
         estimator_list.append(LOF(n_neighbors=k))
+        normalization_list.append(True)
+        normalization_list.append(True)
     
     n_bins_range = [3, 5, 7, 9, 12, 15, 20, 25, 30, 50]
     for n_bins in n_bins_range:
         estimator_list.append(HBOS(n_bins=n_bins))
-
+        normalization_list.append(False)
+        
     # predefined range of nu for one-class svm
     nu_range = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+    for nu in nu_range:
+        estimator_list.append(OCSVM(nu=nu))
+        normalization_list.append(True)
     
     # predefined range for number of estimators in isolation forests
     n_range = [10, 20, 50, 70, 100, 150, 200, 250]
-    
-    for nu in nu_range:
-        estimator_list.append(OCSVM(nu=nu))
-    
-#    estimator_list = [KNN(n_neighbors=10), 
-#                      KNN(n_neighbors=30),
-#                      KNN(n_neighbors=50),
-#                      KNN(n_neighbors=70),
-#                      KNN(n_neighbors=90),
-#                      LOF(n_neighbors=20),
-#                      LOF(n_neighbors=40),
-#                      LOF(n_neighbors=60),
-#                      LOF(n_neighbors=80),
-#                      LOF(n_neighbors=100),
-#                      IForest(n_estimators=30),
-#                      IForest(n_estimators=50),
-#                      IForest(n_estimators=70),
-#                      IForest(n_estimators=90),
-#                      IForest(n_estimators=100),
-#                      HBOS(n_bins=10),
-#                      HBOS(n_bins=20),
-#                      HBOS(n_bins=30),
-#                      HBOS(n_bins=40),
-#                      HBOS(n_bins=50),
-#            ]
+    for n in n_range:
+        estimator_list.append(IForest(n_estimators=n))
+        normalization_list.append(False)
     
     X_train_add = np.zeros([X_train.shape[0], len(estimator_list)])
     X_test_add = np.zeros([X_test.shape[0], len(estimator_list)])
@@ -123,7 +111,7 @@ if __name__ == "__main__":
     clf.fit(X_train, y_train)
     y_test_scores_orig = clf.predict_proba(X_test)  # outlier scores
     
-    evaluate_print('XGBOD', y_test, y_test_scores_orig[:, 1])
+    evaluate_print('old', y_test, y_test_scores_orig[:, 1])
     
     
     
