@@ -49,19 +49,19 @@ pyod.models.combination module
     :show-inheritance:
     :inherited-members:
 
-pyod.models.hbos module
------------------------
+pyod.models.feature\_bagging module
+-----------------------------------
 
-.. automodule:: pyod.models.hbos
+.. automodule:: pyod.models.feature_bagging
     :members:
     :undoc-members:
     :show-inheritance:
     :inherited-members:
 
-pyod.models.feature\_bagging module
------------------------------------
+pyod.models.hbos module
+-----------------------
 
-.. automodule:: pyod.models.feature_bagging
+.. automodule:: pyod.models.hbos
     :members:
     :undoc-members:
     :show-inheritance:
@@ -92,6 +92,15 @@ pyod.models.lof module
 .. automodule:: pyod.models.lof
     :members:
     :exclude-members: negative_outlier_factor_, n_neighbors_
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.loci module
+-----------------------
+
+.. automodule:: pyod.models.loci
+    :members:
     :undoc-members:
     :show-inheritance:
     :inherited-members:

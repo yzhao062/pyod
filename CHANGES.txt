@@ -40,6 +40,7 @@ v<0.6.4>, <11/26/2018> -- Refactor version file for Python 2 compatibility.
 v<0.6.5>, <11/27/2018> -- Update README.rst Reference section.
 v<0.6.5>, <11/28/2018> -- Add Stochastic Outlier Selection (SOS).
 v<0.6.5>, <11/30/2018> -- Add CircleCI continuous integration.
+v<0.6.5>, <12/03/2018> -- Add Local Correlation Integral (LOCI).
 
 
 
