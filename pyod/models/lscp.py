@@ -27,6 +27,8 @@ from pyod.utils.utility import standardizer
 from pyod.utils.utility import check_detector
 
 
+# TODO: find random state that is causing runtime warning in pearson
+
 class LSCP(BaseDetector):
     """ Locally Selection Combination in Parallel Outlier Ensembles
 
@@ -121,10 +123,6 @@ class LSCP(BaseDetector):
         self.n_selected = 1
         self.random_state = random_state
 
-        assert len(estimator_list) > 1, "The estimator list has less than 2 estimators."
-        for estimator in self.estimator_list:
-            check_detector(estimator)
-
     def fit(self, X, y=None):
         """ Fit LSCP using X as training data
 
@@ -139,6 +137,13 @@ class LSCP(BaseDetector):
         -------
         None
         """
+
+        # check estimator_list
+        assert len(self.estimator_list) > 1, "The estimator list has less than 2 estimators."
+        for estimator in self.estimator_list:
+            check_detector(estimator)
+
+        # check random state and input
         self.random_state = check_random_state(self.random_state)
         X = check_array(X)
         self._set_n_classes(y)
