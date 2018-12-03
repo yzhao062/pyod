@@ -9,11 +9,9 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from typing import Union
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from scipy.spatial.distance import pdist, squareform
-
 
 from .base import BaseDetector
 
@@ -141,7 +139,7 @@ class LOCI(BaseDetector):
         sample = np.nonzero(p_distances <= r)[0]
         return sample
     
-    def _get_alpha_n(self, dist_matrix, indices: Union[int, np.ndarray], r):
+    def _get_alpha_n(self, dist_matrix, indices, r):
         """Computes the alpha neighbourhood points.
         
         Parameters
@@ -149,7 +147,7 @@ class LOCI(BaseDetector):
         dist_matrix : array-like, shape (n_samples, n_features)
             The distance matrix w.r.t. to the training samples.
         
-        indices : Union[int, np.ndarray]
+        indices : int
             Subsetting index
         
         r : int
@@ -184,7 +182,6 @@ class LOCI(BaseDetector):
             Returns the list of outlier scores for input dataset.       
         """
         outlier_scores = [0] * X.shape[0]
-        outlier_indices = []
         dist_matrix = squareform(pdist(X, metric="euclidean"))
         max_dist = dist_matrix.max()
         r_max = max_dist/self._alpha    
@@ -201,7 +198,6 @@ class LOCI(BaseDetector):
                 if n_hat >= 20:
                     outlier_scores[p_ix] = mdef/sigma_mdef
                     if mdef > (self.threshold_ * sigma_mdef):
-                        outlier_indices.append(p_ix)
                         break
         return outlier_scores
           
