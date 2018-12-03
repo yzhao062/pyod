@@ -126,13 +126,15 @@ detection utility functions.
 
   i. **LOF: Local Outlier Factor** :cite:`a-breunig2000lof`: :class:`pyod.models.lof.LOF`
   ii. **CBLOF: Clustering-Based Local Outlier Factor** :cite:`a-he2003discovering`: :class:`pyod.models.cblof.CBLOF`
-  iii. **kNN: k Nearest Neighbors** (use the distance to the kth nearest
-       neighbor as the outlier score) :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`: :class:`pyod.models.knn.KNN`
-  iv. **Average kNN** (use the average distance to k nearest neighbors as
+  iii. **LOCI: Local Correlation Integral** :cite:`a-papadimitriou2003loci`: :class:`pyod.models.loci.LOCI`
+  iv. **kNN: k Nearest Neighbors** (use the distance to the kth nearest
+      neighbor as the outlier score) :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`: :class:`pyod.models.knn.KNN`
+  v. **Average kNN** (use the average distance to k nearest neighbors as
       the outlier score): :class:`pyod.models.knn.KNN`
-  v. **Median kNN** (use the median distance to k nearest neighbors
-     as the outlier score): :class:`pyod.models.knn.KNN`
-  vi. **HBOS: Histogram-based Outlier Score** :cite:`a-goldstein2012histogram`: :class:`pyod.models.hbos.HBOS`
+  vi. **Median kNN** (use the median distance to k nearest neighbors
+      as the outlier score): :class:`pyod.models.knn.KNN`
+  vii. **HBOS: Histogram-based Outlier Score** :cite:`a-goldstein2012histogram`: :class:`pyod.models.hbos.HBOS`
+
 
 3. Probabilistic Models for Outlier Detection:
 

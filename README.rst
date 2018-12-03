@@ -128,6 +128,7 @@ Linear Model         MCD               Minimum Covariance Determinant (use the m
 Linear Model         OCSVM             One-Class Support Vector Machines                                                                      2003   [#Ma2003Time]_                            `[PDFc] <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.653.2440&rep=rep1&type=pdf>`_
 Proximity-Based      LOF               Local Outlier Factor                                                                                   2000   [#Breunig2000LOF]_
 Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                  2003   [#He2003Discovering]_
+Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                      2003   [#Papadimitriou2003LOCI]_
 Proximity-Based      HBOS              Histogram-based Outlier Score                                                                          2012   [#Goldstein2012Histogram]_
 Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score                 2000   [#Ramaswamy2000Efficient]_
 Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                     2002   [#Angiulli2002Fast]_
@@ -487,6 +488,8 @@ Reference
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
 
 .. [#Ma2003Time] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*\ , pp. 1741-1745. IEEE.
+
+.. [#Papadimitriou2003LOCI] Papadimitriou, S., Kitagawa, H., Gibbons, P.B. and Faloutsos, C., 2003, March. LOCI: Fast outlier detection using the local correlation integral. In *ICDE '03*, pp. 315-326. IEEE.
 
 .. [#Ramaswamy2000Efficient] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438).
 
