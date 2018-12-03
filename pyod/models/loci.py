@@ -15,6 +15,7 @@ from scipy.spatial.distance import pdist, squareform
 
 from .base import BaseDetector
 
+
 class LOCI(BaseDetector):
     """Local Correlation Integral.
     
@@ -80,13 +81,13 @@ class LOCI(BaseDetector):
     >>> clf.fit(X_train)
     >>> print(clf.decision_scores_)
     """
-    
-    def __init__(self, contamination = 0.1, alpha = 0.5, k = 3):
+
+    def __init__(self, contamination=0.1, alpha=0.5, k=3):
         super(LOCI, self).__init__(contamination=contamination)
         self._alpha = alpha
         self.threshold_ = k
-        
-    def _get_critical_values(self, dist_matrix, p_ix, r_max, r_min = 0):
+
+    def _get_critical_values(self, dist_matrix, p_ix, r_max, r_min=0):
         """Computes the critical values of a given distance matrix.
         
         Parameters
@@ -108,10 +109,11 @@ class LOCI(BaseDetector):
         cv : array, shape (n_critical_val, )
             Returns a list of critical values.       
         """
-        
+
         distances = dist_matrix[p_ix, :]
         mask = (r_min < distances) & (distances <= r_max)
-        cv = np.sort(np.concatenate((distances[mask], distances[mask]/self._alpha)))
+        cv = np.sort(
+            np.concatenate((distances[mask], distances[mask] / self._alpha)))
         return cv
 
     def _get_sampling_N(self, dist_matrix, p_ix, r):
@@ -134,11 +136,11 @@ class LOCI(BaseDetector):
         sample : array, shape (n_sample, )
             Returns a list of neighbourhood data points.       
         """
-        
+
         p_distances = dist_matrix[p_ix, :]
         sample = np.nonzero(p_distances <= r)[0]
         return sample
-    
+
     def _get_alpha_n(self, dist_matrix, indices, r):
         """Computes the alpha neighbourhood points.
         
@@ -158,7 +160,7 @@ class LOCI(BaseDetector):
         alpha_n : array, shape (n_alpha, )
             Returns the alpha neighbourhood points.       
         """
-        
+
         if type(indices) is int:
             alpha_n = np.count_nonzero(
                 dist_matrix[indices, :] < (r * self._alpha))
@@ -167,7 +169,7 @@ class LOCI(BaseDetector):
             alpha_n = np.count_nonzero(
                 dist_matrix[indices, :] < (r * self._alpha), axis=1)
             return alpha_n
-    
+
     def _calculate_decision_score(self, X):
         """Computes the outlier scores.
         
@@ -184,23 +186,25 @@ class LOCI(BaseDetector):
         outlier_scores = [0] * X.shape[0]
         dist_matrix = squareform(pdist(X, metric="euclidean"))
         max_dist = dist_matrix.max()
-        r_max = max_dist/self._alpha    
+        r_max = max_dist / self._alpha
 
         for p_ix in range(X.shape[0]):
-            critical_values = self._get_critical_values(dist_matrix, p_ix, r_max)
+            critical_values = self._get_critical_values(dist_matrix, p_ix,
+                                                        r_max)
             for r in critical_values:
-                n_values = self._get_alpha_n(dist_matrix, 
-                                             self._get_sampling_N(dist_matrix, p_ix, r), r)
+                n_values = self._get_alpha_n(dist_matrix,
+                                             self._get_sampling_N(dist_matrix,
+                                                                  p_ix, r), r)
                 cur_alpha_n = self._get_alpha_n(dist_matrix, p_ix, r)
                 n_hat = np.mean(n_values)
-                mdef = 1 - (cur_alpha_n/n_hat)
-                sigma_mdef = np.std(n_values)/n_hat
+                mdef = 1 - (cur_alpha_n / n_hat)
+                sigma_mdef = np.std(n_values) / n_hat
                 if n_hat >= 20:
-                    outlier_scores[p_ix] = mdef/sigma_mdef
+                    outlier_scores[p_ix] = mdef / sigma_mdef
                     if mdef > (self.threshold_ * sigma_mdef):
                         break
         return outlier_scores
-          
+
     def fit(self, X, y=None):
         """Fit the model using X as training data.
         
@@ -218,14 +222,15 @@ class LOCI(BaseDetector):
         self._set_n_classes(y)
         outlier_scores = self._calculate_decision_score(X)
         self.decision_scores_ = np.array(outlier_scores)
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype('int').ravel()
+        self.labels_ = (self.decision_scores_ > self.threshold_).astype(
+            'int').ravel()
 
         # calculate for predict_proba()
 
         self._mu = np.mean(self.decision_scores_)
         self._sigma = np.std(self.decision_scores_)
         return self
-        
+
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
