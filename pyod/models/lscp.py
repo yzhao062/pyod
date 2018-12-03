@@ -122,11 +122,6 @@ class LSCP(BaseDetector):
         self.random_state = random_state
 
         assert len(estimator_list) > 1, "The estimator list has less than 2 estimators."
-
-        if self.local_max_features > 1.0:
-            warnings.warn("Local max features greater than 1.0, reducing to 1.0")
-            self.local_max_features = 1.0
-
         for estimator in self.estimator_list:
             check_detector(estimator)
 
@@ -263,6 +258,10 @@ class LSCP(BaseDetector):
 
         # Initialize the local region list
         local_region_list = [[]] * X_test_norm.shape[0]
+
+        if self.local_max_features > 1.0:
+            warnings.warn("Local max features greater than 1.0, reducing to 1.0")
+            self.local_max_features = 1.0
 
         # perform multiple iterations
         for _ in range(self.local_region_iterations):
