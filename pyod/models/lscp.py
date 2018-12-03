@@ -123,10 +123,6 @@ class LSCP(BaseDetector):
 
         assert len(estimator_list) > 1, "The estimator list has less than 2 estimators."
 
-        if self.n_bins > self.n_clf:
-            warnings.warn("Number of histogram bins greater than number of classifiers, reducing n_bins to n_clf.")
-            self.n_bins = self.n_clf
-
         if self.local_max_features > 1.0:
             warnings.warn("Local max features greater than 1.0, reducing to 1.0")
             self.local_max_features = 1.0
@@ -314,6 +310,9 @@ class LSCP(BaseDetector):
 
         # create histogram of correlation scores
         scores = scores.reshape(-1, 1)
+        if self.n_bins > self.n_clf:
+            warnings.warn("Number of histogram bins greater than number of classifiers, reducing n_bins to n_clf.")
+            self.n_bins = self.n_clf
         hist, bin_edges = np.histogram(scores, bins=self.n_bins)
 
         # find n_selected largest bins
