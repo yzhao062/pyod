@@ -215,6 +215,8 @@ Key Attributes of a fitted model:
    :hidden:
    :caption: Additional Information
 
+
+   issues
    todo
    about
 
