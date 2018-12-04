@@ -12,6 +12,8 @@ This is the central place to track important things to be fixed/added:
 Feel free to open on issue report if needed.
 See `Issues <https://github.com/yzhao062/pyod/issues>`_.
 
+----
+
 To contribute (wip):
 
 - Fork from **Development** Branch
