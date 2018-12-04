@@ -33,9 +33,13 @@ from pyod.models.hbos import HBOS
 from pyod.models.iforest import IForest
 from pyod.models.knn import KNN
 from pyod.models.lof import LOF
+from pyod.models.loci import LOCI
 from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
+from pyod.models.sos import SOS
+
+# TODO: add neural networks, LOCI, SOS
 
 # Define the number of inliers and outliers
 n_samples = 200
@@ -56,13 +60,15 @@ print('Number of outliers: %i' % n_outliers)
 print(
     'Ground truth shape is {shape}. Outlier are 1 and inliers are 0.\n'.format(
         shape=ground_truth.shape))
-print(ground_truth)
+print(ground_truth, '\n')
 
 random_state = np.random.RandomState(42)
 # Define nine outlier detection tools to be compared
-classifiers = {'Angle-based Outlier Detector (ABOD)':
-                   ABOD(n_neighbors=10,
-                        contamination=outliers_fraction),
+classifiers = {
+                # 'Angle-based Outlier Detector (ABOD)':
+                #    ABOD(contamination=outliers_fraction),
+               'Fast Angle-based Outlier Detector (FastABOD)':
+                   ABOD(contamination=outliers_fraction),
                'Cluster-based Local Outlier Factor (CBLOF)':
                    CBLOF(contamination=outliers_fraction,
                          check_estimator=False, random_state=random_state),
@@ -83,12 +89,16 @@ classifiers = {'Angle-based Outlier Detector (ABOD)':
                                  contamination=outliers_fraction),
                'Local Outlier Factor (LOF)':
                    LOF(n_neighbors=35, contamination=outliers_fraction),
+               # 'Local Correlation Integral (LOCI)':
+               #     LOCI(contamination=outliers_fraction),
                'Minimum Covariance Determinant (MCD)': MCD(
                    contamination=outliers_fraction, random_state=random_state),
                'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
                                               random_state=random_state),
                'Principal Component Analysis (PCA)': PCA(
                    contamination=outliers_fraction, random_state=random_state),
+               # 'Stochastic Outlier Selection (SOS)': SOS(
+               #     contamination=outliers_fraction),
                }
 
 # Show all detectors
