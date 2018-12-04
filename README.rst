@@ -87,23 +87,8 @@ reduces the risk of damaging your local installations.
 So you should install keras and a back-end lib like tensorflow, if you want
 to use neural net based models. An instruction is provided `issue19b <https://github.com/yzhao062/Pyod/issues/19>`_.
 
-**Table of Contents**\ :
 
-
-* `Key Links & Resources <#key-links-and-resources>`_
-* `Quick Introduction <#quick-introduction>`_
-* `Algorithm Benchmark <#algorithm-benchmark>`_
-* `Installation <#installation>`_
-* `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
-* `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
-* `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
-* `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
-
-
-----
-
-Key Links and Resources
-^^^^^^^^^^^^^^^^^^^^^^^
+**Key Links and Resources**\ :
 
 
 * `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
@@ -111,7 +96,19 @@ Key Links and Resources
 * `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
+**Table of Contents**\ :
+
+
+* `Quick Introduction <#quick-introduction>`_
+* `Installation <#installation>`_
+* `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
+* `Algorithm Benchmark <#algorithm-benchmark>`_
+* `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
+* `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
+* `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
+
 ----
+
 
 Quick Introduction
 ^^^^^^^^^^^^^^^^^^
@@ -144,7 +141,7 @@ Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstr
 FAQ regarding AutoEncoder in PyOD and debugging advice:
 `known issues <https://github.com/yzhao062/Pyod/issues/19>`_
 
-**(ii) Outlier Detector/Scores Combination Frameworks**:
+**(ii) Outlier Ensembles & Outlier Detector Combination Frameworks**:
 
 ===================  ================  =====================================================================================================  =====  ========================================
 Type                 Abbr              Algorithm                                                                                              Year   Ref
@@ -168,42 +165,6 @@ Stat                 wpearsonr           Calculate the weighted Pearson correlat
 Utility              get_label_n         Turn raw outlier scores into binary labels by assign 1 to top n outlier scores                                                                         `get_label_n <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.utility.get_label_n>`_
 Utility              precision_n_scores  calculate precision @ rank n                                                                                                                           `precision_n_scores <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.utility.precision_n_scores>`_
 ===================  ==================  =====================================================================================================================================================  ==========================================================================================================================
-
-----
-
-Algorithm Benchmark
-^^^^^^^^^^^^^^^^^^^
-
-**Comparison of all implemented models** are made available below:
-
-(\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
-`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
-`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ):
-
-For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
-
-
-.. image:: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
-   :target: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
-   :alt: Comparision_of_All
-
-To provide an overview and quick guidance of the implemented models, a benchmark
-is supplied. In total, 17 benchmark data are used for comparision, all datasets could be
-downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
-
-For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 20 times independently with different samplings.
-The mean of 20 trials are taken as the final result. Three evaluation metrics
-are provided:
-
-
-* The area under receiver operating characteristic (ROC) curve
-* Precision @ rank n (P@N)
-* Execution time
-
-Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
-You are welcome to replicate this process by running
-`benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_.
 
 ----
 
@@ -255,7 +216,9 @@ Similarly, Keras and TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
 AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
 
+
 ----
+
 
 API Cheatsheet & Reference
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -283,7 +246,45 @@ Full package structure can be found below:
 * http://pyod.readthedocs.io/en/latest/genindex.html
 * http://pyod.readthedocs.io/en/latest/py-modindex.html
 
+
 ----
+
+Algorithm Benchmark
+^^^^^^^^^^^^^^^^^^^
+
+**Comparison of all implemented models** are made available below:
+
+(\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
+`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ):
+
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
+
+
+.. image:: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
+   :target: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
+   :alt: Comparision_of_All
+
+To provide an overview and quick guidance of the implemented models, a benchmark
+is supplied. In total, 17 benchmark data are used for comparision, all datasets could be
+downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
+
+For each dataset, it is first split into 60% for training and 40% for testing.
+All experiments are repeated 20 times independently with different samplings.
+The mean of 20 trials are taken as the final result. Three evaluation metrics
+are provided:
+
+
+* The area under receiver operating characteristic (ROC) curve
+* Precision @ rank n (P@N)
+* Execution time
+
+Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
+You are welcome to replicate this process by running
+`benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_.
+
+----
+
 
 Quick Start for Outlier Detection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
