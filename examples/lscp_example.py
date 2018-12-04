@@ -125,8 +125,8 @@ if __name__ == "__main__":
 
     # train lscp
     clf_name = 'LSCP'
-    estimator_list = [LOF(), LOF()]
-    clf = LSCP(estimator_list, random_state=42)
+    detector_list = [LOF(), LOF()]
+    clf = LSCP(detector_list, random_state=42)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

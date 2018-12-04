@@ -54,7 +54,7 @@ class LSCP(BaseDetector):
 
     Parameters
     ----------
-    estimator_list : List, length must be greater than 1
+    detector_list : List, length must be greater than 1
         Base unsupervised outlier detectors from PyOD. (Note: requires fit and decision_function methods)
     local_region_size : int, optional (default=30)
         Number of training points to consider in each iteration of the local region generation process (30 by default).
@@ -99,19 +99,19 @@ class LSCP(BaseDetector):
             n_train=50, n_test=50,
             contamination=0.1, random_state=42)
     >>> X_train, X_test = standardizer(X_train, X_test)
-    >>> estimator_list = [LOF(), LOF()]
-    >>> clf = LSCP(estimator_list)
+    >>> detector_list = [LOF(), LOF()]
+    >>> clf = LSCP(detector_list)
     >>> clf.fit(X_train)
     >>> print(clf.decision_scores_)
 
 
     """
 
-    def __init__(self, estimator_list, local_region_size=30, local_max_features=1.0, n_bins=10,
+    def __init__(self, detector_list, local_region_size=30, local_max_features=1.0, n_bins=10,
                  random_state=None, contamination=0.1):
         super(LSCP, self).__init__(contamination=contamination)
-        self.estimator_list = estimator_list
-        self.n_clf = len(self.estimator_list)
+        self.detector_list = detector_list
+        self.n_clf = len(self.detector_list)
         self.local_region_size = local_region_size
         self.local_region_min = 30
         self.local_region_max = 200
@@ -138,10 +138,10 @@ class LSCP(BaseDetector):
         None
         """
 
-        # check estimator_list
-        assert len(self.estimator_list) > 1, "The estimator list has less than 2 estimators."
-        for estimator in self.estimator_list:
-            check_detector(estimator)
+        # check detector_list
+        assert len(self.detector_list) > 1, "The detector list has less than 2 detectors."
+        for detector in self.detector_list:
+            check_detector(detector)
 
         # check random state and input
         self.random_state = check_random_state(self.random_state)
@@ -153,10 +153,10 @@ class LSCP(BaseDetector):
         self.X_train_norm_ = X
         train_scores = np.zeros([self.X_train_norm_.shape[0], self.n_clf])
 
-        # fit each base estimator and calculate standardized train scores
-        for k, estimator in enumerate(self.estimator_list):
-            estimator.fit(self.X_train_norm_)
-            train_scores[:, k] = estimator.decision_scores_
+        # fit each base detector and calculate standardized train scores
+        for k, detector in enumerate(self.detector_list):
+            detector.fit(self.X_train_norm_)
+            train_scores[:, k] = detector.decision_scores_
         self.train_scores_ = train_scores
 
         # set decision scores and threshold
@@ -218,8 +218,8 @@ class LSCP(BaseDetector):
 
         # calculate test scores
         test_scores = np.zeros([X_test_norm.shape[0], self.n_clf])
-        for k, estimator in enumerate(self.estimator_list):
-            test_scores[:, k] = estimator.decision_function(X_test_norm)
+        for k, detector in enumerate(self.detector_list):
+            test_scores[:, k] = detector.decision_function(X_test_norm)
 
         # generate standardized scores
         train_scores_norm, test_scores_norm = standardizer(self.train_scores_, test_scores)
@@ -335,10 +335,10 @@ class LSCP(BaseDetector):
         return candidates
 
     def __len__(self):
-        return len(self.estimator_list)
+        return len(self.detector_list)
 
     def __getitem__(self, index):
-        return self.estimator_list[index]
+        return self.detector_list[index]
 
     def __iter__(self):
-        return iter(self.estimator_list)
+        return iter(self.detector_list)

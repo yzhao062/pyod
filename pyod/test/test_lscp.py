@@ -16,7 +16,6 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_true
-from sklearn.utils.estimator_checks import check_estimator
 
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
@@ -41,13 +40,9 @@ class TestLSCP(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
         self.X_train, self.X_test = standardizer(self.X_train, self.X_test)
-        self.estimator_list = [LOF(), LOF()]
-        self.clf = LSCP(self.estimator_list, contamination=self.contamination)
+        self.detector_list = [LOF(), LOF()]
+        self.clf = LSCP(self.detector_list, contamination=self.contamination)
         self.clf.fit(self.X_train)
-
-    # TODO: failed due to sklearn uses 2 feature examples.
-    # def test_sklearn_estimator(self):
-    #     check_estimator(self.clf)
 
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and
@@ -60,8 +55,8 @@ class TestLSCP(unittest.TestCase):
                     self.clf._mu is not None)
         assert_true(hasattr(self.clf, '_sigma') and
                     self.clf._sigma is not None)
-        assert_true(hasattr(self.clf, 'estimator_list') and
-                    self.clf.estimator_list is not None)
+        assert_true(hasattr(self.clf, 'detector_list') and
+                    self.clf.detector_list is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
