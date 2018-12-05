@@ -28,28 +28,20 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 
 **Optional Dependencies (required for running examples or AutoEncoder)**:
 
-- keras (optional, required if calling AutoEncoder, other backend works)
-- matplotlib (optional, required for running examples)
-- tensorflow (optional, required if calling AutoEncoder, other backend works)
+- Keras (optional, required if calling AutoEncoder, other backend works)
+- Matplotlib (optional, required for running examples)
+- Tensorflow (optional, required if calling AutoEncoder, other backend works)
 
 .. warning::
 
-    PyOD examples depend on matplotlib, which would throw errors in conda
+    Running examples needs Matplotlib, which may throw errors in conda
     virtual environment on mac OS. See
     `mac_matplotlib <https://github.com/yzhao062/Pyod/issues/6>`_.
 
-.. warning::
-
-    PyOD builds on various packages, which most of them you should have
-    already installed. If you are installing PyOD in a fresh state (virtualenv),
-    downloading and installing the dependencies, e.g., TensorFlow, may take
-    3-5 mins.
 
 .. warning::
 
-    If you are willing to run examples, matplotlib is required. PyOD does
-    not list it as a required package for eliminating the dependency.
-    Similarly, Keras and TensorFlow are listed as optional. However, they are
+    Keras and/or TensorFlow are listed as optional. However, they are
     both required if you want to use neural network based models, such as
-    AutoEncoder. See causes and solutions
-    `dependency <https://github.com/yzhao062/Pyod/issues/19>`_.
+    AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
+

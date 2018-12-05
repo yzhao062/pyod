@@ -83,10 +83,10 @@ PyOD is featured for:
 
 **Important Notes**\ :
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
-implemented in keras. However, PyOD would **NOT** install **keras** and/or **tensorflow** automatically. This
+implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
 reduces the risk of damaging your local installations. 
 So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
+to use neural net based models. An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
 
 
 **Key Links and Resources**\ :
@@ -199,21 +199,14 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 **Optional Dependencies (required for running examples and AutoEncoder)**\ :
 
 
-* keras (optional, required if calling AutoEncoder, other backend works)
-* matplotlib (optional, required for running examples)
-* tensorflow (optional, required if calling AutoEncoder, other backend works)
+* Keras (optional, required if calling AutoEncoder, other backend works)
+* Matplotlib (optional, required for running examples)
+* TensorFlow (optional, required if calling AutoEncoder, other backend works)
 
-**Known Issue 1**\ : PyOD depends on matplotlib, which would throw errors in conda
+**Known Issue 1**\ : Running examples needs Matplotlib, which may throw errors in conda
 virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/Pyod/issues/6>`_.
 
-**Known Issue 2**\ : PyOD builds on various packages, which most of them you should have
-already installed. If you are installing PyOD in a fresh state (virtualenv),
-downloading and installing the dependencies, e.g., TensorFlow, may take
-**3-5 mins**.
-
-**Known Issue 3**\ : If you are willing to run examples, matplotlib is required.
-PyOD does not list it as a required package for eliminating the dependency.
-Similarly, Keras and TensorFlow are listed as optional. However, they are
+**Known Issue 2**\ : Keras and/or TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
 AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
 

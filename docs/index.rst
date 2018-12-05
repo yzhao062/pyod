@@ -87,14 +87,13 @@ PyOD is featured for:
 
 **Important Notes**\ :
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
-implemented in keras. However, PyOD would **NOT** install **keras** and/or **tensorflow** automatically. This
+implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
 reduces the risk of damaging your local installations.
 So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
+to use neural net based models. An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
 
 
-Key Links and Resources
-^^^^^^^^^^^^^^^^^^^^^^^
+**Key Links and Resources**\ :
 
 
 * `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
