@@ -105,6 +105,15 @@ pyod.models.loci module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.lscp module
+-----------------------
+
+.. automodule:: pyod.models.lscp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.mcd module
 ----------------------
 

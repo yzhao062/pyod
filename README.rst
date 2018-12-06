@@ -135,7 +135,6 @@ Probabilistic        ABOD              Angle-Based Outlier Detection            
 Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                 2008   [#Kriegel2008Angle]_
 Probabilistic        SOS               Stochastic Outlier Selection                                                                           2012   [#Janssens2012Stochastic]_
 Outlier Ensembles    IForest           Isolation Forest                                                                                       2008   [#Liu2008Isolation]_
-Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                   [#Aggarwal2015Outlier]_ [Ch.3]
 ===================  ================  =====================================================================================================  =====  ========================================
 
@@ -148,6 +147,7 @@ FAQ regarding AutoEncoder in PyOD and debugging advice:
 Type                 Abbr              Algorithm                                                                                              Year   Ref
 ===================  ================  =====================================================================================================  =====  ========================================
 Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
+Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                      2019   [#Zhao2019LSCP]_
 Combination          Average           Simple combination by averaging the scores                                                             2015   [#Aggarwal2015Theoretical]_
 Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   [#Aggarwal2015Theoretical]_
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   [#Aggarwal2015Theoretical]_

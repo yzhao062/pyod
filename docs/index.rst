@@ -154,13 +154,13 @@ detection utility functions.
 
 **Outlier Detector/Scores Combination Frameworks**:
 
-  1. **Feature Bagging**: build various detectors on random selected features :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
-  2. **Average** & **Weighted Average**: simply combine scores by averaging :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.average`
-  3. **Maximization**: simply combine scores by taking the maximum across all
-     base detectors :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.maximization`
-  4. **Average of Maximum (AOM)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.aom`
-  5. **Maximum of Average (MOA)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.moa`
-  6. **Threshold Sum (Thresh)** :cite:`a-aggarwal2015theoretical`
+1. **Feature Bagging**: build various detectors on random selected features :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
+2. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2018lscp`: :class:`pyod.models.lscp.LSCP`
+3. **Average** & **Weighted Average**: simply combine scores by averaging :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.average`
+4. **Maximization**: simply combine scores by taking the maximum across all base detectors :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.maximization`
+5. **Average of Maximum (AOM)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.aom`
+6. **Maximum of Average (MOA)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.moa`
+7. **Threshold Sum (Thresh)** :cite:`a-aggarwal2015theoretical`
 
 **Comparison of all implemented models** are made available below
 (`Code <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_, `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_):
