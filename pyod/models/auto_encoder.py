@@ -124,7 +124,7 @@ class AutoEncoder(BaseDetector):
 
     """
 
-    def __init__(self, hidden_neurons=[64, 32, 32, 64],
+    def __init__(self, hidden_neurons=None,
                  hidden_activation='relu', output_activation='sigmoid',
                  loss=mean_squared_error, optimizer='adam',
                  epochs=100, batch_size=32, dropout_rate=0.2,
@@ -132,7 +132,6 @@ class AutoEncoder(BaseDetector):
                  verbose=1, random_state=None, contamination=0.1):
         super(AutoEncoder, self).__init__(contamination=contamination)
         self.hidden_neurons = hidden_neurons
-        self.hidden_neurons_ = hidden_neurons
         self.hidden_activation = hidden_activation
         self.output_activation = output_activation
         self.loss = loss
@@ -146,10 +145,16 @@ class AutoEncoder(BaseDetector):
         self.verbose = verbose
         self.random_state = random_state
 
+        # default values
+        if self.hidden_neurons is None:
+            self.hidden_neurons = [64, 32, 32, 64]
+
         # Verify the network design is valid
         if not self.hidden_neurons == self.hidden_neurons[::-1]:
             print(self.hidden_neurons)
             raise ValueError("Hidden units should be symmetric")
+
+        self.hidden_neurons_ = self.hidden_neurons
 
         check_parameter(dropout_rate, 0, 1, param_name='alpha')
 
