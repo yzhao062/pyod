@@ -24,100 +24,104 @@ from .base import BaseDetector
 
 # noinspection PyUnresolvedReferences,PyPep8Naming,PyTypeChecker
 class AutoEncoder(BaseDetector):
-    """
-    Auto Encoder (AE) is a type of neural networks for learning useful data
+    """Auto Encoder (AE) is a type of neural networks for learning useful data
     representations unsupervisedly. Similar to PCA, AE could be used to
     detect outlying objects in the data by calculating the reconstruction
     errors. See :cite:`aggarwal2015outlier` Chapter 3 for details.
 
-    :param hidden_neurons: Number of neurons per hidden layers.
-    :type hidden_neurons: list, optional (default=[64, 32, 32, 64])
+    Parameters
+    ----------
+    hidden_neurons : list, optional (default=[64, 32, 32, 64])
+        The number of neurons per hidden layers.
 
-    :param hidden_activation: Activation function to use for hidden layers.
+    hidden_activation : str, optional (default='relu')
+        Activation function to use for hidden layers.
         All hidden layers are forced to use the same type of activation.
         See https://keras.io/activations/
-    :type hidden_activation: str, optional (default='relu')
 
-    :param output_activation: Activation function to use for output layer.
+    output_activation : str, optional (default='sigmoid')
+        Activation function to use for output layer.
         See https://keras.io/activations/
-    :type output_activation: str, optional (default='sigmoid')
 
-    :param loss: String (name of objective function) or objective function.
+    loss : str or obj, optional (default=keras.losses.mean_squared_error)
+        String (name of objective function) or objective function.
         See https://keras.io/losses/
-    :type loss: str or obj, optional (default=keras.losses.mean_squared_error)
 
-    :param optimizer: String (name of optimizer) or optimizer instance.
+    optimizer : str, optional (default='adam')
+        String (name of optimizer) or optimizer instance.
         See https://keras.io/optimizers/
-    :type optimizer: str, optional (default='adam')
 
-    :param epochs: Number of epochs to train the model.
-    :type epochs: int, optional (default=100)
+    epochs : int, optional (default=100)
+        Number of epochs to train the model.
 
-    :param batch_size: Number of samples per gradient update.
-    :type batch_size: int, optional (default=32)
+    batch_size : int, optional (default=32)
+        Number of samples per gradient update.
 
-    :param dropout_rate: The dropout to be used across all layers.
-    :type dropout_rate: float in (0., 1), optional (default=0.2)
+    dropout_rate : float in (0., 1), optional (default=0.2)
+        The dropout to be used across all layers.
 
-    :param l2_regularizer: The regularization strength of activity_regularizer
+    l2_regularizer : float in (0., 1), optional (default=0.1)
+        The regularization strength of activity_regularizer
         applied on each layer. By default, l2 regularizer is used. See
         https://keras.io/regularizers/
-    :type l2_regularizer: float in (0., 1), optional (default=0.1)
 
-    :param validation_size: The percentage of data to be used for validation.
-    :type validation_size: float in (0., 1), optional (default=0.1)
+    validation_size : float in (0., 1), optional (default=0.1)
+        The percentage of data to be used for validation.
 
-    :param preprocessing: If True, apply standardization on the data.
-    :type preprocessing: bool, optional (default=True)
+    preprocessing : bool, optional (default=True)
+        If True, apply standardization on the data.
 
-    :param verbose: Verbosity mode.
+    verbose : int, optional (default=1)
+        Verbosity mode.
 
         - 0 = silent
         - 1 = progress bar
         - 2 = one line per epoch.
-    :type verbose: int, optional (default=1)
 
-    :param random_state: If int, random_state is the seed used by the random
+    random_state : random_state: int, RandomState instance or None, optional
+        (default=None)
+        If int, random_state is the seed used by the random
         number generator; If RandomState instance, random_state is the random
         number generator; If None, the random number generator is the
         RandomState instance used by `np.random`.
-    :type random_state: int, RandomState instance or None, optional
-        (default=None)
 
-    :param contamination: The amount of contamination of the data set, i.e.
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. When fitting this is used
         to define the threshold on the decision function.
-    :type contamination: float in (0., 0.5), optional (default=0.1)
 
-    :var encoding_dim\_: The number of neurons in the encoding layer
-    :vartype encoding_dim\_: int
+    Attributes
+    ----------
+    encoding_dim\_ : int
+        The number of neurons in the encoding layer.
 
-    :var compression_rate\_: The ratio between the original feature and the
-        the number of neurons in the encoding layer
-    :vartype compression_rate\_: float
+    compression_rate\_ : float
+        The ratio between the original feature and
+        the number of neurons in the encoding layer.
 
-    :var model\_: The AutoEncoder
-    :vartype model\_: Object
+    model\_ : Keras Object
+        The underlying AutoEncoder in Keras.
 
-    :var history\_: The AutoEncoder training history
-    :vartype history\_: Object
+    history\_: Keras Object
+        The AutoEncoder training history.
 
-    :var decision_scores\_: The outlier scores of the training data.
+    decision_scores\_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
         scores. This value is available once the detector is
         fitted.
-    :vartype decision_scores\_: numpy array of shape (n_samples,)
 
-    :var threshold\_: The threshold is based on ``contamination``. It is the
+    threshold\_ : float
+        The threshold is based on ``contamination``. It is the
         ``n_samples * contamination`` most abnormal samples in
         ``decision_scores_``. The threshold is calculated for generating
         binary outlier labels.
-    :vartype threshold\_: float
 
-    :var labels\_: The binary labels of the training data. 0 stands for inliers
+    labels\_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
-    :vartype labels\_: int, either 0 or 1
+
     """
 
     def __init__(self, hidden_neurons=[64, 32, 32, 64],
