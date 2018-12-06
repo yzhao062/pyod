@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example of using Feature Bagging for outlier detection
+"""Example of using LSCP for outlier detection
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
@@ -19,7 +19,9 @@ from sklearn.utils import check_X_y
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-from pyod.models.feature_bagging import FeatureBagging
+from pyod.models.lscp import LSCP
+from pyod.models.lof import LOF
+from pyod.utils.utility import standardizer
 from pyod.utils.data import generate_data
 from pyod.utils.data import get_color_codes
 from pyod.utils.data import evaluate_print
@@ -117,13 +119,14 @@ if __name__ == "__main__":
     X_train, y_train, X_test, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
-                      n_features=2,
                       contamination=contamination,
                       random_state=42)
+    X_train, X_test = standardizer(X_train, X_test)
 
-    # train Feature Bagging detector
-    clf_name = 'FeatureBagging'
-    clf = FeatureBagging()
+    # train lscp
+    clf_name = 'LSCP'
+    detector_list = [LOF(), LOF()]
+    clf = LSCP(detector_list, random_state=42)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
