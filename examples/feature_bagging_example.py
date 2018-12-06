@@ -121,7 +121,7 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train ABOD detector
+    # train Feature Bagging detector
     clf_name = 'FeatureBagging'
     clf = FeatureBagging()
     clf.fit(X_train)

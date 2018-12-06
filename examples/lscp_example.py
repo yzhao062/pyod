@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example of using Feature Bagging for outlier detection
+"""Example of using LSCP for outlier detection
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
