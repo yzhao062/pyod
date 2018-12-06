@@ -41,6 +41,7 @@ v<0.6.5>, <11/27/2018> -- Update README.rst Reference section.
 v<0.6.5>, <11/28/2018> -- Add Stochastic Outlier Selection (SOS).
 v<0.6.5>, <11/30/2018> -- Add CircleCI continuous integration.
 v<0.6.5>, <12/03/2018> -- Add Local Correlation Integral (LOCI).
+v<0.6.6>, <12/06/2018> -- Add LSCP (production version).
 
 
 
