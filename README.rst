@@ -448,6 +448,7 @@ If you are interested in contributing:
 * Create a pull request and follow the pull request template
 `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
 
+
 To make sure the code has the same style and standard, please refer to models,
 such as abod.py, hbos.py, or feature bagging for example.
 
