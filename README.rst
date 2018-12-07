@@ -434,24 +434,25 @@ The walkthrough of the code example is provided:
 How to Contribute and Collaborate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You are welcome to contribute to this exciting project, and we are preparing
-a manuscript at `JMLR <http://www.jmlr.org/mloss/>`_ (Track for open-source software).
+You are welcome to contribute to this exciting project, and a manuscript at
+`JMLR <http://www.jmlr.org/mloss/>`_ (Track for open-source software) is under review.
 
 If you are interested in contributing:
 
 
 * Please first check Issue lists for "help wanted" tag and comment the one
-  you are interested
+  you are interested. We will assign the issue to you.
 
-* Fork the repository and add your improvement/modification/fix
+* Fork the master branch and add your improvement/modification/fix.
 
-* Create a pull request
+* Create a pull request and follow the pull request template
+`PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
 
 To make sure the code has the same style and standard, please refer to models,
 such as abod.py, hbos.py, or feature bagging for example.
 
-You are also welcome to share your ideas by opening an issue or dropping me an email
-at yuezhao@cs.toronto.edu :)
+You are also welcome to share your ideas by opening an issue or dropping me
+an email at yuezhao@cs.toronto.edu :)
 
 
 ----

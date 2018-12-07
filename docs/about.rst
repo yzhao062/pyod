@@ -1,19 +1,17 @@
 About us
 ========
 
-----
 
 Core Development Team
 ---------------------
 
-Yue Zhao (initialized the project in 2017)
-[`Homepage <https://http://www.cs.toronto.edu/~yuezhao>`_],
+Yue Zhao (initialized the project in 2017): `Homepage <https://http://www.cs.toronto.edu/~yuezhao>`_
 
-Zain Nasrullah (joined in 2018)
-[`LinkedIn (Zain Nasrullah) <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_],
+Zain Nasrullah (joined in 2018):
+`LinkedIn (Zain Nasrullah) <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_
 
-Winston (Zheng) Li (joined in 2018)
-[`LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl/>`_]
+Winston (Zheng) Li (joined in 2018):
+`LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl/>`_
 
 ----
 
