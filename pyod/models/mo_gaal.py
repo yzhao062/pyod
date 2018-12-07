@@ -12,7 +12,6 @@ from keras.layers import Input, Dense
 from keras.models import Sequential, Model
 from keras.optimizers import SGD
 import numpy as np
-import pandas as pd
 from collections import defaultdict
 import keras
 import math
@@ -231,9 +230,10 @@ class MO_GAAL(BaseDetector):
                 self.train_history['discriminator_loss'].append(discriminator_loss)
 
                 # Get the target value of sub-generator
-                pred_scores = pd.DataFrame(self.discriminator.predict(X))
+                pred_scores = self.discriminator.predict(X)
+                
                 for i in range(self.k):
-                    names['T' + str(i)] = pred_scores.quantile(i/self.k)
+                    names['T' + str(i)] = np.percentile(pred_scores, i/self.k*100)
                     names['trick' + str(i)] = np.array([float(names['T' + str(i)])] * noise_size)
 
                 # Train generator
