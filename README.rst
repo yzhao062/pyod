@@ -445,8 +445,7 @@ If you are interested in contributing:
 
 * Fork the master branch and add your improvement/modification/fix.
 
-* Create a pull request and follow the pull request template
-`PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
+* Create a pull request and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
 
 
 To make sure the code has the same style and standard, please refer to models,
