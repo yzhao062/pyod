@@ -86,29 +86,37 @@ class BaseDetector(object):
     # noinspection PyIncorrectDocstring
     @abc.abstractmethod
     def fit(self, X, y=None):
-        """Fit detector.
+        """Fit detector. y is optional for unsupervised methods.
 
-        :param X: The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
-        :type X: numpy array of shape (n_samples, n_features)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :return: return self
-        :rtype: object
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+
         """
         pass
 
-    # noinspection PyIncorrectDocstring
     def fit_predict(self, X, y=None):
-        """Fit detector and predict if a particular sample is an outlier or
-        not.
+        """Fit detector first and then predict whether a particular sample
+        is an outlier or not.
 
-        :param X: The input samples
-        :type X: numpy array of shape (n_samples, n_features)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :return: For each observation, tells whether or not
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+            For each observation, tells whether or not
             it should be considered as an outlier according to the
             fitted model. 0 stands for inliers and 1 for outliers.
-        :rtype: array, shape (n_samples,)
         """
 
         self.fit(X, y)
