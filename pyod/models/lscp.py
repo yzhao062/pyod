@@ -177,7 +177,7 @@ class LSCP(BaseDetector):
         self.decision_scores_ = self._get_decision_scores(X)
         self._process_decision_scores()
 
-        return
+        return self
 
     def decision_function(self, X):
         """ Predict outlier scores on test data X (note: model must already

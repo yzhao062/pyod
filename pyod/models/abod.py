@@ -21,21 +21,27 @@ from ..utils.utility import check_parameter
 
 @njit
 def _wcos(curr_pt, a, b):
-    """Internal function to calculate weighted cosine using optimized numba
-    code
+    """Internal function to calculate weighted cosine using
+    optimized numba code
 
-    :param curr_pt: Current sample to be calculated
-    :type curr_pt: numpy array of shape (n_samples, n_features)
+    Parameters
+    ----------
+    curr_pt : numpy array of shape (n_samples, n_features)
+        Current sample to be calculated
 
-    :param a: training sample a
-    :type a: numpy array of shape (n_samples, n_features)
+    a : numpy array of shape (n_samples, n_features)
+        training sample a
 
-    :param b: training sample b
-    :type b: numpy array of shape (n_samples, n_features)
+    b : numpy array of shape (n_samples, n_features)
+        training sample b
 
-    :return: Cosine similarity between a-curr_pt and b-curr_point
-    :rtype: float
+    Returns
+    -------
+    wcos : float in range [-1, 1]
+        Cosine similarity between a-curr_pt and b-curr_pt
+
     """
+
     a_curr = a - curr_pt
     b_curr = b - curr_pt
 
