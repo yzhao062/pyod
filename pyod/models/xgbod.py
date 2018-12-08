@@ -45,21 +45,31 @@ class XGBOD(BaseDetector):
         self.standardization_flag_list = standardization_flag_list
         self.random_state = random_state
 
-        if self.standardization_flag_list is None:
-            if len(self.estimator_list) != len(self.standardization_flag_list):
-                raise ValueError(
-                    "estimator_list length ({0}) is not equal "
-                    "to standardization_flag_list length ({1})".format(
-                        len(self.estimator_list),
-                        len(self.standardization_flag_list)))
-
     def _init_detectors(self, X):
+        """initialize unsupervised detectors if no predefined detectors is
+        provided.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The train data
+
+        Returns
+        -------
+        estimator_list : list of object
+            The initialized list of detectors
+
+        standardization_flag_list : list of boolean
+            The list of bool flag to indicate whether standardization is needed
+
+        """
         estimator_list = []
         standardization_flag_list = []
 
-        # predefined range of k
+        # predefined range of n_neighbors for KNN, AvgKNN, and LOF
         k_range = [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50,
                    60, 70, 80, 90, 100, 150, 200, 250]
+
         # validate the value of k
         k_range = [k for k in k_range if k < X.shape[0]]
 
@@ -100,8 +110,17 @@ class XGBOD(BaseDetector):
             self.estimator_list, \
             self.standardization_flag_list = self._init_detectors(X)
 
+        # perform standardization for all detectors by default
         if self.standardization_flag_list is None:
             self.standardization_flag_list = [True] * len(self.estimator_list)
+
+        # validate two lists length
+        if len(self.estimator_list) != len(self.standardization_flag_list):
+            raise ValueError(
+                "estimator_list length ({0}) is not equal "
+                "to standardization_flag_list length ({1})".format(
+                    len(self.estimator_list),
+                    len(self.standardization_flag_list)))
 
         self.tree_ = KDTree(X, leaf_size=self.leaf_size, metric=self.metric)
         self.neigh_.fit(X)
