@@ -153,6 +153,15 @@ pyod.models.sos module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.xgbod module
+------------------------
+
+.. automodule:: pyod.models.xgbod
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 
 Module contents
 ---------------

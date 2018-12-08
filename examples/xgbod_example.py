@@ -41,12 +41,14 @@ if __name__ == "__main__":
     else:
         X = mat['X']
         y = mat['y'].ravel()
+        X, y = check_X_y(X, y)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4,
+                                                        random_state=42)
 
     # train XGBOD detector
     clf_name = 'XGBOD'
-    clf = XGBOD()
+    clf = XGBOD(random_state=42)
     clf.fit(X_train, y_train)
 
     # get the prediction labels and outlier scores of the training data

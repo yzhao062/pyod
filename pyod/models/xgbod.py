@@ -8,6 +8,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from sklearn.metrics import roc_auc_score
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_X_y
@@ -23,22 +24,109 @@ from .ocsvm import OCSVM
 from ..utils.utility import check_parameter
 from ..utils.utility import check_detector
 from ..utils.utility import standardizer
+from ..utils.utility import precision_n_scores
 
 
 class XGBOD(BaseDetector):
     """XGBOD class for outlier detection.
-    For an observation, its distance to its kth nearest neighbor could be
-    viewed as the outlying score. It could be viewed as a way to measure
-    the density. See :cite:`ramaswamy2000efficient,angiulli2002fast` for
-    details.
-
+    It first use the passed in unsupervised outlier detectors to extract
+    richer representation of the data and then concatenate the newly
+    generated features to the original feature for constructing the augmented
+    feature space. An XGBoost classifier is then applied on this augmented
+    feature space. Read more in the :cite:`zhao2018xgbod`.
 
     Parameters
     ----------
-    estimator_list
-    standardization_flag_list
-    random_state
+    estimator_list : list, optional (default=None)
+        The list of pyod detectors passed in for unsupervised learning
 
+    standardization_flag_list : list, optional (default=None)
+        The list of boolean flags for indicating whether to take
+        standardization for each detector.
+
+    max_depth : int
+        Maximum tree depth for base learners.
+
+    learning_rate : float
+        Boosting learning rate (xgb's "eta")
+
+    n_estimators : int
+        Number of boosted trees to fit.
+
+    silent : boolean
+        Whether to print messages while running boosting.
+
+    objective : string or callable
+        Specify the learning task and the corresponding learning objective or
+        a custom objective function to be used (see note below).
+
+    booster: string
+        Specify which booster to use: gbtree, gblinear or dart.
+
+    n_jobs : int
+        Number of parallel threads used to run xgboost.  (replaces ``nthread``)
+
+    gamma : float
+        Minimum loss reduction required to make a further partition on a leaf
+        node of the tree.
+
+    min_child_weight : int
+        Minimum sum of instance weight(hessian) needed in a child.
+
+    max_delta_step : int
+        Maximum delta step we allow each tree's weight estimation to be.
+
+    subsample : float
+        Subsample ratio of the training instance.
+
+    colsample_bytree : float
+        Subsample ratio of columns when constructing each tree.
+
+    colsample_bylevel : float
+        Subsample ratio of columns for each split, in each level.
+
+    reg_alpha : float (xgb's alpha)
+        L1 regularization term on weights.
+
+    reg_lambda : float (xgb's lambda)
+        L2 regularization term on weights.
+
+    scale_pos_weight : float
+        Balancing of positive and negative weights.
+
+    base_score:
+        The initial prediction score of all instances, global bias.
+
+    random_state : int
+        Random number seed.  (replaces seed)
+
+    missing : float, optional
+        Value in the data which needs to be present as a missing value. If
+        None, defaults to np.nan.
+
+    importance_type: string, default "gain"
+        The feature importance type for the ``feature_importances_``
+        property: either "gain",
+        "weight", "cover", "total_gain" or "total_cover".
+
+    \*\*kwargs : dict, optional
+        Keyword arguments for XGBoost Booster object.  Full documentation of
+        parameters can be found here:
+        https://github.com/dmlc/xgboost/blob/master/doc/parameter.rst.
+        Attempting to set a parameter via the constructor args and \*\*kwargs
+        dict simultaneously will result in a TypeError.
+        .. note:: \*\*kwargs unsupported by scikit-learn
+            \*\*kwargs is unsupported by scikit-learn.  We do not guarantee
+            that parameters passed via this argument will interact properly
+            with scikit-learn.
+
+    Attributes
+    ----------
+    n_detector_ : int
+        The number of unsupervised of detectors used.
+
+    clf_ : object
+        The XGBoost classifier.
     """
 
     def __init__(self, estimator_list=None, standardization_flag_list=None,
@@ -49,7 +137,7 @@ class XGBOD(BaseDetector):
                  max_delta_step=0, subsample=1, colsample_bytree=1,
                  colsample_bylevel=1,
                  reg_alpha=0, reg_lambda=1, scale_pos_weight=1,
-                 base_score=0.5, random_state=0, seed=None, missing=None,
+                 base_score=0.5, random_state=0, missing=None,
                  **kwargs):
         super(XGBOD, self).__init__()
         self.estimator_list = estimator_list
@@ -73,7 +161,6 @@ class XGBOD(BaseDetector):
         self.scale_pos_weight = scale_pos_weight
         self.base_score = base_score
         self.random_state = random_state
-        self.seed = seed
         self.missing = missing
         self.kwargs = kwargs
 
@@ -121,13 +208,14 @@ class XGBOD(BaseDetector):
         # predefined range of nu for one-class svm
         nu_range = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
         for nu in nu_range:
-            estimator_list.append(OCSVM(nu=nu))
+            estimator_list.append(OCSVM(nu=nu, random_state=self.random_state))
             standardization_flag_list.append(True)
 
         # predefined range for number of estimators in isolation forests
         n_range = [10, 20, 50, 70, 100, 150, 200, 250]
         for n in n_range:
-            estimator_list.append(IForest(n_estimators=n))
+            estimator_list.append(
+                IForest(n_estimators=n, random_state=self.random_state))
             standardization_flag_list.append(False)
 
         return estimator_list, standardization_flag_list
@@ -234,13 +322,12 @@ class XGBOD(BaseDetector):
                                         scale_pos_weight=self.scale_pos_weight,
                                         base_score=self.base_score,
                                         random_state=self.random_state,
-                                        seed=self.seed,
                                         missing=self.missing,
                                         **self.kwargs)
         self.clf_.fit(self.X_train_new_, y)
         self.decision_scores_ = self.clf_.predict_proba(
             self.X_train_new_)[:, 1]
-        self.labels_ = self.clf_.predict(self.X_train_new_)
+        self.labels_ = self.clf_.predict(self.X_train_new_).ravel()
 
         return self
 
@@ -274,3 +361,41 @@ class XGBOD(BaseDetector):
 
     def predict_proba(self, X):
         return self.decision_function(X)
+
+    def fit_predict(self, X, y):
+        self.fit(X, y)
+        return self.labels_
+
+    def fit_predict_score(self, X, y, scoring='roc_auc_score'):
+        """Fit the detector, predict on samples, and evaluate the model by
+        ROC and Precision @ rank n
+
+        :param X: The input samples
+        :type X: numpy array of shape (n_samples, n_features)
+
+        :param y: Outlier labels of the input samples
+        :type y: array, shape (n_samples,)
+
+        :param scoring: Evaluation metric
+
+                -' roc_auc_score': ROC score
+                - 'prc_n_score': Precision @ rank n score
+        :type scoring: str, optional (default='roc_auc_score')
+
+        :return: Evaluation score
+        :rtype: float
+        """
+
+        self.fit(X, y)
+
+        if scoring == 'roc_auc_score':
+            score = roc_auc_score(y, self.decision_scores_)
+        elif scoring == 'prc_n_score':
+            score = precision_n_scores(y, self.decision_scores_)
+        else:
+            raise NotImplementedError('PyOD built-in scoring only supports '
+                                      'ROC and Precision @ rank n')
+
+        print("{metric}: {score}".format(metric=scoring, score=score))
+
+        return score
