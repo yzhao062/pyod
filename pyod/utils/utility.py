@@ -115,11 +115,12 @@ def check_detector(detector):
 
     """
 
-    if not hasattr(detector, 'fit') or not hasattr(detector, 'decision_function'):
+    if not hasattr(detector, 'fit') or not hasattr(detector,
+                                                   'decision_function'):
         raise AttributeError("%s is not a detector instance." % (detector))
 
 
-def standardizer(X, X_t=None):
+def standardizer(X, X_t=None, keep_scalar=False):
     """Conduct Z-normalization on data to turn input samples become zero-mean
     and unit variance.
 
@@ -128,8 +129,11 @@ def standardizer(X, X_t=None):
     X : ndarray (n_samples, n_features)
         The training samples
 
-    X_t : ndarray (n_samples_new, n_features), default=None
+    X_t : ndarray (n_samples_new, n_features), optional (default=None)
         The data to be converted
+
+    keep_scalar : bool, optional (default=False)
+        The flag to indicate whether to return the scalar
 
     Returns
     -------
@@ -139,15 +143,29 @@ def standardizer(X, X_t=None):
     X_t_norm : ndarray (n_samples, n_features)
         X_t after the Z-score normalization
 
+    scalar : sklearn scalar object
+        The scalar used in conversion
+
     """
     X = check_array(X)
-    if X_t is None:
-        return StandardScaler().fit_transform(X)
-
-    X_t = check_array(X_t)
-    assert_equal(X.shape[1], X_t.shape[1])
     scaler = StandardScaler().fit(X)
-    return scaler.transform(X), scaler.transform(X_t)
+
+    if X_t is None:
+        if keep_scalar:
+            return scaler.transform(X), scaler
+        else:
+            return scaler.transform(X)
+    else:
+        X_t = check_array(X_t)
+        if X.shape[1] != X_t.shape[1]:
+            raise ValueError(
+                "The number of input data feature should be consistnt"
+                "X has {0} features and X_t has {1} features.".format(
+                    X.shape[1], X_t.shape[1]))
+        if keep_scalar:
+            return scaler.transform(X), scaler.transform(X_t), scaler
+        else:
+            return scaler.transform(X), scaler.transform(X_t)
 
 
 def score_to_label(pred_scores, outliers_fraction=0.1):
@@ -183,6 +201,7 @@ def precision_n_scores(y, y_pred, n=None):
 
     return precision_score(y, y_pred)
 
+
 def generate_bagging_indices(random_state, bootstrap_features, n_features,
                              min_features, max_features):
     """ Randomly draw feature indices. Internal use only.
@@ -217,7 +236,7 @@ def generate_bagging_indices(random_state, bootstrap_features, n_features,
 
     # Draw indices
     feature_indices = generate_indices(random_state, bootstrap_features,
-                                        n_features, random_n_features)
+                                       n_features, random_n_features)
 
     return feature_indices
 
