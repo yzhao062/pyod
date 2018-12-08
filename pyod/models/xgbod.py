@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """XGBOD: Improving Supervised Outlier Detection with Unsupervised
-Representation Learning
+Representation Learning. A semi-supervised outlier detection framework.
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
@@ -8,10 +8,10 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
-from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.validation import check_X_y
+from xgboost.sklearn import XGBClassifier
 
 from .base import BaseDetector
 from .knn import KNN
@@ -19,7 +19,10 @@ from .lof import LOF
 from .iforest import IForest
 from .hbos import HBOS
 from .ocsvm import OCSVM
+
+from ..utils.utility import check_parameter
 from ..utils.utility import check_detector
+from ..utils.utility import standardizer
 
 
 class XGBOD(BaseDetector):
@@ -39,11 +42,40 @@ class XGBOD(BaseDetector):
     """
 
     def __init__(self, estimator_list=None, standardization_flag_list=None,
-                 random_state=None):
+                 max_depth=3, learning_rate=0.1,
+                 n_estimators=100, silent=True,
+                 objective="binary:logistic", booster='gbtree',
+                 n_jobs=1, nthread=None, gamma=0, min_child_weight=1,
+                 max_delta_step=0, subsample=1, colsample_bytree=1,
+                 colsample_bylevel=1,
+                 reg_alpha=0, reg_lambda=1, scale_pos_weight=1,
+                 base_score=0.5, random_state=0, seed=None, missing=None,
+                 **kwargs):
         super(XGBOD, self).__init__()
         self.estimator_list = estimator_list
         self.standardization_flag_list = standardization_flag_list
+        self.max_depth = max_depth
+        self.learning_rate = learning_rate
+        self.n_estimators = n_estimators
+        self.silent = silent
+        self.objective = objective
+        self.booster = booster
+        self.n_jobs = n_jobs
+        self.nthread = nthread
+        self.gamma = gamma
+        self.min_child_weight = min_child_weight
+        self.max_delta_step = max_delta_step
+        self.subsample = subsample
+        self.colsample_bytree = colsample_bytree
+        self.colsample_bylevel = colsample_bylevel
+        self.reg_alpha = reg_alpha
+        self.reg_lambda = reg_lambda
+        self.scale_pos_weight = scale_pos_weight
+        self.base_score = base_score
         self.random_state = random_state
+        self.seed = seed
+        self.missing = missing
+        self.kwargs = kwargs
 
     def _init_detectors(self, X):
         """initialize unsupervised detectors if no predefined detectors is
@@ -100,12 +132,7 @@ class XGBOD(BaseDetector):
 
         return estimator_list, standardization_flag_list
 
-    def fit(self, X, y=None):
-
-        # Validate inputs X and y (optional)
-        X = check_array(X)
-        self._set_n_classes(y)
-
+    def _validate_estimator(self, X):
         if self.estimator_list is None:
             self.estimator_list, \
             self.standardization_flag_list = self._init_detectors(X)
@@ -122,52 +149,128 @@ class XGBOD(BaseDetector):
                     len(self.estimator_list),
                     len(self.standardization_flag_list)))
 
-        self.tree_ = KDTree(X, leaf_size=self.leaf_size, metric=self.metric)
-        self.neigh_.fit(X)
+        # validate the estimator list is not empty
+        check_parameter(len(self.estimator_list), low=1,
+                        param_name='number of estimators',
+                        include_left=True, include_right=True)
 
-        dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
-                                             return_distance=True)
+        for estimator in self.estimator_list:
+            check_detector(estimator)
 
-        dist = np.zeros(shape=(X.shape[0], 1))
-        if self.method == 'largest':
-            dist = dist_arr[:, -1]
-        elif self.method == 'mean':
-            dist = np.mean(dist_arr, axis=1)
-        elif self.method == 'median':
-            dist = np.median(dist_arr, axis=1)
+        return len(self.estimator_list)
 
-        self.decision_scores_ = dist.ravel()
-        self._process_decision_scores()
+    def _generate_new_features(self, X):
+        X_add = np.zeros([X.shape[0], self.n_detector_])
+
+        # keep the standardization scalar for test conversion
+        X_norm = self._scalar.transform(X)
+
+        for ind, estimator in enumerate(self.estimator_list):
+            if self.standardization_flag_list[ind]:
+                X_add[:, ind] = estimator.decision_function(X_norm)
+
+            else:
+                X_add[:, ind] = estimator.decision_function(X)
+        return X_add
+
+    def fit(self, X, y):
+        """Fit the model using X and y as training data.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            Training data.
+
+        y : numpy array of shape (n_samples,)
+            The ground truth (binary label)
+
+            - 0 : inliers
+            - 1 : outliers
+
+        Returns
+        -------
+        self : object
+        """
+
+        # Validate inputs X and y
+        X, y = check_X_y(X, y)
+        X = check_array(X)
+        self._set_n_classes(y)
+        self.n_detector_ = self._validate_estimator(X)
+        self.X_train_add_ = np.zeros([X.shape[0], self.n_detector_])
+
+        # keep the standardization scalar for test conversion
+        X_norm, self._scalar = standardizer(X, keep_scalar=True)
+
+        for ind, estimator in enumerate(self.estimator_list):
+            if self.standardization_flag_list[ind]:
+                estimator.fit(X_norm)
+                self.X_train_add_[:, ind] = estimator.decision_scores_
+
+            else:
+                estimator.fit(X)
+                self.X_train_add_[:, ind] = estimator.decision_scores_
+
+        # construct the new feature space
+        self.X_train_new_ = np.concatenate((X, self.X_train_add_), axis=1)
+
+        # initialize, train, and predict on XGBoost
+        self.clf_ = clf = XGBClassifier(max_depth=self.max_depth,
+                                        learning_rate=self.learning_rate,
+                                        n_estimators=self.n_estimators,
+                                        silent=self.silent,
+                                        objective=self.objective,
+                                        booster=self.booster,
+                                        n_jobs=self.n_jobs,
+                                        nthread=self.nthread,
+                                        gamma=self.gamma,
+                                        min_child_weight=self.min_child_weight,
+                                        max_delta_step=self.max_delta_step,
+                                        subsample=self.subsample,
+                                        colsample_bytree=self.colsample_bytree,
+                                        colsample_bylevel=self.colsample_bylevel,
+                                        reg_alpha=self.reg_alpha,
+                                        reg_lambda=self.reg_lambda,
+                                        scale_pos_weight=self.scale_pos_weight,
+                                        base_score=self.base_score,
+                                        random_state=self.random_state,
+                                        seed=self.seed,
+                                        missing=self.missing,
+                                        **self.kwargs)
+        self.clf_.fit(self.X_train_new_, y)
+        self.decision_scores_ = self.clf_.predict_proba(
+            self.X_train_new_)[:, 1]
+        self.labels_ = self.clf_.predict(self.X_train_new_)
 
         return self
 
     def decision_function(self, X):
 
-        check_is_fitted(self,
-                        ['tree_', 'decision_scores_', 'threshold_', 'labels_'])
+        check_is_fitted(self, ['clf_', 'decision_scores_',
+                               'labels_', '_scalar'])
 
         X = check_array(X)
 
-        # initialize the output score
-        pred_scores = np.zeros([X.shape[0], 1])
+        # construct the new feature space
+        X_add = self._generate_new_features(X)
+        X_new = np.concatenate((X, X_add), axis=1)
 
-        for i in range(X.shape[0]):
-            x_i = X[i, :]
-            x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
-
-            # get the distance of the current point
-            dist_arr, _ = self.tree_.query(x_i, k=self.n_neighbors)
-
-            if self.method == 'largest':
-                dist = dist_arr[:, -1]
-            elif self.method == 'mean':
-                dist = np.mean(dist_arr, axis=1)
-            elif self.method == 'median':
-                dist = np.median(dist_arr, axis=1)
-
-            pred_score_i = dist[-1]
-
-            # record the current item
-            pred_scores[i, :] = pred_score_i
-
+        pred_scores = self.clf_.predict_proba(X_new)[:, 1]
         return pred_scores.ravel()
+
+    def predict(self, X):
+
+        check_is_fitted(self, ['clf_', 'decision_scores_',
+                               'labels_', '_scalar'])
+
+        X = check_array(X)
+
+        # construct the new feature space
+        X_add = self._generate_new_features(X)
+        X_new = np.concatenate((X, X_add), axis=1)
+
+        pred_scores = self.clf_.predict(X_new)
+        return pred_scores.ravel()
+
+    def predict_proba(self, X):
+        return self.decision_function(X)
