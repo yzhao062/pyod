@@ -60,7 +60,7 @@ class XGBOD(BaseDetector):
         Specify the learning task and the corresponding learning objective or
         a custom objective function to be used (see note below).
 
-    booster: string
+    booster : string
         Specify which booster to use: gbtree, gblinear or dart.
 
     n_jobs : int
