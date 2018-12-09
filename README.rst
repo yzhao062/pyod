@@ -118,25 +118,28 @@ PyOD toolkit consists of three major groups of functionalities:
 
 **(i) Individual Detection Algorithms** :
 
-===================  ================  =====================================================================================================  =====  ========================================
-Type                 Abbr              Algorithm                                                                                              Year   Ref
-===================  ================  =====================================================================================================  =====  ========================================
-Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)  2003   [#Shyu2003A]_
-Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                   1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
-Linear Model         OCSVM             One-Class Support Vector Machines                                                                      2003   [#Ma2003Time]_
-Proximity-Based      LOF               Local Outlier Factor                                                                                   2000   [#Breunig2000LOF]_
-Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                  2003   [#He2003Discovering]_
-Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                      2003   [#Papadimitriou2003LOCI]_
-Proximity-Based      HBOS              Histogram-based Outlier Score                                                                          2012   [#Goldstein2012Histogram]_
-Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score                 2000   [#Ramaswamy2000Efficient]_
-Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                     2002   [#Angiulli2002Fast]_
-Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                       2002   [#Angiulli2002Fast]_
-Probabilistic        ABOD              Angle-Based Outlier Detection                                                                          2008   [#Kriegel2008Angle]_
-Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                 2008   [#Kriegel2008Angle]_
-Probabilistic        SOS               Stochastic Outlier Selection                                                                           2012   [#Janssens2012Stochastic]_
-Outlier Ensembles    IForest           Isolation Forest                                                                                       2008   [#Liu2008Isolation]_
-Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                   [#Aggarwal2015Outlier]_ [Ch.3]
-===================  ================  =====================================================================================================  =====  ========================================
+===================  ================  ======================================================================================================  =====  ========================================
+Type                 Abbr              Algorithm                                                                                               Year   Ref
+===================  ================  ======================================================================================================  =====  ========================================
+Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
+Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
+Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2003   [#Ma2003Time]_
+Proximity-Based      LOF               Local Outlier Factor                                                                                    2000   [#Breunig2000LOF]_
+Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   [#He2003Discovering]_
+Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   [#Papadimitriou2003LOCI]_
+Proximity-Based      HBOS              Histogram-based Outlier Score                                                                           2012   [#Goldstein2012Histogram]_
+Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score                  2000   [#Ramaswamy2000Efficient]_
+Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   [#Angiulli2002Fast]_
+Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
+Probabilistic        ABOD              Angle-Based Outlier Detection                                                                           2008   [#Kriegel2008Angle]_
+Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                  2008   [#Kriegel2008Angle]_
+Probabilistic        SOS               Stochastic Outlier Selection                                                                            2012   [#Janssens2012Stochastic]_
+Outlier Ensembles    IForest           Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
+Outlier Ensembles                      Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
+Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
+Outlier Ensembles    XGBOD             **Supervised** XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning  2018   [#Zhao2018XGBOD]_
+Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
+===================  ================  ======================================================================================================  =====  ========================================
 
 FAQ regarding AutoEncoder in PyOD and debugging advice:
 `known issues <https://github.com/yzhao062/Pyod/issues/19>`_
@@ -196,12 +199,13 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 * scipy>=0.19.1
 * scikit_learn>=0.19.1
 
-**Optional Dependencies (required for running examples and AutoEncoder)**\ :
+**Optional Dependencies (see details below)**\ :
 
 
 * Keras (optional, required if calling AutoEncoder, other backend works)
 * Matplotlib (optional, required for running examples)
 * TensorFlow (optional, required if calling AutoEncoder, other backend works)
+* XGBoost (optional, required if calling XGBOD)
 
 **Known Issue 1**\ : Running examples needs Matplotlib, which may throw errors in conda
 virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/Pyod/issues/6>`_.

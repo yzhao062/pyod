@@ -26,11 +26,12 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 * scikit_learn>=0.19.1
 
 
-**Optional Dependencies (required for running examples or AutoEncoder)**:
+**Optional Dependencies (see details below)**:
 
 - Keras (optional, required if calling AutoEncoder, other backend works)
 - Matplotlib (optional, required for running examples)
 - Tensorflow (optional, required if calling AutoEncoder, other backend works)
+- XGBoost (optional, required if calling XGBOD)
 
 .. warning::
 
