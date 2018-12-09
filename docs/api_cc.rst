@@ -8,5 +8,14 @@ API CheatSheet
 * :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not. The model must be fitted first.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
 
-See full API reference :doc:`pyod`.
+See base class definition below:
+
+pyod.models.base module
+-----------------------
+
+.. automodule:: pyod.models.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
 

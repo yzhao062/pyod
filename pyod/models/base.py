@@ -74,12 +74,16 @@ class BaseDetector(object):
         detector algorithms. For consistency, outliers are assigned with
         larger anomaly scores.
 
-        :param X: The training input samples. Sparse matrices are accepted only
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
-        :type X: numpy array of shape (n_samples, n_features)
 
-        :return: The anomaly score of the input samples.
-        :rtype: array, shape (n_samples,)
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
         """
         pass
 
@@ -125,13 +129,17 @@ class BaseDetector(object):
     def predict(self, X):
         """Predict if a particular sample is an outlier or not.
 
-        :param X: The input samples
-        :type X: numpy array of shape (n_samples, n_features)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :return: For each observation, tells whether or not
-            it should be considered as an outlier according to the fitted
-            model. 0 stands for inliers and 1 for outliers.
-        :rtype: array, shape (n_samples,)
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+            For each observation, tells whether or not
+            it should be considered as an outlier according to the
+            fitted model. 0 stands for inliers and 1 for outliers.
         """
 
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
@@ -148,17 +156,22 @@ class BaseDetector(object):
            fitted first.
         2. use unifying scores, see :cite:`kriegel2011interpreting`.
 
-        :param X: The input samples
-        :type X: numpy array of shape (n_samples, n_features)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :param method: probability conversion method. It must be one of
+        method : str, optional (default='linear')
+            probability conversion method. It must be one of
             'linear' or 'unify'.
-        :type method: str, optional (default='linear')
 
-        :return: For each observation, return the outlier probability, ranging
-            in [0,1]
-        :rtype: array, shape (n_samples,)
-
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+            For each observation, tells whether or not
+            it should be considered as an outlier according to the
+            fitted model. Return the outlier probability, ranging
+            in [0,1].
         """
 
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
