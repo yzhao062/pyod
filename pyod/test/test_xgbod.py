@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import os
 import sys
+from os import path
 
 import unittest
 # noinspection PyProtectedMember
@@ -36,9 +37,10 @@ class TestXGBOD(unittest.TestCase):
     def setUp(self):
         # Define data file and read X and y
         # Generate some data if the source data is missing
+        this_directory = path.abspath(path.dirname(__file__))
         mat_file = 'cardio.mat'
         try:
-            mat = loadmat(os.path.join('data', mat_file))
+            mat = loadmat(path.join(*[this_directory, 'data', mat_file]))
 
         except TypeError:
             print('{data_file} does not exist. Use generated data'.format(
@@ -115,7 +117,6 @@ class TestXGBOD(unittest.TestCase):
     def test_predict_rank(self):
         pred_socres = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test)
-        print(pred_ranks)
         print(pred_ranks)
 
         # assert the order is reserved
