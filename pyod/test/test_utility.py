@@ -13,6 +13,7 @@ from sklearn.utils.testing import assert_allclose
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.metrics import precision_score
+from sklearn.utils import check_random_state
 
 import numpy as np
 
@@ -195,23 +196,54 @@ class TestParameters(unittest.TestCase):
 class TestScaler(unittest.TestCase):
 
     def setUp(self):
-        self.X_train = np.random.rand(500, 5)
-        self.X_test = np.random.rand(50, 5)
+        random_state = check_random_state(42)
+        self.X_train = random_state.rand(500, 5)
+        self.X_test = random_state.rand(100, 5)
+        self.X_test_diff = random_state.rand(100, 10)
         self.scores1 = [0.1, 0.3, 0.5, 0.7, 0.2, 0.1]
         self.scores2 = np.array([0.1, 0.3, 0.5, 0.7, 0.2, 0.1])
 
     def test_normalization(self):
-        norm_X_train, norm_X_test = standardizer(self.X_train, self.X_train)
+
+        # test when X_t is presented and no scalar
+        norm_X_train, norm_X_test = standardizer(self.X_train, self.X_test)
         assert_allclose(norm_X_train.mean(), 0, atol=0.05)
         assert_allclose(norm_X_train.std(), 1, atol=0.05)
 
         assert_allclose(norm_X_test.mean(), 0, atol=0.05)
         assert_allclose(norm_X_test.std(), 1, atol=0.05)
 
-        # test when X_t is not presented
+        # test when X_t is not presented and no scalar
         norm_X_train = standardizer(self.X_train)
         assert_allclose(norm_X_train.mean(), 0, atol=0.05)
         assert_allclose(norm_X_train.std(), 1, atol=0.05)
+
+        # test when X_t is presented and the scalar is kept
+        norm_X_train, norm_X_test, scalar = standardizer(self.X_train,
+                                                         self.X_test,
+                                                         keep_scalar=True)
+
+        assert_allclose(norm_X_train.mean(), 0, atol=0.05)
+        assert_allclose(norm_X_train.std(), 1, atol=0.05)
+
+        assert_allclose(norm_X_test.mean(), 0, atol=0.05)
+        assert_allclose(norm_X_test.std(), 1, atol=0.05)
+
+        if not hasattr(scalar, 'fit') or not hasattr(scalar, 'transform'):
+            raise AttributeError("%s is not a detector instance." % (scalar))
+
+        # test when X_t is not presented and the scalar is kept
+        norm_X_train, scalar = standardizer(self.X_train, keep_scalar=True)
+
+        assert_allclose(norm_X_train.mean(), 0, atol=0.05)
+        assert_allclose(norm_X_train.std(), 1, atol=0.05)
+
+        if not hasattr(scalar, 'fit') or not hasattr(scalar, 'transform'):
+            raise AttributeError("%s is not a detector instance." % (scalar))
+
+        # test shape difference
+        with assert_raises(ValueError):
+            standardizer(self.X_train, self.X_test_diff)
 
     def test_invert_order(self):
         target = np.array([-0.1, -0.3, -0.5, -0.7, -0.2, -0.1]).ravel()
@@ -265,12 +297,14 @@ class TestCheckDetector(unittest.TestCase):
         class DummyNegativeModel():
             def fit_negative(self):
                 return
+
             def decision_function_negative(self):
                 return
 
         class DummyPostiveModel():
             def fit(self):
                 return
+
             def decision_function(self):
                 return
 

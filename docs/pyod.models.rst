@@ -4,6 +4,8 @@ pyod.models package
 Submodules
 ----------
 
+----
+
 pyod.models.abod module
 -----------------------
 
@@ -17,15 +19,6 @@ pyod.models.auto\_encoder module
 --------------------------------
 
 .. automodule:: pyod.models.auto_encoder
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
-
-pyod.models.base module
------------------------
-
-.. automodule:: pyod.models.base
     :members:
     :undoc-members:
     :show-inheritance:
@@ -148,6 +141,15 @@ pyod.models.sos module
 ----------------------
 
 .. automodule:: pyod.models.sos
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.xgbod module
+------------------------
+
+.. automodule:: pyod.models.xgbod
     :members:
     :undoc-members:
     :show-inheritance:

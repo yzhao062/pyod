@@ -8,3 +8,4 @@ scipy>=0.19.1
 scikit_learn>=0.19.1
 sphinxcontrib-bibtex
 tensorflow
+xgboost>=0.7

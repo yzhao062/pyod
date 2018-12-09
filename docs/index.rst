@@ -126,12 +126,9 @@ detection utility functions.
   i. **LOF: Local Outlier Factor** :cite:`a-breunig2000lof`: :class:`pyod.models.lof.LOF`
   ii. **CBLOF: Clustering-Based Local Outlier Factor** :cite:`a-he2003discovering`: :class:`pyod.models.cblof.CBLOF`
   iii. **LOCI: Local Correlation Integral** :cite:`a-papadimitriou2003loci`: :class:`pyod.models.loci.LOCI`
-  iv. **kNN: k Nearest Neighbors** (use the distance to the kth nearest
-      neighbor as the outlier score) :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`: :class:`pyod.models.knn.KNN`
-  v. **Average kNN** (use the average distance to k nearest neighbors as
-      the outlier score): :class:`pyod.models.knn.KNN`
-  vi. **Median kNN** (use the median distance to k nearest neighbors
-      as the outlier score): :class:`pyod.models.knn.KNN`
+  iv. **kNN: k Nearest Neighbors** (use the distance to the kth nearest neighbor as the outlier score) :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`: :class:`pyod.models.knn.KNN`
+  v. **Average kNN** (use the average distance to k nearest neighbors as the outlier score): :class:`pyod.models.knn.KNN`
+  vi. **Median kNN** (use the median distance to k nearest neighbors as the outlier score): :class:`pyod.models.knn.KNN`
   vii. **HBOS: Histogram-based Outlier Score** :cite:`a-goldstein2012histogram`: :class:`pyod.models.hbos.HBOS`
 
 
@@ -141,10 +138,13 @@ detection utility functions.
   ii. **FastABOD: Fast Angle-Based Outlier Detection using approximation** :cite:`a-kriegel2008angle`: :class:`pyod.models.abod.ABOD`
   iii. **SOS: Stochastic Outlier Selection** :cite:`a-janssens2012stochastic`: :class:`pyod.models.sos.SOS`
 
-4. Outlier Ensembles and Combination Frameworks
+4. Outlier Ensembles:
 
   i. **Isolation Forest** :cite:`a-liu2008isolation,a-liu2012isolation`: :class:`pyod.models.iforest.IForest`
   ii. **Feature Bagging** :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
+  iii. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2018lscp`: :class:`pyod.models.lscp.LSCP`
+  iv. **XGBOD** :cite:`a-zhao2018xgbod`: :class:`pyod.models.xgbod.XGBOD`
+
 
 5. Neural Networks and Deep Learning Models (implemented in Keras):
 
@@ -175,12 +175,12 @@ Key APIs & Attributes
 
 The following APIs are applicable for all detector models for easy use.
 
-* :func:`pyod.models.base.BaseDetector.fit`: Fit detector.
-* :func:`pyod.models.base.BaseDetector.fit_predict`: Fit detector and predict if a particular sample is an outlier or not.
-* :func:`pyod.models.base.BaseDetector.fit_predict_evaluate`: Fit, predict and then evaluate with predefined metrics (ROC and precision @ rank n).
-* :func:`pyod.models.base.BaseDetector.decision_function`: Predict anomaly score of X of the base classifiers.
-* :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not. The model must be fitted first.
-* :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier. The model must be fitted first.
+* :func:`pyod.models.base.BaseDetector.fit`: Fit detector. y is optional for unsupervised methods.
+* :func:`pyod.models.base.BaseDetector.fit_predict`: Fit detector first and then predict whether a particular sample is an outlier or not.
+* :func:`pyod.models.base.BaseDetector.fit_predict_score`: Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
+* :func:`pyod.models.base.BaseDetector.decision_function`: Predict raw anomaly score of X using the fitted detector.
+* :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not using the fitted detector.
+* :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier using the fitted detector.
 
 Key Attributes of a fitted model:
 
