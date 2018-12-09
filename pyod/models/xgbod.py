@@ -186,8 +186,7 @@ class XGBOD(BaseDetector):
         standardization_flag_list = []
 
         # predefined range of n_neighbors for KNN, AvgKNN, and LOF
-        k_range = [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50,
-                   60, 70, 80, 90, 100, 150, 200, 250]
+        k_range = [1, 3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
         # validate the value of k
         k_range = [k for k in k_range if k < X.shape[0]]

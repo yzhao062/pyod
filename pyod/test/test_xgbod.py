@@ -38,7 +38,7 @@ class TestXGBOD(unittest.TestCase):
         # Define data file and read X and y
         # Generate some data if the source data is missing
         this_directory = path.abspath(path.dirname(__file__))
-        mat_file = 'cardio.mat'
+        mat_file = 'pima.mat'
         try:
             mat = loadmat(path.join(*[this_directory, 'data', mat_file]))
 
@@ -61,7 +61,7 @@ class TestXGBOD(unittest.TestCase):
         self.clf = XGBOD(random_state=42)
         self.clf.fit(self.X_train, self.y_train)
 
-        self.roc_floor = 0.9
+        self.roc_floor = 0.8
 
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'clf_') and
@@ -120,7 +120,7 @@ class TestXGBOD(unittest.TestCase):
         print(pred_ranks)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), rtol=0.03)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=4)
         assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
@@ -129,7 +129,7 @@ class TestXGBOD(unittest.TestCase):
         pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), rtol=0.03)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=4)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
