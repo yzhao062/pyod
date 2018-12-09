@@ -68,7 +68,7 @@ class BaseDetector(object):
 
     @abc.abstractmethod
     def decision_function(self, X):
-        """Predict anomaly score of X of the base classifiers.
+        """Predict raw anomaly score of X using the fitted detector.
 
         The anomaly score of an input sample is computed based on different
         detector algorithms. For consistency, outliers are assigned with
@@ -228,22 +228,25 @@ class BaseDetector(object):
 
     def fit_predict_score(self, X, y, scoring='roc_auc_score'):
         """Fit the detector, predict on samples, and evaluate the model by
-        ROC and Precision @ rank n
+        predefined metrics, e.g., ROC.
 
-        :param X: The input samples
-        :type X: numpy array of shape (n_samples, n_features)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :param y: Outlier labels of the input samples
-        :type y: array, shape (n_samples,)
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
 
-        :param scoring: Evaluation metric
+        scoring : str, optional (default='roc_auc_score')
+            Evaluation metric
 
-                -' roc_auc_score': ROC score
-                - 'prc_n_score': Precision @ rank n score
-        :type scoring: str, optional (default='roc_auc_score')
+            -' roc_auc_score': ROC score
+            - 'prc_n_score': Precision @ rank n score
 
-        :return: Evaluation score
-        :rtype: float
+        Returns
+        -------
+        evaluation_score : float
         """
 
         self.fit(X)

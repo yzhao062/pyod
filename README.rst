@@ -221,11 +221,11 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 
 
 * **fit(X)**\ : Fit detector.
-* **fit_predict(X)**\ : Fit detector and predict if a particular sample is an outlier or not.
-* **fit_predict_score(X, y)**\ : Fit, predict and then evaluate with predefined metrics (ROC and precision @ rank n).
-* **decision_function(X)**\ : Predict anomaly score of X of the base classifiers.
-* **predict(X)**\ : Predict if a particular sample is an outlier or not. The model must be fitted first.
-* **predict_proba(X)**\ : Predict the probability of a sample being outlier. The model must be fitted first.
+* **fit_predict(X)**\ : Fit detector first and then predict whether a particular sample is an outlier or not.
+* **fit_predict_score(X, y)**\ : Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
+* **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
+* **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
+* **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
 
 Key Attributes of a fitted model:
 
