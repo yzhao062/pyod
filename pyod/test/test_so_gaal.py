@@ -18,7 +18,7 @@ from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.so_gaal import SO_GAAL
 from pyod.utils.data import generate_data
@@ -26,9 +26,9 @@ from pyod.utils.data import generate_data
 
 class TestSO_GAAL(unittest.TestCase):
     def setUp(self):
-        self.n_train = 6000
+        self.n_train = 5000
         self.n_test = 1000
-        self.n_features = 300
+        self.n_features = 20
         self.contamination = 0.1
         #self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
