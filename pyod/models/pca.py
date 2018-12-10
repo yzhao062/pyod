@@ -19,7 +19,6 @@ from ..utils.utility import check_parameter
 
 
 class PCA(BaseDetector):
-    # noinspection PyPep8
     """
     Principal component analysis (PCA) can be used in detecting outliers. PCA
     is a linear dimensionality reduction using Singular Value Decomposition
@@ -42,7 +41,10 @@ class PCA(BaseDetector):
     Score(X) = Sum of weighted euclidean distance between each sample to the
     hyperplane constructed by the selected eigenvectors
 
-    :param n_components: Number of principal components to keep.
+    Parameters
+    ----------
+    n_components : int, float, None or string
+        Number of components to keep.
         if n_components is not set all components are kept::
 
             n_components == min(n_samples, n_features)
@@ -53,36 +55,34 @@ class PCA(BaseDetector):
         of components such that the amount of variance that needs to be
         explained is greater than the percentage specified by n_components
         n_components cannot be equal to n_features for svd_solver == 'arpack'.
-    :type n_components: int, float, None or str
 
-    :param n_selected_components: Number of selected principal components
+    n_selected_components : int, optional (default=None)
+        Number of selected principal components
         for calculating the outlier scores. It is not necessarily equal to
         the total number of the principal components. If not set, use
         all principal components.
-    :type n_selected_components: int, optional (default=None)
 
-    :param contamination: The amount of contamination of the data set,
-        i.e. the proportion of outliers in the data set. Used when fitting to
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set, i.e.
+        the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
-    :type contamination: float in (0., 0.5), optional (default=0.1)
 
-    :param copy: If False, data passed to fit are overwritten and running
+    copy : bool (default True)
+        If False, data passed to fit are overwritten and running
         fit(X).transform(X) will not yield the expected results,
         use fit_transform(X) instead.
-    :type copy: bool (default True)
 
-    :param whiten: When True (False by default) the `components_` vectors are
-        multiplied by the square root of n_samples and then divided by the
-        singular values to ensure uncorrelated outputs with unit
-        component-wise variances.
+    whiten : bool, optional (default False)
+        When True (False by default) the `components_` vectors are multiplied
+        by the square root of n_samples and then divided by the singular values
+        to ensure uncorrelated outputs with unit component-wise variances.
 
         Whitening will remove some information from the transformed signal
         (the relative variance scales of the components) but can sometime
         improve the predictive accuracy of the downstream estimators by
         making their data respect some hard-wired assumptions.
-    :type whiten: bool, optional (default False)
 
-    :param svd_solver:
+    svd_solver : string {'auto', 'full', 'arpack', 'randomized'}
         auto :
             the solver is selected by a default policy based on `X.shape` and
             `n_components`: if the input data is larger than 500x500 and the
@@ -99,66 +99,101 @@ class PCA(BaseDetector):
             0 < n_components < X.shape[1]
         randomized :
             run randomized SVD by the method of Halko et al.
-    :type svd_solver: str {'auto', 'full', 'arpack', 'randomized'}
 
-    :param tol: Tolerance for singular values computed by
-        svd_solver == 'arpack'.
-    :type tol: float >= 0, optional (default .0)
+        .. versionadded:: 0.18.0
 
-    :param iterated_power: Number of iterations for the power method computed
-        by svd_solver == 'randomized'.
-    :type iterated_power: int >= 0, or 'auto', (default 'auto')
 
-    :param random_state: If int, random_state is the seed used by the random
-        number generator;
+    tol : float >= 0, optional (default .0)
+        Tolerance for singular values computed by svd_solver == 'arpack'.
+
+        .. versionadded:: 0.18.0
+
+    iterated_power : int >= 0, or 'auto', (default 'auto')
+        Number of iterations for the power method computed by
+        svd_solver == 'randomized'.
+
+        .. versionadded:: 0.18.0
+
+    random_state : int, RandomState instance or None, optional (default None)
+        If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
-    :type random_state: int, RandomState instance or None,
-        optional (default None)
 
-    :param weighted: If True, the eigenvalues are used in score computation.
+        .. versionadded:: 0.18.0
+
+    weighted : bool, optional (default=True)
+        If True, the eigenvalues are used in score computation.
         The eigenvectors with samll eigenvalues comes with more importance
         in outlier score calculation.
-    :type weighted: bool, optional (default=True)
 
-    :param standardization: If True, perform standardization first to convert
+    standardization : bool, optional (default=True)
+        If True, perform standardization first to convert
         data to zero mean and unit variance.
         See http://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
-    :type standardization: bool, optional (default=True)
 
-    :var components\_: Components with maximum variance.
-    :vartype components\_: array, shape (n_components, n_features)
+    Attributes
+    ----------
+    components_ : array, shape (n_components, n_features)
+        Principal axes in feature space, representing the directions of
+        maximum variance in the data. The components are sorted by
+        ``explained_variance_``.
 
-    :var explained_variance_ratio\_: Percentage of variance explained by each
-        of the selected components. If k is not set then all components are
-        stored and the sum of explained variances is equal to 1.0.
-    :vartype explained_variance_ratio\_: array, shape (n_components,)
+    explained_variance_ : array, shape (n_components,)
+        The amount of variance explained by each of the selected components.
 
-    :var singular_values\_: The singular values corresponding to each of the
-        selected components. The singular values are equal to the 2-norms of
-        the ``n_components`` variables in the lower-dimensional space.
-    :vartype singular_values\_: array, shape (n_components,)
+        Equal to n_components largest eigenvalues
+        of the covariance matrix of X.
 
-    :var mean\_: Per-feature empirical mean, estimated from the training set.
-    :vartype mean\_: array, shape (n_features,)
+        .. versionadded:: 0.18
 
-    :var decision_scores\_: The outlier scores of the training data.
+    explained_variance_ratio_ : array, shape (n_components,)
+        Percentage of variance explained by each of the selected components.
+
+        If ``n_components`` is not set then all components are stored and the
+        sum of explained variances is equal to 1.0.
+
+    singular_values_ : array, shape (n_components,)
+        The singular values corresponding to each of the selected components.
+        The singular values are equal to the 2-norms of the ``n_components``
+        variables in the lower-dimensional space.
+
+    mean_ : array, shape (n_features,)
+        Per-feature empirical mean, estimated from the training set.
+
+        Equal to `X.mean(axis=0)`.
+
+    n_components_ : int
+        The estimated number of components. When n_components is set
+        to 'mle' or a number between 0 and 1 (with svd_solver == 'full') this
+        number is estimated from input data. Otherwise it equals the parameter
+        n_components, or n_features if n_components is None.
+
+    noise_variance_ : float
+        The estimated noise covariance following the Probabilistic PCA model
+        from Tipping and Bishop 1999. See "Pattern Recognition and
+        Machine Learning" by C. Bishop, 12.2.1 p. 574 or
+        http://www.miketipping.com/papers/met-mppca.pdf. It is required to
+        computed the estimated data covariance and score samples.
+
+        Equal to the average of (min(n_features, n_samples) - n_components)
+        smallest eigenvalues of the covariance matrix of X.
+
+    decision_scores_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
-        scores. This value is available once the detector is
-        fitted.
-    :vartype decision_scores\_: numpy array of shape (n_samples,)
+        scores. This value is available once the detector is fitted.
 
-    :var threshold\_: The threshold is based on ``contamination``. It is the
+    threshold_ : float
+        The threshold is based on ``contamination``. It is the
         ``n_samples * contamination`` most abnormal samples in
         ``decision_scores_``. The threshold is calculated for generating
         binary outlier labels.
-    :vartype threshold\_: float
 
-    :var labels\_: The binary labels of the training data. 0 stands for inliers
+    labels_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
-    :vartype labels\_: int, either 0 or 1
     """
 
     def __init__(self, n_components=None, n_selected_components=None,
@@ -246,11 +281,34 @@ class PCA(BaseDetector):
             cdist(X, self.selected_components_) / self.selected_w_components_,
             axis=1).ravel()
 
+    # @property
+    # def components_(self):
+    #     """Principal axes in feature space, representing the directions of
+    #     maximum variance in the data. The components are sorted by
+    #     ``explained_variance_``.
+    #
+    #     Decorator for scikit-learn PCA attributes.
+    #     """
+    #     return self.detector_.components_
+
+    @property
+    def explained_variance_(self):
+        """The amount of variance explained by each of the selected components.
+
+        Equal to n_components largest eigenvalues
+        of the covariance matrix of X.
+
+        Decorator for scikit-learn PCA attributes.
+        """
+        return self.detector_.explained_variance_
+
     @property
     def explained_variance_ratio_(self):
         """Percentage of variance explained by each of the selected components.
-        If k is not set then all components are stored and the sum of explained
-        variances is equal to 1.0.
+
+        If ``n_components`` is not set then all components are stored and the
+        sum of explained variances is equal to 1.0.
+
         Decorator for scikit-learn PCA attributes.
         """
         return self.detector_.explained_variance_ratio_
@@ -260,6 +318,7 @@ class PCA(BaseDetector):
         """The singular values corresponding to each of the selected
         components. The singular values are equal to the 2-norms of the
         ``n_components`` variables in the lower-dimensional space.
+
         Decorator for scikit-learn PCA attributes.
         """
         return self.detector_.singular_values_
@@ -267,6 +326,33 @@ class PCA(BaseDetector):
     @property
     def mean_(self):
         """Per-feature empirical mean, estimated from the training set.
+
         Decorator for scikit-learn PCA attributes.
         """
         return self.detector_.mean_
+
+    # @property
+    # def n_components_(self):
+    #     """The estimated number of components. When n_components is set
+    #     to 'mle' or a number between 0 and 1 (with svd_solver == 'full') this
+    #     number is estimated from input data. Otherwise it equals the parameter
+    #     n_components, or n_features if n_components is None.
+    #
+    #     Decorator for scikit-learn PCA attributes.
+    #     """
+    #     return self.detector_.n_components_
+
+    @property
+    def noise_variance_(self):
+        """        The estimated noise covariance following the Probabilistic PCA model
+        from Tipping and Bishop 1999. See "Pattern Recognition and
+        Machine Learning" by C. Bishop, 12.2.1 p. 574 or
+        http://www.miketipping.com/papers/met-mppca.pdf. It is required to
+        computed the estimated data covariance and score samples.
+
+        Equal to the average of (min(n_features, n_samples) - n_components)
+        smallest eigenvalues of the covariance matrix of X.
+
+        Decorator for scikit-learn PCA attributes.
+        """
+        return self.detector_.noise_variance_

@@ -146,7 +146,7 @@ class LSCP(BaseDetector):
 
         Returns
         -------
-        None
+        self
         """
 
         # check detector_list
@@ -265,15 +265,13 @@ class LSCP(BaseDetector):
             # and local train scores
             pearson_corr_scores = np.zeros([self.n_clf, ])
             for d in range(self.n_clf):
-                pearson_corr_scores[d,] = \
-                    pearsonr(local_pseudo_ground_truth,
-                             local_train_scores[:, d])[
-                        0]
+                pearson_corr_scores[d,] = pearsonr(
+                    local_pseudo_ground_truth, local_train_scores[:, d])[0]
 
             # return best score
-            pred_scores_ens[i,] = np.mean(test_scores_norm[
-                                              i, self._get_competent_detectors(
-                                                  pearson_corr_scores)])
+            pred_scores_ens[i,] = np.mean(
+                test_scores_norm[
+                    i, self._get_competent_detectors(pearson_corr_scores)])
 
         return pred_scores_ens
 
@@ -303,16 +301,14 @@ class LSCP(BaseDetector):
         for _ in range(self.local_region_iterations):
 
             # randomly generate feature subspaces
-            features = generate_bagging_indices(self.random_state,
-                                                bootstrap_features=False,
-                                                n_features=
-                                                self.X_train_norm_.shape[1],
-                                                min_features=int(
-                                                    self.X_train_norm_.shape[
-                                                        1] * self.local_min_features),
-                                                max_features=int(
-                                                    self.X_train_norm_.shape[
-                                                        1] * self.local_max_features))
+            features = generate_bagging_indices(
+                self.random_state,
+                bootstrap_features=False,
+                n_features=self.X_train_norm_.shape[1],
+                min_features=int(
+                    self.X_train_norm_.shape[1] * self.local_min_features),
+                max_features=int(
+                    self.X_train_norm_.shape[1] * self.local_max_features))
 
             # build KDTree out of training subspace
             tree = KDTree(self.X_train_norm_[:, features])
@@ -323,8 +319,8 @@ class LSCP(BaseDetector):
 
             # add neighbors to local region list
             for j in range(X_test_norm.shape[0]):
-                local_region_list[j] = local_region_list[j] + ind_arr[j,
-                                                              :].tolist()
+                local_region_list[j] = local_region_list[j] + \
+                                       ind_arr[j, :].tolist()
 
         # keep nearby points which occur at least local_region_threshold times
         final_local_region_list = [[]] * X_test_norm.shape[0]
