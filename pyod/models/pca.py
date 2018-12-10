@@ -10,12 +10,12 @@ from __future__ import print_function
 import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA as sklearn_PCA
-from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
 
 from .base import BaseDetector
 from ..utils.utility import check_parameter
+from ..utils.utility import standardizer
 
 
 class PCA(BaseDetector):
@@ -222,8 +222,7 @@ class PCA(BaseDetector):
         # PCA is recommended to use on the standardized data (zero mean and
         # unit variance).
         if self.standardization:
-            self.scaler_ = StandardScaler().fit(X)
-            X = self.scaler_.transform(X)
+            X, self.scaler_ = standardizer(X, keep_scalar=True)
 
         self.detector_ = sklearn_PCA(n_components=self.n_components,
                                      copy=self.copy,
