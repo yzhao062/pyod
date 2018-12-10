@@ -1,9 +1,6 @@
 API Reference
 =============
 
-Subpackages
------------
-
 .. toctree::
 
     pyod.models

@@ -25,100 +25,98 @@ class OCSVM(BaseDetector):
     See http://scikit-learn.org/stable/modules/svm.html#svm-outlier-detection
     and :cite:`ma2003time`.
 
-    :param kernel: Specifies the kernel type to be used in the algorithm.
-        It must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or
-        a callable.
-        If none is given, 'rbf' will be used. If a callable is given it is
-        used to precompute the kernel matrix.
-    :type kernel: str, optional (default='rbf')
+    Parameters
+    ----------
+    kernel : string, optional (default='rbf')
+         Specifies the kernel type to be used in the algorithm.
+         It must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or
+         a callable.
+         If none is given, 'rbf' will be used. If a callable is given it is
+         used to precompute the kernel matrix.
 
-    :param degree: Degree of the polynomial kernel function ('poly').
-        Ignored by all other kernels.
-    :type degree: int, optional (default=3)
-
-    :param gamma:  Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.
-        If gamma is 'auto' then 1/n_features will be used instead.
-    :type gamma: float, optional (default='auto')
-
-    :param coef0:  Independent term in kernel function.
-        It is only significant in 'poly' and 'sigmoid'.
-    :type coef0: float, optional (default=0.0)
-
-    :param tol: Tolerance for stopping criterion.
-    :type tol: float, optional
-
-    :param nu: An upper bound on the fraction of training
+    nu : float, optional
+        An upper bound on the fraction of training
         errors and a lower bound of the fraction of support
         vectors. Should be in the interval (0, 1]. By default 0.5
         will be taken.
-    :type nu: float, optional
 
-    :param shrinking: Whether to use the shrinking heuristic.
-    :type shrinking: bool, optional
+    degree : int, optional (default=3)
+        Degree of the polynomial kernel function ('poly').
+        Ignored by all other kernels.
 
-    :param cache_size: Specify the size of the kernel cache (in MB).
-    :type cache_size: float, optional
+    gamma : float, optional (default='auto')
+        Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.
+        If gamma is 'auto' then 1/n_features will be used instead.
 
-    :param verbose: Enable verbose output. Note that this setting takes
-        advantage of a per-process runtime setting in libsvm that, if enabled,
-        may not work properly in a multithreaded context.
-    :type verbose: bool, default: False
+    coef0 : float, optional (default=0.0)
+        Independent term in kernel function.
+        It is only significant in 'poly' and 'sigmoid'.
 
-    :param max_iter: Hard limit on iterations within solver, or -1 for no
-        limit.
-    :type max_iter: int, optional (default=-1)
+    tol : float, optional
+        Tolerance for stopping criterion.
 
-    :param contamination: The amount of contamination of the data set, i.e.
-        the proportion of outliers in the data set. When fitting this is used
-        to define the threshold on the decision function.
-    :type contamination: float in (0., 0.5), optional (default=0.1)
+    shrinking : boolean, optional
+        Whether to use the shrinking heuristic.
 
-    :param random_state: The seed of the pseudo random number generator to use
-        when shuffling the data.
-        If int, random_state is the seed used by the random number
+    cache_size : float, optional
+        Specify the size of the kernel cache (in MB).
+
+    verbose : bool, default: False
+        Enable verbose output. Note that this setting takes advantage of a
+        per-process runtime setting in libsvm that, if enabled, may not work
+        properly in a multithreaded context.
+
+    max_iter : int, optional (default=-1)
+        Hard limit on iterations within solver, or -1 for no limit.
+
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set, i.e.
+        the proportion of outliers in the data set. Used when fitting to
+        define the threshold on the decision function.
+
+    random_state : int, RandomState instance or None, optional (default=None)
+        The seed of the pseudo random number generator to use when shuffling
+        the data.  If int, random_state is the seed used by the random number
         generator; If RandomState instance, random_state is the random number
         generator; If None, the random number generator is the RandomState
         instance used by `np.random`.
-    :type random_state: int, RandomState instance or None, optional
-        (default=None)
 
-    :var support\_: Indices of support vectors.
-    :vartype support\_: array-like, shape = [n_SV]
+    Attributes
+    ----------
+    support_ : array-like, shape = [n_SV]
+        Indices of support vectors.
 
-    :var support_vectors\_: Support vectors.
-    :vartype support_vectors\_: array-like, shape = [nSV, n_features]
+    support_vectors_ : array-like, shape = [nSV, n_features]
+        Support vectors.
 
-    :var dual_coef\_: Coefficients of the support vectors in the
-        decision function.
-    :vartype dual_coef\_: array, shape = [1, n_SV]
+    dual_coef_ : array, shape = [1, n_SV]
+        Coefficients of the support vectors in the decision function.
 
-    :var coef\_: Weights assigned to the features (coefficients
-        in the primal problem). This is only available in the case of
-        a linear kernel.
+    coef_ : array, shape = [1, n_features]
+        Weights assigned to the features (coefficients in the primal
+        problem). This is only available in the case of a linear kernel.
 
         `coef_` is readonly property derived from `dual_coef_` and
         `support_vectors_`
-    :vartype coef\_: array, shape = [1, n_features]
 
-    :var intercept\_: Constant in the decision function.
-    :vartype var intercept\_: array, shape = [1,]
+    intercept_ : array, shape = [1,]
+        Constant in the decision function.
 
-    :var decision_scores\_: The outlier scores of the training data.
+    decision_scores_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
-        scores. This value is available once the detector is
-        fitted.
-    :vartype decision_scores\_: numpy array of shape (n_samples,)
+        scores. This value is available once the detector is fitted.
 
-    :var threshold\_: The threshold is based on ``contamination``. It is the
+    threshold_ : float
+        The threshold is based on ``contamination``. It is the
         ``n_samples * contamination`` most abnormal samples in
         ``decision_scores_``. The threshold is calculated for generating
         binary outlier labels.
-    :vartype threshold\_: float
 
-    :var labels\_: The binary labels of the training data. 0 stands for inliers
+    labels_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
-    :vartype labels\_: int, either 0 or 1
     """
 
     def __init__(self, kernel='rbf', degree=3, gamma='auto', coef0=0.0,
@@ -139,7 +137,7 @@ class OCSVM(BaseDetector):
         self.random_state = random_state
 
     def fit(self, X, y=None, sample_weight=None, **params):
-        # Validate inputs X and y (optional)
+        # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
 
@@ -157,7 +155,7 @@ class OCSVM(BaseDetector):
         self.detector_.fit(X=X, y=y, sample_weight=sample_weight,
                            **params)
 
-        # Invert decision_scores_. Outliers comes with higher outlier scores
+        # invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = invert_order(
             self.detector_.decision_function(X))
         self._process_decision_scores()
