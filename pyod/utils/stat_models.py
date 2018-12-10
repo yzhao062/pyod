@@ -8,7 +8,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-
+from numba import njit
 from scipy.stats import pearsonr
 from sklearn.utils.validation import check_array
 # noinspection PyProtectedMember
@@ -19,27 +19,40 @@ from sklearn.utils.validation import check_consistent_length
 # TODO: disable p value calculation due to python 2.7 break
 # from scipy.special import betainc
 
+
 def pairwise_distances_no_broadcast(X, Y):
     """Utility function to calculate row-wise euclidean distance of two matrix.
     Different from pair-wise calculation, this function would not broadcast.
 
     For instance, X and Y are both (4,3) matrices, the function would return
-    a distance vector with shape (4,), instead of (4,4)
+    a distance vector with shape (4,), instead of (4,4).
 
-    :param X: First input samples
-    :param X: array of shape (n_samples, n_features)
+    Parameters
+    ----------
+    X : array of shape (n_samples, n_features)
+        First input samples
 
-    :param Y: Second input samples
-    :type Y: array of shape (n_samples, n_features)
+    Y : array of shape (n_samples, n_features)
+        Second input samples
 
-    :return: Row-wise euclidean distnace of X and Y
-    :rtype: array of shape (n_samples,)
+    Returns
+    -------
+    distance : array of shape (n_samples,)
+        Row-wise euclidean distance of X and Y
     """
     X = check_array(X)
     Y = check_array(Y)
-    assert_allclose(X.shape, Y.shape)
-    euclidean_sq = np.square(Y - X)
 
+    if X.shape[0] != Y.shape[0] or X.shape[1] != Y.shape[1]:
+        raise ValueError("pairwise_distances_no_broadcast function receive"
+                         "matrix with different shapes {0} and {1}".format(
+            X.shape, Y.shape))
+    return _pairwise_distances_no_broadcast_helper(X, Y)
+
+
+@njit
+def _pairwise_distances_no_broadcast_helper(X, Y):
+    euclidean_sq = np.square(Y - X)
     return np.sqrt(np.sum(euclidean_sq, axis=1)).ravel()
 
 

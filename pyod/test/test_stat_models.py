@@ -10,6 +10,7 @@ import unittest
 from sklearn.utils.testing import assert_equal
 # noinspection PyProtectedMember
 from sklearn.utils.testing import assert_allclose
+from sklearn.utils.testing import assert_raises
 
 import numpy as np
 
@@ -43,6 +44,9 @@ class TestStatModels(unittest.TestCase):
     def test_pairwise_distances_no_broadcast(self):
         assert_allclose(pairwise_distances_no_broadcast(self.X, self.Y),
                         [1.41421356, 2.23606798, 4.58257569, 4.12310563])
+
+        with assert_raises(ValueError):
+            pairwise_distances_no_broadcast([1, 2, 3], [6])
 
     def test_wpearsonr(self):
         # TODO: if unweight version changes, wp[0] format should be changed
