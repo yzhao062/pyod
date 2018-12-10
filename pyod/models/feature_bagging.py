@@ -26,9 +26,7 @@ MAX_INT = np.iinfo(np.int32).max
 
 
 def _generate_indices(random_state, bootstrap, n_population, n_samples):
-    """
-    Draw randomly sampled indices. Internal use only.
-
+    """Draw randomly sampled indices. Internal use only.
     See sklearn/ensemble/bagging.py
     """
     # Draw sample indices
@@ -43,9 +41,7 @@ def _generate_indices(random_state, bootstrap, n_population, n_samples):
 
 def _generate_bagging_indices(random_state, bootstrap_features, n_features,
                               min_features, max_features):
-    """
-    Randomly draw feature indices. Internal use only.
-
+    """Randomly draw feature indices. Internal use only.
     Modified from sklearn/ensemble/bagging.py
     """
     # Get valid random state
@@ -62,10 +58,7 @@ def _generate_bagging_indices(random_state, bootstrap_features, n_features,
 
 
 def _set_random_states(estimator, random_state=None):
-    """Sets fixed random_state parameters for an estimator
-
-    Internal use only.
-
+    """Sets fixed random_state parameters for an estimator. Internal use only.
     Modified from sklearn/base.py
 
     Finds all parameters ending ``random_state`` and sets them to integers

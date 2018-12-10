@@ -86,8 +86,7 @@ class LSCP(BaseDetector):
     decision_scores_ : numpy array of shape (n_samples,)
         The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
-        scores. This value is available once the detector is
-        fitted.
+        scores. This value is available once the detector is fitted.
 
     threshold_ : float
         The threshold is based on ``contamination``. It is the
