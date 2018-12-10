@@ -166,14 +166,7 @@ class KNN(BaseDetector):
 
         dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                              return_distance=True)
-
-        dist = np.zeros(shape=(X.shape[0], 1))
-        if self.method == 'largest':
-            dist = dist_arr[:, -1]
-        elif self.method == 'mean':
-            dist = np.mean(dist_arr, axis=1)
-        elif self.method == 'median':
-            dist = np.median(dist_arr, axis=1)
+        dist = self._get_dist_by_method(dist_arr)
 
         self.decision_scores_ = dist.ravel()
         self._process_decision_scores()
@@ -182,8 +175,8 @@ class KNN(BaseDetector):
 
     def decision_function(self, X):
 
-        check_is_fitted(self,
-                        ['tree_', 'decision_scores_', 'threshold_', 'labels_'])
+        check_is_fitted(self, ['tree_', 'decision_scores_',
+                               'threshold_', 'labels_'])
 
         X = check_array(X)
 
@@ -196,17 +189,31 @@ class KNN(BaseDetector):
 
             # get the distance of the current point
             dist_arr, _ = self.tree_.query(x_i, k=self.n_neighbors)
-
-            if self.method == 'largest':
-                dist = dist_arr[:, -1]
-            elif self.method == 'mean':
-                dist = np.mean(dist_arr, axis=1)
-            elif self.method == 'median':
-                dist = np.median(dist_arr, axis=1)
-
+            dist = self._get_dist_by_method(dist_arr)
             pred_score_i = dist[-1]
 
             # record the current item
             pred_scores[i, :] = pred_score_i
 
         return pred_scores.ravel()
+
+    def _get_dist_by_method(self, dist_arr):
+        """Internal function to decide how to process passed in distance array
+
+        Parameters
+        ----------
+        dist_arr : numpy array of shape (n_samples, n_neighbors)
+            Distance matrix.
+
+        Returns
+        -------
+        dist : numpy array of shape (n_samples,)
+            The outlier scores by distance.
+        """
+
+        if self.method == 'largest':
+            return dist_arr[:, -1]
+        elif self.method == 'mean':
+            return np.mean(dist_arr, axis=1)
+        elif self.method == 'median':
+            return np.median(dist_arr, axis=1)
