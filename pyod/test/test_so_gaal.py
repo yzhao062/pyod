@@ -13,8 +13,6 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_true
-from sklearn.utils.estimator_checks import check_estimator
-from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -30,7 +28,8 @@ class TestSO_GAAL(unittest.TestCase):
         self.n_test = 1000
         self.n_features = 20
         self.contamination = 0.1
-        #self.roc_floor = 0.8
+        # TODO: GAN may yield unstable results; turning performance off check
+        # self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
@@ -38,11 +37,6 @@ class TestSO_GAAL(unittest.TestCase):
 
         self.clf = SO_GAAL(contamination=self.contamination)
         self.clf.fit(self.X_train)
-
-    def test_sklearn_estimator(self):
-        # TODO: fix estimator check for AutoEncoder
-        # check_estimator(self.clf)
-        pass
 
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and
@@ -68,7 +62,7 @@ class TestSO_GAAL(unittest.TestCase):
         assert_equal(pred_scores.shape[0], self.X_test.shape[0])
 
         # check performance
-        #assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
+        # assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
 
     def test_prediction_labels(self):
         pred_labels = self.clf.predict(self.X_test)

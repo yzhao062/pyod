@@ -8,17 +8,20 @@ Part of the codes are adapted from https://github.com/Cloudy10/loci
 from __future__ import division
 from __future__ import print_function
 
+import math
+from collections import defaultdict
+
+import numpy as np
+import keras
 from keras.layers import Input, Dense
 from keras.models import Sequential, Model
 from keras.optimizers import SGD
-import numpy as np
-from collections import defaultdict
-import keras
-import math
+
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
+
 
 class MO_GAAL(BaseDetector):
     """Single-Objective Generative Adversarial Active Learning.
@@ -78,20 +81,21 @@ class MO_GAAL(BaseDetector):
     --------
     >>> from pyod.models.mo_gaal import MO_GAAL
     >>> from pyod.utils.data import generate_data
-    >>> n_train = 50
-    >>> n_test = 50
+    >>> n_train = 20000
+    >>> n_test = 2000
     >>> contamination = 0.1
+    >>> n_features = 300
     >>> X_train, y_train, X_test, y_test = generate_data(
-            n_train=n_train, n_test=n_test,
-            contamination=contamination, random_state=42)
-
+    >>>     n_train=n_train, n_test=n_test, n_features=n_features,
+    >>>     contamination=contamination, random_state=42)
+    >>>
     >>> clf = MO_GAAL()
     >>> clf.fit(X_train)
     >>> print(clf.decision_scores_)
     """
-    
-    def __init__(self, k, stop_epochs = 20, lr_d = 0.01, lr_g = 0.0001, 
-                 decay = 1e-6, momentum = 0.9, contamination=0.1):
+
+    def __init__(self, k, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
+                 decay=1e-6, momentum=0.9, contamination=0.1):
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k
         self.stop_epochs = stop_epochs
@@ -99,7 +103,7 @@ class MO_GAAL(BaseDetector):
         self.lr_g = lr_g
         self.decay = decay
         self.momentum = momentum
-        
+
     def create_generator(self, latent_size):
         """Cretes the generator of the GAN for a given latent size.
         
@@ -113,16 +117,18 @@ class MO_GAAL(BaseDetector):
         D : Keras model() object
             Returns a model() object.   
         """
-        
+
         gen = Sequential()
-        gen.add(Dense(latent_size, input_dim = latent_size, activation = 'relu', 
-                      kernel_initializer = keras.initializers.Identity(gain = 1.0)))
-        gen.add(Dense(latent_size, activation = 'relu', 
-                      kernel_initializer = keras.initializers.Identity(gain = 1.0)))
-        latent = Input(shape = (latent_size, ))
+        gen.add(Dense(latent_size, input_dim=latent_size, activation='relu',
+                      kernel_initializer=keras.initializers.Identity(
+                          gain=1.0)))
+        gen.add(Dense(latent_size, activation='relu',
+                      kernel_initializer=keras.initializers.Identity(
+                          gain=1.0)))
+        latent = Input(shape=(latent_size,))
         fake_data = gen(latent)
         return Model(latent, fake_data)
-    
+
     def create_discriminator(self, latent_size, data_size):
         """Cretes the discriminator of the GAN for a given latent size.
         
@@ -139,17 +145,21 @@ class MO_GAAL(BaseDetector):
         D : Keras model() object
             Returns a model() object.   
         """
-        
+
         dis = Sequential()
-        dis.add(Dense(math.ceil(math.sqrt(data_size)), input_dim = latent_size, 
-                      activation = 'relu', 
-                      kernel_initializer = keras.initializers.VarianceScaling(scale = 1.0, mode = 'fan_in', distribution = 'normal', seed = None)))
-        dis.add(Dense(1, activation = 'sigmoid', 
-                      kernel_initializer = keras.initializers.VarianceScaling(scale = 1.0, mode = 'fan_in', distribution = 'normal', seed = None)))
-        data = Input(shape = (latent_size, ))
+        dis.add(Dense(math.ceil(math.sqrt(data_size)), input_dim=latent_size,
+                      activation='relu',
+                      kernel_initializer=keras.initializers.VarianceScaling(
+                          scale=1.0, mode='fan_in', distribution='normal',
+                          seed=None)))
+        dis.add(Dense(1, activation='sigmoid',
+                      kernel_initializer=keras.initializers.VarianceScaling(
+                          scale=1.0, mode='fan_in', distribution='normal',
+                          seed=None)))
+        data = Input(shape=(latent_size,))
         fake = dis(data)
         return Model(data, fake)
-    
+
     def fit(self, X, y=None):
         """Fit the model using X as training data.
         
@@ -163,7 +173,7 @@ class MO_GAAL(BaseDetector):
         self : object
 
         """
-        
+
         X = check_array(X)
         self._set_n_classes(y)
         self.train_history = defaultdict(list)
@@ -174,19 +184,24 @@ class MO_GAAL(BaseDetector):
         data_size = X.shape[0]
         # Create discriminator
         self.discriminator = self.create_discriminator(latent_size, data_size)
-        self.discriminator.compile(optimizer = SGD(lr = self.lr_d, decay = self.decay, 
-                                              momentum = self.momentum), loss = 'binary_crossentropy')
+        self.discriminator.compile(
+            optimizer=SGD(lr=self.lr_d, decay=self.decay,
+                          momentum=self.momentum), loss='binary_crossentropy')
 
         # Create k combine models
         for i in range(self.k):
-            names['sub_generator' + str(i)] = self.create_generator(latent_size)
-            latent = Input(shape = (latent_size, ))
+            names['sub_generator' + str(i)] = self.create_generator(
+                latent_size)
+            latent = Input(shape=(latent_size,))
             names['fake' + str(i)] = names['sub_generator' + str(i)](latent)
             self.discriminator.trainable = False
             names['fake' + str(i)] = self.discriminator(names['fake' + str(i)])
-            names['combine_model' + str(i)] = Model(latent, names['fake' + str(i)])
-            names['combine_model' + str(i)].compile(optimizer=SGD(lr = self.lr_g, 
-                  decay = self.decay, momentum = self.momentum), loss='binary_crossentropy')
+            names['combine_model' + str(i)] = Model(latent,
+                                                    names['fake' + str(i)])
+            names['combine_model' + str(i)].compile(optimizer=SGD(lr=self.lr_g,
+                                                                  decay=self.decay,
+                                                                  momentum=self.momentum),
+                                                    loss='binary_crossentropy')
 
         # Start iteration
         for epoch in range(epochs):
@@ -195,7 +210,8 @@ class MO_GAAL(BaseDetector):
             num_batches = int(data_size / batch_size)
 
             for index in range(num_batches):
-                print('\nTesting for epoch {} index {}:'.format(epoch + 1, index + 1))
+                print('\nTesting for epoch {} index {}:'.format(epoch + 1,
+                                                                index + 1))
 
                 # Generate noise
                 noise_size = batch_size
@@ -208,59 +224,85 @@ class MO_GAAL(BaseDetector):
                 block = ((1 + self.k) * self.k) // 2
                 for i in range(self.k):
                     if i != (self.k - 1):
-                        noise_start = int((((self.k + (self.k - i + 1)) * i) / 2) * (noise_size // block))
-                        noise_end = int((((self.k + (self.k - i)) * (i + 1)) / 2) * (noise_size // block))
-                        names['noise' + str(i)] = noise[noise_start:noise_end ]
-                        names['generated_data' + str(i)] = names['sub_generator' + str(i)].predict(names['noise' + str(i)], verbose=0)
+                        noise_start = int(
+                            (((self.k + (self.k - i + 1)) * i) / 2) * (
+                                    noise_size // block))
+                        noise_end = int(
+                            (((self.k + (self.k - i)) * (i + 1)) / 2) * (
+                                    noise_size // block))
+                        names['noise' + str(i)] = noise[noise_start:noise_end]
+                        names['generated_data' + str(i)] = names[
+                            'sub_generator' + str(i)].predict(
+                            names['noise' + str(i)], verbose=0)
                     else:
-                        noise_start = int((((self.k + (self.k - i + 1)) * i) / 2) * (noise_size // block))
+                        noise_start = int(
+                            (((self.k + (self.k - i + 1)) * i) / 2) * (
+                                    noise_size // block))
                         names['noise' + str(i)] = noise[noise_start:noise_size]
-                        names['generated_data' + str(i)] = names['sub_generator' + str(i)].predict(names['noise' + str(i)], verbose=0)
+                        names['generated_data' + str(i)] = names[
+                            'sub_generator' + str(i)].predict(
+                            names['noise' + str(i)], verbose=0)
 
                 # Concatenate real data to generated data
                 for i in range(self.k):
                     if i == 0:
-                        x = np.concatenate((data_batch, names['generated_data' + str(i)]))
+                        x = np.concatenate(
+                            (data_batch, names['generated_data' + str(i)]))
                     else:
-                        x = np.concatenate((x, names['generated_data' + str(i)]))
+                        x = np.concatenate(
+                            (x, names['generated_data' + str(i)]))
                 y = np.array([1] * batch_size + [0] * int(noise_size))
 
                 # Train discriminator
                 discriminator_loss = self.discriminator.train_on_batch(x, y)
-                self.train_history['discriminator_loss'].append(discriminator_loss)
+                self.train_history['discriminator_loss'].append(
+                    discriminator_loss)
 
                 # Get the target value of sub-generator
                 pred_scores = self.discriminator.predict(X)
-                
+
                 for i in range(self.k):
-                    names['T' + str(i)] = np.percentile(pred_scores, i/self.k*100)
-                    names['trick' + str(i)] = np.array([float(names['T' + str(i)])] * noise_size)
+                    names['T' + str(i)] = np.percentile(pred_scores,
+                                                        i / self.k * 100)
+                    names['trick' + str(i)] = np.array(
+                        [float(names['T' + str(i)])] * noise_size)
 
                 # Train generator
                 noise = np.random.uniform(0, 1, (int(noise_size), latent_size))
                 if stop == 0:
                     for i in range(self.k):
-                        names['sub_generator' + str(i) + '_loss'] = names['combine_model' + str(i)].train_on_batch(noise, names['trick' + str(i)])
-                        self.train_history['sub_generator{}_loss'.format(i)].append(names['sub_generator' + str(i) + '_loss'])
+                        names['sub_generator' + str(i) + '_loss'] = names[
+                            'combine_model' + str(i)].train_on_batch(noise,
+                                                                     names[
+                                                                         'trick' + str(
+                                                                             i)])
+                        self.train_history[
+                            'sub_generator{}_loss'.format(i)].append(
+                            names['sub_generator' + str(i) + '_loss'])
                 else:
                     for i in range(self.k):
-                        names['sub_generator' + str(i) + '_loss'] = names['combine_model' + str(i)].evaluate(noise, names['trick' + str(i)])
-                        self.train_history['sub_generator{}_loss'.format(i)].append(names['sub_generator' + str(i) + '_loss'])
+                        names['sub_generator' + str(i) + '_loss'] = names[
+                            'combine_model' + str(i)].evaluate(noise, names[
+                            'trick' + str(i)])
+                        self.train_history[
+                            'sub_generator{}_loss'.format(i)].append(
+                            names['sub_generator' + str(i) + '_loss'])
 
                 generator_loss = 0
                 for i in range(self.k):
-                    generator_loss = generator_loss + names['sub_generator' + str(i) + '_loss']
+                    generator_loss = generator_loss + names[
+                        'sub_generator' + str(i) + '_loss']
                 generator_loss = generator_loss / self.k
                 self.train_history['generator_loss'].append(generator_loss)
 
                 # Stop training generator
-                if epoch +1  > self.stop_epochs:
+                if epoch + 1 > self.stop_epochs:
                     stop = 1
 
             # Detection result
             self.decision_scores_ = self.discriminator.predict(X)
             self._process_decision_scores()
-            
+
     def decision_function(self, X):
         check_is_fitted(self, ['discriminator'])
         X = check_array(X)

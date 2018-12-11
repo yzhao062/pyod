@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # train MO_GAAL detector
     clf_name = 'MO_GAAL'
-    clf = MO_GAAL(k = 3, stop_epochs = 2, contamination=contamination)
+    clf = MO_GAAL(k=3, stop_epochs=2, contamination=contamination)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
