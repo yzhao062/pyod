@@ -52,6 +52,22 @@ def pairwise_distances_no_broadcast(X, Y):
 
 @njit
 def _pairwise_distances_no_broadcast_helper(X, Y):
+    """Internal function for calculating the distance with numba. Do not use.
+
+    Parameters
+    ----------
+    X : array of shape (n_samples, n_features)
+        First input samples
+
+    Y : array of shape (n_samples, n_features)
+        Second input samples
+
+    Returns
+    -------
+    distance : array of shape (n_samples,)
+        Intermediate results. Do not use.
+
+    """
     euclidean_sq = np.square(Y - X)
     return np.sqrt(np.sum(euclidean_sq, axis=1)).ravel()
 
