@@ -202,10 +202,10 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 **Optional Dependencies (see details below)**\ :
 
 
-* Keras (optional, required if calling AutoEncoder, other backend works)
+* Keras (optional, required for AutoEncoder)
 * Matplotlib (optional, required for running examples)
-* TensorFlow (optional, required if calling AutoEncoder, other backend works)
-* XGBoost (optional, required if calling XGBOD)
+* Tensorflow (optional, required for AutoEncoder, other backend works)
+* XGBoost (optional, required for XGBOD)
 
 **Known Issue 1**\ : Running examples needs Matplotlib, which may throw errors in conda
 virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/Pyod/issues/6>`_.

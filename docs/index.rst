@@ -77,7 +77,7 @@ PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying
 multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-Since 2017, PyOD has been successfully used in various academic researches and commercial products :cite:`a-zhao2018xgbod,a-zhao2018dcso`.
+Since 2017, PyOD has been successfully used in various academic researches and commercial products :cite:`a-zhao2018xgbod,a-zhao2018dcso,a-zhao2018lscp`.
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
@@ -87,10 +87,11 @@ PyOD is featured for:
 
 **Important Notes**\ :
 PyOD contains some neural network based models, e.g., AutoEncoders, which are
-implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
-reduces the risk of damaging your local installations.
-So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
+implemented in **Keras**. However, by default PyOD would **NOT** install **Keras** and/or **TensorFlow** for you.
+This reduces the risk of damaging your local installations, because TensorFlow installation can by tricky depending on your OS/Python version.
+You should install **Keras** and back-end libraries like **TensorFlow** by yourself,
+if you want to use neural network based models.
+An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
 
 
 **Key Links and Resources**\ :
