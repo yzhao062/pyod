@@ -91,7 +91,7 @@ implemented in **Keras**. However, by default PyOD would **NOT** install **Keras
 This reduces the risk of damaging your local installations, because TensorFlow installation can by tricky depending on your OS/Python version.
 You should install **Keras** and back-end libraries like **TensorFlow** by yourself,
 if you want to use neural network based models.
-An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
+An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 
 
 **Key Links and Resources**\ :
@@ -150,8 +150,10 @@ detection utility functions.
 5. Neural Networks and Deep Learning Models (implemented in Keras):
 
   i. **AutoEncoder with Fully Connected NN** :cite:`a-aggarwal2015outlier`: :class:`pyod.models.auto_encoder.AutoEncoder`
+  ii. **Single-Objective Generative Adversarial Active Learning (SO_GAAL)** :cite:`a-liu2018generative`: :class:`pyod.models.so_gaal.SO_GAAL`
+  iii. **Multi-Objective Generative Adversarial Active Learning (MO_GAAL)** :cite:`a-liu2018generative`: :class:`pyod.models.mo_gaal.MO_GAAL`
 
-    FAQ regarding AutoEncoder in PyOD and debugging advices: `known issues <https://github.com/yzhao062/Pyod/issues/19>`_
+    FAQ regarding AutoEncoder in PyOD and debugging advices: `known issues <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 
 **Outlier Detector/Scores Combination Frameworks**:
 

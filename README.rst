@@ -139,10 +139,10 @@ Outlier Ensembles                      Feature Bagging                          
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD             **Supervised** XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning  2018   [#Zhao2018XGBOD]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
+Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2018Generative]_
+Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2018Generative]_
 ===================  ================  ======================================================================================================  =====  ========================================
 
-FAQ regarding AutoEncoder in PyOD and debugging advice:
-`known issues <https://github.com/yzhao062/Pyod/issues/19>`_
 
 **(ii) Outlier Ensembles & Outlier Detector Combination Frameworks**:
 
@@ -486,6 +486,8 @@ Reference
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
+
+.. [#Liu2018Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2018. Generative Adversarial Active Learning for Unsupervised Outlier Detection. arXiv preprint arXiv:1809.10816.
 
 .. [#Ma2003Time] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*\ , pp. 1741-1745. IEEE.
 

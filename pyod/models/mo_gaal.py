@@ -24,9 +24,9 @@ from .base import BaseDetector
 
 
 class MO_GAAL(BaseDetector):
-    """Single-Objective Generative Adversarial Active Learning.
+    """Multi-Objective Generative Adversarial Active Learning.
     
-    SO-GAAL directly generates informative potential outliers to assist the 
+    MO_GAAL directly generates informative potential outliers to assist the
     classifier in describing a boundary that can separate outliers from normal 
     data effectively. Moreover, to prevent the generator from falling into the 
     mode collapsing problem, the network structure of SO-GAAL is expanded from 

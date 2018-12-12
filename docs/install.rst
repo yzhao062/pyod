@@ -44,5 +44,5 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 
     Keras and/or TensorFlow are listed as optional. However, they are
     both required if you want to use neural network based models, such as
-    AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
+    AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 
