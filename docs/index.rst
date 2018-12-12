@@ -153,7 +153,6 @@ detection utility functions.
   ii. **Single-Objective Generative Adversarial Active Learning (SO_GAAL)** :cite:`a-liu2018generative`: :class:`pyod.models.so_gaal.SO_GAAL`
   iii. **Multi-Objective Generative Adversarial Active Learning (MO_GAAL)** :cite:`a-liu2018generative`: :class:`pyod.models.mo_gaal.MO_GAAL`
 
-    FAQ regarding AutoEncoder in PyOD and debugging advices: `known issues <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 
 **Outlier Detector/Scores Combination Frameworks**:
 

@@ -86,7 +86,7 @@ PyOD contains some neural network based models, e.g., AutoEncoders, which are
 implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
 reduces the risk of damaging your local installations. 
 So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
+to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 
 
 **Key Links and Resources**\ :
@@ -212,7 +212,7 @@ virtual environment on mac OS. See reasons and solutions `issue6 <https://github
 
 **Known Issue 2**\ : Keras and/or TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
-AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
+AutoEncoder. See reasons and solutions `neural-net installation <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 
 
 ----
