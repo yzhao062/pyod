@@ -25,11 +25,11 @@ from pyod.utils.data import generate_data
 
 class TestMO_GAAL(unittest.TestCase):
     def setUp(self):
-        self.n_train = 5000
+        self.n_train = 3000
         self.n_test = 1000
-        self.n_features = 20
+        self.n_features = 10
         self.contamination = 0.1
-        # TODO: GAN may yield unstable results; turning performance off check
+        # TODO: GAN may yield unstable results; turning performance check off
         # self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
