@@ -146,8 +146,8 @@ class SO_GAAL(BaseDetector):
         """
 
         dis = Sequential()
-        dis.add(Dense(math.ceil(math.sqrt(data_size)), input_dim=latent_size,
-                      activation='relu',
+        dis.add(Dense(int(math.ceil(math.sqrt(data_size))),
+                      input_dim=latent_size, activation='relu',
                       kernel_initializer=keras.initializers.VarianceScaling(
                           scale=1.0, mode='fan_in', distribution='normal',
                           seed=None)))
