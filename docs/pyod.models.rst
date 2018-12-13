@@ -1,10 +1,6 @@
-pyod.models package
-===================
+All Models
+==========
 
-Submodules
-----------
-
-----
 
 pyod.models.abod module
 -----------------------
