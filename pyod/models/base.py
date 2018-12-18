@@ -99,7 +99,6 @@ class BaseDetector(object):
 
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
-
         """
         pass
 
