@@ -55,11 +55,10 @@ class CBLOF(BaseDetector):
         define the threshold on the decision function.
 
     clustering_estimator : Estimator, optional (default=None)
-        The base clustering algorithm for performing
-        data clustering. A valid clustering algorithm should be passed in.
-        The estimator should have standard sklearn APIs, fit() and predict().
-        The estimator should have attributes ``labels_`` and
-        ``cluster_centers_``.
+        The base clustering algorithm for performing data clustering.
+        A valid clustering algorithm should be passed in. The estimator should
+        have standard sklearn APIs, fit() and predict(). The estimator should
+        have attributes ``labels_`` and ``cluster_centers_``.
         If ``cluster_centers_`` is not in the attributes once the model is fit,
         it is calculated as the mean of the samples in a cluster.
 
@@ -288,17 +287,19 @@ class CBLOF(BaseDetector):
         large_indices = np.where(
             np.isin(labels, self.large_cluster_labels_))[0]
 
-        # Calculate the outlier factor for the samples in small clusters
-        dist_to_large_center = cdist(X[small_indices, :],
-                                     self._large_cluster_centers)
+        if small_indices.shape[0] != 0:
+            # Calculate the outlier factor for the samples in small clusters
+            dist_to_large_center = cdist(X[small_indices, :],
+                                         self._large_cluster_centers)
 
-        scores[small_indices] = np.min(dist_to_large_center, axis=1)
+            scores[small_indices] = np.min(dist_to_large_center, axis=1)
 
-        # Calculate the outlier factor for the samples in large clusters
-        large_centers = self.cluster_centers_[labels[large_indices]]
+        if large_indices.shape[0] != 0:
+            # Calculate the outlier factor for the samples in large clusters
+            large_centers = self.cluster_centers_[labels[large_indices]]
 
-        scores[large_indices] = pairwise_distances_no_broadcast(
-            X[large_indices, :], large_centers)
+            scores[large_indices] = pairwise_distances_no_broadcast(
+                X[large_indices, :], large_centers)
 
         if self.use_weights:
             # Weights are calculated as the number of elements in the cluster
