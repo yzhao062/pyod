@@ -8,6 +8,7 @@ python:
   - "3.6"
   - "3.6-dev"  # 3.6 development branch
 install:
+  - pip install --upgrade pip
   - pip install -r requirements_ci.txt
   - pip install pytest
   - pip install pytest-cov
