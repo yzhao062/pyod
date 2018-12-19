@@ -1,6 +1,6 @@
 language: python
 python:
-  - "2.7.15"
+  - "2.7"
 #  - "3.3" # failed due to setuptool version
 #  - "3.4" # failed due to numba (llvmlite)
   - "3.5"
