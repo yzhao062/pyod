@@ -105,7 +105,6 @@ class ABOD(BaseDetector):
     n_neighbors : int, optional (default=10)
         Number of neighbors to use by default for k neighbors queries.
 
-
     method: str, optional (default='fast')
         Valid values for metric are:
 

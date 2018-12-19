@@ -43,86 +43,86 @@ class CBLOF(BaseDetector):
 
     See :cite:`he2003discovering` for details.
 
-    :param n_clusters: The number of clusters to form as well as the number of
+    Parameters
+    ----------
+    n_clusters : int, optional (default=8)
+        The number of clusters to form as well as the number of
         centroids to generate.
-    :type n_clusters: int, optional (default=8)
 
-    :param contamination: The amount of contamination of the data set,
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set,
         i.e. the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
-    :type contamination: float in (0., 0.5), optional (default=0.1)
 
-    :param clustering_estimator: The base clustering algorithm for performing
-        data clustering. A valid clustering algorithm should be passed in.
-        The estimator should have standard sklearn APIs, fit() and predict().
-        The estimator should have attributes labels\_ and cluster_centers\_.
-        If cluster_centers\_ is not in the attributes once the model is fit, it
-        is calculated as the mean of the samples in a cluster.
+    clustering_estimator : Estimator, optional (default=None)
+        The base clustering algorithm for performing data clustering.
+        A valid clustering algorithm should be passed in. The estimator should
+        have standard sklearn APIs, fit() and predict(). The estimator should
+        have attributes ``labels_`` and ``cluster_centers_``.
+        If ``cluster_centers_`` is not in the attributes once the model is fit,
+        it is calculated as the mean of the samples in a cluster.
 
         If not set, CBLOF uses MiniBatchKMeans for scalability. See
         http://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html
-    :type clustering_estimator: Estimator, optional (default=None)
 
-    :param alpha: Coefficient for deciding small and large clusters. The ratio
+    alpha : float in (0.5, 1), optional (default=0.9)
+        Coefficient for deciding small and large clusters. The ratio
         of the number of samples in large clusters to the number of samples in
         small clusters.
-    :type alpha: float in (0.5, 1), optional (default=0.9)
 
-    :param beta: Coefficient for deciding small and large clusters. For a list
+    beta : int or float in (1,), optional (default=5).
+        Coefficient for deciding small and large clusters. For a list
         sorted clusters by size `|C1|, \|C2|, ..., |Cn|, beta = |Ck|/|Ck-1|`
-    :type beta: int or float in (1,), optional (default=5).
 
-    :param use_weights: If set to True, the size of clusters are used as
-        weights in outlier score calculation.
-    :type use_weights: bool, optional (default=False)
+    use_weights : bool, optional (default=False)
+        If set to True, the size of clusters are used as weights in
+        outlier score calculation.
 
-    :param check_estimator: If set to True, check whether the base estimator
-        is consistent with sklearn standard
-    :type check_estimator: bool, optional (default=True)
+    check_estimator : bool, optional (default=True)
+        If set to True, check whether the base estimator is consistent with
+        sklearn standard.
 
-    :param random_state: If int, random_state is the seed used by the random
+    random_state : int, RandomState or None, optional (default=None)
+        If int, random_state is the seed used by the random
         number generator; If RandomState instance, random_state is the random
         number generator; If None, the random number generator is the
         RandomState instance used by `np.random`.
-    :type random_state: int, RandomState instance or None, optional
-        (default=None)
 
-    :var clustering_estimator\_: Base estimator for clustering.
-    :vartype clustering_estimator\_: Estimator
+    Attributes
+    ----------
+    clustering_estimator_ : Estimator, sklearn instance
+        Base estimator for clustering.
 
-    :var cluster_labels\_: Cluster assignment for the training samples
-    :vartype cluster_labels\_: list of shape (n_samples,)
+    cluster_labels_: list of shape (n_samples,)
+        Cluster assignment for the training samples.
 
-    :var cluster_sizes\_: The size of each cluster once fitted with the
-        training data
-    :vartype cluster_sizes\_: list of shape (n_clusters,)
+    cluster_sizes_: list of shape (n_clusters,)
+        The size of each cluster once fitted with the training data.
 
-    :var cluster_centers\_: The center of each cluster.
-    :vartype cluster_centers\_: numpy array of shape (n_clusters, n_features)
+    decision_scores_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
+        The higher, the more abnormal. Outliers tend to have higher scores.
+        This value is available once the detector is fitted.
 
-    :var small_cluster_labels\_: The cluster assignments belonging to small
-        clusters
-    :vartype small_cluster_labels\_: list of clusters numbers
+    cluster_centers_ : numpy array of shape (n_clusters, n_features)
+        The center of each cluster.
 
-    :var large_cluster_labels\_: The cluster assignments belonging to large
-        clusters
-    :vartype large_cluster_labels\_: list of clusters numbers
+    small_cluster_labels_ : list of clusters numbers
+        The cluster assignments belonging to small clusters.
 
-    :var decision_scores\_: The outlier scores of the training data.
-        The higher, the more abnormal. Outliers tend to have higher
-        scores. This value is available once the detector is fitted.
-    :vartype decision_scores\_: numpy array of shape (n_samples,)
+    large_cluster_labels_ : list of clusters numbers
+        The cluster assignments belonging to large clusters.
 
-    :var threshold\_: The threshold is based on ``contamination``. It is the
+    threshold_ : float
+        The threshold is based on ``contamination``. It is the
         ``n_samples * contamination`` most abnormal samples in
         ``decision_scores_``. The threshold is calculated for generating
         binary outlier labels.
-    :vartype threshold\_: float
 
-    :var labels\_: The binary labels of the training data. 0 stands for inliers
+    labels_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
-    :vartype labels\_: int, either 0 or 1
     """
 
     def __init__(self, n_clusters=8, contamination=0.1,
@@ -139,15 +139,15 @@ class CBLOF(BaseDetector):
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
-        """Fit the model using X as training data.
+        """Fit detector. y is optional for unsupervised methods.
 
-        :param X: Training data. If array or matrix,
-            shape [n_samples, n_features],
-            or [n_samples, n_samples] if metric='precomputed'.
-        :type X: {array-like, sparse matrix, BallTree, KDTree}
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :return: self
-        :rtype: object
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
         """
         # Validate inputs X and y (optional)
         X = check_array(X)
@@ -156,9 +156,9 @@ class CBLOF(BaseDetector):
 
         # check parameters
         # number of clusters are default to 8
-        self._validate_estimator(
-            default=MiniBatchKMeans(n_clusters=self.n_clusters,
-                                    random_state=self.random_state))
+        self._validate_estimator(default=MiniBatchKMeans(
+            n_clusters=self.n_clusters,
+            random_state=self.random_state))
 
         self.clustering_estimator_.fit(X=X, y=y)
         # Get the labels of the clustering results
@@ -175,6 +175,23 @@ class CBLOF(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
         labels = self.clustering_estimator_.predict(X)
@@ -254,7 +271,7 @@ class CBLOF(BaseDetector):
         self.large_cluster_labels_ = sorted_cluster_indices[
                                      self._clustering_threshold:]
 
-        # No need to calculate samll cluster center
+        # No need to calculate small cluster center
         # self.small_cluster_centers_ = self.cluster_centers_[
         #     self.small_cluster_labels_]
 
@@ -270,17 +287,19 @@ class CBLOF(BaseDetector):
         large_indices = np.where(
             np.isin(labels, self.large_cluster_labels_))[0]
 
-        # Calculate the outlier factor for the samples in small clusters
-        dist_to_large_center = cdist(X[small_indices, :],
-                                     self._large_cluster_centers)
+        if small_indices.shape[0] != 0:
+            # Calculate the outlier factor for the samples in small clusters
+            dist_to_large_center = cdist(X[small_indices, :],
+                                         self._large_cluster_centers)
 
-        scores[small_indices] = np.min(dist_to_large_center, axis=1)
+            scores[small_indices] = np.min(dist_to_large_center, axis=1)
 
-        # Calculate the outlier factor for the samples in large clusters
-        large_centers = self.cluster_centers_[labels[large_indices]]
+        if large_indices.shape[0] != 0:
+            # Calculate the outlier factor for the samples in large clusters
+            large_centers = self.cluster_centers_[labels[large_indices]]
 
-        scores[large_indices] = pairwise_distances_no_broadcast(
-            X[large_indices, :], large_centers)
+            scores[large_indices] = pairwise_distances_no_broadcast(
+                X[large_indices, :], large_centers)
 
         if self.use_weights:
             # Weights are calculated as the number of elements in the cluster

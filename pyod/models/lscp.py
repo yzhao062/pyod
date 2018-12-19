@@ -72,7 +72,7 @@ class LSCP(BaseDetector):
     n_bins : int, optional (default=10)
         Number of bins to use when selecting the local region
 
-    random_state : RandomState, optional
+    random_state : RandomState, optional (default=None)
         A random number generator instance to define the state of the random
         permutations generator.
 

@@ -1,10 +1,6 @@
-pyod.models package
-===================
+All Models
+==========
 
-Submodules
-----------
-
-----
 
 pyod.models.abod module
 -----------------------
@@ -117,6 +113,15 @@ pyod.models.mcd module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.mo\_gaal module
+---------------------------
+
+.. automodule:: pyod.models.mo_gaal
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.ocsvm module
 ------------------------
 
@@ -133,6 +138,15 @@ pyod.models.pca module
 .. automodule:: pyod.models.pca
     :members:
     :exclude-members: components_, explained_variance_ratio_, singular_values_, mean_
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.so\_gaal module
+---------------------------
+
+.. automodule:: pyod.models.so_gaal
+    :members:
     :undoc-members:
     :show-inheritance:
     :inherited-members:

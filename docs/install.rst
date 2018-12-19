@@ -28,15 +28,15 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 
 **Optional Dependencies (see details below)**:
 
-- Keras (optional, required if calling AutoEncoder, other backend works)
-- Matplotlib (optional, required for running examples)
-- Tensorflow (optional, required if calling AutoEncoder, other backend works)
-- XGBoost (optional, required if calling XGBOD)
+* Keras (optional, required for AutoEncoder)
+* Matplotlib (optional, required for running examples)
+* Tensorflow (optional, required for AutoEncoder, other backend works)
+* XGBoost (optional, required for XGBOD)
 
 .. warning::
 
     Running examples needs Matplotlib, which may throw errors in conda
-    virtual environment on mac OS. See
+    virtual environment on macOS. See
     `mac_matplotlib <https://github.com/yzhao062/Pyod/issues/6>`_.
 
 
@@ -44,5 +44,5 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 
     Keras and/or TensorFlow are listed as optional. However, they are
     both required if you want to use neural network based models, such as
-    AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
+    AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 

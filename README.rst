@@ -86,7 +86,7 @@ PyOD contains some neural network based models, e.g., AutoEncoders, which are
 implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
 reduces the risk of damaging your local installations. 
 So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/issues/19>`_.
+to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 
 
 **Key Links and Resources**\ :
@@ -139,10 +139,10 @@ Outlier Ensembles                      Feature Bagging                          
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD             **Supervised** XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning  2018   [#Zhao2018XGBOD]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
+Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2018Generative]_
+Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2018Generative]_
 ===================  ================  ======================================================================================================  =====  ========================================
 
-FAQ regarding AutoEncoder in PyOD and debugging advice:
-`known issues <https://github.com/yzhao062/Pyod/issues/19>`_
 
 **(ii) Outlier Ensembles & Outlier Detector Combination Frameworks**:
 
@@ -202,17 +202,17 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 **Optional Dependencies (see details below)**\ :
 
 
-* Keras (optional, required if calling AutoEncoder, other backend works)
+* Keras (optional, required for AutoEncoder)
 * Matplotlib (optional, required for running examples)
-* TensorFlow (optional, required if calling AutoEncoder, other backend works)
-* XGBoost (optional, required if calling XGBOD)
+* Tensorflow (optional, required for AutoEncoder, other backend works)
+* XGBoost (optional, required for XGBOD)
 
 **Known Issue 1**\ : Running examples needs Matplotlib, which may throw errors in conda
 virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/Pyod/issues/6>`_.
 
 **Known Issue 2**\ : Keras and/or TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
-AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/Pyod/issues/19>`_
+AutoEncoder. See reasons and solutions `neural-net installation <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
 
 
 ----
@@ -486,6 +486,8 @@ Reference
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
+
+.. [#Liu2018Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2018. Generative Adversarial Active Learning for Unsupervised Outlier Detection. arXiv preprint arXiv:1809.10816.
 
 .. [#Ma2003Time] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*\ , pp. 1741-1745. IEEE.
 

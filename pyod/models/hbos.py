@@ -36,7 +36,6 @@ class HBOS(BaseDetector):
         The parameter to decide the flexibility while dealing
         the samples falling outside the bins.
 
-
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set,
         i.e. the proportion of outliers in the data set. Used when fitting to

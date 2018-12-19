@@ -102,7 +102,6 @@ class PCA(BaseDetector):
 
         .. versionadded:: 0.18.0
 
-
     tol : float >= 0, optional (default .0)
         Tolerance for singular values computed by svd_solver == 'arpack'.
 
