@@ -33,7 +33,7 @@ setup(
     url='https://github.com/yzhao062/pyod',
     download_url='https://github.com/yzhao062/pyod/archive/master.zip',
     keywords=['outlier detection', 'anomaly detection', 'outlier ensembles',
-              'data mining'],
+              'data mining', 'neural networks'],
     packages=find_packages(exclude=['test']),
     include_package_data=True,
     install_requires=requirements,

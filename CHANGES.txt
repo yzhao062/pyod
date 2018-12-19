@@ -45,7 +45,7 @@ v<0.6.6>, <12/06/2018> -- Add LSCP (production version).
 v<0.6.6>, <12/08/2018> -- Add XGBOD.
 v<0.6.6>, <12/18/2018> -- Fixed bugs in CBLOF.
 v<0.6.6>, <12/18/2018> -- Refactor docstring from rst to numpydoc.
-v<0.6.5.1>, <12/18/2018> -- Pre-release of V0.6.6.
+v<0.6.6b1>, <12/18/2018> -- Pre-release of V0.6.6.
 
 
 
