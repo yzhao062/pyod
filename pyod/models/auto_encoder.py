@@ -185,7 +185,7 @@ class AutoEncoder(BaseDetector):
 
     # noinspection PyUnresolvedReferences
     def fit(self, X, y=None):
-        # Validate inputs X and y (optional)
+        # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
 
