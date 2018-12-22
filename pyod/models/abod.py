@@ -56,17 +56,22 @@ def _calculate_wocs(curr_pt, X, X_ind):
     """Calculated the variance of weighted cosine of a point
     wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
 
-    :param curr_pt: the sample to be calculated
-    :type curr_pt: numpy array, shape (1, n_features)
+    Parameters
+    ----------
+    curr_pt : numpy array, shape (1, n_features)
+        The sample to be calculated.
 
-    :param X: the training dataset
-    :type X: numpy array of shape (n_samples, n_features)
+    X : numpy array of shape (n_samples, n_features)
+        The training dataset.
 
-    :param X_ind: the valid index of the training data
-    :type X_ind: list
+    X_ind : list
+        The valid index of the training data.
 
-    :return: the variance of cosine angle
-    :rtype: float
+    Returns
+    -------
+    cos_angle_var : float
+        The variance of cosine angle
+
     """
     wcos_list = []
     curr_pair_inds = list(combinations(X_ind, 2))
@@ -138,8 +143,7 @@ class ABOD(BaseDetector):
         self.n_neighbors = n_neighbors
 
     def fit(self, X, y=None):
-
-        # Validate inputs X and y (optional)
+        # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
 

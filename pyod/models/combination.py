@@ -27,32 +27,37 @@ def _aom_moa_helper(mode, scores, n_buckets, method, bootstrap_estimators,
     as the subgroup score. Finally, take the average/maximum of all subgroup
     outlier scores.
 
-    :param mode: Define the operation model, either "AOM" or "MOA"
-    :type mode: str
+    Parameters
+    ----------
+    mode : str
+        Define the operation model, either "AOM" or "MOA".
 
-    :param scores: The score matrix outputted from various estimators
-    :type scores: numpy array of shape (n_samples, n_estimators)
+    scores : numpy array of shape (n_samples, n_estimators)
+        The score matrix outputted from various estimators.
 
-    :param n_buckets: The number of subgroups to build
-    :type n_buckets: int, optional (default=5)
+    n_buckets : int, optional (default=5)
+        The number of subgroups to build.
 
-    :param method: {'static', 'dynamic'}, if 'dynamic', build subgroups
+    method : str, optional (default='static')
+        {'static', 'dynamic'}, if 'dynamic', build subgroups
         randomly with dynamic bucket size.
-    :type method: str, optional (default='static')
 
-    :param bootstrap_estimators: Whether estimators are drawn with replacement.
-    :type bootstrap_estimators: bool, optional (default=False)
+    bootstrap_estimators : bool, optional (default=False)
+        Whether estimators are drawn with replacement.
 
-    :param random_state: If int, random_state is the seed used by the
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the
         random number generator; If RandomState instance, random_state is
         the random number generator; If None, the random number generator
         is the RandomState instance used by `np.random`.
-    :type random_state: int, RandomState instance or None,
-        optional (default=None)
 
-    :return: The combined outlier scores.
-    :rtype: Numpy array of shape (n_samples,)
+    Returns
+    -------
+    combined_scores : Numpy array of shape (n_samples,)
+        The combined outlier scores.
+    
     """
+
     if mode != 'AOM' and mode != 'MOA':
         raise NotImplementedError(
             '{mode} is not implemented'.format(mode=mode))
@@ -205,16 +210,22 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
 
 
 def average(scores, estimator_weight=None):
-    """Combine the outlier scores from multiple estimators by averaging
+    """Combination method to merge the outlier scores from multiple estimators
+    by taking the average.
 
-    :param scores: score matrix from multiple estimators on the same samples
-    :type scores: numpy array of shape (n_samples, n_estimators)
+    Parameters
+    ----------
+    scores : numpy array of shape (n_samples, n_estimators)
+        Score matrix from multiple estimators on the same samples.
 
-    :param estimator_weight: if specified, using weighted average
-    :type estimator_weight: list of shape (1, n_estimators)
+    estimator_weight : list of shape (1, n_estimators)
+        If specified, using weighted average
 
-    :return: the combined outlier scores
-    :rtype: numpy array of shape (n_samples, )
+    Returns
+    -------
+    combined_scores : numpy array of shape (n_samples, )
+        The combined outlier scores.
+
     """
     scores = check_array(scores)
 
@@ -234,14 +245,20 @@ def average(scores, estimator_weight=None):
 
 
 def maximization(scores):
-    """Combine the outlier scores from multiple estimators by taking the
-    maximum score
+    """Combination method to merge the outlier scores from multiple estimators
+    by taking the maximum.
 
-    :param scores: score matrix from multiple estimators on the same samples
-    :type scores: numpy array of shape (n_samples, n_estimators)
+    Parameters
+    ----------
+    scores : numpy array of shape (n_samples, n_estimators)
+        Score matrix from multiple estimators on the same samples.
 
-    :return: the combined outlier scores
-    :rtype: numpy array of shape (n_samples, )
+    Returns
+    -------
+    combined_scores : numpy array of shape (n_samples, )
+        The combined outlier scores.
+
     """
+
     scores = check_array(scores)
     return np.max(scores, axis=1).ravel()
