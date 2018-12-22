@@ -504,4 +504,4 @@ Reference
 
 .. [#Zhao2018XGBOD] Zhao, Y. and Hryniewicki, M.K. XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning. *IEEE International Joint Conference on Neural Networks*\ , 2018.
 
-.. [#Zhao2019LSCP] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. LSCP: Locally Selective Combination of Parallel Outlier Ensembles. *SIAM International Conference on Data Mining (SDM)*. **Currently Under Review**.
+.. [#Zhao2019LSCP] Zhao, Y., Hryniewicki, M.K., Nasrullah, Z., and Li, Z. LSCP: Locally Selective Combination of Parallel Outlier Ensembles. *SIAM International Conference on Data Mining (SDM)*. 2019. **Accepted, to appear**.

@@ -157,7 +157,7 @@ detection utility functions.
 **Outlier Detector/Scores Combination Frameworks**:
 
 1. **Feature Bagging**: build various detectors on random selected features :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
-2. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2018lscp`: :class:`pyod.models.lscp.LSCP`
+2. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2019lscp`: :class:`pyod.models.lscp.LSCP`
 3. **Average** & **Weighted Average**: simply combine scores by averaging :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.average`
 4. **Maximization**: simply combine scores by taking the maximum across all base detectors :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.maximization`
 5. **Average of Maximum (AOM)** :cite:`a-aggarwal2015theoretical`: :func:`pyod.models.combination.aom`

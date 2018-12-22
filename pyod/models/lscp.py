@@ -55,6 +55,8 @@ class LSCP(BaseDetector):
     4) The average outlier score of the selected competent detectors is taken
     to be the final score.
 
+    See :cite:`zhao2019lscp` for details.
+
     Parameters
     ----------
     detector_list : List, length must be greater than 1
