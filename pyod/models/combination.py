@@ -55,7 +55,7 @@ def _aom_moa_helper(mode, scores, n_buckets, method, bootstrap_estimators,
     -------
     combined_scores : Numpy array of shape (n_samples,)
         The combined outlier scores.
-    
+
     """
 
     if mode != 'AOM' and mode != 'MOA':
