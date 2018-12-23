@@ -28,52 +28,49 @@ class KNN(BaseDetector):
     mean: use the average of all k neighbors as the outlier score
     median: use the median of the distance to k neighbors as the outlier score
 
-    :param contamination: the amount of contamination of the data set, i.e.
-        the proportion of outliers in the data set. Used when fitting to
+    Parameters
+    ----------
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set,
+        i.e. the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
-    :type contamination: float in (0, 0.5], optional (default=0.1)
 
-    :param n_neighbors: Number of neighbors to use by default
-        for k neighbors queries.
-    :type n_neighbors: int, optional (default=5)
+    n_neighbors : int, optional (default = 5)
+        Number of neighbors to use by default for k neighbors queries.
 
-    :param method: {'largest', 'mean', 'median'}
+    method : str, optional (default='largest')
+        {'largest', 'mean', 'median'}
 
-            - largest: use the distance to the kth neighbor as the outlier
-              score
-            - mean: use the average of all k neighbors as the outlier score
-            - median: use the median of the distance to k neighbors as the
-              outlier score
-    :type method: str, optional (default='largest')
+        - 'largest': use the distance to the kth neighbor as the outlier score
+        - 'mean': use the average of all k neighbors as the outlier score
+        - 'median': use the median of the distance to k neighbors as the
+          outlier score
 
-    :param radius: Range of parameter space to use by default for
-        radius_neighbors queries. Not applicable
-    :type radius: float, optional (default = 1.0)
+    radius : float, optional (default = 1.0)
+        Range of parameter space to use by default for :meth:`radius_neighbors`
+        queries.
 
-    :param algorithm: Algorithm used to compute the nearest neighbors:
+    algorithm : {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
+        Algorithm used to compute the nearest neighbors:
 
-            - 'ball_tree' will use BallTree
-            - 'kd_tree' will use KDTree
-            - 'brute' will use a brute-force search.
-            - 'auto' will attempt to decide the most appropriate algorithm
-              based on the values passed to :meth:`fit` method.
+        - 'ball_tree' will use BallTree
+        - 'kd_tree' will use KDTree
+        - 'brute' will use a brute-force search.
+        - 'auto' will attempt to decide the most appropriate algorithm
+          based on the values passed to :meth:`fit` method.
 
         Note: fitting on sparse input will override the setting of
         this parameter, using brute force.
 
-    :type algorithm: {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
-
-    :param leaf_size: Leaf size passed to BallTree or KDTree. This can
-        affect the speed of the construction and query, as well as the memory
-        required to store the tree. The optimal value depends on the
+    leaf_size : int, optional (default = 30)
+        Leaf size passed to BallTree or KDTree.  This can affect the
+        speed of the construction and query, as well as the memory
+        required to store the tree.  The optimal value depends on the
         nature of the problem.
-    :type leaf_size: int, optional (default=30)
 
-    :param metric: metric used for the distance computation. Any metric from
-        scikit-learn or scipy.spatial.distance can be used.
-
-        If 'precomputed', the training input X is expected to be a distance
-        matrix.
+    metric : string or callable, default 'minkowski'
+        metric to use for distance computation. Any metric from scikit-learn
+        or scipy.spatial.distance can be used.
 
         If metric is a callable function, it is called on each
         pair of instances (rows) and the resulting value recorded. The callable
@@ -81,53 +78,55 @@ class KNN(BaseDetector):
         distance between them. This works for Scipy's metrics, but is less
         efficient than passing the metric name as a string.
 
+        Distance matrices are not supported.
+
         Valid values for metric are:
 
-        - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1',
-          'l2','manhattan']
-        - from scipy.spatial.distance: ['braycurtis', 'canberra',
-          'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard',
-          'kulsinski', 'mahalanobis', 'matching', 'minkowski',
-          'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-          'sokalsneath', 'sqeuclidean', 'yule']
+        - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1', 'l2',
+          'manhattan']
+
+        - from scipy.spatial.distance: ['braycurtis', 'canberra', 'chebyshev',
+          'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski',
+          'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto',
+          'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath',
+          'sqeuclidean', 'yule']
 
         See the documentation for scipy.spatial.distance for details on these
-        metrics:
-        http://docs.scipy.org/doc/scipy/reference/spatial.distance.html
-    :type metric: str or callable, default 'minkowski'
+        metrics.
 
-    :param p: Parameter for the Minkowski metric for sklearn.metrics.pairwise.
-        pairwise_distances.
-        When p = 1, this is equivalent to using manhattan_distance (l1), and
-        euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance
-        (l_p) is used.
-        See http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html
-    :type p: int, optional (default=2)
+    p : integer, optional (default = 2)
+        Parameter for the Minkowski metric from
+        sklearn.metrics.pairwise.pairwise_distances. When p = 1, this is
+        equivalent to using manhattan_distance (l1), and euclidean_distance
+        (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
+        See http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances
 
-    :param metric_params: Additional keyword arguments for the metric function.
-    :type metric_params: dict, optional (default=None)
+    metric_params : dict, optional (default = None)
+        Additional keyword arguments for the metric function.
 
-    :param n_jobs: The number of parallel jobs to run for neighbors search.
+    n_jobs : int, optional (default = 1)
+        The number of parallel jobs to run for neighbors search.
         If ``-1``, then the number of jobs is set to the number of CPU cores.
         Affects only kneighbors and kneighbors_graph methods.
-    :type n_jobs: int, optional (default=1)
 
-    :var decision_scores\_: The outlier scores of the training data.
+    Attributes
+    ----------
+    decision_scores_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
         scores. This value is available once the detector is
         fitted.
-    :vartype decision_scores\_: numpy array of shape (n_samples,)
 
-    :var threshold\_: The threshold is based on ``contamination``. It is the
+    threshold_ : float
+        The threshold is based on ``contamination``. It is the
         ``n_samples * contamination`` most abnormal samples in
         ``decision_scores_``. The threshold is calculated for generating
         binary outlier labels.
-    :vartype threshold\_: float
 
-    :var labels\_: The binary labels of the training data. 0 stands for inliers
+    labels_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
-    :vartype labels\_: int, either 0 or 1
     """
 
     def __init__(self, contamination=0.1, n_neighbors=5, method='largest',
@@ -157,7 +156,7 @@ class KNN(BaseDetector):
 
     def fit(self, X, y=None):
 
-        # Validate inputs X and y (optional)
+        # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
 
