@@ -47,6 +47,8 @@ v<0.6.6>, <12/18/2018> -- Fixed bugs in CBLOF.
 v<0.6.6>, <12/18/2018> -- Refactor docstring from rst to numpydoc.
 v<0.6.6b1>, <12/18/2018> -- Pre-release of V0.6.6.
 v<0.6.6>, <12/21/2018> -- Redesign visualize function for all examples.
+v<0.6.6>, <12/23/2018> -- Refactor all docstring to numpydoc.
+
 
 
 
