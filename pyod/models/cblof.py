@@ -149,7 +149,7 @@ class CBLOF(BaseDetector):
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
         """
-        # Validate inputs X and y (optional)
+        # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
         n_samples, n_features = X.shape

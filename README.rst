@@ -87,7 +87,7 @@ implemented in keras. However, PyOD would **NOT** install **Keras** and/or **Ten
 reduces the risk of damaging your local installations. 
 So you should install keras and back-end libraries like TensorFlow, if you want
 to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
-
+Similarly, some models depend on **xgboost**, and PyOD would **NOT** install it by default.
 
 **Key Links and Resources**\ :
 
@@ -214,6 +214,9 @@ virtual environment on mac OS. See reasons and solutions `issue6 <https://github
 **Known Issue 2**\ : Keras and/or TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
 AutoEncoder. See reasons and solutions `neural-net installation <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
+
+**Known Issue 3**\ : xgboost is listed as optional. However, it is required to
+run XGBOD. Users are expected to install **xgboost** to use XGBOD model.
 
 
 ----

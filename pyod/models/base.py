@@ -199,17 +199,22 @@ class BaseDetector(object):
                              'is not a valid probability conversion method')
 
     def _predict_rank(self, X, normalized=False):
-        """Predict the outlyingness rank of a sample in a fitted model. The
-        method is specifically for combining various outlier detectors.
+        """Predict the outlyingness rank of a sample by a fitted model. The
+        method is for outlier detector score combination.
 
-        :param X: The input samples
-        :type X: numpy array of shape (n_samples, n_features)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :param normalized: If set to True, all ranks are normalized to [0,1]
-        :type normalized: bool, optional (default=False)
+        normalized : bool, optional (default=False)
+            If set to True, all ranks are normalized to [0,1].
 
-        :return: outlying rank of a sample according to the training data
-        :rtype: array, shape (n_samples,)
+        Returns
+        -------
+        ranks : array, shape (n_samples,)
+            Outlying rank of a sample according to the training data.
+
         """
 
         check_is_fitted(self, ['decision_scores_'])
@@ -238,14 +243,14 @@ class BaseDetector(object):
             The ground truth of the input samples (labels).
 
         scoring : str, optional (default='roc_auc_score')
-            Evaluation metric
+            Evaluation metric:
 
-            -' roc_auc_score': ROC score
+            - 'roc_auc_score': ROC score
             - 'prc_n_score': Precision @ rank n score
 
         Returns
         -------
-        evaluation_score : float
+        score : float
         """
 
         self.fit(X)
@@ -295,11 +300,17 @@ class BaseDetector(object):
     #     return score
 
     def _set_n_classes(self, y):
-        """Set the number of classes if y is presented, which is not expected.
-        It could be useful for multi-class outlier detection.
+        """Set the number of classes if `y` is presented, which is not
+        expected. It could be useful for multi-class outlier detection.
 
-        :param y: Ground truth
-        :type y: numpy array of shape (n_samples,)
+        Parameters
+        ----------
+        y : numpy array of shape (n_samples,)
+            Ground truth.
+
+        Returns
+        -------
+        self
         """
 
         self._classes = 2  # default as binary classification
@@ -308,15 +319,17 @@ class BaseDetector(object):
             self._classes = len(np.unique(y))
             warnings.warn(
                 "y should not be presented in unsupervised learning.")
+        return self
 
     def _process_decision_scores(self):
         """Internal function to calculate key attributes:
 
-        - threshold: used to decide the binary label
+        - threshold_: used to decide the binary label
         - labels_: binary labels of training data
 
-        :return: self
-        :rtype: object
+        Returns
+        -------
+        self
         """
 
         self.threshold_ = scoreatpercentile(self.decision_scores_,
@@ -365,18 +378,21 @@ class BaseDetector(object):
         return sorted([p.name for p in parameters])
 
     def get_params(self, deep=True):
-        # noinspection PyPep8
         """Get parameters for this estimator.
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
         and sklearn/base.py for more information.
 
-        :param deep: If True, will return the parameters for this estimator and
+        Parameters
+        ----------
+        deep : boolean, optional
+            If True, will return the parameters for this estimator and
             contained subobjects that are estimators.
 
-        :return: mapping of string to any
+        Returns
+        -------
+        params : mapping of string to any
             Parameter names mapped to their values.
-        :rtype: str
         """
 
         out = dict()
@@ -403,19 +419,18 @@ class BaseDetector(object):
         return out
 
     def set_params(self, **params):
-        # noinspection PyPep8
         """Set the parameters of this estimator.
-
-        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-        and sklearn/base.py for more information.
-
         The method works on simple estimators as well as on nested objects
         (such as pipelines). The latter have parameters of the form
         ``<component>__<parameter>`` so that it's possible to update each
         component of a nested object.
 
-        :return: self
-        :rtype: object
+        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
+        and sklearn/base.py for more information.
+
+        Returns
+        -------
+        self : object
         """
 
         if not params:
@@ -443,7 +458,6 @@ class BaseDetector(object):
         return self
 
     def __repr__(self):
-        # noinspection PyPep8
         """
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
         and sklearn/base.py for more information.

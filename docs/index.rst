@@ -77,7 +77,7 @@ PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying
 multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-Since 2017, PyOD has been successfully used in various academic researches and commercial products :cite:`a-zhao2018xgbod,a-zhao2018dcso,a-zhao2018lscp`.
+Since 2017, PyOD has been successfully used in various academic researches and commercial products :cite:`a-zhao2018xgbod,a-zhao2018dcso,a-zhao2019lscp`.
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
@@ -91,11 +91,10 @@ implemented in **Keras**. However, by default PyOD would **NOT** install **Keras
 This reduces the risk of damaging your local installations, because TensorFlow installation can by tricky depending on your OS/Python version.
 You should install **Keras** and back-end libraries like **TensorFlow** by yourself,
 if you want to use neural network based models.
-An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-
+An instruction is provided:`neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
+Similarly, some models depend on **xgboost**, and PyOD would **NOT** install it by default.
 
 **Key Links and Resources**\ :
-
 
 * `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
 * `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
@@ -143,7 +142,7 @@ detection utility functions.
 
   i. **Isolation Forest** :cite:`a-liu2008isolation,a-liu2012isolation`: :class:`pyod.models.iforest.IForest`
   ii. **Feature Bagging** :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
-  iii. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2018lscp`: :class:`pyod.models.lscp.LSCP`
+  iii. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2019lscp`: :class:`pyod.models.lscp.LSCP`
   iv. **XGBOD** :cite:`a-zhao2018xgbod`: :class:`pyod.models.xgbod.XGBOD`
 
 

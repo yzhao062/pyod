@@ -100,26 +100,18 @@ class PCA(BaseDetector):
         randomized :
             run randomized SVD by the method of Halko et al.
 
-        .. versionadded:: 0.18.0
-
     tol : float >= 0, optional (default .0)
         Tolerance for singular values computed by svd_solver == 'arpack'.
-
-        .. versionadded:: 0.18.0
 
     iterated_power : int >= 0, or 'auto', (default 'auto')
         Number of iterations for the power method computed by
         svd_solver == 'randomized'.
-
-        .. versionadded:: 0.18.0
 
     random_state : int, RandomState instance or None, optional (default None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
-
-        .. versionadded:: 0.18.0
 
     weighted : bool, optional (default=True)
         If True, the eigenvalues are used in score computation.
@@ -143,8 +135,6 @@ class PCA(BaseDetector):
 
         Equal to n_components largest eigenvalues
         of the covariance matrix of X.
-
-        .. versionadded:: 0.18
 
     explained_variance_ratio_ : array, shape (n_components,)
         Percentage of variance explained by each of the selected components.
