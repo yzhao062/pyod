@@ -91,11 +91,10 @@ implemented in **Keras**. However, by default PyOD would **NOT** install **Keras
 This reduces the risk of damaging your local installations, because TensorFlow installation can by tricky depending on your OS/Python version.
 You should install **Keras** and back-end libraries like **TensorFlow** by yourself,
 if you want to use neural network based models.
-An instruction is provided: `issue19b <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-
+An instruction is provided:`neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
+Similarly, some models depend on **xgboost**, and PyOD would install it by default.
 
 **Key Links and Resources**\ :
-
 
 * `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
 * `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
