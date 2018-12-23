@@ -87,7 +87,7 @@ implemented in keras. However, PyOD would **NOT** install **Keras** and/or **Ten
 reduces the risk of damaging your local installations. 
 So you should install keras and back-end libraries like TensorFlow, if you want
 to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
-Similarly, some models depend on **xgboost**, and PyOD would install it by default.
+Similarly, some models depend on **xgboost**, and PyOD would **NOT** install it by default.
 
 **Key Links and Resources**\ :
 

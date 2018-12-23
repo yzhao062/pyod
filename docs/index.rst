@@ -92,7 +92,7 @@ This reduces the risk of damaging your local installations, because TensorFlow i
 You should install **Keras** and back-end libraries like **TensorFlow** by yourself,
 if you want to use neural network based models.
 An instruction is provided:`neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, some models depend on **xgboost**, and PyOD would install it by default.
+Similarly, some models depend on **xgboost**, and PyOD would **NOT** install it by default.
 
 **Key Links and Resources**\ :
 
