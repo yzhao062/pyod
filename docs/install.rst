@@ -44,5 +44,9 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 
     Keras and/or TensorFlow are listed as optional. However, they are
     both required if you want to use neural network based models, such as
-    AutoEncoder. See reasons and solutions `issue19a <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
+    AutoEncoder. See reasons and solutions `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 
+.. warning::
+
+    xgboost is listed as optional. However, it is required to run XGBOD.
+    Users are expected to install **xgboost** to use XGBOD model.
