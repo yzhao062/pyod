@@ -17,7 +17,7 @@ __all__ = ['MCD']
 
 
 class MCD(BaseDetector):
-    """An object for detecting outliers in a Gaussian distributed dataset using
+    """Detecting outliers in a Gaussian distributed dataset using
     Minimum Covariance Determinant (MCD): robust estimator of covariance.
 
     The Minimum Covariance Determinant covariance estimator is to be applied
@@ -33,79 +33,81 @@ class MCD(BaseDetector):
 
     See :cite:`rousseeuw1999fast,hardin2004outlier` for details.
 
-    :param contamination: The amount of contamination of the data set,
+    Parameters
+    ----------
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set,
         i.e. the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
-    :type contamination: float in (0., 0.5), optional (default=0.1)
 
-    :param store_precision: Specify if the estimated precision is stored.
-    :type store_precision: bool, optional (default=True)
+    store_precision : bool
+        Specify if the estimated precision is stored.
 
-    :param assume_centered:  If True, the support of the robust location and
-        the covariance estimates is computed, and a covariance estimate is
-        recomputed from it, without centering the data.
+    assume_centered : Boolean
+        If True, the support of the robust location and the covariance
+        estimates is computed, and a covariance estimate is recomputed from
+        it, without centering the data.
         Useful to work with data whose mean is significantly equal to
         zero but is not exactly zero.
         If False, the robust location and covariance are directly computed
         with the FastMCD algorithm without additional treatment.
-    :type assume_centered: bool, optional (default=False)
 
-    :param support_fraction: The proportion of points to be included in the
-        support of the raw MCD estimate. Default is None, which implies that
-        the minimum value of support_fraction will be used within the
-        algorithm: [n_sample + n_features + 1] / 2
-    :type support_fraction: float, optional (default=None)
+    support_fraction : float, 0 < support_fraction < 1
+        The proportion of points to be included in the support of the raw
+        MCD estimate. Default is None, which implies that the minimum
+        value of support_fraction will be used within the algorithm:
+        [n_sample + n_features + 1] / 2
 
-    :param random_state: If int, random_state is the seed used by the random
-        number generator; If RandomState instance, random_state is the random
-        number generator; If None, the random number generator is the
-        RandomState instance used by `np.random`.
-    :type random_state: int, RandomState instance or None, optional
-        (default=None)
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
 
-    :var raw_location\_: The raw robust estimated location before correction
+    Attributes
+    ----------
+    raw_location_ : array-like, shape (n_features,)
+        The raw robust estimated location before correction and re-weighting.
+
+    raw_covariance_ : array-like, shape (n_features, n_features)
+        The raw robust estimated covariance before correction and re-weighting.
+
+    raw_support_ : array-like, shape (n_samples,)
+        A mask of the observations that have been used to compute
+        the raw robust estimates of location and shape, before correction
         and re-weighting.
-    :vartype raw_location\_: array-like of shape (n_features,)
 
-    :var raw_covariance\_: The raw robust estimated covariance before
-        correction and re-weighting.
-    :vartype raw_covariance\_: array-like of shape (n_features, n_features)
+    location_ : array-like, shape (n_features,)
+        Estimated robust location
 
-    :var raw_support\_: A mask of the observations that have been used to
-        compute the raw robust estimates of location and shape, before
-        correction and re-weighting.
-    :vartype raw_support\_: array-like of shape (n_samples,)
+    covariance_ : array-like, shape (n_features, n_features)
+        Estimated robust covariance matrix
 
-    :var location\_: Estimated robust location
-    :vartype location\_: array-like of shape (n_features,)
-
-    :var covariance\_: Estimated robust covariance matrix
-    :vartype covariance\_: array-like of shape (n_features, n_features)
-
-    :var precision\_: Estimated pseudo inverse matrix.
+    precision_ : array-like, shape (n_features, n_features)
+        Estimated pseudo inverse matrix.
         (stored only if store_precision is True)
-    :vartype precision\_: array-like of shape (n_features, n_features)
 
-    :var support\_: A mask of the observations that have been used to compute
+    support_ : array-like, shape (n_samples,)
+        A mask of the observations that have been used to compute
         the robust estimates of location and shape.
-    :vartype support\_: array-like of shape (n_samples,)
 
-    :var decision_scores\_: The outlier scores of the training data.
+    decision_scores_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
         scores. This value is available once the detector is
-        fitted.
-    :vartype decision_scores\_: numpy array of shape (n_samples,)
+        fitted. Mahalanobis distances of the training set (on which
+        `:meth:`fit` is called) observations.
 
-    :var threshold\_: The threshold is based on ``contamination``. It is the
+    threshold_ : float
+        The threshold is based on ``contamination``. It is the
         ``n_samples * contamination`` most abnormal samples in
         ``decision_scores_``. The threshold is calculated for generating
         binary outlier labels.
-    :vartype threshold\_: float
 
-    :var labels\_: The binary labels of the training data. 0 stands for inliers
+    labels_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
-    :vartype labels\_: int, either 0 or 1
     """
 
     def __init__(self, contamination=0.1, store_precision=True,
@@ -119,15 +121,15 @@ class MCD(BaseDetector):
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
-        """Fit the model using X as training data.
+        """Fit detector. y is optional for unsupervised methods.
 
-        :param X: Training data. If array or matrix,
-            shape [n_samples, n_features],
-            or [n_samples, n_samples] if metric='precomputed'.
-        :type X: {array-like, sparse matrix, BallTree, KDTree}
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        :return: self
-        :rtype: object
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
         """
         # Validate inputs X and y (optional)
         X = check_array(X)
@@ -145,6 +147,23 @@ class MCD(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
 

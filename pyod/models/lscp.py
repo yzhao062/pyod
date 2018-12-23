@@ -107,10 +107,10 @@ class LSCP(BaseDetector):
     >>> from pyod.utils.utility import standardizer
     >>> from pyod.models.lscp import LSCP
     >>> from pyod.models.lof import LOF
-
+    >>>
     >>> X_train, y_train, X_test, y_test = generate_data(
-    >>>     n_train=50, n_test=50,
-    >>>     contamination=0.1, random_state=42)
+    ...     n_train=50, n_test=50,
+    ...     contamination=0.1, random_state=42)
     >>> X_train, X_test = standardizer(X_train, X_test)
     >>> detector_list = [LOF(), LOF()]
     >>> clf = LSCP(detector_list)
