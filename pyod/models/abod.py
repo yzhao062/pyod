@@ -115,7 +115,7 @@ class ABOD(BaseDetector):
 
         - 'fast': fast ABOD. Only consider n_neighbors of training points
         - 'default': original ABOD with all training points, which could be
-            slow
+          slow
 
     Attributes
     ----------

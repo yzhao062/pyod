@@ -238,9 +238,8 @@ class BaseDetector(object):
             The ground truth of the input samples (labels).
 
         scoring : str, optional (default='roc_auc_score')
-            Evaluation metric
-
-            -' roc_auc_score': ROC score
+            Evaluation metric:
+            - 'roc_auc_score': ROC score
             - 'prc_n_score': Precision @ rank n score
 
         Returns

@@ -74,8 +74,8 @@ class LOCI(BaseDetector):
     >>> n_test = 50
     >>> contamination = 0.1
     >>> X_train, y_train, X_test, y_test = generate_data(
-    >>>     n_train=n_train, n_test=n_test,
-    >>>     contamination=contamination, random_state=42)
+    ...     n_train=n_train, n_test=n_test,
+    ...     contamination=contamination, random_state=42)
     >>>
     >>> clf = LOCI()
     >>> clf.fit(X_train)
