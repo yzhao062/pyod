@@ -117,35 +117,40 @@ class HBOS(BaseDetector):
 
 
 @njit
-def _calculate_outlier_scores(
-        X, bin_edges, hist, n_bins, alpha, tol):  # pragma: no cover
+def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha, tol):
     """The internal function to calculate the outlier scores based on
     the bins and histograms constructed with the training data. The program
     is optimized through numba. It is excluded from coverage test for
     eliminating the redundancy.
 
-    :param X: The input samples
-    :type X: numpy array of shape (n_samples, n_features)
+    Parameters
+    ----------
+    X : numpy array of shape (n_samples, n_features)
+        The input samples.
 
-    :param bin_edges: The edges of the bins
-    :type bin_edges: numpy array of shape (n_bins + 1, n_features )
+    bin_edges : numpy array of shape (n_bins + 1, n_features )
+        The edges of the bins.
 
-    :param hist: The density of each histogram
-    :type hist: numpy array of shape (n_bins, n_features)
+    hist : numpy array of shape (n_bins, n_features)
+        The density of each histogram.
 
-    :param n_bins: The number of bins
-    :type n_bins: int, optional (default=10)
+    n_bins : int, optional (default=10)
+        The number of bins
 
-    :param alpha: The regularizer for preventing overflow
-    :type alpha: float in (0, 1), optional (default=0.1)
+    alpha : float in (0, 1), optional (default=0.1)
+        The regularizer for preventing overflow
 
-    :param tol: The parameter to decide the flexibility while dealing
+    tol : float in (0, 1), optional (default=0.1)
+        The parameter to decide the flexibility while dealing
         the samples falling outside the bins.
-    :type tol: float in (0, 1), optional (default=0.1)
 
-    :return: outlier scores on all features (dimensions)
-    :rtype: numpy array of shape (n_samples, n_features)
+    Returns
+    -------
+    outlier_scores : numpy array of shape (n_samples, n_features)
+        Outlier scores on all features (dimensions).
+
     """
+
     n_samples, n_features = X.shape[0], X.shape[1]
     outlier_scores = np.zeros(shape=(n_samples, n_features))
 

@@ -77,7 +77,7 @@ PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying
 multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-Since 2017, PyOD has been successfully used in various academic researches and commercial products :cite:`a-zhao2018xgbod,a-zhao2018dcso,a-zhao2018lscp`.
+Since 2017, PyOD has been successfully used in various academic researches and commercial products :cite:`a-zhao2018xgbod,a-zhao2018dcso,a-zhao2019lscp`.
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
@@ -143,7 +143,7 @@ detection utility functions.
 
   i. **Isolation Forest** :cite:`a-liu2008isolation,a-liu2012isolation`: :class:`pyod.models.iforest.IForest`
   ii. **Feature Bagging** :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
-  iii. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2018lscp`: :class:`pyod.models.lscp.LSCP`
+  iii. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2019lscp`: :class:`pyod.models.lscp.LSCP`
   iv. **XGBOD** :cite:`a-zhao2018xgbod`: :class:`pyod.models.xgbod.XGBOD`
 
 

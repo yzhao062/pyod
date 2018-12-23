@@ -34,74 +34,78 @@ class IForest(BaseDetector):
     Hence, when a forest of random trees collectively produce shorter path
     lengths for particular samples, they are highly likely to be anomalies.
 
-    :param n_estimators: The number of base estimators in the ensemble.
-    :type n_estimators: int, optional (default=100)
+    Parameters
+    ----------
+    n_estimators : int, optional (default=100)
+        The number of base estimators in the ensemble.
 
-    :param max_samples: The number of samples to draw from X to train
-        each base estimator.
+    max_samples : int or float, optional (default="auto")
+        The number of samples to draw from X to train each base estimator.
 
             - If int, then draw `max_samples` samples.
             - If float, then draw `max_samples * X.shape[0]` samples.
             - If "auto", then `max_samples=min(256, n_samples)`.
-    :type max_samples: int or float, optional (default="auto")
 
-    :param contamination: The amount of contamination of the data set,
-        i.e. the proportion of outliers in the data set. Used when fitting to
-        define the threshold on the decision function.
-    :type contamination: float in (0., 0.5), optional (default=0.1)
+        If max_samples is larger than the number of samples provided,
+        all samples will be used for all trees (no sampling).
 
-    :param max_features: The number of features to draw from X to
-        train each base estimator.
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set, i.e. the proportion
+        of outliers in the data set. Used when fitting to define the threshold
+        on the decision function.
+
+    max_features : int or float, optional (default=1.0)
+        The number of features to draw from X to train each base estimator.
 
             - If int, then draw `max_features` features.
             - If float, then draw `max_features * X.shape[1]` features.
-    :type max_features: int or float, optional (default=1.0)
 
-    :param bootstrap: If True, individual trees are fit on random subsets of
-        the training data sampled with replacement. If False, sampling without
-        replacement is performed.
-    :type bootstrap: bool, optional (default=False)
+    bootstrap : boolean, optional (default=False)
+        If True, individual trees are fit on random subsets of the training
+        data sampled with replacement. If False, sampling without replacement
+        is performed.
 
-    :param n_jobs: The number of jobs to run in parallel for both `fit` and
-        `predict`. If -1, then the number of jobs is set to the number of cores
-    :type n_jobs: int, optional (default=1)
+    n_jobs : integer, optional (default=1)
+        The number of jobs to run in parallel for both `fit` and `predict`.
+        If -1, then the number of jobs is set to the number of cores.
 
-    :param random_state: If int, random_state is the seed used by the random
-        number generator; If RandomState instance, random_state is the random
-        number generator; If None, the random number generator is the
-        RandomState instance used by `np.random`.
-    :type random_state: int, RandomState instance or None, optional
-        (default=None)
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
 
-    :param verbose: Controls the verbosity of the tree building process.
-    :type verbose: int, optional (default=0)
+    verbose : int, optional (default=0)
+        Controls the verbosity of the tree building process.
 
-    :var estimators\_: The collection of fitted sub-estimators.
-    :vartype estimators\_: list
+    Attributes
+    ----------
+    estimators_ : list of DecisionTreeClassifier
+        The collection of fitted sub-estimators.
 
-    :var estimators_samples\_: The subset of drawn samples (i.e., the
-        in-bag samples) for each base estimator.
-    :vartype estimators_samples\_: list or arrays
+    estimators_samples_ : list of arrays
+        The subset of drawn samples (i.e., the in-bag samples) for each base
+        estimator.
 
-    :var max_samples\_: The actual number of samples.
-    :vartype max_samples\_: int
+    max_samples_ : integer
+        The actual number of samples
 
-    :var decision_scores\_: The outlier scores of the training data.
+    decision_scores_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
         scores. This value is available once the detector is
         fitted.
-    :vartype decision_scores\_: numpy array of shape (n_samples,)
 
-    :var threshold\_: The threshold is based on ``contamination``. It is the
+    threshold_ : float
+        The threshold is based on ``contamination``. It is the
         ``n_samples * contamination`` most abnormal samples in
         ``decision_scores_``. The threshold is calculated for generating
         binary outlier labels.
-    :vartype threshold\_: float
 
-    :var labels\_: The binary labels of the training data. 0 stands for inliers
+    labels_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
-    :vartype labels\_: int, either 0 or 1
     """
 
     def __init__(self, n_estimators=100,
@@ -122,7 +126,7 @@ class IForest(BaseDetector):
         self.verbose = verbose
 
     def fit(self, X, y=None):
-        # Validate inputs X and y (optional)
+        # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
 
@@ -138,7 +142,7 @@ class IForest(BaseDetector):
                            y=None,
                            sample_weight=None)
 
-        # Invert decision_scores_. Outliers comes with higher outlier scores
+        # invert decision_scores_. Outliers comes with higher outlier scores.
         self.decision_scores_ = invert_order(
             self.detector_.decision_function(X))
         self._process_decision_scores()
@@ -146,7 +150,7 @@ class IForest(BaseDetector):
 
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
-        # Invert outlier scores. Outliers comes with higher outlier scores
+        # invert outlier scores. Outliers comes with higher outlier scores
         return invert_order(self.detector_.decision_function(X))
 
     @property
