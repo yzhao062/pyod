@@ -47,7 +47,7 @@ class KNN(BaseDetector):
           outlier score
 
     radius : float, optional (default = 1.0)
-        Range of parameter space to use by default for :meth:`radius_neighbors`
+        Range of parameter space to use by default for `radius_neighbors`
         queries.
 
     algorithm : {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
