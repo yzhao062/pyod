@@ -430,7 +430,7 @@ class BaseDetector(object):
 
         Returns
         -------
-        self
+        self : object
         """
 
         if not params:

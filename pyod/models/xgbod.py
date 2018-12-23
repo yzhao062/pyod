@@ -116,11 +116,9 @@ class XGBOD(BaseDetector):
         Attempting to set a parameter via the constructor args and \*\*kwargs
         dict simultaneously will result in a TypeError.
 
-        .. note:: \*\*kwargs is unsupported by scikit-learn.
-
-        \*\*kwargs is unsupported by scikit-learn. We do not guarantee that
-        parameters passed via this argument will interact properly with
-        scikit-learn.
+        Note: \*\*kwargs is unsupported by scikit-learn. We do not
+        guarantee that parameters passed via this argument will interact
+        properly with scikit-learn.
 
     Attributes
     ----------
