@@ -20,7 +20,7 @@ from ..utils.utility import check_parameter
 
 
 @njit
-def _wcos(curr_pt, a, b):
+def _wcos(curr_pt, a, b):  # pragma: no cover
     """Internal function to calculate weighted cosine using
     optimized numba code
 

@@ -5,9 +5,9 @@ This is the central place to track important things to be fixed/added:
 
 - GPU support
 - Installation efficiency improvement, such as using docker
-- Move current docstring fro rST to numpydoc for better consistency
 - Add contact channel with `Gitter <https://gitter.im>`_
 - Support additional languages, see `Manage Translations <https://docs.readthedocs.io/en/latest/guides/manage-translations.html>`_
+- Fix the bug that numba enabled function may be excluded from code coverage
 
 Feel free to open on issue report if needed.
 See `Issues <https://github.com/yzhao062/pyod/issues>`_.
