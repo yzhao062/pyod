@@ -137,7 +137,7 @@ Probabilistic        SOS               Stochastic Outlier Selection             
 Outlier Ensembles    IForest           Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
 Outlier Ensembles                      Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
-Outlier Ensembles    XGBOD             **Supervised** XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning  2018   [#Zhao2018XGBOD]_
+Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
 Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2018Generative]_
 Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2018Generative]_

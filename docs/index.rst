@@ -142,7 +142,7 @@ PyOD toolkit consists of three major groups of functionalities:
   i. **Isolation Forest** :cite:`a-liu2008isolation,a-liu2012isolation`: :class:`pyod.models.iforest.IForest`
   ii. **Feature Bagging** :cite:`a-lazarevic2005feature`: :class:`pyod.models.feature_bagging.FeatureBagging`
   iii. **LSCP**: Locally Selective Combination of Parallel Outlier Ensembles :cite:`a-zhao2019lscp`: :class:`pyod.models.lscp.LSCP`
-  iv. **XGBOD** :cite:`a-zhao2018xgbod`: :class:`pyod.models.xgbod.XGBOD`
+  iv. **XGBOD: Extreme Boosting Based Outlier Detection** :cite:`a-zhao2018xgbod`: :class:`pyod.models.xgbod.XGBOD`
 
 
 5. Neural Networks and Deep Learning Models (implemented in Keras):
