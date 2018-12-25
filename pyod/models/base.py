@@ -421,18 +421,18 @@ class BaseDetector(object):
     def set_params(self, **params):
         # noinspection PyPep8
         """Set the parameters of this estimator.
-                The method works on simple estimators as well as on nested objects
-                (such as pipelines). The latter have parameters of the form
-                ``<component>__<parameter>`` so that it's possible to update each
-                component of a nested object.
+        The method works on simple estimators as well as on nested objects
+        (such as pipelines). The latter have parameters of the form
+        ``<component>__<parameter>`` so that it's possible to update each
+        component of a nested object.
 
-                See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-                and sklearn/base.py for more information.
+        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
+        and sklearn/base.py for more information.
 
-                Returns
-                -------
-                self : object
-                """
+        Returns
+        -------
+        self : object
+        """
 
         if not params:
             # Simple optimization to gain speed (inspect is slow)
@@ -461,9 +461,9 @@ class BaseDetector(object):
     def __repr__(self):
         # noinspection PyPep8
         """
-                See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-                and sklearn/base.py for more information.
-                """
+        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
+        and sklearn/base.py for more information.
+        """
 
         class_name = self.__class__.__name__
         return '%s(%s)' % (class_name, _pprint(self.get_params(deep=False),
