@@ -86,8 +86,8 @@ PyOD contains some neural network based models, e.g., AutoEncoders, which are
 implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
 reduces the risk of damaging your local installations. 
 So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
-Similarly, some models depend on **xgboost**, and PyOD would **NOT** install it by default.
+to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
+Similarly, some models depend on **xgboost**, which would **NOT** be installed by default.
 
 **Key Links and Resources**\ :
 
