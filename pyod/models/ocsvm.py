@@ -137,6 +137,16 @@ class OCSVM(BaseDetector):
         self.random_state = random_state
 
     def fit(self, X, y=None, sample_weight=None, **params):
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -162,6 +172,23 @@ class OCSVM(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         # Invert outlier scores. Outliers comes with higher outlier scores
         return invert_order(self.detector_.decision_function(X))

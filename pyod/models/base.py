@@ -66,6 +66,21 @@ class BaseDetector(object):
 
         self.contamination = contamination
 
+    # noinspection PyIncorrectDocstring
+    @abc.abstractmethod
+    def fit(self, X, y=None):
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
+        pass
+
     @abc.abstractmethod
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
@@ -84,21 +99,6 @@ class BaseDetector(object):
         -------
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
-        """
-        pass
-
-    # noinspection PyIncorrectDocstring
-    @abc.abstractmethod
-    def fit(self, X, y=None):
-        """Fit detector. y is optional for unsupervised methods.
-
-        Parameters
-        ----------
-        X : numpy array of shape (n_samples, n_features)
-            The input samples.
-
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
         """
         pass
 

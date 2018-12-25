@@ -64,19 +64,17 @@ def _set_random_states(estimator, random_state=None):
     Finds all parameters ending ``random_state`` and sets them to integers
     derived from ``random_state``.
 
+    Parameters
+    ----------
+    estimator : estimator supporting get/set_params
+        Estimator with potential randomness managed by random_state
+        parameters.
 
-    :param estimator: Estimator with potential randomness managed by
-        random_state parameters.
-    :type estimator: estimator supporting get/set_params
-
-    :param random_state : The object to control the random process.
+    random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-
-    :type random_state: int, RandomState instance or None,
-        optional (default=None)
 
     Notes
     -----
@@ -85,8 +83,8 @@ def _set_random_states(estimator, random_state=None):
     ``estimator.get_params()``.  ``random_state``s not controlled include
     those belonging to:
 
-    - cross-validation splitters
-    - ``scipy.stats`` rvs
+        * cross-validation splitters
+        * ``scipy.stats`` rvs
     """
     random_state = check_random_state(random_state)
     to_set = {}
@@ -228,6 +226,16 @@ class FeatureBagging(BaseDetector):
             self.estimator_params = {}
 
     def fit(self, X, y=None):
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
         random_state = check_random_state(self.random_state)
 
         X = check_array(X)
@@ -301,6 +309,23 @@ class FeatureBagging(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['estimators_', 'estimators_features_',
                                'decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)

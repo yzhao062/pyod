@@ -204,7 +204,17 @@ class PCA(BaseDetector):
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
-        # Validate inputs X and y (optional)
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
+        # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
 
@@ -259,6 +269,23 @@ class PCA(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['components_', 'w_components_'])
 
         X = check_array(X)
@@ -268,16 +295,6 @@ class PCA(BaseDetector):
         return np.sum(
             cdist(X, self.selected_components_) / self.selected_w_components_,
             axis=1).ravel()
-
-    # @property
-    # def components_(self):
-    #     """Principal axes in feature space, representing the directions of
-    #     maximum variance in the data. The components are sorted by
-    #     ``explained_variance_``.
-    #
-    #     Decorator for scikit-learn PCA attributes.
-    #     """
-    #     return self.detector_.components_
 
     @property
     def explained_variance_(self):
@@ -319,20 +336,9 @@ class PCA(BaseDetector):
         """
         return self.detector_.mean_
 
-    # @property
-    # def n_components_(self):
-    #     """The estimated number of components. When n_components is set
-    #     to 'mle' or a number between 0 and 1 (with svd_solver == 'full') this
-    #     number is estimated from input data. Otherwise it equals the parameter
-    #     n_components, or n_features if n_components is None.
-    #
-    #     Decorator for scikit-learn PCA attributes.
-    #     """
-    #     return self.detector_.n_components_
-
     @property
     def noise_variance_(self):
-        """        The estimated noise covariance following the Probabilistic PCA model
+        """The estimated noise covariance following the Probabilistic PCA model
         from Tipping and Bishop 1999. See "Pattern Recognition and
         Machine Learning" by C. Bishop, 12.2.1 p. 574 or
         http://www.miketipping.com/papers/met-mppca.pdf. It is required to

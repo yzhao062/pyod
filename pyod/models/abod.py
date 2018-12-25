@@ -143,6 +143,16 @@ class ABOD(BaseDetector):
         self.n_neighbors = n_neighbors
 
     def fit(self, X, y=None):
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -205,11 +215,26 @@ class ABOD(BaseDetector):
 
     # noinspection PyPep8Naming
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
 
-        check_is_fitted(self,
-                        ['X_train_', 'n_train_', 'decision_scores_',
-                         'threshold_',
-                         'labels_'])
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
+
+        check_is_fitted(self, ['X_train_', 'n_train_', 'decision_scores_',
+                               'threshold_', 'labels_'])
         X = check_array(X)
 
         if self.method == 'fast':  # fast ABOD
