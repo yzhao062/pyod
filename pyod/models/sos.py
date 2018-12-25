@@ -20,6 +20,11 @@ from .base import BaseDetector
 def _get_perplexity(D, beta):
     """Compute the perplexity and the A-row for a specific value of the
     precision of a Gaussian distribution.
+
+    Parameters
+    ----------
+    D : array, shape (n_samples, )
+        The dissimilarity matrix of the training samples.
     """
 
     A = np.exp(-D * beta)
@@ -97,8 +102,8 @@ class SOS(BaseDetector):
     >>> n_test = 50
     >>> contamination = 0.1
     >>> X_train, y_train, X_test, y_test = generate_data(
-    >>>     n_train=n_train, n_test=n_test,
-    >>>     contamination=contamination, random_state=42)
+    ...     n_train=n_train, n_test=n_test,
+    ...     contamination=contamination, random_state=42)
     >>>
     >>> clf = SOS()
     >>> clf.fit(X_train)
@@ -247,17 +252,15 @@ class SOS(BaseDetector):
         return O
 
     def fit(self, X, y=None):
-        """Fit the model using X as training data.
-        
+        """Fit detector. y is optional for unsupervised methods.
+
         Parameters
         ----------
-        X : array, shape (n_samples, n_features)
-            Training data.
-            
-        Returns
-        -------
-        self : object
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
         """
         X = check_array(X)
         self._set_n_classes(y)
@@ -271,6 +274,23 @@ class SOS(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
         D = self._x2d(X)

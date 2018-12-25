@@ -27,10 +27,10 @@ class HBOS(BaseDetector):
     Parameters
     ----------
     n_bins : int, optional (default=10)
-        The number of bins
+        The number of bins.
 
     alpha : float in (0, 1), optional (default=0.1)
-        The regularizer for preventing overflow
+        The regularizer for preventing overflow.
 
     tol : float in (0, 1), optional (default=0.1)
         The parameter to decide the flexibility while dealing
@@ -44,16 +44,15 @@ class HBOS(BaseDetector):
     Attributes
     ----------
     bin_edges_ : numpy array of shape (n_bins + 1, n_features )
-        The edges of the bins
+        The edges of the bins.
 
     hist_ : numpy array of shape (n_bins, n_features)
-        The density of each histogram
+        The density of each histogram.
 
     decision_scores_ : numpy array of shape (n_samples,)
         The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
-        scores. This value is available once the detector is
-        fitted.
+        scores. This value is available once the detector is fitted.
 
     threshold_ : float
         The threshold is based on ``contamination``. It is the
@@ -77,6 +76,16 @@ class HBOS(BaseDetector):
         check_parameter(tol, 0, 1, param_name='tol')
 
     def fit(self, X, y=None):
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -105,6 +114,23 @@ class HBOS(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['hist_', 'bin_edges_'])
         X = check_array(X)
 
@@ -136,10 +162,10 @@ def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha,
         The density of each histogram.
 
     n_bins : int, optional (default=10)
-        The number of bins
+        The number of bins.
 
     alpha : float in (0, 1), optional (default=0.1)
-        The regularizer for preventing overflow
+        The regularizer for preventing overflow.
 
     tol : float in (0, 1), optional (default=0.1)
         The parameter to decide the flexibility while dealing
@@ -149,7 +175,6 @@ def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha,
     -------
     outlier_scores : numpy array of shape (n_samples, n_features)
         Outlier scores on all features (dimensions).
-
     """
 
     n_samples, n_features = X.shape[0], X.shape[1]

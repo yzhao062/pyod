@@ -42,8 +42,7 @@ class BaseDetector(object):
     decision_scores_ : numpy array of shape (n_samples,)
         The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher
-        scores. This value is available once the detector is
-        fitted.
+        scores. This value is available once the detector is fitted.
 
     threshold_ : float
         The threshold is based on ``contamination``. It is the
@@ -377,6 +376,7 @@ class BaseDetector(object):
         # Extract and sort argument names excluding 'self'
         return sorted([p.name for p in parameters])
 
+    # noinspection PyPep8
     def get_params(self, deep=True):
         """Get parameters for this estimator.
 
@@ -419,19 +419,20 @@ class BaseDetector(object):
         return out
 
     def set_params(self, **params):
+        # noinspection PyPep8
         """Set the parameters of this estimator.
-        The method works on simple estimators as well as on nested objects
-        (such as pipelines). The latter have parameters of the form
-        ``<component>__<parameter>`` so that it's possible to update each
-        component of a nested object.
+                The method works on simple estimators as well as on nested objects
+                (such as pipelines). The latter have parameters of the form
+                ``<component>__<parameter>`` so that it's possible to update each
+                component of a nested object.
 
-        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-        and sklearn/base.py for more information.
+                See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
+                and sklearn/base.py for more information.
 
-        Returns
-        -------
-        self : object
-        """
+                Returns
+                -------
+                self : object
+                """
 
         if not params:
             # Simple optimization to gain speed (inspect is slow)
@@ -458,10 +459,11 @@ class BaseDetector(object):
         return self
 
     def __repr__(self):
+        # noinspection PyPep8
         """
-        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-        and sklearn/base.py for more information.
-        """
+                See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
+                and sklearn/base.py for more information.
+                """
 
         class_name = self.__class__.__name__
         return '%s(%s)' % (class_name, _pprint(self.get_params(deep=False),
