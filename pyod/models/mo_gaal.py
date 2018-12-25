@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Grubbs' test for outliers.
-Part of the codes are adapted from https://github.com/Cloudy10/loci
+"""Multiple-Objective Generative Adversarial Active Learning.
+Part of the codes are adapted from https://github.com/leibinghe/GAAL-based-outlier-detection
 """
 # Author: Winston Li <jk_zhengli@hotmail.com>
 # License: BSD 2 clause
@@ -86,8 +86,8 @@ class MO_GAAL(BaseDetector):
     >>> contamination = 0.1
     >>> n_features = 300
     >>> X_train, y_train, X_test, y_test = generate_data(
-    >>>     n_train=n_train, n_test=n_test, n_features=n_features,
-    >>>     contamination=contamination, random_state=42)
+    ...     n_train=n_train, n_test=n_test, n_features=n_features,
+    ...     contamination=contamination, random_state=42)
     >>>
     >>> clf = MO_GAAL()
     >>> clf.fit(X_train)
@@ -198,10 +198,11 @@ class MO_GAAL(BaseDetector):
             names['fake' + str(i)] = self.discriminator(names['fake' + str(i)])
             names['combine_model' + str(i)] = Model(latent,
                                                     names['fake' + str(i)])
-            names['combine_model' + str(i)].compile(optimizer=SGD(lr=self.lr_g,
-                                                                  decay=self.decay,
-                                                                  momentum=self.momentum),
-                                                    loss='binary_crossentropy')
+            names['combine_model' + str(i)].compile(
+                optimizer=SGD(lr=self.lr_g,
+                              decay=self.decay,
+                              momentum=self.momentum),
+                loss='binary_crossentropy')
 
         # Start iteration
         for epoch in range(epochs):
@@ -271,11 +272,9 @@ class MO_GAAL(BaseDetector):
                 noise = np.random.uniform(0, 1, (int(noise_size), latent_size))
                 if stop == 0:
                     for i in range(self.k):
-                        names['sub_generator' + str(i) + '_loss'] = names[
-                            'combine_model' + str(i)].train_on_batch(noise,
-                                                                     names[
-                                                                         'trick' + str(
-                                                                             i)])
+                        names['sub_generator' + str(i) + '_loss'] = \
+                            names['combine_model' + str(i)].train_on_batch(
+                                noise, names['trick' + str(i)])
                         self.train_history[
                             'sub_generator{}_loss'.format(i)].append(
                             names['sub_generator' + str(i) + '_loss'])

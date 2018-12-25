@@ -86,9 +86,8 @@ class SO_GAAL(BaseDetector):
     >>> contamination = 0.1
     >>> n_features = 300
     >>> X_train, y_train, X_test, y_test = generate_data(
-    >>>     n_train=n_train, n_test=n_test, n_features=n_features,
-    >>>     contamination=contamination, random_state=42)
-    >>>
+    ...     n_train=n_train, n_test=n_test, n_features=n_features,
+    ...     contamination=contamination, random_state=42)
     >>> clf = SO_GAAL()
     >>> clf.fit(X_train)
     >>> print(clf.decision_scores_)

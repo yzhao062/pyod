@@ -181,9 +181,8 @@ class ABOD(BaseDetector):
         return self
 
     def _fit_fast(self):
-        """Fast ABOD method. Only use n_neighbors for angle calculation
+        """Fast ABOD method. Only use n_neighbors for angle calculation.
         Internal use only
-        :return: None
         """
 
         # make sure the n_neighbors is in the range
@@ -220,13 +219,18 @@ class ABOD(BaseDetector):
             return self._decision_function_default(X) * -1
 
     def _decision_function_default(self, X):
-        """Internal method for predicting outlier scores using default ABOD
+        """Internal method for predicting outlier scores using default ABOD.
 
-        :param X: The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
-        :type X: numpy array of shape (n_samples, n_features)
-        :return: The anomaly score of the input samples.
-        :rtype: array, shape (n_samples,)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        pred_score : array, shape (n_samples,)
+            The anomaly score of the input samples.
+
         """
         # initialize the output score
         pred_score = np.zeros([X.shape[0], 1])
@@ -240,13 +244,18 @@ class ABOD(BaseDetector):
         return pred_score.ravel()
 
     def _decision_function_fast(self, X):
-        """Internal method for predicting outlier scores using Fast ABOD
+        """Internal method for predicting outlier scores using Fast ABOD.
 
-        :param X: The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
-        :type X: numpy array of shape (n_samples, n_features)
-        :return: The anomaly score of the input samples.
-        :rtype: array, shape (n_samples,)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        pred_score : array, shape (n_samples,)
+            The anomaly score of the input samples.
+
         """
 
         check_is_fitted(self, ['tree_'])
