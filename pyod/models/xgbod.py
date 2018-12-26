@@ -356,6 +356,21 @@ class XGBOD(BaseDetector):
         return pred_scores.ravel()
 
     def predict(self, X):
+        """Predict if a particular sample is an outlier or not.
+        Calling xgboost `predict` function.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+            For each observation, tells whether or not
+            it should be considered as an outlier according to the
+            fitted model. 0 stands for inliers and 1 for outliers.
+        """
 
         check_is_fitted(self, ['clf_', 'decision_scores_',
                                'labels_', '_scalar'])
@@ -370,6 +385,23 @@ class XGBOD(BaseDetector):
         return pred_scores.ravel()
 
     def predict_proba(self, X):
+        """Predict the probability of a sample being outlier.
+        Calling xgboost `predict_proba` function.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+            For each observation, tells whether or not
+            it should be considered as an outlier according to the
+            fitted model. Return the outlier probability, ranging
+            in [0,1].
+        """
         return self.decision_function(X)
 
     def fit_predict(self, X, y):
