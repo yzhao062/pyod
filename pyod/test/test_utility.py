@@ -30,6 +30,7 @@ from utils.utility import precision_n_scores
 from utils.utility import argmaxn
 from utils.utility import invert_order
 from utils.utility import check_detector
+from utils.utility import score_to_label
 
 
 class TestUtils(unittest.TestCase):
@@ -286,6 +287,14 @@ class TestMetrics(unittest.TestCase):
     def test_inconsistent_length(self):
         with assert_raises(ValueError):
             get_label_n(self.y, self.labels_short_)
+
+    def test_score_to_label(self):
+        manual_scores = [0.1, 0.4, 0.2, 0.3, 0.5, 0.9, 0.7, 1, 0.8, 0.6]
+        labels = score_to_label(manual_scores, outliers_fraction=0.1)
+        assert_allclose(labels, [0, 0, 0, 0, 0, 0, 0, 1, 0, 0])
+
+        labels = score_to_label(manual_scores, outliers_fraction=0.3)
+        assert_allclose(labels, [0, 0, 0, 0, 0, 1, 0, 1, 1, 0])
 
     def tearDown(self):
         pass

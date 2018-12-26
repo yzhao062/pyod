@@ -27,43 +27,46 @@ MIN_INT = -1 * MAX_INT
 
 def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
                     include_left=False, include_right=False):
-    """Check if an input parameter is with in the range low and high bounds.
+    """Check if an input is within the defined range.
 
-    :param param: The input parameter to check
-    :type param: int, float
+    Parameters
+    ----------
+    param : int, float
+        The input parameter to check.
 
-    :param low: The lower bound of the range
-    :type low: int, float
+    low : int, float
+        The lower bound of the range.
 
-    :param high: The higher bound of the range
-    :type high: int, float
+    high : int, float
+        The higher bound of the range.
 
-    :param param_name: The name of the parameter
-    :type param_name: str, optional (default='')
+    param_name : str, optional (default='')
+        The name of the parameter.
 
-    :param include_left: Whether includes the lower bound (lower bound <=)
-    :type include_left: bool, optional (default=False)
+    include_left : bool, optional (default=False)
+        Whether includes the lower bound (lower bound <=).
 
-    :param include_right: Whether includes the higher bound (<= higher bound )
-    :type include_right: bool, optional (default=False)
+    include_right : bool, optional (default=False)
+        Whether includes the higher bound (<= higher bound).
 
-    :return: Whether the parameter is within the range of (low, high)
-    :rtype: bool or raise errors
+    Returns
+    -------
+    within_range : bool or raise errors
+        Whether the parameter is within the range of (low, high)
+
     """
 
     # param, low and high should all be numerical
     if not isinstance(param, (numbers.Integral, np.integer, np.float)):
-        raise TypeError(
-            '{param_name} is set to {param}. '
-            'Not numerical'.format(param=param,
-                                   param_name=param_name))
+        raise TypeError('{param_name} is set to {param} Not numerical'.format(
+            param=param, param_name=param_name))
 
     if not isinstance(low, (numbers.Integral, np.integer, np.float)):
-        raise TypeError(
-            'low is set to {low}. ''Not numerical'.format(low=low))
+        raise TypeError('low is set to {low}. Not numerical'.format(low=low))
+
     if not isinstance(high, (numbers.Integral, np.integer, np.float)):
-        raise TypeError(
-            'high is set to {high}. ''Not numerical'.format(high=high))
+        raise TypeError('high is set to {high}. Not numerical'.format(
+            high=high))
 
     # at least one of the bounds should be specified
     if low is MIN_INT and high is MAX_INT:
@@ -126,10 +129,10 @@ def standardizer(X, X_t=None, keep_scalar=False):
 
     Parameters
     ----------
-    X : ndarray (n_samples, n_features)
+    X : numpy array of shape (n_samples, n_features)
         The training samples
 
-    X_t : ndarray (n_samples_new, n_features), optional (default=None)
+    X_t : numpy array of shape (n_samples_new, n_features), optional (default=None)
         The data to be converted
 
     keep_scalar : bool, optional (default=False)
@@ -137,10 +140,10 @@ def standardizer(X, X_t=None, keep_scalar=False):
 
     Returns
     -------
-    X_norm : ndarray (n_samples, n_features)
+    X_norm : numpy array of shape (n_samples, n_features)
         X after the Z-score normalization
 
-    X_t_norm : ndarray (n_samples, n_features)
+    X_t_norm : numpy array of shape (n_samples, n_features)
         X_t after the Z-score normalization
 
     scalar : sklearn scalar object
@@ -169,13 +172,28 @@ def standardizer(X, X_t=None, keep_scalar=False):
 
 
 def score_to_label(pred_scores, outliers_fraction=0.1):
-    """Turn raw outlier outlier scores to binary labels (0 or 1)
+    """Turn raw outlier outlier scores to binary labels (0 or 1).
 
-    :param pred_scores: raw outlier scores
-    :param outliers_fraction: percentage of outliers
-    :return: binary labels (1 stands for outlier)
-    :rtype: int
+    Parameters
+    ----------
+    pred_scores : list or numpy array of shape (n_samples,)
+        Raw outlier scores. Outliers are assumed have larger values.
+
+    outliers_fraction : float in (0,1)
+        Percentage of outliers.
+
+    Returns
+    -------
+    outlier_labels : numpy array of shape (n_samples,)
+        For each observation, tells whether or not
+        it should be considered as an outlier according to the
+        fitted model. Return the outlier probability, ranging
+        in [0,1].
     """
+    # check input values
+    pred_scores = column_or_1d(pred_scores)
+    check_parameter(outliers_fraction, 0, 1)
+
     threshold = scoreatpercentile(pred_scores, 100 * (1 - outliers_fraction))
     pred_labels = (pred_scores > threshold).astype('int')
     return pred_labels
@@ -249,7 +267,8 @@ def generate_indices(random_state, bootstrap, n_population, n_samples):
     Parameters
     ----------
     random_state : RandomState
-        A random number generator instance to define the state of the random permutations generator.
+        A random number generator instance to define the state of the random
+        permutations generator.
     bootstrap :  bool
         Specifies whether to bootstrap indice generation
     n_population : int
