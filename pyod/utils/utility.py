@@ -200,14 +200,24 @@ def score_to_label(pred_scores, outliers_fraction=0.1):
 
 
 def precision_n_scores(y, y_pred, n=None):
-    """Utility function to calculate precision @ rank n
+    """Utility function to calculate precision @ rank n.
 
-    :param y: ground truth
-    :param y_pred: predicted outlier scores as returned by fitted model
-        (not rounded off)
-    :param n: number of outliers, if not defined, infer using ground truth
-    :return: precision at rank n score
-    :rtype: float
+    Parameters
+    ----------
+    y : list or numpy array of shape (n_samples,)
+        The ground truth. Binary (0: inliers, 1: outliers).
+
+    y_pred : list or numpy array of shape (n_samples,)
+        The raw outlier scores as returned by a fitted model.
+
+    n : int, optional (default=None)
+        The number of outliers. if not defined, infer using ground truth.
+
+    Returns
+    -------
+    precision_at_rank_n : float
+        Precision at rank n score.
+
     """
 
     # turn raw prediction decision scores into binary labels
@@ -220,96 +230,34 @@ def precision_n_scores(y, y_pred, n=None):
     return precision_score(y, y_pred)
 
 
-def generate_bagging_indices(random_state, bootstrap_features, n_features,
-                             min_features, max_features):
-    """ Randomly draw feature indices. Internal use only.
-
-    Modified from sklearn/ensemble/bagging.py
-
-    Parameters
-    ----------
-    random_state : RandomState
-        A random number generator instance to define the state of the random permutations generator.
-    bootstrap_features : bool
-        Specifies whether to bootstrap indice generation
-    n_features : int
-        Specifies the population size when generating indices
-    min_features : int
-        Lower limit for number of features to randomly sample
-    max_features : int
-        Upper limit for number of features to randomly sample
-
-    Returns
-    -------
-    feature_indices : numpy array, shape (n_samples, )
-        Indices for features to bag
-
-    """
-
-    # Get valid random state
-    random_state = check_random_state(random_state)
-
-    # decide number of features to draw
-    random_n_features = random_state.randint(min_features, max_features)
-
-    # Draw indices
-    feature_indices = generate_indices(random_state, bootstrap_features,
-                                       n_features, random_n_features)
-
-    return feature_indices
-
-
-def generate_indices(random_state, bootstrap, n_population, n_samples):
-    """ Draw randomly sampled indices. Internal use only.
-
-    See sklearn/ensemble/bagging.py
-
-    Parameters
-    ----------
-    random_state : RandomState
-        A random number generator instance to define the state of the random
-        permutations generator.
-    bootstrap :  bool
-        Specifies whether to bootstrap indice generation
-    n_population : int
-        Specifies the population size when generating indices
-    n_samples : int
-        Specifies number of samples to draw
-
-    Returns
-    -------
-    indices : numpy array, shape (n_samples,)
-        randomly drawn indices
-    """
-
-    # Draw sample indices
-    if bootstrap:
-        indices = random_state.randint(0, n_population, n_samples)
-    else:
-        indices = sample_without_replacement(n_population, n_samples,
-                                             random_state=random_state)
-
-    return indices
-
-
 def get_label_n(y, y_pred, n=None):
     """Function to turn raw outlier scores into binary labels by assign 1
     to top n outlier scores.
 
-    Example y: [0,1,1,0,0,0]
-            y_pred: [0.1, 0.5, 0.3, 0.2, 0.7]
-            return [0, 1, 0, 0, 1]
+    Parameters
+    ----------
+    y : list or numpy array of shape (n_samples,)
+        The ground truth. Binary (0: inliers, 1: outliers).
 
-    :param y: ground truth
-    :type y: list or numpy array of shape (n_samples,)
+    y_pred : list or numpy array of shape (n_samples,)
+        The raw outlier scores as returned by a fitted model.
 
-    :param y_pred: raw outlier scores
-    :type y_pred: list or numpy array of shape (n_samples,)
+    n : int, optional (default=None)
+        The number of outliers. if not defined, infer using ground truth.
 
-    :param n: number of outliers, if not defined, infer using ground truth
-    :type n: int
+    Returns
+    -------
+    labels : numpy array of shape (n_samples,)
+        binary labels 0: normal points and 1: outliers
 
-    :return: binary labels 0: normal points and 1: outliers
+    Examples
+    --------
+    >>> from pyod.utils.utility import get_label_n
+    >>> y = [0, 1, 1, 0, 0, 0]
+    >>> y_pred = [0.1, 0.5, 0.3, 0.2, 0.7]
+    >>> get_label_n(y, y_pred)
+    >>> [0, 1, 0, 0, 1]
+
     """
 
     # enforce formats of inputs
@@ -332,19 +280,29 @@ def get_label_n(y, y_pred, n=None):
 
 
 def argmaxn(value_list, n, order='desc'):
-    """
-    Return the index of top n elements in the list if order is set to 'desc',
-    otherwise return the index of n smallest elements
+    """Return the index of top n elements in the list
+    if order is set to 'desc', otherwise return the index of n smallest ones.
 
-    :param value_list: a list containing all values
-    :type value_list: list, array
-    :param n: the number of the elements to select
-    :type n: int
-    :param order: the order to sort {'desc', 'asc'}
-    :type order: str, optional (default='desc')
-    :return: the index of the top n elements
-    :rtype: list
+    Parameters
+    ----------
+    value_list : list, array, numpy array of shape (n_samples,)
+        A list containing all values.
+
+    n : int
+        The number of elements to select.
+
+    order : str, optional (default='desc')
+        The order to sort {'desc', 'asc'}:
+
+        - 'desc': descending
+        - 'asc': ascending
+
+    Returns
+    -------
+    index_list : numpy array of shape (n,)
+        The index of the top n elements.
     """
+
     value_list = column_or_1d(value_list)
     length = len(value_list)
 
@@ -409,10 +367,94 @@ def _sklearn_version_20():
     In sklearn 20.0, LOF is changed. Specifically, _decision_function
     is replaced by _score_samples
 
-    :return: True if sklearn.__version__ is newer than 0.20.0
+    Returns
+    -------
+    sklearn_20_flag : bool
+        True if sklearn.__version__ is newer than 0.20.0
+
     """
     sklearn_version = str(sklearn.__version__)
     if int(sklearn_version.split(".")[1]) > 19:
         return True
     else:
         return False
+
+
+def generate_bagging_indices(random_state, bootstrap_features, n_features,
+                             min_features, max_features):
+    """ Randomly draw feature indices. Internal use only.
+
+    Modified from sklearn/ensemble/bagging.py
+
+    Parameters
+    ----------
+    random_state : RandomState
+        A random number generator instance to define the state of the random
+        permutations generator.
+
+    bootstrap_features : bool
+        Specifies whether to bootstrap indice generation
+
+    n_features : int
+        Specifies the population size when generating indices
+
+    min_features : int
+        Lower limit for number of features to randomly sample
+
+    max_features : int
+        Upper limit for number of features to randomly sample
+
+    Returns
+    -------
+    feature_indices : numpy array, shape (n_samples,)
+        Indices for features to bag
+
+    """
+
+    # Get valid random state
+    random_state = check_random_state(random_state)
+
+    # decide number of features to draw
+    random_n_features = random_state.randint(min_features, max_features)
+
+    # Draw indices
+    feature_indices = generate_indices(random_state, bootstrap_features,
+                                       n_features, random_n_features)
+
+    return feature_indices
+
+
+def generate_indices(random_state, bootstrap, n_population, n_samples):
+    """ Draw randomly sampled indices. Internal use only.
+
+    See sklearn/ensemble/bagging.py
+
+    Parameters
+    ----------
+    random_state : RandomState
+        A random number generator instance to define the state of the random
+        permutations generator.
+
+    bootstrap :  bool
+        Specifies whether to bootstrap indice generation
+
+    n_population : int
+        Specifies the population size when generating indices
+
+    n_samples : int
+        Specifies number of samples to draw
+
+    Returns
+    -------
+    indices : numpy array, shape (n_samples,)
+        randomly drawn indices
+    """
+
+    # Draw sample indices
+    if bootstrap:
+        indices = random_state.randint(0, n_population, n_samples)
+    else:
+        indices = sample_without_replacement(n_population, n_samples,
+                                             random_state=random_state)
+
+    return indices

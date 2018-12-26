@@ -21,40 +21,10 @@ from .base import BaseDetector
 from .sklearn_base import _partition_estimators
 from .combination import average, maximization
 from ..utils.utility import check_parameter
+from ..utils.utility import generate_indices
+from ..utils.utility import generate_bagging_indices
 
 MAX_INT = np.iinfo(np.int32).max
-
-
-def _generate_indices(random_state, bootstrap, n_population, n_samples):
-    """Draw randomly sampled indices. Internal use only.
-    See sklearn/ensemble/bagging.py
-    """
-    # Draw sample indices
-    if bootstrap:
-        indices = random_state.randint(0, n_population, n_samples)
-    else:
-        indices = sample_without_replacement(n_population, n_samples,
-                                             random_state=random_state)
-
-    return indices
-
-
-def _generate_bagging_indices(random_state, bootstrap_features, n_features,
-                              min_features, max_features):
-    """Randomly draw feature indices. Internal use only.
-    Modified from sklearn/ensemble/bagging.py
-    """
-    # Get valid random state
-    random_state = check_random_state(random_state)
-
-    # decide number of features to draw
-    random_n_features = random_state.randint(min_features, max_features)
-
-    # Draw indices
-    feature_indices = _generate_indices(random_state, bootstrap_features,
-                                        n_features, random_n_features)
-
-    return feature_indices
 
 
 def _set_random_states(estimator, random_state=None):
@@ -283,11 +253,11 @@ class FeatureBagging(BaseDetector):
 
             # max_features is incremented by one since random
             # function is [min_features, max_features)
-            features = _generate_bagging_indices(random_state,
-                                                 self.bootstrap_features,
-                                                 self.n_features_,
-                                                 self.min_features_,
-                                                 self.max_features_ + 1)
+            features = generate_bagging_indices(random_state,
+                                                self.bootstrap_features,
+                                                self.n_features_,
+                                                self.min_features_,
+                                                self.max_features_ + 1)
             # initialize and append estimators
             estimator = self._make_estimator(append=False,
                                              random_state=random_state)
