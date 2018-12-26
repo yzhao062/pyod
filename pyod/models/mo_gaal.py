@@ -8,19 +8,20 @@ Part of the codes are adapted from https://github.com/leibinghe/GAAL-based-outli
 from __future__ import division
 from __future__ import print_function
 
-import math
 from collections import defaultdict
 
 import numpy as np
-import keras
-from keras.layers import Input, Dense
-from keras.models import Sequential, Model
+
+from keras.layers import Input
+from keras.models import Model
 from keras.optimizers import SGD
 
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
+from .gaal_base import create_discriminator
+from .gaal_base import create_generator
 
 
 class MO_GAAL(BaseDetector):
@@ -102,62 +103,6 @@ class MO_GAAL(BaseDetector):
         self.decay = decay
         self.momentum = momentum
 
-    def create_generator(self, latent_size):
-        """Create the generator of the GAN for a given latent size.
-        
-        Parameters
-        ----------
-        latent_size : int
-            The size of the latent space of the generator
-            
-        Returns
-        -------
-        D : Keras model() object
-            Returns a model() object.   
-        """
-
-        gen = Sequential()
-        gen.add(Dense(latent_size, input_dim=latent_size, activation='relu',
-                      kernel_initializer=keras.initializers.Identity(
-                          gain=1.0)))
-        gen.add(Dense(latent_size, activation='relu',
-                      kernel_initializer=keras.initializers.Identity(
-                          gain=1.0)))
-        latent = Input(shape=(latent_size,))
-        fake_data = gen(latent)
-        return Model(latent, fake_data)
-
-    def create_discriminator(self, latent_size, data_size):
-        """Create the discriminator of the GAN for a given latent size.
-        
-        Parameters
-        ----------
-        latent_size : int
-            The size of the latent space of the generator.
-        
-        data_size : int
-            Size of the input data.
-            
-        Returns
-        -------
-        D : Keras model() object
-            Returns a model() object.   
-        """
-
-        dis = Sequential()
-        dis.add(Dense(int(math.ceil(math.sqrt(data_size))),
-                      input_dim=latent_size, activation='relu',
-                      kernel_initializer=keras.initializers.VarianceScaling(
-                          scale=1.0, mode='fan_in', distribution='normal',
-                          seed=None)))
-        dis.add(Dense(1, activation='sigmoid',
-                      kernel_initializer=keras.initializers.VarianceScaling(
-                          scale=1.0, mode='fan_in', distribution='normal',
-                          seed=None)))
-        data = Input(shape=(latent_size,))
-        fake = dis(data)
-        return Model(data, fake)
-
     def fit(self, X, y=None):
         """Fit detector. y is optional for unsupervised methods.
 
@@ -179,15 +124,14 @@ class MO_GAAL(BaseDetector):
         latent_size = X.shape[1]
         data_size = X.shape[0]
         # Create discriminator
-        self.discriminator = self.create_discriminator(latent_size, data_size)
+        self.discriminator = create_discriminator(latent_size, data_size)
         self.discriminator.compile(
             optimizer=SGD(lr=self.lr_d, decay=self.decay,
                           momentum=self.momentum), loss='binary_crossentropy')
 
         # Create k combine models
         for i in range(self.k):
-            names['sub_generator' + str(i)] = self.create_generator(
-                latent_size)
+            names['sub_generator' + str(i)] = create_generator(latent_size)
             latent = Input(shape=(latent_size,))
             names['fake' + str(i)] = names['sub_generator' + str(i)](latent)
             self.discriminator.trainable = False
