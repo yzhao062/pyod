@@ -12,7 +12,6 @@ from numba import njit
 from scipy.stats import pearsonr
 from sklearn.utils.validation import check_array
 # noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
 from sklearn.utils.validation import check_consistent_length
 
 
@@ -73,24 +72,28 @@ def _pairwise_distances_no_broadcast_helper(X, Y):
 
 
 def wpearsonr(x, y, w=None):
-    # noinspection PyPep8
     """Utility function to calculate the weighted Pearson correlation of two
     samples.
 
     See https://stats.stackexchange.com/questions/221246/such-thing-as-a-weighted-correlation
     for more information
 
-    :param x: Input x
-    :type x: array, shape (n,)
+    Parameters
+    ----------
+    x : array, shape (n,)
+        Input x.
 
-    :param y: Input y
-    :type y: array, shape (n,)
+    y : array, shape (n,)
+        Input y.
 
-    :param w: Weights
-    :type w: array, shape (n,)
+    w : array, shape (n,)
+        Weights w.
 
-    :return: Weighted Pearson Correlation between x and y
-    :rtype: float [-1,1]
+    Returns
+    -------
+    scores : float in range of [-1,1]
+        Weighted Pearson Correlation between x and y.
+
     """
 
     # unweighted version
@@ -145,6 +148,22 @@ def wpearsonr(x, y, w=None):
 
 
 def pearsonr_mat(mat, w=None):
+    """Utility function to calculate pearson matrix (row-wise).
+
+    Parameters
+    ----------
+    mat : numpy array of shape (n_samples, n_features)
+        Input matrix.
+
+    w : numpy array of shape (n_features,)
+        Weights.
+
+    Returns
+    -------
+    pear_mat : numpy array of shape (n_samples, n_samples)
+        Row-wise pearson score matrix.
+
+    """
     mat = check_array(mat)
     n_row = mat.shape[0]
     n_col = mat.shape[1]
