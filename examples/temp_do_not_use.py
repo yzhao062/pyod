@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 
 from pyod.models.lof import LOF
 from pyod.utils.data import generate_data
+from pyod.utils.data import get_outliers_inliers
 from pyod.utils.data import evaluate_print
 
 
@@ -58,31 +59,6 @@ def _add_sub_plot(X_inliers, X_outliers, sub_plot_title,
     plt.xticks([])
     plt.yticks([])
     plt.legend(loc=4, prop={'size': 10})
-
-
-def _get_sample_indices(X, y):
-    """Internal method to separate inliers from outliers.
-
-    Parameters
-    ----------
-    X : numpy array of shape (n_samples, n_features)
-        The input samples
-
-    y : list or array of shape (n_samples,)
-        The ground truth of input samples.
-
-    Returns
-    -------
-    X_outliers : numpy array of shape (n_samples, n_features)
-        Outliers.
-
-    X_inliers : numpy array of shape (n_samples, n_features)
-        Inliers.
-
-    """
-    X_outliers = X[np.where(y == 1)]
-    X_inliers = X[np.where(y == 0)]
-    return X_outliers, X_inliers
 
 
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
@@ -136,12 +112,12 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
     check_consistent_length(y_train, y_train_pred)
     check_consistent_length(y_test, y_test_pred)
 
-    X_train_outliers, X_train_inliers = _get_sample_indices(X_train, y_train)
-    X_train_outliers_pred, X_train_inliers_pred = _get_sample_indices(
+    X_train_outliers, X_train_inliers = get_outliers_inliers(X_train, y_train)
+    X_train_outliers_pred, X_train_inliers_pred = get_outliers_inliers(
         X_train, y_train_pred)
 
-    X_test_outliers, X_test_inliers = _get_sample_indices(X_test, y_test)
-    X_test_outliers_pred, X_test_inliers_pred = _get_sample_indices(
+    X_test_outliers, X_test_inliers = get_outliers_inliers(X_test, y_test)
+    X_test_outliers_pred, X_test_inliers_pred = get_outliers_inliers(
         X_test, y_test_pred)
 
     # plot ground truth vs. predicted results
