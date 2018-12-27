@@ -50,7 +50,7 @@ def pairwise_distances_no_broadcast(X, Y):
 
 
 @njit
-def _pairwise_distances_no_broadcast_helper(X, Y):
+def _pairwise_distances_no_broadcast_helper(X, Y):  # pragma: no cover
     """Internal function for calculating the distance with numba. Do not use.
 
     Parameters
