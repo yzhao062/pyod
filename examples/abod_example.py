@@ -15,13 +15,12 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from sklearn.utils import check_X_y
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 
 from pyod.models.abod import ABOD
 from pyod.utils.data import generate_data
 from pyod.utils.data import get_outliers_inliers
+from pyod.utils.data import check_consistent_shape
 from pyod.utils.data import evaluate_print
 
 
@@ -57,7 +56,7 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
         If set to True, show the figure.
 
     save_figure : bool, optional (default=False)
-        If set to True, save the figure to the local
+        If set to True, save the figure to the local.
 
     """
 
@@ -95,17 +94,13 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
         return
 
     # check input data shapes are consistent
-    X_train, y_train = check_X_y(X_train, y_train)
-    X_test, y_test = check_X_y(X_test, y_test)
+    X_train, y_train, X_test, y_test, y_train_pred, y_test_pred = \
+        check_consistent_shape(X_train, y_train, X_test, y_test, y_train_pred,
+                               y_test_pred)
 
-    y_test_pred = column_or_1d(y_test_pred)
-    y_train_pred = column_or_1d(y_train_pred)
-
-    if X_train.shape[1] != 2 or X_test.shape[1] != 2:
+    if X_train.shape[1] != 2:
         raise ValueError("Input data has to be 2-d for visualization. The "
                          "input data has {shape}.".format(shape=X_train.shape))
-    check_consistent_length(y_train, y_train_pred)
-    check_consistent_length(y_test, y_test_pred)
 
     X_train_outliers, X_train_inliers = get_outliers_inliers(X_train, y_train)
     X_train_outliers_pred, X_train_inliers_pred = get_outliers_inliers(
@@ -143,6 +138,8 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
 
     if show_figure:
         plt.show()
+
+    return
 
 
 if __name__ == "__main__":

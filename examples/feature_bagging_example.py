@@ -15,96 +15,130 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from sklearn.utils import check_X_y
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.utils.data import generate_data
 from pyod.utils.data import get_outliers_inliers
+from pyod.utils.data import check_consistent_shape
 from pyod.utils.data import evaluate_print
 
 
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True,
-              save_figure=False):  # pragma: no cover
+              y_test_pred, show_figure=True, save_figure=False):
+    """Utility function for visualizing the results in examples.
+    Internal use only.
+
+    Parameters
+    ----------
+    clf_name : str
+        The name of the detector.
+
+    X_train : numpy array of shape (n_samples, n_features)
+        The training samples.
+
+    y_train : list or array of shape (n_samples,)
+        The ground truth of training samples.
+
+    X_test : numpy array of shape (n_samples, n_features)
+        The test samples.
+
+    y_test : list or array of shape (n_samples,)
+        The ground truth of test samples.
+
+    y_train_pred : numpy array of shape (n_samples, n_features)
+        The predicted binary labels of the training samples.
+
+    y_test_pred : numpy array of shape (n_samples, n_features)
+        The predicted binary labels of the test samples.
+
+    show_figure : bool, optional (default=True)
+        If set to True, show the figure.
+
+    save_figure : bool, optional (default=False)
+        If set to True, save the figure to the local.
+
     """
-    Utility function for visualizing the results in examples
-    Internal use only
 
-    :param clf_name: The name of the detector
-    :type clf_name: str
+    def _add_sub_plot(X_inliers, X_outliers, sub_plot_title,
+                      inlier_color='blue', outlier_color='orange'):
+        """Internal method to add subplot of inliers and outliers.
 
-    :param X_train: The training samples
-    :param X_train: numpy array of shape (n_samples, n_features)
+        Parameters
+        ----------
+        X_inliers : numpy array of shape (n_samples, n_features)
+            Outliers.
 
-    :param y_train: The ground truth of training samples
-    :type y_train: list or array of shape (n_samples,)
+        X_outliers : numpy array of shape (n_samples, n_features)
+            Inliers.
 
-    :param X_test: The test samples
-    :type X_test: numpy array of shape (n_samples, n_features)
+        sub_plot_title : str
+            Subplot title.
 
-    :param y_test: The ground truth of test samples
-    :type y_test: list or array of shape (n_samples,)
+        inlier_color : str, optional (default='blue')
+            The color of inliers.
 
-    :param y_train_pred: The predicted outlier scores on the training samples
-    :type y_train_pred: numpy array of shape (n_samples, n_features)
+        outlier_color : str, optional (default='orange')
+            The color of outliers.
 
-    :param y_test_pred: The predicted outlier scores on the test samples
-    :type y_test_pred: numpy array of shape (n_samples, n_features)
+        """
+        plt.axis("equal")
+        plt.scatter(X_inliers[:, 0], X_inliers[:, 1], label='inliers',
+                    color=inlier_color, s=40)
+        plt.scatter(X_outliers[:, 0], X_outliers[:, 1],
+                    label='outliers', color=outlier_color, s=50, marker='^')
+        plt.title(sub_plot_title, fontsize=15)
+        plt.xticks([])
+        plt.yticks([])
+        plt.legend(loc=3, prop={'size': 10})
+        return
 
-    :param show_figure: If set to True, show the figure
-    :type show_figure: bool, optional (default=True)
+    # check input data shapes are consistent
+    X_train, y_train, X_test, y_test, y_train_pred, y_test_pred = \
+        check_consistent_shape(X_train, y_train, X_test, y_test, y_train_pred,
+                               y_test_pred)
 
-    :param save_figure: If set to True, save the figure to the local
-    :type save_figure: bool, optional (default=False)
-    """
-
-    if X_train.shape[1] != 2 or X_test.shape[1] != 2:
+    if X_train.shape[1] != 2:
         raise ValueError("Input data has to be 2-d for visualization. The "
                          "input data has {shape}.".format(shape=X_train.shape))
 
-    X_train, y_train = check_X_y(X_train, y_train)
-    X_test, y_test = check_X_y(X_test, y_test)
-    c_train = get_color_codes(y_train)
-    c_test = get_color_codes(y_test)
+    X_train_outliers, X_train_inliers = get_outliers_inliers(X_train, y_train)
+    X_train_outliers_pred, X_train_inliers_pred = get_outliers_inliers(
+        X_train, y_train_pred)
 
+    X_test_outliers, X_test_inliers = get_outliers_inliers(X_test, y_test)
+    X_test_outliers_pred, X_test_inliers_pred = get_outliers_inliers(
+        X_test, y_test_pred)
+
+    # plot ground truth vs. predicted results
     fig = plt.figure(figsize=(12, 10))
-    plt.suptitle("Demo of {clf_name}".format(clf_name=clf_name))
+    plt.suptitle("Demo of {clf_name} Detector".format(clf_name=clf_name),
+                 fontsize=15)
 
     fig.add_subplot(221)
-    plt.scatter(X_train[:, 0], X_train[:, 1], c=c_train)
-    plt.title('Train ground truth')
-    legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
-                              markerfacecolor='b', markersize=8),
-                       Line2D([0], [0], marker='o', color='w', label='outlier',
-                              markerfacecolor='r', markersize=8)]
-
-    plt.legend(handles=legend_elements, loc=4)
+    _add_sub_plot(X_train_inliers, X_train_outliers, 'Train Set Ground Truth',
+                  inlier_color='blue', outlier_color='orange')
 
     fig.add_subplot(222)
-    plt.scatter(X_test[:, 0], X_test[:, 1], c=c_test)
-    plt.title('Test ground truth')
-    plt.legend(handles=legend_elements, loc=4)
+    _add_sub_plot(X_train_inliers_pred, X_train_outliers_pred,
+                  'Train Set Prediction', inlier_color='blue',
+                  outlier_color='orange')
 
     fig.add_subplot(223)
-    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train_pred)
-    plt.title('Train prediction by {clf_name}'.format(clf_name=clf_name))
-    legend_elements = [Line2D([0], [0], marker='o', color='w', label='normal',
-                              markerfacecolor='0', markersize=8),
-                       Line2D([0], [0], marker='o', color='w', label='outlier',
-                              markerfacecolor='yellow', markersize=8)]
-    plt.legend(handles=legend_elements, loc=4)
+    _add_sub_plot(X_test_inliers, X_test_outliers, 'Test Set Ground Truth',
+                  inlier_color='green', outlier_color='red')
 
     fig.add_subplot(224)
-    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test_pred)
-    plt.title('Test prediction by {clf_name}'.format(clf_name=clf_name))
-    plt.legend(handles=legend_elements, loc=4)
+    _add_sub_plot(X_test_inliers_pred, X_test_outliers_pred,
+                  'Test Set Prediction', inlier_color='green',
+                  outlier_color='red')
 
     if save_figure:
         plt.savefig('{clf_name}.png'.format(clf_name=clf_name), dpi=300)
+
     if show_figure:
         plt.show()
+
     return
 
 
