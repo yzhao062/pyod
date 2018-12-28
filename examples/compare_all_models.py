@@ -38,6 +38,7 @@ from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
 from pyod.models.sos import SOS
+from pyod.models.lscp import LSCP
 
 # TODO: add neural networks, LOCI, SOS
 
@@ -54,6 +55,12 @@ n_outliers = int(outliers_fraction * n_samples)
 ground_truth = np.zeros(n_samples, dtype=int)
 ground_truth[-n_outliers:] = 1
 
+# initialize a set of detectors for LSCP
+detector_list = [LOF(n_neighbors=5), LOF(n_neighbors=10), LOF(n_neighbors=15),
+                 LOF(n_neighbors=20), LOF(n_neighbors=25), LOF(n_neighbors=30),
+                 LOF(n_neighbors=35), LOF(n_neighbors=40), LOF(n_neighbors=45),
+                 LOF(n_neighbors=50)]
+
 # Show the statics of the data
 print('Number of inliers: %i' % n_inliers)
 print('Number of outliers: %i' % n_outliers)
@@ -65,41 +72,42 @@ print(ground_truth, '\n')
 random_state = np.random.RandomState(42)
 # Define nine outlier detection tools to be compared
 classifiers = {
-                # 'Angle-based Outlier Detector (ABOD)':
-                #    ABOD(contamination=outliers_fraction),
-               'Fast Angle-based Outlier Detector (FastABOD)':
-                   ABOD(contamination=outliers_fraction),
-               'Cluster-based Local Outlier Factor (CBLOF)':
-                   CBLOF(contamination=outliers_fraction,
-                         check_estimator=False, random_state=random_state),
-               'Feature Bagging':
-                   FeatureBagging(LOF(n_neighbors=35),
-                                  contamination=outliers_fraction,
-                                  check_estimator=False,
-                                  random_state=random_state),
-               'Histogram-base Outlier Detection (HBOS)': HBOS(
-                   contamination=outliers_fraction),
-               'Isolation Forest': IForest(contamination=outliers_fraction,
-                                           random_state=random_state),
-               'K Nearest Neighbors (KNN)': KNN(
-                   contamination=outliers_fraction),
-               'Average KNN': KNN(method='mean',
-                                  contamination=outliers_fraction),
-               'Median KNN': KNN(method='median',
-                                 contamination=outliers_fraction),
-               'Local Outlier Factor (LOF)':
-                   LOF(n_neighbors=35, contamination=outliers_fraction),
-               # 'Local Correlation Integral (LOCI)':
-               #     LOCI(contamination=outliers_fraction),
-               'Minimum Covariance Determinant (MCD)': MCD(
-                   contamination=outliers_fraction, random_state=random_state),
-               'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
-                                              random_state=random_state),
-               'Principal Component Analysis (PCA)': PCA(
-                   contamination=outliers_fraction, random_state=random_state),
-               # 'Stochastic Outlier Selection (SOS)': SOS(
-               #     contamination=outliers_fraction),
-               }
+    'Angle-based Outlier Detector (ABOD)':
+        ABOD(contamination=outliers_fraction),
+    'Cluster-based Local Outlier Factor (CBLOF)':
+        CBLOF(contamination=outliers_fraction,
+              check_estimator=False, random_state=random_state),
+    'Feature Bagging':
+        FeatureBagging(LOF(n_neighbors=35),
+                       contamination=outliers_fraction,
+                       check_estimator=False,
+                       random_state=random_state),
+    'Histogram-base Outlier Detection (HBOS)': HBOS(
+        contamination=outliers_fraction),
+    'Isolation Forest': IForest(contamination=outliers_fraction,
+                                random_state=random_state),
+    'K Nearest Neighbors (KNN)': KNN(
+        contamination=outliers_fraction),
+    'Average KNN': KNN(method='mean',
+                       contamination=outliers_fraction),
+    # 'Median KNN': KNN(method='median',
+    #                   contamination=outliers_fraction),
+    'Local Outlier Factor (LOF)':
+        LOF(n_neighbors=35, contamination=outliers_fraction),
+    # 'Local Correlation Integral (LOCI)':
+    #     LOCI(contamination=outliers_fraction),
+    'Minimum Covariance Determinant (MCD)': MCD(
+        contamination=outliers_fraction, random_state=random_state),
+    'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
+                                   random_state=random_state),
+    'Principal Component Analysis (PCA)': PCA(
+        contamination=outliers_fraction, random_state=random_state),
+    # 'Stochastic Outlier Selection (SOS)': SOS(
+    #     contamination=outliers_fraction),
+    'Locally Selective Combination (LSCP)': LSCP(
+        detector_list, contamination=outliers_fraction,
+        random_state=random_state)
+}
 
 # Show all detectors
 for i, clf in enumerate(classifiers.keys()):

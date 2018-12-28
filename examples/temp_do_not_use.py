@@ -61,7 +61,7 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
         If set to True, show the figure.
 
     save_figure : bool, optional (default=False)
-        If set to True, save the figure to the local
+        If set to True, save the figure to the local.
 
     """
 
