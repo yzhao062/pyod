@@ -26,39 +26,7 @@ from pyod.models.lof import LOF
 from pyod.utils.data import generate_data
 from pyod.utils.data import get_outliers_inliers
 from pyod.utils.data import evaluate_print
-
-
-def _add_sub_plot(X_inliers, X_outliers, sub_plot_title,
-                  inlier_color='blue', outlier_color='orange'):
-    """Internal method to add subplot of inliers and outliers
-
-    Parameters
-    ----------
-    X_inliers : numpy array of shape (n_samples, n_features)
-        Outliers.
-
-    X_outliers : numpy array of shape (n_samples, n_features)
-        Inliers.
-
-    sub_plot_title : str
-        Subplot title.
-
-    inlier_color : str, optional (default='blue')
-        The color of inliers.
-
-    outlier_color : str, optional (default='orange')
-        The color of outliers.
-
-    """
-    plt.axis("equal")
-    plt.scatter(X_inliers[:, 0], X_inliers[:, 1], label='inliers',
-                color=inlier_color, s=40)
-    plt.scatter(X_outliers[:, 0], X_outliers[:, 1],
-                label='outliers', color=outlier_color, s=50, marker='^')
-    plt.title(sub_plot_title, fontsize=15)
-    plt.xticks([])
-    plt.yticks([])
-    plt.legend(loc=4, prop={'size': 10})
+from pyod.utils.data import check_consistent_shape
 
 
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
@@ -95,22 +63,49 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
     save_figure : bool, optional (default=False)
         If set to True, save the figure to the local
 
-    Returns
-    -------
-
     """
+
+    def _add_sub_plot(X_inliers, X_outliers, sub_plot_title,
+                      inlier_color='blue', outlier_color='orange'):
+        """Internal method to add subplot of inliers and outliers.
+    
+        Parameters
+        ----------
+        X_inliers : numpy array of shape (n_samples, n_features)
+            Outliers.
+    
+        X_outliers : numpy array of shape (n_samples, n_features)
+            Inliers.
+    
+        sub_plot_title : str
+            Subplot title.
+    
+        inlier_color : str, optional (default='blue')
+            The color of inliers.
+    
+        outlier_color : str, optional (default='orange')
+            The color of outliers.
+    
+        """
+        plt.axis("equal")
+        plt.scatter(X_inliers[:, 0], X_inliers[:, 1], label='inliers',
+                    color=inlier_color, s=40)
+        plt.scatter(X_outliers[:, 0], X_outliers[:, 1],
+                    label='outliers', color=outlier_color, s=50, marker='^')
+        plt.title(sub_plot_title, fontsize=15)
+        plt.xticks([])
+        plt.yticks([])
+        plt.legend(loc=3, prop={'size': 10})
+        return
+
     # check input data shapes are consistent
-    X_train, y_train = check_X_y(X_train, y_train)
-    X_test, y_test = check_X_y(X_test, y_test)
+    X_train, y_train, X_test, y_test, y_train_pred, y_test_pred = \
+        check_consistent_shape(X_train, y_train, X_test, y_test, y_train_pred,
+                               y_test_pred)
 
-    y_test_pred = column_or_1d(y_test_pred)
-    y_train_pred = column_or_1d(y_train_pred)
-
-    if X_train.shape[1] != 2 or X_test.shape[1] != 2:
+    if X_train.shape[1] != 2:
         raise ValueError("Input data has to be 2-d for visualization. The "
                          "input data has {shape}.".format(shape=X_train.shape))
-    check_consistent_length(y_train, y_train_pred)
-    check_consistent_length(y_test, y_test_pred)
 
     X_train_outliers, X_train_inliers = get_outliers_inliers(X_train, y_train)
     X_train_outliers_pred, X_train_inliers_pred = get_outliers_inliers(
@@ -122,24 +117,25 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
 
     # plot ground truth vs. predicted results
     fig = plt.figure(figsize=(12, 10))
-    plt.suptitle("Demo of {clf_name}".format(clf_name=clf_name), fontsize=15)
+    plt.suptitle("Demo of {clf_name} Detector".format(clf_name=clf_name),
+                 fontsize=15)
 
     fig.add_subplot(221)
-    _add_sub_plot(X_train_inliers, X_train_outliers, 'Train set ground truth',
+    _add_sub_plot(X_train_inliers, X_train_outliers, 'Train Set Ground Truth',
                   inlier_color='blue', outlier_color='orange')
 
     fig.add_subplot(222)
     _add_sub_plot(X_train_inliers_pred, X_train_outliers_pred,
-                  'Train set prediction', inlier_color='blue',
+                  'Train Set Prediction', inlier_color='blue',
                   outlier_color='orange')
 
     fig.add_subplot(223)
-    _add_sub_plot(X_test_inliers, X_test_outliers, 'Test set ground truth',
+    _add_sub_plot(X_test_inliers, X_test_outliers, 'Test Set Ground Truth',
                   inlier_color='green', outlier_color='red')
 
     fig.add_subplot(224)
     _add_sub_plot(X_test_inliers_pred, X_test_outliers_pred,
-                  'Test set prediction', inlier_color='green',
+                  'Test Set Prediction', inlier_color='green',
                   outlier_color='red')
 
     if save_figure:
@@ -185,4 +181,4 @@ if __name__ == "__main__":
 
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=True)
+              y_test_pred, show_figure=True, save_figure=False)

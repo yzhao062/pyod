@@ -23,7 +23,7 @@ from pyod.models.lscp import LSCP
 from pyod.models.lof import LOF
 from pyod.utils.utility import standardizer
 from pyod.utils.data import generate_data
-from pyod.utils.data import get_color_codes
+from pyod.utils.data import get_outliers_inliers
 from pyod.utils.data import evaluate_print
 
 

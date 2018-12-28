@@ -10,6 +10,7 @@ from __future__ import print_function
 import numpy as np
 
 from sklearn.utils import column_or_1d
+from sklearn.utils import check_X_y
 from sklearn.utils import check_random_state
 from sklearn.utils import check_consistent_length
 from sklearn.metrics import roc_auc_score
@@ -188,6 +189,68 @@ def get_color_codes(y):
     c[outliers_ind] = 'r'
 
     return c
+
+
+def check_consistent_shape(X_train, y_train, X_test, y_test, y_train_pred,
+                           y_test_pred):
+    """Internal shape to check input data shapes are consistent.
+
+    Parameters
+    ----------
+    X_train : numpy array of shape (n_samples, n_features)
+        The training samples.
+
+    y_train : list or array of shape (n_samples,)
+        The ground truth of training samples.
+
+    X_test : numpy array of shape (n_samples, n_features)
+        The test samples.
+
+    y_test : list or array of shape (n_samples,)
+        The ground truth of test samples.
+
+    y_train_pred : numpy array of shape (n_samples, n_features)
+        The predicted binary labels of the training samples.
+
+    y_test_pred : numpy array of shape (n_samples, n_features)
+        The predicted binary labels of the test samples.
+
+    Returns
+    -------
+    X_train : numpy array of shape (n_samples, n_features)
+        The training samples.
+
+    y_train : list or array of shape (n_samples,)
+        The ground truth of training samples.
+
+    X_test : numpy array of shape (n_samples, n_features)
+        The test samples.
+
+    y_test : list or array of shape (n_samples,)
+        The ground truth of test samples.
+
+    y_train_pred : numpy array of shape (n_samples, n_features)
+        The predicted binary labels of the training samples.
+
+    y_test_pred : numpy array of shape (n_samples, n_features)
+        The predicted binary labels of the test samples.
+    """
+
+    # check input data shapes are consistent
+    X_train, y_train = check_X_y(X_train, y_train)
+    X_test, y_test = check_X_y(X_test, y_test)
+
+    y_test_pred = column_or_1d(y_test_pred)
+    y_train_pred = column_or_1d(y_train_pred)
+
+    check_consistent_length(y_train, y_train_pred)
+    check_consistent_length(y_test, y_test_pred)
+
+    if X_train.shape[1] != X_test.shape[1]:
+        raise ValueError("X_train {0} and X_test {1} have different number "
+                         "of features.".format(X_train.shape, X_test.shape))
+
+    return X_train, y_train, X_test, y_test, y_train_pred, y_test_pred
 
 
 def evaluate_print(clf_name, y, y_pred):

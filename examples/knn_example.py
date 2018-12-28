@@ -21,7 +21,7 @@ from matplotlib.lines import Line2D
 
 from pyod.models.knn import KNN
 from pyod.utils.data import generate_data
-from pyod.utils.data import get_color_codes
+from pyod.utils.data import get_outliers_inliers
 from pyod.utils.data import evaluate_print
 
 

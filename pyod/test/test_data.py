@@ -11,6 +11,7 @@ from sklearn.utils.testing import assert_equal
 # noinspection PyProtectedMember
 from sklearn.utils.testing import assert_allclose
 from sklearn.utils.testing import assert_less_equal
+from sklearn.utils.testing import assert_raises
 
 import numpy as np
 
@@ -21,6 +22,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.data import generate_data
 from utils.data import evaluate_print
 from utils.data import get_outliers_inliers
+from utils.data import check_consistent_shape
 
 
 class TestData(unittest.TestCase):
@@ -99,6 +101,28 @@ class TestData(unittest.TestCase):
 
         assert_allclose(X_train[0:inlier_index, :], X_inliers)
         assert_allclose(X_train[inlier_index:, :], X_outliers)
+
+    def test_check_consistent_shape(self):
+        X_train, y_train, X_test, y_test = generate_data(
+            n_train=self.n_train,
+            n_test=self.n_test,
+            contamination=self.contamination)
+
+        X_train_n, y_train_n, X_test_n, y_test_n, y_train_pred_n, y_test_pred_n \
+            = check_consistent_shape(X_train, y_train, X_test, y_test,
+                                     y_train, y_test)
+
+        assert_allclose(X_train_n, X_train)
+        assert_allclose(y_train_n, y_train)
+        assert_allclose(X_test_n, X_test)
+        assert_allclose(y_test_n, y_test)
+        assert_allclose(y_train_pred_n, y_train)
+        assert_allclose(y_test_pred_n, y_test)
+
+        # test shape difference
+        with assert_raises(ValueError):
+            check_consistent_shape(X_train, y_train, y_train, y_test,
+                                   y_train, y_test)
 
     def tearDown(self):
         pass

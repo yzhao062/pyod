@@ -13,10 +13,11 @@ import numbers
 import sklearn
 from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
+
 from sklearn.utils import column_or_1d
 from sklearn.utils import check_array
 from sklearn.utils import check_consistent_length
-from sklearn.utils.testing import assert_equal
+
 from scipy.stats import scoreatpercentile
 from sklearn.utils import check_random_state
 from sklearn.utils.random import sample_without_replacement
