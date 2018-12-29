@@ -21,24 +21,24 @@ from ..utils.utility import check_parameter
 
 @njit
 def _wcos(curr_pt, a, b):  # pragma: no cover
-    """Internal function to calculate weighted cosine using
-    optimized numba code
+    """Internal function to calculate weighted cosine using optimized
+    numba code.
 
     Parameters
     ----------
     curr_pt : numpy array of shape (n_samples, n_features)
-        Current sample to be calculated
+        Current sample to be calculated.
 
     a : numpy array of shape (n_samples, n_features)
-        training sample a
+        Training sample a.
 
     b : numpy array of shape (n_samples, n_features)
-        training sample b
+        Training sample b.
 
     Returns
     -------
     wcos : float in range [-1, 1]
-        Cosine similarity between a-curr_pt and b-curr_pt
+        Cosine similarity between a-curr_pt and b-curr_pt.
 
     """
 
@@ -53,7 +53,7 @@ def _wcos(curr_pt, a, b):  # pragma: no cover
 
 
 def _calculate_wocs(curr_pt, X, X_ind):
-    """Calculated the variance of weighted cosine of a point
+    """Calculated the variance of weighted cosine of a point.
     wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
 
     Parameters
@@ -80,7 +80,6 @@ def _calculate_wocs(curr_pt, X, X_ind):
         b = X[b_ind, :]
 
         # skip if no angle can be formed
-        # array_equal is not supported in numba
         if np.array_equal(a, curr_pt) or np.array_equal(b, curr_pt):
             continue
         # add the weighted cosine to the list
@@ -96,8 +95,9 @@ class ABOD(BaseDetector):
     See :cite:`kriegel2008angle` for details.
 
     Two version of ABOD are supported:
-    Fast ABOD: use k nearest neighbors to approximate for complexity reduction
-    Original ABOD: consider all training points with high time complexity at
+
+    - Fast ABOD: use k nearest neighbors to approximate.
+    - Original ABOD: consider all training points with high time complexity at
     O(n^3).
 
     Parameters
@@ -176,7 +176,6 @@ class ABOD(BaseDetector):
     def _fit_default(self):
         """Default ABOD method. Use all training points with high complexity
         O(n^3). For internal use only.
-        :return: None
         """
         for i in range(self.n_train_):
             curr_pt = self.X_train_[i, :]
