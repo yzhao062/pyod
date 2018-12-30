@@ -35,6 +35,7 @@ from pyod.models.lof import LOF
 from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
+from pyod.models.lscp import LSCP
 
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import precision_n_scores
@@ -56,20 +57,24 @@ mat_file_list = ['arrhythmia.mat',
                  'pima.mat',
                  'satellite.mat',
                  'satimage-2.mat',
-                 'shuttle.mat',
+                 # 'shuttle.mat',
                  'vertebral.mat',
                  'vowels.mat',
                  'wbc.mat']
 
-n_ite = 20
-n_classifiers = 10
+n_ite = 10
+n_classifiers = 11
 
 df_columns = ['Data', '#Samples', '# Dimensions', 'Outlier Perc',
               'ABOD', 'CBLOF', 'FB', 'HBOS', 'IForest', 'KNN', 'LOF',
-              'MCD', 'OCSVM', 'PCA']
+              'MCD', 'OCSVM', 'PCA', 'LSCP']
 roc_df = pd.DataFrame(columns=df_columns)
 prn_df = pd.DataFrame(columns=df_columns)
 time_df = pd.DataFrame(columns=df_columns)
+
+# initialize a set of detectors for LSCP
+detector_list = [LOF(n_neighbors=10), LOF(n_neighbors=20), LOF(n_neighbors=30),
+                 LOF(n_neighbors=40), LOF(n_neighbors=50)]
 
 for j in range(len(mat_file_list)):
 
@@ -91,7 +96,7 @@ for j in range(len(mat_file_list)):
     time_mat = np.zeros([n_ite, n_classifiers])
 
     for i in range(n_ite):
-        print("\n... Processing", mat_file, '...', 'Iteration', i+1)
+        print("\n... Processing", mat_file, '...', 'Iteration', i + 1)
         random_state = np.random.RandomState(i)
 
         # 60% data for training and 40% for testing
@@ -122,18 +127,22 @@ for j in range(len(mat_file_list)):
                                            random_state=random_state),
             'Principal Component Analysis (PCA)': PCA(
                 contamination=outliers_fraction, random_state=random_state),
+            'Locally Selective Combination (LSCP)': LSCP(
+                detector_list, contamination=outliers_fraction,
+                random_state=random_state)
         }
-        classifiers_indices = {'Angle-based Outlier Detector (ABOD)': 0,
-                               'Cluster-based Local Outlier Factor': 1,
-                               'Feature Bagging': 2,
-                               'Histogram-base Outlier Detection (HBOS)': 3,
-                               'Isolation Forest': 4,
-                               'K Nearest Neighbors (KNN)': 5,
-                               'Local Outlier Factor (LOF)': 6,
-                               'Minimum Covariance Determinant (MCD)': 7,
-                               'One-class SVM (OCSVM)': 8,
-                               'Principal Component Analysis (PCA)': 9
-                               }
+        classifiers_indices = {
+            'Angle-based Outlier Detector (ABOD)': 0,
+            'Cluster-based Local Outlier Factor': 1,
+            'Feature Bagging': 2,
+            'Histogram-base Outlier Detection (HBOS)': 3,
+            'Isolation Forest': 4,
+            'K Nearest Neighbors (KNN)': 5,
+            'Local Outlier Factor (LOF)': 6,
+            'Minimum Covariance Determinant (MCD)': 7,
+            'One-class SVM (OCSVM)': 8,
+            'Principal Component Analysis (PCA)': 9,
+            'Locally Selective Combination (LSCP)': 10}
 
         for clf_name, clf in classifiers.items():
             t0 = time()
@@ -169,10 +178,10 @@ for j in range(len(mat_file_list)):
     prn_df = pd.concat([prn_df, temp_df], axis=0)
 
 # No need to save locally
-time_df.to_excel('time_v1.xlsx', index=False)
-roc_df.to_excel('roc_v1.xlsx',  index=False)
-prn_df.to_excel('prc_v1.xlsx',  index=False)
+# time_df.to_excel('time.xlsx', index=False)
+# roc_df.to_excel('roc.xlsx', index=False)
+# prn_df.to_excel('prc.xlsx', index=False)
 
-time_df.to_csv('time_v1.csv', index=False)
-roc_df.to_csv('roc.csv',  index=False)
-prn_df.to_csv('prc_v1.csv',  index=False)
+time_df.to_csv('time.csv', index=False)
+roc_df.to_csv('roc.csv', index=False)
+prn_df.to_csv('prc.csv', index=False)
