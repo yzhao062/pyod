@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""Example of using Single-Objective Generative Adversarial Active
+Learning (SO_GAAL) for outlier detection
+"""
+# Author: Winston Li <jk_zhengli@hotmail.com>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 

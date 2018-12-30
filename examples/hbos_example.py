@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Example of using HBOS for outlier detection
+"""Example of using Histogram- based outlier detection (HBOS) for
+outlier detection
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause

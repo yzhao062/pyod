@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Example of using LSCP for outlier detection
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
 # License: BSD 2 clause
 
 from __future__ import division
