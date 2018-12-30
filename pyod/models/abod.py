@@ -98,7 +98,7 @@ class ABOD(BaseDetector):
 
     - Fast ABOD: use k nearest neighbors to approximate.
     - Original ABOD: consider all training points with high time complexity at
-    O(n^3).
+      O(n^3).
 
     Parameters
     ----------
