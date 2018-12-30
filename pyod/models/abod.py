@@ -21,24 +21,24 @@ from ..utils.utility import check_parameter
 
 @njit
 def _wcos(curr_pt, a, b):  # pragma: no cover
-    """Internal function to calculate weighted cosine using
-    optimized numba code
+    """Internal function to calculate weighted cosine using optimized
+    numba code.
 
     Parameters
     ----------
     curr_pt : numpy array of shape (n_samples, n_features)
-        Current sample to be calculated
+        Current sample to be calculated.
 
     a : numpy array of shape (n_samples, n_features)
-        training sample a
+        Training sample a.
 
     b : numpy array of shape (n_samples, n_features)
-        training sample b
+        Training sample b.
 
     Returns
     -------
     wcos : float in range [-1, 1]
-        Cosine similarity between a-curr_pt and b-curr_pt
+        Cosine similarity between a-curr_pt and b-curr_pt.
 
     """
 
@@ -53,7 +53,7 @@ def _wcos(curr_pt, a, b):  # pragma: no cover
 
 
 def _calculate_wocs(curr_pt, X, X_ind):
-    """Calculated the variance of weighted cosine of a point
+    """Calculated the variance of weighted cosine of a point.
     wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
 
     Parameters
@@ -80,7 +80,6 @@ def _calculate_wocs(curr_pt, X, X_ind):
         b = X[b_ind, :]
 
         # skip if no angle can be formed
-        # array_equal is not supported in numba
         if np.array_equal(a, curr_pt) or np.array_equal(b, curr_pt):
             continue
         # add the weighted cosine to the list
@@ -96,9 +95,10 @@ class ABOD(BaseDetector):
     See :cite:`kriegel2008angle` for details.
 
     Two version of ABOD are supported:
-    Fast ABOD: use k nearest neighbors to approximate for complexity reduction
-    Original ABOD: consider all training points with high time complexity at
-    O(n^3).
+
+    - Fast ABOD: use k nearest neighbors to approximate.
+    - Original ABOD: consider all training points with high time complexity at
+      O(n^3).
 
     Parameters
     ----------
@@ -143,6 +143,16 @@ class ABOD(BaseDetector):
         self.n_neighbors = n_neighbors
 
     def fit(self, X, y=None):
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -166,7 +176,6 @@ class ABOD(BaseDetector):
     def _fit_default(self):
         """Default ABOD method. Use all training points with high complexity
         O(n^3). For internal use only.
-        :return: None
         """
         for i in range(self.n_train_):
             curr_pt = self.X_train_[i, :]
@@ -181,9 +190,8 @@ class ABOD(BaseDetector):
         return self
 
     def _fit_fast(self):
-        """Fast ABOD method. Only use n_neighbors for angle calculation
+        """Fast ABOD method. Only use n_neighbors for angle calculation.
         Internal use only
-        :return: None
         """
 
         # make sure the n_neighbors is in the range
@@ -206,11 +214,26 @@ class ABOD(BaseDetector):
 
     # noinspection PyPep8Naming
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
 
-        check_is_fitted(self,
-                        ['X_train_', 'n_train_', 'decision_scores_',
-                         'threshold_',
-                         'labels_'])
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
+
+        check_is_fitted(self, ['X_train_', 'n_train_', 'decision_scores_',
+                               'threshold_', 'labels_'])
         X = check_array(X)
 
         if self.method == 'fast':  # fast ABOD
@@ -220,13 +243,18 @@ class ABOD(BaseDetector):
             return self._decision_function_default(X) * -1
 
     def _decision_function_default(self, X):
-        """Internal method for predicting outlier scores using default ABOD
+        """Internal method for predicting outlier scores using default ABOD.
 
-        :param X: The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
-        :type X: numpy array of shape (n_samples, n_features)
-        :return: The anomaly score of the input samples.
-        :rtype: array, shape (n_samples,)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        pred_score : array, shape (n_samples,)
+            The anomaly score of the input samples.
+
         """
         # initialize the output score
         pred_score = np.zeros([X.shape[0], 1])
@@ -240,13 +268,18 @@ class ABOD(BaseDetector):
         return pred_score.ravel()
 
     def _decision_function_fast(self, X):
-        """Internal method for predicting outlier scores using Fast ABOD
+        """Internal method for predicting outlier scores using Fast ABOD.
 
-        :param X: The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
-        :type X: numpy array of shape (n_samples, n_features)
-        :return: The anomaly score of the input samples.
-        :rtype: array, shape (n_samples,)
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        pred_score : array, shape (n_samples,)
+            The anomaly score of the input samples.
+
         """
 
         check_is_fitted(self, ['tree_'])

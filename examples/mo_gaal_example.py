@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""Example of using Multiple-Objective Generative Adversarial Active
+Learning (MO_GAAL) for outlier detection
+"""
+# Author: Winston Li <jk_zhengli@hotmail.com>
+# License: BSD 2 clause
+
 from __future__ import division
 from __future__ import print_function
 

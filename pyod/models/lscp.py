@@ -2,7 +2,7 @@
 Locally Selective Combination of Parallel Outlier Ensembles (LSCP)
 Adapted from the original implementation:
 """
-# Author: Zain Nasrullah
+# Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
 # License: BSD 2 clause
 
 # system imports
@@ -107,7 +107,6 @@ class LSCP(BaseDetector):
     >>> from pyod.utils.utility import standardizer
     >>> from pyod.models.lscp import LSCP
     >>> from pyod.models.lof import LOF
-    >>>
     >>> X_train, y_train, X_test, y_test = generate_data(
     ...     n_train=50, n_test=50,
     ...     contamination=0.1, random_state=42)
@@ -137,20 +136,16 @@ class LSCP(BaseDetector):
         self.random_state = random_state
 
     def fit(self, X, y=None):
-        """ Fit LSCP using X as training data
+        """Fit detector. y is optional for unsupervised methods.
 
         Parameters
         ----------
-        X : numpy array, shape (n_samples, n_features)
-            Training data
-        y : None, optional (default=None)
-            Labels not necessary for unsupervised method
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
 
-        Returns
-        -------
-        self
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
         """
-
         # check detector_list
         if len(self.detector_list) < 2:
             raise ValueError("The detector list has less than 2 detectors.")
@@ -181,18 +176,22 @@ class LSCP(BaseDetector):
         return self
 
     def decision_function(self, X):
-        """ Predict outlier scores on test data X (note: model must already
-        be fit)
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
 
         Parameters
         ----------
-        X : numpy array, shape (n_samples, n_features)
-            Test data
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
 
         Returns
         -------
-        decision_scores : numpy array, shape (n_samples)
-            Outlier scores for test samples
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
         """
         # check whether model has been fit
         check_is_fitted(self, ['training_pseudo_label_', 'train_scores_',

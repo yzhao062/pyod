@@ -9,11 +9,75 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from numba import njit
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from scipy.spatial.distance import pdist, squareform
 
 from .base import BaseDetector
+
+
+@njit
+def _get_critical_values(dist_matrix, alpha, p_ix, r_max,
+                         r_min=0):  # pragma: no cover
+    """Computes the critical values of a given distance matrix.
+
+    Parameters
+    ----------
+    dist_matrix : array-like, shape (n_samples, n_features)
+        The distance matrix w.r.t. to the training samples.
+
+    p_ix : int
+        Subsetting index
+
+    alpha : int, default = 0.5
+        The neighbourhood parameter measures how large of a neighbourhood
+        should be considered "local".
+
+    r_max : int
+        Maximum neighbourhood radius
+
+    r_min : int, default = 0
+        Minimum neighbourhood radius
+
+    Returns
+    -------
+    cv : array, shape (n_critical_val, )
+        Returns a list of critical values.
+    """
+
+    distances = dist_matrix[p_ix, :]
+    mask = (r_min < distances) & (distances <= r_max)
+    cv = np.sort(
+        np.concatenate((distances[mask], distances[mask] / alpha)))
+    return cv
+
+
+@njit
+def _get_sampling_N(dist_matrix, p_ix, r):  # pragma: no cover
+    """Computes the set of r-neighbours.
+
+    Parameters
+    ----------
+    dist_matrix : array-like, shape (n_samples, n_features)
+        The distance matrix w.r.t. to the training samples.
+
+    p_ix : int
+        Subsetting index
+
+    r : int
+        Neighbourhood radius
+
+
+    Returns
+    -------
+    sample : array, shape (n_sample, )
+        Returns a list of neighbourhood data points.
+    """
+
+    p_distances = dist_matrix[p_ix, :]
+    sample = np.nonzero(p_distances <= r)[0]
+    return sample
 
 
 class LOCI(BaseDetector):
@@ -84,90 +148,36 @@ class LOCI(BaseDetector):
 
     def __init__(self, contamination=0.1, alpha=0.5, k=3):
         super(LOCI, self).__init__(contamination=contamination)
-        self._alpha = alpha
+        self.alpha = alpha
         self.threshold_ = k
-
-    def _get_critical_values(self, dist_matrix, p_ix, r_max, r_min=0):
-        """Computes the critical values of a given distance matrix.
-        
-        Parameters
-        ----------
-        dist_matrix : array-like, shape (n_samples, n_features)
-            The distance matrix w.r.t. to the training samples.
-        
-        p_ix : int
-            Subsetting index
-        
-        r_max : int
-            Maximum neighbourhood radius
-        
-        r_min : int, default = 0
-            Minimum neighbourhood radius
-            
-        Returns
-        -------
-        cv : array, shape (n_critical_val, )
-            Returns a list of critical values.       
-        """
-
-        distances = dist_matrix[p_ix, :]
-        mask = (r_min < distances) & (distances <= r_max)
-        cv = np.sort(
-            np.concatenate((distances[mask], distances[mask] / self._alpha)))
-        return cv
-
-    def _get_sampling_N(self, dist_matrix, p_ix, r):
-        """Computes the set of r-neighbours.
-        
-        Parameters
-        ----------
-        dist_matrix : array-like, shape (n_samples, n_features)
-            The distance matrix w.r.t. to the training samples.
-        
-        p_ix : int
-            Subsetting index
-        
-        r : int
-            Neighbourhood radius
-        
-            
-        Returns
-        -------
-        sample : array, shape (n_sample, )
-            Returns a list of neighbourhood data points.       
-        """
-
-        p_distances = dist_matrix[p_ix, :]
-        sample = np.nonzero(p_distances <= r)[0]
-        return sample
 
     def _get_alpha_n(self, dist_matrix, indices, r):
         """Computes the alpha neighbourhood points.
-        
+
         Parameters
         ----------
         dist_matrix : array-like, shape (n_samples, n_features)
             The distance matrix w.r.t. to the training samples.
-        
+
         indices : int
             Subsetting index
-        
+
         r : int
             Neighbourhood radius
-            
+
         Returns
         -------
         alpha_n : array, shape (n_alpha, )
-            Returns the alpha neighbourhood points.       
+            Returns the alpha neighbourhood points.
         """
 
         if type(indices) is int:
             alpha_n = np.count_nonzero(
-                dist_matrix[indices, :] < (r * self._alpha))
+                dist_matrix[indices, :] < (r * self.alpha))
             return alpha_n
         else:
             alpha_n = np.count_nonzero(
-                dist_matrix[indices, :] < (r * self._alpha), axis=1)
+                dist_matrix[indices, :] < (r * self.alpha), axis=1)
             return alpha_n
 
     def _calculate_decision_score(self, X):
@@ -186,15 +196,15 @@ class LOCI(BaseDetector):
         outlier_scores = [0] * X.shape[0]
         dist_matrix = squareform(pdist(X, metric="euclidean"))
         max_dist = dist_matrix.max()
-        r_max = max_dist / self._alpha
+        r_max = max_dist / self.alpha
 
         for p_ix in range(X.shape[0]):
-            critical_values = self._get_critical_values(dist_matrix, p_ix,
-                                                        r_max)
+            critical_values = _get_critical_values(dist_matrix, self.alpha,
+                                                   p_ix, r_max)
             for r in critical_values:
                 n_values = self._get_alpha_n(dist_matrix,
-                                             self._get_sampling_N(dist_matrix,
-                                                                  p_ix, r), r)
+                                             _get_sampling_N(dist_matrix,
+                                                             p_ix, r), r)
                 cur_alpha_n = self._get_alpha_n(dist_matrix, p_ix, r)
                 n_hat = np.mean(n_values)
                 mdef = 1 - (cur_alpha_n / n_hat)

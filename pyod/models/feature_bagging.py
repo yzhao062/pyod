@@ -21,40 +21,10 @@ from .base import BaseDetector
 from .sklearn_base import _partition_estimators
 from .combination import average, maximization
 from ..utils.utility import check_parameter
+from ..utils.utility import generate_indices
+from ..utils.utility import generate_bagging_indices
 
 MAX_INT = np.iinfo(np.int32).max
-
-
-def _generate_indices(random_state, bootstrap, n_population, n_samples):
-    """Draw randomly sampled indices. Internal use only.
-    See sklearn/ensemble/bagging.py
-    """
-    # Draw sample indices
-    if bootstrap:
-        indices = random_state.randint(0, n_population, n_samples)
-    else:
-        indices = sample_without_replacement(n_population, n_samples,
-                                             random_state=random_state)
-
-    return indices
-
-
-def _generate_bagging_indices(random_state, bootstrap_features, n_features,
-                              min_features, max_features):
-    """Randomly draw feature indices. Internal use only.
-    Modified from sklearn/ensemble/bagging.py
-    """
-    # Get valid random state
-    random_state = check_random_state(random_state)
-
-    # decide number of features to draw
-    random_n_features = random_state.randint(min_features, max_features)
-
-    # Draw indices
-    feature_indices = _generate_indices(random_state, bootstrap_features,
-                                        n_features, random_n_features)
-
-    return feature_indices
 
 
 def _set_random_states(estimator, random_state=None):
@@ -64,19 +34,17 @@ def _set_random_states(estimator, random_state=None):
     Finds all parameters ending ``random_state`` and sets them to integers
     derived from ``random_state``.
 
+    Parameters
+    ----------
+    estimator : estimator supporting get/set_params
+        Estimator with potential randomness managed by random_state
+        parameters.
 
-    :param estimator: Estimator with potential randomness managed by
-        random_state parameters.
-    :type estimator: estimator supporting get/set_params
-
-    :param random_state : The object to control the random process.
+    random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-
-    :type random_state: int, RandomState instance or None,
-        optional (default=None)
 
     Notes
     -----
@@ -85,8 +53,8 @@ def _set_random_states(estimator, random_state=None):
     ``estimator.get_params()``.  ``random_state``s not controlled include
     those belonging to:
 
-    - cross-validation splitters
-    - ``scipy.stats`` rvs
+        * cross-validation splitters
+        * ``scipy.stats`` rvs
     """
     random_state = check_random_state(random_state)
     to_set = {}
@@ -228,6 +196,16 @@ class FeatureBagging(BaseDetector):
             self.estimator_params = {}
 
     def fit(self, X, y=None):
+        """Fit detector. y is optional for unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : numpy array of shape (n_samples,), optional (default=None)
+            The ground truth of the input samples (labels).
+        """
         random_state = check_random_state(self.random_state)
 
         X = check_array(X)
@@ -275,11 +253,11 @@ class FeatureBagging(BaseDetector):
 
             # max_features is incremented by one since random
             # function is [min_features, max_features)
-            features = _generate_bagging_indices(random_state,
-                                                 self.bootstrap_features,
-                                                 self.n_features_,
-                                                 self.min_features_,
-                                                 self.max_features_ + 1)
+            features = generate_bagging_indices(random_state,
+                                                self.bootstrap_features,
+                                                self.n_features_,
+                                                self.min_features_,
+                                                self.max_features_ + 1)
             # initialize and append estimators
             estimator = self._make_estimator(append=False,
                                              random_state=random_state)
@@ -301,6 +279,23 @@ class FeatureBagging(BaseDetector):
         return self
 
     def decision_function(self, X):
+        """Predict raw anomaly score of X using the fitted detector.
+
+        The anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with
+        larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
         check_is_fitted(self, ['estimators_', 'estimators_features_',
                                'decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)

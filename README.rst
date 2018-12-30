@@ -19,12 +19,12 @@ Python Outlier Detection (PyOD)
 
 
 .. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/stargazers
+   :target: https://github.com/yzhao062/pyod/stargazers
    :alt: GitHub stars
 
 
 .. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/network
+   :target: https://github.com/yzhao062/pyod/network
    :alt: GitHub forks
 
 
@@ -62,7 +62,7 @@ Python Outlier Detection (PyOD)
 
 
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
-   :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
+   :target: https://codeclimate.com/github/yzhao062/pyod/maintainability
    :alt: Maintainability
 
 -----
@@ -86,8 +86,8 @@ PyOD contains some neural network based models, e.g., AutoEncoders, which are
 implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
 reduces the risk of damaging your local installations. 
 So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
-Similarly, some models depend on **xgboost**, and PyOD would **NOT** install it by default.
+to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
+Similarly, some models depend on **xgboost**, which would **NOT** be installed by default.
 
 **Key Links and Resources**\ :
 
@@ -137,7 +137,7 @@ Probabilistic        SOS               Stochastic Outlier Selection             
 Outlier Ensembles    IForest           Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
 Outlier Ensembles                      Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
-Outlier Ensembles    XGBOD             **Supervised** XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning  2018   [#Zhao2018XGBOD]_
+Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
 Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2018Generative]_
 Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2018Generative]_
@@ -209,7 +209,7 @@ Alternatively, install from github directly (\ **NOT Recommended**\ )
 * XGBoost (optional, required for XGBOD)
 
 **Known Issue 1**\ : Running examples needs Matplotlib, which may throw errors in conda
-virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/Pyod/issues/6>`_.
+virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/pyod/issues/6>`_.
 
 **Known Issue 2**\ : Keras and/or TensorFlow are listed as optional. However, they are
 both required if you want to use neural network based models, such as
@@ -263,8 +263,8 @@ Algorithm Benchmark
 For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
 
 
-.. image:: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
-   :target: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/ALL.png
+.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
+   :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
    :alt: Comparision_of_All
 
 To provide an overview and quick guidance of the implemented models, a benchmark
@@ -283,7 +283,7 @@ are provided:
 
 Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
 You are welcome to replicate this process by running
-`benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_.
+`benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
 
 ----
 
@@ -347,10 +347,10 @@ More detailed instruction of running examples can be found `examples. <https://g
        visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
            y_test_pred, show_figure=True, save_figure=False)
 
-Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/KNN.png>`_\ ):
+Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/KNN.png>`_\ ):
 
-.. image:: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/KNN.png
-   :target: https://raw.githubusercontent.com/yzhao062/Pyod/master/examples/KNN.png
+.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/KNN.png
+   :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/KNN.png
    :alt: kNN example figure
 
 
@@ -360,8 +360,8 @@ Quick Start for Combining Outlier Scores from Various Base Detectors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 "examples/comb_example.py" illustrates the APIs for combining multiple base detectors
-(\ `comb_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_\ ,
-`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_\ ).
+(\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
+`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
 
 For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
 

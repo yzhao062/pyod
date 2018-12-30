@@ -48,6 +48,13 @@ v<0.6.6>, <12/18/2018> -- Refactor docstring from rst to numpydoc.
 v<0.6.6b1>, <12/18/2018> -- Pre-release of V0.6.6.
 v<0.6.6>, <12/21/2018> -- Redesign visualize function for all examples.
 v<0.6.6>, <12/23/2018> -- Refactor all docstring to numpydoc.
+v<0.6.7>, <12/25/2018> -- Documentation clean-up.
+v<0.6.7>, <12/25/2018> -- Optimize LOCI with numba.
+v<0.6.7>, <12/26/2018> -- Refactor Feature Bagging and GAAL based models.
+v<0.6.7>, <12/27/2018> -- Refactor test cases for better coverage.
+v<0.6.7>, <12/28/2018> -- Redesign visualize function for all examples.
+v<0.6.7>, <12/30/2018> -- Add new models to jupyter notebook and benchmark.
+
 
 
 
