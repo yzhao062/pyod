@@ -62,7 +62,7 @@ Python Outlier Detection (PyOD)
 
 
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
-   :target: https://codeclimate.com/github/yzhao062/pyod/maintainability
+   :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
    :alt: Maintainability
 
 -----
