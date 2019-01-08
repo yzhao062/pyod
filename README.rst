@@ -123,8 +123,8 @@ citations to the following paper::
       url={https://arxiv.org/abs/1901.01588}
     }
 
-It is currently under submission at `JMLR <http://www.jmlr.org/mloss/>`_
-(Track for open-source software). See `preprint <https://arxiv.org/abs/1901.01588>`_.
+It is currently under review at `JMLR <http://www.jmlr.org/mloss/>`_
+(machine learning open-source software track). See `preprint <https://arxiv.org/abs/1901.01588>`_.
 
 ----
 
