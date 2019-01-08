@@ -81,13 +81,14 @@ PyOD is featured for:
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3** (scikit-learn compatible as well).
 
+
 **Important Notes**\ :
-PyOD contains some neural network based models, e.g., AutoEncoders, which are
-implemented in keras. However, PyOD would **NOT** install **Keras** and/or **TensorFlow** automatically. This
-reduces the risk of damaging your local installations. 
-So you should install keras and back-end libraries like TensorFlow, if you want
-to use neural net based models. An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, some models depend on **xgboost**, which would **NOT** be installed by default.
+PyOD contains neural network based models, e.g., AutoEncoders, which are
+implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
+**TensorFlow** automatically. This reduces the risk of damaging your local copies.
+If you want to use neural net based models, you should install Keras and back-end libraries like TensorFlow manually.
+An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
+Similarly, some models, e.g., XGBOD, depend on **xgboost**, which would **NOT** be installed by default.
 
 **Key Links and Resources**\ :
 
@@ -109,7 +110,7 @@ Similarly, some models depend on **xgboost**, which would **NOT** be installed b
 * `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
 
 
-**Cite PyOD**\ :
+**Citing PyOD**\ :
 
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::

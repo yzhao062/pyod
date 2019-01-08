@@ -15,8 +15,20 @@ Winston (Zheng) Li (joined in 2018):
 
 ----
 
-Citing pyod
+Citing PyOD
 -----------
 
-If you use pyod in a scientific publication, we would appreciate
-citations to the following paper: To be announced.
+If you use PyOD in a scientific publication, we would appreciate
+citations to the following paper::
+
+    @article{zhao2019pyod,
+      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
+      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      journal={arXiv preprint arXiv:1901.01588},
+      year={2019},
+      url={https://arxiv.org/abs/1901.01588}
+    }
+
+It is currently under submission at `JMLR <http://www.jmlr.org/mloss/>`_
+(Track for open-source software). See `preprint <https://arxiv.org/abs/1901.01588>`_.
+
