@@ -108,6 +108,23 @@ Similarly, some models depend on **xgboost**, which would **NOT** be installed b
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
 * `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
 
+
+**Cite PyOD**\ :
+
+If you use PyOD in a scientific publication, we would appreciate
+citations to the following paper::
+
+    @article{zhao2019pyod,
+      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
+      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      journal={arXiv preprint arXiv:1901.01588},
+      year={2019},
+      url={https://arxiv.org/abs/1901.01588}
+    }
+
+It is currently under submission at `JMLR <http://www.jmlr.org/mloss/>`_
+(Track for open-source software). See `preprint <https://arxiv.org/abs/1901.01588>`_.
+
 ----
 
 
@@ -442,10 +459,7 @@ The walkthrough of the code example is provided:
 How to Contribute and Collaborate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You are welcome to contribute to this exciting project, and a manuscript at
-`JMLR <http://www.jmlr.org/mloss/>`_ (Track for open-source software) is under review.
-
-If you are interested in contributing:
+You are welcome to contribute to this exciting project:
 
 
 * Please first check Issue lists for "help wanted" tag and comment the one
