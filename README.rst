@@ -117,7 +117,7 @@ citations to the following paper::
 
     @article{zhao2019pyod,
       title={PyOD: A Python Toolbox for Scalable Outlier Detection},
-      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      author={Yue Zhao and Zain Nasrullah and Zheng Li},
       journal={arXiv preprint arXiv:1901.01588},
       year={2019},
       url={https://arxiv.org/abs/1901.01588}
