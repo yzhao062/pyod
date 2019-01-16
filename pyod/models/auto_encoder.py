@@ -123,7 +123,7 @@ class AutoEncoder(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, hidden_neurons=None,
+    def __init__(self, hidden_neurons=[64, 32, 32, 64],
                  hidden_activation='relu', output_activation='sigmoid',
                  loss=mean_squared_error, optimizer='adam',
                  epochs=100, batch_size=32, dropout_rate=0.2,
