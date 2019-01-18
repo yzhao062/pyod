@@ -117,11 +117,15 @@ citations to the following paper::
 
     @article{zhao2019pyod,
       title={PyOD: A Python Toolbox for Scalable Outlier Detection},
-      author={Yue Zhao and Zain Nasrullah and Zheng Li},
+      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
       journal={arXiv preprint arXiv:1901.01588},
       year={2019},
       url={https://arxiv.org/abs/1901.01588}
     }
+
+or::
+
+    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
 It is currently under review at `JMLR <http://www.jmlr.org/mloss/>`_
 (machine learning open-source software track). See `preprint <https://arxiv.org/abs/1901.01588>`_.
