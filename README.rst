@@ -432,7 +432,7 @@ The walkthrough of the code example is provided:
            train_scores[:, i] = clf.decision_scores_
            test_scores[:, i] = clf.decision_function(X_test_norm)
 
-#. Then the output codes are standardized into zero mean and unit variance before combination.
+#. Then the output scores are standardized into zero mean and unit variance before combination.
 
 
    .. code-block:: python

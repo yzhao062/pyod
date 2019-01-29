@@ -120,7 +120,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
             train_scores[:, i] = clf.decision_scores_
             test_scores[:, i] = clf.decision_function(X_test_norm)
 
-3. Then the output codes are standardized into zero average and unit std before combination:
+3. Then the output scores are standardized into zero average and unit std before combination:
 
     .. code-block:: python
 
