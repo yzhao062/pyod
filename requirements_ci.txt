@@ -1,6 +1,5 @@
-# temporary fix keras version.
-Keras-Applications==1.0.6
-Keras-Preprocessing==1.0.5
+# temporary fix Keras version. Pandas is one of the Keras dependency
+pandas
 keras
 matplotlib
 nose
