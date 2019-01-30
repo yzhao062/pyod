@@ -1,6 +1,6 @@
 # temporary fix keras version.
-keras-application==1.0.6
-keras-preprocessing==1.0.5
+Keras-Applications==1.0.6
+Keras-Preprocessing==1.0.5
 keras
 matplotlib
 nose
