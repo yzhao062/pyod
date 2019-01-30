@@ -1,4 +1,4 @@
-# temporary fix Keras version. Pandas is one of the Keras dependency
+# temporary add Pandas as dependency which is Keras' dependency
 pandas
 keras
 matplotlib
