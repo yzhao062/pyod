@@ -5,12 +5,13 @@ Representation Learning. A semi-supervised outlier detection framework.
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
 
+try:
+    # import xgboost as xgb
+    from xgboost.sklearn import XGBClassifier
 
-from __future__ import division
-from __future__ import print_function
-
-from xgboost.sklearn import XGBClassifier
-
+except ImportError:
+    pass
+    print('xgb not available')
 
 import numpy as np
 from sklearn.metrics import roc_auc_score
