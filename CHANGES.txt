@@ -54,6 +54,7 @@ v<0.6.7>, <12/26/2018> -- Refactor Feature Bagging and GAAL based models.
 v<0.6.7>, <12/27/2018> -- Refactor test cases for better coverage.
 v<0.6.7>, <12/28/2018> -- Redesign visualize function for all examples.
 v<0.6.7>, <12/30/2018> -- Add new models to jupyter notebook and benchmark.
+v<0.6.8>, <01/31/2018> -- Optimize unit tests for faster execution.
 
 
 
