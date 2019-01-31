@@ -1,5 +1,3 @@
-# temporary add Pandas as dependency which is Keras' dependency
-pandas
 keras
 matplotlib
 nose
