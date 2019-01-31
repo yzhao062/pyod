@@ -4,6 +4,9 @@ Representation Learning. A semi-supervised outlier detection framework.
 """
 # Author: Yue Zhao <yuezhao@cs.toronto.edu>
 # License: BSD 2 clause
+
+from xgboost.sklearn import XGBClassifier
+
 from __future__ import division
 from __future__ import print_function
 
@@ -12,7 +15,6 @@ from sklearn.metrics import roc_auc_score
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_X_y
-from xgboost.sklearn import XGBClassifier
 
 from .base import BaseDetector
 from .knn import KNN
