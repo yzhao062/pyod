@@ -163,7 +163,7 @@ def standardizer(X, X_t=None, keep_scalar=False):
         X_t = check_array(X_t)
         if X.shape[1] != X_t.shape[1]:
             raise ValueError(
-                "The number of input data feature should be consistnt"
+                "The number of input data feature should be consistent"
                 "X has {0} features and X_t has {1} features.".format(
                     X.shape[1], X_t.shape[1]))
         if keep_scalar:
