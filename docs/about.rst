@@ -49,7 +49,7 @@ Media Coverage & Featured Posts
 
 **GitHub Python Trending**:
 
-- 2019: Jan 23th-24th, Jan 10th-14th
+- 2019: Feb 10th, Jan 23th-24th, Jan 10th-14th
 - 2018: Jun 15, Dec 8th-9th
 
 **Miscellaneous**:
