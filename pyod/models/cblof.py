@@ -101,7 +101,7 @@ class CBLOF(BaseDetector):
         Cluster assignment for the training samples.
 
     n_clusters_ : int
-        Actual number of clusters (possibly different from n_clusters)
+        Actual number of clusters (possibly different from n_clusters).
 
     cluster_sizes_ : list of shape (n_clusters_,)
         The size of each cluster once fitted with the training data.
