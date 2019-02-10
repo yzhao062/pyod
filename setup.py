@@ -39,10 +39,12 @@ setup(
     install_requires=requirements,
     setup_requires=['setuptools>=38.6.0'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
         'Intended Audience :: Financial and Insurance Industry',
         'Intended Audience :: Science/Research',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',

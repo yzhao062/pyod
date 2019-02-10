@@ -8,6 +8,7 @@ This is the central place to track important things to be fixed/added:
 - Add contact channel with `Gitter <https://gitter.im>`_
 - Support additional languages, see `Manage Translations <https://docs.readthedocs.io/en/latest/guides/manage-translations.html>`_
 - Fix the bug that numba enabled function may be excluded from code coverage
+- Decide which Python interpreter should readthedocs use. 3.X invokes Python 3.7 which has no TF supported for now.
 
 Feel free to open on issue report if needed.
 See `Issues <https://github.com/yzhao062/pyod/issues>`_.

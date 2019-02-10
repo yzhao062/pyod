@@ -36,3 +36,23 @@ or::
 It is currently under review at `JMLR <http://www.jmlr.org/mloss/>`_
 (machine learning open-source software track). See `preprint <https://arxiv.org/abs/1901.01588>`_.
 
+
+----
+
+
+Media Coverage & Featured Posts
+-------------------------------
+
+**KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_
+
+**awesome-machine-learning**: `General-Purpose Machine Learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_
+
+**GitHub Python Trending**:
+
+- 2019: Feb 10th, Jan 23th-24th, Jan 10th-14th
+- 2018: Jun 15, Dec 8th-9th
+
+**Miscellaneous**:
+
+- `PythonAwesome <https://pythonawesome.com/a-python-toolkit-for-scalable-outlier-detection/>`_
+- `PapersWithCode <https://paperswithcode.com/task/anomaly-detection>`_

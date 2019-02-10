@@ -10,7 +10,7 @@ from __future__ import print_function
 import warnings
 import numpy as np
 from scipy.spatial.distance import cdist
-from sklearn.cluster import MiniBatchKMeans
+from sklearn.cluster import KMeans
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
 from sklearn.utils.estimator_checks import check_estimator
@@ -38,7 +38,7 @@ class CBLOF(BaseDetector):
     by default.Outliers scores are solely computed based on their distance to
     the closest large cluster center.
 
-    By default, MiniBatchKMeans is used for clustering algorithm instead of
+    By default, kMeans is used for clustering algorithm instead of
     Squeezer algorithm mentioned in the original paper for multiple reasons.
 
     See :cite:`he2003discovering` for details.
@@ -62,8 +62,8 @@ class CBLOF(BaseDetector):
         If ``cluster_centers_`` is not in the attributes once the model is fit,
         it is calculated as the mean of the samples in a cluster.
 
-        If not set, CBLOF uses MiniBatchKMeans for scalability. See
-        http://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html
+        If not set, CBLOF uses KMeans for scalability. See
+        https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
 
     alpha : float in (0.5, 1), optional (default=0.9)
         Coefficient for deciding small and large clusters. The ratio
@@ -88,15 +88,22 @@ class CBLOF(BaseDetector):
         number generator; If None, the random number generator is the
         RandomState instance used by `np.random`.
 
+    n_jobs : integer, optional (default=1)
+        The number of jobs to run in parallel for both `fit` and `predict`.
+        If -1, then the number of jobs is set to the number of cores.
+
     Attributes
     ----------
     clustering_estimator_ : Estimator, sklearn instance
         Base estimator for clustering.
 
-    cluster_labels_: list of shape (n_samples,)
+    cluster_labels_ : list of shape (n_samples,)
         Cluster assignment for the training samples.
 
-    cluster_sizes_: list of shape (n_clusters,)
+    n_clusters_ : int
+        Actual number of clusters (possibly different from n_clusters).
+
+    cluster_sizes_ : list of shape (n_clusters_,)
         The size of each cluster once fitted with the training data.
 
     decision_scores_ : numpy array of shape (n_samples,)
@@ -104,7 +111,7 @@ class CBLOF(BaseDetector):
         The higher, the more abnormal. Outliers tend to have higher scores.
         This value is available once the detector is fitted.
 
-    cluster_centers_ : numpy array of shape (n_clusters, n_features)
+    cluster_centers_ : numpy array of shape (n_clusters_, n_features)
         The center of each cluster.
 
     small_cluster_labels_ : list of clusters numbers
@@ -127,7 +134,8 @@ class CBLOF(BaseDetector):
 
     def __init__(self, n_clusters=8, contamination=0.1,
                  clustering_estimator=None, alpha=0.9, beta=5,
-                 use_weights=False, check_estimator=True, random_state=None):
+                 use_weights=False, check_estimator=True, random_state=None,
+                 n_jobs=1):
         super(CBLOF, self).__init__(contamination=contamination)
         self.n_clusters = n_clusters
         self.clustering_estimator = clustering_estimator
@@ -136,6 +144,7 @@ class CBLOF(BaseDetector):
         self.use_weights = use_weights
         self.check_estimator = check_estimator
         self.random_state = random_state
+        self.n_jobs = n_jobs
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
@@ -149,6 +158,7 @@ class CBLOF(BaseDetector):
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
         """
+
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -156,15 +166,25 @@ class CBLOF(BaseDetector):
 
         # check parameters
         # number of clusters are default to 8
-        self._validate_estimator(default=MiniBatchKMeans(
+        self._validate_estimator(default=KMeans(
             n_clusters=self.n_clusters,
-            random_state=self.random_state))
+            random_state=self.random_state,
+            n_jobs=self.n_jobs))
 
         self.clustering_estimator_.fit(X=X, y=y)
         # Get the labels of the clustering results
         # labels_ is consistent across sklearn clustering algorithms
         self.cluster_labels_ = self.clustering_estimator_.labels_
         self.cluster_sizes_ = np.bincount(self.cluster_labels_)
+
+        # Get the actual number of clusters
+        self.n_clusters_ = self.cluster_sizes_.shape[0]
+
+        if self.n_clusters_ != self.n_clusters:
+            warnings.warn("The chosen clustering for CBLOF forms {0} clusters"
+                          "which is inconsistent with n_clusters ({1}).".
+                          format(self.n_clusters_, self.n_clusters))
+
         self._set_cluster_centers(X, n_features)
         self._set_small_large_clusters(n_samples)
 
@@ -200,7 +220,6 @@ class CBLOF(BaseDetector):
     def _validate_estimator(self, default=None):
         """Check the value of alpha and beta and clustering algorithm.
         """
-
         check_parameter(self.alpha, low=0, high=1, param_name='alpha',
                         include_left=False, include_right=False)
 
@@ -229,8 +248,8 @@ class CBLOF(BaseDetector):
             warnings.warn("The chosen clustering for CBLOF does not have"
                           "the center of clusters. Calculate the center"
                           "as the mean of the clusters.")
-            self.cluster_centers_ = np.zeros([self.n_clusters, n_features])
-            for i in range(self.n_clusters):
+            self.cluster_centers_ = np.zeros([self.n_clusters_, n_features])
+            for i in range(self.n_clusters_):
                 self.cluster_centers_[i, :] = np.mean(
                     X[np.where(self.cluster_labels_ == i)], axis=0)
 
@@ -243,7 +262,7 @@ class CBLOF(BaseDetector):
         # either alpha or beta
         alpha_list = []
         beta_list = []
-        for i in range(1, self.n_clusters):
+        for i in range(1, self.n_clusters_):
 
             temp_sum = np.sum(size_clusters[sorted_cluster_indices[-1 * i:]])
             if temp_sum >= n_samples * self.alpha:
@@ -263,8 +282,8 @@ class CBLOF(BaseDetector):
         elif len(beta_list) > 0:
             self._clustering_threshold = beta_list[0]
         else:
-            raise ValueError("Could not form valid cluster separation. Try "
-                             "reset n_clusters or change clustering method")
+            raise ValueError("Could not form valid cluster separation. Please "
+                             "change n_clusters or change clustering method")
 
         self.small_cluster_labels_ = sorted_cluster_indices[
                                      0:self._clustering_threshold]
