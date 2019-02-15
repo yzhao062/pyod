@@ -313,12 +313,12 @@ You are welcome to replicate this process by running
 Quick Start for Outlier Detection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`An Awesome Tutorial to Learn Outlier Detection in Python using PyOD Library <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_ is also available on **Analytics Vidhya**.
+`An Awesome Tutorial to Learn Outlier Detection in Python using PyOD Library <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_ is available on **Analytics Vidhya**.
 
-See **examples directory** for more demos. `"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
-demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other algorithms are similar**.
-
+`"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
+demonstrates the basic APIs of PyOD using kNN detector. See **examples directory** for more demos.
 More detailed instruction of running examples can be found at `examples. <https://github.com/yzhao062/pyod/blob/master/examples>`_
+**It is noted the APIs for other algorithms are similar**.
 
 
 #. Initialize a kNN detector, fit the model, and make the prediction.
