@@ -57,4 +57,5 @@ Featured Posts & Achievements
 **Miscellaneous**:
 
 - `PythonAwesome <https://pythonawesome.com/a-python-toolkit-for-scalable-outlier-detection/>`_
+- `awesome-python <https://github.com/uhub/awesome-python>`_
 - `PapersWithCode <https://paperswithcode.com/task/anomaly-detection>`_
