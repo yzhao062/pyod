@@ -72,7 +72,7 @@ multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD has been successfully used in various academic researches and
-commercial products [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_.
+commercial products [#Ramakrishnan2019Anomaly]_ [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_.
 PyOD is featured for:
 
 
@@ -518,6 +518,8 @@ Reference
 .. [#Ma2003Time] Ma, J. and Perkins, S., 2003, July. Time-series novelty detection using one-class support vector machines. In *IJCNN' 03*\ , pp. 1741-1745. IEEE.
 
 .. [#Papadimitriou2003LOCI] Papadimitriou, S., Kitagawa, H., Gibbons, P.B. and Faloutsos, C., 2003, March. LOCI: Fast outlier detection using the local correlation integral. In *ICDE '03*, pp. 315-326. IEEE.
+
+.. [#Ramakrishnan2019Anomaly] Ramakrishnan, J., Shaabani, E., Li, C. and Sustik, M.A., 2019. Anomaly Detection for an E-commerce Pricing System. arXiv preprint arXiv:1902.09566.
 
 .. [#Ramaswamy2000Efficient] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438).
 
