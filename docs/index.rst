@@ -78,7 +78,8 @@ multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in various
-academic researches and commercial products :cite:`a-ramakrishnan2019anomaly,a-zhao2018xgbod,a-zhao2018dcso,a-zhao2019lscp`.
+academic researches and commercial products
+:cite:`a-ramakrishnan2019anomaly,a-weng2019multi,a-zhao2018xgbod,a-zhao2018dcso,a-zhao2019lscp`.
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
