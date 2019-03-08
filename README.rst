@@ -72,7 +72,7 @@ multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD has been successfully used in various academic researches and
-commercial products [#Ramakrishnan2019Anomaly]_ [#Weng2019Multi]_ [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_.
+commercial products [#Kalayci2018Anomaly]_ [#Ramakrishnan2019Anomaly]_ [#Weng2019Multi]_ [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_.
 PyOD is featured for:
 
 
@@ -506,6 +506,8 @@ Reference
 .. [#He2003Discovering] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
 
 .. [#Janssens2012Stochastic] Janssens, J.H.M., Huszár, F., Postma, E.O. and van den Herik, H.J., 2012. Stochastic outlier selection. Technical report TiCC TR 2012-001, Tilburg University, Tilburg Center for Cognition and Communication, Tilburg, The Netherlands.
+
+.. [#Kalayci2018Anomaly] Kalayci, İ. and Ercan, T., 2018, October. Anomaly Detection in Wireless Sensor Networks Data by Using Histogram Based Outlier Score Method. In *2018 2nd International Symposium on Multidisciplinary Studies and Innovative Technologies (ISMSIT)*, pp. 1-6. IEEE.
 
 .. [#Kriegel2008Angle] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*\ , pp. 444-452. ACM.
 
