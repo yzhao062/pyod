@@ -76,7 +76,7 @@ commercial products [#Kalayci2018Anomaly]_ [#Ramakrishnan2019Anomaly]_ [#Weng201
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
-`Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_,
+`Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_, and
 `awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
 
 
@@ -97,25 +97,6 @@ If you want to use neural-net based models, please make sure Keras and a backend
 An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
-**Key Links and Resources**\ :
-
-
-* `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
-* `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
-* `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
-
-
-**Table of Contents**\ :
-
-
-* `Quick Introduction <#quick-introduction>`_
-* `Installation <#installation>`_
-* `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
-* `Algorithm Benchmark <#algorithm-benchmark>`_
-* `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
-* `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
-* `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
-
 
 **Citing PyOD**\ :
 
@@ -135,7 +116,28 @@ or::
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
 It is currently under review at `JMLR <http://www.jmlr.org/mloss/>`_
-(machine learning open-source software track). See `preprint <https://arxiv.org/abs/1901.01588>`_.
+(machine learning open-source software track). See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
+
+
+**Key Links and Resources**\ :
+
+
+* `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
+* `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
+* `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+
+**Table of Contents**\ :
+
+
+* `Quick Introduction <#quick-introduction>`_
+* `Installation <#installation>`_
+* `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
+* `Algorithm Benchmark <#algorithm-benchmark>`_
+* `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
+* `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
+* `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
+
 
 ----
 
