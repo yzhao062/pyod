@@ -1,6 +1,11 @@
 Examples
 ========
 
+
+----
+
+
+
 Featured Tutorials
 ------------------
 
@@ -13,6 +18,9 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 **Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
 **awesome-machine-learning**: `General-Purpose Machine Learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_
+
+
+----
 
 
 kNN Example
