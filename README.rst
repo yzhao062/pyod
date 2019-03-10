@@ -73,6 +73,13 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD has been successfully used in various academic researches and
 commercial products [#Kalayci2018Anomaly]_ [#Ramakrishnan2019Anomaly]_ [#Weng2019Multi]_ [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_.
+It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
+`Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
+`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
+`Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_,
+`awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
+
+
 PyOD is featured for:
 
 
@@ -83,12 +90,12 @@ PyOD is featured for:
 
 
 **Important Notes**\ :
-PyOD contains neural network based models, e.g., AutoEncoders, which are
+PyOD has multiple neural network based models, e.g., AutoEncoders, which are
 implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
-**TensorFlow** automatically. This reduces the risk of damaging your local copies.
-If you want to use neural net based models, you should install Keras and back-end libraries like TensorFlow manually.
+**TensorFlow** for you. This reduces the risk of interfering your local copies.
+If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
 An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, some models, e.g., XGBOD, depend on **xgboost**, which would **NOT** be installed by default.
+Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
 **Key Links and Resources**\ :
 
@@ -313,7 +320,13 @@ You are welcome to replicate this process by running
 Quick Start for Outlier Detection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`An Awesome Tutorial to Learn Outlier Detection in Python using PyOD Library <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_ is available on **Analytics Vidhya**.
+PyOD has been well acknowledged by the machine learning community with a few featured posts and tutorials.
+
+**Analytics Vidhya**: `An Awesome Tutorial to Learn Outlier Detection in Python using PyOD Library <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_
+
+**KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_
+
+**Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
 `"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
 demonstrates the basic APIs of PyOD using kNN detector.
