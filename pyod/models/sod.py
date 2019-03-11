@@ -114,7 +114,7 @@ class SOD(BaseDetector):
             The anomaly score of the input samples.
         """
         return self._sod()
-
+    
     def _snn(self):
         """
         This function calculates the shared nearest neighbors (SNN).
@@ -133,16 +133,19 @@ class SOD(BaseDetector):
         if not isinstance(ind, np.ndarray):  # for any future changes in scikit-learn
             ind = np.array(ind)
         n = ind.shape[0]
-        # it can handle dataset of size up to 4294967295 x 4294967295!
         _count = np.zeros(shape=(n, n), dtype=np.uint32)
         # Count the distance using the customized function
         for i in range(n):
-            # get the previous cached result
-            # the point with itself needed to maintain indices order
-            _count[i:, range(i+1)] = list(_count[range(i),i]) + [self.n_neighbors]
+            # get the previous cached result.
+            # The point should not be in its reference set,
+            # but we need it temporarily to maintain indices order,
+            # it has the max possible value: 4294967295 (max unsigned int)
+            # so it'll be always as first index
+            _count[i:, range(i+1)] = list(_count[range(i), i]) + [4294967295]
             for j in range(i+1, n):
-                _count[i,j] = _dist(ind[i], ind[j])
-        return np.flip(np.argsort(_count), axis=1)[:,range(self.ref_set)]
+                _count[i, j] = _dist(ind[i], ind[j])
+
+        return np.flip(np.argsort(_count), axis=1)[:, range(1, self.ref_set+1)]
 
     def _sod(self):
         """
@@ -156,7 +159,7 @@ class SOD(BaseDetector):
         result = []
         for i in range(self.X_train_.shape[0]):
             obs = self.X_train_[i]
-            ref = self.X_train_[refInds[i,],]
+            ref = self.X_train_[refInds[i, ], ]
             means = np.mean(ref, axis=0)  # mean of each column
             # average squared distance of the reference to the mean
             varTotal = sum(sum(np.square(ref - means)))/self.ref_set
