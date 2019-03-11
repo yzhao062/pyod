@@ -132,20 +132,17 @@ class SOD(BaseDetector):
         ind = knn.kneighbors(return_distance=False)
         if not isinstance(ind, np.ndarray):  # for any future changes in scikit-learn
             ind = np.array(ind)
-        # Count the distance using the customized function
         n = ind.shape[0]
         # it can handle dataset of size up to 4294967295 x 4294967295!
-        refSet = np.empty(shape=(n, self.ref_set), dtype=np.uint32)
+        _count = np.zeros(shape=(n, n), dtype=np.uint32)
+        # Count the distance using the customized function
         for i in range(n):
-            _count = []
-            for j in range(n):
-                _count.append(_dist(ind[i], ind[j]))
-            # get the indices of points with most shared neighbours
-            temp = sorted(range(len(_count)), key=_count.__getitem__, reverse=True)
-            temp.remove(i)  # remove the point of being a reference to itself
-            refSet[i]=temp[:self.ref_set]
-        return refSet
-
+            # get the previous cached result
+            # the point with itself needed to maintain indices order
+            _count[i:, range(i+1)] = list(_count[range(i),i]) + [self.n_neighbors]
+            for j in range(i+1, n):
+                _count[i,j] = _dist(ind[i], ind[j])
+        return np.flip(np.argsort(_count), axis=1)[:,range(self.ref_set)]
 
     def _sod(self):
         """
