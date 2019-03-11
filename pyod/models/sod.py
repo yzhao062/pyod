@@ -141,7 +141,7 @@ class SOD(BaseDetector):
             # but we need it temporarily to maintain indices order,
             # it has the max possible value: 4294967295 (max unsigned int)
             # so it'll be always as first index
-            _count[i:, range(i+1)] = list(_count[range(i), i]) + [4294967295]
+            _count[i:, range(i+1)] = list(_count[range(i), i]) + [np.iinfo(np.uint32).max]
             for j in range(i+1, n):
                 _count[i, j] = _dist(ind[i], ind[j])
 
