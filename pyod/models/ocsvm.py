@@ -23,7 +23,7 @@ class OCSVM(BaseDetector):
 
     The implementation is based on libsvm.
     See http://scikit-learn.org/stable/modules/svm.html#svm-outlier-detection
-    and :cite:`ma2003time`.
+    and :cite:`scholkopf2001estimating`.
 
     Parameters
     ----------
