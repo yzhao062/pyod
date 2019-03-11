@@ -270,7 +270,7 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 Key Attributes of a fitted model:
 
 
-* **decision_scores**\ : The outlier scores of the training data. The higher, the more abnormal.
+* **decision_scores_**\ : The outlier scores of the training data. The higher, the more abnormal.
   Outliers tend to have higher scores.
 * **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
@@ -332,10 +332,9 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 **Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
 `"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
-demonstrates the basic APIs of PyOD using kNN detector.
+demonstrates the basic API of using kNN detector. **It is noted that the API across all other algorithms are consistent/similar**.
 
-See `examples directory <https://github.com/yzhao062/pyod/blob/master/examples>`_ for more demos and more detailed instructions.
-**It is noted the APIs for other algorithms are consistent/similar**.
+More detailed instructions for running examples can be found in `examples directory <https://github.com/yzhao062/pyod/blob/master/examples>`_.
 
 
 #. Initialize a kNN detector, fit the model, and make the prediction.
@@ -400,7 +399,7 @@ Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/pyod/ma
 Quick Start for Combining Outlier Scores from Various Base Detectors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-"examples/comb_example.py" illustrates the APIs for combining multiple base detectors
+"examples/comb_example.py" illustrates the API for combining multiple base detectors
 (\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
 `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
 
