@@ -155,7 +155,7 @@ Type                 Abbr              Algorithm                                
 ===================  ================  ======================================================================================================  =====  ========================================
 Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
 Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
-Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2003   [#Ma2003Time]_
+Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2001   [#Scholkopf2001Estimating]_
 Proximity-Based      LOF               Local Outlier Factor                                                                                    2000   [#Breunig2000LOF]_
 Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   [#He2003Discovering]_
 Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   [#Papadimitriou2003LOCI]_
@@ -542,6 +542,8 @@ Reference
 .. [#Ramaswamy2000Efficient] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438).
 
 .. [#Rousseeuw1999A] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
+
+.. [#Scholkopf2001Estimating] Sch{\"o}lkopf, B., Platt, J.C., Shawe-Taylor, J., Smola, A.J. and Williamson, R.C., 2001. Estimating the support of a high-dimensional distribution. *Neural Computation*, 13(7), pp.1443-1471.
 
 .. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
 
