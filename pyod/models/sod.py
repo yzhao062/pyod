@@ -10,17 +10,6 @@ from sklearn.utils import check_array
 from .base import BaseDetector
 
 
-def _dist(p, q):
-    """
-    Custom distance function applying:
-          simSNN(p, q) = Card(Nk(p) ∩ Nk(q))
-    :param p: first point as a list (i.e. vector)
-    :param q: second point as a list (i.e. vector)
-    :return: the number of shared neighbors of p and q
-    """
-    return sum(np.in1d(p, q))
-
-
 class SOD(BaseDetector):
     """
     Subspace outlier detection (SOD) algorithm
