@@ -133,7 +133,7 @@ class SOD(BaseDetector):
         if not isinstance(ind, np.ndarray):  # for any future changes in scikit-learn
             ind = np.array(ind)
         n = ind.shape[0]
-        _count = np.zeros(shape=(n, n), dtype=np.uint16)
+        _count = np.zeros(shape=(n, self.ref_set), dtype=np.uint16)
         # Count the distance using the customized function
         for i in range(n):
             # The point should not be in its reference set,
@@ -142,9 +142,11 @@ class SOD(BaseDetector):
             # so it'll be always as first index
             temp = np.sum(np.isin(ind, ind[i]), axis=1).ravel()
             temp[i] = np.iinfo(np.uint16).max
-            _count[i] = temp
+            # sorting after each iteration because argsort is int64
+            # and cannot handle big data
+            _count[i] = np.argsort(temp)[::-1][1:self.ref_set+1]
 
-        return np.flip(np.argsort(_count), axis=1)[:, range(1, self.ref_set + 1)]
+        return _count
 
 
     def _sod(self):
