@@ -105,7 +105,7 @@ Model Combination Example
 Outlier detection often suffers from model instability due to its unsupervised
 nature. Thus, it is recommended to combine various detector outputs, e.g., by averaging,
 to improve its robustness. Detector combination is a subfield of outlier ensembles;
-refer :cite:`a-kalayci2018anomaly` for more information.
+refer :cite:`b-kalayci2018anomaly` for more information.
 
 
 Four score combination mechanisms are shown in this demo:
@@ -181,3 +181,10 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
         Combination by Maximization ROC:0.9198, precision @ rank n:0.4688
         Combination by AOM ROC:0.9257, precision @ rank n:0.4844
         Combination by MOA ROC:0.9263, precision @ rank n:0.4688
+
+.. rubric:: References
+
+.. bibliography:: zreferences.bib
+   :cited:
+   :labelprefix: B
+   :keyprefix: b-
