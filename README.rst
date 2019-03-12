@@ -357,7 +357,7 @@ More detailed instructions for running examples can be found in `examples direct
        y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
        y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-#. Evaluate the prediction by ROC and Precision@rank *n* (p@n):
+#. Evaluate the prediction by ROC and Precision @ Rank n (p@n).
 
    .. code-block:: python
 
@@ -369,7 +369,7 @@ More detailed instructions for running examples can be found in `examples direct
        evaluate_print(clf_name, y_test, y_test_scores)
 
 
-#. See a sample output & visualization
+#. See a sample output & visualization.
 
 
    .. code-block:: python
@@ -420,7 +420,7 @@ Four score combination mechanisms are shown in this demo:
 please navigate to **"/notebooks/Model Combination.ipynb"**
 
 
-#. Import models and generate sample data
+#. Import models and generate sample data.
 
    .. code-block:: python
 
@@ -430,7 +430,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
 
        X, y = generate_data(train_only=True)  # load data
 
-#. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
+#. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores.
 
    .. code-block:: python
 
@@ -459,7 +459,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
        from pyod.utils.utility import standardizer
        train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
 
-#. Then four different combination algorithms are applied as described above:
+#. Then four different combination algorithms are applied as described above.
 
    .. code-block:: python
 
@@ -468,7 +468,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
        comb_by_aom = aom(test_scores_norm, 5) # 5 groups
        comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
 
-#. Finally, all four combination methods are evaluated with ROC and Precision @ Rank n:
+#. Finally, all four combination methods are evaluated with ROC and Precision @ Rank n.
 
    .. code-block:: bash
 

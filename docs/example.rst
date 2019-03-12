@@ -48,7 +48,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
             n_train=n_train, n_test=n_test, contamination=contamination)
 
 3. Initialize a :class:`pyod.models.knn.KNN` detector, fit the model, and make
-   the prediction:
+   the prediction.
 
     .. code-block:: python
 
@@ -65,7 +65,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
         y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-4. Evaluate the prediction using ROC and Precision\@rank n :func:`pyod.utils.data.evaluate_print`:
+4. Evaluate the prediction using ROC and Precision @ Rank n :func:`pyod.utils.data.evaluate_print`.
 
     .. code-block:: python
 
@@ -75,7 +75,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         print("\nOn Test Data:")
         evaluate_print(clf_name, y_test, y_test_scores)
 
-5. See sample outputs on both training and test data:
+5. See sample outputs on both training and test data.
 
     .. code-block:: bash
 
@@ -85,7 +85,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         On Test Data:
         KNN ROC:0.9989, precision @ rank n:0.9
 
-6. Generate the visualizations by visualize function included in all examples:
+6. Generate the visualizations by visualize function included in all examples.
 
     .. code-block:: python
 
@@ -123,7 +123,7 @@ Four score combination mechanisms are shown in this demo:
 please navigate to **"/notebooks/Model Combination.ipynb"**
 
 
-1. Import models and generate sample data:
+1. Import models and generate sample data.
 
     .. code-block:: python
 
@@ -134,7 +134,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
         X, y= generate_data(train_only=True)  # load data
 
 
-2. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
+2. Initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores.
 
     .. code-block:: python
 
@@ -164,7 +164,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
         # scores have to be normalized before combination
         train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
 
-4. Then four different combination algorithms are applied as described above:
+4. Four different combination algorithms are applied as described above:
 
     .. code-block:: python
 
@@ -173,7 +173,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
         comb_by_aom = aom(test_scores_norm, 5) # 5 groups
         comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
 
-5. Finally, all four combination methods are evaluated with ROC and Precision
+5. Finally, all four combination methods are evaluated by ROC and Precision
    @ Rank n:
 
     .. code-block:: bash
