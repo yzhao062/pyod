@@ -408,17 +408,16 @@ refer [#Aggarwal2017Outlier]_ for more information.
 Four score combination mechanisms are shown in this demo:
 
 
-#. Average: average scores of all detectors.
-#. maximization: maximum score across all detectors.
-#. Average of Maximum (AOM): divide base detectors into subgroups and take the maximum score for each subgroup. The final score is the average of all subgroup scores.
-#. Maximum of Average (MOA): divide base detectors into subgroups and take the average score for each subgroup. The final score is the maximum of all subgroup scores.
+#. **Average**: average scores of all detectors.
+#. **maximization**: maximum score across all detectors.
+#. **Average of Maximum (AOM)**: divide base detectors into subgroups and take the maximum score for each subgroup. The final score is the average of all subgroup scores.
+#. **Maximum of Average (MOA)**: divide base detectors into subgroups and take the average score for each subgroup. The final score is the maximum of all subgroup scores.
 
 
 "examples/comb_example.py" illustrates the API for combining the output of multiple base detectors
 (\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
-`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
-
-For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
+`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ). For Jupyter Notebooks,
+please navigate to **"/notebooks/Model Combination.ipynb"**
 
 
 #. Import models and generate sample data
@@ -452,7 +451,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
            test_scores[:, i] = clf.decision_function(X_test_norm)
 
 #. Then the output scores are standardized into zero mean and unit variance before combination.
-   This step is crucial to make sure the detector outputs are at the same scale.
+   This step is crucial to adjust the detector outputs to the same scale.
 
 
    .. code-block:: python
