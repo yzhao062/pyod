@@ -182,7 +182,7 @@ Combination          Average           Simple combination by averaging the score
 Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   :func:`pyod.models.combination.average`              :cite:`a-aggarwal2015theoretical`
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   :func:`pyod.models.combination.maximization`         :cite:`a-aggarwal2015theoretical`
 Combination          AOM               Average of Maximum                                                                                     2015   :func:`pyod.models.combination.aom`                  :cite:`a-aggarwal2015theoretical`
-Combination          MOA               Maximization of Average                                                                                2015   :func:`pyod.models.combination.moa`                  :cite:`a-aggarwal2015theoretical`
+Combination          MOA               Maximum of Average                                                                                     2015   :func:`pyod.models.combination.moa`                  :cite:`a-aggarwal2015theoretical`
 ===================  ================  =====================================================================================================  =====  ===================================================  ======================================================
 
 

@@ -102,13 +102,26 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 Model Combination Example
 -------------------------
 
-`comb_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_ is a quick demo for showing the API for combining multiple algorithms.
-Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
-
-**Model combination example** is made available below
-(`Code <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_, `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_):
+"examples/comb_example.py" illustrates the API for combining the output of multiple base detectors
+(\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
+`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
 
 For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
+
+Outlier detection often suffers from model instability due to its unsupervised
+nature. Thus, it is recommended to combine various detector outputs, e.g., by averaging,
+to improve its robustness. Detector combination is a subfield of outlier ensembles;
+refer :cite:`a-kalayci2018anomaly` for more information.
+
+
+Four score combination mechanisms are shown in this demo:
+
+
+#. Average: average scores of all detectors.
+#. maximization: maximum score across all detectors.
+#. Average of Maximum (AOM): divide base detectors into subgroups and take the maximum score for each subgroup. The final score is the average of all subgroup scores.
+#. Maximum of Average (MOA): divide base detectors into subgroups and take the average score for each subgroup. The final score is the maximum of all subgroup scores.
+
 
 1. Import models and generate sample data:
 

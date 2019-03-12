@@ -399,25 +399,26 @@ Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/pyod/ma
 Quick Start for Combining Outlier Scores from Various Base Detectors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-"examples/comb_example.py" illustrates the API for combining multiple base detectors
+"examples/comb_example.py" illustrates the API for combining the output of multiple base detectors
 (\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
 `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
 
 For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
 
-Given we have *n* individual outlier detectors, each of them generates an individual score for all samples.
-The task is to combine the outputs from these detectors effectively
-**Key Step: conducting Z-score normalization on raw scores before the combination.**
-Four combination mechanisms are shown in this demo:
+Outlier detection often suffers from model instability due to its unsupervised
+nature. Thus, it is recommended to combine various detector outputs, e.g., by averaging,
+to improve its robustness. Detector combination is a subfield of outlier ensembles;
+refer [#Aggarwal2017Outlier]_ for more information.
 
 
-#. Average: take the average of all base detectors.
-#. maximization : take the maximum score across all detectors as the score.
-#. Average of Maximum (AOM): first randomly split n detectors in to p groups. For each group, use the maximum within the group as the group output. Use the average of all group outputs as the final output.
-#. Maximum of Average (MOA): similarly to AOM, the same grouping is introduced. However, we use the average of a group as the group output, and use maximum of all group outputs as the final output.
-   To better understand the merging techniques, refer to [6].
+Four score combination mechanisms are shown in this demo:
 
-The walkthrough of the code example is provided:
+
+#. Average: average scores of all detectors.
+#. maximization: maximum score across all detectors.
+#. Average of Maximum (AOM): divide base detectors into subgroups and take the maximum score for each subgroup. The final score is the average of all subgroup scores.
+#. Maximum of Average (MOA): divide base detectors into subgroups and take the average score for each subgroup. The final score is the maximum of all subgroup scores.
+
 
 
 #. Import models and generate sample data
@@ -451,6 +452,7 @@ The walkthrough of the code example is provided:
            test_scores[:, i] = clf.decision_function(X_test_norm)
 
 #. Then the output scores are standardized into zero mean and unit variance before combination.
+   This step is crucial to make sure the detector outputs are at the same scale.
 
 
    .. code-block:: python
@@ -509,6 +511,8 @@ Reference
 .. [#Aggarwal2015Outlier] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.
 
 .. [#Aggarwal2015Theoretical] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.\ *ACM SIGKDD Explorations Newsletter*\ , 17(1), pp.24-47.
+
+.. [#Aggarwal2017Outlier] Aggarwal, C.C. and Sathe, S., 2017. Outlier ensembles: An introduction. Springer.
 
 .. [#Angiulli2002Fast] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
 
