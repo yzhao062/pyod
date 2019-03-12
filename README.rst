@@ -216,7 +216,7 @@ It is recommended to use **pip** for installation. Please make sure
    pip install --upgrade pyod  # or update if needed
    pip install --pre pyod      # or include pre-release version for new features
 
-Alternatively, you could clone and run setup.py file (**NOT Recommended**)
+Alternatively, you could clone and run setup.py file (**NOT Recommended**):
 
 .. code-block:: bash
 
@@ -301,11 +301,11 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
    :alt: Comparision_of_All
 
 To provide an overview and quick guidance of the implemented models, a benchmark
-is supplied. In total, 17 benchmark data are used for comparision, all datasets could be
-downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
+is supplied for select algorithms. In total, 17 benchmark data are used for comparision,
+all datasets could be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
 For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 20 times independently with different samplings.
+All experiments are repeated 10 times independently with different samplings.
 The mean of 20 trials are taken as the final result. Three evaluation metrics
 are provided:
 
