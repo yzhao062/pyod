@@ -102,12 +102,6 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 Model Combination Example
 -------------------------
 
-"examples/comb_example.py" illustrates the API for combining the output of multiple base detectors
-(\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
-`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
-
-For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
-
 Outlier detection often suffers from model instability due to its unsupervised
 nature. Thus, it is recommended to combine various detector outputs, e.g., by averaging,
 to improve its robustness. Detector combination is a subfield of outlier ensembles;
@@ -122,6 +116,11 @@ Four score combination mechanisms are shown in this demo:
 #. Average of Maximum (AOM): divide base detectors into subgroups and take the maximum score for each subgroup. The final score is the average of all subgroup scores.
 #. Maximum of Average (MOA): divide base detectors into subgroups and take the average score for each subgroup. The final score is the maximum of all subgroup scores.
 
+"examples/comb_example.py" illustrates the API for combining the output of multiple base detectors
+(\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
+`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
+
+For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
 
 1. Import models and generate sample data:
 
