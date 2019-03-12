@@ -212,16 +212,17 @@ It is recommended to use **pip** for installation. Please make sure
 
 .. code-block:: bash
 
-   pip install pyod
-   pip install --upgrade pyod  # make sure the latest version is installed!
+   pip install pyod            # normal install
+   pip install --upgrade pyod  # or update if needed
    pip install --pre pyod      # or include pre-release version for new features
 
-Alternatively, install from github directly (\ **NOT Recommended**\ )
+Alternatively, you could clone and run setup.py file (**NOT Recommended**)
 
 .. code-block:: bash
 
    git clone https://github.com/yzhao062/pyod.git
-   python setup.py install
+   cd pyod
+   pip install .
 
 **Required Dependencies**\ :
 
