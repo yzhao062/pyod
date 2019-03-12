@@ -77,7 +77,16 @@ PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying
 multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-Since 2017, PyOD has been successfully used in various academic researches and commercial products :cite:`a-zhao2018xgbod,a-zhao2018dcso,a-zhao2019lscp`.
+Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in various
+academic researches and commercial products
+:cite:`a-kalayci2018anomaly,a-ramakrishnan2019anomaly,a-weng2019multi,a-zhao2018xgbod,a-zhao2018dcso,a-zhao2019lscp`.
+It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
+`Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
+`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
+`Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_, and
+`awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
+
+
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
@@ -86,12 +95,35 @@ PyOD is featured for:
 * **Compatible with both Python 2 & 3** (scikit-learn compatible as well).
 
 **Important Notes**\ :
-PyOD contains neural network based models, e.g., AutoEncoders, which are
+PyOD has multiple neural network based models, e.g., AutoEncoders, which are
 implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
-**TensorFlow** automatically. This reduces the risk of damaging your local copies.
-If you want to use neural net based models, you should install Keras and back-end libraries like TensorFlow manually.
+**TensorFlow** for you. This reduces the risk of interfering your local copies.
+If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
 An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, some models, e.g., XGBOD, depend on **xgboost**, which would **NOT** be installed by default.
+Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
+
+
+**Citing PyOD**\ :
+
+If you use PyOD in a scientific publication, we would appreciate
+citations to the following paper::
+
+    @article{zhao2019pyod,
+      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
+      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      journal={arXiv preprint arXiv:1901.01588},
+      year={2019},
+      url={https://arxiv.org/abs/1901.01588}
+    }
+
+or::
+
+    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
+
+It is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
+(machine learning open-source software track) **with minor revisions (to appear)**.
+See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
+
 
 **Key Links and Resources**\ :
 

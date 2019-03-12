@@ -1,13 +1,31 @@
 Examples
 ========
 
-.. toctree::
 
-    examples
+----
+
+
+
+Featured Tutorials
+------------------
+
+PyOD has been well acknowledged by the machine learning community with a few featured posts and tutorials.
+
+**Analytics Vidhya**: `An Awesome Tutorial to Learn Outlier Detection in Python using PyOD Library <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_
+
+**KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_
+
+**Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
+
+**awesome-machine-learning**: `General-Purpose Machine Learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_
+
+
+----
 
 
 kNN Example
 -----------
+
 
 Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/knn_example.py>`_
 
@@ -78,9 +96,12 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 .. figure:: figs/KNN.png
     :alt: kNN demo
 
+----
+
 
 Model Combination Example
 -------------------------
+
 `comb_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_ is a quick demo for showing the API for combining multiple algorithms.
 Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
 

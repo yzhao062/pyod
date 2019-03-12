@@ -83,6 +83,8 @@ def _parallel_decision_function(estimators, estimators_features, X):
 
 
 # TODO: should support parallelization at the model level
+# TODO: detector score combination through BFS should be implemented
+# See https://github.com/yzhao062/pyod/issues/59
 class FeatureBagging(BaseDetector):
     """ A feature bagging detector is a meta estimator that fits a number of
     base detectors on various sub-samples of the dataset and use averaging

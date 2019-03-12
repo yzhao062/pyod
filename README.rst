@@ -72,7 +72,14 @@ multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD has been successfully used in various academic researches and
-commercial products [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_.
+commercial products [#Kalayci2018Anomaly]_ [#Ramakrishnan2019Anomaly]_ [#Weng2019Multi]_ [#Zhao2018DCSO]_ [#Zhao2018XGBOD]_ [#Zhao2019LSCP]_.
+It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
+`Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
+`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
+`Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_, and
+`awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
+
+
 PyOD is featured for:
 
 
@@ -83,12 +90,35 @@ PyOD is featured for:
 
 
 **Important Notes**\ :
-PyOD contains neural network based models, e.g., AutoEncoders, which are
+PyOD has multiple neural network based models, e.g., AutoEncoders, which are
 implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
-**TensorFlow** automatically. This reduces the risk of damaging your local copies.
-If you want to use neural net based models, you should install Keras and back-end libraries like TensorFlow manually.
+**TensorFlow** for you. This reduces the risk of interfering your local copies.
+If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
 An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, some models, e.g., XGBOD, depend on **xgboost**, which would **NOT** be installed by default.
+Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
+
+
+**Citing PyOD**\ :
+
+If you use PyOD in a scientific publication, we would appreciate
+citations to the following paper::
+
+    @article{zhao2019pyod,
+      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
+      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      journal={arXiv preprint arXiv:1901.01588},
+      year={2019},
+      url={https://arxiv.org/abs/1901.01588}
+    }
+
+or::
+
+    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
+
+It is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
+(machine learning open-source software track) **with minor revisions (to appear)**.
+See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
+
 
 **Key Links and Resources**\ :
 
@@ -109,26 +139,6 @@ Similarly, some models, e.g., XGBOD, depend on **xgboost**, which would **NOT** 
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
 * `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
 
-
-**Citing PyOD**\ :
-
-If you use PyOD in a scientific publication, we would appreciate
-citations to the following paper::
-
-    @article{zhao2019pyod,
-      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
-      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
-      journal={arXiv preprint arXiv:1901.01588},
-      year={2019},
-      url={https://arxiv.org/abs/1901.01588}
-    }
-
-or::
-
-    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
-
-It is currently under review at `JMLR <http://www.jmlr.org/mloss/>`_
-(machine learning open-source software track). See `preprint <https://arxiv.org/abs/1901.01588>`_.
 
 ----
 
@@ -313,10 +323,19 @@ You are welcome to replicate this process by running
 Quick Start for Outlier Detection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-See **examples directory** for more demos. `"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
-demonstrates the basic APIs of PyOD using kNN detector. **It is noted the APIs for other detectors are similar**.
+PyOD has been well acknowledged by the machine learning community with a few featured posts and tutorials.
 
-More detailed instruction of running examples can be found `examples. <https://github.com/yzhao062/pyod/blob/master/examples>`_
+**Analytics Vidhya**: `An Awesome Tutorial to Learn Outlier Detection in Python using PyOD Library <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_
+
+**KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_
+
+**Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
+
+`"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
+demonstrates the basic APIs of PyOD using kNN detector.
+
+See `examples directory <https://github.com/yzhao062/pyod/blob/master/examples>`_ for more demos and more detailed instructions.
+**It is noted the APIs for other algorithms are consistent/similar**.
 
 
 #. Initialize a kNN detector, fit the model, and make the prediction.
@@ -504,6 +523,8 @@ Reference
 
 .. [#Janssens2012Stochastic] Janssens, J.H.M., Huszár, F., Postma, E.O. and van den Herik, H.J., 2012. Stochastic outlier selection. Technical report TiCC TR 2012-001, Tilburg University, Tilburg Center for Cognition and Communication, Tilburg, The Netherlands.
 
+.. [#Kalayci2018Anomaly] Kalayci, İ. and Ercan, T., 2018, October. Anomaly Detection in Wireless Sensor Networks Data by Using Histogram Based Outlier Score Method. In *2018 2nd International Symposium on Multidisciplinary Studies and Innovative Technologies (ISMSIT)*, pp. 1-6. IEEE.
+
 .. [#Kriegel2008Angle] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*\ , pp. 444-452. ACM.
 
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
@@ -516,11 +537,15 @@ Reference
 
 .. [#Papadimitriou2003LOCI] Papadimitriou, S., Kitagawa, H., Gibbons, P.B. and Faloutsos, C., 2003, March. LOCI: Fast outlier detection using the local correlation integral. In *ICDE '03*, pp. 315-326. IEEE.
 
+.. [#Ramakrishnan2019Anomaly] Ramakrishnan, J., Shaabani, E., Li, C. and Sustik, M.A., 2019. Anomaly Detection for an E-commerce Pricing System. arXiv preprint arXiv:1902.09566.
+
 .. [#Ramaswamy2000Efficient] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438).
 
 .. [#Rousseeuw1999A] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
 
 .. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
+
+.. [#Weng2019Multi] Weng, Y., Zhang, N. and Xia, C., 2019. Multi-Agent-Based Unsupervised Detection of Energy Consumption Anomalies on Smart Campus. *IEEE Access*, 7, pp.2169-2178.
 
 .. [#Zhao2018DCSO] Zhao, Y. and Hryniewicki, M.K. DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles. *ACM SIGKDD Workshop on Outlier Detection De-constructed (ODD v5.0)*\ , 2018.
 
