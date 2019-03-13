@@ -82,11 +82,11 @@ class BaseDetector(object):
 
     @abc.abstractmethod
     def decision_function(self, X):
-        """Predict raw anomaly score of X using the fitted detector.
+        """Predict raw anomaly scores of X using the fitted detector.
 
-        The anomaly score of an input sample is computed based on different
-        detector algorithms. For consistency, outliers are assigned with
-        larger anomaly scores.
+        The anomaly score of an input sample is computed based on the fitted
+        detector. For consistency, outliers are assigned with
+        higher anomaly scores.
 
         Parameters
         ----------
