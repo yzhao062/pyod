@@ -5,7 +5,7 @@ Introduction
 ------------
 
 To provide an overview of the implemented models, a benchmark
-is supplied for select algorithms. In total, 17 benchmark data are used for comparision which
+is supplied for select algorithms. In total, 17 benchmark data are used for comparision, which
 can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
 For each dataset, it is first split into 60% for training and 40% for testing.

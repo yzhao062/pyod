@@ -291,7 +291,7 @@ Algorithm Benchmark
 (\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
 `compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
 `Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
-For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
 
 
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
@@ -299,7 +299,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
    :alt: Comparision_of_All
 
 To provide an overview of the implemented models, a benchmark
-is supplied for select algorithms. In total, 17 benchmark data are used for comparision which
+is supplied for select algorithms. In total, 17 benchmark data are used for comparision, which
 can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
 For each dataset, it is first split into 60% for training and 40% for testing.
@@ -311,7 +311,7 @@ are provided:
 - Precision @ rank n (P@N)
 - Execution time
 
-Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
 You are welcome to replicate this process by running
 `benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
 

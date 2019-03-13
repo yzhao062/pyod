@@ -201,11 +201,16 @@ Utility              :func:`pyod.utils.utility.precision_n_scores`  calculate pr
 (\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
 `compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
 `Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
-For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
 
 
 .. figure:: figs/ALL.png
-    :alt: Comparison of all implemented models
+    :alt: Comparison of selected models
+
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
+You are welcome to replicate this process by running
+`benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
+
 
 Key APIs & Attributes
 =====================
