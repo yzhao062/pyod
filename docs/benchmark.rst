@@ -39,7 +39,7 @@ P@N Performance
 Execution Time
 --------------
 
-.. csv-table:: Time Complexity in Seconds (average of 10 independent trials)
+.. csv-table:: Time Elapsed in Seconds (average of 10 independent trials)
    :file: tables/time.csv
    :header-rows: 1
 
