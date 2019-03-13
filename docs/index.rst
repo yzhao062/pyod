@@ -261,6 +261,12 @@ Key Attributes of a fitted model:
    todo
    about
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Python 2 Support Plan
+
+
 
 Quick Links
 ===========
