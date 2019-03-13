@@ -287,8 +287,7 @@ Full package structure can be found below:
 Algorithm Benchmark
 ^^^^^^^^^^^^^^^^^^^
 
-**The comparison among of implemented models** is made available below:
-
+**The comparison among of implemented models** is made available below
 (\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
 `compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
 `Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).

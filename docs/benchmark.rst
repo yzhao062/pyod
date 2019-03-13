@@ -4,13 +4,13 @@ Benchmarks
 Introduction
 ------------
 
-To provide an overview and quick guidance of the implemented models, a benchmark
-is supplied for select algorithms. In total, 17 benchmark data are used for comparision,
-all datasets could be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
+To provide an overview of the implemented models, a benchmark
+is supplied for select algorithms. In total, 17 benchmark data are used for comparision which
+can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
 For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 10 times independently with different splits.
-The mean of 20 trials is regarded as the final result. Three evaluation metrics
+All experiments are repeated 10 times independently with random splits.
+The mean of 10 trials is regarded as the final result. Three evaluation metrics
 are provided:
 
 - The area under receiver operating characteristic (ROC) curve
