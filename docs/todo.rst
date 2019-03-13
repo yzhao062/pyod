@@ -18,14 +18,13 @@ See `Issues <https://github.com/yzhao062/pyod/issues>`_.
 How to Contribute
 -----------------
 
-You are welcome to contribute to this exciting project, and a manuscript at
-`JMLR <http://www.jmlr.org/mloss/>`_ (Track for open-source software) is under review.
-
-If you are interested in contributing:
+You are welcome to contribute to this exciting project. A procedure is prepared
+for effective collaboration.
 
 
-* Please first check Issue lists for "help wanted" tag and comment the one
-  you are interested. We will assign the issue to you.
+* Please first check `Issue lists <https://github.com/yzhao062/pyod/issues>`_
+  for "help wanted" tag and comment on the one that you are interested in.
+  We will assign the issue to you.
 
 * Fork the master branch and add your improvement/modification/fix.
 
