@@ -256,7 +256,7 @@ Key Attributes of a fitted model:
    :hidden:
    :caption: Additional Information
 
-
+   relevant_knowledge
    issues
    todo
    about
