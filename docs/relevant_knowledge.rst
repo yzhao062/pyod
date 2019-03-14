@@ -1,4 +1,4 @@
-Todo & Contribution Guidance (WIP)
+Outlier Detection 101 (WIP)
 ==================================
 
 Outlier Detection, Anomaly Detection, and Novelty Detection
