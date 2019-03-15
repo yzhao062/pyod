@@ -114,8 +114,7 @@ class LSCP(BaseDetector):
     >>> detector_list = [LOF(), LOF()]
     >>> clf = LSCP(detector_list)
     >>> clf.fit(X_train)
-    >>> print(clf.decision_scores_)
-
+    LSCP(...)
     """
 
     def __init__(self, detector_list, local_region_size=30,
@@ -351,8 +350,9 @@ class LSCP(BaseDetector):
         # create histogram of correlation scores
         scores = scores.reshape(-1, 1)
         if self.n_bins > self.n_clf:
-            warnings.warn("Number of histogram bins greater than number of "
-                          "classifiers, reducing n_bins to n_clf.")
+            warnings.warn(
+                "The number of histogram bins is greater than the number of "
+                "classifiers, reducing n_bins to n_clf.")
             self.n_bins = self.n_clf
         hist, bin_edges = np.histogram(scores, bins=self.n_bins)
 
