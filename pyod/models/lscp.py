@@ -1,6 +1,5 @@
-"""
-Locally Selective Combination of Parallel Outlier Ensembles (LSCP)
-Adapted from the original implementation:
+"""Locally Selective Combination of Parallel Outlier Ensembles (LSCP).
+Adapted from the original implementation.
 """
 # Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
 # License: BSD 2 clause
@@ -18,7 +17,7 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_random_state
 
-# PYOD imports
+# PyOD imports
 from pyod.models.base import BaseDetector
 from pyod.utils.stat_models import pearsonr
 from pyod.utils.utility import argmaxn
