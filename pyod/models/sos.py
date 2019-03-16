@@ -107,7 +107,7 @@ class SOS(BaseDetector):
     >>>
     >>> clf = SOS()
     >>> clf.fit(X_train)
-    >>> print(clf.decision_scores_)
+    SOS(contamination=0.1, eps=1e-05, metric='euclidean', perplexity=30)
     """
 
     def __init__(self, contamination=0.1, perplexity=30, metric='euclidean',
