@@ -52,11 +52,10 @@ class SOS(BaseDetector):
         define the threshold on the decision function.
     
     perplexity : float, optional (default=4.5)
-        The perplexity parameter similar to the parameter `k` in kNN algorithm
-        (the number of nearest neighbors).
-        The range of perplexity can be any real number between 1 and n-1, where
-        `n` is the number of samples. As perplexity is similar to `k`, it can
-        be regarded as a smooth measure of the effective number of neighbours.
+        A smooth measure of the effective number of neighbours. The perplexity
+        parameter is similar to the parameter `k` in kNN algorithm (the number
+        of nearest neighbors). The range of perplexity can be any real number
+        between 1 and n-1, where `n` is the number of samples. 
 
     metric: str, default 'euclidean'
         Metric used for the distance computation. Any metric from
