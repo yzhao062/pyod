@@ -98,6 +98,13 @@ An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wi
 Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
 
+**Notes on Python 2.7**\ :
+To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
+stop supporting Python 2.7 soon (to be decided). We encourage you to move to
+Python 3.5 or newer for latest functions and bug fixes. More information could
+be found at `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+
+
 **Citing PyOD**\ :
 
 If you use PyOD in a scientific publication, we would appreciate
