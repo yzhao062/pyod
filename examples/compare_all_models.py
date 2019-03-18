@@ -21,7 +21,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 import numpy as np
-from scipy import stats
+from numpy import percentile
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 
@@ -133,8 +133,7 @@ for i, offset in enumerate(clusters_separation):
         clf.fit(X)
         scores_pred = clf.decision_function(X) * -1
         y_pred = clf.predict(X)
-        threshold = stats.scoreatpercentile(scores_pred,
-                                            100 * outliers_fraction)
+        threshold = percentile(scores_pred, 100 * outliers_fraction)
         n_errors = (y_pred != ground_truth).sum()
         # plot the levels lines and the points
 

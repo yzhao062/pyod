@@ -15,8 +15,8 @@ from sklearn.externals.funcsigs import signature
 from sklearn.externals import six
 
 import numpy as np
+from numpy import percentile
 from scipy.special import erf
-from scipy.stats import scoreatpercentile
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
@@ -331,8 +331,8 @@ class BaseDetector(object):
         self
         """
 
-        self.threshold_ = scoreatpercentile(self.decision_scores_,
-                                            100 * (1 - self.contamination))
+        self.threshold_ = percentile(self.decision_scores_,
+                                     100 * (1 - self.contamination))
         self.labels_ = (self.decision_scores_ > self.threshold_).astype(
             'int').ravel()
 

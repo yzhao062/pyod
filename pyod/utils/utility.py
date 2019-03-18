@@ -8,6 +8,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from numpy import percentile
 import numbers
 
 import sklearn
@@ -18,7 +19,6 @@ from sklearn.utils import column_or_1d
 from sklearn.utils import check_array
 from sklearn.utils import check_consistent_length
 
-from scipy.stats import scoreatpercentile
 from sklearn.utils import check_random_state
 from sklearn.utils.random import sample_without_replacement
 
@@ -195,7 +195,7 @@ def score_to_label(pred_scores, outliers_fraction=0.1):
     pred_scores = column_or_1d(pred_scores)
     check_parameter(outliers_fraction, 0, 1)
 
-    threshold = scoreatpercentile(pred_scores, 100 * (1 - outliers_fraction))
+    threshold = percentile(pred_scores, 100 * (1 - outliers_fraction))
     pred_labels = (pred_scores > threshold).astype('int')
     return pred_labels
 
@@ -274,7 +274,7 @@ def get_label_n(y, y_pred, n=None):
     else:
         outliers_fraction = np.count_nonzero(y) / y_len
 
-    threshold = scoreatpercentile(y_pred, 100 * (1 - outliers_fraction))
+    threshold = percentile(y_pred, 100 * (1 - outliers_fraction))
     y_pred = (y_pred > threshold).astype('int')
 
     return y_pred
