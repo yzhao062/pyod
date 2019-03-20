@@ -115,7 +115,7 @@ class PCA(BaseDetector):
 
     weighted : bool, optional (default=True)
         If True, the eigenvalues are used in score computation.
-        The eigenvectors with samll eigenvalues comes with more importance
+        The eigenvectors with small eigenvalues comes with more importance
         in outlier score calculation.
 
     standardization : bool, optional (default=True)
