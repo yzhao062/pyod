@@ -58,9 +58,10 @@ v<0.6.8>, <01/31/2019> -- Optimize unit tests for faster execution.
 v<0.6.8>, <02/08/2019> -- Update docs with media coverage.
 v<0.6.8>, <02/10/2019> -- Fix issue in CBLOF for n_cluster discrepancy.
 v<0.6.8>, <02/10/2019> -- Minor doc improvement and stability enhancement.
-v<0.6.9>, <03/12/2019> -- Major documentation and example update for JMLR.
+v<0.6.9>, <03/12/2019> -- Major documentation update for JMLR.
 v<0.6.9>, <03/12/2019> -- Change CI tool env variable setting.
 v<0.6.9>, <03/18/2019> -- Update SOS default parameter setting and documentation.
+v<0.6.9>, <03/29/2019> -- Refactor visualize function (moved to utils).
 
 
 
