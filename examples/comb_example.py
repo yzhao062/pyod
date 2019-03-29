@@ -7,7 +7,7 @@ frameworks are demonstrated:
 3. Average of Maximum (AOM)
 4. Maximum of Average (MOA)
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division

@@ -2,7 +2,7 @@
 """Compare all detection algorithms by plotting decision boundaries and
 the number of decision boundaries.
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division

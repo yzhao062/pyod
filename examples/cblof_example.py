@@ -2,7 +2,7 @@
 """Example of using Cluster-based Local Outlier Factor (CBLOF) for outlier
 detection
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division

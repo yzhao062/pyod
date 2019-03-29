@@ -2,7 +2,7 @@
 """Example of using Histogram- based outlier detection (HBOS) for
 outlier detection
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division

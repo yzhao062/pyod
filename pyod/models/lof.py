@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Local Outlier Factor (LOF). Implemented on scikit-learn library.
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division

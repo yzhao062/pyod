@@ -2,7 +2,7 @@
 """XGBOD: Improving Supervised Outlier Detection with Unsupervised
 Representation Learning. A semi-supervised outlier detection framework.
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 from __future__ import division
 from __future__ import print_function
