@@ -4,13 +4,33 @@ env:
   global:
     PIP_PREFER_BINARY=true # https://github.com/numba/llvmlite/issues/471
 
-python:
-  - "2.7"
-#  - "3.3" # failed due to setuptool version
-#  - "3.4" # failed due to numba (llvmlite)
-  - "3.5"
-  - "3.6"
-  - "3.7"
+matrix:
+  include:
+
+    - os: linux
+      sudo: required
+      services: docker
+      python: '2.7'
+
+      #  - "3.3" # failed due to setuptool version
+      #  - "3.4" # failed due to numba (llvmlite)
+
+    - os: linux
+      sudo: required
+      services: docker
+      python: '3.5'
+
+    - os: linux
+      sudo: required
+      services: docker
+      python: '3.6'
+
+    - os: linux
+      dist: xenial
+      sudo: required
+      services: docker
+      python: '3.7'
+
 
 install:
   - pip install --upgrade pip
