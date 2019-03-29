@@ -38,7 +38,7 @@ install:
 
 script:
     # Show the 20 slowest running tests
-  - pytest --cov=pyod/ --durations=20
+  - pytest --cov=pyod/ --durations=20 --disable-warnings
 
 after_success:
   - coveralls
