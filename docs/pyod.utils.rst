@@ -13,6 +13,15 @@ pyod.utils.data module
     :show-inheritance:
     :inherited-members:
 
+pyod.utils.example module
+----------------------------
+
+.. automodule:: pyod.utils.example
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.utils.stat\_models module
 ------------------------------
 
