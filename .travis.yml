@@ -36,9 +36,9 @@ install:
   - pip install --upgrade pip
   - pip install -r requirements_ci.txt
 
-# command to run tests
 script:
-   pytest --cov=pyod/
+    # Show the 20 slowest running tests
+  - pytest --cov=pyod/ --durations=20
 
 after_success:
   - coveralls
