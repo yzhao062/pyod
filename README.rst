@@ -39,7 +39,7 @@ Python Outlier Detection (PyOD)
 
 -----
 
-**Build Status & Code Coverage & Maintainability**
+**Build Status & Coverage & Maintainability & License**
 
 
 .. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
@@ -64,6 +64,16 @@ Python Outlier Detection (PyOD)
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
    :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
    :alt: Maintainability
+
+
+.. image:: https://img.shields.io/github/license/yzhao062/pyod.svg
+   :target: https://github.com/yzhao062/pyod/blob/master/LICENSE
+   :alt: License
+
+
+.. image:: https://img.shields.io/badge/link-996.icu-red.svg
+   :target: https://github.com/996icu/996.ICU
+   :alt: 996.ICU
 
 -----
 

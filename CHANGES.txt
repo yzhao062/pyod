@@ -62,6 +62,7 @@ v<0.6.9>, <03/12/2019> -- Major documentation update for JMLR.
 v<0.6.9>, <03/12/2019> -- Change CI tool env variable setting.
 v<0.6.9>, <03/18/2019> -- Update SOS default parameter setting and documentation.
 v<0.6.9>, <03/29/2019> -- Refactor visualize function (moved to utils).
+v<0.6.9>, <03/30/2019> -- Add License info and show support to 996.ICU!
 
 
 
