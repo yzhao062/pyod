@@ -96,7 +96,7 @@ PyOD is featured for:
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 * **Advanced models**\ , including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
-* **Compatible with both Python 2 & 3** (scikit-learn compatible as well).
+* **Compatible with both Python 2 & 3**.
 
 
 **Important Notes**\ :
