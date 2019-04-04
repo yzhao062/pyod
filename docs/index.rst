@@ -104,13 +104,19 @@ PyOD is featured for:
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
-**Important Notes**\ :
+**Important Notes 1**\ :
 PyOD has multiple neural network based models, e.g., AutoEncoders, which are
 implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
 **TensorFlow** for you. This reduces the risk of interfering your local copies.
 If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
 An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
+
+**Important Notes 2**\ :
+PyOD contains multiple models that also exist in scikit-learn. However, these two
+libraries' API is not excatly the same--it is recommended to use only one of them
+for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
+for more information.
 
 
 **Citing PyOD**\ :

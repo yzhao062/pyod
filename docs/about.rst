@@ -11,7 +11,7 @@ Zain Nasrullah (joined in 2018):
 `LinkedIn (Zain Nasrullah) <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_
 
 Winston (Zheng) Li (joined in 2018):
-`LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl/>`_
+`LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl>`_
 
 ----
 
