@@ -43,22 +43,22 @@ class MO_GAAL(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
 
-    k : int
+    k : int, optional (default=10)
         The number of sub generators.
     
-    stop_epochs : int, default = 20
+    stop_epochs : int, optional (default=20)
         The number of epochs of training.
     
-    lr_d : float, default = 0.01
+    lr_d : float, optional (default=0.01)
         The learn rate of the discriminator.
     
-    lr_g : float, default = 0.0001
+    lr_g : float, optional (default=0.0001)
         The learn rate of the generator.
     
-    decay : int, default = 1e-6
+    decay : float, optional (default=1e-6)
         The decay parameter for SGD.
     
-    momentum : float, default = 0.9
+    momentum : float, optional (default=0.9)
         The momentum parameter for SGD.
         
     Attributes
@@ -80,7 +80,7 @@ class MO_GAAL(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, k, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
+    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
                  decay=1e-6, momentum=0.9, contamination=0.1):
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k

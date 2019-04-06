@@ -43,19 +43,19 @@ class SO_GAAL(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
     
-    stop_epochs : int, default = 20
+    stop_epochs : int, optional (default=20)
         The number of epochs of training.
     
-    lr_d : float, default = 0.01
+    lr_d : float, optional (default=0.01)
         The learn rate of the discriminator.
     
-    lr_g : float, default = 0.0001
+    lr_g : float, optional (default=0.0001)
         The learn rate of the generator.
     
-    decay : int, default = 1e-6
+    decay : float, optional (default=1e-6)
         The decay parameter for SGD.
     
-    momentum : float, default = 0.9
+    momentum : float, optional (default=0.9)
         The momentum parameter for SGD.
         
     Attributes
