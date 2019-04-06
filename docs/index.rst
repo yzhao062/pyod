@@ -118,6 +118,12 @@ libraries' API is not excatly the same--it is recommended to use only one of the
 for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
 for more information.
 
+**Notes on Python 2.7**\ :
+To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
+stop supporting Python 2.7 soon (to be decided). We encourage you to move to
+Python 3.5 or newer for latest functions and bug fixes. More information could
+be found at `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+
 
 **Citing PyOD**\ :
 
