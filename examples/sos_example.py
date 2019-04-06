@@ -85,7 +85,6 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
         plt.xticks([])
         plt.yticks([])
         plt.legend(loc=3, prop={'size': 10})
-        return
 
     # check input data shapes are consistent
     X_train, y_train, X_test, y_test, y_train_pred, y_test_pred = \
@@ -132,8 +131,6 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
 
     if show_figure:
         plt.show()
-
-    return
 
 
 if __name__ == "__main__":
