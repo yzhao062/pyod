@@ -116,9 +116,9 @@ for more information.
 
 **Notes on Python 2.7**\ :
 To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
-stop supporting Python 2.7 soon (to be decided). We encourage you to move to
-Python 3.5 or newer for latest functions and bug fixes. More information could
-be found at `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use 
+Python 3.5 or newer for the latest functions and bug fixes. More information can
+be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
 
 
 **Citing PyOD**\ :
