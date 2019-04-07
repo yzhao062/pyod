@@ -10,7 +10,7 @@ It is recommended to use **pip** for installation. Please make sure
    pip install --upgrade pyod  # or update if needed
    pip install --pre pyod      # or include pre-release version for new features
 
-Alternatively, you could clone and run setup.py file (**NOT Recommended**):
+Alternatively, you could clone and run setup.py file:
 
 .. code-block:: bash
 
