@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     # train CBLOF detector
     clf_name = 'CBLOF'
-    clf = CBLOF()
+    clf = CBLOF(random_state=42)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
