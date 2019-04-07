@@ -35,7 +35,6 @@ from pyod.models.lof import LOF
 from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
-from pyod.models.lscp import LSCP
 
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import precision_n_scores
@@ -124,8 +123,7 @@ for j in range(len(mat_file_list)):
                 contamination=outliers_fraction),
             'Minimum Covariance Determinant (MCD)': MCD(
                 contamination=outliers_fraction, random_state=random_state),
-            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
-                                           random_state=random_state),
+            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
             'Principal Component Analysis (PCA)': PCA(
                 contamination=outliers_fraction, random_state=random_state),
         }

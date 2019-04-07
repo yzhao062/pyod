@@ -74,12 +74,6 @@ class OCSVM(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
 
-    random_state : int, RandomState instance or None, optional (default=None)
-        The seed of the pseudo random number generator to use when shuffling
-        the data.  If int, random_state is the seed used by the random number
-        generator; If RandomState instance, random_state is the random number
-        generator; If None, the random number generator is the RandomState
-        instance used by `np.random`.
 
     Attributes
     ----------
@@ -121,8 +115,7 @@ class OCSVM(BaseDetector):
 
     def __init__(self, kernel='rbf', degree=3, gamma='auto', coef0=0.0,
                  tol=1e-3, nu=0.5, shrinking=True, cache_size=200,
-                 verbose=False, max_iter=-1, contamination=0.1,
-                 random_state=None):
+                 verbose=False, max_iter=-1, contamination=0.1):
         super(OCSVM, self).__init__(contamination=contamination)
         self.kernel = kernel
         self.degree = degree
@@ -134,7 +127,6 @@ class OCSVM(BaseDetector):
         self.cache_size = cache_size
         self.verbose = verbose
         self.max_iter = max_iter
-        self.random_state = random_state
 
     def fit(self, X, y=None, sample_weight=None, **params):
         """Fit detector. y is optional for unsupervised methods.
@@ -160,8 +152,7 @@ class OCSVM(BaseDetector):
                                      shrinking=self.shrinking,
                                      cache_size=self.cache_size,
                                      verbose=self.verbose,
-                                     max_iter=self.max_iter,
-                                     random_state=self.random_state)
+                                     max_iter=self.max_iter)
         self.detector_.fit(X=X, y=y, sample_weight=sample_weight,
                            **params)
 
