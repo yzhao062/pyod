@@ -80,9 +80,11 @@ class CBLOF(BaseDetector):
 
     check_estimator : bool, optional (default=False)
         If set to True, check whether the base estimator is consistent with
-        sklearn standard. It works in scikit-learn 0.19.1.
+        sklearn standard.
 
-    .. warning:: check_estimator may throw errors with latest scikit-learn.
+        .. warning::
+            check_estimator may throw errors with latest scikit-learn. It
+            works in scikit-learn 0.19.1. and may fail in 0.20 above.
 
     random_state : int, RandomState or None, optional (default=None)
         If int, random_state is the seed used by the random
