@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
-    y_test_scores = clf.decision_function(X_test)  # outlier s`cores
+    y_test_scores = clf.decision_function(X_test)  # outlier scores
 
     # evaluate and print the results
     print("\nOn Training Data:")

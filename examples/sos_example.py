@@ -146,8 +146,8 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train kNN detector
-    clf_name = 'KNN'
+    # train SOS detector
+    clf_name = 'SOS'
     clf = SOS()
     clf.fit(X_train)
 
