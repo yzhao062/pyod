@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
     # train Feature Bagging detector
     clf_name = 'FeatureBagging'
-    clf = FeatureBagging()
+    clf = FeatureBagging(check_estimator=False)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
