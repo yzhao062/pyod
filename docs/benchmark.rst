@@ -4,9 +4,23 @@ Benchmarks
 Introduction
 ------------
 
-To provide an overview of the implemented models, a benchmark
-is supplied for select algorithms. In total, 17 benchmark data are used for comparision, which
+A benchmark is supplied for select algorithms to provide an overview of the implemented models.
+In total, 17 benchmark datasets are used for comparison, which
 can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
+
+We also provide the hardware specification below for reference.
+
+===============  =======================================
+Specification    Value
+===============  =======================================
+Platform         PC
+OS               Microsoft Windows 10 Enterprise
+CPU              Intel i7-6820HQ @ 2.70GHz
+RAM              32GB
+Software         PyCharm 2018.02
+Python           Python 3.6.2
+Core             Single core (no parallelization)
+===============  =======================================
 
 For each dataset, it is first split into 60% for training and 40% for testing.
 All experiments are repeated 10 times independently with random splits.
