@@ -98,27 +98,24 @@ PyOD is featured for:
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
-
-**Important Note 1**\ :
-PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
-**TensorFlow** for you. This reduces the risk of interfering your local copies.
-If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
-An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
-
-**Important Note 2**\ :
-PyOD contains multiple models that also exist in scikit-learn. However, these two
-libraries' API is not excatly the same--it is recommended to use only one of them
-for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
-for more information.
-
-
-**Notes on Python 2.7**\ :
+**Note on Python 2.7**\ :
 To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
-stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use 
+stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use
 Python 3.5 or newer for the latest functions and bug fixes. More information can
 be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+
+**API Demo**\ :
+
+   .. code-block:: python
+
+        # train the KNN detector
+       from pyod.models.knn import KNN
+       clf = KNN()
+       clf.fit(X_train)
+
+        # get outlier scores
+        y_train_scores = clf.decision_scores_  # raw outlier scores
+        y_test_scores = clf.decision_function(X_test)  # outlier scores
 
 
 **Citing PyOD**\ :
@@ -154,9 +151,9 @@ See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 **Table of Contents**\ :
 
 
-* `Quick Introduction <#quick-introduction>`_
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
+* `Implementations <#implementations>`_
 * `Algorithm Benchmark <#algorithm-benchmark>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
@@ -166,10 +163,98 @@ See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 ----
 
 
-Quick Introduction
+Installation
+^^^^^^^^^^^^
+
+It is recommended to use **pip** for installation. Please make sure
+**the latest version** is installed, as PyOD is updated frequently:
+
+.. code-block:: bash
+
+   pip install pyod            # normal install
+   pip install --upgrade pyod  # or update if needed
+   pip install --pre pyod      # or include pre-release version for new features
+
+Alternatively, you could clone and run setup.py file:
+
+.. code-block:: bash
+
+   git clone https://github.com/yzhao062/pyod.git
+   cd pyod
+   pip install .
+
+**Required Dependencies**\ :
+
+
+* Python 2.7, 3.5, 3.6, or 3.7
+* numpy>=1.13
+* numba>=0.35
+* scipy>=0.19.1
+* scikit_learn>=0.19.1
+
+**Optional Dependencies (see details below)**\ :
+
+
+* Keras (optional, required for AutoEncoder)
+* Matplotlib (optional, required for running examples)
+* Tensorflow (optional, required for AutoEncoder, other backend works)
+* XGBoost (optional, required for XGBOD)
+
+**Important Note 1**\ :
+PyOD has multiple neural network based models, e.g., AutoEncoders, which are
+implemented in Keras. However, PyOD does **NOT** install **Keras** and/or
+**TensorFlow** for you. This reduces the risk of interfering with your local copies.
+If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
+Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
+Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
+
+**Important Note 2**\ :
+Running examples needs Matplotlib, which may throw errors in conda
+virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/pyod/issues/6>`_.
+
+**Important Note 3**\ :
+PyOD contains multiple models that also exist in scikit-learn. However, these two
+libraries' API is not excatly the same--it is recommended to use only one of them
+for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
+for more information.
+
+
+----
+
+
+API Cheatsheet & Reference
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheatsheet for all detectors:
+
+
+* **fit(X)**\ : Fit detector.
+* **fit_predict(X)**\ : Fit detector first and then predict whether a particular sample is an outlier or not.
+* **fit_predict_score(X, y)**\ : Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
+* **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
+* **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
+* **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
+
+Key Attributes of a fitted model:
+
+
+* **decision_scores_**\ : The outlier scores of the training data. The higher, the more abnormal.
+  Outliers tend to have higher scores.
+* **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
+
+Full package structure can be found below:
+
+
+* http://pyod.readthedocs.io/en/latest/genindex.html
+* http://pyod.readthedocs.io/en/latest/py-modindex.html
+
+
+----
+
+Implementations
 ^^^^^^^^^^^^^^^^^^
 
-PyOD toolkit consists of three major groups of functionalities:
+PyOD toolkit consists of three major functional groups:
 
 **(i) Individual Detection Algorithms** :
 
@@ -227,85 +312,6 @@ Utility              precision_n_scores  calculate precision @ rank n           
 
 ----
 
-Installation
-^^^^^^^^^^^^
-
-It is recommended to use **pip** for installation. Please make sure
-**the latest version** is installed, as PyOD is updated frequently:
-
-.. code-block:: bash
-
-   pip install pyod            # normal install
-   pip install --upgrade pyod  # or update if needed
-   pip install --pre pyod      # or include pre-release version for new features
-
-Alternatively, you could clone and run setup.py file:
-
-.. code-block:: bash
-
-   git clone https://github.com/yzhao062/pyod.git
-   cd pyod
-   pip install .
-
-**Required Dependencies**\ :
-
-
-* Python 2.7, 3.5, 3.6, or 3.7
-* numpy>=1.13
-* numba>=0.35
-* scipy>=0.19.1
-* scikit_learn>=0.19.1
-
-**Optional Dependencies (see details below)**\ :
-
-
-* Keras (optional, required for AutoEncoder)
-* Matplotlib (optional, required for running examples)
-* Tensorflow (optional, required for AutoEncoder, other backend works)
-* XGBoost (optional, required for XGBOD)
-
-**Known Issue 1**\ : Running examples needs Matplotlib, which may throw errors in conda
-virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/pyod/issues/6>`_.
-
-**Known Issue 2**\ : Keras and/or TensorFlow are listed as optional. However, they are
-both required if you want to use neural network based models, such as
-AutoEncoder. See reasons and solutions `neural-net installation <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
-
-**Known Issue 3**\ : xgboost is listed as optional. However, it is required to
-run XGBOD. Users are expected to install **xgboost** to use XGBOD model.
-
-
-----
-
-
-API Cheatsheet & Reference
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheatsheet for all detectors:
-
-
-* **fit(X)**\ : Fit detector.
-* **fit_predict(X)**\ : Fit detector first and then predict whether a particular sample is an outlier or not.
-* **fit_predict_score(X, y)**\ : Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
-* **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
-* **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
-* **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
-
-Key Attributes of a fitted model:
-
-
-* **decision_scores_**\ : The outlier scores of the training data. The higher, the more abnormal.
-  Outliers tend to have higher scores.
-* **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
-
-Full package structure can be found below:
-
-
-* http://pyod.readthedocs.io/en/latest/genindex.html
-* http://pyod.readthedocs.io/en/latest/py-modindex.html
-
-
-----
 
 Algorithm Benchmark
 ^^^^^^^^^^^^^^^^^^^
@@ -566,7 +572,7 @@ Reference
 
 .. [#Rousseeuw1999A] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
 
-.. [#Scholkopf2001Estimating] Sch{\"o}lkopf, B., Platt, J.C., Shawe-Taylor, J., Smola, A.J. and Williamson, R.C., 2001. Estimating the support of a high-dimensional distribution. *Neural Computation*, 13(7), pp.1443-1471.
+.. [#Scholkopf2001Estimating] Scholkopf, B., Platt, J.C., Shawe-Taylor, J., Smola, A.J. and Williamson, R.C., 2001. Estimating the support of a high-dimensional distribution. *Neural Computation*, 13(7), pp.1443-1471.
 
 .. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
 
