@@ -83,8 +83,7 @@ class CBLOF(BaseDetector):
         sklearn standard.
 
         .. warning::
-            check_estimator may throw errors with latest scikit-learn. It
-            works in scikit-learn 0.19.1. and may fail in 0.20 above.
+            check_estimator may throw errors with scikit-learn 0.20 above.
 
     random_state : int, RandomState or None, optional (default=None)
         If int, random_state is the seed used by the random
