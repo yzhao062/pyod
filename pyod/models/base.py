@@ -56,12 +56,12 @@ class BaseDetector(object):
         ``threshold_`` on ``decision_scores_``.
 
     .. deprecated:: 0.6.9
-          `fit_predict` will be removed in pyod 0.7.0.; it will be
+          `fit_predict` will be removed in pyod 0.7.2.; it will be
           replaced by calling `fit` function first and then accessing
           `labels_` attribute for consistency.
 
     .. deprecated:: 0.6.9
-          `fit_predict_score` will be removed in pyod 0.7.0.; it will be
+          `fit_predict_score` will be removed in pyod 0.7.2.; it will be
           replaced by calling `fit` function first and then accessing
           `labels_` attribute for consistency. Scoring could be done by
           calling an evaluation method, e.g., AUC ROC.
