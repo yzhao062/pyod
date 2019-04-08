@@ -98,7 +98,13 @@ PyOD is featured for:
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
-**Demo of API**\ :
+**Note on Python 2.7**\ :
+To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
+stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use
+Python 3.5 or newer for the latest functions and bug fixes. More information can
+be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+
+**API Demo**\ :
 
    .. code-block:: python
 
@@ -110,12 +116,6 @@ PyOD is featured for:
         # get outlier scores
         y_train_scores = clf.decision_scores_  # raw outlier scores
         y_test_scores = clf.decision_function(X_test)  # outlier scores
-
-**Note on Python 2.7**\ :
-To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
-stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use 
-Python 3.5 or newer for the latest functions and bug fixes. More information can
-be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
 
 
 **Citing PyOD**\ :
