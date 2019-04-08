@@ -98,7 +98,8 @@ PyOD is featured for:
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
-Quick Example:
+**Demo of API**\ :
+
    .. code-block:: python
 
         # train the KNN detector
