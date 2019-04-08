@@ -5,6 +5,7 @@ Outlier detection broadly refers to the task of identifying observations which m
 Any observation belonging to the distribution is referred to as an inlier and any outlying point is referred to as an outlier. 
 
 In the context of machine learning, there are three common approaches for this task: 
+
 1. Unsupervised Outlier Detection
     - Training data (unlabelled) contains both normal and anomalous observations.
     - The model identifies outliers during the fitting process.
