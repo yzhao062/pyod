@@ -78,9 +78,11 @@ class CBLOF(BaseDetector):
         If set to True, the size of clusters are used as weights in
         outlier score calculation.
 
-    check_estimator : bool, optional (default=True)
+    check_estimator : bool, optional (default=False)
         If set to True, check whether the base estimator is consistent with
-        sklearn standard.
+        sklearn standard. It works in scikit-learn 0.19.1.
+
+    .. warning:: check_estimator may throw errors with latest scikit-learn.
 
     random_state : int, RandomState or None, optional (default=None)
         If int, random_state is the seed used by the random
@@ -134,7 +136,7 @@ class CBLOF(BaseDetector):
 
     def __init__(self, n_clusters=8, contamination=0.1,
                  clustering_estimator=None, alpha=0.9, beta=5,
-                 use_weights=False, check_estimator=True, random_state=None,
+                 use_weights=False, check_estimator=False, random_state=None,
                  n_jobs=1):
         super(CBLOF, self).__init__(contamination=contamination)
         self.n_clusters = n_clusters

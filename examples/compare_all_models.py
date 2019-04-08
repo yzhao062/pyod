@@ -98,8 +98,7 @@ classifiers = {
     #     LOCI(contamination=outliers_fraction),
     'Minimum Covariance Determinant (MCD)': MCD(
         contamination=outliers_fraction, random_state=random_state),
-    'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
-                                   random_state=random_state),
+    'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
     'Principal Component Analysis (PCA)': PCA(
         contamination=outliers_fraction, random_state=random_state),
     # 'Stochastic Outlier Selection (SOS)': SOS(
