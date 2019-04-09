@@ -104,25 +104,27 @@ PyOD is featured for:
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
-**Important Notes 1**\ :
-PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
-**TensorFlow** for you. This reduces the risk of interfering your local copies.
-If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
-An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
-**Important Notes 2**\ :
-PyOD contains multiple models that also exist in scikit-learn. However, these two
-libraries' API is not excatly the same--it is recommended to use only one of them
-for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
-for more information.
-
-***Notes on Python 2.7**\ :
+**Note on Python 2.7**\ :
 To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
-stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use 
+stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use
 Python 3.5 or newer for the latest functions and bug fixes. More information can
 be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+
+**API Demo**\ :
+
+
+   .. code-block:: python
+
+
+       # train the KNN detector
+       from pyod.models.knn import KNN
+       clf = KNN()
+       clf.fit(X_train)
+
+       # get outlier scores
+       y_train_scores = clf.decision_scores_  # raw outlier scores
+       y_test_scores = clf.decision_function(X_test)  # outlier scores
 
 
 **Citing PyOD**\ :
@@ -157,10 +159,10 @@ See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 ----
 
 
-Quick Introduction
-==================
+Implemented Algorithms
+======================
 
-PyOD toolkit consists of three major groups of functionalities:
+PyOD toolkit consists of three major functional groups:
 
 **(i) Individual Detection Algorithms** :
 

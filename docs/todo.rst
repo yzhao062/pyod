@@ -16,23 +16,21 @@ See `Issues <https://github.com/yzhao062/pyod/issues>`_.
 ----
 
 How to Contribute
------------------
+^^^^^^^^^^^^^^^^^
 
-You are welcome to contribute to this exciting project. A procedure is prepared
-for effective collaboration.
+You are welcome to contribute to this exciting project:
 
 
-* Please first check `Issue lists <https://github.com/yzhao062/pyod/issues>`_
-  for "help wanted" tag and comment on the one that you are interested in.
-  We will assign the issue to you.
+* Please first check Issue lists for "help wanted" tag and comment the one
+  you are interested. We will assign the issue to you.
 
 * Fork the master branch and add your improvement/modification/fix.
 
-* Create a pull request and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
+* Create a pull request to **development branch** and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
+
+* Automatic tests will be triggered. Make sure all tests are passed. Please make sure all added modules are accompanied with proper test functions.
 
 
-To make sure the code has the same style and standard, please refer to models,
-such as abod.py, hbos.py, or feature bagging for example.
+To make sure the code has the same style and standard, please refer to abod.py, hbos.py, or feature_bagging.py for example.
 
-You are also welcome to share your ideas by opening an issue or dropping me
-an email at zhaoy@cmu.edu :)
+You are also welcome to share your ideas by opening an issue or dropping me an email at zhaoy@cmu.edu :)

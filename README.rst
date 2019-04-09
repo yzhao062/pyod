@@ -92,11 +92,11 @@ It is also well acknowledged by the machine learning community with various dedi
 
 PyOD is featured for:
 
-
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 * **Advanced models**\ , including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
+
 
 **Note on Python 2.7**\ :
 To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
@@ -104,9 +104,12 @@ stop supporting Python 2.7 in the future (dates are still to be decided). We enc
 Python 3.5 or newer for the latest functions and bug fixes. More information can
 be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
 
+
 **API Demo**\ :
 
+
    .. code-block:: python
+
 
        # train the KNN detector
        from pyod.models.knn import KNN
@@ -153,11 +156,11 @@ See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
-* `Implementations <#implementations>`_
+* `Implemented Algorithms <#implemented-algorithms>`_
 * `Algorithm Benchmark <#algorithm-benchmark>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
-* `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
+* `How to Contribute <#how-to-contribute>`_
 
 
 ----
@@ -195,26 +198,27 @@ Alternatively, you could clone and run setup.py file:
 **Optional Dependencies (see details below)**\ :
 
 
-* Keras (optional, required for AutoEncoder)
-* Matplotlib (optional, required for running examples)
-* Tensorflow (optional, required for AutoEncoder, other backend works)
-* XGBoost (optional, required for XGBOD)
+* keras (optional, required for AutoEncoder)
+* matplotlib (optional, required for running examples)
+* pandas (optional, required for running benchmark)
+* tensorflow (optional, required for AutoEncoder, other backend works)
+* xgboost (optional, required for XGBOD)
 
 **Important Note 1**\ :
 PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in Keras. However, PyOD does **NOT** install **Keras** and/or
-**TensorFlow** for you. This reduces the risk of interfering with your local copies.
+implemented in Keras. However, PyOD does **NOT** install **keras** and/or
+**tensorFlow** for you. This reduces the risk of interfering with your local copies.
 If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
 Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
 **Important Note 2**\ :
-Running examples needs Matplotlib, which may throw errors in conda
-virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/pyod/issues/6>`_.
+Running examples needs **matplotlib**, which may throw errors in conda
+virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https://github.com/yzhao062/pyod/issues/6>`_.
 
 **Important Note 3**\ :
 PyOD contains multiple models that also exist in scikit-learn. However, these two
-libraries' API is not excatly the same--it is recommended to use only one of them
+libraries' API is not exactly the same--it is recommended to use only one of them
 for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
 for more information.
 
@@ -251,8 +255,8 @@ Full package structure can be found below:
 
 ----
 
-Implementations
-^^^^^^^^^^^^^^^^^^
+Implemented Algorithms
+^^^^^^^^^^^^^^^^^^^^^^
 
 PyOD toolkit consists of three major functional groups:
 
@@ -327,8 +331,8 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
    :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
    :alt: Comparision_of_All
 
-To provide an overview of the implemented models, a benchmark
-is supplied for select algorithms. In total, 17 benchmark data are used for comparision, which
+A benchmark is supplied for select algorithms to provide an overview of the implemented models.
+In total, 17 benchmark datasets are used for comparison, which
 can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
 For each dataset, it is first split into 60% for training and 40% for testing.
@@ -340,9 +344,12 @@ are provided:
 - Precision @ rank n (P@N)
 - Execution time
 
-Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
 You are welcome to replicate this process by running
 `benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
+
+We also provide the hardware specification for reference.
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
+
 
 ----
 
@@ -507,8 +514,8 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
 
 ----
 
-How to Contribute and Collaborate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to Contribute
+^^^^^^^^^^^^^^^^^
 
 You are welcome to contribute to this exciting project:
 
@@ -518,14 +525,14 @@ You are welcome to contribute to this exciting project:
 
 * Fork the master branch and add your improvement/modification/fix.
 
-* Create a pull request and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
+* Create a pull request to **development branch** and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
+
+* Automatic tests will be triggered. Make sure all tests are passed. Please make sure all added modules are accompanied with proper test functions.
 
 
-To make sure the code has the same style and standard, please refer to models,
-such as abod.py, hbos.py, or feature bagging for example.
+To make sure the code has the same style and standard, please refer to abod.py, hbos.py, or feature_bagging.py for example.
 
-You are also welcome to share your ideas by opening an issue or dropping me
-an email at zhaoy@cmu.edu :)
+You are also welcome to share your ideas by opening an issue or dropping me an email at zhaoy@cmu.edu :)
 
 
 ----

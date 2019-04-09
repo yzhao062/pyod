@@ -8,7 +8,20 @@ A benchmark is supplied for select algorithms to provide an overview of the impl
 In total, 17 benchmark datasets are used for comparison, which
 can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
-We also provide the hardware specification below for reference.
+For each dataset, it is first split into 60% for training and 40% for testing.
+All experiments are repeated 10 times independently with random splits.
+The mean of 10 trials is regarded as the final result. Three evaluation metrics
+are provided:
+
+- The area under receiver operating characteristic (ROC) curve
+- Precision @ rank n (P@N)
+- Execution time
+
+
+You are welcome to replicate this process by running
+`benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
+
+We also provide the hardware specification for reference.
 
 ===============  =======================================
 Specification    Value
@@ -22,18 +35,6 @@ Python           Python 3.6.2
 Core             Single core (no parallelization)
 ===============  =======================================
 
-For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 10 times independently with random splits.
-The mean of 10 trials is regarded as the final result. Three evaluation metrics
-are provided:
-
-- The area under receiver operating characteristic (ROC) curve
-- Precision @ rank n (P@N)
-- Execution time
-
-
-You are welcome to replicate this process by running:
-`benchmark.py <https://github.com/yzhao062/Pyod/blob/master/notebooks/benchmark.py>`_
 
 ROC Performance
 ---------------
