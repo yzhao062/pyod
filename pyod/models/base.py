@@ -19,6 +19,7 @@ from numpy import percentile
 from scipy.special import erf
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
+from sklearn.utils import deprecated
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
 
@@ -112,6 +113,7 @@ class BaseDetector(object):
         """
         pass
 
+    @deprecated()
     def fit_predict(self, X, y=None):
         """Fit detector first and then predict whether a particular sample
         is an outlier or not.
@@ -240,6 +242,7 @@ class BaseDetector(object):
             ranks = ranks / ranks.max()
         return ranks
 
+    @deprecated()
     def fit_predict_score(self, X, y, scoring='roc_auc_score'):
         """Fit the detector, predict on samples, and evaluate the model by
         predefined metrics, e.g., ROC.
