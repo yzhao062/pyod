@@ -98,13 +98,6 @@ PyOD is featured for:
 * **Compatible with both Python 2 & 3**.
 
 
-**Note on Python 2.7**\ :
-To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
-stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use
-Python 3.5 or newer for the latest functions and bug fixes. More information can
-be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
-
-
 **API Demo**\ :
 
 
@@ -186,6 +179,14 @@ Alternatively, you could clone and run setup.py file:
    cd pyod
    pip install .
 
+
+**Note on Python 2.7**\ :
+To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
+stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use
+Python 3.5 or newer for the latest functions and bug fixes. More information can
+be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+
+
 **Required Dependencies**\ :
 
 
@@ -204,7 +205,7 @@ Alternatively, you could clone and run setup.py file:
 * tensorflow (optional, required for AutoEncoder, other backend works)
 * xgboost (optional, required for XGBOD)
 
-**Important Note 1**\ :
+**Warning 1**\ :
 PyOD has multiple neural network based models, e.g., AutoEncoders, which are
 implemented in Keras. However, PyOD does **NOT** install **keras** and/or
 **tensorFlow** for you. This reduces the risk of interfering with your local copies.
@@ -212,11 +213,11 @@ If you want to use neural-net based models, please make sure Keras and a backend
 Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
-**Important Note 2**\ :
+**Warning 2**\ :
 Running examples needs **matplotlib**, which may throw errors in conda
 virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https://github.com/yzhao062/pyod/issues/6>`_.
 
-**Important Note 3**\ :
+**Warning 3**\ :
 PyOD contains multiple models that also exist in scikit-learn. However, these two
 libraries' API is not exactly the same--it is recommended to use only one of them
 for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
@@ -344,11 +345,8 @@ are provided:
 - Precision @ rank n (P@N)
 - Execution time
 
-You are welcome to replicate this process by running
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_. You could replicate this process by running
 `benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
-
-We also provide the hardware specification for reference.
-Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
 
 
 ----

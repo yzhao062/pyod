@@ -18,7 +18,7 @@ are provided:
 - Execution time
 
 
-You are welcome to replicate this process by running
+You could replicate this process by running
 `benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
 
 We also provide the hardware specification for reference.

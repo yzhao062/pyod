@@ -114,17 +114,17 @@ be found at the `scikit-learn install page <https://scikit-learn.org/stable/inst
 **API Demo**\ :
 
 
-   .. code-block:: python
+.. code-block:: python
 
 
-       # train the KNN detector
-       from pyod.models.knn import KNN
-       clf = KNN()
-       clf.fit(X_train)
+    # train the KNN detector
+    from pyod.models.knn import KNN
+    clf = KNN()
+    clf.fit(X_train)
 
-       # get outlier scores
-       y_train_scores = clf.decision_scores_  # raw outlier scores
-       y_test_scores = clf.decision_function(X_test)  # outlier scores
+    # get outlier scores
+    y_train_scores = clf.decision_scores_  # raw outlier scores
+    y_test_scores = clf.decision_function(X_test)  # outlier scores
 
 
 **Citing PyOD**\ :
@@ -231,8 +231,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb
 .. figure:: figs/ALL.png
     :alt: Comparison of selected models
 
-Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
-You are welcome to replicate this process by running
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_. You could replicate this process by running
 `benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
 
 

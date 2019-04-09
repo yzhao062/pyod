@@ -63,12 +63,6 @@ Alternatively, you could clone and run setup.py file:
 
 .. warning::
 
-    Running examples needs **matplotlib**, which may throw errors in conda
-    virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https://github.com/yzhao062/pyod/issues/6>`_.
-
-
-.. warning::
-
     PyOD contains multiple models that also exist in scikit-learn. However, these two
     libraries' API is not exactly the same--it is recommended to use only one of them
     for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
