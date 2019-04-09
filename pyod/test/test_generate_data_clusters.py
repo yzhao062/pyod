@@ -16,3 +16,4 @@ for cluster in x_train:
     plt.plot(cluster[:,0], cluster[:,1], 'o')
 plt.show()
 '''
+
