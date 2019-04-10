@@ -48,7 +48,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
             n_train=n_train, n_test=n_test, contamination=contamination)
 
 3. Initialize a :class:`pyod.models.knn.KNN` detector, fit the model, and make
-   the prediction:
+   the prediction.
 
     .. code-block:: python
 
@@ -65,7 +65,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
         y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-4. Evaluate the prediction using ROC and Precision\@rank n :func:`pyod.utils.data.evaluate_print`:
+4. Evaluate the prediction using ROC and Precision @ Rank n :func:`pyod.utils.data.evaluate_print`.
 
     .. code-block:: python
 
@@ -75,7 +75,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         print("\nOn Test Data:")
         evaluate_print(clf_name, y_test, y_test_scores)
 
-5. See sample outputs on both training and test data:
+5. See sample outputs on both training and test data.
 
     .. code-block:: bash
 
@@ -85,7 +85,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         On Test Data:
         KNN ROC:0.9989, precision @ rank n:0.9
 
-6. Generate the visualizations by visualize function included in all examples:
+6. Generate the visualizations by visualize function included in all examples.
 
     .. code-block:: python
 
@@ -102,15 +102,28 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 Model Combination Example
 -------------------------
 
-`comb_example.py <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_ is a quick demo for showing the API for combining multiple algorithms.
-Given we have *n* individual outlier detectors, each of them generates an individual score for all samples. The task is to combine the outputs from these detectors effectivelly.
+Outlier detection often suffers from model instability due to its unsupervised
+nature. Thus, it is recommended to combine various detector outputs, e.g., by averaging,
+to improve its robustness. Detector combination is a subfield of outlier ensembles;
+refer :cite:`b-kalayci2018anomaly` for more information.
 
-**Model combination example** is made available below
-(`Code <https://github.com/yzhao062/Pyod/blob/master/examples/comb_example.py>`_, `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_):
 
-For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
+Four score combination mechanisms are shown in this demo:
 
-1. Import models and generate sample data:
+
+#. **Average**: average scores of all detectors.
+#. **maximization**: maximum score across all detectors.
+#. **Average of Maximum (AOM)**: divide base detectors into subgroups and take the maximum score for each subgroup. The final score is the average of all subgroup scores.
+#. **Maximum of Average (MOA)**: divide base detectors into subgroups and take the average score for each subgroup. The final score is the maximum of all subgroup scores.
+
+
+"examples/comb_example.py" illustrates the API for combining the output of multiple base detectors
+(\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
+`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ). For Jupyter Notebooks,
+please navigate to **"/notebooks/Model Combination.ipynb"**
+
+
+1. Import models and generate sample data.
 
     .. code-block:: python
 
@@ -121,7 +134,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
         X, y= generate_data(train_only=True)  # load data
 
 
-2. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
+2. Initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores.
 
     .. code-block:: python
 
@@ -141,7 +154,8 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
             train_scores[:, i] = clf.decision_scores_
             test_scores[:, i] = clf.decision_function(X_test_norm)
 
-3. Then the output scores are standardized into zero average and unit std before combination:
+3. Then the output scores are standardized into zero average and unit std before combination.
+   This step is crucial to adjust the detector outputs to the same scale.
 
     .. code-block:: python
 
@@ -150,7 +164,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
         # scores have to be normalized before combination
         train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
 
-4. Then four different combination algorithms are applied as described above:
+4. Four different combination algorithms are applied as described above:
 
     .. code-block:: python
 
@@ -159,7 +173,7 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
         comb_by_aom = aom(test_scores_norm, 5) # 5 groups
         comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
 
-5. Finally, all four combination methods are evaluated with ROC and Precision
+5. Finally, all four combination methods are evaluated by ROC and Precision
    @ Rank n:
 
     .. code-block:: bash
@@ -169,3 +183,10 @@ For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"
         Combination by Maximization ROC:0.9198, precision @ rank n:0.4688
         Combination by AOM ROC:0.9257, precision @ rank n:0.4844
         Combination by MOA ROC:0.9263, precision @ rank n:0.4688
+
+.. rubric:: References
+
+.. bibliography:: zreferences.bib
+   :cited:
+   :labelprefix: B
+   :keyprefix: b-

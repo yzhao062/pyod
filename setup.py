@@ -29,7 +29,7 @@ setup(
     description='A Python Toolkit for Scalable Outlier Detection (Anomaly Detection)',
     long_description=readme(),
     author='Yue Zhao',
-    author_email='yuezhao@cs.toronto.edu',
+    author_email='zhaoy@cmu.edu',
     url='https://github.com/yzhao062/pyod',
     download_url='https://github.com/yzhao062/pyod/archive/master.zip',
     keywords=['outlier detection', 'anomaly detection', 'outlier ensembles',

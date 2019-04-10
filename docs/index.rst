@@ -44,7 +44,7 @@ Welcome to PyOD documentation!
 
 -----
 
-**Build Status & Code Coverage & Maintainability**
+**Build Status & Coverage & Maintainability & License**
 
 
 .. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
@@ -71,6 +71,16 @@ Welcome to PyOD documentation!
    :alt: Maintainability
 
 
+.. image:: https://img.shields.io/github/license/yzhao062/pyod.svg
+   :target: https://github.com/yzhao062/pyod/blob/master/LICENSE
+   :alt: License
+
+
+.. image:: https://img.shields.io/badge/link-996.icu-red.svg
+   :target: https://github.com/996icu/996.ICU
+   :alt: 996.ICU
+
+
 ----
 
 PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in
@@ -92,15 +102,30 @@ PyOD is featured for:
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 * **Advanced models**\ , including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
-* **Compatible with both Python 2 & 3** (scikit-learn compatible as well).
+* **Compatible with both Python 2 & 3**.
 
-**Important Notes**\ :
-PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
-**TensorFlow** for you. This reduces the risk of interfering your local copies.
-If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
-An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
+
+**Note on Python 2.7**\ :
+The maintenance of Python 2.7 will be stopped by January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
+To be consistent with the Python change and PyOD's dependent libraries, e.g., scikit-learn, we will
+stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
+Python 3.5 or newer for the latest functions and bug fixes. More information can
+be found at `Moving to require Python 3 <https://python3statement.org/>`_.
+
+**API Demo**\ :
+
+
+.. code-block:: python
+
+
+    # train the KNN detector
+    from pyod.models.knn import KNN
+    clf = KNN()
+    clf.fit(X_train)
+
+    # get outlier scores
+    y_train_scores = clf.decision_scores_  # raw outlier scores
+    y_test_scores = clf.decision_function(X_test)  # outlier scores
 
 
 **Citing PyOD**\ :
@@ -120,9 +145,8 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
-PyOD paper is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
+`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
 (machine learning open-source software track) **with minor revisions (to appear)**.
-See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 
 
 **Key Links and Resources**\ :
@@ -135,10 +159,10 @@ See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 ----
 
 
-Quick Introduction
-==================
+Implemented Algorithms
+======================
 
-PyOD toolkit consists of three major groups of functionalities:
+PyOD toolkit consists of three major functional groups:
 
 **(i) Individual Detection Algorithms** :
 
@@ -149,7 +173,7 @@ Type                 Abbr              Algorithm                                
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   :class:`pyod.models.pca.PCA`                         :cite:`a-shyu2003novel`
 Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   :class:`pyod.models.mcd.MCD`                         :cite:`a-rousseeuw1999fast,a-hardin2004outlier`
-Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2003   :class:`pyod.models.ocsvm.OCSVM`                     :cite:`a-ma2003time`
+Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2003   :class:`pyod.models.ocsvm.OCSVM`                     :cite:`a-scholkopf2001estimating`
 Proximity-Based      LOF               Local Outlier Factor                                                                                    2000   :class:`pyod.models.lof.LOF`                         :cite:`a-breunig2000lof`
 Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   :class:`pyod.models.cblof.CBLOF`                     :cite:`a-he2003discovering`:
 Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   :class:`pyod.models.loci.LOCI`                       :cite:`a-papadimitriou2003loci`
@@ -182,7 +206,7 @@ Combination          Average           Simple combination by averaging the score
 Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   :func:`pyod.models.combination.average`              :cite:`a-aggarwal2015theoretical`
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   :func:`pyod.models.combination.maximization`         :cite:`a-aggarwal2015theoretical`
 Combination          AOM               Average of Maximum                                                                                     2015   :func:`pyod.models.combination.aom`                  :cite:`a-aggarwal2015theoretical`
-Combination          MOA               Maximization of Average                                                                                2015   :func:`pyod.models.combination.moa`                  :cite:`a-aggarwal2015theoretical`
+Combination          MOA               Maximum of Average                                                                                     2015   :func:`pyod.models.combination.moa`                  :cite:`a-aggarwal2015theoretical`
 ===================  ================  =====================================================================================================  =====  ===================================================  ======================================================
 
 
@@ -197,31 +221,47 @@ Utility              :func:`pyod.utils.utility.get_label_n`         Turn raw out
 Utility              :func:`pyod.utils.utility.precision_n_scores`  calculate precision @ rank n
 ===================  =============================================  =====================================================================================================================================================
 
-**Comparison of all implemented models** are made available below
-(`Code <https://github.com/yzhao062/Pyod/blob/master/examples/compare_all_models.py>`_, `Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/Pyod/master>`_):
+**The comparison among of implemented models** is made available below
+(\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
+`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
 
-For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
 
 .. figure:: figs/ALL.png
-    :alt: Comparison of all implemented models
+    :alt: Comparison of selected models
 
-Key APIs & Attributes
-=====================
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_. You could replicate this process by running
+`benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
+
+
+API Cheatsheet & Reference
+==========================
 
 The following APIs are applicable for all detector models for easy use.
 
 * :func:`pyod.models.base.BaseDetector.fit`: Fit detector. y is optional for unsupervised methods.
-* :func:`pyod.models.base.BaseDetector.fit_predict`: Fit detector first and then predict whether a particular sample is an outlier or not.
-* :func:`pyod.models.base.BaseDetector.fit_predict_score`: Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
 * :func:`pyod.models.base.BaseDetector.decision_function`: Predict raw anomaly score of X using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier using the fitted detector.
+* :func:`pyod.models.base.BaseDetector.fit_predict`: **[Deprecated in V0.6.9]** Fit detector first and then predict whether a particular sample is an outlier or not.
+* :func:`pyod.models.base.BaseDetector.fit_predict_score`: **[Deprecated in V0.6.9]** Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
+
 
 Key Attributes of a fitted model:
 
 * :attr:`pyod.models.base.BaseDetector.decision_scores_`: The outlier scores of the training data. The higher, the more abnormal.
   Outliers tend to have higher scores.
 * :attr:`pyod.models.base.BaseDetector.labels_`: The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
+
+
+**Note** \ : fit_predict() and fit_predict_score() are deprecated in V0.6.9 due
+to consistency issue and will be removed in V0.7.2. To get the binary labels
+of the training data X_train, one should call clf.fit(X_train) and use
+:attr:`pyod.models.base.BaseDetector.labels_`, instead of calling clf.predict(X_train).
+
+
+----
 
 
 .. toctree::
@@ -249,18 +289,14 @@ Key Attributes of a fitted model:
    :hidden:
    :caption: Additional Information
 
-
    issues
-   todo
+   relevant_knowledge
+   faq
    about
 
 
-Quick Links
-===========
+----
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 .. rubric:: References
 

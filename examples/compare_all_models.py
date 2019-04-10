@@ -2,7 +2,7 @@
 """Compare all detection algorithms by plotting decision boundaries and
 the number of decision boundaries.
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -21,7 +21,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 import numpy as np
-from scipy import stats
+from numpy import percentile
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 
@@ -98,8 +98,7 @@ classifiers = {
     #     LOCI(contamination=outliers_fraction),
     'Minimum Covariance Determinant (MCD)': MCD(
         contamination=outliers_fraction, random_state=random_state),
-    'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
-                                   random_state=random_state),
+    'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
     'Principal Component Analysis (PCA)': PCA(
         contamination=outliers_fraction, random_state=random_state),
     # 'Stochastic Outlier Selection (SOS)': SOS(
@@ -133,8 +132,7 @@ for i, offset in enumerate(clusters_separation):
         clf.fit(X)
         scores_pred = clf.decision_function(X) * -1
         y_pred = clf.predict(X)
-        threshold = stats.scoreatpercentile(scores_pred,
-                                            100 * outliers_fraction)
+        threshold = percentile(scores_pred, 100 * outliers_fraction)
         n_errors = (y_pred != ground_truth).sum()
         # plot the levels lines and the points
 

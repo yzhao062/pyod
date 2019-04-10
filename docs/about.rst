@@ -11,7 +11,7 @@ Zain Nasrullah (joined in 2018):
 `LinkedIn (Zain Nasrullah) <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_
 
 Winston (Zheng) Li (joined in 2018):
-`LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl/>`_
+`LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl>`_
 
 ----
 
@@ -33,9 +33,8 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
-PyOD paper is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
+`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
 (machine learning open-source software track) **with minor revisions (to appear)**.
-See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 
 
 ----
@@ -56,7 +55,7 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 
 **GitHub Python Trending**:
 
-- 2019: Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
+- 2019: Apr 5th-6th, Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
 - 2018: Jun 15, Dec 8th-9th
 
 **Miscellaneous**:
