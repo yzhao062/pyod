@@ -21,11 +21,11 @@ Alternatively, you could clone and run setup.py file:
 
 .. warning::
 
-    To be consistent with the dependent libraries, e.g., scikit-learn,
-    PyOD will stop supporting Python 2.7 soon (to be decided).
-    We encourage you to move to Python 3.5 or newer for latest functions and
-    bug fixes. More information could be found at
-    `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+    Python 2.7's maintenance will be stopped on January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
+    To be consistent with the Python change and the dependent libraries, e.g., scikit-learn, PyOD will
+    stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
+    Python 3.5 or newer for the latest functions and bug fixes. More information can
+    be found at the `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **Required Dependencies**\ :
 

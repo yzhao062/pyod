@@ -106,10 +106,11 @@ PyOD is featured for:
 
 
 **Note on Python 2.7**\ :
-To be consistent with the dependent libraries, e.g., scikit-learn, PyOD will
-stop supporting Python 2.7 in the future (dates are still to be decided). We encourage you to use
+Python 2.7's maintenance will be stopped on January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
+To be consistent with the Python change and the dependent libraries, e.g., scikit-learn, PyOD will
+stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
 Python 3.5 or newer for the latest functions and bug fixes. More information can
-be found at the `scikit-learn install page <https://scikit-learn.org/stable/install.html>`_.
+be found at the `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **API Demo**\ :
 

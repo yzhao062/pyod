@@ -1,5 +1,5 @@
-Outlier Detection 101 (WIP)
-==================================
+Outlier Detection 101
+=====================
 
 Outlier detection broadly refers to the task of identifying observations which may be considered anomalous given the distribution of a sample.
 Any observation belonging to the distribution is referred to as an inlier and any outlying point is referred to as an outlier. 
@@ -24,15 +24,8 @@ In the context of machine learning, there are three common approaches for this t
     - This approach is taken when ground truth is available and it is assumed that outliers will follow the same distribution as in the training set.
     - Any new observations are classified using the model.
 
-The algorithms found in *pyod* focus on the first two approaches which differ in terms of how the training data is defined and how the model's outputs are interpreted. 
+The algorithms found in *PyOD* focus on the first two approaches which differ in terms of how the training data is defined and how the model's outputs are interpreted.
 
-
-Outlier Detection, Anomaly Detection, and Novelty Detection
------------------------------------------------------------
-
-To finish, several links for now:
-
-- https://medium.com/@mehulved1503/outlier-detection-and-anomaly-detection-with-machine-learning-caa96b34b7f6
-- https://scikit-learn.org/stable/modules/outlier_detection.html
-- https://en.wikipedia.org/wiki/Anomaly_detection
-- https://www-users.cs.york.ac.uk/vicky/myPapers/Hodge+Austin_OutlierDetection_AIRE381.pdf
+If you are interested to know more relevant knowledge,
+refer `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_ for
+anomaly detection related books, papers, videos, and toolboxes.
