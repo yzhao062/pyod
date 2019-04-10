@@ -228,7 +228,7 @@ virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https:
 **Warning 3**\ :
 PyOD contains multiple models that also exist in scikit-learn. However, these two
 libraries' API is not exactly the same--it is recommended to use only one of them
-for consistency but not mix the results. Refer `sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
+for consistency but not mix the results. Refer `Differences between sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
 for more information.
 
 
@@ -242,11 +242,12 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 
 
 * **fit(X)**\ : Fit detector.
-* **fit_predict(X)**\ : Fit detector first and then predict whether a particular sample is an outlier or not.
-* **fit_predict_score(X, y)**\ : Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
 * **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
 * **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
 * **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
+* **fit_predict(X)**\ : **[Deprecated in V0.6.9]** Fit detector first and then predict whether a particular sample is an outlier or not.
+* **fit_predict_score(X, y)**\ : **[Deprecated in V0.6.9]** Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
+
 
 Key Attributes of a fitted model:
 
@@ -255,11 +256,18 @@ Key Attributes of a fitted model:
   Outliers tend to have higher scores.
 * **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
+
+**Note** \ : fit_predict() and fit_predict_score() are deprecated in V0.6.9 due
+to consistency issue and will be removed in V0.7.2. To get the binary labels
+of the training data X_train, one should call clf.fit(X_train) and use
+clf.labels_, instead of calling clf.predict(X_train).
+
+
 Full package structure can be found below:
 
 
 * http://pyod.readthedocs.io/en/latest/genindex.html
-* http://pyod.readthedocs.io/en/latest/py-modindex.html
+* http://pyod.readthedocs.io/en/latest/py-modindex.htm
 
 
 ----
