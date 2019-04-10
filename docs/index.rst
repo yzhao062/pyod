@@ -106,11 +106,11 @@ PyOD is featured for:
 
 
 **Note on Python 2.7**\ :
-Python 2.7's maintenance will be stopped on January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
-To be consistent with the Python change and the dependent libraries, e.g., scikit-learn, PyOD will
+The maintenance of Python 2.7 will be stopped by January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
+To be consistent with the Python change and PyOD's dependent libraries, e.g., scikit-learn, we will
 stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
 Python 3.5 or newer for the latest functions and bug fixes. More information can
-be found at the `Moving to require Python 3 <https://python3statement.org/>`_.
+be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **API Demo**\ :
 
@@ -145,9 +145,8 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
-PyOD paper is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
+`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
 (machine learning open-source software track) **with minor revisions (to appear)**.
-See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 
 
 **Key Links and Resources**\ :

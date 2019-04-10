@@ -33,9 +33,8 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
-PyOD paper is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
+`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
 (machine learning open-source software track) **with minor revisions (to appear)**.
-See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 
 
 ----
