@@ -263,13 +263,6 @@ of the training data X_train, one should call clf.fit(X_train) and use
 clf.labels\_, instead of calling clf.predict(X_train).
 
 
-Full package structure can be found below:
-
-
-* http://pyod.readthedocs.io/en/latest/genindex.html
-* http://pyod.readthedocs.io/en/latest/py-modindex.htm
-
-
 ----
 
 Implemented Algorithms

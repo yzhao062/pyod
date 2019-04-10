@@ -301,13 +301,8 @@ of the training data X_train, one should call clf.fit(X_train) and use
    :caption: Python 2 Support Plan
 
 
+----
 
-Quick Links
-===========
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 .. rubric:: References
 
