@@ -236,8 +236,8 @@ Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.htm
 `benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
 
 
-Key APIs & Attributes
-=====================
+API Cheatsheet & Reference
+==========================
 
 The following APIs are applicable for all detector models for easy use.
 
