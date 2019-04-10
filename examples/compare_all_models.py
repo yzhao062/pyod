@@ -80,7 +80,6 @@ classifiers = {
     'Feature Bagging':
         FeatureBagging(LOF(n_neighbors=35),
                        contamination=outliers_fraction,
-                       check_estimator=False,
                        random_state=random_state),
     'Histogram-base Outlier Detection (HBOS)': HBOS(
         contamination=outliers_fraction),

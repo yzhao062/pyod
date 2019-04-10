@@ -112,7 +112,6 @@ for j in range(len(mat_file_list)):
                 check_estimator=False,
                 random_state=random_state),
             'Feature Bagging': FeatureBagging(contamination=outliers_fraction,
-                                              check_estimator=False,
                                               random_state=random_state),
             'Histogram-base Outlier Detection (HBOS)': HBOS(
                 contamination=outliers_fraction),

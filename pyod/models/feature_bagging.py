@@ -131,6 +131,14 @@ class FeatureBagging(BaseDetector):
         If set to True, check whether the base estimator is consistent with
         pyod standard.
 
+    check_estimator : bool, optional (default=False)
+        If set to True, check whether the base estimator is consistent with
+        sklearn standard.
+
+        .. deprecated:: 0.6.9
+          `check_estimator` will be removed in pyod 0.7.2.; it will be
+          replaced by `check_detector`.
+
     n_jobs : optional (default=1)
         The number of jobs to run in parallel for both `fit` and
         `predict`. If -1, then the number of jobs is set to the
@@ -179,8 +187,9 @@ class FeatureBagging(BaseDetector):
 
     def __init__(self, base_estimator=None, n_estimators=10, contamination=0.1,
                  max_features=1.0, bootstrap_features=False,
-                 check_detector=True, n_jobs=1, random_state=None,
-                 combination='average', verbose=0, estimator_params=None):
+                 check_detector=True, check_estimator=False, n_jobs=1,
+                 random_state=None, combination='average', verbose=0,
+                 estimator_params=None):
 
         super(FeatureBagging, self).__init__(contamination=contamination)
         self.base_estimator = base_estimator
@@ -188,6 +197,7 @@ class FeatureBagging(BaseDetector):
         self.max_features = max_features
         self.bootstrap_features = bootstrap_features
         self.check_detector = check_detector
+        self.check_estimator = check_estimator
         self.combination = combination
         self.n_jobs = n_jobs
         self.random_state = random_state
