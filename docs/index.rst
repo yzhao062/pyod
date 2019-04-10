@@ -259,7 +259,7 @@ Key Attributes of a fitted model:
 **Note** \ : fit_predict() and fit_predict_score() are deprecated in V0.6.9 due
 to consistency issue and will be removed in V0.7.2. To get the binary labels
 of the training data X_train, one should call clf.fit(X_train) and use
-clf.labels_, instead of calling clf.predict(X_train).
+:attr:`pyod.models.base.BaseDetector.labels_`, instead of calling clf.predict(X_train).
 
 
 ----
