@@ -162,6 +162,7 @@ See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
 * `How to Contribute <#how-to-contribute>`_
+* `Inclusion Criteria <#inclusion-criteria>`_
 
 
 ----
@@ -540,6 +541,18 @@ You are welcome to contribute to this exciting project:
 To make sure the code has the same style and standard, please refer to abod.py, hbos.py, or feature_bagging.py for example.
 
 You are also welcome to share your ideas by opening an issue or dropping me an email at zhaoy@cmu.edu :)
+
+
+Inclusion Criteria
+^^^^^^^^^^^^^^^^^^
+
+Similarly to `scikit-learn <https://scikit-learn.org/stable/faq.html#what-are-the-inclusion-criteria-for-new-algorithms>`_,
+We mainly consider well-established algorithms for inclusion.
+A rule of thumb is at least two years since publication, 50+ citations, and usefulness.
+
+However, we encourage the author(s) of newly proposed models to share and add your implementation into PyOD
+for boosting ML accessibility and reproducibility.
+This exception only applies if you could commit to the maintenance of your model for at least two year period.
 
 
 ----

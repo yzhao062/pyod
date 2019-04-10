@@ -1,6 +1,7 @@
 Frequently Asked Questions
 ==========================
 
+----
 
 What is the Next?
 ^^^^^^^^^^^^^^^^^
@@ -45,7 +46,8 @@ Inclusion Criteria
 
 Similarly to `scikit-learn <https://scikit-learn.org/stable/faq.html#what-are-the-inclusion-criteria-for-new-algorithms>`_,
 We mainly consider well-established algorithms for inclusion.
-A rule of thumb is at least 2 years since publication, 50+ citations, and usefulness.
+A rule of thumb is at least two years since publication, 50+ citations, and usefulness.
 
-However, we also encourage the author(s) of new algorithms to share your code to boost ML model reproducibility.
-This exception only applies if you could commit to the maintenance of your model for at least 2 years.
+However, we encourage the author(s) of newly proposed models to share and add your implementation into PyOD
+for boosting ML accessibility and reproducibility.
+This exception only applies if you could commit to the maintenance of your model for at least two year period.
