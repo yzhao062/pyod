@@ -290,15 +290,10 @@ of the training data X_train, one should call clf.fit(X_train) and use
    :hidden:
    :caption: Additional Information
 
-   relevant_knowledge
    issues
-   todo
+   relevant_knowledge
+   faq
    about
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Python 2 Support Plan
 
 
 ----

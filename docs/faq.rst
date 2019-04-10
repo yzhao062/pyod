@@ -1,5 +1,9 @@
-Todo & Contribution Guidance
-============================
+Frequently Asked Questions
+==========================
+
+
+What is the Next?
+^^^^^^^^^^^^^^^^^
 
 This is the central place to track important things to be fixed/added:
 
@@ -34,3 +38,14 @@ You are welcome to contribute to this exciting project:
 To make sure the code has the same style and standard, please refer to abod.py, hbos.py, or feature_bagging.py for example.
 
 You are also welcome to share your ideas by opening an issue or dropping me an email at zhaoy@cmu.edu :)
+
+
+Inclusion Criteria
+^^^^^^^^^^^^^^^^^^
+
+Similarly to `scikit-learn <https://scikit-learn.org/stable/faq.html#what-are-the-inclusion-criteria-for-new-algorithms>`_,
+We mainly consider well-established algorithms for inclusion.
+A rule of thumb is at least 2 years since publication, 50+ citations, and usefulness.
+
+However, we also encourage the author(s) of new algorithms to share your code to boost ML model reproducibility.
+This exception only applies if you could commit to the maintenance of your model for at least 2 years.
