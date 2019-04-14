@@ -1,0 +1,12 @@
+name: pyod
+dependencies:
+  - keras
+  - matplotlib
+  - nose
+  - numba
+  - numpy
+  - pandas
+  - scikit-learn
+  - scipy
+  - tensorflow
+  - xgboost

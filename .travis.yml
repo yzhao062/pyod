@@ -1,0 +1,35 @@
+language: python
+
+env:
+  global:
+    PIP_PREFER_BINARY=true # https://github.com/numba/llvmlite/issues/471
+
+python:
+  - "2.7"
+#  - "3.3" # failed due to setuptool version
+#  - "3.4" # failed due to numba (llvmlite)
+  - "3.5"
+  - "3.5-dev"  # 3.5 development branch
+  - "3.6"
+  - "3.6-dev"  # 3.6 development branch
+
+install:
+  - pip install --upgrade pip
+  - pip install -r requirements_ci.txt
+  - pip install pytest
+  - pip install pytest-cov
+  - pip install coveralls
+
+# command to run tests
+script:
+   pytest --cov=pyod/
+
+after_success:
+  - coveralls
+
+notifications:
+  email:
+    recipients:
+      - yzhao062@gmail.com
+  on_success: never # default: change
+  on_failure: always # default: always

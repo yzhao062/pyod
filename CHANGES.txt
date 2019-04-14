@@ -1,0 +1,66 @@
+v<0.1.0>, <05/20/2018> -- Initial release.
+v<0.1.1>, <05/20/2018> -- Hot fixes for broken documentation.
+v<0.1.2>, <05/20/2018> -- Hot fixes for broken dependency.
+v<0.1.3>, <05/21/2018> -- Function Signature Improvement.
+v<0.2.0>, <05/23/2018> -- Implement tests and improve stability.
+v<0.2.1>, <05/23/2018> -- Remove data loading func due to broken dependency.
+v<0.2.2>, <05/24/2018> -- Refactor models and add more testcases
+v<0.2.3>, <05/26/2018> -- Add more testcases.
+v<0.3.0>, <05/27/2018> -- Provide full documentation.
+v<0.3.1>, <05/28/2018> -- Add more complete coverage for Py3.5+.
+v<0.3.2>, <05/29/2018> -- Implement fastABOD and added more documentations.
+v<0.3.3>, <05/29/2018> -- Urgent bug fix.
+v<0.3.4>, <05/29/2018> -- Another urgent bug fix.
+v<0.4.0>, <05/31/2018> -- Refactor all models to be sklearn compatible.
+v<0.4.1>, <06/01/2018> -- Support Python 2.7, 3.4, 3.5 and 3.6.
+v<0.4.2>, <06/01/2018> -- Fix Python 2.7 installation issue.
+v<0.4.3>, <06/02/2018> -- Add more models and refactored examples.
+v<0.4.4>, <06/03/2018> -- Refactor HBOS and add new models.
+v<0.4.5>, <06/04/2018> -- Implemented Feature Bagging meta framework.
+v<0.4.6>, <06/05/2018> -- Incremental changes and documentation improvements.
+v<0.4.7>, <06/06/2018> -- Add Principal Component Analysis (PCA) detector.
+v<0.4.8>, <06/07/2018> -- Refactor documentation and add test cases.
+v<0.4.9>, <06/09/2018> -- Add new utility functions and improve documentations.
+v<0.5.0>, <06/10/2018> -- Refactor models and improve documentation.
+v<0.5.1>, <06/12/2018> -- Add MCD detector and more Jupyter notebooks.
+v<0.5.2>, <06/13/2018> -- Incremental changes.
+v<0.5.3>, <06/14/2018> -- Incremental changes.
+v<0.5.4>, <06/18/2018> -- Add CBLOF model and incremental improvements.
+v<0.5.7>, <09/03/2018> -- Add AutoEncoder with fully connected architecture.
+v<0.5.8>, <09/04/2018> -- Remove keras, tensorflow and matplotlib as dependency.
+v<0.5.9>, <09/04/2018> -- Optimize models with numba for fast execution.
+v<0.6.0>, <10/19/2018> -- Update LOF due to the changes in sklearn 0.20.0.
+v<0.6.1>, <11/03/2018> -- Inclusion of Python 3.7 & welcome Zain Nasrullah.
+v<0.6.1>, <11/10/2018> -- Incremental changes and official release of 0.6.1.
+v<0.6.2>, <11/19/2018> -- Refactor base class to decrease cognitive complexity.
+v<0.6.2>, <11/24/2018> -- Add maintainability check and Appveyor CI.
+v<0.6.2>, <11/24/2018> -- Add LSCP implementation (WIP).
+v<0.6.3>, <11/26/2018> -- Move from README.md to README.rst.
+v<0.6.4>, <11/26/2018> -- Refactor version file for Python 2 compatibility.
+v<0.6.5>, <11/27/2018> -- Update README.rst Reference section.
+v<0.6.5>, <11/28/2018> -- Add Stochastic Outlier Selection (SOS).
+v<0.6.5>, <11/30/2018> -- Add CircleCI continuous integration.
+v<0.6.5>, <12/03/2018> -- Add Local Correlation Integral (LOCI).
+v<0.6.6>, <12/06/2018> -- Add LSCP (production version).
+v<0.6.6>, <12/08/2018> -- Add XGBOD.
+v<0.6.6>, <12/18/2018> -- Fixed bugs in CBLOF.
+v<0.6.6>, <12/18/2018> -- Refactor docstring from rst to numpydoc.
+v<0.6.6b1>, <12/18/2018> -- Pre-release of V0.6.6.
+v<0.6.6>, <12/21/2018> -- Redesign visualize function for all examples.
+v<0.6.6>, <12/23/2018> -- Refactor all docstring to numpydoc.
+v<0.6.7>, <12/25/2018> -- Documentation clean-up.
+v<0.6.7>, <12/25/2018> -- Optimize LOCI with numba.
+v<0.6.7>, <12/26/2018> -- Refactor Feature Bagging and GAAL based models.
+v<0.6.7>, <12/27/2018> -- Refactor test cases for better coverage.
+v<0.6.7>, <12/28/2018> -- Redesign visualize function for all examples.
+v<0.6.7>, <12/30/2018> -- Add new models to jupyter notebook and benchmark.
+v<0.6.8>, <01/31/2019> -- Optimize unit tests for faster execution.
+v<0.6.8>, <02/08/2019> -- Update docs with media coverage.
+v<0.6.8>, <02/10/2019> -- Fix issue in CBLOF for n_cluster discrepancy.
+v<0.6.8>, <02/10/2019> -- Minor doc improvement and stability enhancement.
+
+
+
+
+
+

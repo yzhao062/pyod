@@ -1,0 +1,6 @@
+prune examples
+prune notebooks
+prune pyod/test
+prune README.md
+include README.rst
+include requirements.txt
