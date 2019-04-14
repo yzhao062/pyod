@@ -51,10 +51,12 @@ class SOS(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
     
-    perplexity : int
-        The perplexity parameter is a smooth measure the effective number 
-        of neighbours
-    
+    perplexity : float, optional (default=4.5)
+        A smooth measure of the effective number of neighbours. The perplexity
+        parameter is similar to the parameter `k` in kNN algorithm (the number
+        of nearest neighbors). The range of perplexity can be any real number
+        between 1 and n-1, where `n` is the number of samples.
+
     metric: str, default 'euclidean'
         Metric used for the distance computation. Any metric from
         scipy.spatial.distance can be used.
@@ -107,10 +109,10 @@ class SOS(BaseDetector):
     >>>
     >>> clf = SOS()
     >>> clf.fit(X_train)
-    >>> print(clf.decision_scores_)
+    SOS(contamination=0.1, eps=1e-05, metric='euclidean', perplexity=4.5)
     """
 
-    def __init__(self, contamination=0.1, perplexity=30, metric='euclidean',
+    def __init__(self, contamination=0.1, perplexity=4.5, metric='euclidean',
                  eps=1e-5):
         super(SOS, self).__init__(contamination=contamination)
         self.perplexity = perplexity

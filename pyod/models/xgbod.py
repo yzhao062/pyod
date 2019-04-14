@@ -2,7 +2,7 @@
 """XGBOD: Improving Supervised Outlier Detection with Unsupervised
 Representation Learning. A semi-supervised outlier detection framework.
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 from __future__ import division
 from __future__ import print_function
@@ -218,7 +218,7 @@ class XGBOD(BaseDetector):
         # predefined range of nu for one-class svm
         nu_range = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
         for nu in nu_range:
-            estimator_list.append(OCSVM(nu=nu, random_state=self.random_state))
+            estimator_list.append(OCSVM(nu=nu))
             standardization_flag_list.append(True)
 
         # predefined range for number of estimators in isolation forests

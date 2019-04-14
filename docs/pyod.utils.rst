@@ -1,13 +1,20 @@
-pyod.utils package
+Utility Functions
 ==================
 
-Submodules
-----------
 
 pyod.utils.data module
-----------------------------
+----------------------
 
 .. automodule:: pyod.utils.data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.utils.example module
+-------------------------
+
+.. automodule:: pyod.utils.example
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,12 +38,3 @@ pyod.utils.utility module
     :show-inheritance:
     :inherited-members:
 
-
-Module contents
----------------
-
-.. automodule:: pyod.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:

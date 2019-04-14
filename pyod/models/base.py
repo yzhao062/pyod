@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Base class for all outlier detector models
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -15,10 +15,11 @@ from sklearn.externals.funcsigs import signature
 from sklearn.externals import six
 
 import numpy as np
+from numpy import percentile
 from scipy.special import erf
-from scipy.stats import scoreatpercentile
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
+from sklearn.utils import deprecated
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
 
@@ -82,11 +83,11 @@ class BaseDetector(object):
 
     @abc.abstractmethod
     def decision_function(self, X):
-        """Predict raw anomaly score of X using the fitted detector.
+        """Predict raw anomaly scores of X using the fitted detector.
 
-        The anomaly score of an input sample is computed based on different
-        detector algorithms. For consistency, outliers are assigned with
-        larger anomaly scores.
+        The anomaly score of an input sample is computed based on the fitted
+        detector. For consistency, outliers are assigned with
+        higher anomaly scores.
 
         Parameters
         ----------
@@ -101,6 +102,7 @@ class BaseDetector(object):
         """
         pass
 
+    @deprecated()
     def fit_predict(self, X, y=None):
         """Fit detector first and then predict whether a particular sample
         is an outlier or not.
@@ -119,6 +121,11 @@ class BaseDetector(object):
             For each observation, tells whether or not
             it should be considered as an outlier according to the
             fitted model. 0 stands for inliers and 1 for outliers.
+
+        .. deprecated:: 0.6.9
+          `fit_predict` will be removed in pyod 0.7.2.; it will be
+          replaced by calling `fit` function first and then accessing
+          `labels_` attribute for consistency.
         """
 
         self.fit(X, y)
@@ -229,6 +236,7 @@ class BaseDetector(object):
             ranks = ranks / ranks.max()
         return ranks
 
+    @deprecated()
     def fit_predict_score(self, X, y, scoring='roc_auc_score'):
         """Fit the detector, predict on samples, and evaluate the model by
         predefined metrics, e.g., ROC.
@@ -250,6 +258,12 @@ class BaseDetector(object):
         Returns
         -------
         score : float
+
+        .. deprecated:: 0.6.9
+          `fit_predict_score` will be removed in pyod 0.7.2.; it will be
+          replaced by calling `fit` function first and then accessing
+          `labels_` attribute for consistency. Scoring could be done by
+          calling an evaluation method, e.g., AUC ROC.
         """
 
         self.fit(X)
@@ -331,8 +345,8 @@ class BaseDetector(object):
         self
         """
 
-        self.threshold_ = scoreatpercentile(self.decision_scores_,
-                                            100 * (1 - self.contamination))
+        self.threshold_ = percentile(self.decision_scores_,
+                                     100 * (1 - self.contamination))
         self.labels_ = (self.decision_scores_ > self.threshold_).astype(
             'int').ravel()
 

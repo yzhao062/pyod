@@ -6,6 +6,8 @@ branches:
   only:
     - master
     - development
+    - 0.6.X
+    - jmlr
 environment:
   matrix:
 #    - PYTHON: "C:\\Python27"     # comment out due to tensorflow version

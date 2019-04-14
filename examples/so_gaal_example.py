@@ -22,8 +22,8 @@ from pyod.utils.data import evaluate_print
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 20000  # number of training points
-    n_test = 2000  # number of testing points
+    n_train = 30000  # number of training points
+    n_test = 3000  # number of testing points
     n_features = 300  # number of features
 
     # Generate sample data

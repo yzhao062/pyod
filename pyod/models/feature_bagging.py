@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Feature bagging detector
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 from __future__ import division
 from __future__ import print_function
@@ -12,7 +12,6 @@ from sklearn.base import clone
 from sklearn.utils import check_random_state
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.random import sample_without_replacement
 from sklearn.externals.joblib import Parallel, delayed
 
@@ -23,6 +22,7 @@ from .combination import average, maximization
 from ..utils.utility import check_parameter
 from ..utils.utility import generate_indices
 from ..utils.utility import generate_bagging_indices
+from ..utils.utility import check_detector
 
 MAX_INT = np.iinfo(np.int32).max
 
@@ -127,9 +127,17 @@ class FeatureBagging(BaseDetector):
     bootstrap_features : bool, optional (default=False)
         Whether features are drawn with replacement.
 
-    check_estimator : bool, optional (default=True)
+    check_detector : bool, optional (default=True)
+        If set to True, check whether the base estimator is consistent with
+        pyod standard.
+
+    check_estimator : bool, optional (default=False)
         If set to True, check whether the base estimator is consistent with
         sklearn standard.
+
+        .. deprecated:: 0.6.9
+          `check_estimator` will be removed in pyod 0.7.2.; it will be
+          replaced by `check_detector`.
 
     n_jobs : optional (default=1)
         The number of jobs to run in parallel for both `fit` and
@@ -179,14 +187,16 @@ class FeatureBagging(BaseDetector):
 
     def __init__(self, base_estimator=None, n_estimators=10, contamination=0.1,
                  max_features=1.0, bootstrap_features=False,
-                 check_estimator=True, n_jobs=1, random_state=None,
-                 combination='average', verbose=0, estimator_params=None):
+                 check_detector=True, check_estimator=False, n_jobs=1,
+                 random_state=None, combination='average', verbose=0,
+                 estimator_params=None):
 
         super(FeatureBagging, self).__init__(contamination=contamination)
         self.base_estimator = base_estimator
         self.n_estimators = n_estimators
         self.max_features = max_features
         self.bootstrap_features = bootstrap_features
+        self.check_detector = check_detector
         self.check_estimator = check_estimator
         self.combination = combination
         self.n_jobs = n_jobs
@@ -361,8 +371,8 @@ class FeatureBagging(BaseDetector):
             raise ValueError("base_estimator cannot be None")
 
         # make sure estimator is consistent with sklearn
-        if self.check_estimator:
-            check_estimator(self.base_estimator_)
+        if self.check_detector:
+            check_detector(self.base_estimator_)
 
     def _make_estimator(self, append=True, random_state=None):
         """Make and configure a copy of the `base_estimator_` attribute.

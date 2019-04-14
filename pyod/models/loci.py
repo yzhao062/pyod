@@ -140,10 +140,9 @@ class LOCI(BaseDetector):
     >>> X_train, y_train, X_test, y_test = generate_data(
     ...     n_train=n_train, n_test=n_test,
     ...     contamination=contamination, random_state=42)
-    >>>
     >>> clf = LOCI()
     >>> clf.fit(X_train)
-    >>> print(clf.decision_scores_)
+    LOCI(alpha=0.5, contamination=0.1, k=None)
     """
 
     def __init__(self, contamination=0.1, alpha=0.5, k=3):

@@ -39,7 +39,7 @@ Python Outlier Detection (PyOD)
 
 -----
 
-**Build Status & Code Coverage & Maintainability**
+**Build Status & Coverage & Maintainability & License**
 
 
 .. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
@@ -65,6 +65,16 @@ Python Outlier Detection (PyOD)
    :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
    :alt: Maintainability
 
+
+.. image:: https://img.shields.io/github/license/yzhao062/pyod.svg
+   :target: https://github.com/yzhao062/pyod/blob/master/LICENSE
+   :alt: License
+
+
+.. image:: https://img.shields.io/badge/link-996.icu-red.svg
+   :target: https://github.com/996icu/996.ICU
+   :alt: 996.ICU
+
 -----
 
 PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in 
@@ -82,20 +92,34 @@ It is also well acknowledged by the machine learning community with various dedi
 
 PyOD is featured for:
 
-
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 * **Advanced models**\ , including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
-* **Compatible with both Python 2 & 3** (scikit-learn compatible as well).
+* **Compatible with both Python 2 & 3**.
 
 
-**Important Notes**\ :
-PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in Keras. However, PyOD would **NOT** install **Keras** and/or
-**TensorFlow** for you. This reduces the risk of interfering your local copies.
-If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
-An instruction is provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, the models depend on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
+**Note on Python 2.7**\ :
+The maintenance of Python 2.7 will be stopped by January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
+To be consistent with the Python change and PyOD's dependent libraries, e.g., scikit-learn, we will
+stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
+Python 3.5 or newer for the latest functions and bug fixes. More information can
+be found at `Moving to require Python 3 <https://python3statement.org/>`_.
+
+
+**API Demo**\ :
+
+
+   .. code-block:: python
+
+
+       # train the KNN detector
+       from pyod.models.knn import KNN
+       clf = KNN()
+       clf.fit(X_train)
+
+       # get outlier scores
+       y_train_scores = clf.decision_scores_  # raw outlier scores
+       y_test_scores = clf.decision_function(X_test)  # outlier scores
 
 
 **Citing PyOD**\ :
@@ -115,9 +139,8 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
-PyOD paper is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
+`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
 (machine learning open-source software track) **with minor revisions (to appear)**.
-See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 
 
 **Key Links and Resources**\ :
@@ -131,22 +154,122 @@ See `arxiv preprint <https://arxiv.org/abs/1901.01588>`_.
 **Table of Contents**\ :
 
 
-* `Quick Introduction <#quick-introduction>`_
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
+* `Implemented Algorithms <#implemented-algorithms>`_
 * `Algorithm Benchmark <#algorithm-benchmark>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
-* `How to Contribute and Collaborate <#how-to-contribute-and-collaborate>`_
+* `How to Contribute <#how-to-contribute>`_
+* `Inclusion Criteria <#inclusion-criteria>`_
 
 
 ----
 
 
-Quick Introduction
-^^^^^^^^^^^^^^^^^^
+Installation
+^^^^^^^^^^^^
 
-PyOD toolkit consists of three major groups of functionalities:
+It is recommended to use **pip** for installation. Please make sure
+**the latest version** is installed, as PyOD is updated frequently:
+
+.. code-block:: bash
+
+   pip install pyod            # normal install
+   pip install --upgrade pyod  # or update if needed
+   pip install --pre pyod      # or include pre-release version for new features
+
+Alternatively, you could clone and run setup.py file:
+
+.. code-block:: bash
+
+   git clone https://github.com/yzhao062/pyod.git
+   cd pyod
+   pip install .
+
+
+**Note on Python 2.7**\ :
+The maintenance of Python 2.7 will be stopped by January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
+To be consistent with the Python change and PyOD's dependent libraries, e.g., scikit-learn, we will
+stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
+Python 3.5 or newer for the latest functions and bug fixes. More information can
+be found at `Moving to require Python 3 <https://python3statement.org/>`_.
+
+
+**Required Dependencies**\ :
+
+
+* Python 2.7, 3.5, 3.6, or 3.7
+* numpy>=1.13
+* numba>=0.35
+* scipy>=0.19.1
+* scikit_learn>=0.19.1
+
+**Optional Dependencies (see details below)**\ :
+
+
+* keras (optional, required for AutoEncoder)
+* matplotlib (optional, required for running examples)
+* pandas (optional, required for running benchmark)
+* tensorflow (optional, required for AutoEncoder, other backend works)
+* xgboost (optional, required for XGBOD)
+
+**Warning 1**\ :
+PyOD has multiple neural network based models, e.g., AutoEncoders, which are
+implemented in Keras. However, PyOD does **NOT** install **keras** and/or
+**tensorFlow** for you. This reduces the risk of interfering with your local copies.
+If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
+Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
+Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
+
+**Warning 2**\ :
+Running examples needs **matplotlib**, which may throw errors in conda
+virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https://github.com/yzhao062/pyod/issues/6>`_.
+
+**Warning 3**\ :
+PyOD contains multiple models that also exist in scikit-learn. However, these two
+libraries' API is not exactly the same--it is recommended to use only one of them
+for consistency but not mix the results. Refer `Differences between sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
+for more information.
+
+
+----
+
+
+API Cheatsheet & Reference
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheatsheet for all detectors:
+
+
+* **fit(X)**\ : Fit detector.
+* **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
+* **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
+* **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
+* **fit_predict(X)**\ : **[Deprecated in V0.6.9]** Fit detector first and then predict whether a particular sample is an outlier or not.
+* **fit_predict_score(X, y)**\ : **[Deprecated in V0.6.9]** Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
+
+
+Key Attributes of a fitted model:
+
+
+* **decision_scores_**\ : The outlier scores of the training data. The higher, the more abnormal.
+  Outliers tend to have higher scores.
+* **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
+
+
+**Note** \ : fit_predict() and fit_predict_score() are deprecated in V0.6.9 due
+to consistency issue and will be removed in V0.7.2. To get the binary labels
+of the training data X_train, one should call clf.fit(X_train) and use
+clf.labels\_, instead of calling clf.predict(X_train).
+
+
+----
+
+Implemented Algorithms
+^^^^^^^^^^^^^^^^^^^^^^
+
+PyOD toolkit consists of three major functional groups:
 
 **(i) Individual Detection Algorithms** :
 
@@ -155,12 +278,12 @@ Type                 Abbr              Algorithm                                
 ===================  ================  ======================================================================================================  =====  ========================================
 Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
 Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
-Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2003   [#Ma2003Time]_
+Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2001   [#Scholkopf2001Estimating]_
 Proximity-Based      LOF               Local Outlier Factor                                                                                    2000   [#Breunig2000LOF]_
 Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   [#He2003Discovering]_
 Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   [#Papadimitriou2003LOCI]_
 Proximity-Based      HBOS              Histogram-based Outlier Score                                                                           2012   [#Goldstein2012Histogram]_
-Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score                  2000   [#Ramaswamy2000Efficient]_
+Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score)                  2000   [#Ramaswamy2000Efficient]_
 Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   [#Angiulli2002Fast]_
 Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
 Probabilistic        ABOD              Angle-Based Outlier Detection                                                                           2008   [#Kriegel2008Angle]_
@@ -204,118 +327,37 @@ Utility              precision_n_scores  calculate precision @ rank n           
 
 ----
 
-Installation
-^^^^^^^^^^^^
-
-It is recommended to use **pip** for installation. Please make sure
-**the latest version** is installed, as PyOD is updated frequently:
-
-.. code-block:: bash
-
-   pip install pyod
-   pip install --upgrade pyod  # make sure the latest version is installed!
-   pip install --pre pyod      # or include pre-release version for new features
-
-Alternatively, install from github directly (\ **NOT Recommended**\ )
-
-.. code-block:: bash
-
-   git clone https://github.com/yzhao062/pyod.git
-   python setup.py install
-
-**Required Dependencies**\ :
-
-
-* Python 2.7, 3.5, 3.6, or 3.7
-* numpy>=1.13
-* numba>=0.35
-* scipy>=0.19.1
-* scikit_learn>=0.19.1
-
-**Optional Dependencies (see details below)**\ :
-
-
-* Keras (optional, required for AutoEncoder)
-* Matplotlib (optional, required for running examples)
-* Tensorflow (optional, required for AutoEncoder, other backend works)
-* XGBoost (optional, required for XGBOD)
-
-**Known Issue 1**\ : Running examples needs Matplotlib, which may throw errors in conda
-virtual environment on mac OS. See reasons and solutions `issue6 <https://github.com/yzhao062/pyod/issues/6>`_.
-
-**Known Issue 2**\ : Keras and/or TensorFlow are listed as optional. However, they are
-both required if you want to use neural network based models, such as
-AutoEncoder. See reasons and solutions `neural-net installation <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_
-
-**Known Issue 3**\ : xgboost is listed as optional. However, it is required to
-run XGBOD. Users are expected to install **xgboost** to use XGBOD model.
-
-
-----
-
-
-API Cheatsheet & Reference
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheatsheet for all detectors:
-
-
-* **fit(X)**\ : Fit detector.
-* **fit_predict(X)**\ : Fit detector first and then predict whether a particular sample is an outlier or not.
-* **fit_predict_score(X, y)**\ : Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
-* **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
-* **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
-* **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
-
-Key Attributes of a fitted model:
-
-
-* **decision_scores**\ : The outlier scores of the training data. The higher, the more abnormal.
-  Outliers tend to have higher scores.
-* **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
-
-Full package structure can be found below:
-
-
-* http://pyod.readthedocs.io/en/latest/genindex.html
-* http://pyod.readthedocs.io/en/latest/py-modindex.html
-
-
-----
 
 Algorithm Benchmark
 ^^^^^^^^^^^^^^^^^^^
 
-**Comparison of all implemented models** are made available below:
-
+**The comparison among of implemented models** is made available below
 (\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
 `compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
-`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ):
-
-For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**
+`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
 
 
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
    :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
    :alt: Comparision_of_All
 
-To provide an overview and quick guidance of the implemented models, a benchmark
-is supplied. In total, 17 benchmark data are used for comparision, all datasets could be
-downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
+A benchmark is supplied for select algorithms to provide an overview of the implemented models.
+In total, 17 benchmark datasets are used for comparison, which
+can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
 
 For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 20 times independently with different samplings.
-The mean of 20 trials are taken as the final result. Three evaluation metrics
+All experiments are repeated 10 times independently with random splits.
+The mean of 10 trials is regarded as the final result. Three evaluation metrics
 are provided:
 
+- The area under receiver operating characteristic (ROC) curve
+- Precision @ rank n (P@N)
+- Execution time
 
-* The area under receiver operating characteristic (ROC) curve
-* Precision @ rank n (P@N)
-* Execution time
-
-Check the latest result `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_.
-You are welcome to replicate this process by running
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_. You could replicate this process by running
 `benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
+
 
 ----
 
@@ -332,10 +374,9 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 **Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
 `"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
-demonstrates the basic APIs of PyOD using kNN detector.
+demonstrates the basic API of using kNN detector. **It is noted that the API across all other algorithms are consistent/similar**.
 
-See `examples directory <https://github.com/yzhao062/pyod/blob/master/examples>`_ for more demos and more detailed instructions.
-**It is noted the APIs for other algorithms are consistent/similar**.
+More detailed instructions for running examples can be found in `examples directory <https://github.com/yzhao062/pyod/blob/master/examples>`_.
 
 
 #. Initialize a kNN detector, fit the model, and make the prediction.
@@ -358,7 +399,7 @@ See `examples directory <https://github.com/yzhao062/pyod/blob/master/examples>`
        y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
        y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-#. Evaluate the prediction by ROC and Precision@rank *n* (p@n):
+#. Evaluate the prediction by ROC and Precision @ Rank n (p@n).
 
    .. code-block:: python
 
@@ -370,7 +411,7 @@ See `examples directory <https://github.com/yzhao062/pyod/blob/master/examples>`
        evaluate_print(clf_name, y_test, y_test_scores)
 
 
-#. See a sample output & visualization
+#. See a sample output & visualization.
 
 
    .. code-block:: python
@@ -400,28 +441,28 @@ Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/pyod/ma
 Quick Start for Combining Outlier Scores from Various Base Detectors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-"examples/comb_example.py" illustrates the APIs for combining multiple base detectors
+Outlier detection often suffers from model instability due to its unsupervised
+nature. Thus, it is recommended to combine various detector outputs, e.g., by averaging,
+to improve its robustness. Detector combination is a subfield of outlier ensembles;
+refer [#Aggarwal2017Outlier]_ for more information.
+
+
+Four score combination mechanisms are shown in this demo:
+
+
+#. **Average**: average scores of all detectors.
+#. **maximization**: maximum score across all detectors.
+#. **Average of Maximum (AOM)**: divide base detectors into subgroups and take the maximum score for each subgroup. The final score is the average of all subgroup scores.
+#. **Maximum of Average (MOA)**: divide base detectors into subgroups and take the average score for each subgroup. The final score is the maximum of all subgroup scores.
+
+
+"examples/comb_example.py" illustrates the API for combining the output of multiple base detectors
 (\ `comb_example.py <https://github.com/yzhao062/pyod/blob/master/examples/comb_example.py>`_\ ,
-`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
-
-For Jupyter Notebooks, please navigate to **"/notebooks/Model Combination.ipynb"**
-
-Given we have *n* individual outlier detectors, each of them generates an individual score for all samples.
-The task is to combine the outputs from these detectors effectively
-**Key Step: conducting Z-score normalization on raw scores before the combination.**
-Four combination mechanisms are shown in this demo:
+`Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ). For Jupyter Notebooks,
+please navigate to **"/notebooks/Model Combination.ipynb"**
 
 
-#. Average: take the average of all base detectors.
-#. maximization : take the maximum score across all detectors as the score.
-#. Average of Maximum (AOM): first randomly split n detectors in to p groups. For each group, use the maximum within the group as the group output. Use the average of all group outputs as the final output.
-#. Maximum of Average (MOA): similarly to AOM, the same grouping is introduced. However, we use the average of a group as the group output, and use maximum of all group outputs as the final output.
-   To better understand the merging techniques, refer to [6].
-
-The walkthrough of the code example is provided:
-
-
-#. Import models and generate sample data
+#. Import models and generate sample data.
 
    .. code-block:: python
 
@@ -431,7 +472,7 @@ The walkthrough of the code example is provided:
 
        X, y = generate_data(train_only=True)  # load data
 
-#. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores:
+#. First initialize 20 kNN outlier detectors with different k (10 to 200), and get the outlier scores.
 
    .. code-block:: python
 
@@ -452,6 +493,7 @@ The walkthrough of the code example is provided:
            test_scores[:, i] = clf.decision_function(X_test_norm)
 
 #. Then the output scores are standardized into zero mean and unit variance before combination.
+   This step is crucial to adjust the detector outputs to the same scale.
 
 
    .. code-block:: python
@@ -459,7 +501,7 @@ The walkthrough of the code example is provided:
        from pyod.utils.utility import standardizer
        train_scores_norm, test_scores_norm = standardizer(train_scores, test_scores)
 
-#. Then four different combination algorithms are applied as described above:
+#. Then four different combination algorithms are applied as described above.
 
    .. code-block:: python
 
@@ -468,7 +510,7 @@ The walkthrough of the code example is provided:
        comb_by_aom = aom(test_scores_norm, 5) # 5 groups
        comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
 
-#. Finally, all four combination methods are evaluated with ROC and Precision @ Rank n:
+#. Finally, all four combination methods are evaluated with ROC and Precision @ Rank n.
 
    .. code-block:: bash
 
@@ -480,8 +522,8 @@ The walkthrough of the code example is provided:
 
 ----
 
-How to Contribute and Collaborate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to Contribute
+^^^^^^^^^^^^^^^^^
 
 You are welcome to contribute to this exciting project:
 
@@ -491,14 +533,26 @@ You are welcome to contribute to this exciting project:
 
 * Fork the master branch and add your improvement/modification/fix.
 
-* Create a pull request and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
+* Create a pull request to **development branch** and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
+
+* Automatic tests will be triggered. Make sure all tests are passed. Please make sure all added modules are accompanied with proper test functions.
 
 
-To make sure the code has the same style and standard, please refer to models,
-such as abod.py, hbos.py, or feature bagging for example.
+To make sure the code has the same style and standard, please refer to abod.py, hbos.py, or feature_bagging.py for example.
 
-You are also welcome to share your ideas by opening an issue or dropping me
-an email at yuezhao@cs.toronto.edu :)
+You are also welcome to share your ideas by opening an issue or dropping me an email at zhaoy@cmu.edu :)
+
+
+Inclusion Criteria
+^^^^^^^^^^^^^^^^^^
+
+Similarly to `scikit-learn <https://scikit-learn.org/stable/faq.html#what-are-the-inclusion-criteria-for-new-algorithms>`_,
+We mainly consider well-established algorithms for inclusion.
+A rule of thumb is at least two years since publication, 50+ citations, and usefulness.
+
+However, we encourage the author(s) of newly proposed models to share and add your implementation into PyOD
+for boosting ML accessibility and reproducibility.
+This exception only applies if you could commit to the maintenance of your model for at least two year period.
 
 
 ----
@@ -510,6 +564,8 @@ Reference
 .. [#Aggarwal2015Outlier] Aggarwal, C.C., 2015. Outlier analysis. In Data mining (pp. 237-263). Springer, Cham.
 
 .. [#Aggarwal2015Theoretical] Aggarwal, C.C. and Sathe, S., 2015. Theoretical foundations and algorithms for outlier ensembles.\ *ACM SIGKDD Explorations Newsletter*\ , 17(1), pp.24-47.
+
+.. [#Aggarwal2017Outlier] Aggarwal, C.C. and Sathe, S., 2017. Outlier ensembles: An introduction. Springer.
 
 .. [#Angiulli2002Fast] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
 
@@ -542,6 +598,8 @@ Reference
 .. [#Ramaswamy2000Efficient] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438).
 
 .. [#Rousseeuw1999A] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
+
+.. [#Scholkopf2001Estimating] Scholkopf, B., Platt, J.C., Shawe-Taylor, J., Smola, A.J. and Williamson, R.C., 2001. Estimating the support of a high-dimensional distribution. *Neural Computation*, 13(7), pp.1443-1471.
 
 .. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
 

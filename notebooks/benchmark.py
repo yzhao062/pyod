@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Benchmark of all implemented algorithms
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -35,14 +35,13 @@ from pyod.models.lof import LOF
 from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
-from pyod.models.lscp import LSCP
 
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import precision_n_scores
 from sklearn.metrics import roc_auc_score
 
 # TODO: add neural networks, LOCI, SOS
-# TODO: and update output precision (=4)
+
 # Define data file and read X and y
 mat_file_list = ['arrhythmia.mat',
                  'cardio.mat',
@@ -57,24 +56,23 @@ mat_file_list = ['arrhythmia.mat',
                  'pima.mat',
                  'satellite.mat',
                  'satimage-2.mat',
-                 # 'shuttle.mat',
+                 'shuttle.mat',
                  'vertebral.mat',
                  'vowels.mat',
                  'wbc.mat']
 
+# define the number of iterations
 n_ite = 10
-n_classifiers = 11
+n_classifiers = 10
 
 df_columns = ['Data', '#Samples', '# Dimensions', 'Outlier Perc',
               'ABOD', 'CBLOF', 'FB', 'HBOS', 'IForest', 'KNN', 'LOF',
-              'MCD', 'OCSVM', 'PCA', 'LSCP']
+              'MCD', 'OCSVM', 'PCA']
+
+# initialize the container for saving the results
 roc_df = pd.DataFrame(columns=df_columns)
 prn_df = pd.DataFrame(columns=df_columns)
 time_df = pd.DataFrame(columns=df_columns)
-
-# initialize a set of detectors for LSCP
-detector_list = [LOF(n_neighbors=10), LOF(n_neighbors=20), LOF(n_neighbors=30),
-                 LOF(n_neighbors=40), LOF(n_neighbors=50)]
 
 for j in range(len(mat_file_list)):
 
@@ -109,10 +107,11 @@ for j in range(len(mat_file_list)):
         classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
             contamination=outliers_fraction),
             'Cluster-based Local Outlier Factor': CBLOF(
-                contamination=outliers_fraction, check_estimator=False,
+                n_clusters=10,
+                contamination=outliers_fraction,
+                check_estimator=False,
                 random_state=random_state),
             'Feature Bagging': FeatureBagging(contamination=outliers_fraction,
-                                              check_estimator=False,
                                               random_state=random_state),
             'Histogram-base Outlier Detection (HBOS)': HBOS(
                 contamination=outliers_fraction),
@@ -123,13 +122,9 @@ for j in range(len(mat_file_list)):
                 contamination=outliers_fraction),
             'Minimum Covariance Determinant (MCD)': MCD(
                 contamination=outliers_fraction, random_state=random_state),
-            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction,
-                                           random_state=random_state),
+            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
             'Principal Component Analysis (PCA)': PCA(
                 contamination=outliers_fraction, random_state=random_state),
-            'Locally Selective Combination (LSCP)': LSCP(
-                detector_list, contamination=outliers_fraction,
-                random_state=random_state)
         }
         classifiers_indices = {
             'Angle-based Outlier Detector (ABOD)': 0,
@@ -142,7 +137,7 @@ for j in range(len(mat_file_list)):
             'Minimum Covariance Determinant (MCD)': 7,
             'One-class SVM (OCSVM)': 8,
             'Principal Component Analysis (PCA)': 9,
-            'Locally Selective Combination (LSCP)': 10}
+        }
 
         for clf_name, clf in classifiers.items():
             t0 = time()
@@ -177,11 +172,7 @@ for j in range(len(mat_file_list)):
     temp_df.columns = df_columns
     prn_df = pd.concat([prn_df, temp_df], axis=0)
 
-# No need to save locally
-# time_df.to_excel('time.xlsx', index=False)
-# roc_df.to_excel('roc.xlsx', index=False)
-# prn_df.to_excel('prc.xlsx', index=False)
-
-time_df.to_csv('time.csv', index=False)
-roc_df.to_csv('roc.csv', index=False)
-prn_df.to_csv('prc.csv', index=False)
+    # Save the results for each run
+    time_df.to_csv('time.csv', index=False, float_format='%.3f')
+    roc_df.to_csv('roc.csv', index=False, float_format='%.3f')
+    prn_df.to_csv('prc.csv', index=False, float_format='%.3f')

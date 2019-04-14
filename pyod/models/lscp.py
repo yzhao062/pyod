@@ -1,6 +1,5 @@
-"""
-Locally Selective Combination of Parallel Outlier Ensembles (LSCP)
-Adapted from the original implementation:
+"""Locally Selective Combination of Parallel Outlier Ensembles (LSCP).
+Adapted from the original implementation.
 """
 # Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
 # License: BSD 2 clause
@@ -18,7 +17,7 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_random_state
 
-# PYOD imports
+# PyOD imports
 from pyod.models.base import BaseDetector
 from pyod.utils.stat_models import pearsonr
 from pyod.utils.utility import argmaxn
@@ -114,8 +113,7 @@ class LSCP(BaseDetector):
     >>> detector_list = [LOF(), LOF()]
     >>> clf = LSCP(detector_list)
     >>> clf.fit(X_train)
-    >>> print(clf.decision_scores_)
-
+    LSCP(...)
     """
 
     def __init__(self, detector_list, local_region_size=30,
@@ -351,8 +349,9 @@ class LSCP(BaseDetector):
         # create histogram of correlation scores
         scores = scores.reshape(-1, 1)
         if self.n_bins > self.n_clf:
-            warnings.warn("Number of histogram bins greater than number of "
-                          "classifiers, reducing n_bins to n_clf.")
+            warnings.warn(
+                "The number of histogram bins is greater than the number of "
+                "classifiers, reducing n_bins to n_clf.")
             self.n_bins = self.n_clf
         hist, bin_edges = np.histogram(scores, bins=self.n_bins)
 
