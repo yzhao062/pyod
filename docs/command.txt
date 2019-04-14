@@ -1,2 +1,0 @@
-set SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members
-sphinx-apidoc -o rst C:\Users\yzhao066\Desktop\Pyod\

@@ -1,3 +1,0 @@
-docs/* linguist-documentation
-notebooks/*.ipynb linguist-documentation
-examples/*.ipynb linguist-documentation=false
