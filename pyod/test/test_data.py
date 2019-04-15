@@ -228,9 +228,20 @@ class TestData(unittest.TestCase):
                                    contamination=0.1,
                                    size='same',
                                    density='same',
+                                   dist='not float',
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size=0.25,
+                                   n_clusters=2,
+                                   n_features=2,
+                                   contamination=0.1,
+                                   size='same',
+                                   density='same',
                                    dist=0.25,
                                    random_state=None,
-                                   return_in_clusters='yes')
+                                   return_in_clusters='not bool')
         with assert_raises(ValueError):
             generate_data_clusters(n_samples='not int',
                                    test_size=0.25,
@@ -313,7 +324,7 @@ class TestData(unittest.TestCase):
                                    test_size=1.1,
                                    n_clusters=2,
                                    n_features=2,
-                                   contamination=0.1,
+                                   contamination=0.01,
                                    size='same',
                                    density='same',
                                    dist=0.25,

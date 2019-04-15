@@ -458,9 +458,7 @@ def generate_data_clusters(n_samples=100, test_size=0.25, n_clusters=2, n_featur
             X.append(np.concatenate(inliers))
         Y.append(_y)
 
-    if test_size:
-        if test_size < 0.0 or test_size > 1.0:
-            raise ValueError("Test size should be between 0.0 and 1.0")
+    if test_size is not None:
         x_train, x_test, y_train, y_test = [], [], [], []
         for i, x_ in enumerate(X):
             stratify = None if sum(j == 1 for j in Y[i]) else Y[i]
