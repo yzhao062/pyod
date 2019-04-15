@@ -20,7 +20,6 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_true
-from sklearn.utils.estimator_checks import check_estimator
 
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
@@ -46,9 +45,27 @@ class TestLOF(unittest.TestCase):
         self.clf = SOD(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
-    def test_sklearn_estimator(self):
-        #check_estimator(self.clf)
-        pass
+    def test_check_parameters(self):
+        with assert_raises(ValueError):
+            SOD(n_neighbors=None, ref_set=10, alpha=0.8)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=20, ref_set=None, alpha=0.8)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=20, ref_set=10, alpha=None)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=-1, ref_set=10, alpha=0.8)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=20, ref_set=-1, alpha=0.8)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=20, ref_set=10, alpha=-1)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=20, ref_set=25, alpha=0.8)
+        with assert_raises(ValueError):
+            SOD(n_neighbors='not int', ref_set=25, alpha=0.8)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=20, ref_set='not int', alpha=0.8)
+        with assert_raises(ValueError):
+            SOD(n_neighbors=20, ref_set=25, alpha='not float')
 
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and

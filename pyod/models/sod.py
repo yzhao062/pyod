@@ -171,26 +171,26 @@ class SOD(BaseDetector):
         """
         if self.n_neighbors_ is None:
             raise ValueError("n_neighbors cannot be None")
+        if not np.issubdtype(type(self.n_neighbors_), np.integer):
+            raise ValueError("n_neighbors does not take %s value, enter integer value" %
+                             type(self.n_neighbors_))
         if self.n_neighbors_ <= 0:
             raise ValueError("Expected n_neighbors > 0. Got %d" % self.n_neighbors_)
-        if not np.issubdtype(type(self.n_neighbors_), np.integer):
-            raise TypeError("n_neighbors does not take %s value, enter integer value" %
-                            type(self.n_neighbors_))
 
         if self.ref_set_ is None:
             raise ValueError("ref_set cannot be None")
+        if not np.issubdtype(type(self.ref_set_), np.integer):
+            raise ValueError("ref_set does not take %s value, enter integer value" %
+                             type(self.ref_set_))
         if self.ref_set_ <= 0:
             raise ValueError("Expected ref_set > 0. Got %d" % self.ref_set_)
         if self.ref_set_ >= self.n_neighbors_:
-            raise TypeError("n_neighbors should be greater than ref_set")
-        if not np.issubdtype(type(self.ref_set_), np.integer):
-            raise TypeError("ref_set does not take %s value, enter integer value" %
-                            type(self.ref_set_))
+            raise ValueError("n_neighbors should be greater than ref_set")
 
         if self.alpha_ is None:
-            raise TypeError("alpha cannot be None")
+            raise ValueError("alpha cannot be None")
+        if not np.issubdtype(type(self.alpha_), np.float):
+            raise ValueError("alpha does not take %s value, enter integer value" %
+                             type(self.alpha_))
         if not 0. < self.alpha_ <= 1.0:
             raise ValueError("Expected alpha in (0.0, 1.0). Got %d" % self.alpha_)
-        if not np.issubdtype(type(self.alpha_), np.float):
-            raise TypeError("alpha does not take %s value, enter integer value" %
-                            type(self.alpha_))
