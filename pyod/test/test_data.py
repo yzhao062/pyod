@@ -228,9 +228,97 @@ class TestData(unittest.TestCase):
                                    contamination=0.1,
                                    size='same',
                                    density='same',
-                                   dist=1.1,
+                                   dist=0.25,
                                    random_state=None,
                                    return_in_clusters='yes')
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples='not int',
+                                   test_size=0.25,
+                                   n_clusters=2,
+                                   n_features=2,
+                                   contamination=0.1,
+                                   size='same',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size='not float',
+                                   n_clusters=2,
+                                   n_features=2,
+                                   contamination=0.1,
+                                   size='same',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size=0.25,
+                                   n_clusters='not int',
+                                   n_features=2,
+                                   contamination=0.1,
+                                   size='same',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size=0.25,
+                                   n_clusters=2,
+                                   n_features='not int',
+                                   contamination=0.1,
+                                   size='same',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size=0.25,
+                                   n_clusters=2,
+                                   n_features=2,
+                                   contamination='not float',
+                                   size='same',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size=0.25,
+                                   n_clusters=20,
+                                   n_features=2,
+                                   contamination=0.1,
+                                   size='different',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size=0.25,
+                                   n_clusters=9,
+                                   n_features=2,
+                                   contamination=0.4,
+                                   size='different',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
+        with assert_raises(ValueError):
+            generate_data_clusters(n_samples=100,
+                                   test_size=1.1,
+                                   n_clusters=2,
+                                   n_features=2,
+                                   contamination=0.1,
+                                   size='same',
+                                   density='same',
+                                   dist=0.25,
+                                   random_state=None,
+                                   return_in_clusters=False)
 
     def test_evaluate_print(self):
         X_train, y_train, X_test, y_test = generate_data(
