@@ -353,38 +353,44 @@ def generate_data_clusters(n_samples=100, test_size=0.25, n_clusters=2, n_featur
     # initialize a random state and seeds for the instance
     random_state = check_random_state(random_state)
     # check and validate parameters
-    if isinstance(contamination, float):
-        if not 0.0 < contamination <= 0.5:
-            raise ValueError("contamination should be in (0.0, 1.0), got %f" % contamination)
-    else:
-        raise ValueError("contamination should be of type float, got %s" % contamination)
-    if isinstance(dist, float):
-        if not 0.0 < dist <= 1.0:
-            raise ValueError("dist should be in (0.0, 1.0), got %f" % dist)
-    else:
-        raise ValueError("dist should be of type float, got %s" % dist)
     if isinstance(n_samples, int):
         if n_samples < 10:
-            raise ValueError("n_samples should be at least 10, got %f" % n_samples)
+            raise ValueError("n_samples should be at least 10, got %d" % n_samples)
     else:
-        raise ValueError("n_samples should be of type int, got %s" % n_samples)
+        raise ValueError("n_samples should be int, got %s" % n_samples)
+
     if isinstance(test_size, float):
-        if not 0.0 <= test_size <= 0.9:
-            raise ValueError("test_size should be in (0.0, 0.9), got %f" % test_size)
+        if not 0.0 < test_size < 1.0:
+            raise ValueError("test_size should be in ]0.0, 1.0[, got %f" % test_size)
     elif test_size is not None:
-        raise ValueError("test_size should be of type float or None, got %s" % test_size)
+        raise ValueError("test_size should be float or None, got %s" % test_size)
+
     if isinstance(n_clusters, int):
         if n_clusters < 1:
             raise ValueError("n_clusters should be at least 1, got %d" % n_clusters)
     else:
-        raise ValueError("n_clusters should be of type int, got %s" % n_clusters)
+        raise ValueError("n_clusters should be int, got %s" % n_clusters)
+
     if isinstance(n_features, int):
         if n_features < 1:
             raise ValueError("n_features should be at least 1, got %d" % n_features)
     else:
-        raise ValueError("n_features should be of type int, got %s" % n_features)
+        raise ValueError("n_features should be int, got %s" % n_features)
+
+    if isinstance(contamination, float):
+        if not 0.0 <= contamination <= 0.5:
+            raise ValueError("contamination should be in (0.0, 0.5), got %f" % contamination)
+    else:
+        raise ValueError("contamination should be float, got %s" % contamination)
+
+    if isinstance(dist, float):
+        if not 0.0 <= dist <= 1.0:
+            raise ValueError("dist should be in (0.0, 1.0), got %f" % dist)
+    else:
+        raise ValueError("dist should be float, got %s" % dist)
+
     if not isinstance(return_in_clusters, bool):
-        raise ValueError("return_in_clusters should be of type bool, got %s" % n_features)
+        raise ValueError("return_in_clusters should be of type bool, got %s" % return_in_clusters)
 
     # find the required number of outliers and inliers
     n_outliers = int(n_samples * contamination)
@@ -398,8 +404,8 @@ def generate_data_clusters(n_samples=100, test_size=0.25, n_clusters=2, n_featur
         if (n_clusters * 10) > n_samples:
             raise ValueError('number of samples should be at least 10 times the number of clusters')
         if (n_clusters * 10) > n_inliers:
-            raise ValueError('contamination ratio is too high, '
-                            'try to increase number of samples or decrease the contamination')
+            raise ValueError('contamination ratio is too high,'
+                             'try to increase number of samples or decrease the contamination')
         _r = 1./n_clusters
         _offset = random_state.uniform(_r*0.2, _r*0.4, size=(int(n_clusters/2),)).tolist()
         _offset += [i*-1. for i in _offset]
@@ -434,14 +440,13 @@ def generate_data_clusters(n_samples=100, test_size=0.25, n_clusters=2, n_featur
     center_box = list(filter(lambda a: a != 0, np.linspace(-np.power(n_samples * n_clusters, dist),
                                                            np.power(n_samples * n_clusters, dist),
                                                            n_clusters+2)))
-    print(center_box)
     for i in range(n_clusters):
         inliers, outliers = [], []
         _blob, _y = make_blobs(n_samples=clusters_size[i], centers=1,
                                cluster_std=clusters_density[i],
                                center_box=(center_box[i], center_box[i+1]),
                                n_features=n_features, random_state=random_state)
-        print(clusters_density[i])
+
         inliers.append(_blob)
         outliers.append(make_blobs(n_samples=n_outliers_[i], centers=1,
                                    cluster_std=random_state.uniform(clusters_density[i]*3.5,

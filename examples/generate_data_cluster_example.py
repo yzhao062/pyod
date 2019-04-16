@@ -88,7 +88,7 @@ def visualize(X_train, y_train, show_figure=True, save_figure=False):
 if __name__ == "__main__":
     contamination = 0.05  # percentage of outliers
     n_samples = 500  # number of sample points
-    test_size = 0.0  # ratio of testing points 0.0 or None means no test split is wanted
+    test_size = None  # ratio of testing points - None means no test split is wanted
 
     # Generate sample data in clusters
     x, y = generate_data_clusters(n_samples=n_samples,
@@ -98,7 +98,7 @@ if __name__ == "__main__":
                                   contamination=contamination,
                                   size='different',
                                   density='different',
-                                  dist=0.25,
+                                  dist=0.2,
                                   random_state=42,
                                   return_in_clusters=True)
 

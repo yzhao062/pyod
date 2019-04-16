@@ -372,6 +372,12 @@ class TestData(unittest.TestCase):
             check_consistent_shape(X_train, y_train, y_train, y_test,
                                    y_train, y_test)
 
+        # test shape difference between X_train and X_test
+        X_test = np.hstack((X_test, np.zeros((X_test.shape[0], 1)))) # add extra column/feature
+        with assert_raises(ValueError):
+            check_consistent_shape(X_train, y_train, X_test, y_test,
+                                   y_train_pred_n, y_test_pred_n)
+
     def tearDown(self):
         pass
 
