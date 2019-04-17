@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Utility functions for manipulating data
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Co-Author: Yahya Almardeny <almardeny@gmail.com> (author of ``generate_data_clusters()`` function)
 # License: BSD 2 clause
 
 from __future__ import division
@@ -9,6 +10,8 @@ from __future__ import print_function
 
 import numpy as np
 
+from sklearn.datasets import make_blobs
+from sklearn.model_selection import train_test_split
 from sklearn.utils import column_or_1d
 from sklearn.utils import check_X_y
 from sklearn.utils import check_random_state
@@ -278,3 +281,205 @@ def evaluate_print(clf_name, y, y_pred):
         clf_name=clf_name,
         roc=np.round(roc_auc_score(y, y_pred), decimals=4),
         prn=np.round(precision_n_scores(y, y_pred), decimals=4)))
+
+
+def generate_data_clusters(n_samples=100, test_size=0.25, n_clusters=2, n_features=2,
+                           contamination=0.1, size='same', density='same', dist=0.25,
+                           random_state=None, return_in_clusters=False):
+    """Utility function to generate synthesized data in clusters.
+       Generated data can involve the low density pattern problem and global outliers
+       which are considered as difficult tasks for outliers detection algorithms.
+
+       Parameters
+       ----------
+       n_samples : int, (default=100)
+            Total number of data points to be generated.
+
+       n_clusters : int, (default=2)
+           The number of centers (i.e. clusters) to generate.
+
+       test_size : float or None, optional (default=0.25)
+           If float, should be between 0.0 and 1.0 and represent the proportion
+           of the data samples to include in the test split.
+           If None, only train split will be generated.
+
+       n_features : int, optional (default=2)
+           The number of features for each sample.
+
+       contamination : float in (0., 0.5), optional (default=0.1)
+           The amount of contamination of the data set, i.e.
+           the proportion of outliers in the data set.
+
+       size : str, optional (default='same')
+           Size of each cluster: 'same' generates clusters with same size,
+           'different' generate clusters with different sizes.
+
+       density : str, optional (default='same')
+           Density of each cluster: 'same' generates clusters with same density,
+           'different' generate clusters with different densities.
+
+       dist: float, optional (default=0.25)
+           Distance between clusters. Should be between 0. and 1.0
+           It is used to avoid clusters overlapping as much as possible.
+           However, if number of samples and number of clusters are too high,
+           it is unlikely to separate them fully even if ``dist`` set to 1.0
+
+       random_state : int, RandomState instance or None, optional (default=None)
+           If int, random_state is the seed used by the random number generator;
+           If RandomState instance, random_state is the random number generator;
+           If None, the random number generator is the RandomState instance used
+           by `np.random`.
+
+       return_in_clusters: bool, optional(default=False)
+            If True, the function returns x_train, y_train, x_test, y_test each as a list
+            of numpy arrays where each index represents a cluster.
+            If False, it returns x_train, y_train, x_test, y_test each as numpy array after
+            joining the sequence of clusters arrays,
+
+       Returns
+       -------
+        X_train : numpy array of shape (n_samples - test_size*n_samples, n_features)
+                  Training data.
+
+        y_train : numpy array of shape (n_samples - test_size*n_samples,)
+                  Training ground truth.
+
+        X_test : numpy array of shape (test_size*n_samples, n_features)
+                 Test data.
+
+        y_test : numpy array of shape (test_size*n_samples,)
+                 Test ground truth.
+       """
+    # initialize a random state and seeds for the instance
+    random_state = check_random_state(random_state)
+    # check and validate parameters
+    if isinstance(n_samples, int):
+        if n_samples < 10:
+            raise ValueError("n_samples should be at least 10, got %d" % n_samples)
+    else:
+        raise ValueError("n_samples should be int, got %s" % n_samples)
+
+    if isinstance(test_size, float):
+        if not 0.0 < test_size < 1.0:
+            raise ValueError("test_size should be in ]0.0, 1.0[, got %f" % test_size)
+    elif test_size is not None:
+        raise ValueError("test_size should be float or None, got %s" % test_size)
+
+    if isinstance(n_clusters, int):
+        if n_clusters < 1:
+            raise ValueError("n_clusters should be at least 1, got %d" % n_clusters)
+    else:
+        raise ValueError("n_clusters should be int, got %s" % n_clusters)
+
+    if isinstance(n_features, int):
+        if n_features < 1:
+            raise ValueError("n_features should be at least 1, got %d" % n_features)
+    else:
+        raise ValueError("n_features should be int, got %s" % n_features)
+
+    if isinstance(contamination, float):
+        if not 0.0 <= contamination <= 0.5:
+            raise ValueError("contamination should be in (0.0, 0.5), got %f" % contamination)
+    else:
+        raise ValueError("contamination should be float, got %s" % contamination)
+
+    if isinstance(dist, float):
+        if not 0.0 <= dist <= 1.0:
+            raise ValueError("dist should be in (0.0, 1.0), got %f" % dist)
+    else:
+        raise ValueError("dist should be float, got %s" % dist)
+
+    if not isinstance(return_in_clusters, bool):
+        raise ValueError("return_in_clusters should be of type bool, got %s" % return_in_clusters)
+
+    # find the required number of outliers and inliers
+    n_outliers = int(n_samples * contamination)
+    n_inliers = n_samples - n_outliers
+
+    # check for clusters size to apply splits accordingly
+    if size == 'same':
+        a_ = [int(n_inliers/n_clusters)] * (n_clusters-1)
+        clusters_size = a_ + [int(n_inliers - sum(a_))]
+    elif size == 'different':
+        if (n_clusters * 10) > n_samples:
+            raise ValueError('number of samples should be at least 10 times the number of clusters')
+        if (n_clusters * 10) > n_inliers:
+            raise ValueError('contamination ratio is too high,'
+                             'try to increase number of samples or decrease the contamination')
+        _r = 1./n_clusters
+        _offset = random_state.uniform(_r*0.2, _r*0.4, size=(int(n_clusters/2),)).tolist()
+        _offset += [i*-1. for i in _offset]
+        clusters_size = np.round(np.multiply(n_inliers, np.add(_r, _offset))).astype(int)
+        if n_clusters % 2 == 0:  # if it is even number
+            clusters_size[n_clusters-1] += n_inliers - sum(clusters_size)
+        else:
+            clusters_size = np.append(clusters_size, n_inliers - sum(clusters_size))
+    else:
+        raise ValueError('size should be a string of value \'same\' or \'different\'')
+
+    # check for clusters densities and apply split accordingly
+    if density == 'same':
+        clusters_density = random_state.uniform(low=0.1, high=0.5, size=(1,)).tolist() * n_clusters
+    elif density == 'different':
+        clusters_density = random_state.uniform(low=0.1, high=0.5, size=(n_clusters,))
+    else:
+        raise ValueError('density should be a string of value \'same\' or \'different\'')
+
+    # calculate number of outliers for every cluster
+    n_outliers_ = []
+    for i in range(n_clusters):
+        n_outliers_.append(int(round(clusters_size[i]*contamination)))
+    _diff = int((n_outliers - sum(n_outliers_)) / n_clusters)
+    for i in range(n_clusters-1):
+        n_outliers_[i] += _diff
+    n_outliers_[n_clusters-1] += n_outliers - sum(n_outliers_)
+    random_state.shuffle(n_outliers_)
+
+    # generate data
+    X, Y = [], []
+    center_box = list(filter(lambda a: a != 0, np.linspace(-np.power(n_samples * n_clusters, dist),
+                                                           np.power(n_samples * n_clusters, dist),
+                                                           n_clusters+2)))
+    for i in range(n_clusters):
+        inliers, outliers = [], []
+        _blob, _y = make_blobs(n_samples=clusters_size[i], centers=1,
+                               cluster_std=clusters_density[i],
+                               center_box=(center_box[i], center_box[i+1]),
+                               n_features=n_features, random_state=random_state)
+
+        inliers.append(_blob)
+        outliers.append(make_blobs(n_samples=n_outliers_[i], centers=1,
+                                   cluster_std=random_state.uniform(clusters_density[i]*3.5,
+                                                                    clusters_density[i]*4.,
+                                                                    size=(1,)[0]),
+                                   center_box=(center_box[i]*(1.2+dist+clusters_density[i]),
+                                               center_box[i+1]*(1.2+dist+clusters_density[i])),
+                                   n_features=n_features, random_state=random_state)[0])
+        _y = np.append(_y, [1]*int(n_outliers_[i]))
+
+        if np.array(outliers).ravel().shape[0] > 0:
+            X.append(np.vstack((np.concatenate(inliers), np.concatenate(outliers))))
+        else:
+            X.append(np.concatenate(inliers))
+        Y.append(_y)
+
+    if test_size is not None:
+        x_train, x_test, y_train, y_test = [], [], [], []
+        for i, x_ in enumerate(X):
+            stratify = None if sum(j == 1 for j in Y[i]) else Y[i]
+            x_train_, x_test_, y_train_, y_test_ = train_test_split(x_, Y[i], test_size=test_size,
+                                                                    random_state=random_state,
+                                                                    stratify=stratify)
+            x_train.append(x_train_)
+            x_test.append(x_test_)
+            y_train.append(y_train_)
+            y_test.append(y_test_)
+
+        if return_in_clusters:
+            return x_train, y_train, x_test, y_test
+        return np.concatenate(x_train), np.concatenate(y_train),\
+               np.concatenate(x_test), np.concatenate(y_test)
+
+    if return_in_clusters:
+        return X, Y
+    return np.concatenate(X), np.concatenate(Y)
