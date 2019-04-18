@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-from sklearn.neighbors import KDTree
+from sklearn.neighbors import BallTree
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
@@ -170,7 +170,13 @@ class KNN(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        self.tree_ = KDTree(X, leaf_size=self.leaf_size, metric=self.metric)
+        if self.metric_params is not None:
+            self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+                                  metric=self.metric,
+                                  **self.metric_params)
+        else:
+            self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+                                  metric=self.metric)
         self.neigh_.fit(X)
 
         dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
