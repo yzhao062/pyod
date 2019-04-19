@@ -134,11 +134,10 @@ class COF(BaseDetector):
             # end of section
             acd = []
             for _h, cost_ in enumerate(cost_desc):
-                acd.append(((2 * (self.n_neighbors_ + 1 - (_h + 1))) /
+                acd.append(((2. * (self.n_neighbors_ + 1 - (_h + 1))) /
                             ((self.n_neighbors_ + 1) * self.n_neighbors_)) * cost_)
             ac_dist.append(np.sum(acd))
-
         for _g in range(X.shape[0]):
             cof_.append((ac_dist[_g] * self.n_neighbors_) /
                         np.sum(itemgetter(*sbn_path_index[_g])(ac_dist)))
-        return np.array(cof_)
+        return np.array(np.nan_to_num(cof_))
