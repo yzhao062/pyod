@@ -13,6 +13,9 @@ Zain Nasrullah (joined in 2018):
 Winston (Zheng) Li (joined in 2018):
 `LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl>`_
 
+Yahya Almardeny (joined in 2019):
+`LinkedIn (Yahya Almardeny) <https://www.linkedin.com/in/yahya-almardeny/>`_
+
 ----
 
 Citing PyOD
