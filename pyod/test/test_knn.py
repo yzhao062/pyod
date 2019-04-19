@@ -32,10 +32,10 @@ from pyod.utils.data import generate_data
 
 class TestKnn(unittest.TestCase):
     def setUp(self):
-        self.n_train = 100
-        self.n_test = 50
+        self.n_train = 200
+        self.n_test = 100
         self.contamination = 0.1
-        self.roc_floor = 0.6
+        self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
@@ -132,10 +132,10 @@ class TestKnn(unittest.TestCase):
 class TestKnnMean(unittest.TestCase):
 
     def setUp(self):
-        self.n_train = 100
-        self.n_test = 50
+        self.n_train = 200
+        self.n_test = 100
         self.contamination = 0.1
-        self.roc_floor = 0.75
+        self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
@@ -160,10 +160,10 @@ class TestKnnMean(unittest.TestCase):
 class TestKnnMedian(unittest.TestCase):
 
     def setUp(self):
-        self.n_train = 100
-        self.n_test = 50
+        self.n_train = 200
+        self.n_test = 100
         self.contamination = 0.1
-        self.roc_floor = 0.75
+        self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
@@ -187,10 +187,10 @@ class TestKnnMedian(unittest.TestCase):
 
 class TestKnnMahalanobis(unittest.TestCase):
     def setUp(self):
-        self.n_train = 100
-        self.n_test = 50
+        self.n_train = 200
+        self.n_test = 100
         self.contamination = 0.1
-        self.roc_floor = 0.6
+        self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
@@ -268,7 +268,7 @@ class TestKnnMahalanobis(unittest.TestCase):
         pred_ranks = self.clf._predict_rank(self.X_test)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3)
         assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
@@ -277,7 +277,7 @@ class TestKnnMahalanobis(unittest.TestCase):
         pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
