@@ -147,7 +147,8 @@ class IForest(BaseDetector):
                                          bootstrap=self.bootstrap,
                                          n_jobs=self.n_jobs,
                                          random_state=self.random_state,
-                                         verbose=self.verbose)
+                                         verbose=self.verbose,
+                                         behaviour='new')
         self.detector_.fit(X=X,
                            y=None,
                            sample_weight=None)
