@@ -11,6 +11,7 @@ from sklearn.utils import check_array
 from pyod.utils import check_parameter
 from .base import BaseDetector
 
+
 class COF(BaseDetector):
     """
     Algorithm to calculate the Connectivity-Based Outlier Factor (COF)
