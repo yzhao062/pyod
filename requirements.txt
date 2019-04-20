@@ -1,6 +1,5 @@
 matplotlib
 numpy>=1.13
 numba>=0.35
-pandas==0.23.4
 scipy>=0.19.1
 scikit_learn>=0.19.1

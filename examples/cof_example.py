@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     # train kNN detector
     clf_name = 'COF'
-    clf = COF()
+    clf = COF(n_neighbors=30)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

@@ -5,7 +5,6 @@
 # License: MIT
 from operator import itemgetter
 import numpy as np
-import pandas as pd
 from scipy.spatial import distance_matrix
 from sklearn.utils import check_array
 from pyod.utils import check_parameter
@@ -29,7 +28,7 @@ class COF(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
 
-    n_neighbors : int, optional (default=10)
+    n_neighbors : int, optional (default=20)
         Number of neighbors to use by default for k neighbors queries.
         Note that n_neighbors should be less than the number of samples.
         If n_neighbors is larger than the number of samples provided,
@@ -57,7 +56,7 @@ class COF(BaseDetector):
     n_neighbors_: int
         Number of neighbors to use by default for k neighbors queries.
     """
-    def __init__(self, contamination=0.1, n_neighbors=10):
+    def __init__(self, contamination=0.1, n_neighbors=20):
         super(COF, self).__init__(contamination=contamination)
         if isinstance(n_neighbors, int):
             check_parameter(n_neighbors,
@@ -116,22 +115,15 @@ class COF(BaseDetector):
         :return: numpy array containing COF scores for observations.
                  The greater the COF, the greater the outlierness.
         """
-        dist_matrix = pd.DataFrame(distance_matrix(X, X),
-                                   index=range(X.shape[0]),
-                                   columns=range(X.shape[0]))
+        dist_matrix = np.array(distance_matrix(X, X))
         sbn_path_index, ac_dist, cof_ = [], [], []
         for i in range(X.shape[0]):
-            sbn_path = sorted(range(len(dist_matrix.loc[i].tolist())),
-                              key=dist_matrix.loc[i].tolist().__getitem__)
+            sbn_path = sorted(range(len(dist_matrix[i])),
+                              key=dist_matrix[i].__getitem__)
             sbn_path_index.append(sbn_path[1: self.n_neighbors_ + 1])
             cost_desc = []
-            # this section takes the most time if number of neighbors is high!
             for j in range(self.n_neighbors_):
-                cost_desc.append(np.min(np.array(
-                    dist_matrix.loc[dist_matrix.index[sbn_path],
-                                    dist_matrix.columns[sbn_path]])[j + 1, range(0, j + 1)]
-                                        ))
-            # end of section
+                cost_desc.append(np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
             acd = []
             for _h, cost_ in enumerate(cost_desc):
                 acd.append(((2. * (self.n_neighbors_ + 1 - (_h + 1))) /
@@ -140,4 +132,4 @@ class COF(BaseDetector):
         for _g in range(X.shape[0]):
             cof_.append((ac_dist[_g] * self.n_neighbors_) /
                         np.sum(itemgetter(*sbn_path_index[_g])(ac_dist)))
-        return np.array(np.nan_to_num(cof_))
+        return np.nan_to_num(cof_)
