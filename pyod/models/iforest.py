@@ -17,6 +17,8 @@ from ..utils.utility import invert_order
 from ..utils.utility import _sklearn_version_20
 
 
+# TODO: behavior of Isolation Forest will change in sklearn 0.22, to update.
+
 class IForest(BaseDetector):
     """Wrapper of scikit-learn Isolation Forest with more functionalities.
 
@@ -71,6 +73,29 @@ class IForest(BaseDetector):
         The number of jobs to run in parallel for both `fit` and `predict`.
         If -1, then the number of jobs is set to the number of cores.
 
+    behaviour : str, default='old'
+        Behaviour of the ``decision_function`` which can be either 'old' or
+        'new'. Passing ``behaviour='new'`` makes the ``decision_function``
+        change to match other anomaly detection algorithm API which will be
+        the default behaviour in the future. As explained in details in the
+        ``offset_`` attribute documentation, the ``decision_function`` becomes
+        dependent on the contamination parameter, in such a way that 0 becomes
+        its natural threshold to detect outliers.
+
+        .. versionadded:: 0.7.0
+           ``behaviour`` is added in 0.7.0 for back-compatibility purpose.
+
+        .. deprecated:: 0.20
+           ``behaviour='old'`` is deprecated in sklearn 0.20 and will not be
+           possible in 0.22.
+
+        .. deprecated:: 0.22
+           ``behaviour`` parameter will be deprecated in sklearn 0.22 and
+           removed in 0.24.
+
+        .. warning::
+            Only applicable for sklearn 0.20 above.
+
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
@@ -116,6 +141,7 @@ class IForest(BaseDetector):
                  max_features=1.,
                  bootstrap=False,
                  n_jobs=1,
+                 behaviour='old',
                  random_state=None,
                  verbose=0):
         super(IForest, self).__init__(contamination=contamination)
@@ -124,6 +150,7 @@ class IForest(BaseDetector):
         self.max_features = max_features
         self.bootstrap = bootstrap
         self.n_jobs = n_jobs
+        self.behaviour = behaviour
         self.random_state = random_state
         self.verbose = verbose
 
@@ -152,9 +179,9 @@ class IForest(BaseDetector):
                                              max_features=self.max_features,
                                              bootstrap=self.bootstrap,
                                              n_jobs=self.n_jobs,
+                                             behaviour=self.behaviour,
                                              random_state=self.random_state,
-                                             verbose=self.verbose,
-                                             behaviour='new')
+                                             verbose=self.verbose)
 
         # Do not pass behaviour argument when sklearn version is < 0.20
         else:
