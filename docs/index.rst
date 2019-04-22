@@ -291,6 +291,7 @@ of the training data X_train, one should call clf.fit(X_train) and use
 
    issues
    relevant_knowledge
+   pubs
    faq
    about
 
