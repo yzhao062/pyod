@@ -3,8 +3,8 @@ Python Outlier Detection (PyOD)
 
 **Deployment & Documentation & Stats**
 
-.. image:: https://badge.fury.io/py/pyod.svg
-   :target: https://badge.fury.io/py/pyod
+.. image:: https://img.shields.io/pypi/v/pyod.svg?color=green
+   :target: https://pypi.org/project/pyod/
    :alt: PyPI version
 
 
@@ -23,7 +23,7 @@ Python Outlier Detection (PyOD)
    :alt: GitHub stars
 
 
-.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
+.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg?color=blue
    :target: https://github.com/yzhao062/pyod/network
    :alt: GitHub forks
 
@@ -52,13 +52,13 @@ Python Outlier Detection (PyOD)
    :alt: Build Status
 
 
+.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
+    :target: https://circleci.com/gh/yzhao062/pyod
+
+
 .. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
    :target: https://coveralls.io/github/yzhao062/pyod
    :alt: Coverage Status
-
-
-.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
-    :target: https://circleci.com/gh/yzhao062/pyod
 
 
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
