@@ -8,7 +8,7 @@ Welcome to PyOD documentation!
 
 **Deployment & Documentation & Stats**
 
-.. image:: https://img.shields.io/pypi/v/pyod.svg?color=green
+.. image:: https://img.shields.io/pypi/v/pyod.svg?color=brightgreen
    :target: https://pypi.org/project/pyod/
    :alt: PyPI version
 
