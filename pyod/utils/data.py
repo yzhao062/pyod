@@ -310,9 +310,6 @@ def evaluate_print(clf_name, y, y_pred):
         prn=np.round(precision_n_scores(y, y_pred), decimals=4)))
 
 
-# def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
-#                   train_only=False, offset=10, random_state=None):
-
 def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
                            n_features=2, contamination=0.1, size='same',
                            density='same', dist=0.25, random_state=None,
