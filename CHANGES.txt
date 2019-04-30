@@ -66,6 +66,9 @@ v<0.6.9>, <03/30/2019> -- Add License info and show support to 996.ICU!
 v<0.6.9>, <04/08/2019> -- Redesign ReadMe for clarity.
 v<0.6.9>, <04/08/2019> -- Deprecate fit_predict and fit_predict_score function.
 v<0.6.9>, <04/10/2019> -- Add inclusion criteria and Python 2.7 retirement notice.
+v<0.7.0>, <04/18/2019> -- Fix issue #23 that kNN fails with Mahalanobis distance.
+v<0.7.0>, <04/20/2019> -- Fix for sklearn new behaviour FutureWarning
+v<0.7.0>, <04/29/2019> -- Refactor #76 (generate_data_clusters)
 
 
 

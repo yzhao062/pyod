@@ -8,8 +8,8 @@ Welcome to PyOD documentation!
 
 **Deployment & Documentation & Stats**
 
-.. image:: https://badge.fury.io/py/pyod.svg
-   :target: https://badge.fury.io/py/pyod
+.. image:: https://img.shields.io/pypi/v/pyod.svg?color=brightgreen
+   :target: https://pypi.org/project/pyod/
    :alt: PyPI version
 
 
@@ -24,12 +24,12 @@ Welcome to PyOD documentation!
 
 
 .. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/stargazers
+   :target: https://github.com/yzhao062/pyod/stargazers
    :alt: GitHub stars
 
 
-.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/network
+.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg?color=blue
+   :target: https://github.com/yzhao062/pyod/network
    :alt: GitHub forks
 
 
@@ -57,13 +57,13 @@ Welcome to PyOD documentation!
    :alt: Build Status
 
 
+.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
+    :target: https://circleci.com/gh/yzhao062/pyod
+
+
 .. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
    :target: https://coveralls.io/github/yzhao062/pyod
    :alt: Coverage Status
-
-
-.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
-    :target: https://circleci.com/gh/yzhao062/pyod
 
 
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
@@ -173,7 +173,7 @@ Type                 Abbr              Algorithm                                
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   :class:`pyod.models.pca.PCA`                         :cite:`a-shyu2003novel`
 Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   :class:`pyod.models.mcd.MCD`                         :cite:`a-rousseeuw1999fast,a-hardin2004outlier`
-Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2003   :class:`pyod.models.ocsvm.OCSVM`                     :cite:`a-scholkopf2001estimating`
+Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2001   :class:`pyod.models.ocsvm.OCSVM`                     :cite:`a-scholkopf2001estimating`
 Proximity-Based      LOF               Local Outlier Factor                                                                                    2000   :class:`pyod.models.lof.LOF`                         :cite:`a-breunig2000lof`
 Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   :class:`pyod.models.cblof.CBLOF`                     :cite:`a-he2003discovering`:
 Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   :class:`pyod.models.loci.LOCI`                       :cite:`a-papadimitriou2003loci`
@@ -291,6 +291,7 @@ of the training data X_train, one should call clf.fit(X_train) and use
 
    issues
    relevant_knowledge
+   pubs
    faq
    about
 

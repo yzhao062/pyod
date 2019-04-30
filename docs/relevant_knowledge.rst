@@ -24,8 +24,6 @@ In the context of machine learning, there are three common approaches for this t
     - This approach is taken when ground truth is available and it is assumed that outliers will follow the same distribution as in the training set.
     - Any new observations are classified using the model.
 
-The algorithms found in *PyOD* focus on the first two approaches which differ in terms of how the training data is defined and how the model's outputs are interpreted.
-
-If you are interested to know more relevant knowledge,
-refer `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_ for
-anomaly detection related books, papers, videos, and toolboxes.
+The algorithms found in *PyOD* focus on the first two approaches which differ in terms of how the training data is defined and how the model's outputs are interpreted. If interested in learning more,
+please refer to our `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_ page for
+relevant related books, papers, videos, and toolboxes.

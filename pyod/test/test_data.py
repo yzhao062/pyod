@@ -17,12 +17,14 @@ import numpy as np
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.data import generate_data
 from utils.data import evaluate_print
 from utils.data import get_outliers_inliers
 from utils.data import check_consistent_shape
+from utils.data import generate_data_clusters
 
 
 class TestData(unittest.TestCase):
@@ -30,8 +32,10 @@ class TestData(unittest.TestCase):
         self.n_train = 1000
         self.n_test = 500
         self.contamination = 0.1
-
+        self.n_samples = 1000
+        self.test_size = 0.2
         self.value_lists = [0.1, 0.3, 0.2, -2, 1.5, 0, 1, -1, -0.5, 11]
+        self.random_state = 42
 
     def test_data_generate(self):
         X_train, y_train, X_test, y_test = \
@@ -83,6 +87,116 @@ class TestData(unittest.TestCase):
         assert_allclose(y_train, y_train2)
         assert_allclose(y_test, y_test2)
 
+    def test_data_generate_cluster(self):
+        X_train, X_test, y_train, y_test = \
+            generate_data_clusters(n_train=self.n_train,
+                                   n_test=self.n_test,
+                                   n_features=2,
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
+
+        assert_equal(y_train.shape[0], X_train.shape[0])
+        assert_equal(y_test.shape[0], X_test.shape[0])
+
+        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert_equal(X_train.shape[1], 2)
+
+        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert_equal(X_test.shape[1], 2)
+
+        out_perc = (np.sum(y_train) + np.sum(y_test)) / (
+                self.n_train + self.n_test)
+        assert_allclose(self.contamination, out_perc, atol=0.01)
+
+    def test_data_generate_cluster2(self):
+        X_train, X_test, y_train, y_test = \
+            generate_data_clusters(n_train=self.n_train,
+                                   n_test=self.n_test,
+                                   n_features=4,
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
+
+        assert_allclose(X_train.shape, (self.n_train, 4))
+        assert_allclose(X_test.shape, (self.n_test, 4))
+
+    def test_data_generate_cluster3(self):
+        X_train, y_train, X_test, y_test = \
+            generate_data_clusters(n_train=self.n_train,
+                                   n_test=self.n_test,
+                                   n_features=3,
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
+
+        X_train2, y_train2, X_test2, y_test2 = \
+            generate_data_clusters(n_train=self.n_train,
+                                   n_test=self.n_test,
+                                   n_features=3,
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
+
+        assert_allclose(X_train, X_train2)
+        assert_allclose(X_test, X_test2)
+        assert_allclose(y_train, y_train2)
+        assert_allclose(y_test, y_test2)
+
+    def test_data_generate_cluster5(self):
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features=3,
+                                       n_clusters='e',
+                                       contamination=self.contamination,
+                                       random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features='e',
+                                       contamination=self.contamination,
+                                       random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features=3,
+                                       contamination='e',
+                                       random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features=3,
+                                       contamination=self.contamination,
+                                       dist='e',
+                                       random_state=self.random_state)
+
+    def test_data_generate_cluster6(self):
+        X_train, X_test, y_train, y_test = \
+            generate_data_clusters(n_train=self.n_train,
+                                   n_test=self.n_test,
+                                   n_features=2,
+                                   size='different',
+                                   density='different',
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
+
+        assert_equal(y_train.shape[0], X_train.shape[0])
+        assert_equal(y_test.shape[0], X_test.shape[0])
+
+        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert_equal(X_train.shape[1], 2)
+
+        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert_equal(X_test.shape[1], 2)
+
+        out_perc = (np.sum(y_train) + np.sum(y_test)) / (
+                self.n_train + self.n_test)
+        assert_allclose(self.contamination, out_perc, atol=0.01)
+
     def test_evaluate_print(self):
         X_train, y_train, X_test, y_test = generate_data(
             n_train=self.n_train,
@@ -124,8 +238,16 @@ class TestData(unittest.TestCase):
             check_consistent_shape(X_train, y_train, y_train, y_test,
                                    y_train, y_test)
 
+        # test shape difference between X_train and X_test
+        X_test = np.hstack((X_test, np.zeros(
+            (X_test.shape[0], 1))))  # add extra column/feature
+        with assert_raises(ValueError):
+            check_consistent_shape(X_train, y_train, X_test, y_test,
+                                   y_train_pred_n, y_test_pred_n)
+
     def tearDown(self):
         pass
 
-    if __name__ == '__main__':
-        unittest.main()
+
+if __name__ == '__main__':
+    unittest.main()

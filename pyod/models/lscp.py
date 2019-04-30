@@ -348,6 +348,12 @@ class LSCP(BaseDetector):
 
         # create histogram of correlation scores
         scores = scores.reshape(-1, 1)
+
+        # TODO: handle when Pearson score is 0
+        # if scores contain nan, change it to 0
+        if np.isnan(scores).any():
+            scores = np.nan_to_num(scores)
+
         if self.n_bins > self.n_clf:
             warnings.warn(
                 "The number of histogram bins is greater than the number of "
