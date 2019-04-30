@@ -139,6 +139,63 @@ class TestData(unittest.TestCase):
         assert_allclose(y_train, y_train2)
         assert_allclose(y_test, y_test2)
 
+    def test_data_generate_cluster5(self):
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features=3,
+                                       n_clusters='e',
+                                       contamination=self.contamination,
+                                       random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features='e',
+                                       contamination=self.contamination,
+                                       random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features=3,
+                                       contamination='e',
+                                       random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            X_train, y_train, X_test, y_test = \
+                generate_data_clusters(n_train=self.n_train,
+                                       n_test=self.n_test,
+                                       n_features=3,
+                                       contamination=self.contamination,
+                                       dist='e',
+                                       random_state=self.random_state)
+
+    def test_data_generate_cluster6(self):
+        X_train, X_test, y_train, y_test = \
+            generate_data_clusters(n_train=self.n_train,
+                                   n_test=self.n_test,
+                                   n_features=2,
+                                   size='different',
+                                   density='different',
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
+
+        assert_equal(y_train.shape[0], X_train.shape[0])
+        assert_equal(y_test.shape[0], X_test.shape[0])
+
+        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert_equal(X_train.shape[1], 2)
+
+        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert_equal(X_test.shape[1], 2)
+
+        out_perc = (np.sum(y_train) + np.sum(y_test)) / (
+                self.n_train + self.n_test)
+        assert_allclose(self.contamination, out_perc, atol=0.01)
 
     def test_evaluate_print(self):
         X_train, y_train, X_test, y_test = generate_data(
@@ -146,7 +203,6 @@ class TestData(unittest.TestCase):
             n_test=self.n_test,
             contamination=self.contamination)
         evaluate_print('dummy', y_train, y_train * 0.1)
-
 
     def test_get_outliers_inliers(self):
         X_train, y_train = generate_data(
@@ -159,7 +215,6 @@ class TestData(unittest.TestCase):
 
         assert_allclose(X_train[0:inlier_index, :], X_inliers)
         assert_allclose(X_train[inlier_index:, :], X_outliers)
-
 
     def test_check_consistent_shape(self):
         X_train, y_train, X_test, y_test = generate_data(
@@ -189,7 +244,6 @@ class TestData(unittest.TestCase):
         with assert_raises(ValueError):
             check_consistent_shape(X_train, y_train, X_test, y_test,
                                    y_train_pred_n, y_test_pred_n)
-
 
     def tearDown(self):
         pass

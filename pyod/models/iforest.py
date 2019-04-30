@@ -184,7 +184,7 @@ class IForest(BaseDetector):
                                              verbose=self.verbose)
 
         # Do not pass behaviour argument when sklearn version is < 0.20
-        else:
+        else:  # pragma: no cover
             self.detector_ = IsolationForest(n_estimators=self.n_estimators,
                                              max_samples=self.max_samples,
                                              contamination=self.contamination,
