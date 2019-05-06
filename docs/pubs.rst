@@ -38,6 +38,8 @@ We are appreciated that PyOD has been increasing referred and cited in scientifi
 
 Ishii, Y. and Takanashi, M., 2019. Low-cost Unsupervised Outlier Detection by Autoencoders with Robust Estimation. *Journal of Information Processing*, 27, pp.335-339.
 
+Krishnan, S. and Wu, E., 2019. AlphaClean: Automatic Generation of Data Cleaning Pipelines. arXiv preprint arXiv:1904.11827.
+
 Kumar Das, S., Kumar Mishra, A. and Roy, P., 2019. Automatic Diabetes Prediction Using Tree Based Ensemble Learners. *International Journal of Computational Intelligence & IoT*, 2(2).
 
 Ramakrishnan, J., Shaabani, E., Li, C. and Sustik, M.A., 2019. Anomaly Detection for an E-commerce Pricing System. arXiv preprint arXiv:1902.09566.
