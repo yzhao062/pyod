@@ -330,11 +330,6 @@ def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
     n_clusters : int, optional (default=2)
        The number of centers (i.e. clusters) to generate.
 
-    test_size : float or None, optional (default=0.25)
-       If float, should be between 0.0 and 1.0 and represent the proportion
-       of the data samples to include in the test split.
-       If None, only train split will be generated.
-
     n_features : int, optional (default=2)
        The number of features for each sample.
 
