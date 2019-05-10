@@ -39,11 +39,6 @@ class TestAutoEncoder(unittest.TestCase):
         self.clf = AutoEncoder(epochs=5, contamination=self.contamination)
         self.clf.fit(self.X_train)
 
-    def test_sklearn_estimator(self):
-        # TODO: fix estimator check for AutoEncoder
-        # check_estimator(self.clf)
-        pass
-
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and
                     self.clf.decision_scores_ is not None)

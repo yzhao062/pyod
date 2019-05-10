@@ -43,9 +43,6 @@ class TestKnn(unittest.TestCase):
         self.clf = KNN(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
-    def test_sklearn_estimator(self):
-        check_estimator(self.clf)
-
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and
                     self.clf.decision_scores_ is not None)
@@ -150,9 +147,6 @@ class TestKnnMean(unittest.TestCase):
         self.clf.decision_function(self.X_train)
         self.clf.decision_function(self.X_test)
 
-    def test_sklearn_estimator(self):
-        check_estimator(self.clf)
-
     def tearDown(self):
         pass
 
@@ -177,9 +171,6 @@ class TestKnnMedian(unittest.TestCase):
         self.clf.fit(self.X_train)
         self.clf.decision_function(self.X_train)
         self.clf.decision_function(self.X_test)
-
-    def test_sklearn_estimator(self):
-        check_estimator(self.clf)
 
     def tearDown(self):
         pass
