@@ -76,8 +76,8 @@ class LMDD(BaseDetector):
     dis_measure: str, optional (default='aad')
         Dissimilarity measure to be used in calculating the smoothing factor
         for points, options available:
-            'aad': Average Absolute Deviation;
-            'var': Variance;
+            'aad': Average Absolute Deviation ;
+            'var': Variance ;
             'iqr': Interquartile Range.
 
     random_state : int, RandomState instance or None, optional (default=None)
