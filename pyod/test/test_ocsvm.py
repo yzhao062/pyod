@@ -42,9 +42,6 @@ class TestOCSVM(unittest.TestCase):
         self.clf = OCSVM()
         self.clf.fit(self.X_train)
 
-    def test_sklearn_estimator(self):
-        check_estimator(self.clf)
-
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and
                     self.clf.decision_scores_ is not None)

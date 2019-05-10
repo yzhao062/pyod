@@ -42,11 +42,6 @@ class TestLOCI(unittest.TestCase):
         self.clf = LOCI(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
-    def test_sklearn_estimator(self):
-        # TODO: sklearn check does not support Numba optimization
-#        check_estimator(self.clf)
-        pass
-
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and
                     self.clf.decision_scores_ is not None)
