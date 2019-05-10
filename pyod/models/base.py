@@ -10,8 +10,14 @@ from __future__ import print_function
 import warnings
 from collections import defaultdict
 
+from ..utils.utility import _sklearn_version_21
+
+if _sklearn_version_21():
+    from inspect import signature
+else:
+    from sklearn.externals.funcsigs import signature
+
 import abc
-from sklearn.externals.funcsigs import signature
 from sklearn.externals import six
 
 import numpy as np
