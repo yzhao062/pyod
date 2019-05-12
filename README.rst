@@ -294,8 +294,8 @@ Outlier Ensembles                      Feature Bagging                          
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
-Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2018Generative]_
-Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2018Generative]_
+Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2019Generative]_
+Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2019Generative]_
 ===================  ================  ======================================================================================================  =====  ========================================
 
 
@@ -588,7 +588,7 @@ Reference
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
 
-.. [#Liu2018Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2018. Generative Adversarial Active Learning for Unsupervised Outlier Detection. arXiv preprint arXiv:1809.10816.
+.. [#Liu2019Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2019. Generative adversarial active learning for unsupervised outlier detection. IEEE Transactions on Knowledge and Data Engineering.
 
 .. [#Papadimitriou2003LOCI] Papadimitriou, S., Kitagawa, H., Gibbons, P.B. and Faloutsos, C., 2003, March. LOCI: Fast outlier detection using the local correlation integral. In *ICDE '03*, pp. 315-326. IEEE.
 
