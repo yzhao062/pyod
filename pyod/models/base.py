@@ -37,6 +37,10 @@ from ..utils.utility import precision_n_scores
 class BaseDetector(object):
     """Abstract class for all outlier detection algorithms.
 
+    .. warning::
+    pyod would stop supporting Python 2 in the future. Consider move to
+    Python 3.5+.
+
     Parameters
     ----------
     contamination : float in (0., 0.5), optional (default=0.1)
