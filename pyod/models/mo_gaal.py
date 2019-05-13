@@ -34,7 +34,7 @@ class MO_GAAL(BaseDetector):
     a single generator (SO-GAAL) to multiple generators with different 
     objectives (MO-GAAL) to generate a reasonable reference distribution for 
     the whole dataset.
-    Read more in the :cite:`liu2018generative`.
+    Read more in the :cite:`liu2019generative`.
     
     Parameters
     ----------
