@@ -186,8 +186,6 @@ class HBOS(BaseDetector):
         if self.category == 'oneHot':
             if X.shape[1] < unique_.shape[0]:
                 warn('Number of features increased to %s ' % unique_.shape[0], stacklevel=5)
-            elif X.shape[1] > unique_.shape[0]:
-                warn('Number of features decreased to %s ' % unique_.shape[0], stacklevel=5)
             if unique_.shape[0] > int(X.shape[0] / 2.):
                 warn('Number of categories is too high,'
                      '\'oneHot Encoder\' may not be recommended')

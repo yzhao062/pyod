@@ -15,6 +15,7 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_true
+from sklearn.utils.testing import assert_warns
 from sklearn.utils.estimator_checks import check_estimator
 
 from sklearn.metrics import roc_auc_score
@@ -130,6 +131,31 @@ class TestHBOS(unittest.TestCase):
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
+
+    def test_categorical_param(self):
+        with assert_raises(ValueError):
+            HBOS(category='Not implemented')
+        with assert_raises(TypeError):
+            HBOS(category=1)
+        X = [[1, 2], [3, 4], [5, 'six']]
+        with assert_raises(TypeError):
+            clf = HBOS(category=None)
+            clf.fit(X)
+        def warn1():
+            X = [[1, 2], [3, 4], [5, 6]]
+            clf = HBOS(category='label')
+            clf.fit(X)
+        assert_warns(UserWarning, warn1)
+        def warn2():
+            X = [['one', 'two', 'three'], ['four', 'five', 'six']]
+            clf = HBOS(category='oneHot')
+            clf.fit(X)
+        assert_warns(UserWarning, warn2)
+        def warn3():
+            X = [['one', 'two'], ['one', 'three']]
+            clf = HBOS(category='oneHot')
+            clf.fit(X)
+        assert_warns(UserWarning, warn3)
 
     def tearDown(self):
         pass
