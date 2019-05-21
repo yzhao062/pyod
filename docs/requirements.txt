@@ -8,4 +8,5 @@ scipy>=0.19.1
 scikit_learn>=0.19.1
 sphinxcontrib-bibtex
 tensorflow
+# xgboost 0.9.0 requires c++ compiler
 xgboost==0.82
