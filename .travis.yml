@@ -1,5 +1,4 @@
 language: python
-compiler: gcc
 
 env:
   global:

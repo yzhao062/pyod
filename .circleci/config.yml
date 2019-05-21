@@ -19,7 +19,6 @@ jobs:
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo apt-get install build-essential
 
       # Download and cache dependencies
       - restore_cache:
@@ -65,7 +64,6 @@ jobs:
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo apt-get install build-essential
 
       # Download and cache dependencies
       - restore_cache:
