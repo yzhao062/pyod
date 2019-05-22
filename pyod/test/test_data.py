@@ -17,6 +17,7 @@ import numpy as np
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
+from pyod.utils.data import generate_data_categorical
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -141,8 +142,7 @@ class TestData(unittest.TestCase):
 
     def test_data_generate_cluster5(self):
         with assert_raises(ValueError):
-            X_train, y_train, X_test, y_test = \
-                generate_data_clusters(n_train=self.n_train,
+            generate_data_clusters(n_train=self.n_train,
                                        n_test=self.n_test,
                                        n_features=3,
                                        n_clusters='e',
@@ -150,24 +150,21 @@ class TestData(unittest.TestCase):
                                        random_state=self.random_state)
 
         with assert_raises(ValueError):
-            X_train, y_train, X_test, y_test = \
-                generate_data_clusters(n_train=self.n_train,
+            generate_data_clusters(n_train=self.n_train,
                                        n_test=self.n_test,
                                        n_features='e',
                                        contamination=self.contamination,
                                        random_state=self.random_state)
 
         with assert_raises(ValueError):
-            X_train, y_train, X_test, y_test = \
-                generate_data_clusters(n_train=self.n_train,
+            generate_data_clusters(n_train=self.n_train,
                                        n_test=self.n_test,
                                        n_features=3,
                                        contamination='e',
                                        random_state=self.random_state)
 
         with assert_raises(ValueError):
-            X_train, y_train, X_test, y_test = \
-                generate_data_clusters(n_train=self.n_train,
+            generate_data_clusters(n_train=self.n_train,
                                        n_test=self.n_test,
                                        n_features=3,
                                        contamination=self.contamination,
@@ -196,6 +193,172 @@ class TestData(unittest.TestCase):
         out_perc = (np.sum(y_train) + np.sum(y_test)) / (
                 self.n_train + self.n_test)
         assert_allclose(self.contamination, out_perc, atol=0.01)
+
+    def test_data_generate_categorical(self):
+        X_train, X_test, y_train, y_test = \
+            generate_data_categorical(n_train=self.n_train,
+                                      n_test=self.n_test,
+                                      n_features=2,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        assert_equal(y_train.shape[0], X_train.shape[0])
+        assert_equal(y_test.shape[0], X_test.shape[0])
+
+        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert_equal(X_train.shape[1], 2)
+
+        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert_equal(X_test.shape[1], 2)
+
+        out_perc = (np.sum(y_train) + np.sum(y_test)) / (
+                self.n_train + self.n_test)
+        assert_allclose(self.contamination, out_perc, atol=0.01)
+
+    def test_data_generate_categorical2(self):
+        X_train, X_test, y_train, y_test = \
+            generate_data_categorical(n_train=self.n_train,
+                                      n_test=self.n_test,
+                                      n_features=4,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        assert_allclose(X_train.shape, (self.n_train, 4))
+        assert_allclose(X_test.shape, (self.n_test, 4))
+
+    def test_data_generate_categorical3(self):
+        X_train, y_train, X_test, y_test = \
+            generate_data_categorical(n_train=self.n_train,
+                                      n_test=self.n_test,
+                                      n_features=3,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        X_train2, y_train2, X_test2, y_test2 = \
+            generate_data_categorical(n_train=self.n_train,
+                                      n_test=self.n_test,
+                                      n_features=3,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        assert np.array_equal(X_train, X_train2)
+        assert np.array_equal(X_train, X_train2)
+        assert np.array_equal(X_test, X_test2)
+        assert np.array_equal(y_train, y_train2)
+        assert np.array_equal(y_test, y_test2)
+
+    def test_data_generate_categorical5(self):
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=-1)
+
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=0, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=-1,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train='not int', n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test='not int',
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features= 0,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features='not int',
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=-1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative='not int', n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=0.6,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination='not float',
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=-1, n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in='not int', n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=self.n_train+self.n_test+1,
+                                      n_category_out=3,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out=-1,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5, n_category_out='not int',
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5,
+                                      n_category_out=self.n_train+self.n_test+1,
+                                      n_informative=1, n_features=1,
+                                      contamination=self.contamination,
+                                      random_state=self.random_state)
 
     def test_evaluate_print(self):
         X_train, y_train, X_test, y_test = generate_data(
