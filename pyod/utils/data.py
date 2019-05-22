@@ -647,12 +647,7 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
 
         X.append(list(inliers) + outliers)
 
-    X = np.array(X).T
-    outliers_ = X[n_inliers:]
-    random_state.shuffle([random_state.shuffle(c) for c in outliers_])
-    X[n_inliers:] = outliers_
-
-    return train_test_split(X,
+    return train_test_split(np.array(X).T,
                             np.array(([0]*n_inliers) + ([1]*n_outliers)),
                             test_size=n_test,
                             random_state=random_state)
