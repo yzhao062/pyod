@@ -360,6 +360,15 @@ class TestData(unittest.TestCase):
                                       contamination=self.contamination,
                                       random_state=self.random_state)
 
+        with assert_raises(ValueError):
+            generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
+                                      n_category_in=5,
+                                      n_category_out=5,
+                                      n_informative=2, n_features=2,
+                                      contamination=self.contamination,
+                                      shuffle='not bool',
+                                      random_state=self.random_state)
+
     def test_evaluate_print(self):
         X_train, y_train, X_test, y_test = generate_data(
             n_train=self.n_train,

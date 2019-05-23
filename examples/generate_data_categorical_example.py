@@ -25,10 +25,11 @@ if __name__ == "__main__":
 
     # Generate sample data in clusters
     X_train, X_test, y_train, y_test = generate_data_categorical(n_train=200, n_test=50,
-                                                                 n_category_in=5, n_category_out=3,
+                                                                 n_category_in=8, n_category_out=5,
                                                                  n_informative=1, n_features=1,
                                                                  contamination=contamination,
-                                                                 random_state=42)
+                                                                 shuffle=True, random_state=42)
+
     # note that visalizing it can only be in 1 dimension!
     cats = list(np.ravel(X_train))
     labels = list(y_train)

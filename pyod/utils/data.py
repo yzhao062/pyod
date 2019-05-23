@@ -519,7 +519,7 @@ def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
 def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
                               n_informative=2, n_category_in=2,
                               n_category_out=2, contamination=0.1,
-                              random_state=None):
+                              shuffle=True, random_state=None):
 
     """Utility function to generate synthesized categorical data.
 
@@ -549,6 +549,9 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
     contamination : float in (0., 0.5), optional (default=0.1)
        The amount of contamination of the data set, i.e.
        the proportion of outliers in the data set.
+
+    shuffle: bool, optional(default=True)
+        If True, inliers will be shuffled which makes more noisy distribution.
 
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
@@ -601,6 +604,9 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
     else:
         raise ValueError("contamination should be float, got %s" % contamination)
 
+    if not isinstance(shuffle, bool):
+        raise ValueError("shuffle should be bool, got %s" % shuffle)
+
 
     # find the required number of outliers and inliers
     n_samples = n_train + n_test
@@ -638,6 +644,8 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
     count = 0
     for f in features:
         inliers = np.hstack([[f + str(i)] * dist_in[i] for i in range(n_category_in)])
+        if shuffle:
+            random_state.shuffle(inliers)
         if count < n_informative:
             outliers = list(np.hstack(
                 [[f + str((n_category_in * 2) + i)] * dist_out[i] for i in range(n_category_out)]))
