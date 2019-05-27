@@ -8,4 +8,4 @@ scipy==1.1.0
 scikit_learn>=0.19.1
 tensorflow
 # xgboost 0.9.0 requires c++ compiler
-xgboost==0.82
+xgboost
