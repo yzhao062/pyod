@@ -12,7 +12,7 @@ workflows:
 jobs:
   test-3.6:
     docker:
-      - image: circleci/python:3.6.4
+      - image: circleci/python:3.6-stretch
 
     working_directory: ~/repo
 
@@ -23,9 +23,9 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v3-py3-dependencies-{{ checksum "requirements_ci.txt" }}
+          - v1-py3-dependencies-{{ checksum "requirements_ci.txt" }}
           # fallback to using the latest cache if no exact match is found
-          - v3-py3-dependencies-
+          - v1-py3-dependencies-
 
       - run:
           name: install dependencies
@@ -41,7 +41,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v3-py3-dependencies-{{ checksum "requirements.txt" }}
+          key: v1-py3-dependencies-{{ checksum "requirements.txt" }}
 
 
       # run tests!
@@ -68,9 +68,9 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v3-py2-dependencies-{{ checksum "requirements_ci.txt" }}
+          - v1-py2-dependencies-{{ checksum "requirements_ci.txt" }}
           # fallback to using the latest cache if no exact match is found
-          - v3-py2-dependencies-
+          - v1-py2-dependencies-
 
       - run:
           name: install dependencies
@@ -86,7 +86,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv2
-          key: v3-py2-dependencies-{{ checksum "requirements_ci.txt" }}
+          key: v1-py2-dependencies-{{ checksum "requirements_ci.txt" }}
 
 
       # run tests!
