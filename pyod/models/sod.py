@@ -149,7 +149,7 @@ class SOD(BaseDetector):
             var_total = sum(sum(np.square(ref - means)))/self.ref_set_
             var_expect = self.alpha_ * var_total / X.shape[1]
             var_actual = np.var(ref, axis=0)  # variance of each attribute
-            var_inds = [1 if (i < var_expect) else 0 for i in var_actual]
+            var_inds = [1 if (j < var_expect) else 0 for j in var_actual]
             rel_dim = sum(var_inds)
             if rel_dim != 0:
                 res[i] = np.sqrt(np.dot(var_inds, np.square(obs - means)) / rel_dim)
