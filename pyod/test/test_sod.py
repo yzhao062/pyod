@@ -5,11 +5,6 @@ from __future__ import print_function
 
 import os
 import sys
-import warnings
-warnings.filterwarnings(action='ignore')
-if not sys.warnoptions:
-    warnings.simplefilter("ignore")
-    os.environ["PYTHONWARNINGS"] = "ignore"  # Also affect subprocesses
 import unittest
 # noinspection PyProtectedMember
 from sklearn.utils.testing import assert_allclose
@@ -32,7 +27,7 @@ from pyod.models.sod import SOD
 from pyod.utils.data import generate_data
 
 
-class TestLOF(unittest.TestCase):
+class TestSOD(unittest.TestCase):
     def setUp(self):
         self.n_train = 100
         self.n_test = 50
@@ -133,9 +128,6 @@ class TestLOF(unittest.TestCase):
     def test_predict_rank(self):
         pred_scores = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test)
-        print(pred_scores)
-        print(pred_ranks)
-
         # assert the order is reserved
         assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
         assert_array_less(pred_ranks, self.X_train.shape[0] + 1)

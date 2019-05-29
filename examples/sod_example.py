@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Example of using kNN for outlier detection
+"""Example of using SOD for outlier detection
 """
-# Author: Yue Zhao <yuezhao@cs.toronto.edu>
+# Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -155,7 +155,10 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train kNN detector
+    # train SOD detector
+    # Note that SOD is meant to work in high dimensions d > 2.
+    # But here we are using 2D for visualization purpose
+    # thus, higher precision is expected in higher dimensions
     clf_name = 'SOD'
     clf = SOD()
     clf.fit(X_train)
