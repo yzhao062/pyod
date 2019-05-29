@@ -7,23 +7,25 @@ Citations & Achievements
 Citing PyOD
 -----------
 
+
+`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at
+`JMLR <http://www.jmlr.org/mloss/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 
     @article{zhao2019pyod,
-      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
-      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
-      journal={arXiv preprint arXiv:1901.01588},
-      year={2019},
-      url={https://arxiv.org/abs/1901.01588}
+      author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      title   = {PyOD: A Python Toolbox for Scalable Outlier Detection},
+      journal = {Journal of Machine Learning Research},
+      year    = {2019},
+      volume  = {20},
+      pages   = {1-7},
+      url     = {http://jmlr.org/papers/v20/19-011.html}
     }
 
 or::
 
-    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
-
-`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
-(machine learning open-source software track).
+    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR).
 
 
 ----

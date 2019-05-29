@@ -82,7 +82,7 @@ multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD has been successfully used in various academic researches and
-commercial products [#Ramakrishnan2019Anomaly]_ [#Weng2019Multi]_ [#Zhao2018DCSO]_ [#Zhao2019LSCP]_.
+commercial products [#Ramakrishnan2019Anomaly]_ [#Krishnan2019AlphaClean]_ [#Zhao2018DCSO]_ [#Zhao2019LSCP]_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
@@ -124,23 +124,24 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **Citing PyOD**\ :
 
+`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at
+`JMLR <http://www.jmlr.org/mloss/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 
     @article{zhao2019pyod,
-      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
-      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
-      journal={arXiv preprint arXiv:1901.01588},
-      year={2019},
-      url={https://arxiv.org/abs/1901.01588}
+      author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      title   = {PyOD: A Python Toolbox for Scalable Outlier Detection},
+      journal = {Journal of Machine Learning Research},
+      year    = {2019},
+      volume  = {20},
+      pages   = {1-7},
+      url     = {http://jmlr.org/papers/v20/19-011.html}
     }
 
 or::
 
-    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
-
-`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
-(machine learning open-source software track).
+    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR).
 
 
 **Key Links and Resources**\ :
@@ -583,6 +584,8 @@ Reference
 
 .. [#Kriegel2008Angle] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*\ , pp. 444-452. ACM.
 
+.. [#Krishnan2019AlphaClean] Krishnan, S. and Wu, E., 2019. AlphaClean: Automatic Generation of Data Cleaning Pipelines. arXiv preprint arXiv:1904.11827.
+
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
@@ -602,8 +605,6 @@ Reference
 .. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
 
 .. [#Tang2002Enhancing] Tang, J., Chen, Z., Fu, A.W.C. and Cheung, D.W., 2002, May. Enhancing effectiveness of outlier detections for low density patterns. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining*, pp. 535-548. Springer, Berlin, Heidelberg.
-
-.. [#Weng2019Multi] Weng, Y., Zhang, N. and Xia, C., 2019. Multi-Agent-Based Unsupervised Detection of Energy Consumption Anomalies on Smart Campus. *IEEE Access*, 7, pp.2169-2178.
 
 .. [#Zhao2018DCSO] Zhao, Y. and Hryniewicki, M.K. DCSO: Dynamic Combination of Detector Scores for Outlier Ensembles. *ACM SIGKDD Workshop on Outlier Detection De-constructed (ODD v5.0)*\ , 2018.
 
