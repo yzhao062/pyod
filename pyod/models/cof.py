@@ -2,24 +2,28 @@
 """Connectivity-Based Outlier Factor (COF) Algorithm
 """
 # Author: Yahya Almardeny <almardeny@gmail.com>
-# License: MIT
+# License: BSD 2 clause
+
+from __future__ import division
+from __future__ import print_function
+
 from operator import itemgetter
+
 import numpy as np
 from scipy.spatial import distance_matrix
 from sklearn.utils import check_array
-from pyod.utils import check_parameter
+
 from .base import BaseDetector
+from ..utils.utility import check_parameter
 
 
 class COF(BaseDetector):
-    """
-    Algorithm to calculate the Connectivity-Based Outlier Factor (COF)
-    as an outlier score for observations.
-    The implementation is based on the work of:
-    Tang, J., Chen, Z., Fu, A. W. C., & Cheung, D. W. (2002).
-    Enhancing Effectiveness of Outlier Detections for Low Density Patterns.
-    In Pacific-Asia Conf. on Knowledge Discovery and Data Mining (PAKDD).
-    Taipei. pp. 535-548. DOI: 10.1007/3-540-47887-6_53
+    """Connectivity-Based Outlier Factor (COF) COF uses the ratio of average
+    chaining distance of data point and the average of average chaining
+    distance of k nearest neighbor of the data point, as the outlier score
+    for observations.
+
+    See :cite:`tang2002enhancing` for details.
 
     Parameters
     ----------
@@ -56,14 +60,14 @@ class COF(BaseDetector):
     n_neighbors_: int
         Number of neighbors to use by default for k neighbors queries.
     """
+
     def __init__(self, contamination=0.1, n_neighbors=20):
         super(COF, self).__init__(contamination=contamination)
         if isinstance(n_neighbors, int):
-            check_parameter(n_neighbors,
-                            low=1,
-                            param_name='n_neighbors')
+            check_parameter(n_neighbors, low=1, param_name='n_neighbors')
         else:
-            raise TypeError("n_neighbors should be int. Got %s" % type(n_neighbors))
+            raise TypeError(
+                "n_neighbors should be int. Got %s" % type(n_neighbors))
         self.n_neighbors_ = n_neighbors
         self.decision_scores_ = None
 
@@ -123,11 +127,13 @@ class COF(BaseDetector):
             sbn_path_index.append(sbn_path[1: self.n_neighbors_ + 1])
             cost_desc = []
             for j in range(self.n_neighbors_):
-                cost_desc.append(np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
+                cost_desc.append(
+                    np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
             acd = []
             for _h, cost_ in enumerate(cost_desc):
-                acd.append(((2. * (self.n_neighbors_ + 1 - (_h + 1))) /
-                            ((self.n_neighbors_ + 1) * self.n_neighbors_)) * cost_)
+                neighbor_add1 = self.n_neighbors_ + 1
+                acd.append(((2. * (neighbor_add1 - (_h + 1))) / (
+                        neighbor_add1 * self.n_neighbors_)) * cost_)
             ac_dist.append(np.sum(acd))
         for _g in range(X.shape[0]):
             cof_.append((ac_dist[_g] * self.n_neighbors_) /
