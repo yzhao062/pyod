@@ -125,7 +125,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 **Citing PyOD**\ :
 
 `PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at
-`JMLR <http://www.jmlr.org/mloss/>`_ (machine learning open-source software track).
+`JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 

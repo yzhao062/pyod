@@ -72,6 +72,7 @@ v<0.7.0>, <04/29/2019> -- Refactor #76 (generate_data_clusters).
 v<0.7.1>, <05/13/2019> -- Fix installation errors caused by sklearn 0.21.
 v<0.7.2>, <05/27/2019> -- Enhanced CI integration.
 v<0.7.2>, <05/29/2019> -- Add Connectivity-Based Outlier Factor (COF).
+v<0.7.2>, <05/29/2019> -- Bug fixes in LSCP and minor documentation updates.
 
 
 
