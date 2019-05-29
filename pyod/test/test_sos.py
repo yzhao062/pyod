@@ -32,21 +32,16 @@ from pyod.utils.data import generate_data
 
 class TestSOS(unittest.TestCase):
     def setUp(self):
-        self.n_train = 100
-        self.n_test = 50
+        self.n_train = 200
+        self.n_test = 100
         self.contamination = 0.1
-        self.roc_floor = 0.6
+        # self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
-            n_train=self.n_train, n_test=self.n_test,
+            n_train=self.n_train, n_test=self.n_test, n_features=5,
             contamination=self.contamination, random_state=42)
 
         self.clf = SOS(contamination=self.contamination)
         self.clf.fit(self.X_train)
-
-    def test_sklearn_estimator(self):
-        # TODO: sklearn check does not support Numba optimization
-        # check_estimator(self.clf)
-        pass
 
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and

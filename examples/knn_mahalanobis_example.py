@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Example of using LSCP for outlier detection
+"""Example of using kNN with mahalanobis distance for outlier detection
 """
-# Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
+# Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -10,14 +10,14 @@ from __future__ import print_function
 import os
 import sys
 
+import numpy as np
+
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from pyod.models.lscp import LSCP
-from pyod.models.lof import LOF
-from pyod.utils.utility import standardizer
+from pyod.models.knn import KNN
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
 from pyod.utils.example import visualize
@@ -31,15 +31,16 @@ if __name__ == "__main__":
     X_train, y_train, X_test, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
+                      n_features=2,
                       contamination=contamination,
                       random_state=42)
-    X_train, X_test = standardizer(X_train, X_test)
 
-    # train lscp
-    clf_name = 'LSCP'
-    detector_list = [LOF(n_neighbors=15), LOF(n_neighbors=20),
-                     LOF(n_neighbors=25), LOF(n_neighbors=35)]
-    clf = LSCP(detector_list, random_state=42)
+    # train kNN detector with mahalanobis distance
+    clf_name = 'KNN (mahalanobis distance)'
+    # calculate covariance for mahalanobis distance
+    X_train_cov = np.cov(X_train, rowvar=False)
+    clf = KNN(algorithm='auto', metric='mahalanobis',
+              metric_params={'V': X_train_cov})
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

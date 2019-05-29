@@ -31,20 +31,16 @@ from pyod.utils.data import generate_data
 
 class TestFeatureBagging(unittest.TestCase):
     def setUp(self):
-        self.n_train = 100
-        self.n_test = 50
+        self.n_train = 200
+        self.n_test = 100
         self.contamination = 0.1
-        self.roc_floor = 0.6
+        self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
 
         self.clf = FeatureBagging(contamination=self.contamination)
         self.clf.fit(self.X_train)
-
-    # TODO: failed due to sklearn uses 2 feature examples.
-    # def test_sklearn_estimator(self):
-    #     check_estimator(self.clf)
 
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and

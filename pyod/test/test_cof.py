@@ -15,7 +15,6 @@ from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_true
-from sklearn.utils.estimator_checks import check_estimator
 
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
@@ -24,21 +23,21 @@ from scipy.stats import rankdata
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.lof import LOF
+from pyod.models.cof import COF
 from pyod.utils.data import generate_data
 
 
-class TestLOF(unittest.TestCase):
+class TestCOF(unittest.TestCase):
     def setUp(self):
-        self.n_train = 200
-        self.n_test = 100
+        self.n_train = 100
+        self.n_test = 50
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
 
-        self.clf = LOF(contamination=self.contamination)
+        self.clf = COF(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -48,10 +47,6 @@ class TestLOF(unittest.TestCase):
                     self.clf.labels_ is not None)
         assert_true(hasattr(self.clf, 'threshold_') and
                     self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, '_mu') and
-                    self.clf._mu is not None)
-        assert_true(hasattr(self.clf, '_sigma') and
-                    self.clf._sigma is not None)
         assert_true(hasattr(self.clf, 'n_neighbors_') and
                     self.clf.n_neighbors_ is not None)
 
@@ -105,11 +100,12 @@ class TestLOF(unittest.TestCase):
                                        scoring='something')
 
     def test_predict_rank(self):
-        pred_socres = self.clf.decision_function(self.X_test)
+        pred_scores = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test)
+        print(pred_ranks)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
         assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
@@ -121,6 +117,19 @@ class TestLOF(unittest.TestCase):
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
+
+    def test_check_parameters(self):
+        with assert_raises(ValueError):
+            COF(contamination=0.1, n_neighbors=-1)
+        with assert_raises(ValueError):
+            COF(contamination=10., n_neighbors=5)
+        with assert_raises(TypeError):
+            COF(contamination=0.1, n_neighbors='not int')
+        with assert_raises(TypeError):
+            COF(contamination='not float', n_neighbors=5)
+        cof_ = COF(contamination=0.1, n_neighbors=10000)
+        cof_.fit(self.X_train)
+        assert self.X_train.shape[0] > cof_.n_neighbors_
 
     def tearDown(self):
         pass

@@ -29,6 +29,16 @@ pyod.models.cblof module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.cof module
+----------------------
+
+.. automodule:: pyod.models.cof
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.combination module
 ------------------------------
 

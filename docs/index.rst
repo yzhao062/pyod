@@ -8,8 +8,8 @@ Welcome to PyOD documentation!
 
 **Deployment & Documentation & Stats**
 
-.. image:: https://badge.fury.io/py/pyod.svg
-   :target: https://badge.fury.io/py/pyod
+.. image:: https://img.shields.io/pypi/v/pyod.svg?color=brightgreen
+   :target: https://pypi.org/project/pyod/
    :alt: PyPI version
 
 
@@ -24,12 +24,12 @@ Welcome to PyOD documentation!
 
 
 .. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/stargazers
+   :target: https://github.com/yzhao062/pyod/stargazers
    :alt: GitHub stars
 
 
-.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg
-   :target: https://github.com/yzhao062/Pyod/network
+.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg?color=blue
+   :target: https://github.com/yzhao062/pyod/network
    :alt: GitHub forks
 
 
@@ -57,13 +57,13 @@ Welcome to PyOD documentation!
    :alt: Build Status
 
 
+.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
+    :target: https://circleci.com/gh/yzhao062/pyod
+
+
 .. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
    :target: https://coveralls.io/github/yzhao062/pyod
    :alt: Coverage Status
-
-
-.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
-    :target: https://circleci.com/gh/yzhao062/pyod
 
 
 .. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
@@ -89,7 +89,7 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in various
 academic researches and commercial products
-:cite:`a-kalayci2018anomaly,a-ramakrishnan2019anomaly,a-weng2019multi,a-zhao2018xgbod,a-zhao2018dcso,a-zhao2019lscp`.
+:cite:`a-ramakrishnan2019anomaly,a-weng2019multi,a-zhao2018dcso,a-zhao2019lscp`.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
@@ -146,7 +146,7 @@ or::
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
 
 `PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
-(machine learning open-source software track) **with minor revisions (to appear)**.
+(machine learning open-source software track).
 
 
 **Key Links and Resources**\ :
@@ -173,8 +173,9 @@ Type                 Abbr              Algorithm                                
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   :class:`pyod.models.pca.PCA`                         :cite:`a-shyu2003novel`
 Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   :class:`pyod.models.mcd.MCD`                         :cite:`a-rousseeuw1999fast,a-hardin2004outlier`
-Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2003   :class:`pyod.models.ocsvm.OCSVM`                     :cite:`a-scholkopf2001estimating`
+Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2001   :class:`pyod.models.ocsvm.OCSVM`                     :cite:`a-scholkopf2001estimating`
 Proximity-Based      LOF               Local Outlier Factor                                                                                    2000   :class:`pyod.models.lof.LOF`                         :cite:`a-breunig2000lof`
+Proximity-Based      COF               Connectivity-Based Outlier Factor                                                                       2002   :class:`pyod.models.cof.COF`                         :cite:`a-tang2002enhancing`:
 Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   :class:`pyod.models.cblof.CBLOF`                     :cite:`a-he2003discovering`:
 Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   :class:`pyod.models.loci.LOCI`                       :cite:`a-papadimitriou2003loci`
 Proximity-Based      HBOS              Histogram-based Outlier Score                                                                           2012   :class:`pyod.models.hbos.HBOS`                       :cite:`a-goldstein2012histogram`
@@ -189,8 +190,8 @@ Outlier Ensembles                      Feature Bagging                          
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   :class:`pyod.models.lscp.LSCP`                       :cite:`a-zhao2019lscp`
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   :class:`pyod.models.xgbod.XGBOD`                     :cite:`a-zhao2018xgbod`
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                             2015   :class:`pyod.models.auto_encoder.AutoEncoder`        :cite:`a-aggarwal2015outlier`
-Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   :class:`pyod.models.so_gaal.SO_GAAL`                 :cite:`a-liu2018generative`
-Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   :class:`pyod.models.mo_gaal.MO_GAAL`                 :cite:`a-liu2018generative`
+Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   :class:`pyod.models.so_gaal.SO_GAAL`                 :cite:`a-liu2019generative`
+Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   :class:`pyod.models.mo_gaal.MO_GAAL`                 :cite:`a-liu2019generative`
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 
 
@@ -212,14 +213,15 @@ Combination          MOA               Maximum of Average                       
 
 **(iii) Utility Functions**:
 
-===================  =============================================  =====================================================================================================================================================
-Type                 Name                                           Function
-===================  =============================================  =====================================================================================================================================================
-Data                 :func:`pyod.utils.data.generate_data`          Synthesized data generation; normal data is generated by a multivariate Gaussian and outliers are generated by a uniform distribution
-Stat                 :func:`pyod.utils.stat_models.wpearsonr`       Calculate the weighted Pearson correlation of two samples
-Utility              :func:`pyod.utils.utility.get_label_n`         Turn raw outlier scores into binary labels by assign 1 to top n outlier scores
-Utility              :func:`pyod.utils.utility.precision_n_scores`  calculate precision @ rank n
-===================  =============================================  =====================================================================================================================================================
+===================  ==============================================  =====================================================================================================================================================
+Type                 Name                                            Function
+===================  ==============================================  =====================================================================================================================================================
+Data                 :func:`pyod.utils.data.generate_data`           Synthesized data generation; normal data is generated by a multivariate Gaussian and outliers are generated by a uniform distribution
+Data                 :func:`pyod.utils.data.generate_data_clusters`  Synthesized data generation in clusters; more complex data patterns can be created with multiple clusters
+Stat                 :func:`pyod.utils.stat_models.wpearsonr`        Calculate the weighted Pearson correlation of two samples
+Utility              :func:`pyod.utils.utility.get_label_n`          Turn raw outlier scores into binary labels by assign 1 to top n outlier scores
+Utility              :func:`pyod.utils.utility.precision_n_scores`   calculate precision @ rank n
+===================  ==============================================  =====================================================================================================================================================
 
 **The comparison among of implemented models** is made available below
 (\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
@@ -291,6 +293,7 @@ of the training data X_train, one should call clf.fit(X_train) and use
 
    issues
    relevant_knowledge
+   pubs
    faq
    about
 

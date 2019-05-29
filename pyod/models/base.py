@@ -10,8 +10,14 @@ from __future__ import print_function
 import warnings
 from collections import defaultdict
 
+from ..utils.utility import _sklearn_version_21
+
+if _sklearn_version_21():
+    from inspect import signature
+else:
+    from sklearn.externals.funcsigs import signature
+
 import abc
-from sklearn.externals.funcsigs import signature
 from sklearn.externals import six
 
 import numpy as np
@@ -30,6 +36,10 @@ from ..utils.utility import precision_n_scores
 @six.add_metaclass(abc.ABCMeta)
 class BaseDetector(object):
     """Abstract class for all outlier detection algorithms.
+
+    .. warning::
+    pyod would stop supporting Python 2 in the future. Consider move to
+    Python 3.5+.
 
     Parameters
     ----------
