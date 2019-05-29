@@ -128,14 +128,8 @@ class SOD(BaseDetector):
         _count = np.zeros(shape=(ind.shape[0], self.ref_set_), dtype=np.uint16)
         # Count the distance
         for i in range(ind.shape[0]):
-            # The point should not be in its reference set,
-            # but we need it temporarily to maintain indices order,
-            # it has the max possible value: 65535 (max unsigned int16)
-            # so it'll be always at first index after sorting
             temp = np.sum(np.isin(ind, ind[i]), axis=1).ravel()
             temp[i] = np.iinfo(np.uint16).max
-            # sorting after each iteration because argsort is int64
-            # and cannot handle big data
             _count[i] = np.argsort(temp)[::-1][1:self.ref_set_+1]
 
         return _count
