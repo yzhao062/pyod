@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     # train lscp
     clf_name = 'LSCP'
-    detector_list = [LOF(), LOF()]
+    detector_list = [LOF(n_neighbors=15), LOF(n_neighbors=20),
+                     LOF(n_neighbors=25), LOF(n_neighbors=35)]
     clf = LSCP(detector_list, random_state=42)
     clf.fit(X_train)
 
