@@ -81,13 +81,21 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 **awesome-machine-learning**: `General-Purpose Machine Learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_
 
 
+**Workshop/Showcase using PyOD**:
+
+- `Detecting the Unexpected: An Introduction to Anomaly Detection Methods <http://www.kiss.caltech.edu/workshops/technosignatures/presentations/Wagstaff.pdf>`_, *KISS Technosignatures Workshop* by Dr. Kiri Wagstaff @ Jet Propulsion Laboratory, California Institute of Technology.
+  [`Workshop Video <https://www.youtube.com/watch?v=brWqY4Wads4>`_] [`PDF <http://www.kiss.caltech.edu/workshops/technosignatures/presentations/Wagstaff.pdf>`_]
+
+
 **GitHub Python Trending**:
 
 - 2019: Apr 5th-6th, Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
 - 2018: Jun 15, Dec 8th-9th
+
 
 **Miscellaneous**:
 
 - `PythonAwesome <https://pythonawesome.com/a-python-toolkit-for-scalable-outlier-detection/>`_
 - `awesome-python <https://github.com/uhub/awesome-python>`_
 - `PapersWithCode <https://paperswithcode.com/task/anomaly-detection>`_
+
