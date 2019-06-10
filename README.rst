@@ -124,7 +124,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **Citing PyOD**\ :
 
-`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at
+`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is **accepted** at
 `JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
@@ -135,13 +135,14 @@ citations to the following paper::
       journal = {Journal of Machine Learning Research},
       year    = {2019},
       volume  = {20},
+      number  = {96},
       pages   = {1-7},
       url     = {http://jmlr.org/papers/v20/19-011.html}
     }
 
 or::
 
-    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR).
+    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
 
 **Key Links and Resources**\ :
