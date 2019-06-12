@@ -39,8 +39,10 @@ from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
 from pyod.models.sos import SOS
 from pyod.models.lscp import LSCP
+from pyod.models.cof import COF
+from pyod.models.sod import SOD
 
-# TODO: add neural networks, LOCI, SOS
+# TODO: add neural networks, LOCI, SOS, COF, SOD
 
 # Define the number of inliers and outliers
 n_samples = 200
@@ -104,7 +106,11 @@ classifiers = {
     #     contamination=outliers_fraction),
     'Locally Selective Combination (LSCP)': LSCP(
         detector_list, contamination=outliers_fraction,
-        random_state=random_state)
+        random_state=random_state),
+    # 'Connectivity-Based Outlier Factor (COF)':
+    #     COF(n_neighbors=35, contamination=outliers_fraction),
+    # 'Subspace Outlier Detection (SOD)':
+    #     SOD(contamination=outliers_fraction),
 }
 
 # Show all detectors

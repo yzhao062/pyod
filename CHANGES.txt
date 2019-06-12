@@ -73,6 +73,9 @@ v<0.7.1>, <05/13/2019> -- Fix installation errors caused by sklearn 0.21.
 v<0.7.2>, <05/27/2019> -- Enhanced CI integration.
 v<0.7.2>, <05/29/2019> -- Add Connectivity-Based Outlier Factor (COF).
 v<0.7.2>, <05/29/2019> -- Bug fixes in LSCP and minor documentation updates.
+v<0.7.3>, <06/10/2019> -- Update documentation.
+v<0.7.3>, <06/12/2019> -- Add Subspace Outlier Detection (SOD).
+v<0.7.3>, <06/12/2019> -- Fix bugs in SO_GAAL and MO_GAAL.
 
 
 

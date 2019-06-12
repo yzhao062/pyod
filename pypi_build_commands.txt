@@ -12,3 +12,17 @@ twine upload --repository pypitest dist/*
 twine upload dist/*
 
 https://pypi.org/project/pyod/
+
+
+#######################################################
+# For newly added models, conduct the following checks:
+
+1. check the license, author information, and imports
+2. read the algorithm introduction and citation
+3. check the parameter order and correctness
+4. check comment formats
+5. make sure the test run locally (roc floor)
+6. make sure the example look consistent
+7. add algorithm to pyod.model.rst
+8. add algorithm to index.rst and README.rst
+9. add to benchmark.py and compare_all_models.py; when applicable, change notebooks as well
