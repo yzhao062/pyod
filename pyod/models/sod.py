@@ -5,6 +5,7 @@
 # License: BSD 2 clause
 
 import numpy as np
+from numba import njit
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 
@@ -12,30 +13,54 @@ from ..utils.utility import check_parameter
 from .base import BaseDetector
 
 
+# TODO: look into how to speed up the algorithm with numba
+# @njit
+# def _sod_njit(X, ref_inds, alpha, ref_set):
+#     anomaly_scores = np.zeros(shape=(X.shape[0],))
+#     for i in range(X.shape[0]):
+#         obs = X[i]
+#         ref = X[ref_inds[i,],]
+#         means = np.mean(ref, axis=0)  # mean of each column
+#         # average squared distance of the reference to the mean
+#         var_total = np.sum(np.sum(np.square(ref - means))) / ref_set
+#         var_expect = alpha * var_total / X.shape[1]
+#         var_actual = np.var(ref, axis=0)  # variance of each attribute
+#         var_inds = [1 if (j < var_expect) else 0 for j in var_actual]
+#         rel_dim = np.sum(var_inds)
+#         if rel_dim != 0:
+#             anomaly_scores[i] = np.sqrt(
+#                 np.dot(var_inds, np.square(obs - means)) / rel_dim)
+#
+#     return anomaly_scores
+
+
 class SOD(BaseDetector):
     """
-    Subspace outlier detection (SOD) algorithm
-    The implementation is based on the work of
-    Krigel, H.P., Kroger, P., Schubert, E., Zimek, A.,
-    Outlier detection in axis-parallel subspaces of high dimensional data, 2009.
+    Subspace outlier detection (SOD) schema aims to detect outlier in
+    varying subspaces of a high dimensional feature space. For each data
+    object, SOD explores the axis-parallel subspace spanned by the data
+    object's neighbors and determines how much the obeject deviates from the
+    neighbors in this subspace.
+
+    See :cite:`kriegel2009outlier` for details.
 
     Parameters
     ----------
-    contamination : float in (0., 0.5), optional (default=0.1)
-        The amount of contamination of the data set, i.e.
-        the proportion of outliers in the data set. Used when fitting to
-        define the threshold on the decision function.
-
     n_neighbors : int, optional (default=20)
         Number of neighbors to use by default for k neighbors queries.
 
     ref_set: int, optional (default=10)
-        specifies the number of shared nearest neighbors to create the reference set.
-        Note that ref_set must be smaller than n_neighbors.
+        specifies the number of shared nearest neighbors to create the
+        reference set. Note that ref_set must be smaller than n_neighbors.
 
     alpha: float in (0., 1.), optional (default=0.8)
            specifies the lower limit for selecting subspace.
            0.8 is set as default as suggested in the original paper.
+
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set, i.e.
+        the proportion of outliers in the data set. Used when fitting to
+        define the threshold on the decision function.
 
     Attributes
     ----------
@@ -71,10 +96,12 @@ class SOD(BaseDetector):
                             param_name='ref_set')
         else:
             raise ValueError("ref_set should be int. Got %s" % type(ref_set))
+
         if isinstance(alpha, float):
             check_parameter(alpha, low=0.0, high=1.0, param_name='alpha')
         else:
             raise ValueError("alpha should be float. Got %s" % type(alpha))
+
         self.n_neighbors_ = n_neighbors
         self.ref_set_ = ref_set
         self.alpha_ = alpha
@@ -91,6 +118,7 @@ class SOD(BaseDetector):
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
         """
+
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -118,12 +146,15 @@ class SOD(BaseDetector):
         """
         return self._sod(X)
 
-    def __snn(self, X):
-        """
-        This function is called internally to calculate the shared nearest neighbors (SNN).
-        SNN is reported to be more robust than k nearest neighbors.
-        :return: numpy array containing the indices of top k shared nearest neighbors for
-                 each observation.
+    def _snn(self, X):
+        """This function is called internally to calculate the shared nearest
+        neighbors (SNN). SNN is reported to be more robust than k nearest
+        neighbors.
+
+        Returns
+        -------
+        snn_indices : numpy array of shape (n_shared_nearest_neighbors,)
+            The indices of top k shared nearest neighbors for each observation.
         """
         knn = NearestNeighbors(n_neighbors=self.n_neighbors_)
         knn.fit(X)
@@ -139,24 +170,30 @@ class SOD(BaseDetector):
         return _count
 
     def _sod(self, X):
+        """This function is called internally to perform subspace outlier 
+        detection algorithm.
+        
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
         """
-        This function is called internally to perform subspace outlier detection algorithm.
-        :return: numpy array containing the SOD outlier scores for each observation
-        """
-        ref_inds = self.__snn(X)
-        res = np.zeros(shape=(X.shape[0],))
+        ref_inds = self._snn(X)
+        anomaly_scores = np.zeros(shape=(X.shape[0],))
+
+        anomaly_scores = np.zeros(shape=(X.shape[0],))
         for i in range(X.shape[0]):
             obs = X[i]
             ref = X[ref_inds[i,],]
             means = np.mean(ref, axis=0)  # mean of each column
             # average squared distance of the reference to the mean
-            var_total = sum(sum(np.square(ref - means))) / self.ref_set_
+            var_total = np.sum(np.sum(np.square(ref - means))) / self.ref_set_
             var_expect = self.alpha_ * var_total / X.shape[1]
             var_actual = np.var(ref, axis=0)  # variance of each attribute
             var_inds = [1 if (j < var_expect) else 0 for j in var_actual]
-            rel_dim = sum(var_inds)
+            rel_dim = np.sum(var_inds)
             if rel_dim != 0:
-                res[i] = np.sqrt(
+                anomaly_scores[i] = np.sqrt(
                     np.dot(var_inds, np.square(obs - means)) / rel_dim)
 
-        return res
+        return anomaly_scores

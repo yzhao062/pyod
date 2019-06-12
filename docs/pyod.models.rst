@@ -152,6 +152,15 @@ pyod.models.pca module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.sod module
+----------------------
+
+.. automodule:: pyod.models.sod
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.so\_gaal module
 ---------------------------
 
