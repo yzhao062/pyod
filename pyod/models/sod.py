@@ -35,11 +35,10 @@ from .base import BaseDetector
 
 
 class SOD(BaseDetector):
-    """
-    Subspace outlier detection (SOD) schema aims to detect outlier in
+    """Subspace outlier detection (SOD) schema aims to detect outlier in
     varying subspaces of a high dimensional feature space. For each data
     object, SOD explores the axis-parallel subspace spanned by the data
-    object's neighbors and determines how much the obeject deviates from the
+    object's neighbors and determines how much the object deviates from the
     neighbors in this subspace.
 
     See :cite:`kriegel2009outlier` for details.
