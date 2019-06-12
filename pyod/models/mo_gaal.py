@@ -26,41 +26,41 @@ from .gaal_base import create_generator
 
 class MO_GAAL(BaseDetector):
     """Multi-Objective Generative Adversarial Active Learning.
-    
+
     MO_GAAL directly generates informative potential outliers to assist the
-    classifier in describing a boundary that can separate outliers from normal 
-    data effectively. Moreover, to prevent the generator from falling into the 
-    mode collapsing problem, the network structure of SO-GAAL is expanded from 
-    a single generator (SO-GAAL) to multiple generators with different 
-    objectives (MO-GAAL) to generate a reasonable reference distribution for 
+    classifier in describing a boundary that can separate outliers from normal
+    data effectively. Moreover, to prevent the generator from falling into the
+    mode collapsing problem, the network structure of SO-GAAL is expanded from
+    a single generator (SO-GAAL) to multiple generators with different
+    objectives (MO-GAAL) to generate a reasonable reference distribution for
     the whole dataset.
     Read more in the :cite:`liu2019generative`.
-    
+
     Parameters
     ----------
-    contamination : float in (0., 0.5), optional (default=0.1) 
+    contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
 
     k : int, optional (default=10)
         The number of sub generators.
-    
+
     stop_epochs : int, optional (default=20)
         The number of epochs of training.
-    
+
     lr_d : float, optional (default=0.01)
         The learn rate of the discriminator.
-    
+
     lr_g : float, optional (default=0.0001)
         The learn rate of the generator.
-    
+
     decay : float, optional (default=1e-6)
         The decay parameter for SGD.
-    
+
     momentum : float, optional (default=0.9)
         The momentum parameter for SGD.
-        
+
     Attributes
     ----------
     decision_scores_ : numpy array of shape (n_samples,)
@@ -225,9 +225,10 @@ class MO_GAAL(BaseDetector):
                 if epoch + 1 > self.stop_epochs:
                     stop = 1
 
-            # Detection result
-            self.decision_scores_ = self.discriminator.predict(X)
-            self._process_decision_scores()
+        # Detection result
+        self.decision_scores_ = self.discriminator.predict(X)
+        self._process_decision_scores()
+        return self
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
