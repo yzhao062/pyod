@@ -35,12 +35,14 @@ from pyod.models.lof import LOF
 from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
+from pyod.models.cof import COF
+from pyod.models.sod import SOD
 
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import precision_n_scores
 from sklearn.metrics import roc_auc_score
 
-# TODO: add neural networks, LOCI, SOS
+# TODO: add neural networks, LOCI, SOS, COF, SOD
 
 # Define data file and read X and y
 mat_file_list = ['arrhythmia.mat',
