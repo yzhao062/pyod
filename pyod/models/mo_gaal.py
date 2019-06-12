@@ -225,10 +225,10 @@ class MO_GAAL(BaseDetector):
                 if epoch + 1 > self.stop_epochs:
                     stop = 1
 
-            # Detection result
-            self.decision_scores_ = self.discriminator.predict(X)
-            self._process_decision_scores()
-            return self
+        # Detection result
+        self.decision_scores_ = self.discriminator.predict(X)
+        self._process_decision_scores()
+        return self
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
