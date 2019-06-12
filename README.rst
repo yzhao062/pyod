@@ -289,7 +289,7 @@ Proximity-Based      HBOS              Histogram-based Outlier Score            
 Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score)                 2000   [#Ramaswamy2000Efficient]_
 Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   [#Angiulli2002Fast]_
 Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
-Proximity-Based      SOD               Subspace Outlier Detection                                                                              2009   [#Kriegel2009Outlier]_                  
+Proximity-Based      SOD               Subspace Outlier Detection                                                                              2009   [#Kriegel2009Outlier]_
 Probabilistic        ABOD              Angle-Based Outlier Detection                                                                           2008   [#Kriegel2008Angle]_
 Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                  2008   [#Kriegel2008Angle]_
 Probabilistic        SOS               Stochastic Outlier Selection                                                                            2012   [#Janssens2012Stochastic]_
