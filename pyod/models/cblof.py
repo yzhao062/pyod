@@ -2,7 +2,7 @@
 """Clustering Based Local Outlier Factor (CBLOF)
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
-#         Shangwen Lin (GitHub: shangwen777)
+#         Shangwen Huang <https://github.com/shangwen777>
 # License: BSD 2 clause
 
 from __future__ import division
