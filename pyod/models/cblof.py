@@ -266,14 +266,17 @@ class CBLOF(BaseDetector):
         alpha_list = []
         beta_list = []
         for i in range(1, self.n_clusters_):
-
-            temp_sum = np.sum(size_clusters[sorted_cluster_indices[-1 * i:]])
-            if temp_sum >= n_samples * self.alpha:
-                alpha_list.append(i)
-
+            temp_sum = np.sum(size_clusters[sorted_cluster_indices[-1 * i:]]) #loop started from the biggest cluster
+            if temp_sum < n_samples * self.alpha:
+                alpha_list.append(self.n_clusters_ - i)
+            
             if size_clusters[sorted_cluster_indices[i]] / size_clusters[
-                sorted_cluster_indices[i - 1]] >= self.beta:
+                sorted_cluster_indices[i - 1]] < self.beta:
                 beta_list.append(i)
+                
+        alpha_list.append(min(alpha_list) - 1)
+        beta_list.append(min(beta_list) - 1)
+   
 
         # Find the separation index fulfills both alpha and beta
         intersection = np.intersect1d(alpha_list, beta_list)
