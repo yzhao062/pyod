@@ -108,6 +108,15 @@ class HBOS(BaseDetector):
 
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
+
+        Returns
+        -------
+        X: the inputted numpy array of shape (n_samples, n_features).
+        Note that if the original parameter X is categorical,
+        then the returned X will be its numerical converted version
+        based on the category method chosen in this class.
+        So, user can use the returned X if they want to use `predict()`
+        to check if a particular sample is an outlier or not.
         """
         # validate inputs X and y (optional)
         X = check_array(X)
@@ -134,7 +143,7 @@ class HBOS(BaseDetector):
         # invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = invert_order(np.sum(outlier_scores, axis=1))
         self._process_decision_scores()
-        return self
+        return X
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Example of using Histogram- based outlier detection (HBOS) for
-categorical real-world datasets which is very challengeable
+categorical real-world datasets
 """
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
