@@ -29,6 +29,16 @@ pyod.models.cblof module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.cof module
+----------------------
+
+.. automodule:: pyod.models.cof
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.combination module
 ------------------------------
 
@@ -138,6 +148,15 @@ pyod.models.pca module
 .. automodule:: pyod.models.pca
     :members:
     :exclude-members: components_, explained_variance_ratio_, singular_values_, mean_
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.sod module
+----------------------
+
+.. automodule:: pyod.models.sod
+    :members:
     :undoc-members:
     :show-inheritance:
     :inherited-members:

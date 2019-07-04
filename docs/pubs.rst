@@ -7,23 +7,26 @@ Citations & Achievements
 Citing PyOD
 -----------
 
+
+`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is **accepted** at
+`JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 
     @article{zhao2019pyod,
-      title={PyOD: A Python Toolbox for Scalable Outlier Detection},
-      author={Zhao, Yue and Nasrullah, Zain and Li, Zheng},
-      journal={arXiv preprint arXiv:1901.01588},
-      year={2019},
-      url={https://arxiv.org/abs/1901.01588}
+      author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+      title   = {PyOD: A Python Toolbox for Scalable Outlier Detection},
+      journal = {Journal of Machine Learning Research},
+      year    = {2019},
+      volume  = {20},
+      number  = {96},
+      pages   = {1-7},
+      url     = {http://jmlr.org/papers/v20/19-011.html}
     }
 
 or::
 
-    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. arXiv preprint arXiv:1901.01588.
-
-`PyOD paper <https://arxiv.org/abs/1901.01588>`_ is **accepted** at `JMLR <http://www.jmlr.org/mloss/>`_
-(machine learning open-source software track) **with minor revisions (to appear)**.
+    Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
 
 ----
@@ -37,6 +40,8 @@ We are appreciated that PyOD has been increasing referred and cited in scientifi
 **2019**
 
 Ishii, Y. and Takanashi, M., 2019. Low-cost Unsupervised Outlier Detection by Autoencoders with Robust Estimation. *Journal of Information Processing*, 27, pp.335-339.
+
+Klaeger, T., Schult, A. and Oehm, L., 2019. Using anomaly detection to support classification of fast running (packaging) processes. arXiv preprint arXiv:1906.02473.
 
 Krishnan, S. and Wu, E., 2019. AlphaClean: Automatic Generation of Data Cleaning Pipelines. arXiv preprint arXiv:1904.11827.
 
@@ -79,13 +84,21 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 **awesome-machine-learning**: `General-Purpose Machine Learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_
 
 
+**Workshop/Showcase using PyOD**:
+
+- `Detecting the Unexpected: An Introduction to Anomaly Detection Methods <http://www.kiss.caltech.edu/workshops/technosignatures/presentations/Wagstaff.pdf>`_, *KISS Technosignatures Workshop* by Dr. Kiri Wagstaff @ Jet Propulsion Laboratory, California Institute of Technology.
+  [`Workshop Video <https://www.youtube.com/watch?v=brWqY4Wads4>`_] [`PDF <http://www.kiss.caltech.edu/workshops/technosignatures/presentations/Wagstaff.pdf>`_]
+
+
 **GitHub Python Trending**:
 
 - 2019: Apr 5th-6th, Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
 - 2018: Jun 15, Dec 8th-9th
+
 
 **Miscellaneous**:
 
 - `PythonAwesome <https://pythonawesome.com/a-python-toolkit-for-scalable-outlier-detection/>`_
 - `awesome-python <https://github.com/uhub/awesome-python>`_
 - `PapersWithCode <https://paperswithcode.com/task/anomaly-detection>`_
+
