@@ -77,6 +77,8 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 
 **KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_
 
+**KDnuggets**: `An Overview of Outlier Detection Methods from PyOD <https://www.kdnuggets.com/2019/06/overview-outlier-detection-methods-pyod.html>`_
+
 **Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
 **FLOYDHUB**: `Introduction to Anomaly Detection in Python <https://blog.floydhub.com/introduction-to-anomaly-detection-in-python/>`_
