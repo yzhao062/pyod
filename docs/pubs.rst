@@ -8,7 +8,7 @@ Citing PyOD
 -----------
 
 
-`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is **accepted** at
+`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in
 `JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
@@ -80,6 +80,8 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 **KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_
 
 **KDnuggets**: `An Overview of Outlier Detection Methods from PyOD <https://www.kdnuggets.com/2019/06/overview-outlier-detection-methods-pyod.html>`_
+
+**Towards Data Science**: `Anomaly Detection for Dummies <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_
 
 **Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
