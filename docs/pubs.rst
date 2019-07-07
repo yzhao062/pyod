@@ -34,7 +34,7 @@ or::
 Scientific Work Using or Referencing PyOD
 -----------------------------------------
 
-We are appreciated that PyOD has been increasing referred and cited in scientific works. An incomplete list is provided below:
+We are appreciated that PyOD has been increasingly referred and cited in scientific works. An incomplete list is provided below:
 
 
 **2019**
@@ -48,6 +48,8 @@ Krishnan, S. and Wu, E., 2019. AlphaClean: Automatic Generation of Data Cleaning
 Kumar Das, S., Kumar Mishra, A. and Roy, P., 2019. Automatic Diabetes Prediction Using Tree Based Ensemble Learners. *International Journal of Computational Intelligence & IoT*, 2(2).
 
 Ramakrishnan, J., Shaabani, E., Li, C. and Sustik, M.A., 2019. Anomaly Detection for an E-commerce Pricing System. arXiv preprint arXiv:1902.09566.
+
+Trinh, H.D., Giupponi, L. and Dini, P., 2019. Urban Anomaly Detection by processing Mobile Traffic Traces with LSTM Neural Networks. *IEEE International Conference on Sensing, Communication and Networking (IEEE SECON)*.
 
 Wan, C., Li, Z. and Zhao, Y., 2019. SynC: A Unified Framework for Generating Synthetic Population with Gaussian Copula. arXiv preprint arXiv:1904.07998.
 
