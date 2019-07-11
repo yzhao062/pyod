@@ -155,7 +155,8 @@ class AutoEncoder(BaseDetector):
 
         self.hidden_neurons_ = self.hidden_neurons
 
-        check_parameter(dropout_rate, 0, 1, param_name='alpha')
+        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
+                        include_left=True)
 
     def _build_model(self):
         model = Sequential()
