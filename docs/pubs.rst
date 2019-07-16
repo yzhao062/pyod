@@ -98,7 +98,7 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 
 **GitHub Python Trending**:
 
-- 2019: Apr 5th-6th, Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
+- 2019: Jul 8th-9th, Apr 5th-6th, Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
 - 2018: Jun 15, Dec 8th-9th
 
 
