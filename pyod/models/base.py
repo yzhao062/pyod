@@ -102,7 +102,7 @@ class BaseDetector(object):
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
-            The training input samples. Sparse matrices are accepted only
+            The input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
 
         Returns
