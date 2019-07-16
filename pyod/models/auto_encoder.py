@@ -78,6 +78,8 @@ class AutoEncoder(BaseDetector):
         - 1 = progress bar
         - 2 = one line per epoch.
 
+        For verbosity >= 1, model summary may be printed.
+
     random_state : random_state: int, RandomState instance or None, optional
         (default=None)
         If int, random_state is the seed used by the random
@@ -181,7 +183,8 @@ class AutoEncoder(BaseDetector):
 
         # Compile model
         model.compile(loss=self.loss, optimizer=self.optimizer)
-        print(model.summary())
+        if self.verbose >= 1:
+            print(model.summary())
         return model
 
     # noinspection PyUnresolvedReferences
