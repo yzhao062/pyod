@@ -76,6 +76,8 @@ v<0.7.2>, <05/29/2019> -- Bug fixes in LSCP and minor documentation updates.
 v<0.7.3>, <06/10/2019> -- Update documentation.
 v<0.7.3>, <06/12/2019> -- Add Subspace Outlier Detection (SOD).
 v<0.7.3>, <06/12/2019> -- Fix bugs in SO_GAAL and MO_GAAL.
+v<0.7.4>, <07/10/2019> -- Fix bugs and update documentation.
+v<0.7.4>, <07/17/2019> -- Update dependency (six and joblib).
 
 
 

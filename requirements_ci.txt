@@ -1,3 +1,4 @@
+joblib
 keras
 matplotlib
 nose
@@ -6,5 +7,6 @@ numba>=0.35
 # temporary fix scipy version. 1.2.0 runs to issue under python 2
 scipy==1.1.0
 scikit_learn>=0.19.1
+six
 tensorflow
 xgboost

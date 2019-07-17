@@ -7,10 +7,9 @@
 from __future__ import division
 from __future__ import print_function
 
+import six
 import numpy as np
-from scipy import sparse
-from sklearn.externals import six
-from sklearn.externals.joblib import cpu_count
+from joblib.parallel import cpu_count
 
 
 def _get_n_jobs(n_jobs):

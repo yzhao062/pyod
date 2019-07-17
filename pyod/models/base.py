@@ -18,7 +18,7 @@ else:
     from sklearn.externals.funcsigs import signature
 
 import abc
-from sklearn.externals import six
+import six
 
 import numpy as np
 from numpy import percentile
