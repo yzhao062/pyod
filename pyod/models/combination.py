@@ -209,7 +209,7 @@ def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
                            bootstrap_estimators, random_state)
 
 
-def average(scores, estimator_weight=None):
+def average(scores, estimator_weights=None):
     """Combination method to merge the outlier scores from multiple estimators
     by taking the average.
 
@@ -218,7 +218,7 @@ def average(scores, estimator_weight=None):
     scores : numpy array of shape (n_samples, n_estimators)
         Score matrix from multiple estimators on the same samples.
 
-    estimator_weight : list of shape (1, n_estimators)
+    estimator_weights : list of shape (1, n_estimators)
         If specified, using weighted average
 
     Returns
@@ -229,15 +229,18 @@ def average(scores, estimator_weight=None):
     """
     scores = check_array(scores)
 
-    if estimator_weight is not None:
-        estimator_weight = column_or_1d(estimator_weight).reshape(1, -1)
-        assert_equal(scores.shape[1], estimator_weight.shape[1])
+    if estimator_weights is not None:
+        if estimator_weights.shape != (1, scores.shape[1]):
+            raise ValueError(
+                'Bad input shape of estimator_weight: (1, {score_shape}),'
+                'and {estimator_weights} received'.format(
+                    score_shape=scores.shape[1],
+                    estimator_weights=estimator_weights.shape))
 
         # (d1*w1 + d2*w2 + ...+ dn*wn)/(w1+w2+...+wn)
         # generated weighted scores
-        scores = np.sum(np.multiply(scores, estimator_weight),
-                        axis=1) / np.sum(
-            estimator_weight)
+        scores = np.sum(np.multiply(scores, estimator_weights),
+                        axis=1) / np.sum(estimator_weights)
         return scores.ravel()
 
     else:

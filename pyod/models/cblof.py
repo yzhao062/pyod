@@ -2,6 +2,7 @@
 """Clustering Based Local Outlier Factor (CBLOF)
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
+#         Shangwen Huang <https://github.com/shangwen777>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -259,23 +260,25 @@ class CBLOF(BaseDetector):
     def _set_small_large_clusters(self, n_samples):
         # Sort the index of clusters by the number of samples belonging to it
         size_clusters = np.bincount(self.cluster_labels_)
-        sorted_cluster_indices = np.argsort(size_clusters)
+
+        # Sort the order from the largest to the smallest
+        sorted_cluster_indices = np.argsort(size_clusters * -1)
 
         # Initialize the lists of index that fulfill the requirements by
         # either alpha or beta
         alpha_list = []
         beta_list = []
-        for i in range(1, self.n_clusters_):
 
-            temp_sum = np.sum(size_clusters[sorted_cluster_indices[-1 * i:]])
+        for i in range(1, self.n_clusters_):
+            temp_sum = np.sum(size_clusters[sorted_cluster_indices[:i]])
             if temp_sum >= n_samples * self.alpha:
                 alpha_list.append(i)
 
-            if size_clusters[sorted_cluster_indices[i]] / size_clusters[
-                sorted_cluster_indices[i - 1]] >= self.beta:
+            if size_clusters[sorted_cluster_indices[i - 1]] / size_clusters[
+                sorted_cluster_indices[i]] >= self.beta:
                 beta_list.append(i)
 
-        # Find the separation index fulfills both alpha and beta
+            # Find the separation index fulfills both alpha and beta
         intersection = np.intersect1d(alpha_list, beta_list)
 
         if len(intersection) > 0:
@@ -289,9 +292,9 @@ class CBLOF(BaseDetector):
                              "change n_clusters or change clustering method")
 
         self.small_cluster_labels_ = sorted_cluster_indices[
-                                     0:self._clustering_threshold]
-        self.large_cluster_labels_ = sorted_cluster_indices[
                                      self._clustering_threshold:]
+        self.large_cluster_labels_ = sorted_cluster_indices[
+                                     0:self._clustering_threshold]
 
         # No need to calculate small cluster center
         # self.small_cluster_centers_ = self.cluster_centers_[

@@ -25,7 +25,7 @@ exec(open(version_path).read())
 # -- Project information -----------------------------------------------------
 
 project = 'pyod'
-copyright = '2018, Yue Zhao'
+copyright = '2019, Yue Zhao'
 author = 'Yue Zhao'
 
 # The short X.Y version

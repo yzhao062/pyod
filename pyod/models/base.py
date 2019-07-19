@@ -18,7 +18,7 @@ else:
     from sklearn.externals.funcsigs import signature
 
 import abc
-from sklearn.externals import six
+import six
 
 import numpy as np
 from numpy import percentile
@@ -102,7 +102,7 @@ class BaseDetector(object):
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
-            The training input samples. Sparse matrices are accepted only
+            The input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
 
         Returns
@@ -133,7 +133,7 @@ class BaseDetector(object):
             fitted model. 0 stands for inliers and 1 for outliers.
 
         .. deprecated:: 0.6.9
-          `fit_predict` will be removed in pyod 0.7.2.; it will be
+          `fit_predict` will be removed in pyod 0.8.0.; it will be
           replaced by calling `fit` function first and then accessing
           `labels_` attribute for consistency.
         """
@@ -270,7 +270,7 @@ class BaseDetector(object):
         score : float
 
         .. deprecated:: 0.6.9
-          `fit_predict_score` will be removed in pyod 0.7.2.; it will be
+          `fit_predict_score` will be removed in pyod 0.8.0.; it will be
           replaced by calling `fit` function first and then accessing
           `labels_` attribute for consistency. Scoring could be done by
           calling an evaluation method, e.g., AUC ROC.

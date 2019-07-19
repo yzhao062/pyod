@@ -92,6 +92,7 @@ academic researches and commercial products
 :cite:`a-ramakrishnan2019anomaly,a-krishnan2019alphaclean,a-zhao2018dcso,a-zhao2019lscp`.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
+`Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
 `Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_, and
 `awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
@@ -130,7 +131,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **Citing PyOD**\ :
 
-`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is **accepted** at
+`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in
 `JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
@@ -261,7 +262,7 @@ Key Attributes of a fitted model:
 
 
 **Note** \ : fit_predict() and fit_predict_score() are deprecated in V0.6.9 due
-to consistency issue and will be removed in V0.7.2. To get the binary labels
+to consistency issue and will be removed in V0.8.0. To get the binary labels
 of the training data X_train, one should call clf.fit(X_train) and use
 :attr:`pyod.models.base.BaseDetector.labels_`, instead of calling clf.predict(X_train).
 

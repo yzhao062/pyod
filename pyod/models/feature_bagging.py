@@ -8,12 +8,15 @@ from __future__ import print_function
 
 import numpy as np
 import numbers
+
+from joblib import Parallel
+from joblib.parallel import delayed
+
 from sklearn.base import clone
 from sklearn.utils import check_random_state
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.random import sample_without_replacement
-from sklearn.externals.joblib import Parallel, delayed
 
 from .lof import LOF
 from .base import BaseDetector
@@ -136,7 +139,7 @@ class FeatureBagging(BaseDetector):
         sklearn standard.
 
         .. deprecated:: 0.6.9
-          `check_estimator` will be removed in pyod 0.7.2.; it will be
+          `check_estimator` will be removed in pyod 0.8.0.; it will be
           replaced by `check_detector`.
 
     n_jobs : optional (default=1)

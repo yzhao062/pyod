@@ -5,7 +5,7 @@ About us
 Core Development Team
 ---------------------
 
-Yue Zhao (initialized the project in 2017): `Homepage <https://http://www.andrew.cmu.edu/user/yuezhao2>`_
+Yue Zhao (initialized the project in 2017): `Homepage <https://www.yuezhao.me/>`_
 
 Zain Nasrullah (joined in 2018):
 `LinkedIn (Zain Nasrullah) <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_

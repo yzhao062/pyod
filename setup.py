@@ -28,6 +28,7 @@ setup(
     version=__version__,
     description='A Python Toolkit for Scalable Outlier Detection (Anomaly Detection)',
     long_description=readme(),
+    long_description_content_type='text/x-rst',
     author='Yue Zhao',
     author_email='zhaoy@cmu.edu',
     url='https://github.com/yzhao062/pyod',

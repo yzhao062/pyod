@@ -128,7 +128,7 @@ class TestMOA(unittest.TestCase):
 class TestStatic(unittest.TestCase):
     def setUp(self):
         self.scores = np.array([[1, 2], [3, 4], [5, 6]])
-        self.weights = [[0.2], [0.6]]
+        self.weights = np.array([[0.2, 0.6]])
 
     def test_average(self):
         score = average(self.scores)

@@ -8,7 +8,7 @@ Citing PyOD
 -----------
 
 
-`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is **accepted** at
+`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in
 `JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
@@ -34,7 +34,7 @@ or::
 Scientific Work Using or Referencing PyOD
 -----------------------------------------
 
-We are appreciated that PyOD has been increasing referred and cited in scientific works. An incomplete list is provided below:
+We are appreciated that PyOD has been increasingly referred and cited in scientific works. An incomplete list is provided below:
 
 
 **2019**
@@ -48,6 +48,8 @@ Krishnan, S. and Wu, E., 2019. AlphaClean: Automatic Generation of Data Cleaning
 Kumar Das, S., Kumar Mishra, A. and Roy, P., 2019. Automatic Diabetes Prediction Using Tree Based Ensemble Learners. *International Journal of Computational Intelligence & IoT*, 2(2).
 
 Ramakrishnan, J., Shaabani, E., Li, C. and Sustik, M.A., 2019. Anomaly Detection for an E-commerce Pricing System. arXiv preprint arXiv:1902.09566.
+
+Trinh, H.D., Giupponi, L. and Dini, P., 2019. Urban Anomaly Detection by processing Mobile Traffic Traces with LSTM Neural Networks. *IEEE International Conference on Sensing, Communication and Networking (IEEE SECON)*.
 
 Wan, C., Li, Z. and Zhao, Y., 2019. SynC: A Unified Framework for Generating Synthetic Population with Gaussian Copula. arXiv preprint arXiv:1904.07998.
 
@@ -77,6 +79,10 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 
 **KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_
 
+**KDnuggets**: `An Overview of Outlier Detection Methods from PyOD <https://www.kdnuggets.com/2019/06/overview-outlier-detection-methods-pyod.html>`_
+
+**Towards Data Science**: `Anomaly Detection for Dummies <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_
+
 **Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
 **FLOYDHUB**: `Introduction to Anomaly Detection in Python <https://blog.floydhub.com/introduction-to-anomaly-detection-in-python/>`_
@@ -92,7 +98,7 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 
 **GitHub Python Trending**:
 
-- 2019: Apr 5th-6th, Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
+- 2019: Jul 8th-9th, Apr 5th-6th, Feb 10th-11th, Jan 23th-24th, Jan 10th-14th
 - 2018: Jun 15, Dec 8th-9th
 
 
