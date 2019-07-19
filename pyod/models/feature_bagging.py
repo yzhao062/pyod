@@ -139,7 +139,7 @@ class FeatureBagging(BaseDetector):
         sklearn standard.
 
         .. deprecated:: 0.6.9
-          `check_estimator` will be removed in pyod 0.7.2.; it will be
+          `check_estimator` will be removed in pyod 0.8.0.; it will be
           replaced by `check_detector`.
 
     n_jobs : optional (default=1)
