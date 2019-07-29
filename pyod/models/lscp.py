@@ -58,7 +58,7 @@ class LSCP(BaseDetector):
 
     Parameters
     ----------
-    detector_list : List, length must be greater than 1
+    detector_list : list, length must be greater than 1
         Base unsupervised outlier detectors from PyOD. (Note: requires fit and
         decision_function methods)
 
