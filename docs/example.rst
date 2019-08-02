@@ -173,7 +173,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
         comb_by_average = average(test_scores_norm)
         comb_by_maximization = maximization(test_scores_norm)
         comb_by_aom = aom(test_scores_norm, 5) # 5 groups
-        comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
+        comb_by_moa = moa(test_scores_norm, 5) # 5 groups
 
 5. Finally, all four combination methods are evaluated by ROC and Precision
    @ Rank n:
