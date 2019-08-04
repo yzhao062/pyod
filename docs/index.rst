@@ -58,7 +58,8 @@ Welcome to PyOD documentation!
 
 
 .. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
-    :target: https://circleci.com/gh/yzhao062/pyod
+   :target: https://circleci.com/gh/yzhao062/pyod
+   :alt: Circle CI
 
 
 .. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
