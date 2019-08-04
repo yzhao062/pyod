@@ -29,17 +29,6 @@ def _get_n_jobs(n_jobs):
     -------
     n_jobs : int
         The actual number of jobs as positive integer.
-    Examples
-    --------
-    >>> from sklearn.utils import _get_n_jobs
-    >>> _get_n_jobs(4)
-    4
-    >>> jobs = _get_n_jobs(-2)
-    >>> assert jobs == max(cpu_count() - 1, 1)
-    >>> _get_n_jobs(0)
-    Traceback (most recent call last):
-    ...
-    ValueError: Parameter n_jobs == 0 has no meaning.
     """
     if n_jobs < 0:
         return max(cpu_count() + 1 + n_jobs, 1)
