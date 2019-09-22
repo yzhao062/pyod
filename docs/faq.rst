@@ -8,7 +8,7 @@ What is the Next?
 
 This is the central place to track important things to be fixed/added:
 
-- GPU support
+- GPU support (it is noted that keras with TensorFlow backend will automatically run on GPU; auto_encoder_example.py takes around 96.95 seconds on a RTX 2060 GPU).
 - Installation efficiency improvement, such as using docker
 - Add contact channel with `Gitter <https://gitter.im>`_
 - Support additional languages, see `Manage Translations <https://docs.readthedocs.io/en/latest/guides/manage-translations.html>`_
