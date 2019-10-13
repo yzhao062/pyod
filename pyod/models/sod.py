@@ -12,8 +12,21 @@ from sklearn.utils import check_array
 from ..utils.utility import check_parameter
 from .base import BaseDetector
 
+
 @nb.njit(parallel=True)
 def _snn_imp(ind, ref_set_):
+    """Internal function for fast snn calculation
+
+    Parameters
+    ----------
+    ind : int
+        Indices return by kNN.
+
+    ref_set_ : int, optional (default=10)
+        specifies the number of shared nearest neighbors to create the
+        reference set. Note that ref_set must be smaller than n_neighbors.
+
+    """
     n = ind.shape[0]
     _count = np.zeros(shape=(n, ref_set_), dtype=nb.uint16)
     for i in nb.prange(n):
