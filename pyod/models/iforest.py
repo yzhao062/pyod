@@ -17,7 +17,34 @@ from ..utils.utility import invert_order
 from ..utils.utility import _sklearn_version_20
 
 
-# TODO: behavior of Isolation Forest will change in sklearn 0.22, to update.
+# TODO: behavior of Isolation Forest will change in sklearn 0.22. See below.
+# in 0.22, scikit learn will start adjust decision_function values by
+# offset to make the values below zero as outliers. In other words, it is
+# an absolute shift, which SHOULD NOT affect the result of PyOD at all as
+# the order is still preserved.
+
+# Behaviour of the decision_function which can be either ‘old’ or ‘new’.
+# Passing behaviour='new' makes the decision_function change to match other
+# anomaly detection algorithm API which will be the default behaviour in the
+# future. As explained in details in the offset_ attribute documentation,
+# the decision_function becomes dependent on the contamination parameter,
+# in such a way that 0 becomes its natural threshold to detect outliers.
+
+# offset_ : float
+# Offset used to define the decision function from the raw scores.
+# We have the relation: decision_function = score_samples - offset_.
+# Assuming behaviour == ‘new’, offset_ is defined as follows.
+# When the contamination parameter is set to “auto”,
+# the offset is equal to -0.5 as the scores of inliers are close to 0 and the
+# scores of outliers are close to -1. When a contamination parameter different
+# than “auto” is provided, the offset is defined in such a way we obtain the
+# expected number of outliers (samples with decision function < 0) in training.
+# Assuming the behaviour parameter is set to ‘old’,
+# we always have offset_ = -0.5, making the decision function independent from
+# the contamination parameter.
+
+# check https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html for more information
+
 
 class IForest(BaseDetector):
     """Wrapper of scikit-learn Isolation Forest with more functionalities.

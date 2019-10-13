@@ -296,18 +296,30 @@ class LSCP(BaseDetector):
                 "Local max features greater than 1.0, reducing to 1.0")
             self.local_max_features = 1.0
 
+        if self.X_train_norm_.shape[1] * self.local_min_features < 1:
+            warnings.warn(
+                "Local min features smaller than 1, increasing to 1.0")
+            self.local_min_features = 1.0
+
         # perform multiple iterations
         for _ in range(self.local_region_iterations):
 
-            # randomly generate feature subspaces
-            features = generate_bagging_indices(
-                self.random_state,
-                bootstrap_features=False,
-                n_features=self.X_train_norm_.shape[1],
-                min_features=int(
-                    self.X_train_norm_.shape[1] * self.local_min_features),
-                max_features=int(
-                    self.X_train_norm_.shape[1] * self.local_max_features))
+            # if min and max are the same, then use all features
+            if self.local_max_features == self.local_min_features:
+                features = range(0, self.X_train_norm_.shape[1])
+                warnings.warn("Local min features equals local max features; "
+                              "use all features instead.")
+
+            else:
+                # randomly generate feature subspaces
+                features = generate_bagging_indices(
+                    self.random_state,
+                    bootstrap_features=False,
+                    n_features=self.X_train_norm_.shape[1],
+                    min_features=int(
+                        self.X_train_norm_.shape[1] * self.local_min_features),
+                    max_features=int(
+                        self.X_train_norm_.shape[1] * self.local_max_features))
 
             # build KDTree out of training subspace
             tree = KDTree(self.X_train_norm_[:, features])

@@ -6,6 +6,8 @@
 from __future__ import division
 from __future__ import print_function
 
+from warnings import warn
+
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import BallTree
@@ -14,6 +16,9 @@ from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
+# TODO: algorithm parameter is deprecated and will be removed in 0.7.6.
+# Warning has been turned on.
+# TODO: since Ball_tree is used by default, may introduce its parameters.
 
 class KNN(BaseDetector):
     # noinspection PyPep8
@@ -62,8 +67,12 @@ class KNN(BaseDetector):
         Note: fitting on sparse input will override the setting of
         this parameter, using brute force.
 
+        .. deprecated:: 0.74
+           ``algorithm`` is deprecated in PyOD 0.7.4 and will not be
+           possible in 0.7.6. It has to use BallTree for consistency.
+
     leaf_size : int, optional (default = 30)
-        Leaf size passed to BallTree or KDTree.  This can affect the
+        Leaf size passed to BallTree. This can affect the
         speed of the construction and query, as well as the memory
         required to store the tree.  The optimal value depends on the
         nature of the problem.
@@ -143,6 +152,11 @@ class KNN(BaseDetector):
         self.p = p
         self.metric_params = metric_params
         self.n_jobs = n_jobs
+
+        if self.algorithm != 'auto' and self.algorithm != 'ball_tree':
+            warn('algorithm parameter is deprecated and will be removed '
+                 'in version 0.7.6. By default, ball_tree will be used.',
+                 FutureWarning)
 
         self.neigh_ = NearestNeighbors(n_neighbors=self.n_neighbors,
                                        radius=self.radius,

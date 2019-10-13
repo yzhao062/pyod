@@ -5,7 +5,7 @@
 # License: BSD 2 clause
 
 import numpy as np
-from numba import njit
+import numba as nb
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 
@@ -13,25 +13,31 @@ from ..utils.utility import check_parameter
 from .base import BaseDetector
 
 
-# TODO: look into how to speed up the algorithm with numba
-# @njit
-# def _sod_njit(X, ref_inds, alpha, ref_set):
-#     anomaly_scores = np.zeros(shape=(X.shape[0],))
-#     for i in range(X.shape[0]):
-#         obs = X[i]
-#         ref = X[ref_inds[i,],]
-#         means = np.mean(ref, axis=0)  # mean of each column
-#         # average squared distance of the reference to the mean
-#         var_total = np.sum(np.sum(np.square(ref - means))) / ref_set
-#         var_expect = alpha * var_total / X.shape[1]
-#         var_actual = np.var(ref, axis=0)  # variance of each attribute
-#         var_inds = [1 if (j < var_expect) else 0 for j in var_actual]
-#         rel_dim = np.sum(var_inds)
-#         if rel_dim != 0:
-#             anomaly_scores[i] = np.sqrt(
-#                 np.dot(var_inds, np.square(obs - means)) / rel_dim)
-#
-#     return anomaly_scores
+@nb.njit(parallel=True)
+def _snn_imp(ind, ref_set_):
+    """Internal function for fast snn calculation
+
+    Parameters
+    ----------
+    ind : int
+        Indices return by kNN.
+
+    ref_set_ : int, optional (default=10)
+        specifies the number of shared nearest neighbors to create the
+        reference set. Note that ref_set must be smaller than n_neighbors.
+
+    """
+    n = ind.shape[0]
+    _count = np.zeros(shape=(n, ref_set_), dtype=nb.uint16)
+    for i in nb.prange(n):
+        temp = np.empty(n, dtype=nb.int16)
+        test_element_set = set(ind[i])
+        for j in nb.prange(n):
+            temp[j] = len(set(ind[j]).intersection(test_element_set))
+        temp[i] = np.iinfo(np.uint16).max
+        _count[i] = np.argsort(temp)[::-1][1:ref_set_ + 1]
+
+    return _count
 
 
 class SOD(BaseDetector):
@@ -159,14 +165,7 @@ class SOD(BaseDetector):
         knn.fit(X)
         # Get the knn index
         ind = knn.kneighbors(return_distance=False)
-        _count = np.zeros(shape=(ind.shape[0], self.ref_set_), dtype=np.uint16)
-        # Count the distance
-        for i in range(ind.shape[0]):
-            temp = np.sum(np.isin(ind, ind[i]), axis=1).ravel()
-            temp[i] = np.iinfo(np.uint16).max
-            _count[i] = np.argsort(temp)[::-1][1:self.ref_set_ + 1]
-
-        return _count
+        return _snn_imp(ind, self.ref_set_)
 
     def _sod(self, X):
         """This function is called internally to perform subspace outlier 
@@ -178,8 +177,6 @@ class SOD(BaseDetector):
             The anomaly score of the input samples.
         """
         ref_inds = self._snn(X)
-        anomaly_scores = np.zeros(shape=(X.shape[0],))
-
         anomaly_scores = np.zeros(shape=(X.shape[0],))
         for i in range(X.shape[0]):
             obs = X[i]

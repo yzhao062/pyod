@@ -79,6 +79,10 @@ v<0.7.3>, <06/12/2019> -- Fix bugs in SO_GAAL and MO_GAAL.
 v<0.7.4>, <07/10/2019> -- Fix bugs and update documentation.
 v<0.7.4>, <07/17/2019> -- Update dependency (six and joblib).
 v<0.7.4>, <07/19/2019> -- Update deprecation information.
+v<0.7.5>, <09/24/2019> -- Fix one dimensional data error in LSCP.
+v<0.7.5>, <10/13/2019> -- Document kNN and Isolation Forest's incoming changes.
+v<0.7.5>, <10/13/2019> -- SOD optimization (created by John-Almardeny in June).
+v<0.7.5>, <10/13/2019> -- Documentation updates.
 
 
 

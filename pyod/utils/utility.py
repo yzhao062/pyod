@@ -351,7 +351,7 @@ def invert_order(scores, method='multiplication'):
     >>> invert_order(scores1)
     array([-0.1, -0.3, -0.5, -0.7, -0.2, -0.1])
     >>> invert_order(scores1, method='subtraction')
-    array([ 0.6,  0.4,  0.2,  0. ,  0.5,  0.6])
+    array([0.6, 0.4, 0.2, 0. , 0.5, 0.6])
     """
 
     scores = column_or_1d(scores)
