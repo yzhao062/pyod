@@ -184,14 +184,17 @@ class KNN(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        if self.metric_params is not None:
-            self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                  metric=self.metric,
-                                  **self.metric_params)
-        else:
-            self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                  metric=self.metric)
         self.neigh_.fit(X)
+        if self.neigh_._tree is not None:
+            self.tree_ = self.neigh_._tree
+        else:
+            if self.metric_params is not None:
+                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+                                    metric=self.metric,
+                                    **self.metric_params)
+            else:
+                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+                                  metric=self.metric)
 
         dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                              return_distance=True)
