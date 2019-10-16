@@ -83,6 +83,7 @@ v<0.7.5>, <09/24/2019> -- Fix one dimensional data error in LSCP.
 v<0.7.5>, <10/13/2019> -- Document kNN and Isolation Forest's incoming changes.
 v<0.7.5>, <10/13/2019> -- SOD optimization (created by John-Almardeny in June).
 v<0.7.5>, <10/13/2019> -- Documentation updates.
+v<0.7.6>, <10/15/2019> -- kNN code optimization.
 
 
 

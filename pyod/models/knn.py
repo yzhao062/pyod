@@ -16,6 +16,7 @@ from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
+
 # TODO: algorithm parameter is deprecated and will be removed in 0.7.6.
 # Warning has been turned on.
 # TODO: since Ball_tree is used by default, may introduce its parameters.
@@ -185,16 +186,19 @@ class KNN(BaseDetector):
         self._set_n_classes(y)
 
         self.neigh_.fit(X)
-        if self.neigh_._tree is not None:
-            self.tree_ = self.neigh_._tree
-        else:
-            if self.metric_params is not None:
-                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                    metric=self.metric,
-                                    **self.metric_params)
-            else:
-                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                  metric=self.metric)
+        # TODO: code cleanup
+        # if self.neigh_._tree is not None:
+        self.tree_ = self.neigh_._tree
+
+        # The code below may not be necessary
+        # else:
+        #     if self.metric_params is not None:
+        #         self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+        #                               metric=self.metric,
+        #                               **self.metric_params)
+        #     else:
+        #         self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+        #                               metric=self.metric)
 
         dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                              return_distance=True)
