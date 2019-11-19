@@ -12,9 +12,9 @@ from collections import defaultdict
 
 import numpy as np
 
-from keras.layers import Input
-from keras.models import Model
-from keras.optimizers import SGD
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import SGD
 
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
