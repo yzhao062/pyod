@@ -8,10 +8,10 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from keras.models import Sequential
-from keras.layers import Dense, Dropout
-from keras.regularizers import l2
-from keras.losses import mean_squared_error
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.losses import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
