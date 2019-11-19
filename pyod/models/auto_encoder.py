@@ -37,19 +37,19 @@ class AutoEncoder(BaseDetector):
     hidden_activation : str, optional (default='relu')
         Activation function to use for hidden layers.
         All hidden layers are forced to use the same type of activation.
-        See https://keras.io/activations/
+        See https://www.tensorflow.org/api_docs/python/tf/keras/activations/ 
 
     output_activation : str, optional (default='sigmoid')
         Activation function to use for output layer.
-        See https://keras.io/activations/
+        See https://www.tensorflow.org/api_docs/python/tf/keras/activations/
 
-    loss : str or obj, optional (default=keras.losses.mean_squared_error)
+    loss : str or obj, optional (default=tensorflow.keras.losses.MSE)
         String (name of objective function) or objective function.
-        See https://keras.io/losses/
+        See https://www.tensorflow.org/api_docs/python/tf/keras/losses/ 
 
     optimizer : str, optional (default='adam')
         String (name of optimizer) or optimizer instance.
-        See https://keras.io/optimizers/
+        See hhttps://www.tensorflow.org/api_docs/python/tf/keras/optimizers/
 
     epochs : int, optional (default=100)
         Number of epochs to train the model.
@@ -63,7 +63,7 @@ class AutoEncoder(BaseDetector):
     l2_regularizer : float in (0., 1), optional (default=0.1)
         The regularization strength of activity_regularizer
         applied on each layer. By default, l2 regularizer is used. See
-        https://keras.io/regularizers/
+        https://www.tensorflow.org/api_docs/python/tf/keras/regularizers/
 
     validation_size : float in (0., 1), optional (default=0.1)
         The percentage of data to be used for validation.

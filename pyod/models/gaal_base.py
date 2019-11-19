@@ -10,9 +10,9 @@ from __future__ import print_function
 
 import math
 
-import keras
-from keras.layers import Input, Dense
-from keras.models import Sequential, Model
+import tensorflow
+from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.models import Sequential, Model
 
 
 # TODO: create a base class for so_gaal and mo_gaal
@@ -36,11 +36,11 @@ def create_discriminator(latent_size, data_size):  # pragma: no cover
     dis = Sequential()
     dis.add(Dense(int(math.ceil(math.sqrt(data_size))),
                   input_dim=latent_size, activation='relu',
-                  kernel_initializer=keras.initializers.VarianceScaling(
+                  kernel_initializer=tensorflow.keras.initializers.VarianceScaling(
                       scale=1.0, mode='fan_in', distribution='normal',
                       seed=None)))
     dis.add(Dense(1, activation='sigmoid',
-                  kernel_initializer=keras.initializers.VarianceScaling(
+                  kernel_initializer=tensorflow.keras.initializers.VarianceScaling(
                       scale=1.0, mode='fan_in', distribution='normal',
                       seed=None)))
     data = Input(shape=(latent_size,))
@@ -64,10 +64,10 @@ def create_generator(latent_size):  # pragma: no cover
 
     gen = Sequential()
     gen.add(Dense(latent_size, input_dim=latent_size, activation='relu',
-                  kernel_initializer=keras.initializers.Identity(
+                  kernel_initializer=tensorflow.keras.initializers.Identity(
                       gain=1.0)))
     gen.add(Dense(latent_size, activation='relu',
-                  kernel_initializer=keras.initializers.Identity(
+                  kernel_initializer=tensorflow.keras.initializers.Identity(
                       gain=1.0)))
     latent = Input(shape=(latent_size,))
     fake_data = gen(latent)
