@@ -8,7 +8,7 @@ workflows:
   test:
     jobs:
       - test-3.6
-
+      - test-2.7
 jobs:
   test-3.6:
     docker:
@@ -50,6 +50,52 @@ jobs:
           command: |
             . venv/bin/activate
             pytest
+          no_output_timeout: 30m
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
+
+  test-2.7:
+    docker:
+      - image: circleci/python:2.7-stretch
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-py2-dependencies-{{ checksum "requirements_ci.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-py2-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            virtualenv venv2
+            . venv2/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements_ci.txt
+            pip install pytest
+            pip install pytest-cov
+            pip install mock  # only needed for Python 2
+
+      - save_cache:
+          paths:
+            - ./venv2
+          key: v1-py2-dependencies-{{ checksum "requirements_ci.txt" }}
+
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            . venv2/bin/activate
+            pytest --ignore=pyod/test/test_so_gaal.py
           no_output_timeout: 30m
 
       - store_artifacts:
