@@ -8,7 +8,7 @@ workflows:
   test:
     jobs:
       - test-3.6
-      - test-2.7
+
 jobs:
   test-3.6:
     docker:
