@@ -95,7 +95,7 @@ jobs:
           name: run tests
           command: |
             . venv2/bin/activate
-            pytest
+            pytest --ignore=test/test_so_gaal.py
           no_output_timeout: 30m
 
       - store_artifacts:
