@@ -29,7 +29,6 @@ jobs:
 
       - run:
           name: install dependencies
-          no_output_timeout: 30m
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -51,6 +50,7 @@ jobs:
           command: |
             . venv/bin/activate
             pytest
+          no_output_timeout: 30m
 
       - store_artifacts:
           path: test-reports
@@ -75,7 +75,6 @@ jobs:
 
       - run:
           name: install dependencies
-          no_output_timeout: 30m
           command: |
             virtualenv venv2
             . venv2/bin/activate
@@ -97,6 +96,7 @@ jobs:
           command: |
             . venv2/bin/activate
             pytest
+          no_output_timeout: 30m
 
       - store_artifacts:
           path: test-reports
