@@ -85,6 +85,7 @@ v<0.7.5>, <10/13/2019> -- SOD optimization (created by John-Almardeny in June).
 v<0.7.5>, <10/13/2019> -- Documentation updates.
 v<0.7.5.1>, <10/15/2019> -- kNN code optimization.
 v<0.7.5.1>, <12/05/2019> -- Hot fix for scikit-learn 0.22 update. To be complete.
+v<0.7.5.1>, <12/05/2019> -- Disable CircleCI for Python 2.7.
 
 
 
