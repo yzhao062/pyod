@@ -5,8 +5,7 @@ nose
 numpy>=1.13
 numba>=0.35
 scipy>=0.19.1
-# scikit_learn 0.22 causes error for LOF, CBLOF, IForest, and XGBOD. Fix later
-scikit_learn>=0.19.1,<=0.21.*
+scikit_learn>=0.19.1
 six
 tensorflow
 xgboost
