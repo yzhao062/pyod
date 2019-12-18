@@ -2,13 +2,17 @@
 """Histogram-based Outlier Detection (HBOS)
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
 
+from warnings import warn
+
 import numpy as np
 from numba import njit
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
@@ -41,6 +45,15 @@ class HBOS(BaseDetector):
         i.e. the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
 
+    category: str in ('oneHot, 'label', 'frequency') , optional (default=None)
+        Specifies the method of category encoding.
+        One can use from the following options:
+            'oneHot' : One Hot Encoding (encode categorical integer features as a one-hot numeric array);
+            'label' : Label Encoding (encode categories with value between 0 and n_classes-1);
+            'frequency' : Encode categories with the ratio of their frequencies in the dataset.
+        If it is None, it assumes that data contains no categorical values,
+        thus it uses the numerical HBOS.
+
     Attributes
     ----------
     bin_edges_ : numpy array of shape (n_bins + 1, n_features )
@@ -66,14 +79,24 @@ class HBOS(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, n_bins=10, alpha=0.1, tol=0.5, contamination=0.1):
+    def __init__(self, n_bins=10, alpha=0.1, tol=0.5, contamination=0.1, category=None):
         super(HBOS, self).__init__(contamination=contamination)
+        check_parameter(n_bins, low=0, param_name='n_bins')
+        check_parameter(alpha, low=0, high=1, param_name='alpha')
+        check_parameter(tol, low=0, high=1, param_name='tol')
+        if category is not None:
+            if isinstance(category, str):
+                if category not in ('oneHot', 'label', 'frequency'):
+                    raise ValueError('category should be in (\'oneHot\', \'label\', '
+                                     '\'frequency\'), got {}'.format(category))
+            else:
+                raise TypeError('category should be str , got {}'.format(category))
+
         self.n_bins = n_bins
         self.alpha = alpha
         self.tol = tol
+        self.category = category
 
-        check_parameter(alpha, 0, 1, param_name='alpha')
-        check_parameter(tol, 0, 1, param_name='tol')
 
     def fit(self, X, y=None):
         """Fit detector. y is optional for unsupervised methods.
@@ -85,11 +108,20 @@ class HBOS(BaseDetector):
 
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
+
+        Returns
+        -------
+        X: the inputted numpy array of shape (n_samples, n_features).
+        Note that if the original parameter X is categorical,
+        then the returned X will be its numerical converted version
+        based on the category method chosen in this class.
+        So, user can use the returned X if they want to use `predict()`
+        to check if a particular sample is an outlier or not.
         """
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
-
+        X = self.__check_categorical(X)
         n_samples, n_features = X.shape[0], X.shape[1]
         self.hist_ = np.zeros([self.n_bins, n_features])
         self.bin_edges_ = np.zeros([self.n_bins + 1, n_features])
@@ -111,7 +143,7 @@ class HBOS(BaseDetector):
         # invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = invert_order(np.sum(outlier_scores, axis=1))
         self._process_decision_scores()
-        return self
+        return X
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
@@ -133,13 +165,50 @@ class HBOS(BaseDetector):
         """
         check_is_fitted(self, ['hist_', 'bin_edges_'])
         X = check_array(X)
-
+        X = self.__check_categorical(X)
         # outlier_scores = self._calculate_outlier_scores(X)
         outlier_scores = _calculate_outlier_scores(X, self.bin_edges_,
                                                    self.hist_,
                                                    self.n_bins,
                                                    self.alpha, self.tol)
         return invert_order(np.sum(outlier_scores, axis=1))
+
+
+    def __check_categorical(self, X):
+        """
+        Internal function to check for categorical values in the given data.
+        Then perform the required transformation of data.
+        """
+        unique_, _counts = np.unique(X, return_counts=True)
+        if self.category is None:
+            if np.any([isinstance(i, str) for i in unique_]):
+                raise TypeError('Your data contains categorical values. '
+                                'To use categorical HBOS, consider changing \'category\' parameter '
+                                'to one of the followings: (\'oneHot\', \'label\', \'frequency\').')
+            return X
+
+        if not np.any([isinstance(i, str) for i in unique_]):
+            warn("You specified \'category\' as {} , but data contains no categorical values,"
+                 "proceeding with numerical HBOS detector".format(self.category))
+            return X
+
+        if self.category == 'oneHot':
+            if X.shape[1] < unique_.shape[0]:
+                warn('Number of features increased to %s ' % unique_.shape[0], stacklevel=5)
+            if unique_.shape[0] > int(X.shape[0] / 2.):
+                warn('Number of categories is too high,'
+                     '\'oneHot Encoder\' may not be recommended')
+            encoder = OneHotEncoder()
+            return encoder.fit_transform(X).toarray()
+
+        if self.category == 'label':
+            encoder = LabelEncoder()
+            return encoder.fit_transform(np.ravel(X)).reshape((X.shape[0], X.shape[1]))
+
+        if self.category == 'frequency':
+            freq = dict(zip(unique_, _counts / X.shape[0]))
+            func = np.vectorize(lambda x: freq.get(x))
+            return func(X)
 
 
 @njit
