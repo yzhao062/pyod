@@ -6,27 +6,28 @@
 
 from __future__ import division
 from __future__ import print_function
+
 import numpy as np
 from numba import njit
 from scipy import stats
 from sklearn.utils import check_array, check_random_state
+
 from pyod.utils import check_parameter
 from .base import BaseDetector
 
 
 @njit
 def _aad(X):
-    """
-    Internal Function to Calculate Average Absolute Deviation
+    """Internal Function to Calculate Average Absolute Deviation
     (a.k.a Mean Absolute Deviation)
     """
     return np.mean(np.absolute(X - np.mean(X)))
 
+
 def _check_params(n_iter, dis_measure, random_state):
-    """
-    Internal function to check for and validate class parameters.
-    Also, to return random state instance and
-    the appropriate dissimilarity measure if valid.
+    """Internal function to check for and validate class parameters.
+    Also, to return random state instance and the appropriate dissimilarity
+    measure if valid.
     """
     if isinstance(n_iter, int):
         check_parameter(n_iter, low=1, param_name='n_iter')
@@ -45,7 +46,8 @@ def _check_params(n_iter, dis_measure, random_state):
         raise TypeError("dis_measure should be str, got %s" % dis_measure)
 
     return check_random_state(random_state), _aad if dis_measure == 'aad' \
-        else (np.var if dis_measure == 'var' else (stats.iqr if dis_measure == 'iqr' else None))
+        else (np.var if dis_measure == 'var' else (
+        stats.iqr if dis_measure == 'iqr' else None))
 
 
 class LMDD(BaseDetector):
@@ -54,11 +56,10 @@ class LMDD(BaseDetector):
     LMDD employs the concept of the smoothing factor which
     indicates how much the dissimilarity can be reduced by
     removing a subset of elements from the data-set.
-    Based on the model proposed by:
-    "Arning, A., Agrawal, R., and Raghavan, P. 1996.
-     A linear method for deviation detection in large databases.
-     In Proc. Int. Conf. on Knowledge Discovery and Data Mining (KDD), Portland, OR."
-    with a minor modification to make it output scores instead of labels.
+    Read more in the :cite:`arning1996linear`.
+
+    Note: this implementation has minor modification to make it output scores
+    instead of labels.
 
     Parameters
     ----------
@@ -76,6 +77,7 @@ class LMDD(BaseDetector):
     dis_measure: str, optional (default='aad')
         Dissimilarity measure to be used in calculating the smoothing factor
         for points, options available:
+
             'aad': Average Absolute Deviation ;
             'var': Variance ;
             'iqr': Interquartile Range.
@@ -105,12 +107,14 @@ class LMDD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, contamination=0.1, n_iter=50, dis_measure='aad', random_state=None):
+    def __init__(self, contamination=0.1, n_iter=50, dis_measure='aad',
+                 random_state=None):
         super(LMDD, self).__init__(contamination=contamination)
-        self.random_state_, self.dis_measure_ = _check_params(n_iter, dis_measure, random_state)
+        self.random_state_, self.dis_measure_ = _check_params(n_iter,
+                                                              dis_measure,
+                                                              random_state)
         self.n_iter_ = n_iter
         self.decision_scores_ = None
-
 
     def fit(self, X, y=None):
         """Fit detector. y is optional for unsupervised methods.
@@ -168,7 +172,8 @@ class LMDD(BaseDetector):
 
         if var_max > 0:
             for k in range(j + 1, X.shape[0]):
-                dk_diff = (self.dis_measure_(np.vstack((X[:j], X[k]))) - self.dis_measure_(X[:j])) \
+                dk_diff = (self.dis_measure_(
+                    np.vstack((X[:j], X[k]))) - self.dis_measure_(X[:j])) \
                           - (self.dis_measure_(np.vstack((X[:j + 1], X[k])))
                              - self.dis_measure_(X[:j + 1]))
                 if dk_diff >= var_max:
@@ -176,20 +181,20 @@ class LMDD(BaseDetector):
 
         return res_
 
-
     def __sf(self, X):
-        """
-        Internal function to calculate for Smoothing Factors of data points
+        """Internal function to calculate for Smoothing Factors of data points
         Repeated n_iter_ of times in randomized mode.
         """
         dis_ = np.zeros(shape=(X.shape[0],))
         card_ = np.zeros(shape=(X.shape[0],))
         # perform one process with the original input order
         itr_res = self.__dis(X)
-        np.put(card_, X.shape[0] - sum([i > 0. for i in itr_res]), np.where(itr_res > 0.))
+        np.put(card_, X.shape[0] - sum([i > 0. for i in itr_res]),
+               np.where(itr_res > 0.))
 
         # create a copy of random state to preserve original state for future fits (if any)
-        random_state = np.random.RandomState(seed=self.random_state_.get_state()[1][0])
+        random_state = np.random.RandomState(
+            seed=self.random_state_.get_state()[1][0])
         indices = np.arange(X.shape[0])
         for _ in range(self.n_iter_):
             ind_ = indices
