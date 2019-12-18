@@ -14,7 +14,7 @@ from sklearn.utils.validation import check_array
 from .base import BaseDetector
 from ..utils.utility import invert_order
 # noinspection PyProtectedMember
-from ..utils.utility import _sklearn_version_20
+from ..utils.utility import _get_sklearn_version
 
 
 class LOF(BaseDetector):
@@ -196,7 +196,7 @@ class LOF(BaseDetector):
 
         # Invert outlier scores. Outliers comes with higher outlier scores
         # noinspection PyProtectedMember
-        if _sklearn_version_20():
+        if _get_sklearn_version() > 19:
             return invert_order(self.detector_._score_samples(X))
         else:
             return invert_order(self.detector_._decision_function(X))

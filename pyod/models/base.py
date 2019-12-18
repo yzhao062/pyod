@@ -10,9 +10,9 @@ from __future__ import print_function
 import warnings
 from collections import defaultdict
 
-from ..utils.utility import _sklearn_version_21
+from ..utils.utility import _get_sklearn_version
 
-if _sklearn_version_21():
+if _get_sklearn_version() > 20:
     from inspect import signature
 else:
     from sklearn.externals.funcsigs import signature
