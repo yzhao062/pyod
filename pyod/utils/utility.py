@@ -363,22 +363,22 @@ def invert_order(scores, method='multiplication'):
         return (scores.max() - scores).ravel()
 
 
-def _sklearn_version_20():  # pragma: no cover
-    """ Utility function to decide the version of sklearn
-    In sklearn 20.0, LOF is changed. Specifically, _decision_function
-    is replaced by _score_samples
+def _get_sklearn_version():  # pragma: no cover
+    """ Utility function to decide the version of sklearn.
+    PyOD will result in different behaviors with different sklearn version
 
     Returns
     -------
-    sklearn_20_flag : bool
-        True if sklearn.__version__ is newer than 0.20.0
+    sk_learn version : int
 
     """
+
     sklearn_version = str(sklearn.__version__)
-    if int(sklearn_version.split(".")[1]) > 19:
-        return True
-    else:
-        return False
+    if int(sklearn_version.split(".")[1]) < 19 or int(
+            sklearn_version.split(".")[1]) > 23:
+        raise ValueError("Sklearn version error")
+
+    return int(sklearn_version.split(".")[1])
 
 
 def _sklearn_version_21():  # pragma: no cover

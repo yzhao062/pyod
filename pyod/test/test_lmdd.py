@@ -7,39 +7,40 @@ import sys
 
 import unittest
 # noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_array_less
 from sklearn.utils.testing import assert_equal
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_true
-
 from sklearn.utils.estimator_checks import check_estimator
+
 from sklearn.metrics import roc_auc_score
-from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.cblof import CBLOF
+from pyod.models.lmdd import LMDD
 from pyod.utils.data import generate_data
 
 
-class TestCBLOF(unittest.TestCase):
+class TestCOF(unittest.TestCase):
     def setUp(self):
-        self.n_train = 200
-        self.n_test = 100
+        self.n_train = 100
+        self.n_test = 50
         self.contamination = 0.1
-        self.roc_floor = 0.8
+        self.roc_floor = 0.6
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
 
-        self.clf = CBLOF(contamination=self.contamination, random_state=42)
+        self.clf = LMDD(contamination=self.contamination, random_state=42)
         self.clf.fit(self.X_train)
+
+    def test_sklearn_estimator(self):
+        #check_estimator(self.clf)
+        pass
 
     def test_parameters(self):
         assert_true(hasattr(self.clf, 'decision_scores_') and
@@ -48,34 +49,22 @@ class TestCBLOF(unittest.TestCase):
                     self.clf.labels_ is not None)
         assert_true(hasattr(self.clf, 'threshold_') and
                     self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, '_mu') and
-                    self.clf._mu is not None)
-        assert_true(hasattr(self.clf, '_sigma') and
-                    self.clf._sigma is not None)
-        assert_true(hasattr(self.clf, 'clustering_estimator_') and
-                    self.clf.clustering_estimator_ is not None)
-        assert_true(hasattr(self.clf, 'cluster_labels_') and
-                    self.clf.cluster_labels_ is not None)
-        assert_true(hasattr(self.clf, 'cluster_sizes_') and
-                    self.clf.cluster_sizes_ is not None)
-        assert_true(hasattr(self.clf, 'cluster_centers_') and
-                    self.clf.cluster_centers_ is not None)
-        assert_true(hasattr(self.clf, '_clustering_threshold') and
-                    self.clf._clustering_threshold is not None)
-        assert_true(hasattr(self.clf, 'small_cluster_labels_') and
-                    self.clf.small_cluster_labels_ is not None)
-        assert_true(hasattr(self.clf, 'large_cluster_labels_') and
-                    self.clf.large_cluster_labels_ is not None)
-        assert_true(hasattr(self.clf, '_large_cluster_centers') and
-                    self.clf._large_cluster_centers is not None)
+        assert_true(hasattr(self.clf, 'dis_measure_') and
+                    self.clf.dis_measure_ is not None)
+        assert_true(hasattr(self.clf, 'n_iter_') and
+                    self.clf.n_iter_ is not None)
+        assert_true(hasattr(self.clf, 'random_state_') and
+                    self.clf.random_state_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
 
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)
+
         # check score shapes
         assert_equal(pred_scores.shape[0], self.X_test.shape[0])
+
         # check performance
         assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
 
@@ -116,23 +105,21 @@ class TestCBLOF(unittest.TestCase):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
 
-    def test_predict_rank(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test)
-
-        # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3)
-        assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
-        assert_array_less(-0.1, pred_ranks)
-
-    def test_predict_rank_normalized(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
-
-        # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3)
-        assert_array_less(pred_ranks, 1.01)
-        assert_array_less(-0.1, pred_ranks)
+    def test_check_parameters(self):
+        with assert_raises(ValueError):
+            LMDD(contamination=10.)
+        with assert_raises(ValueError):
+            LMDD(dis_measure='unknown')
+        with assert_raises(TypeError):
+            LMDD(dis_measure=5)
+        with assert_raises(TypeError):
+            LMDD(n_iter='not int')
+        with assert_raises(ValueError):
+            LMDD(n_iter=-1)
+        with assert_raises(ValueError):
+            LMDD(random_state='not valid')
+        with assert_raises(ValueError):
+            LMDD(random_state=-1)
 
     def tearDown(self):
         pass

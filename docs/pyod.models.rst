@@ -85,6 +85,15 @@ pyod.models.knn module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.lmdd module
+----------------------
+
+.. automodule:: pyod.models.lmdd
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.lof module
 ----------------------
 
