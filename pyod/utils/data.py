@@ -194,32 +194,6 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
         return X_train, X_test, y_train, y_test
 
 
-def get_color_codes(y):
-    """Internal function to generate color codes for inliers and outliers.
-    Inliers (0): blue; Outlier (1): red.
-
-    Parameters
-    ----------
-    y : list or numpy array of shape (n_samples,)
-        The ground truth. Binary (0: inliers, 1: outliers).
-
-    Returns
-    -------
-    c : numpy array of shape (n_samples,)
-        Color codes.
-
-    """
-    y = column_or_1d(y)
-
-    # inliers are assigned blue
-    c = np.full([len(y)], 'b', dtype=str)
-    outliers_ind = np.where(y == 1)
-
-    # outlier are assigned red
-    c[outliers_ind] = 'r'
-
-    return c
-
 
 def check_consistent_shape(X_train, y_train, X_test, y_test, y_train_pred,
                            y_test_pred):
