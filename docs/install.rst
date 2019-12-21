@@ -31,6 +31,7 @@ Alternatively, you could clone and run setup.py file:
 
 
 * Python 2.7, 3.5, 3.6, or 3.7
+* combo>=0.0.8
 * numpy>=1.13
 * numba>=0.35
 * scipy>=0.19.1
@@ -49,7 +50,7 @@ Alternatively, you could clone and run setup.py file:
 
     PyOD has multiple neural network based models, e.g., AutoEncoders, which are
     implemented in Keras. However, PyOD does **NOT** install **keras** and/or
-    **tensorFlow** for you. This reduces the risk of interfering with your local copies.
+    **tensorflow** for you. This reduces the risk of interfering with your local copies.
     If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
     Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
     Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.

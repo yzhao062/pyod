@@ -25,6 +25,8 @@ from pyod.models.combination import aom
 from pyod.models.combination import moa
 from pyod.models.combination import average
 from pyod.models.combination import maximization
+from pyod.models.combination import median
+from pyod.models.combination import majority_vote
 
 
 class TestAOM(unittest.TestCase):
@@ -129,6 +131,8 @@ class TestStatic(unittest.TestCase):
     def setUp(self):
         self.scores = np.array([[1, 2], [3, 4], [5, 6]])
         self.weights = np.array([[0.2, 0.6]])
+        self.labels = np.array([[1, 1, 0], [1, 0, 1], [0, 0, 1]])
+        self.median_scores = np.array([[1, 2, 3], [2, 2, 2], [4, 4, 5]])
 
     def test_average(self):
         score = average(self.scores)
@@ -141,6 +145,14 @@ class TestStatic(unittest.TestCase):
     def test_maximization(self):
         score = maximization(self.scores)
         assert_allclose(score, np.array([2, 4, 6]))
+
+    def test_median(self):
+        score = median(self.median_scores)
+        assert_allclose(score, np.array([2, 2, 4]))
+
+    def test_majority_vote(self):
+        score = majority_vote(self.labels)
+        assert_allclose(score, np.array([1, 1, 0]))
 
 
 if __name__ == '__main__':

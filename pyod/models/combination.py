@@ -7,22 +7,12 @@
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
-from numpy.random import RandomState
 from combo.models.score_comb import aom as combo_aom
 from combo.models.score_comb import moa as combo_moa
 from combo.models.score_comb import average as combo_average
 from combo.models.score_comb import maximization as combo_maximization
 from combo.models.score_comb import majority_vote as combo_majority_vote
 from combo.models.score_comb import median as combo_median
-
-from sklearn.utils import check_array
-from sklearn.utils import column_or_1d
-# noinspection PyProtectedMember
-from sklearn.utils import shuffle
-from sklearn.utils.random import sample_without_replacement
-from sklearn.utils.testing import assert_equal
-from ..utils.utility import check_parameter
 
 
 def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
@@ -142,3 +132,45 @@ def maximization(scores):
 
     """
     return combo_maximization(scores)
+
+
+def majority_vote(scores, weights=None):
+    """Combination method to merge the scores from multiple estimators
+    by majority vote.
+
+    Parameters
+    ----------
+    scores : numpy array of shape (n_samples, n_estimators)
+        Score matrix from multiple estimators on the same samples.
+
+    n_classes : int, optional (default=2)
+        The number of classes in scores matrix
+
+    weights : numpy array of shape (1, n_estimators)
+        If specified, using weighted majority weight.
+
+    Returns
+    -------
+    combined_scores : numpy array of shape (n_samples, )
+        The combined scores.
+
+    """
+    return combo_majority_vote(scores, n_classes=2, weights=weights)
+
+
+def median(scores):
+    """Combination method to merge the scores from multiple estimators
+    by taking the median.
+
+    Parameters
+    ----------
+    scores : numpy array of shape (n_samples, n_estimators)
+        Score matrix from multiple estimators on the same samples.
+
+    Returns
+    -------
+    combined_scores : numpy array of shape (n_samples, )
+        The combined scores.
+
+    """
+    return combo_median(scores)
