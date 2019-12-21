@@ -88,7 +88,7 @@ v<0.7.5.1>, <12/05/2019> -- Hot fix for scikit-learn 0.22 update. To be complete
 v<0.7.5.1>, <12/05/2019> -- Disable CircleCI for Python 2.7.
 v<0.7.6>, <12/18/2019> -- Update Isolation Forest and LOF to be consistent with sklearn 0.22.
 v<0.7.6>, <12/18/2019> -- Add Deviation-based Outlier Detection (LMDD).
-
+v<0.7.7>, <12/21/2019> -- Refactor code for combination simplification on combo.
 
 
 
