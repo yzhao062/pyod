@@ -129,15 +129,24 @@ class OCSVM(BaseDetector):
         self.max_iter = max_iter
 
     def fit(self, X, y=None, sample_weight=None, **params):
-        """Fit detector. y is optional for unsupervised methods.
+        """Fit detector. y is ignored in unsupervised methods.
 
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
+        y : Ignored
+            Not used, present for API consistency by convention.
+
+        sample_weight : array-like, shape (n_samples,)
+            Per-sample weights. Rescale C per sample. Higher weights
+            force the classifier to put more emphasis on these points.
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
         """
         # validate inputs X and y (optional)
         X = check_array(X)

@@ -221,6 +221,9 @@ class LOCI(BaseDetector):
         ----------
         X : array, shape (n_samples, n_features)
             Training data.
+
+        y : Ignored
+            Not used, present for API consistency by convention.
             
         Returns
         -------

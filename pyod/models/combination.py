@@ -143,8 +143,6 @@ def majority_vote(scores, weights=None):
     scores : numpy array of shape (n_samples, n_estimators)
         Score matrix from multiple estimators on the same samples.
 
-    n_classes : int, optional (default=2)
-        The number of classes in scores matrix
 
     weights : numpy array of shape (1, n_estimators)
         If specified, using weighted majority weight.

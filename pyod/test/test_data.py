@@ -20,11 +20,11 @@ import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.data import generate_data
-from utils.data import evaluate_print
-from utils.data import get_outliers_inliers
-from utils.data import check_consistent_shape
-from utils.data import generate_data_clusters
+from pyod.utils.data import generate_data
+from pyod.utils.data import evaluate_print
+from pyod.utils.data import get_outliers_inliers
+from pyod.utils.data import check_consistent_shape
+from pyod.utils.data import generate_data_clusters
 
 
 class TestData(unittest.TestCase):

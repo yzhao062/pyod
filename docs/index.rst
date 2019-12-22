@@ -244,7 +244,7 @@ API Cheatsheet & Reference
 
 The following APIs are applicable for all detector models for easy use.
 
-* :func:`pyod.models.base.BaseDetector.fit`: Fit detector. y is optional for unsupervised methods.
+* :func:`pyod.models.base.BaseDetector.fit`: Fit detector. y is ignored in unsupervised methods.
 * :func:`pyod.models.base.BaseDetector.decision_function`: Predict raw anomaly score of X using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier using the fitted detector.

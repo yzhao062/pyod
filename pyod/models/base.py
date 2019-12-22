@@ -79,15 +79,20 @@ class BaseDetector(object):
     # noinspection PyIncorrectDocstring
     @abc.abstractmethod
     def fit(self, X, y=None):
-        """Fit detector. y is optional for unsupervised methods.
+        """Fit detector. y is ignored in unsupervised methods.
 
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
+        y : Ignored
+            Not used, present for API consistency by convention.
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
         """
         pass
 
@@ -115,15 +120,15 @@ class BaseDetector(object):
     @deprecated()
     def fit_predict(self, X, y=None):
         """Fit detector first and then predict whether a particular sample
-        is an outlier or not.
+        is an outlier or not. y is ignored in unsupervised models.
 
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
+        y : Ignored
+            Not used, present for API consistency by convention.
 
         Returns
         -------
@@ -256,8 +261,8 @@ class BaseDetector(object):
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
+        y : Ignored
+            Not used, present for API consistency by convention.
 
         scoring : str, optional (default='roc_auc_score')
             Evaluation metric:

@@ -254,15 +254,20 @@ class SOS(BaseDetector):
         return O
 
     def fit(self, X, y=None):
-        """Fit detector. y is optional for unsupervised methods.
+        """Fit detector. y is ignored in unsupervised methods.
 
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
+        y : Ignored
+            Not used, present for API consistency by convention.
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
         """
         X = check_array(X)
         self._set_n_classes(y)

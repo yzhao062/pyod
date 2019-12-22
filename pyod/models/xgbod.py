@@ -417,8 +417,8 @@ class XGBOD(BaseDetector):
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
+        y : Ignored
+            Not used, present for API consistency by convention.
 
         scoring : str, optional (default='roc_auc_score')
             Evaluation metric:
