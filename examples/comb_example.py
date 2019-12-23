@@ -26,7 +26,7 @@ from sklearn.model_selection import train_test_split
 from scipy.io import loadmat
 
 from pyod.models.knn import KNN
-from pyod.models.combination import aom, moa, average, maximization
+from pyod.models.combination import aom, moa, average, maximization, median
 from pyod.utils.utility import standardizer
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
@@ -86,6 +86,10 @@ if __name__ == "__main__":
     # Combination by max
     y_by_maximization = maximization(test_scores_norm)
     evaluate_print('Combination by Maximization', y_test, y_by_maximization)
+
+    # Combination by max
+    y_by_maximization = median(test_scores_norm)
+    evaluate_print('Combination by Median', y_test, y_by_maximization)
 
     # Combination by aom
     y_by_aom = aom(test_scores_norm, n_buckets=5)

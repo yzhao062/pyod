@@ -200,6 +200,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 
 
 * Python 2.7, 3.5, 3.6, or 3.7
+* combo>=0.0.8
 * numpy>=1.13
 * numba>=0.35
 * scipy>=0.19.1
@@ -217,7 +218,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 **Warning 1**\ :
 PyOD has multiple neural network based models, e.g., AutoEncoders, which are
 implemented in Keras. However, PyOD does **NOT** install **keras** and/or
-**tensorFlow** for you. This reduces the risk of interfering with your local copies.
+**tensorflow** for you. This reduces the risk of interfering with your local copies.
 If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
 Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
@@ -314,6 +315,8 @@ Combination          Weighted Average  Simple combination by averaging the score
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   [#Aggarwal2015Theoretical]_
 Combination          AOM               Average of Maximum                                                                                     2015   [#Aggarwal2015Theoretical]_
 Combination          MOA               Maximization of Average                                                                                2015   [#Aggarwal2015Theoretical]_
+Combination          Median            Simple combination by taking the median of the scores                                                  2015   [#Aggarwal2015Theoretical]_
+Combination          majority Vote     Simple combination by taking the majority vote of the labels (weights can be used)                     2015   [#Aggarwal2015Theoretical]_
 ===================  ================  =====================================================================================================  =====  ========================================
 
 

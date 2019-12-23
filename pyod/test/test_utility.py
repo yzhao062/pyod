@@ -20,14 +20,14 @@ import numpy as np
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.utility import check_parameter
-from utils.utility import standardizer
-from utils.utility import get_label_n
-from utils.utility import precision_n_scores
-from utils.utility import argmaxn
-from utils.utility import invert_order
-from utils.utility import check_detector
-from utils.utility import score_to_label
+from pyod.utils.utility import check_parameter
+from pyod.utils.utility import standardizer
+from pyod.utils.utility import get_label_n
+from pyod.utils.utility import precision_n_scores
+from pyod.utils.utility import argmaxn
+from pyod.utils.utility import invert_order
+from pyod.utils.utility import check_detector
+from pyod.utils.utility import score_to_label
 
 
 class TestParameters(unittest.TestCase):

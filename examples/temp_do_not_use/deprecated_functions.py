@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from sklearn.utils import check_X_y
-from pyod.utils.data import get_color_codes
 
 
 def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
@@ -85,3 +84,30 @@ def visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
     if show_figure:
         plt.show()
     return
+
+
+def get_color_codes(y):
+    """Internal function to generate color codes for inliers and outliers.
+    Inliers (0): blue; Outlier (1): red.
+
+    Parameters
+    ----------
+    y : list or numpy array of shape (n_samples,)
+        The ground truth. Binary (0: inliers, 1: outliers).
+
+    Returns
+    -------
+    c : numpy array of shape (n_samples,)
+        Color codes.
+
+    """
+    y = column_or_1d(y)
+
+    # inliers are assigned blue
+    c = np.full([len(y)], 'b', dtype=str)
+    outliers_ind = np.where(y == 1)
+
+    # outlier are assigned red
+    c[outliers_ind] = 'r'
+
+    return c
