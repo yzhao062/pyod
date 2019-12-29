@@ -19,9 +19,8 @@ from ..utils.utility import standardizer
 
 
 class PCA(BaseDetector):
-    """
-    Principal component analysis (PCA) can be used in detecting outliers. PCA
-    is a linear dimensionality reduction using Singular Value Decomposition
+    """Principal component analysis (PCA) can be used in detecting outliers.
+    PCA is a linear dimensionality reduction using Singular Value Decomposition
     of the data to project it to a lower dimensional space.
 
     In this procedure, covariance matrix of the data can be decomposed to

@@ -289,7 +289,7 @@ class LSCP(BaseDetector):
 
         Returns
         -------
-        final_local_region_list : List of lists, shape [n_samples, [local_region]]
+        final_local_region_list : List of lists, shape of [n_samples, [local_region]]
             Indices of training samples in the local region of each test sample
         """
 
