@@ -92,6 +92,7 @@ v<0.7.7>, <12/21/2019> -- Refactor code for combination simplification on combo.
 v<0.7.7>, <12/21/2019> -- Extended combination methods by median and majority vote.
 v<0.7.7>, <12/22/2019> -- Code optimization and documentation update.
 v<0.7.7>, <12/22/2019> -- Enable continuous integration for Python 3.7.
+v<0.7.7.1>, <12/29/2019> -- Minor update for SUOD and warning fixes.
 
 
 
