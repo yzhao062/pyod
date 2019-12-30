@@ -9,7 +9,7 @@
 #
 # Generic release markers:
 # X.Y
-# X.Y.Z # For bugfix releases
+# X.Y.Z # For bug fix releases
 #
 # Admissible pre-release markers:
 # X.YaN # Alpha release
@@ -20,4 +20,4 @@
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
 #
-__version__ = '0.7.7'  # pragma: no cover
+__version__ = '0.7.7.1'  # pragma: no cover

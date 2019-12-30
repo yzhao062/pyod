@@ -46,8 +46,8 @@ def _check_params(n_iter, dis_measure, random_state):
         raise TypeError("dis_measure should be str, got %s" % dis_measure)
 
     return check_random_state(random_state), _aad if dis_measure == 'aad' \
-        else (np.var if dis_measure == 'var' else (
-        stats.iqr if dis_measure == 'iqr' else None))
+        else (np.var if dis_measure == 'var'
+              else (stats.iqr if dis_measure == 'iqr' else None))
 
 
 class LMDD(BaseDetector):
@@ -197,7 +197,8 @@ class LMDD(BaseDetector):
         np.put(card_, X.shape[0] - sum([i > 0. for i in itr_res]),
                np.where(itr_res > 0.))
 
-        # create a copy of random state to preserve original state for future fits (if any)
+        # create a copy of random state to preserve original state for
+        # future fits (if any)
         random_state = np.random.RandomState(
             seed=self.random_state_.get_state()[1][0])
         indices = np.arange(X.shape[0])
@@ -213,7 +214,7 @@ class LMDD(BaseDetector):
                 if j > dis_[i]:
                     dis_[i] = j
                     card_[i] = current_card
-            # Increase random state seed by one to re-order input next iteration
+            # Increase random state seed by one to reorder input next iteration
             random_state.seed(random_state.get_state()[1][0] + 1)
 
         return np.multiply(dis_, card_)

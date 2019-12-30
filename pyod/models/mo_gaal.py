@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Multiple-Objective Generative Adversarial Active Learning.
-Part of the codes are adapted from https://github.com/leibinghe/GAAL-based-outlier-detection
+Part of the codes are adapted from
+https://github.com/leibinghe/GAAL-based-outlier-detection
 """
 # Author: Winston Li <jk_zhengli@hotmail.com>
 # License: BSD 2 clause

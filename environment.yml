@@ -9,5 +9,6 @@ dependencies:
   - pandas
   - scikit-learn
   - scipy
+  - suod
   - tensorflow
   - xgboost
