@@ -53,7 +53,7 @@ class XGBOD(BaseDetector):
     n_estimators : int
         Number of boosted trees to fit.
 
-    silent : boolean
+    silent : bool
         Whether to print messages while running boosting.
 
     objective : string or callable

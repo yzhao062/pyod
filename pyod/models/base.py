@@ -414,7 +414,7 @@ class BaseDetector(object):
 
         Parameters
         ----------
-        deep : boolean, optional
+        deep : bool, optional (default=True)
             If True, will return the parameters for this estimator and
             contained subobjects that are estimators.
 

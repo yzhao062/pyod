@@ -154,7 +154,7 @@ class FeatureBagging(BaseDetector):
         RandomState instance used by `np.random`.
 
     combination : str, optional (default='average')
-        the method of combination:
+        The method of combination:
 
         - if 'average': take the average of all detectors
         - if 'max': take the maximum scores of all detectors

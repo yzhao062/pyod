@@ -55,7 +55,7 @@ class OCSVM(BaseDetector):
     tol : float, optional
         Tolerance for stopping criterion.
 
-    shrinking : boolean, optional
+    shrinking : bool, optional
         Whether to use the shrinking heuristic.
 
     cache_size : float, optional
