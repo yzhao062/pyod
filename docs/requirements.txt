@@ -11,5 +11,5 @@ scikit_learn>=0.19.1
 six
 sphinxcontrib-bibtex
 suod
-tensorflow
+# tensorflow comment out for large memory consumption
 xgboost
