@@ -24,7 +24,7 @@ __all__ = ['CBLOF']
 
 
 class CBLOF(BaseDetector):
-    """The CBLOF operator calculates the outlier score based on cluster-based
+    r"""The CBLOF operator calculates the outlier score based on cluster-based
     local outlier factor.
 
     CBLOF takes as an input the data set and the cluster model that was
