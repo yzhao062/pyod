@@ -187,7 +187,7 @@ class BaseDetector(object):
 
         Returns
         -------
-        outlier_labels : numpy array of shape (n_samples,)
+        outlier_probability : numpy array of shape (n_samples,)
             For each observation, tells whether or not
             it should be considered as an outlier according to the
             fitted model. Return the outlier probability, ranging
