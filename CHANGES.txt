@@ -95,6 +95,7 @@ v<0.7.7>, <12/22/2019> -- Enable continuous integration for Python 3.7.
 v<0.7.7.1>, <12/29/2019> -- Minor update for SUOD and warning fixes.
 v<0.7.8>, <01/05/2019> -- Documentation update.
 v<0.7.8>, <01/30/2019> -- Bug fix for kNN (#158).
+v<0.7.9>, <03/14/2020> -- Add VAE (implemented by Dr Andrij Vasylenko).
 
 
 

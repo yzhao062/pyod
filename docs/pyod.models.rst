@@ -188,6 +188,15 @@ pyod.models.sos module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.vae module
+----------------------
+
+.. automodule:: pyod.models.vae
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.xgbod module
 ------------------------
 
