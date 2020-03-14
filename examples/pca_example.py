@@ -29,13 +29,13 @@ if __name__ == "__main__":
     X_train, y_train, X_test, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
-                      n_features=2,
+                      n_features=20,
                       contamination=contamination,
                       random_state=42)
 
     # train PCA detector
     clf_name = 'PCA'
-    clf = PCA()
+    clf = PCA(n_components=3)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
@@ -53,5 +53,6 @@ if __name__ == "__main__":
     evaluate_print(clf_name, y_test, y_test_scores)
 
     # visualize the results
-    visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=False)
+    # Note: the original dimension has to be 2 for visualization
+    # visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
+    #           y_test_pred, show_figure=True, save_figure=False)
