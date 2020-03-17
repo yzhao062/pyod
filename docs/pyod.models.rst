@@ -94,6 +94,15 @@ pyod.models.lmdd module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.loda module
+-----------------------
+
+.. automodule:: pyod.models.loda
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.lof module
 ----------------------
 
@@ -183,6 +192,15 @@ pyod.models.sos module
 ----------------------
 
 .. automodule:: pyod.models.sos
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.vae module
+----------------------
+
+.. automodule:: pyod.models.vae
     :members:
     :undoc-members:
     :show-inheritance:

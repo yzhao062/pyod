@@ -93,6 +93,10 @@ v<0.7.7>, <12/21/2019> -- Extended combination methods by median and majority vo
 v<0.7.7>, <12/22/2019> -- Code optimization and documentation update.
 v<0.7.7>, <12/22/2019> -- Enable continuous integration for Python 3.7.
 v<0.7.7.1>, <12/29/2019> -- Minor update for SUOD and warning fixes.
+v<0.7.8>, <01/05/2019> -- Documentation update.
+v<0.7.8>, <01/30/2019> -- Bug fix for kNN (#158).
+v<0.7.8>, <03/14/2020> -- Add VAE (implemented by Dr Andrij Vasylenko).
+v<0.7.8>, <03/17/2020> -- Add LODA (adapted from tilitools).
 
 
 

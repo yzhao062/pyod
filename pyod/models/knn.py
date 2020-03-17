@@ -191,19 +191,21 @@ class KNN(BaseDetector):
         self._set_n_classes(y)
 
         self.neigh_.fit(X)
-        # TODO: code cleanup
-        # if self.neigh_._tree is not None:
-        self.tree_ = self.neigh_._tree
 
-        # The code below may not be necessary
-        # else:
-        #     if self.metric_params is not None:
-        #         self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-        #                               metric=self.metric,
-        #                               **self.metric_params)
-        #     else:
-        #         self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-        #                               metric=self.metric)
+        # In certain cases, _tree does not exist for NearestNeighbors
+        # See Issue #158 (https://github.com/yzhao062/pyod/issues/158)
+        # n_neighbors = 100
+        if self.neigh_._tree is not None:
+            self.tree_ = self.neigh_._tree
+
+        else:
+            if self.metric_params is not None:
+                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+                                      metric=self.metric,
+                                      **self.metric_params)
+            else:
+                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
+                                      metric=self.metric)
 
         dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                              return_distance=True)

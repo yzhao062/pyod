@@ -28,7 +28,7 @@ from ..utils.utility import precision_n_scores
 
 
 class XGBOD(BaseDetector):
-    """XGBOD class for outlier detection.
+    r"""XGBOD class for outlier detection.
     It first use the passed in unsupervised outlier detectors to extract
     richer representation of the data and then concatenate the newly
     generated features to the original feature for constructing the augmented
@@ -53,7 +53,7 @@ class XGBOD(BaseDetector):
     n_estimators : int
         Number of boosted trees to fit.
 
-    silent : boolean
+    silent : bool
         Whether to print messages while running boosting.
 
     objective : string or callable

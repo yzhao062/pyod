@@ -26,3 +26,7 @@ Yahya Almardeny (Software Systems & Machine Learning Engineer @ TSSG):
 - Joined in 2019
 - `LinkedIn (Yahya Almardeny) <https://www.linkedin.com/in/yahya-almardeny/>`_
 
+Dr Andrij Vasylenko (Research Associate @ University of Liverpool)
+
+- Joined in 2020 (implemented the VAE model)
+- `Homepage (Dr Andrij Vasylenko) <https://www.liverpool.ac.uk/chemistry/staff/andrij-vasylenko/>`_
