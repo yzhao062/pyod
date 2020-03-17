@@ -297,7 +297,7 @@ Outlier Ensembles    IForest           Isolation Forest                         
 Outlier Ensembles                      Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
-Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                               2016   [Pevny2016Loda]_
+Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                               2016   [#Pevny2016Loda]_
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
 Neural Networks      VAE               Variational AutoEncoder (use reconstruction error as the outlier score)                                 2013   [#Kingma2013Auto]_
 Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2019Generative]_
@@ -313,7 +313,7 @@ Type                 Abbr              Algorithm                                
 Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                      2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                              2018   [#Zhao2018XGBOD]_
-Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                              2016   [Pevny2016Loda]_
+Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                              2016   [#Pevny2016Loda]_
 Combination          Average           Simple combination by averaging the scores                                                             2015   [#Aggarwal2015Theoretical]_
 Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   [#Aggarwal2015Theoretical]_
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   [#Aggarwal2015Theoretical]_
