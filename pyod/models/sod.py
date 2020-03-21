@@ -28,7 +28,7 @@ def _snn_imp(ind, ref_set_):
 
     """
     n = ind.shape[0]
-    _count = np.zeros(shape=(n, ref_set_), dtype=nb.uint16)
+    _count = np.zeros(shape=(n, ref_set_), dtype=nb.uint32)
     for i in nb.prange(n):
         temp = np.empty(n, dtype=nb.int16)
         test_element_set = set(ind[i])
