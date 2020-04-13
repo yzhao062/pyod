@@ -101,8 +101,8 @@ class LODA(BaseDetector):
             pred_scores[:, 0] += -self.weights[i] * np.log(
                 self.histograms_[i, inds])
 
-            self.decision_scores_ = pred_scores / self.n_random_cuts
-            self._process_decision_scores()
+        self.decision_scores_ = (pred_scores / self.n_random_cuts).ravel()
+        self._process_decision_scores()
 
         return self
 
