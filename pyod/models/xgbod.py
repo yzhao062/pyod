@@ -20,6 +20,7 @@ from .lof import LOF
 from .iforest import IForest
 from .hbos import HBOS
 from .ocsvm import OCSVM
+from .loda import LODA
 
 from ..utils.utility import check_parameter
 from ..utils.utility import check_detector
@@ -29,8 +30,8 @@ from ..utils.utility import precision_n_scores
 
 class XGBOD(BaseDetector):
     r"""XGBOD class for outlier detection.
-    It first use the passed in unsupervised outlier detectors to extract
-    richer representation of the data and then concatenate the newly
+    It first uses the passed in unsupervised outlier detectors to extract
+    richer representation of the data and then concatenates the newly
     generated features to the original feature for constructing the augmented
     feature space. An XGBoost classifier is then applied on this augmented
     feature space. Read more in the :cite:`zhao2018xgbod`.
@@ -41,7 +42,7 @@ class XGBOD(BaseDetector):
         The list of pyod detectors passed in for unsupervised learning
 
     standardization_flag_list : list, optional (default=None)
-        The list of boolean flags for indicating whether to take
+        The list of boolean flags for indicating whether to perform
         standardization for each detector.
 
     max_depth : int
@@ -197,20 +198,20 @@ class XGBOD(BaseDetector):
         standardization_flag_list = []
 
         # predefined range of n_neighbors for KNN, AvgKNN, and LOF
-        k_range = [1, 3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        k_range = [1, 3, 5, 10, 20, 30, 40, 50]
 
         # validate the value of k
         k_range = [k for k in k_range if k < X.shape[0]]
 
         for k in k_range:
             estimator_list.append(KNN(n_neighbors=k, method='largest'))
-            estimator_list.append(KNN(n_neighbors=k, method='mean'))
+            # estimator_list.append(KNN(n_neighbors=k, method='mean'))
             estimator_list.append(LOF(n_neighbors=k))
-            standardization_flag_list.append(True)
+            # standardization_flag_list.append(True)
             standardization_flag_list.append(True)
             standardization_flag_list.append(True)
 
-        n_bins_range = [3, 5, 7, 9, 12, 15, 20, 25, 30, 50]
+        n_bins_range = [5, 10, 15, 20, 25, 30, 50]
         for n_bins in n_bins_range:
             estimator_list.append(HBOS(n_bins=n_bins))
             standardization_flag_list.append(False)
@@ -222,11 +223,17 @@ class XGBOD(BaseDetector):
             standardization_flag_list.append(True)
 
         # predefined range for number of estimators in isolation forests
-        n_range = [10, 20, 50, 70, 100, 150, 200, 250]
+        n_range = [10, 20, 50, 70, 100, 150, 200]
         for n in n_range:
             estimator_list.append(
                 IForest(n_estimators=n, random_state=self.random_state))
             standardization_flag_list.append(False)
+
+        # # predefined range for number of estimators in LODA
+        # n_bins_range = [3, 5, 10, 15, 20, 25, 30, 50]
+        # for n_bins in n_bins_range:
+        #     estimator_list.append(LODA(n_bins=n_bins))
+        #     standardization_flag_list.append(False)
 
         return estimator_list, standardization_flag_list
 
