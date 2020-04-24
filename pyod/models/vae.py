@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
-"""Variational Auto Encoder for Unsupervised
-Outlier Detection
+"""Variational Auto Encoder (VAE)
+and beta-VAE for Unsupervised Outlier Detection
 
 Reference:
         Kingma, Diederik, Welling 
         'Auto-Encodeing Variational Bayes'
         https://arxiv.org/abs/1312.6114
+        
+        Burges et al
+        'Understanding disentangling in beta-VAE'
+        https://arxiv.org/pdf/1804.03599.pdf
+
+        
 """
 # Author: Andrij Vasylenko <andrij@liverpool.ac.uk>
 # License: BSD 2 clause
@@ -39,18 +45,26 @@ from .base import BaseDetector
 # z = z_mean + sqrt(var) * epsilon
 
 class VAE(BaseDetector):
-    """ Variational auto encoder:  (Encoder, Decoder, Loss)
-        all components of a model share weights.
-        1st we train Encoder to map X onto latent space Z
-        2nd Sample Z (Gaussian distr. Norm(0,1) )
-        to generate X' from latent Z
-        3rd Minimise Loss = ReconstructionLoss + KLLoss
+    """ Variational auto encoder
+        Encoder maps X onto a latent space Z
+        Decoder samples Z from N(0,1) 
+        VAE_loss = Reconstruction_loss + KL_loss
         
         Reference
-        
         Kingma, Diederik, Welling 
         'Auto-Encodeing Variational Bayes'
         https://arxiv.org/abs/1312.6114
+        
+        beta VAE
+        In Loss, the emphasis is on KL_loss
+        and capacity of a bottleneck:
+        VAE_loss = Reconstruction_loss + gamma*KL_loss
+        
+        Reference
+        Burges et al
+        'Understanding disentangling in beta-VAE'
+        https://arxiv.org/pdf/1804.03599.pdf
+        
 
         Parameters
         ----------
@@ -72,6 +86,13 @@ class VAE(BaseDetector):
         loss : str or obj, optional (default=keras.losses.mean_squared_error
             String (name of objective function) or objective function.
             See https://keras.io/losses/
+            
+        gamma : float, optional (default=1.0)
+            Coefficient of beta VAE regime. 
+            Default is regular VAE.
+            
+        capacity : float, optional (default=0.0)
+            Maximum capacity of a loss bottle neck.
                                                                             
         optimizer : str, optional (default='adam')
             String (name of optimizer) or optimizer instance.
@@ -157,7 +178,8 @@ class VAE(BaseDetector):
                  loss=mse, optimizer='adam',
                  epochs=100, batch_size=32, dropout_rate=0.2,
                  l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbosity=1, random_state=None, contamination=0.1):
+                 verbosity=1, random_state=None, contamination=0.1,
+                 gamma=1.0, capacity=0.0):
         super(VAE, self).__init__(contamination=contamination)
         self.encoder_neurons = encoder_neurons
         self.decoder_neurons = decoder_neurons
@@ -174,6 +196,8 @@ class VAE(BaseDetector):
         self.verbosity = verbosity
         self.random_state = random_state
         self.latent_dim = latent_dim 
+        self.gamma = gamma
+        self.capacity = capacity
                                                                               
         # default values
         if self.encoder_neurons is None:
@@ -208,12 +232,15 @@ class VAE(BaseDetector):
 
     def vae_loss(self,inputs,outputs,z_mean,z_log):
         """ Loss = Recreation loss + Kullback-Leibler loss
-        for probability function divergence (ELBO) """
+        for probability function divergence (ELBO).
+        gamma > 1 and capacity != 0 for beta-VAE
+        """
 
         reconstruction_loss = self.loss(inputs,outputs)
         reconstruction_loss *= self.n_features_
         kl_loss = 1 + z_log - K.square(z_mean) - K.exp(z_log)
         kl_loss = -0.5 * K.sum(kl_loss, axis=-1)
+        kl_loss = self.gamma * K.abs(kl_loss - self.capacity)
 
         return K.mean(reconstruction_loss + kl_loss)
 
