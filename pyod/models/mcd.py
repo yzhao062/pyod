@@ -43,7 +43,7 @@ class MCD(BaseDetector):
     store_precision : bool
         Specify if the estimated precision is stored.
 
-    assume_centered : Boolean
+    assume_centered : bool
         If True, the support of the robust location and the covariance
         estimates is computed, and a covariance estimate is recomputed from
         it, without centering the data.

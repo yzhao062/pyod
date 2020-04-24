@@ -276,5 +276,14 @@ class TestKnnMahalanobis(unittest.TestCase):
         pass
 
 
+# TODO: add a testcase for #158
+class TestKnnTree(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+
 if __name__ == '__main__':
     unittest.main()

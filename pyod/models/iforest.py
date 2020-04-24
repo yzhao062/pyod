@@ -91,7 +91,7 @@ class IForest(BaseDetector):
             - If int, then draw `max_features` features.
             - If float, then draw `max_features * X.shape[1]` features.
 
-    bootstrap : boolean, optional (default=False)
+    bootstrap : bool, optional (default=False)
         If True, individual trees are fit on random subsets of the training
         data sampled with replacement. If False, sampling without replacement
         is performed.
