@@ -11,7 +11,7 @@ Reference:
         Burges et al
         'Understanding disentangling in beta-VAE'
         https://arxiv.org/pdf/1804.03599.pdf
-
+"""
         
 # Author: Andrij Vasylenko <andrij@liverpool.ac.uk>
 # License: BSD 2 clause
