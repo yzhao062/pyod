@@ -8,9 +8,14 @@ Python Outlier Detection (PyOD)
    :alt: PyPI version
 
 
+.. image:: https://anaconda.org/conda-forge/pyod/badges/version.svg
+   :target: https://anaconda.org/conda-forge/pyod
+   :alt: Anaconda version
+
+
 .. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+   :alt: Documentation status
 
 
 .. image:: https://mybinder.org/badge_logo.svg
