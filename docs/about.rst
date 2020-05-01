@@ -26,7 +26,12 @@ Yahya Almardeny (Software Systems & Machine Learning Engineer @ TSSG):
 - Joined in 2019
 - `LinkedIn (Yahya Almardeny) <https://www.linkedin.com/in/yahya-almardeny/>`_
 
+Antônio Pedro Camargo (University of Campinas)
+
+- Joined in 2020 (Our Conda Maintainer)
+- `GitHub (Antônio Pedro Camargo) <https://github.com/apcamargo>`_
+
 Dr Andrij Vasylenko (Research Associate @ University of Liverpool)
 
-- Joined in 2020 (implemented the VAE model)
+- Joined in 2020 (implemented the VAE and extend to Beta-VAE)
 - `Homepage (Dr Andrij Vasylenko) <https://www.liverpool.ac.uk/chemistry/staff/andrij-vasylenko/>`_
