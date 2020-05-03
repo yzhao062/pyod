@@ -69,20 +69,20 @@ def _set_random_states(estimator, random_state=None):
         estimator.set_params(**to_set)
 
 
-def _parallel_decision_function(estimators, estimators_features, X):
-    n_samples = X.shape[0]
-    scores = np.zeros((n_samples, len(estimators)))
-
-    for i, (estimator, features) in enumerate(
-            zip(estimators, estimators_features)):
-        if hasattr(estimator, 'decision_function'):
-            estimator_score = estimator.decision_function(
-                X[:, features])
-            scores[:, i] = estimator_score
-        else:
-            raise NotImplementedError(
-                'current base detector has no decision_function')
-    return scores
+# def _parallel_decision_function(estimators, estimators_features, X):
+#     n_samples = X.shape[0]
+#     scores = np.zeros((n_samples, len(estimators)))
+#
+#     for i, (estimator, features) in enumerate(
+#             zip(estimators, estimators_features)):
+#         if hasattr(estimator, 'decision_function'):
+#             estimator_score = estimator.decision_function(
+#                 X[:, features])
+#             scores[:, i] = estimator_score
+#         else:
+#             raise NotImplementedError(
+#                 'current base detector has no decision_function')
+#     return scores
 
 
 # TODO: should support parallelization at the model level
