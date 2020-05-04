@@ -7,6 +7,7 @@
 from __future__ import division
 from __future__ import print_function
 
+import warnings
 from operator import itemgetter
 
 import numpy as np
@@ -88,8 +89,17 @@ class COF(BaseDetector):
             Fitted estimator.
         """
         X = check_array(X)
-        if self.n_neighbors_ >= X.shape[0]:
-            self.n_neighbors_ = X.shape[0] - 1
+        self.n_train_ = X.shape[0]
+
+        if self.n_neighbors_ >= self.n_train_:
+            self.n_neighbors_ = self.n_train_ - 1
+            warnings.warn(
+                "n_neighbors is set to the number of training points "
+                "minus 1: {0}".format(self.n_neighbors_))
+
+            check_parameter(self.n_neighbors_, 1, self.n_train_,
+                            include_left=True, include_right=True)
+
         self._set_n_classes(y)
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()

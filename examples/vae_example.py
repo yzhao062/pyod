@@ -33,9 +33,9 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train VAE detector
+    # train VAE detector (Beta-VAE)
     clf_name = 'VAE'
-    clf = VAE(epochs=30, contamination=contamination)
+    clf = VAE(epochs=30, contamination=contamination, gamma=0.8, capacity=0.2)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

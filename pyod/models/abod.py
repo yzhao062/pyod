@@ -7,6 +7,7 @@
 from __future__ import division
 from __future__ import print_function
 
+import warnings
 from itertools import combinations
 
 import numpy as np
@@ -200,7 +201,13 @@ class ABOD(BaseDetector):
         """
 
         # make sure the n_neighbors is in the range
-        check_parameter(self.n_neighbors, 1, self.n_train_)
+        if self.n_neighbors >= self.n_train_:
+            self.n_neighbors = self.n_train_ - 1
+            warnings.warn("n_neighbors is set to the number of "
+                          "training points minus 1: {0}".format(self.n_train_))
+
+            check_parameter(self.n_neighbors, 1, self.n_train_,
+                            include_left=True, include_right=True)
 
         self.tree_ = KDTree(self.X_train_)
 

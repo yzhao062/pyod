@@ -6,15 +6,16 @@ branches:
   only:
     - master
     - development
-    - 0.7.X
+
 environment:
   matrix:
 #    - PYTHON: "C:\\Python27"     # comment out due to tensorflow version
 #    - PYTHON: "C:\\Python27-x64" # comment out due to tensorflow version
-    - PYTHON: "C:\\Python35-x64"
+#    - PYTHON: "C:\\Python35-x64"  # comment out due to tensorflow version
 #    - PYTHON: "C:\\Python36-x32"
     - PYTHON: "C:\\Python36-x64"
     - PYTHON: "C:\\Python37-x64"
+    - PYTHON: "C:\\Python38-x64"
 
 skip_commits:
   files:
