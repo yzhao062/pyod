@@ -120,11 +120,13 @@ class TestCOF(unittest.TestCase):
 
     def test_check_parameters(self):
         with assert_raises(ValueError):
-            COF(contamination=0.1, n_neighbors=-1)
+            cof_=COF(contamination=0.1, n_neighbors=-1)
+            cof_.fit(self.X_train)
         with assert_raises(ValueError):
             COF(contamination=10., n_neighbors=5)
         with assert_raises(TypeError):
-            COF(contamination=0.1, n_neighbors='not int')
+            cof_=COF(contamination=0.1, n_neighbors='not int')
+            cof_.fit(self.X_train)
         with assert_raises(TypeError):
             COF(contamination='not float', n_neighbors=5)
         cof_ = COF(contamination=0.1, n_neighbors=10000)
