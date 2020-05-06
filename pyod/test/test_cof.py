@@ -47,8 +47,8 @@ class TestCOF(unittest.TestCase):
                     self.clf.labels_ is not None)
         assert_true(hasattr(self.clf, 'threshold_') and
                     self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, 'n_neighbors_') and
-                    self.clf.n_neighbors_ is not None)
+        assert_true(hasattr(self.clf, 'n_neighbors') and
+                    self.clf.n_neighbors is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
@@ -129,7 +129,7 @@ class TestCOF(unittest.TestCase):
             COF(contamination='not float', n_neighbors=5)
         cof_ = COF(contamination=0.1, n_neighbors=10000)
         cof_.fit(self.X_train)
-        assert self.X_train.shape[0] > cof_.n_neighbors_
+        assert self.X_train.shape[0] > cof_.n_neighbors
 
     def tearDown(self):
         pass
