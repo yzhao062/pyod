@@ -8,7 +8,7 @@ import sys
 import unittest
 from sklearn.utils.testing import assert_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_true
+
 
 import numpy as np
 
@@ -197,11 +197,11 @@ class TestBASE(unittest.TestCase):
     def test_get_params(self):
         test = T(K(), K())
 
-        assert_true('a__d' in test.get_params(deep=True))
-        assert_true('a__d' not in test.get_params(deep=False))
+        assert('a__d' in test.get_params(deep=True))
+        assert('a__d' not in test.get_params(deep=False))
 
         test.set_params(a__d=2)
-        assert_true(test.a.d == 2)
+        assert(test.a.d == 2)
         assert_raises(ValueError, test.set_params, a__a=2)
 
     def tearDown(self):
