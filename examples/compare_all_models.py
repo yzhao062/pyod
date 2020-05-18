@@ -71,7 +71,7 @@ print(
         shape=ground_truth.shape))
 print(ground_truth, '\n')
 
-random_state = np.random.RandomState(42)
+random_state = 42
 # Define nine outlier detection tools to be compared
 classifiers = {
     'Angle-based Outlier Detector (ABOD)':
