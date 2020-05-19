@@ -14,7 +14,6 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_true
 
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
@@ -41,14 +40,14 @@ class TestCOF(unittest.TestCase):
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        assert_true(hasattr(self.clf, 'decision_scores_') and
-                    self.clf.decision_scores_ is not None)
-        assert_true(hasattr(self.clf, 'labels_') and
-                    self.clf.labels_ is not None)
-        assert_true(hasattr(self.clf, 'threshold_') and
-                    self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, 'n_neighbors_') and
-                    self.clf.n_neighbors_ is not None)
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, 'n_neighbors_') and
+                self.clf.n_neighbors_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

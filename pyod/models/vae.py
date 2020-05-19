@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Variational Auto Encoder for Unsupervised Outlier Detection
+
+"""Variational Auto Encoder (VAE)
+and beta-VAE for Unsupervised Outlier Detection
+
+Reference:
+        :cite:`kingma2013auto` Kingma, Diederik, Welling
+        'Auto-Encodeing Variational Bayes'
+        https://arxiv.org/abs/1312.6114
+        
+        :cite:`burgess2018understanding` Burges et al
+        'Understanding disentangling in beta-VAE'
+        https://arxiv.org/pdf/1804.03599.pdf
 """
+
 # Author: Andrij Vasylenko <andrij@liverpool.ac.uk>
 # License: BSD 2 clause
 
@@ -28,120 +40,140 @@ from .base import BaseDetector
 
 
 class VAE(BaseDetector):
-    """ Variational auto encoder:  (Encoder, Decoder, Loss)
-        all components of a model share weights.
-        1st we train Encoder to map X onto latent space Z
-        2nd Sample Z (Gaussian distr. Norm(0,1) )
-        to generate X' from latent Z
-        3rd Minimise Loss = ReconstructionLoss + KLLoss
+    """ Variational auto encoder
+    Encoder maps X onto a latent space Z
+    Decoder samples Z from N(0,1)
+    VAE_loss = Reconstruction_loss + KL_loss
 
-        Read more :cite:`kingma2013auto`.
+    Reference
+    See :cite:`kingma2013auto` Kingma, Diederik, Welling
+    'Auto-Encodeing Variational Bayes'
+    https://arxiv.org/abs/1312.6114 for details.
 
-        Parameters
-        ----------
-        encoder_neurons : list, optional (default=[128, 64, 32])            
-            The number of neurons per hidden layer in encoder.
+    beta VAE
+    In Loss, the emphasis is on KL_loss
+    and capacity of a bottleneck:
+    VAE_loss = Reconstruction_loss + gamma*KL_loss
 
-        decoder_neurons : list, optional (default=[32, 64, 128])            
-            The number of neurons per hidden layer in decoder.
+    Reference
+    See :cite:`burgess2018understanding` Burges et al
+    'Understanding disentangling in beta-VAE'
+    https://arxiv.org/pdf/1804.03599.pdf for details.
 
-        hidden_activation : str, optional (default='relu')
-            Activation function to use for hidden layers.
-            All hidden layers are forced to use the same type of activation.
-            See https://keras.io/activations/
-                                                                            
-        output_activation : str, optional (default='sigmoid')
-            Activation function to use for output layer.
-            See https://keras.io/activations/
-                                                                            
-        loss : str or obj, optional (default=keras.losses.mean_squared_error
-            String (name of objective function) or objective function.
-            See https://keras.io/losses/
-                                                                            
-        optimizer : str, optional (default='adam')
-            String (name of optimizer) or optimizer instance.
-            See https://keras.io/optimizers/
-                                                                            
-        epochs : int, optional (default=100)
-            Number of epochs to train the model.
-                                                                            
-        batch_size : int, optional (default=32)
-            Number of samples per gradient update.
-                                                                            
-        dropout_rate : float in (0., 1), optional (default=0.2)
-            The dropout to be used across all layers.
-                                                                            
-        l2_regularizer : float in (0., 1), optional (default=0.1)
-            The regularization strength of activity_regularizer
-            applied on each layer. By default, l2 regularizer is used. See
-            https://keras.io/regularizers/
-                                                                            
-        validation_size : float in (0., 1), optional (default=0.1)
-            The percentage of data to be used for validation.
-                                                                            
-        preprocessing : bool, optional (default=True)
-            If True, apply standardization on the data.
-                                                                            
-        verbose : int, optional (default=1)
-            Verbosity mode.
-                                                                            
-            - 0 = silent
-            - 1 = progress bar
-            - 2 = one line per epoch.
-                                                                            
-            For verbosity >= 1, model summary may be printed.
-                                                                            
-        random_state : random_state: int, RandomState instance or None, opti
-            (default=None)
-            If int, random_state is the seed used by the random
-            number generator; If RandomState instance, random_state is the r
-            number generator; If None, the random number generator is the
-            RandomState instance used by `np.random`.
-                                                                            
-        contamination : float in (0., 0.5), optional (default=0.1)
-            The amount of contamination of the data set, i.e.
-            the proportion of outliers in the data set. When fitting this is
-            to define the threshold on the decision function.
-                                                                            
-        Attributes
-        ----------
-        encoding_dim_ : int
-            The number of neurons in the encoding layer.
-                                                                            
-        compression_rate_ : float
-            The ratio between the original feature and
-            the number of neurons in the encoding layer.
-                                                                            
-        model_ : Keras Object
-            The underlying AutoEncoder in Keras.
-                                                                            
-        history_: Keras Object
-            The AutoEncoder training history.
-                                                                            
-        decision_scores_ : numpy array of shape (n_samples,)
-            The outlier scores of the training data.
-            The higher, the more abnormal. Outliers tend to have higher
-            scores. This value is available once the detector is
-            fitted.
-                                                                            
-        threshold_ : float
-            The threshold is based on ``contamination``. It is the
-            ``n_samples * contamination`` most abnormal samples in
-            ``decision_scores_``. The threshold is calculated for generating
-            binary outlier labels.
-                                                                            
-        labels_ : int, either 0 or 1
-            The binary labels of the training data. 0 stands for inliers
-            and 1 for outliers/anomalies. It is generated by applying
-            ``threshold_`` on ``decision_scores_``.
-        """
+
+    Parameters
+    ----------
+    encoder_neurons : list, optional (default=[128, 64, 32])
+        The number of neurons per hidden layer in encoder.
+
+    decoder_neurons : list, optional (default=[32, 64, 128])
+        The number of neurons per hidden layer in decoder.
+
+    hidden_activation : str, optional (default='relu')
+        Activation function to use for hidden layers.
+        All hidden layers are forced to use the same type of activation.
+        See https://keras.io/activations/
+
+    output_activation : str, optional (default='sigmoid')
+        Activation function to use for output layer.
+        See https://keras.io/activations/
+
+    loss : str or obj, optional (default=keras.losses.mean_squared_error
+        String (name of objective function) or objective function.
+        See https://keras.io/losses/
+
+    gamma : float, optional (default=1.0)
+        Coefficient of beta VAE regime.
+        Default is regular VAE.
+
+    capacity : float, optional (default=0.0)
+        Maximum capacity of a loss bottle neck.
+
+    optimizer : str, optional (default='adam')
+        String (name of optimizer) or optimizer instance.
+        See https://keras.io/optimizers/
+
+    epochs : int, optional (default=100)
+        Number of epochs to train the model.
+
+    batch_size : int, optional (default=32)
+        Number of samples per gradient update.
+
+    dropout_rate : float in (0., 1), optional (default=0.2)
+        The dropout to be used across all layers.
+
+    l2_regularizer : float in (0., 1), optional (default=0.1)
+        The regularization strength of activity_regularizer
+        applied on each layer. By default, l2 regularizer is used. See
+        https://keras.io/regularizers/
+
+    validation_size : float in (0., 1), optional (default=0.1)
+        The percentage of data to be used for validation.
+
+    preprocessing : bool, optional (default=True)
+        If True, apply standardization on the data.
+
+    verbose : int, optional (default=1)
+        Verbosity mode.
+
+        - 0 = silent
+        - 1 = progress bar
+        - 2 = one line per epoch.
+
+        For verbosity >= 1, model summary may be printed.
+
+    random_state : random_state: int, RandomState instance or None, opti
+        (default=None)
+        If int, random_state is the seed used by the random
+        number generator; If RandomState instance, random_state is the r
+        number generator; If None, the random number generator is the
+        RandomState instance used by `np.random`.
+
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set, i.e.
+        the proportion of outliers in the data set. When fitting this is
+        to define the threshold on the decision function.
+
+    Attributes
+    ----------
+    encoding_dim_ : int
+        The number of neurons in the encoding layer.
+
+    compression_rate_ : float
+        The ratio between the original feature and
+        the number of neurons in the encoding layer.
+
+    model_ : Keras Object
+        The underlying AutoEncoder in Keras.
+
+    history_: Keras Object
+        The AutoEncoder training history.
+
+    decision_scores_ : numpy array of shape (n_samples,)
+        The outlier scores of the training data.
+        The higher, the more abnormal. Outliers tend to have higher
+        scores. This value is available once the detector is
+        fitted.
+
+    threshold_ : float
+        The threshold is based on ``contamination``. It is the
+        ``n_samples * contamination`` most abnormal samples in
+        ``decision_scores_``. The threshold is calculated for generating
+        binary outlier labels.
+
+    labels_ : int, either 0 or 1
+        The binary labels of the training data. 0 stands for inliers
+        and 1 for outliers/anomalies. It is generated by applying
+        ``threshold_`` on ``decision_scores_``.
+    """
 
     def __init__(self, encoder_neurons=None, decoder_neurons=None,
                  latent_dim=2, hidden_activation='relu',
                  output_activation='sigmoid', loss=mse, optimizer='adam',
                  epochs=100, batch_size=32, dropout_rate=0.2,
                  l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbosity=1, random_state=None, contamination=0.1):
+                 verbosity=1, random_state=None, contamination=0.1,
+                 gamma=1.0, capacity=0.0):
         super(VAE, self).__init__(contamination=contamination)
         self.encoder_neurons = encoder_neurons
         self.decoder_neurons = decoder_neurons
@@ -158,6 +190,8 @@ class VAE(BaseDetector):
         self.verbosity = verbosity
         self.random_state = random_state
         self.latent_dim = latent_dim
+        self.gamma = gamma
+        self.capacity = capacity
 
         # default values
         if self.encoder_neurons is None:
@@ -176,12 +210,16 @@ class VAE(BaseDetector):
         """Reparametrisation by sampling from Gaussian, N(0,I)
         To sample from epsilon = Norm(0,I) instead of from likelihood Q(z|X)
         with latent variables z: z = z_mean + sqrt(var) * epsilon
+
+        Parameters
+        ----------
+        args : tensor
+            Mean and log of variance of Q(z|X).
     
-        Arguments:
-            args (tensor): mean and log of variance of Q(z|X)
-    
-        Returns:
-            z (tensor): sampled latent variable
+        Returns
+        -------
+        z : tensor
+            Sampled latent variable.
         """
 
         z_mean, z_log = args
@@ -193,12 +231,15 @@ class VAE(BaseDetector):
 
     def vae_loss(self, inputs, outputs, z_mean, z_log):
         """ Loss = Recreation loss + Kullback-Leibler loss
-        for probability function divergence (ELBO) """
+        for probability function divergence (ELBO).
+        gamma > 1 and capacity != 0 for beta-VAE
+        """
 
         reconstruction_loss = self.loss(inputs, outputs)
         reconstruction_loss *= self.n_features_
         kl_loss = 1 + z_log - K.square(z_mean) - K.exp(z_log)
         kl_loss = -0.5 * K.sum(kl_loss, axis=-1)
+        kl_loss = self.gamma * K.abs(kl_loss - self.capacity)
 
         return K.mean(reconstruction_loss + kl_loss)
 
