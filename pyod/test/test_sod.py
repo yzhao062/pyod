@@ -14,7 +14,6 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_true
 
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
@@ -63,18 +62,18 @@ class TestSOD(unittest.TestCase):
             SOD(n_neighbors=20, ref_set=25, alpha='not float')
 
     def test_parameters(self):
-        assert_true(hasattr(self.clf, 'decision_scores_') and
-                    self.clf.decision_scores_ is not None)
-        assert_true(hasattr(self.clf, 'labels_') and
-                    self.clf.labels_ is not None)
-        assert_true(hasattr(self.clf, 'threshold_') and
-                    self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, 'alpha_') and
-                    self.clf.alpha_ is not None)
-        assert_true(hasattr(self.clf, 'ref_set_') and
-                    self.clf.ref_set_ is not None)
-        assert_true(hasattr(self.clf, 'n_neighbors_') and
-                    self.clf.n_neighbors_ is not None)
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, 'alpha_') and
+                self.clf.alpha_ is not None)
+        assert (hasattr(self.clf, 'ref_set_') and
+                self.clf.ref_set_ is not None)
+        assert (hasattr(self.clf, 'n_neighbors_') and
+                self.clf.n_neighbors_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

@@ -12,7 +12,7 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_true
+
 from sklearn.utils.estimator_checks import check_estimator
 
 from sklearn.metrics import roc_auc_score
@@ -39,22 +39,22 @@ class TestCOF(unittest.TestCase):
         self.clf.fit(self.X_train)
 
     def test_sklearn_estimator(self):
-        #check_estimator(self.clf)
+        # check_estimator(self.clf)
         pass
 
     def test_parameters(self):
-        assert_true(hasattr(self.clf, 'decision_scores_') and
-                    self.clf.decision_scores_ is not None)
-        assert_true(hasattr(self.clf, 'labels_') and
-                    self.clf.labels_ is not None)
-        assert_true(hasattr(self.clf, 'threshold_') and
-                    self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, 'dis_measure_') and
-                    self.clf.dis_measure_ is not None)
-        assert_true(hasattr(self.clf, 'n_iter_') and
-                    self.clf.n_iter_ is not None)
-        assert_true(hasattr(self.clf, 'random_state_') and
-                    self.clf.random_state_ is not None)
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, 'dis_measure_') and
+                self.clf.dis_measure_ is not None)
+        assert (hasattr(self.clf, 'n_iter_') and
+                self.clf.n_iter_ is not None)
+        assert (hasattr(self.clf, 'random_state_') and
+                self.clf.random_state_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

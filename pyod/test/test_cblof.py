@@ -14,7 +14,6 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_true
 
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import roc_auc_score
@@ -42,32 +41,32 @@ class TestCBLOF(unittest.TestCase):
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        assert_true(hasattr(self.clf, 'decision_scores_') and
-                    self.clf.decision_scores_ is not None)
-        assert_true(hasattr(self.clf, 'labels_') and
-                    self.clf.labels_ is not None)
-        assert_true(hasattr(self.clf, 'threshold_') and
-                    self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, '_mu') and
-                    self.clf._mu is not None)
-        assert_true(hasattr(self.clf, '_sigma') and
-                    self.clf._sigma is not None)
-        assert_true(hasattr(self.clf, 'clustering_estimator_') and
-                    self.clf.clustering_estimator_ is not None)
-        assert_true(hasattr(self.clf, 'cluster_labels_') and
-                    self.clf.cluster_labels_ is not None)
-        assert_true(hasattr(self.clf, 'cluster_sizes_') and
-                    self.clf.cluster_sizes_ is not None)
-        assert_true(hasattr(self.clf, 'cluster_centers_') and
-                    self.clf.cluster_centers_ is not None)
-        assert_true(hasattr(self.clf, '_clustering_threshold') and
-                    self.clf._clustering_threshold is not None)
-        assert_true(hasattr(self.clf, 'small_cluster_labels_') and
-                    self.clf.small_cluster_labels_ is not None)
-        assert_true(hasattr(self.clf, 'large_cluster_labels_') and
-                    self.clf.large_cluster_labels_ is not None)
-        assert_true(hasattr(self.clf, '_large_cluster_centers') and
-                    self.clf._large_cluster_centers is not None)
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, '_mu') and
+                self.clf._mu is not None)
+        assert (hasattr(self.clf, '_sigma') and
+                self.clf._sigma is not None)
+        assert (hasattr(self.clf, 'clustering_estimator_') and
+                self.clf.clustering_estimator_ is not None)
+        assert (hasattr(self.clf, 'cluster_labels_') and
+                self.clf.cluster_labels_ is not None)
+        assert (hasattr(self.clf, 'cluster_sizes_') and
+                self.clf.cluster_sizes_ is not None)
+        assert (hasattr(self.clf, 'cluster_centers_') and
+                self.clf.cluster_centers_ is not None)
+        assert (hasattr(self.clf, '_clustering_threshold') and
+                self.clf._clustering_threshold is not None)
+        assert (hasattr(self.clf, 'small_cluster_labels_') and
+                self.clf.small_cluster_labels_ is not None)
+        assert (hasattr(self.clf, 'large_cluster_labels_') and
+                self.clf.large_cluster_labels_ is not None)
+        assert (hasattr(self.clf, '_large_cluster_centers') and
+                self.clf._large_cluster_centers is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

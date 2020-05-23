@@ -12,7 +12,7 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import assert_greater_equal
 from sklearn.utils.testing import assert_less_equal
 from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_true
+
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -46,17 +46,17 @@ class TestSO_GAAL(unittest.TestCase):
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        assert_true(hasattr(self.clf, 'decision_scores_') and
+        assert(hasattr(self.clf, 'decision_scores_') and
                     self.clf.decision_scores_ is not None)
-        assert_true(hasattr(self.clf, 'labels_') and
+        assert(hasattr(self.clf, 'labels_') and
                     self.clf.labels_ is not None)
-        assert_true(hasattr(self.clf, 'threshold_') and
+        assert(hasattr(self.clf, 'threshold_') and
                     self.clf.threshold_ is not None)
-        assert_true(hasattr(self.clf, '_mu') and
+        assert(hasattr(self.clf, '_mu') and
                     self.clf._mu is not None)
-        assert_true(hasattr(self.clf, '_sigma') and
+        assert(hasattr(self.clf, '_sigma') and
                     self.clf._sigma is not None)
-        assert_true(hasattr(self.clf, 'discriminator') and
+        assert(hasattr(self.clf, 'discriminator') and
                     self.clf.discriminator is not None)
 
     def test_train_scores(self):
