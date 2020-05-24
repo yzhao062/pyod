@@ -3,7 +3,7 @@
 from __future__ import division
 from __future__ import print_function
 
-import os
+mport os
 import sys
 
 import unittest
@@ -127,8 +127,9 @@ class TestFeatureBagging(unittest.TestCase):
         assert_array_less(-0.1, pred_ranks)
 
     def test_parallel(self):
-        feat_bag = FeatureBagging(n_jobs=3,
-                               random_state=42).fit(self.X_train, self.y_train)
+        feat_bag = FeatureBagging(
+                            n_jobs=3,
+                            random_state=42).fit(self.X_train, self.y_train)
 
         # predict_proba
         feat_bag.set_params(n_jobs=1)
@@ -137,15 +138,17 @@ class TestFeatureBagging(unittest.TestCase):
         y2 = feat_bag.predict_proba(self.X_test)
         assert_array_almost_equal(y1, y2)
 
-        feat_bag = FeatureBagging(n_jobs=1,
-                               random_state=42).fit(self.X_train, self.y_train)
+        feat_bag = FeatureBagging(
+                            n_jobs=1,
+                            random_state=42).fit(self.X_train, self.y_train)
 
         y3 = feat_bag.predict_proba(self.X_test)
         assert_array_almost_equal(y1, y3)
 
         # decision_function
-        feat_bag = FeatureBagging(n_jobs=3,
-                               random_state=42).fit(self.X_train, self.y_train)
+        feat_bag = FeatureBagging(
+                            n_jobs=3,
+                            random_state=42).fit(self.X_train, self.y_train)
 
         feat_bag.set_params(n_jobs=1)
         decisions1 = feat_bag.decision_function(self.X_test)
@@ -153,8 +156,9 @@ class TestFeatureBagging(unittest.TestCase):
         decisions2 = feat_bag.decision_function(self.X_test)
         assert_array_almost_equal(decisions1, decisions2)
 
-        feat_bag = FeatureBagging(n_jobs=1,
-                               random_state=42).fit(self.X_train, self.y_train)
+        feat_bag = FeatureBagging(
+                            n_jobs=1,
+                            random_state=42).fit(self.X_train, self.y_train)
 
         decisions3 = feat_bag.decision_function(self.X_test)
         assert_array_almost_equal(decisions1, decisions3)

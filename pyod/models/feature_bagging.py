@@ -308,7 +308,6 @@ class FeatureBagging(BaseDetector):
 
         return self
 
-
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
         The anomaly score of an input sample is computed based on different
