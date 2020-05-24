@@ -8,9 +8,8 @@ from __future__ import print_function
 
 import numpy as np
 import numbers
-
-from joblib import Parallel
-from joblib.parallel import delayed
+import itertools
+from joblib import delayed, Parallel
 
 from sklearn.base import clone
 from sklearn.utils import check_random_state
@@ -69,23 +68,45 @@ def _set_random_states(estimator, random_state=None):
         estimator.set_params(**to_set)
 
 
-# def _parallel_decision_function(estimators, estimators_features, X):
-#     n_samples = X.shape[0]
-#     scores = np.zeros((n_samples, len(estimators)))
-#
-#     for i, (estimator, features) in enumerate(
-#             zip(estimators, estimators_features)):
-#         if hasattr(estimator, 'decision_function'):
-#             estimator_score = estimator.decision_function(
-#                 X[:, features])
-#             scores[:, i] = estimator_score
-#         else:
-#             raise NotImplementedError(
-#                 'current base detector has no decision_function')
-#     return scores
+def _parallel_decision_function(estimators, estimators_features, X):
+    n_samples = X.shape[0]
+    scores = np.zeros((n_samples, len(estimators)))
 
+    for i, (estimator, features) in enumerate(
+            zip(estimators, estimators_features)):
+        if hasattr(estimator, 'decision_function'):
+            estimator_score = estimator.decision_function(
+                X[:, features])
+            scores[:, i] = estimator_score
+        else:
+            raise NotImplementedError(
+                'current base detector has no decision_function')
+    return scores
 
-# TODO: should support parallelization at the model level
+def _parallel_fit_estimators(n_estimators,ensemble,X,seeds):
+    estimators = []
+    estimators_features = []
+
+    for i in range(n_estimators):
+        random_state = np.random.RandomState(seeds[i])
+
+        # max_features is incremented by one since random
+        # function is [min_features, max_features)
+        features = generate_bagging_indices(random_state,
+                                            ensemble.bootstrap_features,
+                                            ensemble.n_features_,
+                                            ensemble.min_features_,
+                                            ensemble.max_features_ + 1)
+        # initialize and append estimators
+        estimator = ensemble._make_estimator(append=False,
+                                            random_state=random_state)
+        estimator.fit(X[:, features])
+        
+        estimators.append(estimator)
+        estimators_features.append(features)
+
+    return estimators, estimators_features
+
 # TODO: detector score combination through BFS should be implemented
 # See https://github.com/yzhao062/pyod/issues/59
 class FeatureBagging(BaseDetector):
@@ -209,7 +230,7 @@ class FeatureBagging(BaseDetector):
             self.estimator_params = estimator_params
         else:
             self.estimator_params = {}
-
+    
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
 
@@ -255,36 +276,26 @@ class FeatureBagging(BaseDetector):
                         param_name='max_features', high=self.n_features_,
                         include_left=True, include_right=True)
 
-        self.estimators_ = []
-        self.estimators_features_ = []
-
-        n_more_estimators = self.n_estimators - len(self.estimators_)
-
-        if n_more_estimators < 0:
-            raise ValueError('n_estimators=%d must be larger or equal to '
-                             'len(estimators_)=%d when warm_start==True'
-                             % (self.n_estimators, len(self.estimators_)))
-
-        seeds = random_state.randint(MAX_INT, size=n_more_estimators)
+        seeds = random_state.randint(MAX_INT, size=self.n_estimators)
         self._seeds = seeds
 
-        for i in range(self.n_estimators):
-            random_state = np.random.RandomState(seeds[i])
+        n_jobs, n_estimators, starts = _partition_estimators(self.n_estimators,
+                                                             self.n_jobs)
 
-            # max_features is incremented by one since random
-            # function is [min_features, max_features)
-            features = generate_bagging_indices(random_state,
-                                                self.bootstrap_features,
-                                                self.n_features_,
-                                                self.min_features_,
-                                                self.max_features_ + 1)
-            # initialize and append estimators
-            estimator = self._make_estimator(append=False,
-                                             random_state=random_state)
-            estimator.fit(X[:, features])
+        all_results = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(
+            delayed(_parallel_fit_estimators)(
+                n_estimators[i],
+                self,
+                X,
+                seeds[starts[i]:starts[i + 1]])
+            for i in range(n_jobs))
 
-            self.estimators_.append(estimator)
-            self.estimators_features_.append(features)
+        self.estimators_ = list(itertools.chain.from_iterable(
+            t[0] for t in all_results))
+
+        self.estimators_features_ = list(itertools.chain.from_iterable(
+            t[1] for t in all_results))
+
 
         # decision score matrix from all estimators
         all_decision_scores = self._get_decision_scores()
@@ -298,9 +309,8 @@ class FeatureBagging(BaseDetector):
 
         return self
 
-    def decision_function(self, X):
+def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
-
         The anomaly score of an input sample is computed based on different
         detector algorithms. For consistency, outliers are assigned with
         larger anomaly scores.
@@ -326,32 +336,22 @@ class FeatureBagging(BaseDetector):
                              "input n_features is {1}."
                              "".format(self.n_features_, X.shape[1]))
 
-        # Parallel loop
-        # n_jobs, n_estimators, starts = _partition_estimators(self.n_estimators,
-        #                                                      self.n_jobs)
-        # all_pred_scores = Parallel(n_jobs=n_jobs, verbose=self.verbose)(
-        #     delayed(_parallel_decision_function)(
-        #         self.estimators_[starts[i]:starts[i + 1]],
-        #         self.estimators_features_[starts[i]:starts[i + 1]],
-        #         X)
-        #     for i in range(n_jobs))
-        #
-        # # Reduce
-        # all_pred_scores = np.concatenate(all_pred_scores, axis=1)
-        all_pred_scores = self._predict_decision_scores(X)
-
+        n_jobs, n_estimators, starts = _partition_estimators(self.n_estimators,
+                                                             self.n_jobs)
+        all_pred_scores = Parallel(n_jobs=n_jobs, verbose=self.verbose)(
+            delayed(_parallel_decision_function)(
+                self.estimators_[starts[i]:starts[i + 1]],
+                self.estimators_features_[starts[i]:starts[i + 1]],
+                X)
+            for i in range(n_jobs))
+        
+        # Reduce
+        all_pred_scores = np.concatenate(all_pred_scores, axis=1)
+        
         if self.combination == 'average':
             return average(all_pred_scores)
         else:
             return maximization(all_pred_scores)
-
-    def _predict_decision_scores(self, X):
-        all_pred_scores = np.zeros([X.shape[0], self.n_estimators])
-        for i in range(self.n_estimators):
-            features = self.estimators_features_[i]
-            all_pred_scores[:, i] = self.estimators_[i].decision_function(
-                X[:, features])
-        return all_pred_scores
 
     def _get_decision_scores(self):
         all_decision_scores = np.zeros([self.n_samples_, self.n_estimators])
