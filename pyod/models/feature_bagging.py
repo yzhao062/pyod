@@ -6,23 +6,21 @@
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
 import numbers
 import itertools
+import numpy as np
 from joblib import delayed, Parallel
 
 from sklearn.base import clone
 from sklearn.utils import check_random_state
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.random import sample_without_replacement
 
 from .lof import LOF
 from .base import BaseDetector
 from .sklearn_base import _partition_estimators
 from .combination import average, maximization
 from ..utils.utility import check_parameter
-from ..utils.utility import generate_indices
 from ..utils.utility import generate_bagging_indices
 from ..utils.utility import check_detector
 
@@ -83,7 +81,8 @@ def _parallel_decision_function(estimators, estimators_features, X):
                 'current base detector has no decision_function')
     return scores
 
-def _parallel_fit_estimators(n_estimators,ensemble,X,seeds):
+
+def _parallel_fit_estimators(n_estimators, ensemble, X, seeds):
     estimators = []
     estimators_features = []
 
@@ -99,13 +98,14 @@ def _parallel_fit_estimators(n_estimators,ensemble,X,seeds):
                                             ensemble.max_features_ + 1)
         # initialize and append estimators
         estimator = ensemble._make_estimator(append=False,
-                                            random_state=random_state)
+                                             random_state=random_state)
         estimator.fit(X[:, features])
-        
+
         estimators.append(estimator)
         estimators_features.append(features)
 
     return estimators, estimators_features
+
 
 # TODO: detector score combination through BFS should be implemented
 # See https://github.com/yzhao062/pyod/issues/59
@@ -230,7 +230,7 @@ class FeatureBagging(BaseDetector):
             self.estimator_params = estimator_params
         else:
             self.estimator_params = {}
-    
+
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
 
@@ -282,7 +282,7 @@ class FeatureBagging(BaseDetector):
         n_jobs, n_estimators, starts = _partition_estimators(self.n_estimators,
                                                              self.n_jobs)
 
-        all_results = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(
+        all_results = Parallel(n_jobs=self.n_jobs, verbose=self.verbose)(
             delayed(_parallel_fit_estimators)(
                 n_estimators[i],
                 self,
@@ -296,7 +296,6 @@ class FeatureBagging(BaseDetector):
         self.estimators_features_ = list(itertools.chain.from_iterable(
             t[1] for t in all_results))
 
-
         # decision score matrix from all estimators
         all_decision_scores = self._get_decision_scores()
 
@@ -309,7 +308,8 @@ class FeatureBagging(BaseDetector):
 
         return self
 
-def decision_function(self, X):
+
+    def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
         The anomaly score of an input sample is computed based on different
         detector algorithms. For consistency, outliers are assigned with
@@ -344,10 +344,10 @@ def decision_function(self, X):
                 self.estimators_features_[starts[i]:starts[i + 1]],
                 X)
             for i in range(n_jobs))
-        
+
         # Reduce
         all_pred_scores = np.concatenate(all_pred_scores, axis=1)
-        
+
         if self.combination == 'average':
             return average(all_pred_scores)
         else:
