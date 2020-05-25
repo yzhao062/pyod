@@ -282,7 +282,7 @@ class FeatureBagging(BaseDetector):
         n_jobs, n_estimators, starts = _partition_estimators(self.n_estimators,
                                                              self.n_jobs)
 
-        all_results = Parallel(n_jobs=self.n_jobs, verbose=self.verbose)(
+        all_results = Parallel(n_jobs=n_jobs, verbose=self.verbose)(
             delayed(_parallel_fit_estimators)(
                 n_estimators[i],
                 self,
