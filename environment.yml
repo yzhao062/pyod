@@ -12,3 +12,7 @@ dependencies:
   - suod
   - tensorflow
   - xgboost
+  - pip
+  - pip:
+      - suod
+      - combo
