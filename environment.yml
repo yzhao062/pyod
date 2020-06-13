@@ -1,6 +1,5 @@
 name: pyod
 dependencies:
-  - combo
   - keras
   - matplotlib
   - nose
@@ -9,6 +8,10 @@ dependencies:
   - pandas
   - scikit-learn
   - scipy
-  - suod
+  - 
   - tensorflow
   - xgboost
+  - pip
+  - pip:
+    - combo
+    - suod
