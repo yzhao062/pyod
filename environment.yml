@@ -12,5 +12,6 @@ dependencies:
   - xgboost
   - pip
   - pip:
-    - combo
-    - suod
+      - suod
+      - combo
+
