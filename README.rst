@@ -80,9 +80,12 @@ Python Outlier Detection (PyOD)
 -----
 
 The project is free of charge thanks to community sponsorship. Check out the banner below to support us :)
+
+
 .. image:: https://images.gitads.io/pyod
    :target: https://tracking.gitads.io/?repo=pyod
-   :alt: License
+   :alt: sponsorship
+
 
 PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in 
 multivariate data. This exciting yet challenging field is commonly referred as 
