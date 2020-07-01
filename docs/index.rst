@@ -162,6 +162,17 @@ or::
 ----
 
 
+The project is free of charge thanks to community sponsorship. Check out the banner below to support us :)
+
+
+.. image:: https://images.gitads.io/pyod
+   :target: https://tracking.gitads.io/?repo=pyod
+   :alt: sponsorship
+
+
+----
+
+
 Implemented Algorithms
 ======================
 

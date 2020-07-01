@@ -79,7 +79,8 @@ Python Outlier Detection (PyOD)
 
 -----
 
-PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in 
+
+PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in
 multivariate data. This exciting yet challenging field is commonly referred as 
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
@@ -168,6 +169,16 @@ or::
 * `How to Contribute <#how-to-contribute>`_
 * `Inclusion Criteria <#inclusion-criteria>`_
 
+
+----
+
+
+The project is free of charge thanks to community sponsorship. Check out the banner below to support us :)
+
+
+.. image:: https://images.gitads.io/pyod
+   :target: https://tracking.gitads.io/?repo=pyod
+   :alt: sponsorship
 
 ----
 
