@@ -32,7 +32,7 @@ class HBOS(BaseDetector):
     alpha : float in (0, 1), optional (default=0.1)
         The regularizer for preventing overflow.
 
-    tol : float in (0, 1), optional (default=0.1)
+    tol : float in (0, 1), optional (default=0.5)
         The parameter to decide the flexibility while dealing
         the samples falling outside the bins.
 
