@@ -103,7 +103,8 @@ v<0.7.9>, <04/20/2020> -- Relax the number of n_neighbors in ABOD and COF.
 v<0.7.9>, <05/01/2020> -- Extend Vanilla VAE to Beta VAE by Dr Andrij Vasylenko.
 v<0.7.9>, <05/01/2020> -- Add Conda Badge.
 v<0.8.0>, <05/18/2020> -- Update test frameworks by reflecting sklearn change.
-v<0.8.1>, <07/11/2020> -- Bug fix and documentation update
+v<0.8.1>, <07/01/2020> -- Bug fix and documentation update.
+v<0.8.2>, <07/04/2020> -- Add a set of utility functions.
 
 
 

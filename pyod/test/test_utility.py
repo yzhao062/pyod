@@ -25,6 +25,9 @@ from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores
 from pyod.utils.utility import argmaxn
+from pyod.utils.utility import get_list_diff
+from pyod.utils.utility import get_diff_elements
+from pyod.utils.utility import get_intersection
 from pyod.utils.utility import invert_order
 from pyod.utils.utility import check_detector
 from pyod.utils.utility import score_to_label
@@ -217,6 +220,57 @@ class TestMetrics(unittest.TestCase):
             argmaxn(self.value_lists, -1)
         with assert_raises(ValueError):
             argmaxn(self.value_lists, 20)
+
+    def test_get_list_diff(self):
+        li1 = [1, 2, 3, 4]
+        li2 = [2, 3, 4, 5]
+        li3 = [8]
+
+        ind = get_list_diff(li1, li2)
+        assert (ind == [1])
+
+        ind = get_list_diff(np.asarray(li2), np.asarray(li1))
+        assert (ind == [5])
+
+        ind = get_list_diff(li1, li1)
+        assert (ind == [])
+
+        ind = get_list_diff(li1, li3)
+        assert (ind == [1, 2, 3, 4])
+
+    def test_get_diff_elements(self):
+        li1 = [1, 2, 3, 4]
+        li2 = [2, 3, 4, 5]
+        li3 = [8]
+
+        ind = get_diff_elements(li1, li2)
+        assert (ind == [1, 5])
+
+        ind = get_diff_elements(np.asarray(li2), np.asarray(li1))
+        assert (ind == [5, 1])
+
+        ind = get_diff_elements(li1, li1)
+        assert (ind == [])
+
+        ind = get_diff_elements(li1, li3)
+        assert (ind == [1, 2, 3, 4, 8])
+
+    def test_get_intersection(self):
+        li1 = [1, 2, 3, 4]
+        li2 = [2, 3, 4, 5]
+        li3 = [8]
+
+        ind = get_intersection(li1, li2)
+        assert (ind == [2, 3, 4])
+
+        ind = get_intersection(np.asarray(li2), np.asarray(li1))
+        assert (ind == [2, 3, 4])
+
+        ind = get_intersection(li1, li1)
+        assert (ind == [1, 2, 3, 4])
+
+        ind = get_intersection(li1, li3)
+        assert (ind == [])
 
     def tearDown(self):
         pass
