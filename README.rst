@@ -173,12 +173,13 @@ or::
 ----
 
 
-The project is free of charge thanks to community sponsorship. Check out the banner below to support us :)
+pyod is being sponsored by the following tool; please help to support us by taking a look and signing up to a free trial.
 
 
 .. image:: https://images.gitads.io/pyod
    :target: https://tracking.gitads.io/?repo=pyod
    :alt: sponsorship
+
 
 ----
 
