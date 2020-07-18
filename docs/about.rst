@@ -16,7 +16,7 @@ Zain Nasrullah (Data Scientist at RBC; MSc in Computer Science from University o
 - Joined in 2018
 - `LinkedIn (Zain Nasrullah) <https://www.linkedin.com/in/zain-nasrullah-097a2b85>`_
 
-Winston (Zheng) Li (Founder of `arima <https://www.arimadata.com/>`_, Stat Ph.D. from University of Toronto, Instructor @ Northeastern University):
+Winston (Zheng) Li (Founder of `arima <https://www.arimadata.com/>`_, Part-time Instructor @ Northeastern University):
 
 - Joined in 2018
 - `LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl>`_
