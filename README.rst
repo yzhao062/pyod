@@ -423,7 +423,8 @@ More detailed instructions for running examples can be found in `examples direct
 
    .. code-block:: python
 
-
+       from pyod.utils.data import evaluate_print
+       
        # evaluate and print the results
        print("\nOn Training Data:")
        evaluate_print(clf_name, y_train, y_train_scores)
