@@ -84,7 +84,9 @@ PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying
 multivariate data. This exciting yet challenging field is commonly referred as 
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
-Since 2017, PyOD has been successfully used in various academic researches and
+
+PyOD includes more than 30 detection algorithms, from classical LOF (SIGMOD 2000) to
+the latest COPOD (ICDM 2020). Since 2017, PyOD has been successfully used in numerous academic researches and
 commercial products [#Gopalan2019PIDForest]_ [#Li2019MADGAN]_ [#Wang2020adVAE]_ [#Zhao2019LSCP]_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
