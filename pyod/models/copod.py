@@ -142,7 +142,7 @@ class COPOD(BaseDetector):
         plt.xticks(range(1, self.O.shape[1] + 1))
         plt.yticks(range(0, int(self.O.max().max()) + 1))
         label = 'Outlier' if self.labels_[ind] == 1 else 'Inlier'
-        plt.title(f'Outlier Score Breakdown for Data #{ind+1} ({label})')
+        plt.title('Outlier Score Breakdown for Data #{index} ({label})'.format(index=ind+1, label=label))
         plt.legend()
         plt.show()
         return self.O.iloc[ind], self.O.quantile(q=cutoffs[0], axis=0), self.O.quantile(q=cutoffs[1], axis=0)
