@@ -97,7 +97,7 @@ It is also well acknowledged by the machine learning community with various dedi
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **Neural Networks/Deep Learning** and **latest detection algorithms like COPOD**.
+* **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like COPOD**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
@@ -113,17 +113,17 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 **API Demo**\ :
 
 
-   .. code-block:: python
+.. code-block:: python
 
 
-       # train the COPOD detector
-       from pyod.models.knn import COPOD
-       clf = COPOD()
-       clf.fit(X_train)
+    # train the COPOD detector
+    from pyod.models.copod import COPOD
+    clf = COPOD()
+    clf.fit(X_train)
 
-       # get outlier scores
-       y_train_scores = clf.decision_scores_  # raw outlier scores
-       y_test_scores = clf.decision_function(X_test)  # outlier scores
+    # get outlier scores
+    y_train_scores = clf.decision_scores_  # raw outlier scores
+    y_test_scores = clf.decision_function(X_test)  # outlier scores
 
 
 **Citing PyOD**\ :
