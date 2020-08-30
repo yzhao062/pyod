@@ -220,6 +220,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 * combo>=0.0.8
 * numpy>=1.13
 * numba>=0.35
+* pandas>=0.25
 * scipy>=0.19.1
 * scikit_learn>=0.19.1
 * statsmodels
