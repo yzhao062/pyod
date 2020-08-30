@@ -48,6 +48,16 @@ pyod.models.combination module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.copod module
+----------------------
+
+.. automodule:: pyod.models.copod
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.feature\_bagging module
 -----------------------------------
 
@@ -127,6 +137,16 @@ pyod.models.lscp module
 
 .. automodule:: pyod.models.lscp
     :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.mad module
+----------------------
+
+.. automodule:: pyod.models.mad
+    :members:
+    :exclude-members:
     :undoc-members:
     :show-inheritance:
     :inherited-members:

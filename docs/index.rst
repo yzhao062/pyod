@@ -101,7 +101,7 @@ It is also well acknowledged by the machine learning community with various dedi
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
+* **Advanced models**\ , including **Neural Networks/Deep Learning** and **latest detection algorithms like COPOD**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
@@ -119,9 +119,9 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 .. code-block:: python
 
 
-    # train the KNN detector
-    from pyod.models.knn import KNN
-    clf = KNN()
+    # train the COPOD detector
+    from pyod.models.knn import COPOD
+    clf = COPOD()
     clf.fit(X_train)
 
     # get outlier scores
@@ -189,6 +189,8 @@ Proximity-Based      MedKNN            Median kNN (use the median distance to k 
 Proximity-Based      SOD               Subspace Outlier Detection                                                                              2009   :class:`pyod.models.sod.SOD`                         :cite:`kriegel2009outlier`
 Probabilistic        ABOD              Angle-Based Outlier Detection                                                                           2008   :class:`pyod.models.abod.ABOD`                       :cite:`a-kriegel2008angle`
 Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                  2008   :class:`pyod.models.abod.ABOD`                       :cite:`a-kriegel2008angle`
+Probabilistic        COPOD             COPOD: Copula-Based Outlier Detection                                                                   2020   :class:`pyod.models.copod.COPOD`                     :cite:`a-li2020copod`
+Probabilistic        MAD               Median Absolute Deviation (MAD)                                                                         1993   :class:`pyod.models.mad.MAD`                         :cite:`a-iglewicz1993detect`
 Probabilistic        SOS               Stochastic Outlier Selection                                                                            2012   :class:`pyod.models.sos.SOS`                         :cite:`a-janssens2012stochastic`
 Outlier Ensembles    IForest           Isolation Forest                                                                                        2008   :class:`pyod.models.iforest.IForest`                 :cite:`a-liu2008isolation,a-liu2012isolation`
 Outlier Ensembles                      Feature Bagging                                                                                         2005   :class:`pyod.models.feature_bagging.FeatureBagging`  :cite:`a-lazarevic2005feature`

@@ -105,6 +105,7 @@ v<0.7.9>, <05/01/2020> -- Add Conda Badge.
 v<0.8.0>, <05/18/2020> -- Update test frameworks by reflecting sklearn change.
 v<0.8.1>, <07/01/2020> -- Bug fix and documentation update.
 v<0.8.2>, <07/04/2020> -- Add a set of utility functions.
+v<0.8.2>, <08/30/2020> -- Add COPOD and MAD algorithm.
 
 
 

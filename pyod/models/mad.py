@@ -26,7 +26,7 @@ def _check_dim(X):
 class MAD(BaseDetector):
     """Median Absolute Deviation: for measuring the distances between
     data points and the median in terms of median distance.
-    See :cite:`Iglewicz, B. and Hoaglin, D.C., 1993. How to detect and handle outliers (Vol. 16). Asq Press.` for details.
+    See :cite:`iglewicz1993detect` for details.
 
     Parameters
     ----------
@@ -55,11 +55,13 @@ class MAD(BaseDetector):
     """
 
     def __init__(self, threshold=3.5):
-        # contamination is unneeded since threshold must be decided manually by the user
+        # contamination is unneeded since threshold must be
+        # decided manually by the user
         super(MAD, self).__init__()
         self.decision_scores_ = None
         if not isinstance(threshold, (float, int)):
-            raise TypeError('threshold must be a number. Got {}'.format(type(threshold)))
+            raise TypeError(
+                'threshold must be a number. Got {}'.format(type(threshold)))
         self.threshold_ = threshold
 
     def fit(self, X, y=None):
