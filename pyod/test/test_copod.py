@@ -100,6 +100,10 @@ class TestCOPOD(unittest.TestCase):
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
+    def test_plot(self):
+        os, cutoff1, cutoff2 = self.clf.explain_outlier(ind=1)
+        assert_array_less(0, os)
+
     def tearDown(self):
         pass
 

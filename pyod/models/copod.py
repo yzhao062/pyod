@@ -134,7 +134,7 @@ class COPOD(BaseDetector):
         cutoffs = [1-self.contamination, 0.99] if cutoffs is None else cutoffs
         plt.plot(range(1, self.O.shape[1] + 1), self.O.iloc[ind], label='Outlier Score')
         for i in cutoffs:
-            plt.plot(range(1, self.O.shape[1] + 1), self.O.quantile(q=i, axis=0), '-', label=f'{i} Cutoff Band')
+            plt.plot(range(1, self.O.shape[1] + 1), self.O.quantile(q=i, axis=0), '-', label='{percentile} Cutoff Band'.format(percentile=i))
         plt.xlim([1, self.O.shape[1] + 1])
         plt.ylim([0, int(self.O.max().max()) + 1])
         plt.ylabel('Dimensional Outlier Score')
