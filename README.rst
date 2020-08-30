@@ -97,7 +97,7 @@ It is also well acknowledged by the machine learning community with various dedi
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **Neural Networks/Deep Learning** and **Outlier Ensembles**.
+* **Advanced models**\ , including **Neural Networks/Deep Learning** and **latest detection algorithms like COPOD**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Compatible with both Python 2 & 3**.
 
@@ -116,9 +116,9 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
    .. code-block:: python
 
 
-       # train the KNN detector
-       from pyod.models.knn import KNN
-       clf = KNN()
+       # train the COPOD detector
+       from pyod.models.knn import COPOD
+       clf = COPOD()
        clf.fit(X_train)
 
        # get outlier scores
@@ -173,6 +173,17 @@ or::
 ----
 
 
+pyod is being sponsored by the following tool; please help to support us by taking a look and signing up to a free trial.
+
+
+.. image:: https://images.gitads.io/pyod
+   :target: https://tracking.gitads.io/?repo=pyod
+   :alt: sponsorship
+
+
+----
+
+
 Installation
 ^^^^^^^^^^^^
 
@@ -209,8 +220,10 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 * combo>=0.0.8
 * numpy>=1.13
 * numba>=0.35
+* pandas>=0.25
 * scipy>=0.19.1
 * scikit_learn>=0.19.1
+* statsmodels
 
 **Optional Dependencies (see details below)**\ :
 
@@ -253,8 +266,6 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 * **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
 * **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
 * **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
-* **fit_predict(X)**\ : **[Deprecated in V0.6.9]** Fit detector first and then predict whether a particular sample is an outlier or not.
-* **fit_predict_score(X, y)**\ : **[Deprecated in V0.6.9]** Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
 
 
 Key Attributes of a fitted model:
@@ -297,7 +308,9 @@ Proximity-Based      AvgKNN            Average kNN (use the average distance to 
 Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
 Proximity-Based      SOD               Subspace Outlier Detection                                                                              2009   [#Kriegel2009Outlier]_
 Probabilistic        ABOD              Angle-Based Outlier Detection                                                                           2008   [#Kriegel2008Angle]_
+Probabilistic        COPOD             COPOD: Copula-Based Outlier Detection                                                                   2020   [#Li2020COPOD]_
 Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                  2008   [#Kriegel2008Angle]_
+Probabilistic        MAD               Median Absolute Deviation (MAD)                                                                         1993   [#Iglewicz1993How]_
 Probabilistic        SOS               Stochastic Outlier Selection                                                                            2012   [#Janssens2012Stochastic]_
 Outlier Ensembles    IForest           Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
 Outlier Ensembles                      Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
@@ -603,6 +616,8 @@ Reference
 
 .. [#He2003Discovering] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
 
+.. [#Iglewicz1993How] Iglewicz, B. and Hoaglin, D.C., 1993. How to detect and handle outliers (Vol. 16). Asq Press.
+
 .. [#Janssens2012Stochastic] Janssens, J.H.M., Huszár, F., Postma, E.O. and van den Herik, H.J., 2012. Stochastic outlier selection. Technical report TiCC TR 2012-001, Tilburg University, Tilburg Center for Cognition and Communication, Tilburg, The Netherlands.
 
 .. [#Kingma2013Auto] Kingma, D.P. and Welling, M., 2013. Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114.
@@ -614,6 +629,8 @@ Reference
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 .. [#Li2019MADGAN] Li, D., Chen, D., Jin, B., Shi, L., Goh, J. and Ng, S.K., 2019, September. MAD-GAN: Multivariate anomaly detection for time series data with generative adversarial networks. In *International Conference on Artificial Neural Networks* (pp. 703-716). Springer, Cham.
+
+.. [#Li2020COPOD] Li, Z., Zhao, Y., Botta, N., Ionescu, C. and Hu, X. COPOD: Copula-Based Outlier Detection. *IEEE International Conference on Data Mining (ICDM)*, 2020.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
 
