@@ -123,7 +123,7 @@ class COPOD(BaseDetector):
                                        i] >= self.threshold_ else 0
         return self.decision_scores_
 
-    def explain_outlier(self, ind, cutoffs=None):
+    def explain_outlier(self, ind, cutoffs=None):  # pragma: no cover
         """Plot dimensional outlier graph for a given data
             point within the dataset.
         Parameters
