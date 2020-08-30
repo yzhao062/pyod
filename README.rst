@@ -222,6 +222,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 * numba>=0.35
 * scipy>=0.19.1
 * scikit_learn>=0.19.1
+* statsmodels
 
 **Optional Dependencies (see details below)**\ :
 
@@ -264,8 +265,6 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 * **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
 * **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
 * **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
-* **fit_predict(X)**\ : **[Deprecated in V0.6.9]** Fit detector first and then predict whether a particular sample is an outlier or not.
-* **fit_predict_score(X, y)**\ : **[Deprecated in V0.6.9]** Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
 
 
 Key Attributes of a fitted model:

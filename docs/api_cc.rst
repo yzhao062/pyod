@@ -7,8 +7,6 @@ The following APIs are applicable for all detector models for easy use.
 * :func:`pyod.models.base.BaseDetector.decision_function`: Predict raw anomaly score of X using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict`: Predict if a particular sample is an outlier or not using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Predict the probability of a sample being outlier using the fitted detector.
-* :func:`pyod.models.base.BaseDetector.fit_predict`: **[Deprecated in V0.6.9]** Fit detector first and then predict whether a particular sample is an outlier or not.
-* :func:`pyod.models.base.BaseDetector.fit_predict_score`: **[Deprecated in V0.6.9]** Fit the detector, predict on samples, and evaluate the model by predefined metrics, e.g., ROC.
 
 
 Key Attributes of a fitted model:

@@ -10,6 +10,7 @@ scipy>=0.19.1
 scikit_learn>=0.19.1
 six
 sphinxcontrib-bibtex
+statsmodels
 suod
 tensorflow
 xgboost
