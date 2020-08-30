@@ -27,8 +27,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pyod.models.copod import COPOD
 from pyod.utils.data import generate_data
 
-
-class TestPCA(unittest.TestCase):
+class TestCOPOD(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
         self.n_test = 100
@@ -38,8 +37,7 @@ class TestPCA(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test, n_features=10,
             contamination=self.contamination, random_state=42)
 
-        self.clf = COPOD(contamination=self.contamination,
-                       random_state=42)
+        self.clf = COPOD(contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):

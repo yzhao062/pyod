@@ -11,6 +11,7 @@ import pandas as pd
 from pyod.models.base import BaseDetector
 from statsmodels.distributions.empirical_distribution import ECDF
 from scipy.stats import skew
+from sklearn.utils import check_array
 import matplotlib.pyplot as plt
 
 class COPOD(BaseDetector):
@@ -74,7 +75,10 @@ class COPOD(BaseDetector):
         self : object
             Fitted estimator.
         """
+        X = check_array(X)
+        self._set_n_classes(y=None)
         self.X_train = X
+        self.decision_function(X)
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.

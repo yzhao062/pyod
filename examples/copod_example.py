@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # train COPOD detector
     clf_name = 'COPOD'
     clf = COPOD()
-    clf.decision_function(X_train)
+    clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
