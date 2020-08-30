@@ -7,4 +7,5 @@ pandas>=0.25
 scipy>=0.19.1
 scikit_learn>=0.19.1
 six
+statsmodels
 suod
