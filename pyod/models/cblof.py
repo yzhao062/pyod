@@ -280,7 +280,7 @@ class CBLOF(BaseDetector):
                 alpha_list.append(i)
 
             if size_clusters[sorted_cluster_indices[i - 1]] / size_clusters[
-                sorted_cluster_indices[i]] >= self.beta:
+                    sorted_cluster_indices[i]] >= self.beta:
                 beta_list.append(i)
 
             # Find the separation index fulfills both alpha and beta
@@ -297,9 +297,9 @@ class CBLOF(BaseDetector):
                              "change n_clusters or change clustering method")
 
         self.small_cluster_labels_ = sorted_cluster_indices[
-                                     self._clustering_threshold:]
+            self._clustering_threshold:]
         self.large_cluster_labels_ = sorted_cluster_indices[
-                                     0:self._clustering_threshold]
+            0:self._clustering_threshold]
 
         # No need to calculate small cluster center
         # self.small_cluster_centers_ = self.cluster_centers_[
@@ -333,6 +333,6 @@ class CBLOF(BaseDetector):
 
         if self.use_weights:
             # Weights are calculated as the number of elements in the cluster
-            scores = scores * self.cluster_sizes_[labels]
+            scores = scores / self.cluster_sizes_[labels]
 
         return scores.ravel()
