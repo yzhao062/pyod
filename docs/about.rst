@@ -5,7 +5,7 @@ About us
 Core Development Team
 ---------------------
 
-Yue Zhao (Ph.D. Student @ Carnegie Mellon University; MSc in Computer Science from University of Toronto):
+Yue Zhao (Ph.D. Student @ Carnegie Mellon University):
 
 - Initialized the project in 2017
 - `Homepage <https://www.andrew.cmu.edu/user/yuezhao2/>`_
@@ -28,7 +28,7 @@ Yahya Almardeny (Software Systems & Machine Learning Engineer @ TSSG):
 
 Antônio Pedro Camargo (University of Campinas)
 
-- Joined in 2020 (Our Conda Maintainer)
+- Joined in 2020 (our Conda maintainer)
 - `GitHub (Antônio Pedro Camargo) <https://github.com/apcamargo>`_
 
 Dr Andrij Vasylenko (Research Associate @ University of Liverpool)
