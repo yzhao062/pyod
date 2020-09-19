@@ -71,6 +71,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
 
     .. code-block:: python
 
+        from pyod.utils.data import evaluate_print
         # evaluate and print the results
         print("\nOn Training Data:")
         evaluate_print(clf_name, y_train, y_train_scores)

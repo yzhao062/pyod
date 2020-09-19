@@ -287,14 +287,14 @@ In short, we recommend to use joblib or pickle for saving and loading PyOD model
 See `"examples/save_load_model_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/save_load_model_example.py>`_ for an example.
 In short, it is simple as below:
 
-   .. code-block:: python
+.. code-block:: python
 
-       from joblib import dump, load
+    from joblib import dump, load
 
-       # save the model
-       dump(clf, 'clf.joblib')
-       # load the model
-       clf = load('clf.joblib')
+    # save the model
+    dump(clf, 'clf.joblib')
+    # load the model
+    clf = load('clf.joblib')
 
 
 ----
