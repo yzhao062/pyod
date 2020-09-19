@@ -290,6 +290,7 @@ of the training data X_train, one should call clf.fit(X_train) and use
 
 
    install
+   model_persistence
    example
    benchmark
 

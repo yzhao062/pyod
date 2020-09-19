@@ -171,7 +171,7 @@ class SO_GAAL(BaseDetector):
                 stop = 1
 
         # Detection result
-        self.decision_scores_ = self.discriminator.predict(X)
+        self.decision_scores_ = self.discriminator.predict(X).ravel()
         self._process_decision_scores()
         return self
 
@@ -195,5 +195,5 @@ class SO_GAAL(BaseDetector):
         """
         check_is_fitted(self, ['discriminator'])
         X = check_array(X)
-        pred_scores = self.discriminator.predict(X)
+        pred_scores = self.discriminator.predict(X).ravel()
         return pred_scores

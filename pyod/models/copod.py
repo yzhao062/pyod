@@ -121,7 +121,7 @@ class COPOD(BaseDetector):
         for i in range(len(self.decision_scores_)):
             self.labels_[i] = 1 if self.decision_scores_[
                                        i] >= self.threshold_ else 0
-        return self.decision_scores_
+        return self.decision_scores_.ravel()
 
     def explain_outlier(self, ind, cutoffs=None):  # pragma: no cover
         """Plot dimensional outlier graph for a given data
