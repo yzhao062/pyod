@@ -92,9 +92,9 @@ class CBLOF(BaseDetector):
         number generator; If None, the random number generator is the
         RandomState instance used by `np.random`.
 
-    n_jobs : integer, optional (default=1)
-        The number of jobs to run in parallel for both `fit` and `predict`.
-        If -1, then the number of jobs is set to the number of cores.
+    n_jobs : integer, optional (default='deprecated')
+        DEPRECATED
+        No effect.
 
     Attributes
     ----------
@@ -139,7 +139,7 @@ class CBLOF(BaseDetector):
     def __init__(self, n_clusters=8, contamination=0.1,
                  clustering_estimator=None, alpha=0.9, beta=5,
                  use_weights=False, check_estimator=False, random_state=None,
-                 n_jobs=1):
+                 n_jobs='deprecated'):
         super(CBLOF, self).__init__(contamination=contamination)
         self.n_clusters = n_clusters
         self.clustering_estimator = clustering_estimator
@@ -148,7 +148,9 @@ class CBLOF(BaseDetector):
         self.use_weights = use_weights
         self.check_estimator = check_estimator
         self.random_state = random_state
-        self.n_jobs = n_jobs
+        if n_jobs != 'deprecated':
+            warnings.warn("'n_jobs' is deprecated and will be"
+                          " removed in a future version.", FutureWarning)
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
@@ -177,8 +179,7 @@ class CBLOF(BaseDetector):
         # number of clusters are default to 8
         self._validate_estimator(default=KMeans(
             n_clusters=self.n_clusters,
-            random_state=self.random_state,
-            n_jobs=self.n_jobs))
+            random_state=self.random_state))
 
         self.clustering_estimator_.fit(X=X, y=y)
         # Get the labels of the clustering results
