@@ -108,6 +108,7 @@ v<0.8.2>, <07/04/2020> -- Add a set of utility functions.
 v<0.8.2>, <08/30/2020> -- Add COPOD and MAD algorithm.
 v<0.8.3>, <09/01/2020> -- Make decision score consistent.
 v<0.8.3>, <09/19/2020> -- Add model persistence documentation (save and load).
+v<0.8.4>, <10/13/2020> -- Fix COPOD code inconsistency (issue #239).
 
 
 
