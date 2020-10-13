@@ -79,9 +79,10 @@ class COPOD(BaseDetector):
             Fitted estimator.
         """
         X = check_array(X)
-        self._set_n_classes(y=None)
+        self._set_n_classes(y)
         self.X_train = X
         self.decision_function(X)
+        return self
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
