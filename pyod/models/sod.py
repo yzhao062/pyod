@@ -14,7 +14,7 @@ from .base import BaseDetector
 
 
 @nb.njit(parallel=True)
-def _snn_imp(ind, ref_set_):
+def _snn_imp(ind, ref_set):
     """Internal function for fast snn calculation
 
     Parameters
@@ -22,20 +22,20 @@ def _snn_imp(ind, ref_set_):
     ind : int
         Indices return by kNN.
 
-    ref_set_ : int, optional (default=10)
+    ref_set : int, optional (default=10)
         specifies the number of shared nearest neighbors to create the
         reference set. Note that ref_set must be smaller than n_neighbors.
 
     """
     n = ind.shape[0]
-    _count = np.zeros(shape=(n, ref_set_), dtype=np.uint32)
+    _count = np.zeros(shape=(n, ref_set), dtype=np.uint32)
     for i in nb.prange(n):
         temp = np.empty(n, dtype=np.uint32)
         test_element_set = set(ind[i])
         for j in nb.prange(n):
             temp[j] = len(set(ind[j]).intersection(test_element_set))
         temp[i] = np.iinfo(np.uint32).max
-        _count[i] = np.argsort(temp)[::-1][1:ref_set_ + 1]
+        _count[i] = np.argsort(temp)[::-1][1:ref_set + 1]
 
     return _count
 
@@ -90,13 +90,13 @@ class SOD(BaseDetector):
     def __init__(self, contamination=0.1, n_neighbors=20, ref_set=10,
                  alpha=0.8):
         super(SOD, self).__init__(contamination=contamination)
-        if isinstance(n_neighbors, int):
+        if isinstance(n_neighbors, (int, np.int, np.int32, np.int64)):
             check_parameter(n_neighbors, low=1, param_name='n_neighbors')
         else:
             raise ValueError(
                 "n_neighbors should be int. Got %s" % type(n_neighbors))
 
-        if isinstance(ref_set, int):
+        if isinstance(ref_set, (int, np.int, np.int32, np.int64)):
             check_parameter(ref_set, low=1, high=n_neighbors,
                             param_name='ref_set')
         else:
@@ -107,9 +107,9 @@ class SOD(BaseDetector):
         else:
             raise ValueError("alpha should be float. Got %s" % type(alpha))
 
-        self.n_neighbors_ = n_neighbors
-        self.ref_set_ = ref_set
-        self.alpha_ = alpha
+        self.n_neighbors = n_neighbors
+        self.ref_set = ref_set
+        self.alpha = alpha
         self.decision_scores_ = None
 
     def fit(self, X, y=None):
@@ -166,11 +166,11 @@ class SOD(BaseDetector):
         snn_indices : numpy array of shape (n_shared_nearest_neighbors,)
             The indices of top k shared nearest neighbors for each observation.
         """
-        knn = NearestNeighbors(n_neighbors=self.n_neighbors_)
+        knn = NearestNeighbors(n_neighbors=self.n_neighbors)
         knn.fit(X)
         # Get the knn index
         ind = knn.kneighbors(return_distance=False)
-        return _snn_imp(ind, self.ref_set_)
+        return _snn_imp(ind, self.ref_set)
 
     def _sod(self, X):
         """This function is called internally to perform subspace outlier 
@@ -188,8 +188,8 @@ class SOD(BaseDetector):
             ref = X[ref_inds[i,],]
             means = np.mean(ref, axis=0)  # mean of each column
             # average squared distance of the reference to the mean
-            var_total = np.sum(np.sum(np.square(ref - means))) / self.ref_set_
-            var_expect = self.alpha_ * var_total / X.shape[1]
+            var_total = np.sum(np.sum(np.square(ref - means))) / self.ref_set
+            var_expect = self.alpha * var_total / X.shape[1]
             var_actual = np.var(ref, axis=0)  # variance of each attribute
             var_inds = [1 if (j < var_expect) else 0 for j in var_actual]
             rel_dim = np.sum(var_inds)

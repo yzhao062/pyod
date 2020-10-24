@@ -68,12 +68,12 @@ class TestSOD(unittest.TestCase):
                 self.clf.labels_ is not None)
         assert (hasattr(self.clf, 'threshold_') and
                 self.clf.threshold_ is not None)
-        assert (hasattr(self.clf, 'alpha_') and
-                self.clf.alpha_ is not None)
-        assert (hasattr(self.clf, 'ref_set_') and
-                self.clf.ref_set_ is not None)
-        assert (hasattr(self.clf, 'n_neighbors_') and
-                self.clf.n_neighbors_ is not None)
+        assert (hasattr(self.clf, 'alpha') and
+                self.clf.alpha is not None)
+        assert (hasattr(self.clf, 'ref_set') and
+                self.clf.ref_set is not None)
+        assert (hasattr(self.clf, 'n_neighbors') and
+                self.clf.n_neighbors is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
