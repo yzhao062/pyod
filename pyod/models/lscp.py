@@ -341,10 +341,18 @@ class LSCP(BaseDetector):
         # keep nearby points which occur at least local_region_threshold times
         final_local_region_list = [[]] * X_test_norm.shape[0]
         for j in range(X_test_norm.shape[0]):
-            final_local_region_list[j] = [item for item, count in
-                                          collections.Counter(
-                                              local_region_list[j]).items() if
-                                          count > self.local_region_threshold]
+            tmp = [item for item, count in collections.Counter(
+                local_region_list[j]).items() if
+                   count > self.local_region_threshold]
+            decrease_value = 0
+            while len(tmp) < 2:
+                decrease_value = decrease_value + 1
+                assert decrease_value < self.local_region_threshold
+                tmp = [item for item, count in
+                       collections.Counter(local_region_list[j]).items() if
+                       count > (self.local_region_threshold - decrease_value)]
+
+            final_local_region_list[j] = tmp
 
         return final_local_region_list
 
