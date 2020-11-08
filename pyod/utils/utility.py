@@ -279,6 +279,7 @@ def get_label_n(y, y_pred, n=None):
 
     return y_pred
 
+
 def get_intersection(lst1, lst2):
     """get the overlapping between two lists
 
@@ -321,6 +322,7 @@ def get_list_diff(li1, li2):
 
     return (list(set(li1) - set(li2)))
 
+
 def get_diff_elements(li1, li2):
     """get the elements in li1 but not li2, and vice versa
 
@@ -343,6 +345,7 @@ def get_diff_elements(li1, li2):
     #     li1 = li1.tolist()
 
     return (list(set(li1) - set(li2)) + list(set(li2) - set(li1)))
+
 
 def argmaxn(value_list, n, order='desc'):
     """Return the index of top n elements in the list
