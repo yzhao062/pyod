@@ -11,6 +11,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 
@@ -19,16 +20,16 @@ sys.path.append(
 
 from pyod.utils.data import generate_data_categorical
 
-
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
 
     # Generate sample data in clusters
-    X_train, X_test, y_train, y_test = generate_data_categorical(n_train=200, n_test=50,
-                                                                 n_category_in=8, n_category_out=5,
-                                                                 n_informative=1, n_features=1,
-                                                                 contamination=contamination,
-                                                                 shuffle=True, random_state=42)
+    X_train, X_test, y_train, y_test = generate_data_categorical \
+        (n_train=200, n_test=50,
+         n_category_in=8, n_category_out=5,
+         n_informative=1, n_features=1,
+         contamination=contamination,
+         shuffle=True, random_state=42)
 
     # note that visalizing it can only be in 1 dimension!
     cats = list(np.ravel(X_train))

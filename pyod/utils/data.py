@@ -494,7 +494,6 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
                               n_informative=2, n_category_in=2,
                               n_category_out=2, contamination=0.1,
                               shuffle=True, random_state=None):
-
     """Utility function to generate synthesized categorical data.
 
     Parameters
