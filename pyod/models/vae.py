@@ -22,13 +22,6 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from keras.models import Model
-from keras.layers import Lambda, Input, Dense, Dropout
-from keras.regularizers import l2
-from keras.losses import mse, binary_crossentropy
-from keras.utils import plot_model
-from keras import backend as K
-
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -37,6 +30,21 @@ from ..utils.utility import check_parameter
 from ..utils.stat_models import pairwise_distances_no_broadcast
 
 from .base import BaseDetector
+from .base_dl import _get_tensorflow_version
+
+# if tensorflow 2, import from tf directly
+if _get_tensorflow_version() == 1:
+    from keras.models import Model
+    from keras.layers import Lambda, Input, Dense, Dropout
+    from keras.regularizers import l2
+    from keras.losses import mse, binary_crossentropy
+    from keras import backend as K
+else:
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import Lambda, Input, Dense, Dropout
+    from tensorflow.keras.regularizers import l2
+    from tensorflow.keras.losses import mse, binary_crossentropy
+    from tensorflow.keras import backend as K
 
 
 class VAE(BaseDetector):
@@ -114,13 +122,13 @@ class VAE(BaseDetector):
         If True, apply standardization on the data.
 
     verbose : int, optional (default=1)
-        Verbosity mode.
+        verbose mode.
 
         - 0 = silent
         - 1 = progress bar
         - 2 = one line per epoch.
 
-        For verbosity >= 1, model summary may be printed.
+        For verbose >= 1, model summary may be printed.
 
     random_state : random_state: int, RandomState instance or None, opti
         (default=None)
@@ -172,7 +180,7 @@ class VAE(BaseDetector):
                  output_activation='sigmoid', loss=mse, optimizer='adam',
                  epochs=100, batch_size=32, dropout_rate=0.2,
                  l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbosity=1, random_state=None, contamination=0.1,
+                 verbose=1, random_state=None, contamination=0.1,
                  gamma=1.0, capacity=0.0):
         super(VAE, self).__init__(contamination=contamination)
         self.encoder_neurons = encoder_neurons
@@ -187,7 +195,7 @@ class VAE(BaseDetector):
         self.l2_regularizer = l2_regularizer
         self.validation_size = validation_size
         self.preprocessing = preprocessing
-        self.verbosity = verbosity
+        self.verbose = verbose
         self.random_state = random_state
         self.latent_dim = latent_dim
         self.gamma = gamma
@@ -264,7 +272,7 @@ class VAE(BaseDetector):
             [z_mean, z_log])
         # Instantiate encoder
         encoder = Model(inputs, [z_mean, z_log, z])
-        if self.verbosity >= 1:
+        if self.verbose >= 1:
             encoder.summary()
 
         # Build Decoder
@@ -281,7 +289,7 @@ class VAE(BaseDetector):
             layer)
         # Instatiate decoder
         decoder = Model(latent_inputs, outputs)
-        if self.verbosity >= 1:
+        if self.verbose >= 1:
             decoder.summary()
         # Generate outputs
         outputs = decoder(encoder(inputs)[2])
@@ -290,7 +298,7 @@ class VAE(BaseDetector):
         vae = Model(inputs, outputs)
         vae.add_loss(self.vae_loss(inputs, outputs, z_mean, z_log))
         vae.compile(optimizer=self.optimizer)
-        if self.verbosity >= 1:
+        if self.verbose >= 1:
             vae.summary()
         return vae
 
@@ -335,7 +343,7 @@ class VAE(BaseDetector):
                                         batch_size=self.batch_size,
                                         shuffle=True,
                                         validation_split=self.validation_size,
-                                        verbose=self.verbosity).history
+                                        verbose=self.verbose).history
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
         if self.preprocessing:

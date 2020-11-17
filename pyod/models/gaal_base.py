@@ -11,9 +11,17 @@ from __future__ import print_function
 
 import math
 
-import keras
-from keras.layers import Input, Dense
-from keras.models import Sequential, Model
+from .base_dl import _get_tensorflow_version
+
+# if tensorflow 2, import from tf directly
+if _get_tensorflow_version() == 1:
+    import keras
+    from keras.layers import Input, Dense
+    from keras.models import Sequential, Model
+else:
+    import tensorflow.keras as keras
+    from tensorflow.keras.layers import Input, Dense
+    from tensorflow.keras.models import Sequential, Model
 
 
 # TODO: create a base class for so_gaal and mo_gaal

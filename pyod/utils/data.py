@@ -8,9 +8,8 @@
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
 from warnings import warn
-
+import numpy as np
 from sklearn.datasets import make_blobs
 from sklearn.model_selection import train_test_split
 from sklearn.utils import column_or_1d
@@ -489,3 +488,147 @@ def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
     else:
         return train_test_split(X, y, test_size=n_test,
                                 random_state=random_state)
+
+
+def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
+                              n_informative=2, n_category_in=2,
+                              n_category_out=2, contamination=0.1,
+                              shuffle=True, random_state=None):
+    """Utility function to generate synthesized categorical data.
+
+    Parameters
+    ----------
+    n_train : int, (default=1000)
+        The number of training points to generate.
+
+    n_test : int, (default=500)
+        The number of test points to generate.
+
+    n_features : int, optional (default=2)
+       The number of features for each sample.
+
+    n_informative : int in (1, n_features), optional (default=2)
+       The number of informative features in the outlier points.
+       The higher the easier the outlier detection should be.
+       Note that n_informative should not be less than or
+       equal n_features.
+
+    n_category_in : int in (1, n_inliers), optional (default=2)
+       The number of categories in the inlier points.
+
+    n_category_out : int in (1, n_outliers), optional (default=2)
+       The number of categories in the outlier points.
+
+    contamination : float in (0., 0.5), optional (default=0.1)
+       The amount of contamination of the data set, i.e.
+       the proportion of outliers in the data set.
+
+    shuffle: bool, optional(default=True)
+        If True, inliers will be shuffled which makes more noisy distribution.
+
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
+
+    Returns
+    -------
+    X_train : numpy array of shape (n_train, n_features)
+        Training data.
+
+    y_train : numpy array of shape (n_train,)
+        Training ground truth.
+
+    X_test : numpy array of shape (n_test, n_features)
+        Test data.
+
+    y_test : numpy array of shape (n_test,)
+        Test ground truth.
+    """
+
+    # initialize a random state and seeds for the instance
+    random_state = check_random_state(random_state)
+
+    if isinstance(n_train, int):
+        check_parameter(n_train, low=1, param_name='n_train')
+    else:
+        raise ValueError("n_train should be int, got %s" % n_train)
+
+    if isinstance(n_test, int):
+        check_parameter(n_test, low=0, param_name='n_test')
+    else:
+        raise ValueError("n_test should be int, got %s" % n_test)
+
+    if isinstance(n_features, int):
+        check_parameter(n_features, low=0, param_name='n_features')
+    else:
+        raise ValueError("n_features should be int, got %s" % n_features)
+
+    if isinstance(n_informative, int):
+        check_parameter(n_informative, low=0, high=n_features+1, param_name='n_informative')
+    else:
+        raise ValueError("n_informative should be int, got %s" % n_informative)
+
+    if isinstance(contamination, float):
+        check_parameter(contamination, low=0, high=0.5,
+                        param_name='contamination')
+    else:
+        raise ValueError("contamination should be float, got %s" % contamination)
+
+    if not isinstance(shuffle, bool):
+        raise ValueError("shuffle should be bool, got %s" % shuffle)
+
+
+    # find the required number of outliers and inliers
+    n_samples = n_train + n_test
+    n_outliers = int(n_samples * contamination)
+    n_inliers = n_samples - n_outliers
+
+    if isinstance(n_category_in, int):
+        check_parameter(n_category_in, low=0, high=n_inliers+1, param_name='n_category_in')
+    else:
+        raise ValueError("n_category_in should be int, got %s" % n_category_in)
+
+    if isinstance(n_category_out, int):
+        check_parameter(n_category_out, low=0, high=n_outliers+1, param_name='n_category_out')
+    else:
+        raise ValueError("n_category_out should be int, got %s" % n_category_out)
+
+    # Encapsulated functions to generate features
+    def __f(f):
+        quot, rem = divmod(f - 1, 26)
+        return __f(quot) + chr(rem + ord('A')) if f != 0 else ''
+
+    # generate pool of features to be the base for naming the data points
+    features = []
+    for i in range(1, n_features + 1):
+        features.append(__f(i))
+
+    # find the required distributions of categories over inliers and outliers
+    temp_ = [int(n_inliers / n_category_in)] * (n_category_in - 1)
+    dist_in = temp_ + [int(n_inliers - sum(temp_))]
+    temp_ = [int(n_outliers / n_category_out)] * (n_category_out - 1)
+    dist_out = temp_ + [int(n_outliers - sum(temp_))]
+
+    # generate categorical data
+    X = []
+    count = 0
+    for f in features:
+        inliers = np.hstack([[f + str(i)] * dist_in[i] for i in range(n_category_in)])
+        if shuffle:
+            random_state.shuffle(inliers)
+        if count < n_informative:
+            outliers = list(np.hstack(
+                [[f + str((n_category_in * 2) + i)] * dist_out[i] for i in range(n_category_out)]))
+        else:
+            outliers = list(inliers[random_state.randint(0, len(inliers), size=n_outliers)])
+        count += 1
+
+        X.append(list(inliers) + outliers)
+
+    return train_test_split(np.array(X).T,
+                            np.array(([0]*n_inliers) + ([1]*n_outliers)),
+                            test_size=n_test,
+                            random_state=random_state)

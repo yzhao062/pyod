@@ -13,16 +13,23 @@ from collections import defaultdict
 
 import numpy as np
 
-from keras.layers import Input
-from keras.models import Model
-from keras.optimizers import SGD
-
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 from .gaal_base import create_discriminator
 from .gaal_base import create_generator
+from .base_dl import _get_tensorflow_version
+
+# if tensorflow 2, import from tf directly
+if _get_tensorflow_version() == 1:
+    from keras.layers import Input
+    from keras.models import Model
+    from keras.optimizers import SGD
+else:
+    from tensorflow.keras.layers import Input
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.optimizers import SGD
 
 
 class MO_GAAL(BaseDetector):
