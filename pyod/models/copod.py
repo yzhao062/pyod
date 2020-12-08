@@ -138,8 +138,9 @@ class COPOD(BaseDetector):
         
         Returns
         -------
-        Plot : matplotlib plot
-            The dimensional outlier graph for data point with index ind.
+        Data: tuple of pandas.Series
+            All data from the dimensional outlier graph for
+            the point with index ind.
         """
         cutoffs = [1 - self.contamination,
                    0.99] if cutoffs is None else cutoffs
