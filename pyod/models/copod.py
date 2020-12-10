@@ -124,7 +124,7 @@ class COPOD(BaseDetector):
                                        i] >= self.threshold_ else 0
         return self.decision_scores_.ravel()
 
-    def explain_outlier(self, ind, cutoffs=None):  # pragma: no cover
+    def explain_outlier(self, ind, cutoffs=None, feature_names=None):  # pragma: no cover
         """Plot dimensional outlier graph for a given data
             point within the dataset.
         Parameters
@@ -136,6 +136,10 @@ class COPOD(BaseDetector):
         cutoffs : list of floats in (0., 1), optional (default=[0.95, 0.99])
             The significance cutoff bands of the dimensional outlier graph.
         
+        feature_names: list of strings
+            The display names of all columns of the dataset,
+            to show on the x-axis of the plot.
+
         Returns
         -------
         Plot : matplotlib plot
@@ -153,7 +157,15 @@ class COPOD(BaseDetector):
         plt.ylim([0, int(self.O.max().max()) + 1])
         plt.ylabel('Dimensional Outlier Score')
         plt.xlabel('Dimension')
-        plt.xticks(range(1, self.O.shape[1] + 1))
+
+        ticks = range(1, self.O.shape[1] + 1)
+        if feature_names is not None:
+            assert len(feature_names) == len(ticks), \
+                "Length of feature_names does not match dataset dimensions."
+            plt.xticks(ticks, labels=feature_names)
+        else:
+            plt.xticks(ticks)
+
         plt.yticks(range(0, int(self.O.max().max()) + 1))
         label = 'Outlier' if self.labels_[ind] == 1 else 'Inlier'
         plt.title('Outlier Score Breakdown for Data #{index} ({label})'.format(
