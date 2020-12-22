@@ -13,7 +13,6 @@ from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
-from sklearn.utils.estimator_checks import check_estimator
 
 from sklearn.metrics import roc_auc_score
 from scipy.stats import rankdata
