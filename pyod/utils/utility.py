@@ -442,7 +442,7 @@ def _get_sklearn_version():  # pragma: no cover
 
     sklearn_version = str(sklearn.__version__)
     if int(sklearn_version.split(".")[1]) < 19 or int(
-            sklearn_version.split(".")[1]) > 23:
+            sklearn_version.split(".")[1]) > 24:
         raise ValueError("Sklearn version error")
 
     return int(sklearn_version.split(".")[1])
