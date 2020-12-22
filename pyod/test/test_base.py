@@ -6,8 +6,8 @@ import os
 import sys
 
 import unittest
-from sklearn.utils.testing import assert_equal
-from sklearn.utils.testing import assert_raises
+from numpy.testing import assert_equal
+from numpy.testing import assert_raises
 
 import numpy as np
 

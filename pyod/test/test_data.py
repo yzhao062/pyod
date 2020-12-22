@@ -7,11 +7,10 @@ import os
 import sys
 
 import unittest
-from sklearn.utils.testing import assert_equal
 # noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_less_equal
-from sklearn.utils.testing import assert_raises
+from numpy.testing import assert_allclose
+from numpy.testing import assert_equal
+from numpy.testing import assert_raises
 
 import numpy as np
 
@@ -47,10 +46,10 @@ class TestData(unittest.TestCase):
         assert_equal(y_train.shape[0], X_train.shape[0])
         assert_equal(y_test.shape[0], X_test.shape[0])
 
-        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert (self.n_train - X_train.shape[0] <= 1)
         assert_equal(X_train.shape[1], 2)
 
-        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert (self.n_test - X_test.shape[0] <= 1)
         assert_equal(X_test.shape[1], 2)
 
         out_perc = np.sum(y_train) / self.n_train
@@ -99,10 +98,10 @@ class TestData(unittest.TestCase):
         assert_equal(y_train.shape[0], X_train.shape[0])
         assert_equal(y_test.shape[0], X_test.shape[0])
 
-        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert (self.n_train - X_train.shape[0] <= 1)
         assert_equal(X_train.shape[1], 2)
 
-        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert (self.n_test - X_test.shape[0] <= 1)
         assert_equal(X_test.shape[1], 2)
 
         out_perc = (np.sum(y_train) + np.sum(y_test)) / (
@@ -143,33 +142,33 @@ class TestData(unittest.TestCase):
     def test_data_generate_cluster5(self):
         with assert_raises(ValueError):
             generate_data_clusters(n_train=self.n_train,
-                                       n_test=self.n_test,
-                                       n_features=3,
-                                       n_clusters='e',
-                                       contamination=self.contamination,
-                                       random_state=self.random_state)
+                                   n_test=self.n_test,
+                                   n_features=3,
+                                   n_clusters='e',
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
 
         with assert_raises(ValueError):
             generate_data_clusters(n_train=self.n_train,
-                                       n_test=self.n_test,
-                                       n_features='e',
-                                       contamination=self.contamination,
-                                       random_state=self.random_state)
+                                   n_test=self.n_test,
+                                   n_features='e',
+                                   contamination=self.contamination,
+                                   random_state=self.random_state)
 
         with assert_raises(ValueError):
             generate_data_clusters(n_train=self.n_train,
-                                       n_test=self.n_test,
-                                       n_features=3,
-                                       contamination='e',
-                                       random_state=self.random_state)
+                                   n_test=self.n_test,
+                                   n_features=3,
+                                   contamination='e',
+                                   random_state=self.random_state)
 
         with assert_raises(ValueError):
             generate_data_clusters(n_train=self.n_train,
-                                       n_test=self.n_test,
-                                       n_features=3,
-                                       contamination=self.contamination,
-                                       dist='e',
-                                       random_state=self.random_state)
+                                   n_test=self.n_test,
+                                   n_features=3,
+                                   contamination=self.contamination,
+                                   dist='e',
+                                   random_state=self.random_state)
 
     def test_data_generate_cluster6(self):
         X_train, X_test, y_train, y_test = \
@@ -184,10 +183,10 @@ class TestData(unittest.TestCase):
         assert_equal(y_train.shape[0], X_train.shape[0])
         assert_equal(y_test.shape[0], X_test.shape[0])
 
-        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert (self.n_train - X_train.shape[0] <= 1)
         assert_equal(X_train.shape[1], 2)
 
-        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert (self.n_test - X_test.shape[0] <= 1)
         assert_equal(X_test.shape[1], 2)
 
         out_perc = (np.sum(y_train) + np.sum(y_test)) / (
@@ -205,10 +204,10 @@ class TestData(unittest.TestCase):
         assert_equal(y_train.shape[0], X_train.shape[0])
         assert_equal(y_test.shape[0], X_test.shape[0])
 
-        assert_less_equal(self.n_train - X_train.shape[0], 1)
+        assert (self.n_train - X_train.shape[0] <= 1)
         assert_equal(X_train.shape[1], 2)
 
-        assert_less_equal(self.n_test - X_test.shape[0], 1)
+        assert (self.n_test - X_test.shape[0] <= 1)
         assert_equal(X_test.shape[1], 2)
 
         out_perc = (np.sum(y_train) + np.sum(y_test)) / (
@@ -286,7 +285,7 @@ class TestData(unittest.TestCase):
         with assert_raises(ValueError):
             generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
                                       n_category_in=5, n_category_out=3,
-                                      n_informative=1, n_features= 0,
+                                      n_informative=1, n_features=0,
                                       contamination=self.contamination,
                                       random_state=self.random_state)
 
@@ -328,13 +327,14 @@ class TestData(unittest.TestCase):
                                       random_state=self.random_state)
         with assert_raises(ValueError):
             generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
-                                      n_category_in='not int', n_category_out=3,
+                                      n_category_in='not int',
+                                      n_category_out=3,
                                       n_informative=1, n_features=1,
                                       contamination=self.contamination,
                                       random_state=self.random_state)
         with assert_raises(ValueError):
             generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
-                                      n_category_in=self.n_train+self.n_test+1,
+                                      n_category_in=self.n_train + self.n_test + 1,
                                       n_category_out=3,
                                       n_informative=1, n_features=1,
                                       contamination=self.contamination,
@@ -348,14 +348,15 @@ class TestData(unittest.TestCase):
                                       random_state=self.random_state)
         with assert_raises(ValueError):
             generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
-                                      n_category_in=5, n_category_out='not int',
+                                      n_category_in=5,
+                                      n_category_out='not int',
                                       n_informative=1, n_features=1,
                                       contamination=self.contamination,
                                       random_state=self.random_state)
         with assert_raises(ValueError):
             generate_data_categorical(n_train=self.n_train, n_test=self.n_test,
                                       n_category_in=5,
-                                      n_category_out=self.n_train+self.n_test+1,
+                                      n_category_out=self.n_train + self.n_test + 1,
                                       n_informative=1, n_features=1,
                                       contamination=self.contamination,
                                       random_state=self.random_state)

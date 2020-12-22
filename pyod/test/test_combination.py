@@ -7,12 +7,10 @@ import os
 import sys
 
 import unittest
-# noinspection PyProtectedMember
-from sklearn.utils.testing import assert_equal
-from sklearn.utils.testing import assert_array_equal
-# noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_raises
+from numpy.testing import assert_allclose
+from numpy.testing import assert_array_equal
+from numpy.testing import assert_equal
+from numpy.testing import assert_raises
 
 import numpy as np
 from sklearn.utils import shuffle
