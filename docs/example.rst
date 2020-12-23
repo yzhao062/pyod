@@ -189,7 +189,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
 
 .. rubric:: References
 
-.. bibliography:: zreferences.bib
+.. bibliography::
    :cited:
    :labelprefix: B
    :keyprefix: b-
