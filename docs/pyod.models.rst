@@ -247,6 +247,6 @@ Module contents
 
 .. rubric:: References
 
-.. bibliography:: 
+.. bibliography::
    :cited:
    :labelprefix: B
