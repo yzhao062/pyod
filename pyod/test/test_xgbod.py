@@ -9,14 +9,10 @@ from os import path
 
 import unittest
 # noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_array_less
-from sklearn.utils.testing import assert_equal
-from sklearn.utils.testing import assert_greater
-from sklearn.utils.testing import assert_greater_equal
-from sklearn.utils.testing import assert_less_equal
-from sklearn.utils.testing import assert_raises
-from sklearn.utils.estimator_checks import check_estimator
+from numpy.testing import assert_allclose
+from numpy.testing import assert_array_less
+from numpy.testing import assert_equal
+from numpy.testing import assert_raises
 
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
@@ -86,7 +82,7 @@ class TestXGBOD(unittest.TestCase):
         assert_equal(pred_scores.shape[0], self.X_test.shape[0])
 
         # check performance
-        assert_greater(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
+        assert (roc_auc_score(self.y_test, pred_scores) >= self.roc_floor)
 
     def test_prediction_labels(self):
         pred_labels = self.clf.predict(self.X_test)
@@ -94,10 +90,10 @@ class TestXGBOD(unittest.TestCase):
 
     def test_prediction_proba(self):
         pred_proba = self.clf.predict_proba(self.X_test)
-        assert_greater_equal(pred_proba.min(), 0)
-        assert_less_equal(pred_proba.max(), 1)
+        assert (pred_proba.min() >= 0)
+        assert (pred_proba.max() <= 1)
         # check performance
-        assert_greater(roc_auc_score(self.y_test, pred_proba), self.roc_floor)
+        assert (roc_auc_score(self.y_test, pred_proba) >= self.roc_floor)
 
     def test_fit_predict(self):
         pred_labels = self.clf.fit_predict(self.X_train, self.y_train)

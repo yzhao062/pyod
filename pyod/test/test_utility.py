@@ -7,10 +7,11 @@ import os
 import sys
 
 import unittest
-from sklearn.utils.testing import assert_equal
+
 # noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_raises
+from numpy.testing import assert_allclose
+from numpy.testing import assert_equal
+from numpy.testing import assert_raises
 from sklearn.metrics import precision_score
 from sklearn.utils import check_random_state
 

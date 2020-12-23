@@ -442,28 +442,28 @@ def _get_sklearn_version():  # pragma: no cover
 
     sklearn_version = str(sklearn.__version__)
     if int(sklearn_version.split(".")[1]) < 19 or int(
-            sklearn_version.split(".")[1]) > 23:
+            sklearn_version.split(".")[1]) > 24:
         raise ValueError("Sklearn version error")
 
     return int(sklearn_version.split(".")[1])
 
 
-def _sklearn_version_21():  # pragma: no cover
-    """ Utility function to decide the version of sklearn
-    In sklearn 21.0, LOF is changed. Specifically, _decision_function
-    is replaced by _score_samples
-
-    Returns
-    -------
-    sklearn_21_flag : bool
-        True if sklearn.__version__ is newer than 0.21.0
-
-    """
-    sklearn_version = str(sklearn.__version__)
-    if int(sklearn_version.split(".")[1]) > 20:
-        return True
-    else:
-        return False
+# def _sklearn_version_21():  # pragma: no cover
+#     """ Utility function to decide the version of sklearn
+#     In sklearn 21.0, LOF is changed. Specifically, _decision_function
+#     is replaced by _score_samples
+#
+#     Returns
+#     -------
+#     sklearn_21_flag : bool
+#         True if sklearn.__version__ is newer than 0.21.0
+#
+#     """
+#     sklearn_version = str(sklearn.__version__)
+#     if int(sklearn_version.split(".")[1]) > 20:
+#         return True
+#     else:
+#         return False
 
 
 def generate_bagging_indices(random_state, bootstrap_features, n_features,

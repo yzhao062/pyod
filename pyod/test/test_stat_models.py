@@ -7,12 +7,11 @@ import os
 import sys
 
 import unittest
-from sklearn.utils.testing import assert_equal
 # noinspection PyProtectedMember
-from sklearn.utils.testing import assert_allclose
-from sklearn.utils.testing import assert_raises
-from sklearn.utils.testing import assert_greater_equal
-from sklearn.utils.testing import assert_less_equal
+from numpy.testing import assert_allclose
+from numpy.testing import assert_array_less
+from numpy.testing import assert_equal
+from numpy.testing import assert_raises
 
 import numpy as np
 
@@ -65,8 +64,8 @@ class TestStatModels(unittest.TestCase):
         pear_mat = pearsonr_mat(self.mat, self.w_mat)
         assert_equal(pear_mat.shape, (10, 10))
 
-        assert_greater_equal(np.min(pear_mat), -1)
-        assert_less_equal(np.max(pear_mat), 1)
+        assert (np.min(pear_mat) >= -1)
+        assert (np.max(pear_mat) <= 1)
 
     def tearDown(self):
         pass
