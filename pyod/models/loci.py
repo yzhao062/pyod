@@ -212,7 +212,7 @@ class LOCI(BaseDetector):
                     outlier_scores[p_ix] = mdef / sigma_mdef
                     if mdef > (self.threshold_ * sigma_mdef):
                         break
-        return outlier_scores
+        return np.asarray(outlier_scores)
 
     def fit(self, X, y=None):
         """Fit the model using X as training data.
@@ -232,8 +232,7 @@ class LOCI(BaseDetector):
         """
         X = check_array(X)
         self._set_n_classes(y)
-        outlier_scores = self._calculate_decision_score(X)
-        self.decision_scores_ = np.array(outlier_scores)
+        self.decision_scores_ = self._calculate_decision_score(X)
         self.labels_ = (self.decision_scores_ > self.threshold_).astype(
             'int').ravel()
 
@@ -246,5 +245,4 @@ class LOCI(BaseDetector):
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         X = check_array(X)
-        outlier_scores = self._calculate_decision_score(X)
-        return np.array(outlier_scores)
+        return self._calculate_decision_score(X)
