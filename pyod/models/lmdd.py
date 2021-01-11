@@ -110,11 +110,12 @@ class LMDD(BaseDetector):
     def __init__(self, contamination=0.1, n_iter=50, dis_measure='aad',
                  random_state=None):
         super(LMDD, self).__init__(contamination=contamination)
+        self.n_iter, self.n_iter_ = n_iter, n_iter
+        self.dis_measure, self.dis_measure_ = dis_measure, dis_measure
+
         self.random_state_, self.dis_measure_ = _check_params(n_iter,
                                                               dis_measure,
                                                               random_state)
-        self.n_iter_ = n_iter
-        self.decision_scores_ = None
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.

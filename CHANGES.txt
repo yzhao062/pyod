@@ -116,6 +116,7 @@ v<0.8.5>, <12/22/2020> -- Refactor test from sklearn to numpy
 v<0.8.5>, <12/22/2020> -- Refactor COPOD for consistency
 v<0.8.5>, <12/22/2020> -- Refactor due to sklearn 0.24 (issue #265)
 v<0.8.6>, <01/09/2021> -- Improve COF speed (PR #159)
+v<0.8.6>, <01/10/2021> -- Fix LMDD parameter inconsistenct
 
 
 
