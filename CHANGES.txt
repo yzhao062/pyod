@@ -114,7 +114,10 @@ v<0.8.4>, <11/02/2020> -- Add support for Tensorflow 2.
 v<0.8.4>, <11/12/2020> -- Merge PR #!02 for categortical data generation.
 v<0.8.5>, <12/22/2020> -- Refactor test from sklearn to numpy
 v<0.8.5>, <12/22/2020> -- Refactor COPOD for consistency
-v<0.8.5>, <12/22/2020> -- Refactor due to sklearn 0.24 (issue # 265)
+v<0.8.5>, <12/22/2020> -- Refactor due to sklearn 0.24 (issue #265)
+v<0.8.6>, <01/09/2021> -- Improve COF speed (PR #159)
+v<0.8.6>, <01/10/2021> -- Fix LMDD parameter inconsistenct.
+v<0.8.6>, <01/12/2021> -- Add option to specify feature names in copod explanation plot (PR #261).
 
 
 

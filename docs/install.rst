@@ -32,6 +32,7 @@ Alternatively, you could clone and run setup.py file:
 
 * Python 2.7, 3.5, 3.6, or 3.7
 * combo>=0.0.8
+* joblib
 * numpy>=1.13
 * numba>=0.35
 * pandas>=0.25

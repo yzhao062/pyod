@@ -137,8 +137,7 @@ class COF(BaseDetector):
         dist_matrix = np.array(distance_matrix(X, X))
         sbn_path_index, ac_dist, cof_ = [], [], []
         for i in range(X.shape[0]):
-            sbn_path = sorted(range(len(dist_matrix[i])),
-                              key=dist_matrix[i].__getitem__)
+            sbn_path = np.argsort(dist_matrix[i])
             sbn_path_index.append(sbn_path[1: self.n_neighbors_ + 1])
             cost_desc = []
             for j in range(self.n_neighbors_):
