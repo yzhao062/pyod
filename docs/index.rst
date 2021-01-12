@@ -108,13 +108,6 @@ PyOD is featured for:
 * **Compatible with both Python 2 & 3**.
 
 
-**Note on Python 2.7**\ :
-The maintenance of Python 2.7 will be stopped by January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
-To be consistent with the Python change and PyOD's dependent libraries, e.g., scikit-learn, we will
-stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
-Python 3.5 or newer for the latest functions and bug fixes. More information can
-be found at `Moving to require Python 3 <https://python3statement.org/>`_.
-
 **API Demo**\ :
 
 
