@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import os
 import sys
-
+import numpy as np
 import unittest
 # noinspection PyProtectedMember
 from numpy.testing import *
@@ -19,7 +19,7 @@ from scipy.stats import rankdata
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.rod import ROD
+from pyod.models.rod import ROD, rod_3D, rod_nD, angle, sigmoid, process_sub, mad
 from pyod.utils.data import generate_data
 
 
@@ -30,7 +30,7 @@ class TestROD(unittest.TestCase):
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
-            n_train=self.n_train, n_test=self.n_test, n_features=3,
+            n_train=self.n_train, n_test=self.n_test, n_features=4,
             contamination=self.contamination, random_state=42)
 
         self.clf = ROD()
@@ -95,6 +95,36 @@ class TestROD(unittest.TestCase):
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
+
+    def test_invocation(self):
+        X_2D = self.X_train[:, 0:2]
+        X_3D = self.X_train[:, 0:3]
+        X_4D = self.X_train
+
+        with assert_raises(IndexError):
+            rod_3D(X_2D)
+        assert_array_equal(ROD().decision_function(X_2D),
+                           rod_3D(np.hstack((X_2D, np.zeros(shape=(X_2D.shape[0], 3 - X_2D.shape[1]))))))
+        assert_array_equal(ROD().decision_function(X_3D), rod_3D(X_3D))
+        assert_array_equal(ROD().decision_function(X_4D), rod_nD(X_4D, parallel=False))
+
+    def test_angle(self):
+        assert_equal(0.0, angle(v1=[0, 0, 1], v2=[0, 0, 1]))
+
+    def test_sigmoid(self):
+        assert_equal(0.5, sigmoid(np.array([0.0])))
+
+    def test_process_sub(self):
+        subspace = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
+        assert_equal([0.5, 0.5, 0.5], process_sub(subspace))
+
+    def test_parallel_vs_non_parallel(self):
+        assert_equal(rod_nD(self.X_train, parallel=False),
+                     rod_nD(self.X_train, parallel=True))
+
+    def test_mad(self):
+        assert_equal([0.6745, 0.0, 0.6745],
+                     mad(np.array([1, 2, 3])))
 
     def tearDown(self):
         pass

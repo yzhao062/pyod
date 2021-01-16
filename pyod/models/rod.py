@@ -18,7 +18,7 @@ from .base import BaseDetector
 
 
 @numba.njit
-def __mad(costs):
+def mad(costs):
     """
     Apply the robust median absolute deviation (MAD)
     to measure the inconsistency/variability of the
@@ -31,8 +31,7 @@ def __mad(costs):
     return np.ravel(0.6745 * diff / np.median(diff))
 
 
-@numba.njit
-def __angle(v1, v2):
+def angle(v1, v2):
     """
     find the angle between two 3D vectors
     """
@@ -40,7 +39,7 @@ def __angle(v1, v2):
                      (np.linalg.norm(v1) * np.linalg.norm(v2)))
 
 
-def __geometric_median(x, eps=1e-5):
+def geometric_median(x, eps=1e-5):
     """
     Find the multivariate geometric L1-median by applying
     Vardi and Zhang algorithm.
@@ -51,7 +50,7 @@ def __geometric_median(x, eps=1e-5):
     points = np.unique(x, axis=0)
     gm_ = np.mean(points, 0)  # initialize geometric median
     while True:
-        D = __euclidean(points, gm_, c=True)
+        D = euclidean(points, gm_, c=True)
         non_zeros = (D != 0)[:, 0]
         Dinv = 1 / D[non_zeros]
         Dinvs = np.sum(Dinv)
@@ -68,13 +67,13 @@ def __geometric_median(x, eps=1e-5):
             r_inv = 0 if r == 0 else num_zeros / r
             gm1 = max(0, 1 - r_inv) * T + min(1, r_inv) * gm_
 
-        if __euclidean(gm_, gm1) < eps:
+        if euclidean(gm_, gm1) < eps:
             return gm1
 
         gm_ = gm1
 
 
-def __scale_angles(gammas):
+def scale_angles(gammas):
     """
     Scale all angles in which angles <= 90
     degree will be scaled within [0 - 54.7] and
@@ -100,7 +99,7 @@ def __scale_angles(gammas):
     return np.concatenate([first, second])[np.argsort(first_ind + second_ind)]
 
 
-def __euclidean(v1, v2, c=False):
+def euclidean(v1, v2, c=False):
     """
     Find the euclidean distance between two vectors
     or between a vector and a collection of vectors.
@@ -123,23 +122,23 @@ def __euclidean(v1, v2, c=False):
                    (v1[2] - v2[2]) ** 2)
 
 
-def _rod_3D(x):
+def rod_3D(x):
     """
     Find ROD scores for 3D Data.
     """
     # find the geometric median
-    gm = __geometric_median(x)
+    gm = geometric_median(x)
     # find its norm and center data around it
     norm_ = np.linalg.norm(gm)
     _x = x - gm
     # calculate the scaled angles between the geometric median
     # and each data point vector
     v_norm = np.linalg.norm(_x, axis=1)
-    gammas = __scale_angles(np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)))
+    gammas = scale_angles(np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)))
     # apply the ROD main equation to find the rotation costs
     costs = np.power(v_norm, 3) * np.cos(gammas) * np.square(np.sin(gammas))
     # apply MAD to calculate the decision scores
-    return __mad(costs)
+    return mad(costs)
 
 
 @numba.njit
@@ -154,11 +153,11 @@ def process_sub(subspace):
     """
     Apply ROD on a 3D subSpace
     """
-    mad_subspace = np.nan_to_num(np.array(_rod_3D(subspace)))
+    mad_subspace = np.nan_to_num(np.array(rod_3D(subspace)))
     return sigmoid(mad_subspace)
 
 
-def _rod_nD(X, parallel):
+def rod_nD(X, parallel):
     """
     Find ROD overall scores when n>3 Data:
       # scale dataset using Robust Scaler
@@ -284,6 +283,6 @@ class ROD(BaseDetector):
             X = np.hstack((X, np.zeros(shape=(X.shape[0], 3 - X.shape[1]))))
 
         if X.shape[1] == 3:
-            return _rod_3D(X)
+            return rod_3D(X)
 
-        return _rod_nD(X, self.parallel)
+        return rod_nD(X, self.parallel)
