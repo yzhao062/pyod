@@ -204,9 +204,9 @@ class ROD(BaseDetector):
         define the threshold on the decision function.
 
     parallel_execution: bool, optional (default=False).
-        If set to True, it makes the algorithm in parallel,
+        If set to True, it makes the algorithm run in parallel,
         for a better execution time. It is recommended to set
-        this parameter to True for high dimensional data > 10,
+        this parameter to True ONLY for high dimensional data > 10,
         if a proper hardware is available.
 
 
