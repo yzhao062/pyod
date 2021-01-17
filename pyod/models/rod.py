@@ -19,21 +19,26 @@ from .base import BaseDetector
 
 @numba.njit
 def mad(costs):
-    """
-    Apply the robust median absolute deviation (MAD)
+    """Apply the robust median absolute deviation (MAD)
     to measure the inconsistency/variability of the
     rotation costs.
-    :return: the modified z scores
+
+    Parameters
+    ----------
+    costs :
+
+    Returns
+    -------
+    z : float
+        the modified z scores
     """
     costs_ = np.reshape(costs, (-1, 1))
     median = np.nanmedian(costs_)
     diff = np.abs(costs_ - median)
     return np.ravel(0.6745 * diff / np.median(diff))
 
-
 def angle(v1, v2):
-    """
-    find the angle between two 3D vectors
+    """find the angle between two 3D vectors
     """
     return np.arccos(np.dot(v1, v2) /
                      (np.linalg.norm(v1) * np.linalg.norm(v2)))
