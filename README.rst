@@ -212,7 +212,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **Optional Dependencies (see details below)**\ :
 
-
+* combo (optional, required for models/combination.py)
 * keras (optional, required for AutoEncoder)
 * matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
