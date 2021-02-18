@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example of using Local Correlation Integral (LOCI) for outlier detection
+"""Example of using Copula Based Outlier Detector (COPOD) for outlier detection
 """
 # Author: Winston Li <jk_zhengli@hotmail.com>
 # License: BSD 2 clause
