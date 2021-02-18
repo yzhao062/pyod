@@ -43,6 +43,7 @@ Alternatively, you could clone and run setup.py file:
 
 **Optional Dependencies (see details below)**:
 
+* combo (optional, required for models/combination.py)
 * keras (optional, required for AutoEncoder)
 * matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
