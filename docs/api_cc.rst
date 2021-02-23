@@ -22,6 +22,12 @@ of the training data X_train, one should call clf.fit(X_train) and use
 :attr:`pyod.models.base.BaseDetector.labels_`, instead of calling clf.predict(X_train).
 
 
+**Fast training and prediction**: it is possible to train and predict with
+a large number of detection models in PyOD by leveraging SUOD framework :cite:`zhao2021suod`.
+See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
+and  `repository <https://github.com/yzhao062/SUOD>`_.
+
+
 See base class definition below:
 
 pyod.models.base module

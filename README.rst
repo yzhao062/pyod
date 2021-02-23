@@ -101,6 +101,7 @@ PyOD is featured for:
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 * **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like COPOD**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
+* **Fast training & prediction with SUOD** [#Zhao2021SUOD]_.
 * **Compatible with both Python 2 & 3**.
 
 
@@ -265,6 +266,11 @@ Key Attributes of a fitted model:
 to consistency issue and will be removed in V0.8.0. To get the binary labels
 of the training data X_train, one should call clf.fit(X_train) and use
 clf.labels\_, instead of calling clf.predict(X_train).
+
+**Fast training and prediction**: it is possible to train and predict with
+a large number of detection models in PyOD by leveraging SUOD framework [#Zhao2021SUOD]_.
+See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
+and  `repository <https://github.com/yzhao062/SUOD>`_.
 
 
 ----
@@ -669,3 +675,5 @@ Reference
 .. [#Zhao2018XGBOD] Zhao, Y. and Hryniewicki, M.K. XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning. *IEEE International Joint Conference on Neural Networks*\ , 2018.
 
 .. [#Zhao2019LSCP] Zhao, Y., Nasrullah, Z., Hryniewicki, M.K. and Li, Z., 2019, May. LSCP: Locally selective combination in parallel outlier ensembles. In *Proceedings of the 2019 SIAM International Conference on Data Mining (SDM)*, pp. 585-593. Society for Industrial and Applied Mathematics.
+
+.. [#Zhao2021SUOD] Zhao, Y., Hu, X., Cheng, C., Wang, C., Wan, C., Wang, W., Yang, J., Bai, H., Li, Z., Xiao, C., Wang, Y., Qiao, Z., Sun, J. and Akoglu, L. (2021). SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection. *Conference on Machine Learning and Systems (MLSys)*.
