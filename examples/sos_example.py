@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Example of using Stochastic Outlier Selection (SOS) for outlier detection
+"""
 from __future__ import division
 from __future__ import print_function
 
