@@ -107,7 +107,7 @@ class COPOD(BaseDetector):
             -1 * np.log(np.apply_along_axis(self.ecdf, 0, X)))
         self.U_r = pd.DataFrame(
             -1 * np.log(np.apply_along_axis(self.ecdf, 0, -X)))
-        skewness = np.sign(np.apply_along_axis(skew, 0, X))
+        skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
         self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
@@ -117,7 +117,8 @@ class COPOD(BaseDetector):
             decision_scores_ = self.O.sum(axis=1).to_numpy()
         return decision_scores_.ravel()
 
-    def explain_outlier(self, ind, cutoffs=None, feature_names=None):  # pragma: no cover
+    def explain_outlier(self, ind, cutoffs=None,
+                        feature_names=None):  # pragma: no cover
         """Plot dimensional outlier graph for a given data
             point within the dataset.
         Parameters
