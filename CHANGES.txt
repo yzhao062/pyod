@@ -120,6 +120,8 @@ v<0.8.6>, <01/10/2021> -- Fix LMDD parameter inconsistenct.
 v<0.8.6>, <01/12/2021> -- Add option to specify feature names in copod explanation plot (PR #261).
 v<0.8.7>, <01/16/2021> -- Add ROD.
 v<0.8.7>, <02/18/2021> -- Dependency optimization.
+v<0.8.8>, <04/08/2021> -- COPOD optimization.
+v<0.8.8>, <04/08/2021> -- Add parallelization for COPOD.
 
 
 

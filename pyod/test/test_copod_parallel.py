@@ -22,8 +22,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pyod.models.copod import COPOD
 from pyod.utils.data import generate_data
 
-
-class TestCOPOD(unittest.TestCase):
+class TestCOPODParallel(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
         self.n_test = 100
@@ -33,8 +32,13 @@ class TestCOPOD(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test, n_features=10,
             contamination=self.contamination, random_state=42)
 
-        self.clf = COPOD(contamination=self.contamination)
+        self.clf = COPOD(contamination=self.contamination, n_jobs=2)
         self.clf.fit(self.X_train)
+        
+        # get a copy from the single thread copy
+        self.clf_ = COPOD(contamination=self.contamination)
+        self.clf_.fit(self.X_train)
+        
 
     def test_parameters(self):
         assert (hasattr(self.clf, 'decision_scores_') and
@@ -46,6 +50,7 @@ class TestCOPOD(unittest.TestCase):
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
+        assert_equal(self.clf.decision_scores_, self.clf_.decision_scores_)
 
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)
@@ -59,6 +64,9 @@ class TestCOPOD(unittest.TestCase):
     def test_prediction_labels(self):
         pred_labels = self.clf.predict(self.X_test)
         assert_equal(pred_labels.shape, self.y_test.shape)
+        
+        pred_labels_ = self.clf_.predict(self.X_test)
+        assert_equal(pred_labels, pred_labels_)
 
     def test_prediction_proba(self):
         pred_proba = self.clf.predict_proba(self.X_test)
@@ -74,7 +82,6 @@ class TestCOPOD(unittest.TestCase):
         pred_proba = self.clf.predict_proba(self.X_test, method='unify')
         assert (pred_proba.min() >= 0)
         assert (pred_proba.max() <= 1)
-
     def test_fit_predict(self):
         pred_labels = self.clf.fit_predict(self.X_train)
         assert_equal(pred_labels.shape, self.y_train.shape)
