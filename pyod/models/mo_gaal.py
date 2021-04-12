@@ -89,7 +89,9 @@ class MO_GAAL(BaseDetector):
     """
 
     def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
-                 decay=1e-6, momentum=0.9, contamination=0.1):
+                 decay=1e-6, momentum=0.9, contamination=0.1, 
+                 verbose=False
+                 ):
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k
         self.stop_epochs = stop_epochs
@@ -97,6 +99,7 @@ class MO_GAAL(BaseDetector):
         self.lr_g = lr_g
         self.decay = decay
         self.momentum = momentum
+        self.verbose = verbose
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -146,12 +149,14 @@ class MO_GAAL(BaseDetector):
 
         # Start iteration
         for epoch in range(epochs):
-            print('Epoch {} of {}'.format(epoch + 1, epochs))
+            if self.verbose:
+                print('Epoch {} of {}'.format(epoch + 1, epochs))
             batch_size = min(500, data_size)
             num_batches = int(data_size / batch_size)
 
             for index in range(num_batches):
-                print('\nTesting for epoch {} index {}:'.format(epoch + 1,
+                if self.verbose:            
+                    print('\nTesting for epoch {} index {}:'.format(epoch + 1,
                                                                 index + 1))
 
                 # Generate noise
