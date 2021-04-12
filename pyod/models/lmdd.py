@@ -176,14 +176,11 @@ class LMDD(BaseDetector):
         if var_max > res_[j]:
             res_[j] = var_max
 
-        if var_max > 0:
             for k in range(j + 1, X.shape[0]):
-                dk_diff = (self.dis_measure_(
-                    np.vstack((X[:j], X[k]))) - self.dis_measure_(X[:j])) \
-                          - (self.dis_measure_(np.vstack((X[:j + 1], X[k])))
-                             - self.dis_measure_(X[:j + 1]))
-                if dk_diff >= var_max:
-                    res_[k] = dk_diff
+                dk_diff = self.dis_measure_(np.vstack((X[:j], X[k])))\
+                        - self.dis_measure_(np.vstack((X[:j + 1], X[k]))) 
+                if dk_diff >= 0:
+                    res_[k] = dk_diff + var_max
 
         return res_
 
