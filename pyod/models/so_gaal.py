@@ -66,6 +66,9 @@ class SO_GAAL(BaseDetector):
     momentum : float, optional (default=0.9)
         The momentum parameter for SGD.
 
+    verbose (bool, default: False)
+        Enable verbose output.
+
     Attributes
     ----------
     decision_scores_ : numpy array of shape (n_samples,)
