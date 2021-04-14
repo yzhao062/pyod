@@ -18,6 +18,7 @@ from joblib import Parallel, delayed, effective_n_jobs
 import matplotlib.pyplot as plt
 
 from .base import BaseDetector
+from .sklearn_base import _partition_estimators
 
 
 # todo: we should be able to drop pandas
@@ -37,34 +38,23 @@ def ecdf(X):
     return ecdf(X)
 
 
-def _partition_estimators(n_estimators, n_jobs):
-    # copied from https://github.com/yzhao062/SUOD/blob/master/suod/models/parallel_processes.py
-    """Private function used to partition estimators between jobs."""
-    # Compute the number of jobs
-    n_jobs = min(effective_n_jobs(n_jobs), n_estimators)
-
-    # Partition estimators between jobs
-    n_estimators_per_job = np.full(n_jobs, n_estimators // n_jobs,
-                                   dtype=np.int)
-    n_estimators_per_job[:n_estimators % n_jobs] += 1
-    starts = np.cumsum(n_estimators_per_job)
-
-    xdiff = [starts[n] - starts[n - 1] for n in range(1, len(starts))]
-
-    # print("Split among workers default:", starts, xdiff)
-    return n_estimators_per_job.tolist(), [0] + starts.tolist(), n_jobs
-
-
 def _parallel_ecdf(n_dims, X):
     """Private method to calculate ecdf in parallel.    
     Parameters
     ----------
-    n_dims
-    X
+    n_dims : int
+        The number of dimensions of the current input matrix
+
+    X : numpy array
+        The subarray for building the ECDF
 
     Returns
     -------
+    U_l_mat : numpy array
+        ECDF subarray.
 
+    U_r_mat : numpy array
+        ECDF subarray.
     """
     U_l_mat = np.zeros([X.shape[0], n_dims])
     U_r_mat = np.zeros([X.shape[0], n_dims])
@@ -195,7 +185,7 @@ class COPOD(BaseDetector):
             self.n_jobs = n_features
             warnings.warn("n_features <= n_jobs; setting them equal instead.")
 
-        n_dims_list, starts, n_jobs = _partition_estimators(n_features,
+        n_jobs, n_dims_list, starts = _partition_estimators(n_features,
                                                             self.n_jobs)
 
         all_results = Parallel(n_jobs=n_jobs, max_nbytes=None,
