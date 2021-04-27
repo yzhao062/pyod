@@ -36,6 +36,9 @@ if __name__ == "__main__":
     # train COPOD detector
     clf_name = 'COPOD'
     clf = COPOD()
+
+    # you could try parallel version as well.
+    # clf = COPOD(n_jobs=2)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

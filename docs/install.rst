@@ -43,11 +43,11 @@ Alternatively, you could clone and run setup.py file:
 
 **Optional Dependencies (see details below)**:
 
-* combo (optional, required for models/combination.py)
-* keras (optional, required for AutoEncoder)
+* combo (optional, required for models/combination.py and FeatureBagging)
+* keras (optional, required for AutoEncoder, and other deep learning models)
 * matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
-* tensorflow (optional, required for AutoEncoder, other backend works)
+* tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * xgboost (optional, required for XGBOD)
 
 .. warning::

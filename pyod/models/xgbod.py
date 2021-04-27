@@ -101,9 +101,9 @@ class XGBOD(BaseDetector):
     random_state : int
         Random number seed.  (replaces seed)
 
-    missing : float, optional
-        Value in the data which needs to be present as a missing value. If
-        None, defaults to np.nan.
+    # missing : float, optional
+    #     Value in the data which needs to be present as a missing value. If
+    #     None, defaults to np.nan.
 
     importance_type: string, default "gain"
         The feature importance type for the ``feature_importances_``
@@ -149,7 +149,8 @@ class XGBOD(BaseDetector):
                  max_delta_step=0, subsample=1, colsample_bytree=1,
                  colsample_bylevel=1,
                  reg_alpha=0, reg_lambda=1, scale_pos_weight=1,
-                 base_score=0.5, random_state=0, missing=None,
+                 base_score=0.5, random_state=0,
+                 # missing=None,
                  **kwargs):
         super(XGBOD, self).__init__()
         self.estimator_list = estimator_list
@@ -173,7 +174,7 @@ class XGBOD(BaseDetector):
         self.scale_pos_weight = scale_pos_weight
         self.base_score = base_score
         self.random_state = random_state
-        self.missing = missing
+        # self.missing = missing
         self.kwargs = kwargs
 
     def _init_detectors(self, X):
@@ -339,7 +340,7 @@ class XGBOD(BaseDetector):
                                         scale_pos_weight=self.scale_pos_weight,
                                         base_score=self.base_score,
                                         random_state=self.random_state,
-                                        missing=self.missing,
+                                        # missing=self.missing,
                                         **self.kwargs)
         self.clf_.fit(self.X_train_new_, y)
         self.decision_scores_ = self.clf_.predict_proba(

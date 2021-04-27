@@ -105,6 +105,7 @@ PyOD is featured for:
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
 * **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like COPOD**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
+* **Fast training & prediction with SUOD** :cite:`a-zhao2021suod`.
 * **Compatible with both Python 2 & 3**.
 
 
