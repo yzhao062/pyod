@@ -4,11 +4,6 @@ from setuptools import find_packages, setup
 from os import path
 from io import open  # for Python 2 and 3 compatibility
 
-# get __version__ from _version.py
-ver_file = path.join('pyod', 'version.py')
-with open(ver_file) as f:
-    exec(f.read())
-
 this_directory = path.abspath(path.dirname(__file__))
 
 
@@ -25,7 +20,7 @@ with open(path.join(this_directory, 'requirements.txt'),
 
 setup(
     name='pyod',
-    version=__version__,
+    use_scm_version={"write_to": "pyod/_version.py"},
     description='A Python Toolbox for Scalable Outlier Detection (Anomaly Detection)',
     long_description=readme(),
     long_description_content_type='text/x-rst',
@@ -38,7 +33,7 @@ setup(
     packages=find_packages(exclude=['test']),
     include_package_data=True,
     install_requires=requirements,
-    setup_requires=['setuptools>=38.6.0'],
+    setup_requires=['setuptools>=38.6.0', "setuptools_scm"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
