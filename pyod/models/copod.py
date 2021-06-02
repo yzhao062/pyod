@@ -125,7 +125,7 @@ class COPOD(BaseDetector):
         self._process_decision_scores()
         return self
 
-    def decision_function(self, X):
+    def decision_function(self, X, scores_per_feature=False):
         """Predict raw anomaly score of X using the fitted detector.
          For consistency, outliers are assigned with larger anomaly scores.
         Parameters
@@ -133,14 +133,19 @@ class COPOD(BaseDetector):
         X : numpy array of shape (n_samples, n_features)
             The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
+
+        scores_per_feature : bool
+            A flag to indicate whether the score should be combined per sample,
+            returning an array of (n_samples, ) or whether each feature should
+            be scored individually, returning an array of (n_samples, n_features)
         Returns
         -------
-        anomaly_scores : numpy array of shape (n_samples,)
+        anomaly_scores : numpy array of shape (n_samples,) or (n_samples, n_features)
             The anomaly score of the input samples.
         """
         # use multi-thread execution
         if self.n_jobs != 1:
-            return self._decision_function_parallel(X)
+            return self._decision_function_parallel(X, scores_per_feature=scores_per_feature)
 
         if hasattr(self, 'X_train'):
             original_size = X.shape[0]
@@ -152,13 +157,18 @@ class COPOD(BaseDetector):
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
         self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
-        if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1).to_numpy()[-original_size:]
-        else:
-            decision_scores_ = self.O.sum(axis=1).to_numpy()
-        return decision_scores_.ravel()
 
-    def _decision_function_parallel(self, X):
+        if scores_per_feature:
+            decision_scores_ = self.O.to_numpy()
+        else:
+            decision_scores_ = self.O.sum(axis=1).to_numpy().ravel()
+
+        if hasattr(self, 'X_train'):
+            decision_scores_ = decision_scores_[-original_size:]
+
+        return decision_scores_
+
+    def _decision_function_parallel(self, X, scores_per_feature=False):
         """Predict raw anomaly score of X using the fitted detector.
          For consistency, outliers are assigned with larger anomaly scores.
         Parameters
@@ -211,12 +221,16 @@ class COPOD(BaseDetector):
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
         self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
-        if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1).to_numpy()[-original_size:]
-        else:
-            decision_scores_ = self.O.sum(axis=1).to_numpy()
-        return decision_scores_.ravel()
 
+        if scores_per_feature:
+            decision_scores_ = self.O.to_numpy()
+        else:
+            decision_scores_ = self.O.sum(axis=1).to_numpy().ravel()
+
+        if hasattr(self, 'X_train'):
+            decision_scores_ = decision_scores_[-original_size:]
+
+        return decision_scores_
     def explain_outlier(self, ind, cutoffs=None,
                         feature_names=None):  # pragma: no cover
         """Plot dimensional outlier graph for a given data
