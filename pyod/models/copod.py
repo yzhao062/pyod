@@ -247,14 +247,14 @@ class COPOD(BaseDetector):
 
         cutoffs = [1 - self.contamination,
                    0.99] if cutoffs is None else cutoffs
-        plt.plot(column_range, self.O[columns].iloc[ind],
+        plt.plot(column_range, self.O.loc[ind, columns],
                  label='Outlier Score')
         for i in cutoffs:
             plt.plot(column_range,
-                     self.O[columns].quantile(q=i, axis=0), '-',
+                     self.O.loc[:, columns].quantile(q=i, axis=0), '-',
                      label='{percentile} Cutoff Band'.format(percentile=i))
         plt.xlim([1, max(column_range)])
-        plt.ylim([0, int(self.O[columns].max().max()) + 1])
+        plt.ylim([0, int(self.O.loc[:, columns].max().max()) + 1])
         plt.ylabel('Dimensional Outlier Score')
         plt.xlabel('Dimension')
 
@@ -266,12 +266,12 @@ class COPOD(BaseDetector):
         else:
             plt.xticks(ticks)
 
-        plt.yticks(range(0, int(self.O[columns].max().max()) + 1))
+        plt.yticks(range(0, int(self.O.loc[:, columns].max().max()) + 1))
         label = 'Outlier' if self.labels_[ind] == 1 else 'Inlier'
         plt.title('Outlier Score Breakdown for Data #{index} ({label})'.format(
             index=ind + 1, label=label))
         plt.legend()
         plt.show()
-        return self.O[columns].iloc[ind], self.O[columns].quantile(q=cutoffs[0],
-                                                 axis=0), self.O[columns].quantile(
+        return self.O.loc[ind, columns], self.O.loc[:, columns].quantile(q=cutoffs[0],
+                                                 axis=0), self.O.loc[:, columns].quantile(
             q=cutoffs[1], axis=0)
