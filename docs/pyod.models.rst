@@ -58,7 +58,7 @@ pyod.models.combination module
     :inherited-members:
 
 pyod.models.copod module
-----------------------
+------------------------
 
 .. automodule:: pyod.models.copod
     :members:
@@ -105,7 +105,7 @@ pyod.models.knn module
     :inherited-members:
 
 pyod.models.lmdd module
-----------------------
+-----------------------
 
 .. automodule:: pyod.models.lmdd
     :members:
