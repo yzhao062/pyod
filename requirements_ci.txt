@@ -12,4 +12,6 @@ six
 statsmodels
 suod
 tensorflow
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.8.0+cpu
 xgboost

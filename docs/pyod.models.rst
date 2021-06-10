@@ -20,6 +20,15 @@ pyod.models.auto\_encoder module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.auto\_encoder\_torch module
+---------------------------------------
+
+.. automodule:: pyod.models.auto_encoder_torch
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.cblof module
 ------------------------
 
