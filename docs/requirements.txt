@@ -10,6 +10,7 @@ pytest
 scipy>=0.19.1
 scikit_learn>=0.19.1
 six
+sphinx-rtd-theme
 sphinxcontrib-bibtex
 statsmodels
 suod
