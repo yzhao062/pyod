@@ -196,10 +196,7 @@ class ROD(BaseDetector):
     For high dimensions > 3, the overall score is calculated by taking the
     average of the overall 3D-subspaces scores, that were resulted from
     decomposing the original data space.
-    See :cite:`Y. Almardeny, N. Boujnah and F. Cleary,
-    "A Novel Outlier Detection Method for Multivariate Data,"
-    in IEEE Transactions on Knowledge and Data Engineering,
-    doi: 10.1109/TKDE.2020.3036524.` for details.
+    See :cite:`almardeny2020novel` for details.
 
     Parameters
     ----------
