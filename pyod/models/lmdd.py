@@ -113,6 +113,8 @@ class LMDD(BaseDetector):
         self.n_iter, self.n_iter_ = n_iter, n_iter
         self.dis_measure, self.dis_measure_ = dis_measure, dis_measure
 
+        # add this assignment to prevent clone error; not being used.
+        self.random_state = random_state
         self.random_state_, self.dis_measure_ = _check_params(n_iter,
                                                               dis_measure,
                                                               random_state)

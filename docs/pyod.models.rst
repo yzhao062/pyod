@@ -20,6 +20,15 @@ pyod.models.auto\_encoder module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.auto\_encoder\_torch module
+---------------------------------------
+
+.. automodule:: pyod.models.auto_encoder_torch
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.cblof module
 ------------------------
 
@@ -49,7 +58,7 @@ pyod.models.combination module
     :inherited-members:
 
 pyod.models.copod module
-----------------------
+------------------------
 
 .. automodule:: pyod.models.copod
     :members:
@@ -96,7 +105,7 @@ pyod.models.knn module
     :inherited-members:
 
 pyod.models.lmdd module
-----------------------
+-----------------------
 
 .. automodule:: pyod.models.lmdd
     :members:

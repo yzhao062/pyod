@@ -222,8 +222,8 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 
 **Warning 1**\ :
 PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in Keras. However, PyOD does **NOT** install **keras** and/or
-**tensorflow** for you. This reduces the risk of interfering with your local copies.
+implemented in both PyTorch and Tensorflow. However, PyOD does **NOT** install DL libraries for you.
+This reduces the risk of interfering with your local copies.
 If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
 Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.

@@ -12,4 +12,5 @@ six
 statsmodels
 suod
 tensorflow
+torch
 xgboost

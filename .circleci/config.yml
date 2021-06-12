@@ -97,7 +97,7 @@ jobs:
           command: |
             . venv/bin/activate
             pytest
-          no_output_timeout: 30m
+          no_output_timeout: 60m
 
       - store_artifacts:
           path: test-reports
