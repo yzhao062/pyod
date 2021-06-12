@@ -22,9 +22,9 @@ from pyod.utils.data import generate_data
 
 class TestAutoEncoder(unittest.TestCase):
     def setUp(self):
-        self.n_train = 6000
+        self.n_train = 3000
         self.n_test = 1000
-        self.n_features = 300
+        self.n_features = 200
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
@@ -32,7 +32,7 @@ class TestAutoEncoder(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = AutoEncoder(epochs=5, contamination=self.contamination)
+        self.clf = AutoEncoder(epochs=3, contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
