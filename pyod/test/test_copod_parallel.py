@@ -13,6 +13,7 @@ from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
 from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
 from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
@@ -117,6 +118,9 @@ class TestCOPODParallel(unittest.TestCase):
     # def test_plot(self):
     #     os, cutoff1, cutoff2 = self.clf.explain_outlier(ind=1)
     #     assert_array_less(0, os)
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass

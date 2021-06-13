@@ -11,7 +11,7 @@ from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-
+from sklearn.base import clone
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(
@@ -105,6 +105,10 @@ class TestMO_GAAL(unittest.TestCase):
         with assert_raises(NotImplementedError):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
+
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass

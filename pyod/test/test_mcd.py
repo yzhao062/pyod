@@ -13,6 +13,7 @@ from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
 from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
 from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
@@ -128,6 +129,9 @@ class TestMCD(unittest.TestCase):
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2.5)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass
