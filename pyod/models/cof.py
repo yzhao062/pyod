@@ -11,7 +11,8 @@ import warnings
 from operator import itemgetter
 
 import numpy as np
-from scipy.spatial import distance_matrix
+#from scipy.spatial import distance_matrix
+from scipy.spatial import minkowski_distance
 from sklearn.utils import check_array
 
 from .base import BaseDetector
@@ -134,15 +135,18 @@ class COF(BaseDetector):
         :return: numpy array containing COF scores for observations.
                  The greater the COF, the greater the outlierness.
         """
-        dist_matrix = np.array(distance_matrix(X, X))
+        #dist_matrix = np.array(distance_matrix(X, X))
         sbn_path_index, ac_dist, cof_ = [], [], []
         for i in range(X.shape[0]):
-            sbn_path = np.argsort(dist_matrix[i])
+            #sbn_path = np.argsort(dist_matrix[i])
+            sbn_path = np.argsort(minkowski_distance(X[i,:],X,p=2))
             sbn_path_index.append(sbn_path[1: self.n_neighbors_ + 1])
             cost_desc = []
             for j in range(self.n_neighbors_):
+                #cost_desc.append(
+                #    np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
                 cost_desc.append(
-                    np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
+                    np.min(minkowski_distance(X[sbn_path[j + 1]],X,p=2)[sbn_path][:j + 1]))
             acd = []
             for _h, cost_ in enumerate(cost_desc):
                 neighbor_add1 = self.n_neighbors_ + 1
