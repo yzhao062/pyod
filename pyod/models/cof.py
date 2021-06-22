@@ -136,24 +136,22 @@ class COF(BaseDetector):
                  The greater the COF, the greater the outlierness.
         """
         #dist_matrix = np.array(distance_matrix(X, X))
-        sbn_path_index, ac_dist, cof_ = [], [], []
+        sbn_path_index = np.zeros((X.shape[0],self.n_neighbors_), dtype=np.int64)
+        ac_dist, cof_ = np.zeros((X.shape[0])), np.zeros((X.shape[0]))
         for i in range(X.shape[0]):
             #sbn_path = np.argsort(dist_matrix[i])
             sbn_path = np.argsort(minkowski_distance(X[i,:],X,p=2))
-            sbn_path_index.append(sbn_path[1: self.n_neighbors_ + 1])
-            cost_desc = []
+            sbn_path_index[i,:] = sbn_path[1: self.n_neighbors_ + 1]
+            cost_desc = np.zeros((self.n_neighbors_))
             for j in range(self.n_neighbors_):
                 #cost_desc.append(
                 #    np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
-                cost_desc.append(
-                    np.min(minkowski_distance(X[sbn_path[j + 1]],X,p=2)[sbn_path][:j + 1]))
-            acd = []
+                cost_desc[j] = np.min(minkowski_distance(X[sbn_path[j + 1]],X,p=2)[sbn_path][:j + 1])
+            acd = np.zeros((self.n_neighbors_))
             for _h, cost_ in enumerate(cost_desc):
                 neighbor_add1 = self.n_neighbors_ + 1
-                acd.append(((2. * (neighbor_add1 - (_h + 1))) / (
-                        neighbor_add1 * self.n_neighbors_)) * cost_)
-            ac_dist.append(np.sum(acd))
+                acd[_h] = ((2. * (neighbor_add1 - (_h + 1))) / (neighbor_add1 * self.n_neighbors_)) * cost_
+            ac_dist[i] = np.sum(acd)
         for _g in range(X.shape[0]):
-            cof_.append((ac_dist[_g] * self.n_neighbors_) /
-                        np.sum(itemgetter(*sbn_path_index[_g])(ac_dist)))
+            cof_[_g] = (ac_dist[_g] * self.n_neighbors_) / np.sum(ac_dist[sbn_path_index[_g]])
         return np.nan_to_num(cof_)
