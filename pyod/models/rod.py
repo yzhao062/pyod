@@ -25,7 +25,7 @@ def mad(costs):
 
     Parameters
     ----------
-    costs :
+    costs : list of rotation costs
 
     Returns
     -------
@@ -37,8 +37,18 @@ def mad(costs):
     diff = np.abs(costs_ - median)
     return np.ravel(0.6745 * diff / np.median(diff))
 
+
 def angle(v1, v2):
-    """find the angle between two 3D vectors
+    """find the angle between two 3D vectors.
+
+    Parameters
+    ----------
+    v1 : list, first vector
+    v2 : list, second vector
+
+    Returns
+    -------
+    angle : float, the angle
     """
     return np.arccos(np.dot(v1, v2) /
                      (np.linalg.norm(v1) * np.linalg.norm(v2)))
@@ -48,9 +58,15 @@ def geometric_median(x, eps=1e-5):
     """
     Find the multivariate geometric L1-median by applying
     Vardi and Zhang algorithm.
-    :param x: the data points in array-like structure
-    :param eps: float, a threshold to indicate when to stop
-    :return: Geometric L1-median
+
+    Parameters
+    ----------
+    x : array-like, the data points
+    eps: float (default=1e-5), a threshold to indicate when to stop
+
+    Returns
+    -------
+    gm : array, Geometric L1-median
     """
     points = np.unique(x, axis=0)
     gm_ = np.mean(points, 0)  # initialize geometric median
@@ -78,13 +94,21 @@ def geometric_median(x, eps=1e-5):
         gm_ = gm1
 
 
-def scale_angles(gammas):
+def scale_angles(gammas, scaler1=None, scaler2=None):
     """
     Scale all angles in which angles <= 90
     degree will be scaled within [0 - 54.7] and
     angles > 90 will be scaled within [90 - 126]
-    :param gammas: list of angles
-    :return: scaled angles
+
+    Parameters
+    ----------
+    gammas : list, angles
+    scaler1: obj (default=None), MinMaxScaler of Angles group 1
+    scaler2: obj (default=None), MinMaxScaler of Angles group 2
+
+    Returns
+    -------
+    scaled angles, scaler1, scaler2
     """
     first, second = [], []
     first_ind, second_ind = [], []
@@ -96,24 +120,41 @@ def scale_angles(gammas):
         else:
             second.append(g)
             second_ind.append(i)
-    first = MinMaxScaler((0.001, 0.955)).fit_transform(
-        np.array(first).reshape(-1, 1)).reshape(-1) if first else []
-    second = MinMaxScaler((q1 + 0.001, 2.186)).fit_transform(
-        np.array(second).reshape(-1, 1)).reshape(-1) if second else []
+    if scaler1 is None:  # this indicates the `fit()`
+        min_f, max_f = 0.001, 0.955
+        scaler1 = MinMaxScaler(feature_range=(min_f, max_f))
+        # min_f and max_f are required to be fit by scaler for consistency between train and test sets
+        scaler1.fit(np.array(first + [min_f, max_f]).reshape(-1, 1))
+        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(-1) if first else []
+    else:
+        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(-1) if first else []
+    if scaler2 is None:  # this indicates the `fit()`
+        min_s, max_s = q1 + 0.001, 2.186
+        scaler2 = MinMaxScaler(feature_range=(min_s, max_s))
+        # min_s and max_s are required to be fit by scaler for consistency between train and test sets
+        scaler2.fit(np.array(second + [min_s, max_s]).reshape(-1, 1))
+        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(-1) if second else []
+    else:
+        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(-1) if second else []
     # restore original order
-    return np.concatenate([first, second])[np.argsort(first_ind + second_ind)]
+    return np.concatenate([first, second])[np.argsort(first_ind + second_ind)], scaler1, scaler2
 
 
 def euclidean(v1, v2, c=False):
     """
     Find the euclidean distance between two vectors
     or between a vector and a collection of vectors.
-    :param v1: list, first 3D vector or collection of vectors
-    :param v2: list, second 3D vector
-    :param c: bool (default=False), if True, it means the
-              v1 is a list of vectors.
-    :return: list of list of euclidean distances if c==True.
-             Otherwise float: the euclidean distance
+
+    Parameters
+    ----------
+    v1 : list, first 3D vector or collection of vectors
+    v2 : list, second 3D vector
+    c : bool (default=False), if True, it means the v1 is a list of vectors.
+
+    Returns
+    -------
+    list of list of euclidean distances if c==True.
+    Otherwise float: the euclidean distance
     """
     if c:
         res = []
@@ -127,61 +168,137 @@ def euclidean(v1, v2, c=False):
                    (v1[2] - v2[2]) ** 2)
 
 
-def rod_3D(x):
+def rod_3D(x, gm=None, scaler1=None, scaler2=None):
     """
     Find ROD scores for 3D Data.
+    note that gm, scaler1 and scaler2 will be returned "as they are"
+    and without being changed if the model has been fit already
+
+    Parameters
+    ----------
+    x : array-like, 3D data points.
+    gm: list (default=None), the geometric median
+    scaler1: obj (default=None), MinMaxScaler of Angles group 1
+    scaler2: obj (default=None), MinMaxScaler of Angles group 2
+
+    Returns
+    -------
+    decision_scores, gm, scaler1, scaler2
     """
-    # find the geometric median
-    gm = geometric_median(x)
+    # find the geometric median if it is not already fit
+    gm = geometric_median(x) if gm is None else gm
     # find its norm and center data around it
     norm_ = np.linalg.norm(gm)
     _x = x - gm
-    # calculate the scaled angles between the geometric median
-    # and each data point vector
+    # calculate the scaled angles between the geometric median and each data point vector
     v_norm = np.linalg.norm(_x, axis=1)
-    gammas = scale_angles(np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)))
+    gammas, scaler1, scaler2 = scale_angles(np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)),
+                                            scaler1=scaler1, scaler2=scaler2)
     # apply the ROD main equation to find the rotation costs
     costs = np.power(v_norm, 3) * np.cos(gammas) * np.square(np.sin(gammas))
     # apply MAD to calculate the decision scores
-    return mad(costs)
+    decision_scores = mad(costs)
+    return decision_scores, list(gm), scaler1, scaler2
 
 
 @numba.njit
-def sigmoid(xx):
+def sigmoid(x):
     """
     Implementation of Sigmoid function
+
+    Parameters
+    ----------
+    x : array-like, decision scores
+
+    Returns
+    -------
+    array-like, x after applying sigmoid
     """
-    return 1 / (1 + np.exp(-xx))
+    return 1 / (1 + np.exp(-x))
 
 
-def process_sub(subspace):
+def process_sub(subspace, gm, scaler1, scaler2):
     """
-    Apply ROD on a 3D subSpace
+    Apply ROD on a 3D subSpace then process it with sigmoid
+    to compare apples to apples
+
+    Parameters
+    ----------
+    subspace : array-like, 3D subspace of the data
+    gm: list, the geometric median
+    scaler1: obj, MinMaxScaler of Angles group 1
+    scaler2: obj, MinMaxScaler of Angles group 2
+
+    Returns
+    -------
+    ROD decision scores with sigmoid applied, gm, scaler1, scaler2
     """
-    mad_subspace = np.nan_to_num(np.array(rod_3D(subspace)))
-    return sigmoid(mad_subspace)
+    mad_subspace, gm, scaler1, scaler2 = rod_3D(subspace, gm=gm,
+                                                scaler1=scaler1,
+                                                scaler2=scaler2)
+    return sigmoid(np.nan_to_num(np.array(mad_subspace))), gm, scaler1, scaler2
 
 
-def rod_nD(X, parallel):
+def rod_nD(X, parallel, gm, data_scaler, angles_scalers1, angles_scalers2):
     """
-    Find ROD overall scores when n>3 Data:
+    Find ROD overall scores when Data is higher than 3D:
       # scale dataset using Robust Scaler
       # decompose the full space into a combinations of 3D subspaces,
       # Apply ROD on each combination,
       # squish scores per subspace, so we compare apples to apples,
-      # return the average of ROD scores of all subspaces per observation.
+      # calculate average of ROD scores of all subspaces per observation.
+    Note that if gm, data_scaler, angles_scalers1, angles_scalers2 are None,
+    that means it is a `fit()` process and they will be calculated and returned
+    to the class to be saved for future prediction. Otherwise, if they are not None,
+    then it is a prediction process.
+
+    Parameters
+    ----------
+    X : array-like, data points
+    parallel: bool, True runs the algorithm in parallel
+    gm: list, the geometric median
+    data_scaler: obj, RobustScaler of data
+    angles_scalers1: list, MinMaxScalers of Angles group 1
+    angles_scalers2: list, MinMaxScalers of Angles group 2
+
+    Returns
+    -------
+    ROD decision scores, gm, data_scaler, angles_scalers1, angles_scalers2
     """
-    X = RobustScaler().fit_transform(X)
+    if data_scaler is None:  # for fitting
+        data_scaler = RobustScaler()
+        X = data_scaler.fit_transform(X)
+    else:  # for prediction
+        X = data_scaler.transform(X)
     dim = X.shape[1]
     all_subspaces = [X[:, _com] for _com in com(range(dim), 3)]
+    all_gms = [None] * len(all_subspaces) if gm is None else gm
+    all_angles_scalers1 = [None] * len(all_subspaces) if angles_scalers1 is None else angles_scalers1
+    all_angles_scalers2 = [None] * len(all_subspaces) if angles_scalers2 is None else angles_scalers2
     if parallel:
         p = Pool(multiprocessing.cpu_count())
-        subspaces_scores = p.map(process_sub, all_subspaces)
-        return np.average(np.array(subspaces_scores).T, axis=1).reshape(-1)
-    subspaces_scores = []
-    for subspace in all_subspaces:
-        subspaces_scores.append(process_sub(subspace))
-    return np.average(np.array(subspaces_scores).T, axis=1).reshape(-1)
+        args = [[a, b, c, d] for a, b, c, d in zip(all_subspaces, all_gms,
+                                                   all_angles_scalers1, all_angles_scalers2)]
+        results = p.starmap(process_sub, args)
+        subspaces_scores, gm, angles_scalers1, angles_scalers2 = [], [], [], []
+        for res in results:
+            subspaces_scores.append(list(res[0]))
+            gm.append(res[1])
+            angles_scalers1.append(res[2])
+            angles_scalers2.append(res[3])
+        scores = np.average(np.array(subspaces_scores).T, axis=1).reshape(-1)
+        p.close()
+        p.join()
+        return scores, gm, data_scaler, angles_scalers1, angles_scalers2
+    subspaces_scores, gm, angles_scalers1, angles_scalers2 = [], [], [], []
+    for subspace, _gm, ang_s1, ang_s2 in zip(all_subspaces, all_gms, all_angles_scalers1, all_angles_scalers2):
+        scores_, gm_, ang_s1_, ang_s2_ = process_sub(subspace, _gm, ang_s1, ang_s2)
+        subspaces_scores.append(scores_)
+        gm.append(gm_)
+        angles_scalers1.append(ang_s1_)
+        angles_scalers2.append(ang_s2_)
+    scores = np.average(np.array(subspaces_scores).T, axis=1).reshape(-1)
+    return scores, gm, data_scaler, angles_scalers1, angles_scalers2
 
 
 class ROD(BaseDetector):
@@ -206,11 +323,10 @@ class ROD(BaseDetector):
         define the threshold on the decision function.
 
     parallel_execution: bool, optional (default=False).
-        If set to True, it makes the algorithm run in parallel,
+        If set to True, the algorithm will run in parallel,
         for a better execution time. It is recommended to set
         this parameter to True ONLY for high dimensional data > 10,
-        if a proper hardware is available.
-
+        and if a proper hardware is available.
 
     Attributes
     ----------
@@ -238,6 +354,10 @@ class ROD(BaseDetector):
             raise TypeError("parallel_execution should be bool. "
                             "Got {}".format(type(parallel_execution)))
         self.parallel = parallel_execution
+        self.gm = None  # geometric median(s)
+        self.data_scaler = None  # data scaler (in case of d>3)
+        self.angles_scaler1 = None  # scaler(s) of Angles Group 1
+        self.angles_scaler2 = None  # scaler(s) of Angles Group 1
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -278,13 +398,29 @@ class ROD(BaseDetector):
         Returns
         -------
         anomaly_scores : numpy array of shape (n_samples,)
-            The anomaly score of the input samples.
+                         The anomaly score of the input samples.
         """
         X = check_array(X)
         if X.shape[1] < 3:
             X = np.hstack((X, np.zeros(shape=(X.shape[0], 3 - X.shape[1]))))
 
         if X.shape[1] == 3:
-            return rod_3D(X)
+            scores, gm, angles_scaler1, angles_scaler2 = rod_3D(x=X, gm=self.gm,
+                                                                scaler1=self.angles_scaler1,
+                                                                scaler2=self.angles_scaler2)
+            self.gm = gm
+            self.angles_scaler1 = angles_scaler1
+            self.angles_scaler2 = angles_scaler2
+            return scores
 
-        return rod_nD(X, self.parallel)
+        scores, gm, data_scaler, angles_scaler1, angles_scaler2 = rod_nD(X=X,
+                                                                         parallel=self.parallel,
+                                                                         gm=self.gm,
+                                                                         data_scaler=self.data_scaler,
+                                                                         angles_scalers1=self.angles_scaler1,
+                                                                         angles_scalers2=self.angles_scaler2)
+        self.gm = gm
+        self.data_scaler = data_scaler
+        self.angles_scaler1 = angles_scaler1
+        self.angles_scaler2 = angles_scaler2
+        return scores
