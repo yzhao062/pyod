@@ -226,6 +226,9 @@ class COPOD(BaseDetector):
         ind : int
             The index of the data point one wishes to obtain
             a dimensional outlier graph for.
+
+        columns : list
+            Specify a list of features/dimensions for plotting.
         
         cutoffs : list of floats in (0., 1), optional (default=[0.95, 0.99])
             The significance cutoff bands of the dimensional outlier graph.
@@ -272,6 +275,7 @@ class COPOD(BaseDetector):
             index=ind + 1, label=label))
         plt.legend()
         plt.show()
-        return self.O.loc[ind, columns], self.O.loc[:, columns].quantile(q=cutoffs[0],
-                                                 axis=0), self.O.loc[:, columns].quantile(
+        return self.O.loc[ind, columns], self.O.loc[:, columns].quantile(
+            q=cutoffs[0],
+            axis=0), self.O.loc[:, columns].quantile(
             q=cutoffs[1], axis=0)
