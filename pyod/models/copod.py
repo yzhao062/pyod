@@ -217,7 +217,7 @@ class COPOD(BaseDetector):
             decision_scores_ = self.O.sum(axis=1).to_numpy()
         return decision_scores_.ravel()
 
-    def explain_outlier(self, ind, cutoffs=None,
+    def explain_outlier(self, ind, columns=None, cutoffs=None,
                         feature_names=None):  # pragma: no cover
         """Plot dimensional outlier graph for a given data
             point within the dataset.
@@ -239,20 +239,26 @@ class COPOD(BaseDetector):
         Plot : matplotlib plot
             The dimensional outlier graph for data point with index ind.
         """
+        if columns is None:
+            columns = self.O.columns
+            column_range = range(1, self.O.shape[1] + 1)
+        else:
+            column_range = range(1, len(columns) + 1)
+
         cutoffs = [1 - self.contamination,
                    0.99] if cutoffs is None else cutoffs
-        plt.plot(range(1, self.O.shape[1] + 1), self.O.iloc[ind],
+        plt.plot(column_range, self.O.loc[ind, columns],
                  label='Outlier Score')
         for i in cutoffs:
-            plt.plot(range(1, self.O.shape[1] + 1),
-                     self.O.quantile(q=i, axis=0), '-',
+            plt.plot(column_range,
+                     self.O.loc[:, columns].quantile(q=i, axis=0), '-',
                      label='{percentile} Cutoff Band'.format(percentile=i))
-        plt.xlim([1, self.O.shape[1] + 1])
-        plt.ylim([0, int(self.O.max().max()) + 1])
+        plt.xlim([1, max(column_range)])
+        plt.ylim([0, int(self.O.loc[:, columns].max().max()) + 1])
         plt.ylabel('Dimensional Outlier Score')
         plt.xlabel('Dimension')
 
-        ticks = range(1, self.O.shape[1] + 1)
+        ticks = column_range
         if feature_names is not None:
             assert len(feature_names) == len(ticks), \
                 "Length of feature_names does not match dataset dimensions."
@@ -260,12 +266,12 @@ class COPOD(BaseDetector):
         else:
             plt.xticks(ticks)
 
-        plt.yticks(range(0, int(self.O.max().max()) + 1))
+        plt.yticks(range(0, int(self.O.loc[:, columns].max().max()) + 1))
         label = 'Outlier' if self.labels_[ind] == 1 else 'Inlier'
         plt.title('Outlier Score Breakdown for Data #{index} ({label})'.format(
             index=ind + 1, label=label))
         plt.legend()
         plt.show()
-        return self.O.iloc[ind], self.O.quantile(q=cutoffs[0],
-                                                 axis=0), self.O.quantile(
+        return self.O.loc[ind, columns], self.O.loc[:, columns].quantile(q=cutoffs[0],
+                                                 axis=0), self.O.loc[:, columns].quantile(
             q=cutoffs[1], axis=0)
