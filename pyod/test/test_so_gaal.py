@@ -12,6 +12,9 @@ from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
+from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
+
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -19,7 +22,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pyod.models.so_gaal import SO_GAAL
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
-from sklearn.metrics import roc_auc_score
 
 
 class TestSO_GAAL(unittest.TestCase):
@@ -105,6 +107,9 @@ class TestSO_GAAL(unittest.TestCase):
         with assert_raises(NotImplementedError):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass

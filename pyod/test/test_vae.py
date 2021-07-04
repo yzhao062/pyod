@@ -11,7 +11,9 @@ from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
+
 from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -37,18 +39,18 @@ class TestVAE(unittest.TestCase):
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        assert(hasattr(self.clf, 'decision_scores_') and
-                    self.clf.decision_scores_ is not None)
-        assert(hasattr(self.clf, 'labels_') and
-                    self.clf.labels_ is not None)
-        assert(hasattr(self.clf, 'threshold_') and
-                    self.clf.threshold_ is not None)
-        assert(hasattr(self.clf, '_mu') and
-                    self.clf._mu is not None)
-        assert(hasattr(self.clf, '_sigma') and
-                    self.clf._sigma is not None)
-        assert(hasattr(self.clf, 'model_') and
-                    self.clf.model_ is not None)
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, '_mu') and
+                self.clf._mu is not None)
+        assert (hasattr(self.clf, '_sigma') and
+                self.clf._sigma is not None)
+        assert (hasattr(self.clf, 'model_') and
+                self.clf.model_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
@@ -98,6 +100,9 @@ class TestVAE(unittest.TestCase):
         with assert_raises(NotImplementedError):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass

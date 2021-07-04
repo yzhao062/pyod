@@ -13,6 +13,7 @@ from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
 from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
 from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
@@ -98,6 +99,9 @@ class TestLODA(unittest.TestCase):
         with assert_raises(NotImplementedError):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass

@@ -15,6 +15,7 @@ from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
 from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
 from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import check_X_y
 from scipy.io import loadmat
@@ -127,6 +128,9 @@ class TestXGBOD(unittest.TestCase):
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), rtol=4)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass
