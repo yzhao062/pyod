@@ -121,15 +121,15 @@ PyOD is featured for:
     clf.fit(X_train)
 
     # get outlier scores
-    y_train_scores = clf.decision_scores_  # raw outlier scores
-    y_test_scores = clf.decision_function(X_test)  # outlier scores
+    y_train_scores = clf.decision_scores_  # raw outlier scores on the train data
+    y_test_scores = clf.decision_function(X_test)  # predict raw outlier scores on test
 
 
 
 **Citing PyOD**\ :
 
 `PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in
-`JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
+`Journal of Machine Learning Research (JMLR) <http://www.jmlr.org/>`_ (MLOSS track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 

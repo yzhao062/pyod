@@ -117,14 +117,14 @@ PyOD is featured for:
     clf.fit(X_train)
 
     # get outlier scores
-    y_train_scores = clf.decision_scores_  # raw outlier scores
-    y_test_scores = clf.decision_function(X_test)  # outlier scores
+    y_train_scores = clf.decision_scores_  # raw outlier scores on the train data
+    y_test_scores = clf.decision_function(X_test)  # predict raw outlier scores on test
 
 
 **Citing PyOD**\ :
 
 `PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in
-`JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
+`Journal of Machine Learning Research (JMLR) <http://www.jmlr.org/>`_ (MLOSS track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 
@@ -190,14 +190,6 @@ Alternatively, you could clone and run setup.py file:
    pip install .
 
 
-**Note on Python 2.7**\ :
-The maintenance of Python 2.7 will be stopped by January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
-To be consistent with the Python change and PyOD's dependent libraries, e.g., scikit-learn, we will
-stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
-Python 3.5 or newer for the latest functions and bug fixes. More information can
-be found at `Moving to require Python 3 <https://python3statement.org/>`_.
-
-
 **Required Dependencies**\ :
 
 
@@ -208,7 +200,7 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 * numba>=0.35
 * pandas>=0.25
 * scipy>=0.19.1
-* scikit_learn>=0.19.1
+* scikit_learn>=0.20.0
 * statsmodels
 
 **Optional Dependencies (see details below)**\ :
@@ -229,13 +221,9 @@ Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wik
 Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
 **Warning 2**\ :
-Running examples needs **matplotlib**, which may throw errors in conda
-virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https://github.com/yzhao062/pyod/issues/6>`_.
-
-**Warning 3**\ :
 PyOD contains multiple models that also exist in scikit-learn. However, these two
 libraries' API is not exactly the same--it is recommended to use only one of them
-for consistency but not mix the results. Refer `Differences between sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
+for consistency but not mix the results. Refer `Differences between scikit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
 for more information.
 
 
