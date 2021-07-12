@@ -57,9 +57,9 @@ Welcome to PyOD documentation!
    :alt: Build status
 
 
-.. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
-   :target: https://travis-ci.org/yzhao062/pyod
-   :alt: Build Status
+.. image:: https://travis-ci.com/yzhao062/pyod.svg?branch=master
+   :target: https://travis-ci.com/yzhao062/pyod
+   :alt: Travis CI
 
 
 .. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
