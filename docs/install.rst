@@ -27,7 +27,6 @@ Alternatively, you could clone and run setup.py file:
 * joblib
 * numpy>=1.13
 * numba>=0.35
-* pandas>=0.25
 * scipy>=0.20.0
 * scikit_learn>=0.19.1
 * statsmodels

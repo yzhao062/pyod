@@ -9,7 +9,6 @@ from __future__ import print_function
 
 import warnings
 import numpy as np
-import pandas as pd
 
 from statsmodels.distributions.empirical_distribution import ECDF
 from scipy.stats import skew
@@ -20,8 +19,6 @@ import matplotlib.pyplot as plt
 from .base import BaseDetector
 from .sklearn_base import _partition_estimators
 
-
-# todo: we should be able to drop pandas
 
 def ecdf(X):
     """Calculated the empirical CDF of a given dataset.
@@ -146,16 +143,17 @@ class COPOD(BaseDetector):
             original_size = X.shape[0]
             X = np.concatenate((self.X_train, X), axis=0)
 
-        self.U_l = pd.DataFrame(-1 * np.log(np.apply_along_axis(ecdf, 0, X)))
-        self.U_r = pd.DataFrame(-1 * np.log(np.apply_along_axis(ecdf, 0, -X)))
+        self.U_l = -1 * np.log(np.apply_along_axis(ecdf, 0, X))
+        self.U_r = -1 * np.log(np.apply_along_axis(ecdf, 0, -X))
+
         skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
         self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
         if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1).to_numpy()[-original_size:]
+            decision_scores_ = self.O.sum(axis=1)[-original_size:]
         else:
-            decision_scores_ = self.O.sum(axis=1).to_numpy()
+            decision_scores_ = self.O.sum(axis=1)
         return decision_scores_.ravel()
 
     def _decision_function_parallel(self, X):
@@ -204,17 +202,20 @@ class COPOD(BaseDetector):
             self.U_l[:, starts[i]:starts[i + 1]] = all_results[i][0]
             self.U_r[:, starts[i]:starts[i + 1]] = all_results[i][1]
 
-        self.U_l = pd.DataFrame(-1 * np.log(self.U_l))
-        self.U_r = pd.DataFrame(-1 * np.log(self.U_r))
+        # self.U_l = pd.DataFrame(-1 * np.log(self.U_l))
+        # self.U_r = pd.DataFrame(-1 * np.log(self.U_r))
+
+        self.U_l = -1 * np.log(self.U_l)
+        self.U_r = -1 * np.log(self.U_r)
 
         skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
         self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
         if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1).to_numpy()[-original_size:]
+            decision_scores_ = self.O.sum(axis=1)[-original_size:]
         else:
-            decision_scores_ = self.O.sum(axis=1).to_numpy()
+            decision_scores_ = self.O.sum(axis=1)
         return decision_scores_.ravel()
 
     def explain_outlier(self, ind, columns=None, cutoffs=None,
