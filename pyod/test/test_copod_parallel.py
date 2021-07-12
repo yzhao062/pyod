@@ -51,7 +51,7 @@ class TestCOPODParallel(unittest.TestCase):
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
-        assert_equal(self.clf.decision_scores_, self.clf_.decision_scores_)
+        assert_allclose(self.clf.decision_scores_, self.clf_.decision_scores_)
 
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)
