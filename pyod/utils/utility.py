@@ -280,73 +280,6 @@ def get_label_n(y, y_pred, n=None):
     return y_pred
 
 
-def get_intersection(lst1, lst2):
-    """get the overlapping between two lists
-
-    Parameters
-    ----------
-    li1 : list or numpy array
-        Input list 1.
-
-    li2 : list or numpy array
-        Input list 2.
-
-    Returns
-    -------
-    difference : list
-        The overlapping between li1 and li2.
-    """
-    return list(set(lst1) & set(lst2))
-
-
-def get_list_diff(li1, li2):
-    """get the elements in li1 but not li2. li1-li2
-
-    Parameters
-    ----------
-    li1 : list or numpy array
-        Input list 1.
-
-    li2 : list or numpy array
-        Input list 2.
-
-    Returns
-    -------
-    difference : list
-        The difference between li1 and li2.
-    """
-    # if isinstance(li1, (np.ndarray, np.generic)):
-    #     li1 = li1.tolist()
-    # if isinstance(li2, (np.ndarray, np.generic)):
-    #     li1 = li1.tolist()
-
-    return (list(set(li1) - set(li2)))
-
-
-def get_diff_elements(li1, li2):
-    """get the elements in li1 but not li2, and vice versa
-
-    Parameters
-    ----------
-    li1 : list or numpy array
-        Input list 1.
-
-    li2 : list or numpy array
-        Input list 2.
-
-    Returns
-    -------
-    difference : list
-        The difference between li1 and li2.
-    """
-    # if isinstance(li1, (np.ndarray, np.generic)):
-    #     li1 = li1.tolist()
-    # if isinstance(li2, (np.ndarray, np.generic)):
-    #     li1 = li1.tolist()
-
-    return (list(set(li1) - set(li2)) + list(set(li2) - set(li1)))
-
-
 def argmaxn(value_list, n, order='desc'):
     """Return the index of top n elements in the list
     if order is set to 'desc', otherwise return the index of n smallest ones.
@@ -442,28 +375,28 @@ def _get_sklearn_version():  # pragma: no cover
 
     sklearn_version = str(sklearn.__version__)
     if int(sklearn_version.split(".")[1]) < 19 or int(
-            sklearn_version.split(".")[1]) > 24:
+            sklearn_version.split(".")[1]) > 23:
         raise ValueError("Sklearn version error")
 
     return int(sklearn_version.split(".")[1])
 
 
-# def _sklearn_version_21():  # pragma: no cover
-#     """ Utility function to decide the version of sklearn
-#     In sklearn 21.0, LOF is changed. Specifically, _decision_function
-#     is replaced by _score_samples
-#
-#     Returns
-#     -------
-#     sklearn_21_flag : bool
-#         True if sklearn.__version__ is newer than 0.21.0
-#
-#     """
-#     sklearn_version = str(sklearn.__version__)
-#     if int(sklearn_version.split(".")[1]) > 20:
-#         return True
-#     else:
-#         return False
+def _sklearn_version_21():  # pragma: no cover
+    """ Utility function to decide the version of sklearn
+    In sklearn 21.0, LOF is changed. Specifically, _decision_function
+    is replaced by _score_samples
+
+    Returns
+    -------
+    sklearn_21_flag : bool
+        True if sklearn.__version__ is newer than 0.21.0
+
+    """
+    sklearn_version = str(sklearn.__version__)
+    if int(sklearn_version.split(".")[1]) > 20:
+        return True
+    else:
+        return False
 
 
 def generate_bagging_indices(random_state, bootstrap_features, n_features,
@@ -544,3 +477,40 @@ def generate_indices(random_state, bootstrap, n_population, n_samples):
                                              random_state=random_state)
 
     return indices
+
+def get_optimal_n_bins(X, upper_bound = None, epsilon = 1):
+    """ Determine optimal number of bins for a histogram using the Birge
+    Rozenblac method.
+    
+    See  https://doi.org/10.1051/ps:2006001
+    
+    Parameters
+    ----------
+    X : array-like of shape (n_samples, n_features)
+        The samples to determine the optimal number of bins for.
+        
+    upper_bound :  int, default=None
+        The maximum value of n_bins to be considered.
+        If set to None, np.sqrt(X.shape[0]) will be used as upper bound.
+        
+    epsilon : float, default = 1
+        A stabilizing term added to the logarithm to prevent division by zero.
+        
+    Returns
+    -------
+    optimal_n_bins : int
+        The optimal value of n_bins according to the Birge Rozenblac method
+    """
+    if upper_bound is None:
+        upper_bound = np.sqrt(X.shape[0])
+    
+    n = X.shape[0]
+    maximum_likelihood = np.zeros((upper_bound-1,1))
+    
+    for i, b in enumerate(range(1,upper_bound)):
+        histogram, _ = np.histogram(X, bins=b)
+        
+        maximum_likelihood[i] = np.sum(histogram * np.log(b*histogram/n + epsilon) - (b - 1 + np.power(np.log(b),2.5)))
+                                      
+    return np.argmax(maximum_likelihood) + 1                                  
+        
