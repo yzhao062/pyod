@@ -127,8 +127,8 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
     behaviour : str, default='old'
         Behaviour of the returned datasets which can be either 'old' or
         'new'. Passing ``behaviour='new'`` returns
-        "X_train, y_train, X_test, y_test", while passing ``behaviour='old'``
-        returns "X_train, X_test, y_train, y_test".
+        "X_train, X_test, y_train, y_test", while passing ``behaviour='old'``
+        returns "X_train, y_train, X_test, y_test".
 
         .. versionadded:: 0.7.0
            ``behaviour`` is added in 0.7.0 for back-compatibility purpose.
@@ -137,7 +137,7 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
            in 0.7.2.
         .. deprecated:: 0.7.2.
            ``behaviour`` parameter will be deprecated in 0.7.2 and removed in
-           0.8.0.
+           0.9.0.
 
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
@@ -183,7 +183,7 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
 
     if behaviour == 'old':
         warn('behaviour="old" is deprecated and will be removed '
-             'in version 0.8.0. Please use behaviour="new", which '
+             'in version 0.9.0. Please use behaviour="new", which '
              'makes the returned datasets in the order of '
              'X_train, X_test, y_train, y_test.',
              FutureWarning)
