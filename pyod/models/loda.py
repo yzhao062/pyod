@@ -8,6 +8,7 @@ Adapted from tilitools (https://github.com/nicococo/tilitools) by
 from __future__ import division
 from __future__ import print_function
 
+import numbers
 import numpy as np
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
@@ -26,8 +27,10 @@ class LODA(BaseDetector):
         i.e. the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
 
-    n_bins : int, optional (default = 10)
-        The number of bins for the histogram.
+    n_bins : int or string, optional (default = 10)
+        The number of bins for the histogram. If set to "auto", the 
+        Birge-Rozenblac method will be used to automatically determine the 
+        optimal number of bins.
 
     n_random_cuts : int, optional (default = 100)
         The number of random cuts.
@@ -84,6 +87,17 @@ class LODA(BaseDetector):
         n_zero_components = n_components - np.int(n_nonzero_components)
 
         self.projections_ = np.random.randn(self.n_random_cuts, n_components)
+        
+        # If set to auto: determine optimal n_bins using Birge Rozenblac method
+        if isinstance(self.n_bins, str) and self.n_bins.to_lower() == "auto":
+            optimal_n_bins = get_optimal_n_bins(X)
+            self.n_bins_ = optimal_n_bins
+        if isinstance(self.n_bins, numbers.Integral):
+            self.n_bins_ = self.n_bins
+        else:
+            raise ValueError("n_bins must be an int or \'auto\', "
+                             "got: %f" % self.n_bins)
+            
         self.histograms_ = np.zeros((self.n_random_cuts, self.n_bins))
         self.limits_ = np.zeros((self.n_random_cuts, self.n_bins + 1))
         for i in range(self.n_random_cuts):
