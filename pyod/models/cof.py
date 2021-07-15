@@ -11,7 +11,7 @@ import warnings
 from operator import itemgetter
 
 import numpy as np
-#from scipy.spatial import distance_matrix
+from scipy.spatial import distance_matrix
 from scipy.spatial import minkowski_distance
 from sklearn.utils import check_array
 
@@ -63,7 +63,7 @@ class COF(BaseDetector):
         Number of neighbors to use by default for k neighbors queries.
     """
 
-    def __init__(self, contamination=0.1, n_neighbors=20):
+    def __init__(self, contamination=0.1, n_neighbors=20, method="fast"):
         super(COF, self).__init__(contamination=contamination)
         if isinstance(n_neighbors, int):
             check_parameter(n_neighbors, low=1, param_name='n_neighbors')
@@ -72,6 +72,7 @@ class COF(BaseDetector):
                 "n_neighbors should be int. Got %s" % type(n_neighbors))
         self.n_neighbors_ = n_neighbors
         self.decision_scores_ = None
+        self.method = method
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -124,9 +125,14 @@ class COF(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        return self._cof(X)
+        if self.method.lower() == "fast":
+            return self._cof_fast(X)
+        elif self.method.lower() == "memory":
+            return self._cof_memory(X)
+        else:
+            raise ValueError("method should be set to either \'fast\' or \'memory\'. Got %s" % self.method)
 
-    def _cof(self, X):
+    def _cof_memory(self, X):
         """
         Connectivity-Based Outlier Factor (COF) Algorithm
         This function is called internally to calculate the
@@ -154,4 +160,33 @@ class COF(BaseDetector):
             ac_dist[i] = np.sum(acd)
         for _g in range(X.shape[0]):
             cof_[_g] = (ac_dist[_g] * self.n_neighbors_) / np.sum(ac_dist[sbn_path_index[_g]])
+        return np.nan_to_num(cof_)
+    
+    def _cof_fast(self, X):
+        """
+        Connectivity-Based Outlier Factor (COF) Algorithm
+        This function is called internally to calculate the
+        Connectivity-Based Outlier Factor (COF) as an outlier
+        score for observations.
+        :return: numpy array containing COF scores for observations.
+                 The greater the COF, the greater the outlierness.
+        """
+        dist_matrix = np.array(distance_matrix(X, X))
+        sbn_path_index, ac_dist, cof_ = [], [], []
+        for i in range(X.shape[0]):
+            sbn_path = np.argsort(dist_matrix[i])
+            sbn_path_index.append(sbn_path[1: self.n_neighbors_ + 1])
+            cost_desc = []
+            for j in range(self.n_neighbors_):
+                cost_desc.append(
+                    np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
+            acd = []
+            for _h, cost_ in enumerate(cost_desc):
+                neighbor_add1 = self.n_neighbors_ + 1
+                acd.append(((2. * (neighbor_add1 - (_h + 1))) / (
+                        neighbor_add1 * self.n_neighbors_)) * cost_)
+            ac_dist.append(np.sum(acd))
+        for _g in range(X.shape[0]):
+            cof_.append((ac_dist[_g] * self.n_neighbors_) /
+                        np.sum(itemgetter(*sbn_path_index[_g])(ac_dist)))
         return np.nan_to_num(cof_)
