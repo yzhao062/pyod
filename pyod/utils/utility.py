@@ -569,7 +569,7 @@ def get_optimal_n_bins(X, upper_bound = None, epsilon = 1):
         The optimal value of n_bins according to the Birge Rozenblac method 
     """ 
     if upper_bound is None: 
-        upper_bound = np.sqrt(X.shape[0]) 
+        upper_bound = int(np.sqrt(X.shape[0])) 
      
     n = X.shape[0] 
     maximum_likelihood = np.zeros((upper_bound-1,1)) 
