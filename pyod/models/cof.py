@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Connectivity-Based Outlier Factor (COF) Algorithm
 """
-# Author: Yahya Almardeny <almardeny@gmail.com>
+# Author: Yahya Almardeny <almardeny@gmail.com>, Roel Bouman <roel.bouman@ru.nl> (memory efficient COF)
 # License: BSD 2 clause
 
 from __future__ import division
@@ -26,6 +26,15 @@ class COF(BaseDetector):
     for observations.
 
     See :cite:`tang2002enhancing` for details.
+    
+    Two version of COF are supported:
+
+    - Fast COF: computes the entire pairwise distance matrix at the cost of a
+      O(n^2) memory requirement.
+    - Memory efficient COF: calculates pairwise distances incrementally.
+      Use this implementation when it is not feasible to fit the n-by-n 
+      distance in memory. This leads to a linear overhead because many 
+      distances will have to be recalculated.
 
     Parameters
     ----------
@@ -39,6 +48,13 @@ class COF(BaseDetector):
         Note that n_neighbors should be less than the number of samples.
         If n_neighbors is larger than the number of samples provided,
         all samples will be used.
+        
+    method : string, optional (default='fast')
+        Valid values for method are:
+            
+        - 'fast' Fast COF, computes the full pairwise distance matrix up front.
+        - 'memory' Memory-efficient COF, computes pairwise distances only when
+          needed at the cost of computational speed.
 
     Attributes
     ----------
