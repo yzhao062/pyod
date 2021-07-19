@@ -154,6 +154,8 @@ class COF(BaseDetector):
         This function is called internally to calculate the
         Connectivity-Based Outlier Factor (COF) as an outlier
         score for observations.
+        This function uses a memory efficient implementation at the cost of 
+        speed.
         :return: numpy array containing COF scores for observations.
                  The greater the COF, the greater the outlierness.
         """
@@ -184,6 +186,7 @@ class COF(BaseDetector):
         This function is called internally to calculate the
         Connectivity-Based Outlier Factor (COF) as an outlier
         score for observations.
+        This function uses a fast implementation at the cost of memory.
         :return: numpy array containing COF scores for observations.
                  The greater the COF, the greater the outlierness.
         """
