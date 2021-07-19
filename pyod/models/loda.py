@@ -19,6 +19,11 @@ from ..utils.utility import get_optimal_n_bins
 class LODA(BaseDetector):
     """Loda: Lightweight on-line detector of anomalies. See
     :cite:`pevny2016loda` for more information.
+    
+    Two versions of LODA are supported:        
+    - Static number of bins: uses a static number of bins for all random cuts.
+    - Automatic number of bins: every random cut uses a number of bins deemed 
+      to be optimal according to the Birge-Rozenblac method.
 
     Parameters
     ----------

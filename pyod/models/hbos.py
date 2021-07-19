@@ -23,8 +23,13 @@ class HBOS(BaseDetector):
     """Histogram- based outlier detection (HBOS) is an efficient unsupervised
     method. It assumes the feature independence and calculates the degree
     of outlyingness by building histograms. See :cite:`goldstein2012histogram`
-    for details.
+    for details.    
 
+    Two versions of HBOS are supported:        
+    - Static number of bins: uses a static number of bins for all features.
+    - Automatic number of bins: every feature uses a number of bins deemed to 
+      be optimal according to the Birge-Rozenblac method.
+      
     Parameters
     ----------
     n_bins : int or string, optional (default=10)
