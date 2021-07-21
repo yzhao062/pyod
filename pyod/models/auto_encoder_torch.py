@@ -279,7 +279,7 @@ class AutoEncoder(BaseDetector):
 
         # conduct standardization if needed
         if self.preprocessing:
-            self.mean, self.std = np.mean(X, axis=0), np.mean(X, axis=0)
+            self.mean, self.std = np.mean(X, axis=0), np.std(X, axis=0)
             train_set = PyODDataset(X=X, mean=self.mean, std=self.std)
 
         else:
