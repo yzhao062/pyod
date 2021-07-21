@@ -388,3 +388,4 @@ class AutoEncoder(BaseDetector):
                     data, self.model(data_cuda).cpu().numpy())
 
         return outlier_scores
+    
