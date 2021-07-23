@@ -1,14 +1,17 @@
 Installation
 ============
 
-It is recommended to use **pip** for installation. Please make sure
+It is recommended to use **pip** or **conda** for installation. Please make sure
 **the latest version** is installed, as PyOD is updated frequently:
 
 .. code-block:: bash
 
    pip install pyod            # normal install
    pip install --upgrade pyod  # or update if needed
-   pip install --pre pyod      # or include pre-release version for new features
+
+.. code-block:: bash
+
+   conda install -c conda-forge pyod
 
 Alternatively, you could clone and run setup.py file:
 
