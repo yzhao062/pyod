@@ -330,7 +330,7 @@ Neural Networks      VAE                 Variational AutoEncoder (use reconstruc
 Neural Networks      Beta-VAE            Variational AutoEncoder (all customized loss term by varying gamma and capacity)                        2018   [#Burgess2018Understanding]_
 Neural Networks      SO_GAAL             Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2019Generative]_
 Neural Networks      MO_GAAL             Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2019Generative]_
-===================  ================  ======================================================================================================  =====  ========================================
+===================  ==================  ======================================================================================================  =====  ========================================
 
 
 **(ii) Outlier Ensembles & Outlier Detector Combination Frameworks**:
