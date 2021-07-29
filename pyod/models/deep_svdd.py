@@ -183,7 +183,7 @@ class DeepSVDD(BaseDetector):
 
         return self
 
-    def _build_model(self):
+    def _build_model(self, training=True):
 
         inputs = Input(shape=(self.n_features_,))
         x = Dense(self.hidden_neurons_[0], activation=self.hidden_activation,
@@ -222,7 +222,7 @@ class DeepSVDD(BaseDetector):
 
         dsvd.compile(optimizer=self.optimizer)
 
-        if self.verbose >= 1:
+        if self.verbose >= 1 and training:
             print(dsvd.summary())
         return dsvd
 
@@ -266,7 +266,7 @@ class DeepSVDD(BaseDetector):
                              "the number of features")
         if self.c is None:
             self.c = 0.0
-            self.model_ = self._build_model()
+            self.model_ = self._build_model(training=False)
             self._init_c(X_norm)
 
         # Build DeepSVDD model & fit with X
