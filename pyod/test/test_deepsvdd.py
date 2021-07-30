@@ -36,10 +36,10 @@ class TestDeepSVDD(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = DeepSVDD(nu=self.nu, epochs=5,
+        self.clf = DeepSVDD(nu=self.nu, epochs=5, hidden_neurons=[64,32,16],
                             contamination=self.contamination)
-        self.clf_ae = DeepSVDD(nu=self.nu, epochs=5, use_ae=True,
-                               contamination=self.contamination)
+        self.clf_ae = DeepSVDD(nu=self.nu, epochs=10, use_ae=True,
+                               contamination=self.contamination, preprocessing=False)
         self.clf.fit(self.X_train)
         self.clf_ae.fit(self.X_train)
 
