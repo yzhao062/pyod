@@ -24,8 +24,8 @@ if __name__ == "__main__":
     n_train = 20000  # number of training points
     n_test = 2000  # number of testing points
     n_features = 300  # number of features
-    nu = 0.01  # hyperparameter
     use_ae = False # hyperparameter for use ae architecture instead of simple NN
+    random_state = 10 # if C is set to None use random_state
     # Generate sample data
     X_train, y_train, X_test, y_test = \
         generate_data(n_train=n_train,
@@ -36,7 +36,8 @@ if __name__ == "__main__":
 
     # train DeepSVDD detector (Without-AE)
     clf_name = 'DeepSVDD'
-    clf = DeepSVDD(nu=nu, use_ae=use_ae, epochs=5, contamination=contamination)
+    clf = DeepSVDD(use_ae=use_ae, epochs=5, contamination=contamination,
+                   random_state=random_state)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

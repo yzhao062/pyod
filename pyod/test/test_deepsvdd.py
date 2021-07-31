@@ -29,17 +29,17 @@ class TestDeepSVDD(unittest.TestCase):
         self.n_test = 1000
         self.n_features = 300
         self.contamination = 0.1
-        self.roc_floor = 0.8
-        self.nu = 1.0e-3
+        self.roc_floor = 0.5
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = DeepSVDD(nu=self.nu, epochs=5, hidden_neurons=[64,32,16],
-                            contamination=self.contamination)
-        self.clf_ae = DeepSVDD(nu=self.nu, epochs=10, use_ae=True,
-                               contamination=self.contamination, preprocessing=False)
+        self.clf = DeepSVDD(epochs=10, hidden_neurons=[64, 32],
+                            contamination=self.contamination, random_state=2021)
+        self.clf_ae = DeepSVDD(epochs=5, use_ae=True, output_activation='relu',
+                               hidden_neurons=[16, 8, 4], contamination=self.contamination,
+                               preprocessing=False)
         self.clf.fit(self.X_train)
         self.clf_ae.fit(self.X_train)
 
