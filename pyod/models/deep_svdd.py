@@ -19,13 +19,13 @@ from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
 
 # if tensorflow 2, import from tf directly
-if _get_tensorflow_version() == 1:
-    raise ModuleNotFoundError('DeepSVDD runs only with TensorFlow 2.0+')
-else:
+if _get_tensorflow_version() == 2:
     import tensorflow as tf
     from tensorflow.keras.layers import Dense, Dropout
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras import Model, Input
+else:
+    raise ModuleNotFoundError('DeepSVDD runs only with TensorFlow 2.0+')
 
 
 class DeepSVDD(BaseDetector):
@@ -36,11 +36,10 @@ class DeepSVDD(BaseDetector):
 
     Parameters
     ----------
-    nu: float, Deep SVDD hyperparameter
-
-    c: float, optional (default='forwad_nn_pass)
-        Deep SVDD center, default will be calculated based on network
-         initialization first forward pass.
+    c: float, optional (default='forwad_nn_pass')
+        Deep SVDD center, the default will be calculated based on network
+        initialization first forward pass. To get repeated results set
+        random_state if c is set to None.
 
     use_ae: bool, optional (default False)
         The AutoEncoder type of DeepSVDD it reverse neurons from hidden_neurons
@@ -134,7 +133,7 @@ class DeepSVDD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, nu, c=None,
+    def __init__(self, c=None,
                  use_ae = False,
                  hidden_neurons=None,
                  hidden_activation='relu',
@@ -144,7 +143,6 @@ class DeepSVDD(BaseDetector):
                  l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
                  verbose=1, random_state=None, contamination=0.1):
         super(DeepSVDD, self).__init__(contamination=contamination)
-        self.nu = nu
         self.c = c
         self.use_ae = use_ae
         self.hidden_neurons = hidden_neurons
@@ -160,6 +158,8 @@ class DeepSVDD(BaseDetector):
         self.verbose = verbose
         self.random_state = random_state
 
+        if self.random_state is not None:
+            tf.random.set_seed(self.random_state)
         # default values
         if self.hidden_neurons is None:
             self.hidden_neurons = [64, 32]
