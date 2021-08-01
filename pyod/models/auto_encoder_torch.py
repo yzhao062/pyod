@@ -38,7 +38,7 @@ class PyODDataset(torch.utils.data.Dataset):
             idx = idx.tolist()
         sample = self.X[idx, :]
 
-        if self.mean.any():
+        if type(self.mean) is np.ndarray:
             sample = (sample - self.mean) / self.std
 
         return torch.from_numpy(sample), idx
@@ -211,19 +211,19 @@ class AutoEncoder(BaseDetector):
                  hidden_neurons=None,
                  hidden_activation='relu',
                  batch_norm=True,
-                 # loss='mse', 
+                 # loss='mse',
                  # optimizer='adam',
                  learning_rate=1e-3,
                  epochs=100,
                  batch_size=32,
                  dropout_rate=0.2,
-                 # l2_regularizer=0.1, 
+                 # l2_regularizer=0.1,
                  weight_decay=1e-5,
-                 # validation_size=0.1, 
+                 # validation_size=0.1,
                  preprocessing=True,
                  loss_fn=None,
-                 # verbose=1, 
-                 # random_state=None, 
+                 # verbose=1,
+                 # random_state=None,
                  contamination=0.1,
                  device=None):
         super(AutoEncoder, self).__init__(contamination=contamination)
@@ -279,7 +279,7 @@ class AutoEncoder(BaseDetector):
 
         # conduct standardization if needed
         if self.preprocessing:
-            self.mean, self.std = np.mean(X, axis=0), np.mean(X, axis=0)
+            self.mean, self.std = np.mean(X, axis=0), np.std(X, axis=0)
             train_set = PyODDataset(X=X, mean=self.mean, std=self.std)
 
         else:
@@ -388,3 +388,4 @@ class AutoEncoder(BaseDetector):
                     data, self.model(data_cuda).cpu().numpy())
 
         return outlier_scores
+    
