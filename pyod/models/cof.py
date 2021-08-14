@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Connectivity-Based Outlier Factor (COF) Algorithm
 """
-# Author: Yahya Almardeny <almardeny@gmail.com>
+# Author: Yahya Almardeny <almardeny@gmail.com>, Roel Bouman <roel.bouman@ru.nl> (memory efficient COF)
 # License: BSD 2 clause
 
 from __future__ import division
@@ -12,6 +12,7 @@ from operator import itemgetter
 
 import numpy as np
 from scipy.spatial import distance_matrix
+from scipy.spatial import minkowski_distance
 from sklearn.utils import check_array
 
 from .base import BaseDetector
@@ -25,6 +26,15 @@ class COF(BaseDetector):
     for observations.
 
     See :cite:`tang2002enhancing` for details.
+    
+    Two version of COF are supported:
+
+    - Fast COF: computes the entire pairwise distance matrix at the cost of a
+      O(n^2) memory requirement.
+    - Memory efficient COF: calculates pairwise distances incrementally.
+      Use this implementation when it is not feasible to fit the n-by-n 
+      distance in memory. This leads to a linear overhead because many 
+      distances will have to be recalculated.
 
     Parameters
     ----------
@@ -38,6 +48,13 @@ class COF(BaseDetector):
         Note that n_neighbors should be less than the number of samples.
         If n_neighbors is larger than the number of samples provided,
         all samples will be used.
+        
+    method : string, optional (default='fast')
+        Valid values for method are:
+            
+        - 'fast' Fast COF, computes the full pairwise distance matrix up front.
+        - 'memory' Memory-efficient COF, computes pairwise distances only when
+          needed at the cost of computational speed.
 
     Attributes
     ----------
@@ -62,7 +79,7 @@ class COF(BaseDetector):
         Number of neighbors to use by default for k neighbors queries.
     """
 
-    def __init__(self, contamination=0.1, n_neighbors=20):
+    def __init__(self, contamination=0.1, n_neighbors=20, method="fast"):
         super(COF, self).__init__(contamination=contamination)
         if isinstance(n_neighbors, int):
             check_parameter(n_neighbors, low=1, param_name='n_neighbors')
@@ -71,6 +88,7 @@ class COF(BaseDetector):
                 "n_neighbors should be int. Got %s" % type(n_neighbors))
         self.n_neighbors_ = n_neighbors
         self.decision_scores_ = None
+        self.method = method
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -123,14 +141,52 @@ class COF(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        return self._cof(X)
+        if self.method.lower() == "fast":
+            return self._cof_fast(X)
+        elif self.method.lower() == "memory":
+            return self._cof_memory(X)
+        else:
+            raise ValueError("method should be set to either \'fast\' or \'memory\'. Got %s" % self.method)
 
-    def _cof(self, X):
+    def _cof_memory(self, X):
         """
         Connectivity-Based Outlier Factor (COF) Algorithm
         This function is called internally to calculate the
         Connectivity-Based Outlier Factor (COF) as an outlier
         score for observations.
+        This function uses a memory efficient implementation at the cost of 
+        speed.
+        :return: numpy array containing COF scores for observations.
+                 The greater the COF, the greater the outlierness.
+        """
+        #dist_matrix = np.array(distance_matrix(X, X))
+        sbn_path_index = np.zeros((X.shape[0],self.n_neighbors_), dtype=np.int64)
+        ac_dist, cof_ = np.zeros((X.shape[0])), np.zeros((X.shape[0]))
+        for i in range(X.shape[0]):
+            #sbn_path = np.argsort(dist_matrix[i])
+            sbn_path = np.argsort(minkowski_distance(X[i,:],X,p=2))
+            sbn_path_index[i,:] = sbn_path[1: self.n_neighbors_ + 1]
+            cost_desc = np.zeros((self.n_neighbors_))
+            for j in range(self.n_neighbors_):
+                #cost_desc.append(
+                #    np.min(dist_matrix[sbn_path[j + 1]][sbn_path][:j + 1]))
+                cost_desc[j] = np.min(minkowski_distance(X[sbn_path[j + 1]],X,p=2)[sbn_path][:j + 1])
+            acd = np.zeros((self.n_neighbors_))
+            for _h, cost_ in enumerate(cost_desc):
+                neighbor_add1 = self.n_neighbors_ + 1
+                acd[_h] = ((2. * (neighbor_add1 - (_h + 1))) / (neighbor_add1 * self.n_neighbors_)) * cost_
+            ac_dist[i] = np.sum(acd)
+        for _g in range(X.shape[0]):
+            cof_[_g] = (ac_dist[_g] * self.n_neighbors_) / np.sum(ac_dist[sbn_path_index[_g]])
+        return np.nan_to_num(cof_)
+    
+    def _cof_fast(self, X):
+        """
+        Connectivity-Based Outlier Factor (COF) Algorithm
+        This function is called internally to calculate the
+        Connectivity-Based Outlier Factor (COF) as an outlier
+        score for observations.
+        This function uses a fast implementation at the cost of memory.
         :return: numpy array containing COF scores for observations.
                  The greater the COF, the greater the outlierness.
         """

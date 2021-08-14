@@ -52,9 +52,9 @@ Python Outlier Detection (PyOD)
    :alt: Build status
 
 
-.. image:: https://travis-ci.org/yzhao062/pyod.svg?branch=master
-   :target: https://travis-ci.org/yzhao062/pyod
-   :alt: Build Status
+.. image:: https://travis-ci.com/yzhao062/pyod.svg?branch=master
+   :target: https://travis-ci.com/yzhao062/pyod
+   :alt: Travis CI
 
 
 .. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
@@ -105,7 +105,7 @@ PyOD is featured for:
 * **Compatible with both Python 2 & 3**.
 
 
-**API Demo**\ :
+**Outlier Detection with 5 Lines of Code**\ :
 
 
 .. code-block:: python
@@ -117,14 +117,14 @@ PyOD is featured for:
     clf.fit(X_train)
 
     # get outlier scores
-    y_train_scores = clf.decision_scores_  # raw outlier scores
-    y_test_scores = clf.decision_function(X_test)  # outlier scores
+    y_train_scores = clf.decision_scores_  # raw outlier scores on the train data
+    y_test_scores = clf.decision_function(X_test)  # predict raw outlier scores on test
 
 
 **Citing PyOD**\ :
 
 `PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in
-`JMLR <http://www.jmlr.org/>`_ (machine learning open-source software track).
+`Journal of Machine Learning Research (JMLR) <http://www.jmlr.org/>`_ (MLOSS track).
 If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 
@@ -172,14 +172,17 @@ or::
 Installation
 ^^^^^^^^^^^^
 
-It is recommended to use **pip** for installation. Please make sure
+It is recommended to use **pip** or **conda** for installation. Please make sure
 **the latest version** is installed, as PyOD is updated frequently:
 
 .. code-block:: bash
 
    pip install pyod            # normal install
    pip install --upgrade pyod  # or update if needed
-   pip install --pre pyod      # or include pre-release version for new features
+
+.. code-block:: bash
+
+   conda install -c conda-forge pyod
 
 Alternatively, you could clone and run setup.py file:
 
@@ -190,14 +193,6 @@ Alternatively, you could clone and run setup.py file:
    pip install .
 
 
-**Note on Python 2.7**\ :
-The maintenance of Python 2.7 will be stopped by January 1, 2020 (see `official announcement <https://github.com/python/devguide/pull/344>`_)
-To be consistent with the Python change and PyOD's dependent libraries, e.g., scikit-learn, we will
-stop supporting Python 2.7 in the near future (dates are still to be decided). We encourage you to use
-Python 3.5 or newer for the latest functions and bug fixes. More information can
-be found at `Moving to require Python 3 <https://python3statement.org/>`_.
-
-
 **Required Dependencies**\ :
 
 
@@ -206,9 +201,8 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 * joblib
 * numpy>=1.13
 * numba>=0.35
-* pandas>=0.25
 * scipy>=0.19.1
-* scikit_learn>=0.19.1
+* scikit_learn>=0.20.0
 * statsmodels
 
 **Optional Dependencies (see details below)**\ :
@@ -229,13 +223,9 @@ Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wik
 Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
 **Warning 2**\ :
-Running examples needs **matplotlib**, which may throw errors in conda
-virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https://github.com/yzhao062/pyod/issues/6>`_.
-
-**Warning 3**\ :
 PyOD contains multiple models that also exist in scikit-learn. However, these two
 libraries' API is not exactly the same--it is recommended to use only one of them
-for consistency but not mix the results. Refer `Differences between sckit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
+for consistency but not mix the results. Refer `Differences between scikit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
 for more information.
 
 
@@ -307,39 +297,40 @@ PyOD toolkit consists of three major functional groups:
 
 **(i) Individual Detection Algorithms** :
 
-===================  ================  ======================================================================================================  =====  ========================================
-Type                 Abbr              Algorithm                                                                                               Year   Ref
-===================  ================  ======================================================================================================  =====  ========================================
-Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
-Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
-Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2001   [#Scholkopf2001Estimating]_
-Linear Model         LMDD              Deviation-based Outlier Detection (LMDD)                                                                1996   [#Arning1996A]_
-Proximity-Based      LOF               Local Outlier Factor                                                                                    2000   [#Breunig2000LOF]_
-Proximity-Based      COF               Connectivity-Based Outlier Factor                                                                       2002   [#Tang2002Enhancing]_
-Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   [#He2003Discovering]_
-Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   [#Papadimitriou2003LOCI]_
-Proximity-Based      HBOS              Histogram-based Outlier Score                                                                           2012   [#Goldstein2012Histogram]_
-Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score)                 2000   [#Ramaswamy2000Efficient]_
-Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   [#Angiulli2002Fast]_
-Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
-Proximity-Based      SOD               Subspace Outlier Detection                                                                              2009   [#Kriegel2009Outlier]_
-Proximity-Based      ROD               Rotation-based Outlier Detection                                                                        2020   [#Almardeny2020A]_
-Probabilistic        ABOD              Angle-Based Outlier Detection                                                                           2008   [#Kriegel2008Angle]_
-Probabilistic        COPOD             COPOD: Copula-Based Outlier Detection                                                                   2020   [#Li2020COPOD]_
-Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                  2008   [#Kriegel2008Angle]_
-Probabilistic        MAD               Median Absolute Deviation (MAD)                                                                         1993   [#Iglewicz1993How]_
-Probabilistic        SOS               Stochastic Outlier Selection                                                                            2012   [#Janssens2012Stochastic]_
-Outlier Ensembles    IForest           Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
-Outlier Ensembles                      Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
-Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
-Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
-Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                               2016   [#Pevny2016Loda]_
-Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
-Neural Networks      VAE               Variational AutoEncoder (use reconstruction error as the outlier score)                                 2013   [#Kingma2013Auto]_
-Neural Networks      Beta-VAE          Variational AutoEncoder (all customized loss term by varying gamma and capacity)                        2018   [#Burgess2018Understanding]_
-Neural Networks      SO_GAAL           Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2019Generative]_
-Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2019Generative]_
-===================  ================  ======================================================================================================  =====  ========================================
+===================  ==================  ======================================================================================================  =====  ========================================
+Type                 Abbr                Algorithm                                                                                               Year   Ref
+===================  ==================  ======================================================================================================  =====  ========================================
+Linear Model         PCA                 Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
+Linear Model         MCD                 Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
+Linear Model         OCSVM               One-Class Support Vector Machines                                                                       2001   [#Scholkopf2001Estimating]_
+Linear Model         LMDD                Deviation-based Outlier Detection (LMDD)                                                                1996   [#Arning1996A]_
+Proximity-Based      LOF                 Local Outlier Factor                                                                                    2000   [#Breunig2000LOF]_
+Proximity-Based      COF                 Connectivity-Based Outlier Factor                                                                       2002   [#Tang2002Enhancing]_
+Proximity-Based      (Incremental) COF   Memory Efficient Connectivity-Based Outlier Factor (slower but reduce storage complexity)               2002   [#Tang2002Enhancing]_
+Proximity-Based      CBLOF               Clustering-Based Local Outlier Factor                                                                   2003   [#He2003Discovering]_
+Proximity-Based      LOCI                LOCI: Fast outlier detection using the local correlation integral                                       2003   [#Papadimitriou2003LOCI]_
+Proximity-Based      HBOS                Histogram-based Outlier Score                                                                           2012   [#Goldstein2012Histogram]_
+Proximity-Based      kNN                 k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score)                 2000   [#Ramaswamy2000Efficient]_
+Proximity-Based      AvgKNN              Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   [#Angiulli2002Fast]_
+Proximity-Based      MedKNN              Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
+Proximity-Based      SOD                 Subspace Outlier Detection                                                                              2009   [#Kriegel2009Outlier]_
+Proximity-Based      ROD                 Rotation-based Outlier Detection                                                                        2020   [#Almardeny2020A]_
+Probabilistic        ABOD                Angle-Based Outlier Detection                                                                           2008   [#Kriegel2008Angle]_
+Probabilistic        COPOD               COPOD: Copula-Based Outlier Detection                                                                   2020   [#Li2020COPOD]_
+Probabilistic        FastABOD            Fast Angle-Based Outlier Detection using approximation                                                  2008   [#Kriegel2008Angle]_
+Probabilistic        MAD                 Median Absolute Deviation (MAD)                                                                         1993   [#Iglewicz1993How]_
+Probabilistic        SOS                 Stochastic Outlier Selection                                                                            2012   [#Janssens2012Stochastic]_
+Outlier Ensembles    IForest             Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
+Outlier Ensembles    FB                  Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
+Outlier Ensembles    LSCP                LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
+Outlier Ensembles    XGBOD               Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
+Outlier Ensembles    LODA                Lightweight On-line Detector of Anomalies                                                               2016   [#Pevny2016Loda]_
+Neural Networks      AutoEncoder         Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
+Neural Networks      VAE                 Variational AutoEncoder (use reconstruction error as the outlier score)                                 2013   [#Kingma2013Auto]_
+Neural Networks      Beta-VAE            Variational AutoEncoder (all customized loss term by varying gamma and capacity)                        2018   [#Burgess2018Understanding]_
+Neural Networks      SO_GAAL             Single-Objective Generative Adversarial Active Learning                                                 2019   [#Liu2019Generative]_
+Neural Networks      MO_GAAL             Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2019Generative]_
+===================  ==================  ======================================================================================================  =====  ========================================
 
 
 **(ii) Outlier Ensembles & Outlier Detector Combination Frameworks**:

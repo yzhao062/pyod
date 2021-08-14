@@ -129,6 +129,10 @@ v<0.8.9>, <06/11/2021> -- Fix LMDD parameter (#307)
 v<0.9.0>, <06/20/2021> -- Add clone test for models.
 v<0.9.0>, <07/03/2021> -- ROD hot fix (#316).
 v<0.9.0>, <07/04/2021> -- Improve COPOD plot with colunms parameter.
+v<0.9.1>, <07/12/2021> -- Improve COPOD by dropping pandas dependency.
+v<0.9.1>, <07/19/2021> -- Add memory efficienct COF.
+v<0.9.1>, <08/01/2021> -- Fix Pytorch Dataset issue.
+v<0.9.1>, <08/14/2021> -- Synchronize scikit-learn LOF parameters.
 
 
 

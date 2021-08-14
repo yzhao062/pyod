@@ -35,3 +35,8 @@ Dr Andrij Vasylenko (Research Associate @ University of Liverpool)
 
 - Joined in 2020 (implemented the VAE and extend to Beta-VAE)
 - `Homepage (Dr Andrij Vasylenko) <https://www.liverpool.ac.uk/chemistry/staff/andrij-vasylenko/>`_
+
+Roel Bouman (Ph.D. Student @ Radboud University):
+
+- Joined in 2021
+- `LinkedIn (Roel Bouman) <https://nl.linkedin.com/in/roel-bouman-18b5b9167>`_
