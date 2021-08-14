@@ -106,6 +106,13 @@ class LOF(BaseDetector):
         If ``-1``, then the number of jobs is set to the number of CPU cores.
         Affects only kneighbors and kneighbors_graph methods.
 
+    novelty : bool (default=False)
+        By default, LocalOutlierFactor is only meant to be used for outlier
+        detection (novelty=False). Set novelty to True if you want to use
+        LocalOutlierFactor for novelty detection. In this case be aware that
+        that you should only use predict, decision_function and score_samples
+        on new unseen data and not on the training set.
+
     Attributes
     ----------
     n_neighbors_ : int
@@ -131,7 +138,7 @@ class LOF(BaseDetector):
 
     def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,
                  metric='minkowski', p=2, metric_params=None,
-                 contamination=0.1, n_jobs=1):
+                 contamination=0.1, n_jobs=1, novelty=False):
         super(LOF, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
         self.algorithm = algorithm
@@ -140,6 +147,7 @@ class LOF(BaseDetector):
         self.p = p
         self.metric_params = metric_params
         self.n_jobs = n_jobs
+        self.novelty = novelty
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
@@ -170,7 +178,7 @@ class LOF(BaseDetector):
                                             metric_params=self.metric_params,
                                             contamination=self.contamination,
                                             n_jobs=self.n_jobs,
-                                            novelty=True)
+                                            novelty=self.novelty)
         self.detector_.fit(X=X, y=y)
 
         # Invert decision_scores_. Outliers comes with higher outlier scores
