@@ -98,8 +98,7 @@ class inner_autoencoder(nn.Module):
 
 
 class AutoEncoder(BaseDetector):
-    """(Please use the keras version for now)
-    Auto Encoder (AE) is a type of neural networks for learning useful data
+    """Auto Encoder (AE) is a type of neural networks for learning useful data
     representations in an unsupervised manner. Similar to PCA, AE could be used
     to detect outlying objects in the data by calculating the reconstruction
     errors. See :cite:`aggarwal2015outlier` Chapter 3 for details.
@@ -331,7 +330,6 @@ class AutoEncoder(BaseDetector):
             for data, data_idx in train_loader:
                 data = data.to(self.device).float()
                 loss = self.loss_fn(data, self.model(data))
-                loss.requires_grad = True
 
                 self.model.zero_grad()
                 loss.backward()
