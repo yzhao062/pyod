@@ -169,7 +169,8 @@ class LOF(BaseDetector):
                                             p=self.p,
                                             metric_params=self.metric_params,
                                             contamination=self.contamination,
-                                            n_jobs=self.n_jobs)
+                                            n_jobs=self.n_jobs,
+                                            novelty=True)
         self.detector_.fit(X=X, y=y)
 
         # Invert decision_scores_. Outliers comes with higher outlier scores
