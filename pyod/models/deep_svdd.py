@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Using Auto Encoder with Outlier Detection
+"""Deep One-Class Classification for outlier detection
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Rafal Bodziony <bodziony.rafal@gmail.com>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -13,7 +13,6 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from ..utils.utility import check_parameter
-from ..utils.stat_models import pairwise_distances_no_broadcast
 
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
@@ -29,9 +28,13 @@ else:
 
 
 class DeepSVDD(BaseDetector):
-    """Deep One-Class Classifier with AutoEncoder (AE) is a type of neural networks for learning useful data
-    representations unsupervisedly. Similar to PCA, DeepSVDD could be used to
-    detect outlying objects in the data by calculating the distance from center
+    """Deep One-Class Classifier with AutoEncoder (AE) is a type of neural
+    networks for learning useful data representations in an unsupervised way.
+    DeepSVDD trains a neural network while minimizing the volume of a
+    hypersphere that encloses the network representations of the data,
+    forcing the network to extract the common factors of variation.
+    Similar to PCA, DeepSVDD could be used to detect outlying objects in the
+    data by calculating the distance from center
     See :cite:`ruff2018deepsvdd` for details.
 
     Parameters
@@ -41,7 +44,7 @@ class DeepSVDD(BaseDetector):
         initialization first forward pass. To get repeated results set
         random_state if c is set to None.
 
-    use_ae: bool, optional (default False)
+    use_ae: bool, optional (default=False)
         The AutoEncoder type of DeepSVDD it reverse neurons from hidden_neurons
         if set to True.
 
@@ -105,10 +108,6 @@ class DeepSVDD(BaseDetector):
 
     Attributes
     ----------
-    compression_rate_ : float
-        The ratio between the original feature and
-        the number of neurons in the encoding layer.
-
     model_ : Keras Object
         The underlying DeppSVDD in Keras.
 
@@ -134,7 +133,7 @@ class DeepSVDD(BaseDetector):
     """
 
     def __init__(self, c=None,
-                 use_ae = False,
+                 use_ae=False,
                  hidden_neurons=None,
                  hidden_activation='relu',
                  output_activation='sigmoid',
@@ -171,7 +170,8 @@ class DeepSVDD(BaseDetector):
 
     def _init_c(self, X_norm, eps=0.1):
         # create true Center value from model predict of intermediate layers
-        model_center = Model(self.model_.inputs, self.model_.get_layer('net_output').output)
+        model_center = Model(self.model_.inputs,
+                             self.model_.get_layer('net_output').output)
 
         out_ = model_center.predict(X_norm)
         nf_predict = out_.shape[0]
@@ -195,7 +195,8 @@ class DeepSVDD(BaseDetector):
 
         # add name to last hidden layer
         x = Dense(self.hidden_neurons_[-1], activation=self.hidden_activation,
-                  activity_regularizer=l2(self.l2_regularizer),name='net_output')(x)
+                  activity_regularizer=l2(self.l2_regularizer),
+                  name='net_output')(x)
 
         # build distance loss
         dist = tf.math.reduce_sum((x - self.c) ** 2, axis=-1)
@@ -216,7 +217,8 @@ class DeepSVDD(BaseDetector):
                 x = Dropout(self.dropout_rate)(x)
             x = Dense(self.n_features_, activation=self.output_activation,
                       activity_regularizer=l2(self.l2_regularizer))(x)
-            dsvd.add_loss(loss + tf.math.reduce_mean(tf.math.square(x - inputs)) + w_d)
+            dsvd.add_loss(
+                loss + tf.math.reduce_mean(tf.math.square(x - inputs)) + w_d)
         else:
             dsvd.add_loss(loss + w_d)
 

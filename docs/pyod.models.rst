@@ -67,6 +67,16 @@ pyod.models.copod module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.deep\_svdd module
+-----------------------------
+
+.. automodule:: pyod.models.deep_svdd
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.feature\_bagging module
 -----------------------------------
 
