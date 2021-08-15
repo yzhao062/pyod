@@ -30,6 +30,7 @@ class TestROD(unittest.TestCase):
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.gm = None
+        self.median = None
         self.data_scaler = None
         self.angles_scalers1 = None
         self.angles_scalers2 = None
@@ -121,7 +122,8 @@ class TestROD(unittest.TestCase):
 
     def test_process_sub(self):
         subspace = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
-        assert_equal([0.5, 0.5, 0.5], process_sub(subspace, self.gm, self.angles_scalers1, self.angles_scalers2)[0])
+        assert_equal([0.5, 0.5, 0.5], process_sub(subspace, self.gm, self.median,
+                                                  self.angles_scalers1, self.angles_scalers2)[0])
 
     def test_parallel_vs_non_parallel(self):
         assert_equal(rod_nD(self.X_train, False, self.gm, self.data_scaler,
@@ -130,8 +132,8 @@ class TestROD(unittest.TestCase):
                             self.angles_scalers1, self.angles_scalers2)[0])
 
     def test_mad(self):
-        assert_equal([0.6745, 0.0, 0.6745],
-                     mad(np.array([1, 2, 3])))
+        gm, _ = mad(np.array([1, 2, 3]))
+        assert_equal([0.6745, 0.0, 0.6745], gm)
 
     # todo: fix clone issue
     def test_model_clone(self):
