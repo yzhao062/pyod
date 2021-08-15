@@ -58,14 +58,14 @@ def check_parameter(param, low=MIN_INT, high=MAX_INT, param_name='',
     """
 
     # param, low and high should all be numerical
-    if not isinstance(param, (numbers.Integral, np.integer, np.float)):
+    if not isinstance(param, (numbers.Integral, np.integer, float)):
         raise TypeError('{param_name} is set to {param} Not numerical'.format(
             param=param, param_name=param_name))
 
-    if not isinstance(low, (numbers.Integral, np.integer, np.float)):
+    if not isinstance(low, (numbers.Integral, np.integer, float)):
         raise TypeError('low is set to {low}. Not numerical'.format(low=low))
 
-    if not isinstance(high, (numbers.Integral, np.integer, np.float)):
+    if not isinstance(high, (numbers.Integral, np.integer, float)):
         raise TypeError('high is set to {high}. Not numerical'.format(
             high=high))
 

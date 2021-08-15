@@ -56,7 +56,7 @@ class LODA(BaseDetector):
         super(LODA, self).__init__(contamination=contamination)
         self.n_bins = n_bins
         self.n_random_cuts = n_random_cuts
-        self.weights = np.ones(n_random_cuts, dtype=np.float) / n_random_cuts
+        self.weights = np.ones(n_random_cuts, dtype=float) / n_random_cuts
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
