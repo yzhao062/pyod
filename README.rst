@@ -86,8 +86,8 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 30 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest COPOD (ICDM 2020). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products [#Gopalan2019PIDForest]_ [#Li2019MADGAN]_ [#Wang2020adVAE]_ [#Zhao2019LSCP]_.
+the latest COPOD (ICDM 2020) and SUOD (MLSys 2021). Since 2017, PyOD has been successfully used in numerous academic researches and
+commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
@@ -158,6 +158,7 @@ or::
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
 * `Model Save & Load <#model-save--load>`_
+* `Fast Train with SUOD <#fast-train-with-suod>`_
 * `Implemented Algorithms <#implemented-algorithms>`_
 * `Algorithm Benchmark <#algorithm-benchmark>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
@@ -211,6 +212,7 @@ Alternatively, you could clone and run setup.py file:
 * keras (optional, required for AutoEncoder, and other deep learning models)
 * matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
+* suod (optional, required for running SUOD model)
 * tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * xgboost (optional, required for XGBOD)
 
@@ -286,6 +288,37 @@ In short, it is simple as below:
     clf = load('clf.joblib')
 
 
+
+----
+
+
+Fast Train with SUOD
+^^^^^^^^^^^^^^^^^^^^
+
+**Fast training and prediction**: it is possible to train and predict with
+a large number of detection models in PyOD by leveraging SUOD framework [#Zhao2021SUOD]_.
+See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
+and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_example>`_.
+
+
+.. code-block:: python
+
+    from pyod.models.suod import SUOD
+
+    # initialized a group of outlier detectors for acceleration
+    detector_list = [LOF(n_neighbors=15), LOF(n_neighbors=20),
+                     LOF(n_neighbors=25), LOF(n_neighbors=35),
+                     COPOD(), IForest(n_estimators=100),
+                     IForest(n_estimators=200)]
+
+    # decide the number of parallel process, and the combination method
+    # then clf can be used as any outlier detection model
+    clf = SUOD(base_estimators=detector_list, n_jobs=2, combination='average',
+               verbose=False)
+
+
+
+
 ----
 
 
@@ -325,6 +358,7 @@ Outlier Ensembles    FB                  Feature Bagging                        
 Outlier Ensembles    LSCP                LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD               Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
 Outlier Ensembles    LODA                Lightweight On-line Detector of Anomalies                                                               2016   [#Pevny2016Loda]_
+Outlier Ensembles    SUOD                SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection **(Acceleration)**          2021   [#Zhao2021SUOD]_
 Neural Networks      AutoEncoder         Fully connected AutoEncoder (use reconstruction error as the outlier score)                                    [#Aggarwal2015Outlier]_ [Ch.3]
 Neural Networks      VAE                 Variational AutoEncoder (use reconstruction error as the outlier score)                                 2013   [#Kingma2013Auto]_
 Neural Networks      Beta-VAE            Variational AutoEncoder (all customized loss term by varying gamma and capacity)                        2018   [#Burgess2018Understanding]_
@@ -343,6 +377,7 @@ Outlier Ensembles                      Feature Bagging                          
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                      2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                              2018   [#Zhao2018XGBOD]_
 Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                              2016   [#Pevny2016Loda]_
+Outlier Ensembles    SUOD              SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection **(Acceleration)**         2021   [#Zhao2021SUOD]_
 Combination          Average           Simple combination by averaging the scores                                                             2015   [#Aggarwal2015Theoretical]_
 Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   [#Aggarwal2015Theoretical]_
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   [#Aggarwal2015Theoretical]_

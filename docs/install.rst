@@ -41,6 +41,7 @@ Alternatively, you could clone and run setup.py file:
 * keras (optional, required for AutoEncoder, and other deep learning models)
 * matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
+* suod (optional, required for running SUOD model)
 * tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * xgboost (optional, required for XGBOD)
 

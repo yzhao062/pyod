@@ -247,6 +247,15 @@ pyod.models.sos module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.suod module
+-----------------------
+
+.. automodule:: pyod.models.suod
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.vae module
 ----------------------
 
