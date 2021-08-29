@@ -52,8 +52,8 @@ Python Outlier Detection (PyOD)
    :alt: Build status
 
 
-.. image:: https://travis-ci.com/yzhao062/pyod.svg?branch=master
-   :target: https://travis-ci.com/yzhao062/pyod
+.. image:: https://app.travis-ci.com/yzhao062/pyod.svg?branch=master
+   :target: https://app.travis-ci.com/yzhao062/pyod
    :alt: Travis CI
 
 
