@@ -298,7 +298,7 @@ Fast Train with SUOD
 **Fast training and prediction**: it is possible to train and predict with
 a large number of detection models in PyOD by leveraging SUOD framework [#Zhao2021SUOD]_.
 See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
-and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_example>`_.
+and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_example.py>`_.
 
 
 .. code-block:: python
