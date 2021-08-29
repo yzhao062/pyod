@@ -7,6 +7,12 @@
 from __future__ import division
 from __future__ import print_function
 
+
+try:
+    import combo
+except ImportError:
+    print('please install combo first for combination by `pip install combo`')
+
 from combo.models.score_comb import aom as combo_aom
 from combo.models.score_comb import moa as combo_moa
 from combo.models.score_comb import average as combo_average

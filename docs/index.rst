@@ -90,8 +90,8 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 30 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest COPOD (ICDM 2020). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
-academic researches and commercial products :cite:`a-gopalan2019pidforest,a-li2019mad,a-wang2019advae,a-zhao2019lscp`.
+the latest COPOD (ICDM 2020) and SUOD (MLSys 2021). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
+academic researches and commercial products :cite:`a-zhao2019lscp,a-zhao2021suod`.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_,
@@ -195,6 +195,7 @@ Outlier Ensembles                      Feature Bagging                          
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   :class:`pyod.models.lscp.LSCP`                       :cite:`a-zhao2019lscp`
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   :class:`pyod.models.xgbod.XGBOD`                     :cite:`a-zhao2018xgbod`
 Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                               2016   :class:`pyod.models.loda.LODA`                       :cite:`a-pevny2016loda`
+Outlier Ensembles    SUOD              SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection **(Acceleration)**          2021   :class:`pyod.models.suod.SUOD`                       :cite:`a-zhao2021suod`
 Neural Networks      AutoEncoder       Fully connected AutoEncoder (use reconstruction error as the outlier score)                             2015   :class:`pyod.models.auto_encoder.AutoEncoder`        :cite:`a-aggarwal2015outlier`
 Neural Networks      VAE               Variational AutoEncoder (use reconstruction error as the outlier score)                                 2013   :class:`pyod.models.vae.VAE`                         :cite:`a-kingma2013auto`
 Neural Networks      Beta-VAE          Variational AutoEncoder (all customized loss term by varying gamma and capacity)                        2018   :class:`pyod.models.vae.VAE`                         :cite:`a-burgess2018understanding`
@@ -214,6 +215,7 @@ Outlier Ensembles                      Feature Bagging                          
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                      2019   :class:`pyod.models.lscp.LSCP`                       :cite:`a-zhao2019lscp`
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                              2018   :class:`pyod.models.xgbod.XGBOD`                     :cite:`a-zhao2018xgbod`
 Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                              2016   :class:`pyod.models.loda.LODA`                       :cite:`a-pevny2016loda`
+Outlier Ensembles    SUOD              SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection **(Acceleration)**         2021   :class:`pyod.models.suod.SUOD`                       :cite:`a-zhao2021suod`
 Combination          Average           Simple combination by averaging the scores                                                             2015   :func:`pyod.models.combination.average`              :cite:`a-aggarwal2015theoretical`
 Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   :func:`pyod.models.combination.average`              :cite:`a-aggarwal2015theoretical`
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   :func:`pyod.models.combination.maximization`         :cite:`a-aggarwal2015theoretical`
@@ -287,6 +289,7 @@ of the training data X_train, one should call clf.fit(X_train) and use
 
    install
    model_persistence
+   fast_train
    example
    benchmark
 

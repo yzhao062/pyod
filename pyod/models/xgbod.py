@@ -12,6 +12,12 @@ from sklearn.metrics import roc_auc_score
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_X_y
+
+try:
+    import xgboost
+except ImportError:
+    print('please install xgboost first for running XGBOD')
+
 from xgboost.sklearn import XGBClassifier
 
 from .base import BaseDetector

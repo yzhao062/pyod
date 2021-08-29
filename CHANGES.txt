@@ -136,6 +136,7 @@ v<0.9.1>, <08/14/2021> -- Synchronize scikit-learn LOF parameters.
 v<0.9.2>, <08/15/2021> -- Fix ROD.
 v<0.9.2>, <08/15/2021> -- Add DeepSVDD (implemented by Rafał Bodziony).
 v<0.9.3>, <08/19/2021> -- Expand test to Python 3.8 and 3.9.
+v<0.9.3>, <08/29/2021> -- Add SUOD.
 
 
 
