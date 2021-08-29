@@ -16,4 +16,4 @@ suod
 tensorflow
 torch
 xgboost
-docutils # need to lift this later see github for issue
+docutils==0.16 # need to lift this later see github for issue
