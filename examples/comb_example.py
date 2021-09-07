@@ -87,9 +87,9 @@ if __name__ == "__main__":
     y_by_maximization = maximization(test_scores_norm)
     evaluate_print('Combination by Maximization', y_test, y_by_maximization)
 
-    # Combination by max
-    y_by_maximization = median(test_scores_norm)
-    evaluate_print('Combination by Median', y_test, y_by_maximization)
+    # Combination by median
+    y_by_median = median(test_scores_norm)
+    evaluate_print('Combination by Median', y_test, y_by_median)
 
     # Combination by aom
     y_by_aom = aom(test_scores_norm, n_buckets=5)
