@@ -37,7 +37,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest --cov=./
+        pytest --cov
         
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v2
