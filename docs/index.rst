@@ -47,6 +47,11 @@ Welcome to PyOD documentation!
    :target: https://pepy.tech/project/pyod
    :alt: Downloads
 
+
+.. image:: https://img.shields.io/badge/slack-join-green
+   :target: https://join.slack.com/t/pyod/shared_invite/zt-vprc4w2q-G2XV2Iou~H84yGSvrh0f6A
+   :alt: slack
+
 -----
 
 **Build Status & Coverage & Maintainability & License**
@@ -57,8 +62,8 @@ Welcome to PyOD documentation!
    :alt: Build status
 
 
-.. image:: https://travis-ci.com/yzhao062/pyod.svg?branch=master
-   :target: https://travis-ci.com/yzhao062/pyod
+.. image:: https://app.travis-ci.com/yzhao062/pyod.svg?branch=master
+   :target: https://app.travis-ci.com/yzhao062/pyod
    :alt: Travis CI
 
 
