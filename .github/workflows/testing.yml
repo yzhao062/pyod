@@ -48,4 +48,3 @@ jobs:
       uses: codecov/codecov-action@v2
       with:
         fail_ci_if_error: true
-        token: ${{ 5e764cea-23dc-45e1-acff-e452c55ecc69 }} # not required for public repos
