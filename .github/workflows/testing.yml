@@ -37,11 +37,6 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest
-        
-    - name: Generate coverage report
-      if: success()
-      run: |
         pytest --cov=./
         
     - name: "Upload coverage to Codecov"
