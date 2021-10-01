@@ -138,7 +138,7 @@ class LOF(BaseDetector):
 
     def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,
                  metric='minkowski', p=2, metric_params=None,
-                 contamination=0.1, n_jobs=1, novelty=False):
+                 contamination=0.1, n_jobs=1, novelty=True):
         super(LOF, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
         self.algorithm = algorithm
@@ -210,10 +210,13 @@ class LOF(BaseDetector):
 
         # Invert outlier scores. Outliers comes with higher outlier scores
         # noinspection PyProtectedMember
-        if _get_sklearn_version() > 19:
+        try:
             return invert_order(self.detector_._score_samples(X))
-        else:
-            return invert_order(self.detector_._decision_function(X))
+        except AttributeError:
+            try:
+                return invert_order(self.detector_._decision_function(X))
+            except AttributeError:
+                return invert_order(self.detector_.score_samples(X))
 
     @property
     def n_neighbors_(self):
