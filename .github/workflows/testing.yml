@@ -33,11 +33,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements_ci.txt
         pip install pytest
-        pip install pytest-cov
 
     - name: Test with pytest
       run: |
-        pytest --cov=pyod
+        pytest
+        
+    - name: Generate coverage report
+      run: |
+        pip install coverage
+        coverage xml
         
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v2
