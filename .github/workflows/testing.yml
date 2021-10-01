@@ -38,14 +38,14 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-      
+        
     - name: Generate coverage report
       if: success()
       run: |
-        pip install coverage
-        coverage xml
-    - name: Upload coverage report to codecov
-      uses: codecov/codecov-action@v1
-      if: success()
+        pytest --cov=./
+        
+    - name: "Upload coverage to Codecov"
+      uses: codecov/codecov-action@v2
       with:
-        file: coverage.xml
+        fail_ci_if_error: true
+        token: ${{ 5e764cea-23dc-45e1-acff-e452c55ecc69 }} # not required for public repos
