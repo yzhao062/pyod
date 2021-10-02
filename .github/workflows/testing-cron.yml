@@ -6,7 +6,7 @@ name: Daily Testing
 on:
   schedule:
     # Runs "at minute 55 past every hour" (see https://crontab.guru)
-    - cron: '5 4 * * 1,3,5'
+    - cron: '5 4 * * 2,4,6'
 
 jobs:
   build:
@@ -30,18 +30,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements_ci.txt
         pip install pytest
-        pip install pytest-cov
+        pip install coverage
+        pip install coveralls
 
     - name: Test with pytest
       run: |
-        pytest
-
-    - name: Generate coverage report
-      if: success()
+        coverage run --source=pyod -m pytest
+    - name: coverage report
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pytest --cov=./
-
-    - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v2
-      with:
-        fail_ci_if_error: true
+        coveralls --service=github
