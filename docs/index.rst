@@ -6,7 +6,8 @@
 Welcome to PyOD documentation!
 ==============================
 
-**Deployment & Documentation & Stats**
+
+**Deployment & Documentation & Stats & License**
 
 .. image:: https://img.shields.io/pypi/v/pyod.svg?color=brightgreen
    :target: https://pypi.org/project/pyod/
@@ -23,11 +24,6 @@ Welcome to PyOD documentation!
    :alt: Documentation status
 
 
-.. image:: https://mybinder.org/badge_logo.svg
-   :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
-   :alt: Binder
-
-
 .. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
    :target: https://github.com/yzhao062/pyod/stargazers
    :alt: GitHub stars
@@ -42,34 +38,9 @@ Welcome to PyOD documentation!
    :target: https://pepy.tech/project/pyod
    :alt: Downloads
 
-
-.. image:: https://pepy.tech/badge/pyod/month
-   :target: https://pepy.tech/project/pyod
-   :alt: Downloads
-
-
-.. image:: https://img.shields.io/badge/slack-join-green
-   :target: https://join.slack.com/t/pyod/shared_invite/zt-vprc4w2q-G2XV2Iou~H84yGSvrh0f6A
-   :alt: slack
-
------
-
-**Build Status & Coverage & Maintainability & License**
-
-
-.. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
-   :alt: Build status
-
-
 .. image:: https://github.com/yzhao062/pyod/actions/workflows/testing.yml/badge.svg
    :target: https://github.com/yzhao062/pyod/actions/workflows/testing.yml
    :alt: testing
-
-
-.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
-   :target: https://circleci.com/gh/yzhao062/pyod
-   :alt: Circle CI
 
 
 .. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
@@ -85,6 +56,7 @@ Welcome to PyOD documentation!
 .. image:: https://img.shields.io/github/license/yzhao062/pyod.svg
    :target: https://github.com/yzhao062/pyod/blob/master/LICENSE
    :alt: License
+
 
 
 ----

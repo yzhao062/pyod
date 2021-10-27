@@ -16,3 +16,27 @@ be found at `Moving to require Python 3 <https://python3statement.org/>`_.
 Running examples needs **matplotlib**, which may throw errors in conda
 virtual environment on mac OS. See reasons and solutions `mac_matplotlib <https://github.com/yzhao062/pyod/issues/6>`_.
 
+
+.. image:: https://ci.appveyor.com/api/projects/status/1kupdy87etks5n3r/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/yzhao062/pyod/branch/master
+   :alt: Build status
+
+.. image:: https://circleci.com/gh/yzhao062/pyod.svg?style=svg
+   :target: https://circleci.com/gh/yzhao062/pyod
+   :alt: Circle CI
+
+.. image:: https://img.shields.io/badge/slack-join-green
+   :target: https://join.slack.com/t/pyod/shared_invite/zt-vprc4w2q-G2XV2Iou~H84yGSvrh0f6A
+   :alt: slack
+
+.. image:: https://pepy.tech/badge/pyod/month
+   :target: https://pepy.tech/project/pyod
+   :alt: Downloads
+
+.. image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/yzhao062/pyod/master
+   :alt: Binder
+
+-----
+
+**Build Status & Coverage & Maintainability & License**
