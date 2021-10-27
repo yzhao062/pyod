@@ -250,7 +250,7 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 * **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
 * **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
 * **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
-* **predict_confidence(X)**\ : Predict the model's sample-wise confidence.
+* **predict_confidence(X)**\ : Predict the model's sample-wise confidence (available in predict and predict_proba).
 
 
 Key Attributes of a fitted model:
@@ -482,6 +482,9 @@ More detailed instructions for running examples can be found in `examples direct
        # get the prediction on the test data
        y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
        y_test_scores = clf.decision_function(X_test)  # outlier scores
+
+       # it is possible to get the prediction confidence as well
+       y_test_pred, y_test_pred_confidence = clf.predict(X_test, return_confidence=True)  # outlier labels (0 or 1) and confidence in the range of [0,1]
 
 #. Evaluate the prediction by ROC and Precision @ Rank n (p@n).
 

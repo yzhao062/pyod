@@ -19,7 +19,8 @@ from scipy.stats import rankdata
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.rod import ROD, rod_3D, rod_nD, angle, sigmoid, process_sub, mad
+from pyod.models.rod import ROD, rod_3D, rod_nD, angle, sigmoid, process_sub, \
+    mad
 from pyod.utils.data import generate_data
 
 
@@ -68,6 +69,25 @@ class TestROD(unittest.TestCase):
         with assert_raises(ValueError):
             self.clf.predict_proba(self.X_test, method='something')
 
+    def test_prediction_labels_confidence(self):
+        pred_labels, confidence = self.clf.predict(self.X_test,
+                                                   return_confidence=True)
+        assert_equal(pred_labels.shape, self.y_test.shape)
+        assert_equal(confidence.shape, self.y_test.shape)
+        assert (confidence.min() >= 0)
+        assert (confidence.max() <= 1)
+
+    def test_prediction_proba_linear_confidence(self):
+        pred_proba, confidence = self.clf.predict_proba(self.X_test,
+                                                        method='linear',
+                                                        return_confidence=True)
+        assert (pred_proba.min() >= 0)
+        assert (pred_proba.max() <= 1)
+
+        assert_equal(confidence.shape, self.y_test.shape)
+        assert (confidence.min() >= 0)
+        assert (confidence.max() <= 1)
+
     def test_fit_predict(self):
         pred_labels = self.clf.fit_predict(self.X_train)
         assert_equal(pred_labels.shape, self.y_train.shape)
@@ -109,10 +129,13 @@ class TestROD(unittest.TestCase):
         with assert_raises(IndexError):
             rod_3D(X_2D)
         assert_array_equal(ROD().decision_function(X_2D),
-                           rod_3D(np.hstack((X_2D, np.zeros(shape=(X_2D.shape[0], 3 - X_2D.shape[1])))))[0])
+                           rod_3D(np.hstack((X_2D, np.zeros(
+                               shape=(X_2D.shape[0], 3 - X_2D.shape[1])))))[0])
         assert_array_equal(ROD().decision_function(X_3D), rod_3D(X_3D)[0])
-        assert_array_equal(ROD().decision_function(X_4D), rod_nD(X_4D, False, self.gm, self.data_scaler,
-                                                                 self.angles_scalers1, self.angles_scalers2)[0])
+        assert_array_equal(ROD().decision_function(X_4D),
+                           rod_nD(X_4D, False, self.gm, self.data_scaler,
+                                  self.angles_scalers1, self.angles_scalers2)[
+                               0])
 
     def test_angle(self):
         assert_equal(0.0, angle(v1=[0, 0, 1], v2=[0, 0, 1]))
@@ -122,8 +145,10 @@ class TestROD(unittest.TestCase):
 
     def test_process_sub(self):
         subspace = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
-        assert_equal([0.5, 0.5, 0.5], process_sub(subspace, self.gm, self.median,
-                                                  self.angles_scalers1, self.angles_scalers2)[0])
+        assert_equal([0.5, 0.5, 0.5],
+                     process_sub(subspace, self.gm, self.median,
+                                 self.angles_scalers1, self.angles_scalers2)[
+                         0])
 
     def test_parallel_vs_non_parallel(self):
         assert_equal(rod_nD(self.X_train, False, self.gm, self.data_scaler,

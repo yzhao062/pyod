@@ -142,13 +142,16 @@ class BaseDetector(object):
         self.fit(X, y)
         return self.labels_
 
-    def predict(self, X, return_confidence = False):
+    def predict(self, X, return_confidence=False):
         """Predict if a particular sample is an outlier or not.
 
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
             The input samples.
+
+        return_confidence : boolean, optional(default=False)
+            If True, also return the confidence of prediction.
 
         Returns
         -------
@@ -163,14 +166,14 @@ class BaseDetector(object):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         pred_score = self.decision_function(X)
         prediction = (pred_score > self.threshold_).astype('int').ravel()
-        
+
         if return_confidence:
             confidence = self.predict_confidence(X)
             return prediction, confidence
-        
+
         return prediction
 
-    def predict_proba(self, X, method='linear', return_confidence = False):
+    def predict_proba(self, X, method='linear', return_confidence=False):
         """Predict the probability of a sample being outlier. Two approaches
         are possible:
 
@@ -187,6 +190,10 @@ class BaseDetector(object):
         method : str, optional (default='linear')
             probability conversion method. It must be one of
             'linear' or 'unify'.
+
+        return_confidence : boolean, optional(default=False)
+            If True, also return the confidence of prediction.
+
 
         Returns
         -------
@@ -209,11 +216,11 @@ class BaseDetector(object):
             probs[:, 1] = scaler.transform(
                 test_scores.reshape(-1, 1)).ravel().clip(0, 1)
             probs[:, 0] = 1 - probs[:, 1]
-            
+
             if return_confidence:
                 confidence = self.predict_confidence(X)
                 return probs, confidence
-        
+
             return probs
 
         elif method == 'unify':
@@ -223,25 +230,29 @@ class BaseDetector(object):
             erf_score = erf(pre_erf_score)
             probs[:, 1] = erf_score.clip(0, 1).ravel()
             probs[:, 0] = 1 - probs[:, 1]
-            
+
             if return_confidence:
                 confidence = self.predict_confidence(X)
                 return probs, confidence
-            
+
             return probs
         else:
             raise ValueError(method,
                              'is not a valid probability conversion method')
-            
+
     def predict_confidence(self, X):
         """Predict the model's confidence in making the same prediction
-        under slightly different training sets. See :cite:`perini2020quantifying`.
+        under slightly different training sets.
+        See :cite:`perini2020quantifying`.
         
         Parameters
         -------
         X : numpy array of shape (n_samples, n_features)
             The input samples.
-            
+
+        return_confidence : boolean, optional(default=False)
+            If True, also return the confidence of prediction.
+
         Returns
         -------
         confidence : numpy array of shape (n_samples,) 
@@ -250,26 +261,30 @@ class BaseDetector(object):
             Return a probability, ranging in [0,1].
 
         """
-        
+
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
-        
+
         n = len(self.decision_scores_)
+
+        # todo: this has an optimization opportunity since the scores may
+        # already be available
         test_scores = self.decision_function(X)
-        
-        count_instances = np.vectorize(lambda x: np.count_nonzero(self.decision_scores_ <= x)) 
+
+        count_instances = np.vectorize(
+            lambda x: np.count_nonzero(self.decision_scores_ <= x))
         n_instances = count_instances(test_scores)
 
-        #Derive the outlier probability using Bayesian approach
-        posterior_prob = np.vectorize(lambda x: (1+x)/(2+n))(n_instances)
-    
-        #Transform the outlier probability into a confidence value
-        confidence = np.vectorize(lambda p: 1-binom.cdf(n-np.int(n*self.contamination),n,p))(posterior_prob)
-        prediction = (test_scores>self.threshold_).astype('int').ravel()
-        np.place(confidence, prediction==0, 1-confidence[prediction==0]) 
-       
+        # Derive the outlier probability using Bayesian approach
+        posterior_prob = np.vectorize(lambda x: (1 + x) / (2 + n))(n_instances)
+
+        # Transform the outlier probability into a confidence value
+        confidence = np.vectorize(
+            lambda p: 1 - binom.cdf(n - np.int(n * self.contamination), n, p))(
+            posterior_prob)
+        prediction = (test_scores > self.threshold_).astype('int').ravel()
+        np.place(confidence, prediction == 0, 1 - confidence[prediction == 0])
+
         return confidence
-        
-        
 
     def _predict_rank(self, X, normalized=False):
         """Predict the outlyingness rank of a sample by a fitted model. The

@@ -67,6 +67,9 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
         y_test_scores = clf.decision_function(X_test)  # outlier scores
 
+        # it is possible to get the prediction confidence as well
+        y_test_pred, y_test_pred_confidence = clf.predict(X_test, return_confidence=True)  # outlier labels (0 or 1) and confidence in the range of [0,1]
+
 4. Evaluate the prediction using ROC and Precision @ Rank n :func:`pyod.utils.data.evaluate_print`.
 
     .. code-block:: python
