@@ -6,6 +6,7 @@ from .utility import precision_n_scores
 from .utility import get_label_n
 from .utility import argmaxn
 from .utility import invert_order
+from .utility import get_optimal_n_bins
 from .data import generate_data
 from .data import evaluate_print
 from .stat_models import pairwise_distances_no_broadcast
@@ -19,6 +20,7 @@ __all__ = ['check_parameter',
            'get_label_n',
            'argmaxn',
            'invert_order',
+           'get_optimal_n_bins',
            'generate_data',
            'evaluate_print',
            'pairwise_distances_no_broadcast',
