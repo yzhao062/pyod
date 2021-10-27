@@ -8,16 +8,22 @@ Adapted from tilitools (https://github.com/nicococo/tilitools) by
 from __future__ import division
 from __future__ import print_function
 
+import numbers
 import numpy as np
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
 
 from .base import BaseDetector
-
+from ..utils.utility import get_optimal_n_bins
 
 class LODA(BaseDetector):
     """Loda: Lightweight on-line detector of anomalies. See
     :cite:`pevny2016loda` for more information.
+    
+    Two versions of LODA are supported:        
+    - Static number of bins: uses a static number of bins for all random cuts.
+    - Automatic number of bins: every random cut uses a number of bins deemed 
+      to be optimal according to the Birge-Rozenblac method.
 
     Parameters
     ----------
@@ -26,8 +32,10 @@ class LODA(BaseDetector):
         i.e. the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
 
-    n_bins : int, optional (default = 10)
-        The number of bins for the histogram.
+    n_bins : int or string, optional (default = 10)
+        The number of bins for the histogram. If set to "auto", the 
+        Birge-Rozenblac method will be used to automatically determine the 
+        optimal number of bins.
 
     n_random_cuts : int, optional (default = 100)
         The number of random cuts.
@@ -84,22 +92,62 @@ class LODA(BaseDetector):
         n_zero_components = n_components - np.int(n_nonzero_components)
 
         self.projections_ = np.random.randn(self.n_random_cuts, n_components)
-        self.histograms_ = np.zeros((self.n_random_cuts, self.n_bins))
-        self.limits_ = np.zeros((self.n_random_cuts, self.n_bins + 1))
-        for i in range(self.n_random_cuts):
-            rands = np.random.permutation(n_components)[:n_zero_components]
-            self.projections_[i, rands] = 0.
-            projected_data = self.projections_[i, :].dot(X.T)
-            self.histograms_[i, :], self.limits_[i, :] = np.histogram(
-                projected_data, bins=self.n_bins, density=False)
-            self.histograms_[i, :] += 1e-12
-            self.histograms_[i, :] /= np.sum(self.histograms_[i, :])
+        
+        # If set to auto: determine optimal n_bins using Birge Rozenblac method
+        if isinstance(self.n_bins, str) and self.n_bins.lower() == "auto":
+            
+            self.histograms_ = []
+            self.limits_ = []
+            self.n_bins_ = [] #only used when n_bins is determined by method "auto"
+            
+            for i in range(self.n_random_cuts):
+                rands = np.random.permutation(n_components)[:n_zero_components]
+                self.projections_[i, rands] = 0.
+                projected_data = self.projections_[i, :].dot(X.T)
+                
+                n_bins = get_optimal_n_bins(projected_data)
+                self.n_bins_.append(n_bins)
+                
+                histogram, limits = np.histogram(
+                    projected_data, bins=n_bins, density=False)
+                histogram = histogram.astype(np.float64)
+                histogram += 1e-12
+                histogram /= np.sum(histogram)
+                
+                self.histograms_.append(histogram)
+                self.limits_.append(limits)
+    
+                # calculate the scores for the training samples
+                inds = np.searchsorted(limits[:n_bins - 1],
+                                       projected_data, side='left')
+                pred_scores[:, 0] += -self.weights[i] * np.log(
+                    histogram[inds])
+                
+        elif isinstance(self.n_bins, numbers.Integral):
+            
+            self.histograms_ = np.zeros((self.n_random_cuts, self.n_bins))
+            self.limits_ = np.zeros((self.n_random_cuts, self.n_bins + 1))
+            
+            for i in range(self.n_random_cuts):
+                rands = np.random.permutation(n_components)[:n_zero_components]
+                self.projections_[i, rands] = 0.
+                projected_data = self.projections_[i, :].dot(X.T)
+                self.histograms_[i, :], self.limits_[i, :] = np.histogram(
+                    projected_data, bins=self.n_bins, density=False)
+                self.histograms_[i, :] += 1e-12
+                self.histograms_[i, :] /= np.sum(self.histograms_[i, :])
+    
+                # calculate the scores for the training samples
+                inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
+                                       projected_data, side='left')
+                pred_scores[:, 0] += -self.weights[i] * np.log(
+                    self.histograms_[i, inds])
+                
+        else:
+            raise ValueError("n_bins must be an int or \'auto\', "
+                             "got: %f" % self.n_bins)
+            
 
-            # calculate the scores for the training samples
-            inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                   projected_data, side='left')
-            pred_scores[:, 0] += -self.weights[i] * np.log(
-                self.histograms_[i, inds])
 
         self.decision_scores_ = (pred_scores / self.n_random_cuts).ravel()
         self._process_decision_scores()
@@ -129,11 +177,29 @@ class LODA(BaseDetector):
 
         X = check_array(X)
         pred_scores = np.zeros([X.shape[0], 1])
-        for i in range(self.n_random_cuts):
-            projected_data = self.projections_[i, :].dot(X.T)
-            inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                   projected_data, side='left')
-            pred_scores[:, 0] += -self.weights[i] * np.log(
-                self.histograms_[i, inds])
+        
+        if isinstance(self.n_bins, str) and self.n_bins.lower() == "auto":
+            
+            for i in range(self.n_random_cuts):
+                projected_data = self.projections_[i, :].dot(X.T)
+                
+                inds = np.searchsorted(self.limits_[i][:self.n_bins_[i] - 1],
+                                       projected_data, side='left')
+                pred_scores[:, 0] += -self.weights[i] * np.log(
+                    self.histograms_[i][inds])
+                
+        elif isinstance(self.n_bins, numbers.Integral):
+            
+            for i in range(self.n_random_cuts):
+                projected_data = self.projections_[i, :].dot(X.T)
+                
+                inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
+                                       projected_data, side='left')
+                pred_scores[:, 0] += -self.weights[i] * np.log(
+                    self.histograms_[i, inds])
+        else:
+            raise ValueError("n_bins must be an int or \'auto\', "
+                             "got: %f" % self.n_bins)
+            
         pred_scores /= self.n_random_cuts
         return pred_scores.ravel()
