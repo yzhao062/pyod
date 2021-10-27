@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Median Absolute deviation (MAD)Algorithm.
+"""
+Median Absolute deviation (MAD) Algorithm.
 Strictly for Univariate Data.
 """
 # Author: Yahya Almardeny <almardeny@gmail.com>
@@ -63,6 +64,7 @@ class MAD(BaseDetector):
             raise TypeError(
                 'threshold must be a number. Got {}'.format(type(threshold)))
         self.threshold_ = threshold
+        self.median = None
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -83,6 +85,7 @@ class MAD(BaseDetector):
         X = check_array(X, ensure_2d=False)
         _check_dim(X)
         self._set_n_classes(y)
+        self.median = None  # reset median after each call
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
 
@@ -114,12 +117,16 @@ class MAD(BaseDetector):
         """
         Apply the robust median absolute deviation (MAD)
         to measure the distances of data points from the median.
-        :return: numpy array containing modified Z-scores of the observations.
-                 The greater the score, the greater the outlierness.
+
+        Returns
+        -------
+        numpy array containing modified Z-scores of the observations.
+        The greater the score, the greater the outlierness.
         """
         obs = np.reshape(X, (-1, 1))
-        median = np.nanmedian(obs)
-        diff = np.abs(obs - median)
+        # `self.median` will be None only before `fit()` is called
+        self.median = np.nanmedian(obs) if self.median is None else self.median
+        diff = np.abs(obs - self.median)
         return np.nan_to_num(np.ravel(0.6745 * diff / np.median(diff)))
 
     def _process_decision_scores(self):
@@ -134,8 +141,7 @@ class MAD(BaseDetector):
         -------
         self
         """
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype(
-            'int').ravel()
+        self.labels_ = (self.decision_scores_ > self.threshold_).astype('int').ravel()
 
         # calculate for predict_proba()
         self._mu = np.mean(self.decision_scores_)
