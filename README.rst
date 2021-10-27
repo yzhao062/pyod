@@ -261,11 +261,6 @@ Key Attributes of a fitted model:
 * **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
 
-**Note** \ : fit_predict() and fit_predict_score() are deprecated in V0.6.9 due
-to consistency issue and will be removed in V0.8.0. To get the binary labels
-of the training data X_train, one should call clf.fit(X_train) and use
-clf.labels\_, instead of calling clf.predict(X_train).
-
 **Fast training and prediction**: it is possible to train and predict with
 a large number of detection models in PyOD by leveraging SUOD framework [#Zhao2021SUOD]_.
 See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
