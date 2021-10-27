@@ -144,6 +144,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
         # initialize 20 base detectors for combination
         k_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140,
                     150, 160, 170, 180, 190, 200]
+        n_clf = len(k_list) # Number of classifiers being trained
 
         train_scores = np.zeros([X_train.shape[0], n_clf])
         test_scores = np.zeros([X_test.shape[0], n_clf])
@@ -174,7 +175,7 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
         comb_by_average = average(test_scores_norm)
         comb_by_maximization = maximization(test_scores_norm)
         comb_by_aom = aom(test_scores_norm, 5) # 5 groups
-        comb_by_moa = moa(test_scores_norm, 5)) # 5 groups
+        comb_by_moa = moa(test_scores_norm, 5) # 5 groups
 
 5. Finally, all four combination methods are evaluated by ROC and Precision
    @ Rank n:

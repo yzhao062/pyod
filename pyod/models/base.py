@@ -190,13 +190,12 @@ class BaseDetector(object):
 
         Returns
         -------
-        outlier_probability : numpy array of shape (n_samples,)
+        outlier_probability : numpy array of shape (n_samples, n_classes)
             For each observation, tells whether or not
             it should be considered as an outlier according to the
             fitted model. Return the outlier probability, ranging
-            in [0,1].
-        confidence : numpy array of shape (n_samples,).
-            Only if return_confidence is set to True.
+            in [0,1]. Note it depends on the number of classes, which is by
+            default 2 classes ([proba of normal, proba of outliers]).
         """
 
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])

@@ -59,6 +59,7 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 
 **awesome-machine-learning**: `General-Purpose Machine Learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_
 
+**Lecture on anomaly detection with PyOD by Dr.Hadi Fanaee**: `Anomaly Detection Lecture <https://www.youtube.com/watch?v=sF2DeSPrGfc>`_
 
 **Workshop/Showcase using PyOD**:
 
