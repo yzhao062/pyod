@@ -135,6 +135,7 @@ class TestHBOS(unittest.TestCase):
     def tearDown(self):
         pass
 
+
 class TestAutoHBOS(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
@@ -243,6 +244,7 @@ class TestAutoHBOS(unittest.TestCase):
 
     def tearDown(self):
         pass
+
 
 if __name__ == '__main__':
     unittest.main()

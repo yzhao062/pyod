@@ -106,6 +106,7 @@ class TestLODA(unittest.TestCase):
     def tearDown(self):
         pass
 
+
 class TestAutoLODA(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
@@ -187,6 +188,7 @@ class TestAutoLODA(unittest.TestCase):
 
     def tearDown(self):
         pass
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -28,7 +28,8 @@ class HBOS(BaseDetector):
     Two versions of HBOS are supported:        
     - Static number of bins: uses a static number of bins for all features.
     - Automatic number of bins: every feature uses a number of bins deemed to 
-      be optimal according to the Birge-Rozenblac method.
+      be optimal according to the Birge-Rozenblac method
+      (:cite:`birge2006many`).
       
     Parameters
     ----------
@@ -103,44 +104,45 @@ class HBOS(BaseDetector):
         self._set_n_classes(y)
 
         _, n_features = X.shape[0], X.shape[1]
-        
+
         if isinstance(self.n_bins, str) and self.n_bins.lower() == "auto":
-            #Uses the birge rozenblac method for automatic histogram size per feature
+            # Uses the birge rozenblac method for automatic histogram size per feature
             self.hist_ = []
             self.bin_edges_ = []
-            
+
             # build the histograms for all dimensions
             for i in range(n_features):
-                n_bins = get_optimal_n_bins(X[:,i])
-                hist, bin_edges = np.histogram(X[:, i], bins=n_bins, density=True)
+                n_bins = get_optimal_n_bins(X[:, i])
+                hist, bin_edges = np.histogram(X[:, i], bins=n_bins,
+                                               density=True)
                 self.hist_.append(hist)
                 self.bin_edges_.append(bin_edges)
                 # the sum of (width * height) should equal to 1
                 assert (np.isclose(1, np.sum(
                     hist * np.diff(bin_edges)), atol=0.1))
-                
+
             outlier_scores = _calculate_outlier_scores_auto(X, self.bin_edges_,
                                                             self.hist_,
-                                                            self.alpha, self.tol)
-                
-        elif check_parameter(self.n_bins, low=2, high=np.inf):            
+                                                            self.alpha,
+                                                            self.tol)
+
+        elif check_parameter(self.n_bins, low=2, high=np.inf):
             self.hist_ = np.zeros([self.n_bins, n_features])
             self.bin_edges_ = np.zeros([self.n_bins + 1, n_features])
-    
+
             # build the histograms for all dimensions
             for i in range(n_features):
                 self.hist_[:, i], self.bin_edges_[:, i] = \
                     np.histogram(X[:, i], bins=self.n_bins, density=True)
                 # the sum of (width * height) should equal to 1
                 assert (np.isclose(1, np.sum(
-                    self.hist_[:, i] * np.diff(self.bin_edges_[:, i])), atol=0.1))
-                
+                    self.hist_[:, i] * np.diff(self.bin_edges_[:, i])),
+                                   atol=0.1))
+
             outlier_scores = _calculate_outlier_scores(X, self.bin_edges_,
                                                        self.hist_,
                                                        self.n_bins,
                                                        self.alpha, self.tol)
-
-
 
         # invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = invert_order(np.sum(outlier_scores, axis=1))
@@ -171,17 +173,19 @@ class HBOS(BaseDetector):
         if isinstance(self.n_bins, str) and self.n_bins.lower() == "auto":
             outlier_scores = _calculate_outlier_scores_auto(X, self.bin_edges_,
                                                             self.hist_,
-                                                            self.alpha, self.tol)
-        elif check_parameter(self.n_bins, low=2, high=np.inf): 
+                                                            self.alpha,
+                                                            self.tol)
+        elif check_parameter(self.n_bins, low=2, high=np.inf):
             outlier_scores = _calculate_outlier_scores(X, self.bin_edges_,
                                                        self.hist_,
                                                        self.n_bins,
                                                        self.alpha, self.tol)
         return invert_order(np.sum(outlier_scores, axis=1))
 
-#@njit #due to variable size of histograms, can no longer naively use numba for jit
+
+# @njit #due to variable size of histograms, can no longer naively use numba for jit
 def _calculate_outlier_scores_auto(X, bin_edges, hist, alpha,
-                              tol):  # pragma: no cover
+                                   tol):  # pragma: no cover
     """The internal function to calculate the outlier scores based on
     the bins and histograms constructed with the training data. The program
     is optimized through numba. It is excluded from coverage test for
@@ -228,9 +232,8 @@ def _calculate_outlier_scores_auto(X, bin_edges, hist, alpha,
         # Calculate the outlying scores on dimension i
         # Add a regularizer for preventing overflow
         out_score_i = np.log2(hist[i] + alpha)
-        
-        
-        optimal_n_bins = get_optimal_n_bins(X[:,i])
+
+        optimal_n_bins = get_optimal_n_bins(X[:, i])
 
         for j in range(n_samples):
 
@@ -261,8 +264,9 @@ def _calculate_outlier_scores_auto(X, bin_edges, hist, alpha,
                     outlier_scores[j, i] = np.min(out_score_i)
             else:
                 outlier_scores[j, i] = out_score_i[bin_inds[j] - 1]
-                
+
     return outlier_scores
+
 
 @njit
 def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha,

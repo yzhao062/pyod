@@ -546,9 +546,10 @@ def generate_indices(random_state, bootstrap, n_population, n_samples):
 
     return indices
 
-def get_optimal_n_bins(X, upper_bound = None, epsilon = 1): 
+# todo: add a test for it in test_utility.py
+def get_optimal_n_bins(X, upper_bound=None, epsilon=1):
     """ Determine optimal number of bins for a histogram using the Birge 
-    Rozenblac method. 
+    Rozenblac method (see :cite:`birge2006many` for details.)
      
     See  https://doi.org/10.1051/ps:2006001 
      
@@ -568,16 +569,18 @@ def get_optimal_n_bins(X, upper_bound = None, epsilon = 1):
     ------- 
     optimal_n_bins : int 
         The optimal value of n_bins according to the Birge Rozenblac method 
-    """ 
-    if upper_bound is None: 
-        upper_bound = int(np.sqrt(X.shape[0])) 
-     
-    n = X.shape[0] 
-    maximum_likelihood = np.zeros((upper_bound-1,1)) 
-     
-    for i, b in enumerate(range(1,upper_bound)): 
-        histogram, _ = np.histogram(X, bins=b) 
-         
-        maximum_likelihood[i] = np.sum(histogram * np.log(b*histogram/n + epsilon) - (b - 1 + np.power(np.log(b),2.5))) 
-                                       
-    return np.argmax(maximum_likelihood) + 1                                   
+    """
+    if upper_bound is None:
+        upper_bound = int(np.sqrt(X.shape[0]))
+
+    n = X.shape[0]
+    maximum_likelihood = np.zeros((upper_bound - 1, 1))
+
+    for i, b in enumerate(range(1, upper_bound)):
+        histogram, _ = np.histogram(X, bins=b)
+
+        maximum_likelihood[i] = np.sum(
+            histogram * np.log(b * histogram / n + epsilon) - (
+                        b - 1 + np.power(np.log(b), 2.5)))
+
+    return np.argmax(maximum_likelihood) + 1
