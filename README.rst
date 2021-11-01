@@ -250,7 +250,7 @@ Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheat
 * **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
 * **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
 * **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
-* **predict_confidence(X)**\ : Predict the model's sample-wise confidence.
+* **predict_confidence(X)**\ : Predict the model's sample-wise confidence [#Perini2020Quantifying]_.
 
 
 Key Attributes of a fitted model:
@@ -691,6 +691,8 @@ Reference
 .. [#Liu2019Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2019. Generative adversarial active learning for unsupervised outlier detection. *IEEE Transactions on Knowledge and Data Engineering*.
 
 .. [#Papadimitriou2003LOCI] Papadimitriou, S., Kitagawa, H., Gibbons, P.B. and Faloutsos, C., 2003, March. LOCI: Fast outlier detection using the local correlation integral. In *ICDE '03*, pp. 315-326. IEEE.
+
+.. [#Perini2020Quantifying] Perini, L., Vercruyssen, V., Davis, J. Quantifying the confidence of anomaly detectors in their example-wise predictions. In *Joint European Conference on Machine Learning and Knowledge Discovery in Databases (ECML-PKDD)*, 2020.
 
 .. [#Pevny2016Loda] Pevný, T., 2016. Loda: Lightweight on-line detector of anomalies. *Machine Learning*, 102(2), pp.275-304.
 
