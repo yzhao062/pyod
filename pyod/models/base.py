@@ -250,9 +250,6 @@ class BaseDetector(object):
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        return_confidence : boolean, optional(default=False)
-            If True, also return the confidence of prediction.
-
         Returns
         -------
         confidence : numpy array of shape (n_samples,) 
