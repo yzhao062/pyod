@@ -143,6 +143,7 @@ v<0.9.5>, <09/10/2021> -- Various documentation fix.
 v<0.9.5>, <10/26/2021> -- MAD fix #318.
 v<0.9.5>, <10/26/2021> -- Automatic histogram size selection for HBOS and LODA #321.
 v<0.9.5>, <10/27/2021> -- Add prediction confidence #349.
+v<0.9.6>, <11/05/2021> -- Minor bug fix for COPOD.
 
 
 

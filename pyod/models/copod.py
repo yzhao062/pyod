@@ -117,8 +117,8 @@ class COPOD(BaseDetector):
         """
         X = check_array(X)
         self._set_n_classes(y)
-        self.X_train = X
         self.decision_scores_ = self.decision_function(X)
+        self.X_train = X
         self._process_decision_scores()
         return self
 
@@ -138,11 +138,9 @@ class COPOD(BaseDetector):
         # use multi-thread execution
         if self.n_jobs != 1:
             return self._decision_function_parallel(X)
-
         if hasattr(self, 'X_train'):
             original_size = X.shape[0]
             X = np.concatenate((self.X_train, X), axis=0)
-
         self.U_l = -1 * np.log(np.apply_along_axis(ecdf, 0, X))
         self.U_r = -1 * np.log(np.apply_along_axis(ecdf, 0, -X))
 
