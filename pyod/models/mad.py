@@ -65,7 +65,7 @@ class MAD(BaseDetector):
                 'threshold must be a number. Got {}'.format(type(threshold)))
         self.threshold_ = threshold
         self.median = None
-        self.mediandiff = None
+        self.median_diff = None
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -87,7 +87,7 @@ class MAD(BaseDetector):
         _check_dim(X)
         self._set_n_classes(y)
         self.median = None  # reset median after each call
-        self.mediandiff = None  # reset mediandiff after each call
+        self.median_diff = None  # reset median_diff after each call
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
 
@@ -129,8 +129,8 @@ class MAD(BaseDetector):
         # `self.median` will be None only before `fit()` is called
         self.median = np.nanmedian(obs) if self.median is None else self.median
         diff = np.abs(obs - self.median)
-        self.mediandiff = np.median(diff) if self.mediandiff  is None else self.mediandiff
-        return np.nan_to_num(np.ravel(0.6745 * diff / self.mediandiff))
+        self.median_diff = np.median(diff) if self.median_diff is None else self.median_diff
+        return np.nan_to_num(np.ravel(0.6745 * diff / self.median_diff))
 
     def _process_decision_scores(self):
         """This overrides PyOD base class function in order to use the
