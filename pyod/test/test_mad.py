@@ -142,6 +142,13 @@ class TestMAD(unittest.TestCase):
             MAD().decision_function(X=[[0.0, 0.0],
                                        [0.0, 0.0]])
 
+    def test_detect_anomaly(self):
+        X_test = [[10000]]
+        score = self.clf.decision_function(X_test)
+        anomaly = self.clf.predict(X_test)
+        self.assertGreaterEqual(score[0], self.clf.threshold_)
+        self.assertEqual(anomaly[0], 1)
+
     # todo: fix clone issue
     def test_model_clone(self):
         pass
