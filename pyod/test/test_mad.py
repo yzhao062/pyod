@@ -126,11 +126,11 @@ class TestMAD(unittest.TestCase):
         assert_array_less(-0.1, pred_ranks)
 
     def test_predict_rank_normalized(self):
-        pred_socres = self.clf.decision_function(self.X_test)
+        pred_scores = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
@@ -141,6 +141,13 @@ class TestMAD(unittest.TestCase):
         with assert_raises(ValueError):
             MAD().decision_function(X=[[0.0, 0.0],
                                        [0.0, 0.0]])
+
+    def test_detect_anomaly(self):
+        X_test = [[10000]]
+        score = self.clf.decision_function(X_test)
+        anomaly = self.clf.predict(X_test)
+        self.assertGreaterEqual(score[0], self.clf.threshold_)
+        self.assertEqual(anomaly[0], 1)
 
     # todo: fix clone issue
     def test_model_clone(self):
