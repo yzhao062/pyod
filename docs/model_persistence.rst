@@ -16,3 +16,9 @@ In short, it is simple as below:
     dump(clf, 'clf.joblib')
     # load the model
     clf = load('clf.joblib')
+
+
+It is known that there are challenges in saving neural network models.
+Check `#328 <https://github.com/yzhao062/pyod/issues/328#issuecomment-917192704>`_
+and `#88 <https://github.com/yzhao062/pyod/issues/88#issuecomment-615343139>`_
+for temporary workaround.

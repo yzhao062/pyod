@@ -117,8 +117,8 @@ class COPOD(BaseDetector):
         """
         X = check_array(X)
         self._set_n_classes(y)
-        self.X_train = X
         self.decision_scores_ = self.decision_function(X)
+        self.X_train = X
         self._process_decision_scores()
         return self
 
@@ -138,11 +138,9 @@ class COPOD(BaseDetector):
         # use multi-thread execution
         if self.n_jobs != 1:
             return self._decision_function_parallel(X)
-
         if hasattr(self, 'X_train'):
             original_size = X.shape[0]
             X = np.concatenate((self.X_train, X), axis=0)
-
         self.U_l = -1 * np.log(np.apply_along_axis(ecdf, 0, X))
         self.U_r = -1 * np.log(np.apply_along_axis(ecdf, 0, -X))
 
@@ -202,9 +200,6 @@ class COPOD(BaseDetector):
             self.U_l[:, starts[i]:starts[i + 1]] = all_results[i][0]
             self.U_r[:, starts[i]:starts[i + 1]] = all_results[i][1]
 
-        # self.U_l = pd.DataFrame(-1 * np.log(self.U_l))
-        # self.U_r = pd.DataFrame(-1 * np.log(self.U_r))
-
         self.U_l = -1 * np.log(self.U_l)
         self.U_r = -1 * np.log(self.U_r)
 
@@ -219,9 +214,11 @@ class COPOD(BaseDetector):
         return decision_scores_.ravel()
 
     def explain_outlier(self, ind, columns=None, cutoffs=None,
-                        feature_names=None):  # pragma: no cover
-        """Plot dimensional outlier graph for a given data
-            point within the dataset.
+                        feature_names=None, file_name=None,
+                        file_type=None):  # pragma: no cover
+        """Plot dimensional outlier graph for a given data point within
+        the dataset.
+
         Parameters
         ----------
         ind : int
@@ -229,14 +226,21 @@ class COPOD(BaseDetector):
             a dimensional outlier graph for.
 
         columns : list
-            Specify a list of features/dimensions for plotting.
+            Specify a list of features/dimensions for plotting. If not 
+            specified, use all features.
         
         cutoffs : list of floats in (0., 1), optional (default=[0.95, 0.99])
             The significance cutoff bands of the dimensional outlier graph.
         
-        feature_names: list of strings
+        feature_names : list of strings
             The display names of all columns of the dataset,
             to show on the x-axis of the plot.
+
+        file_name : string
+            The name to save the figure
+
+        file_type : string
+            The file type to save the figure
 
         Returns
         -------
@@ -244,25 +248,29 @@ class COPOD(BaseDetector):
             The dimensional outlier graph for data point with index ind.
         """
         if columns is None:
-            columns = self.O.columns
+            columns = list(range(self.O.shape[1]))
             column_range = range(1, self.O.shape[1] + 1)
         else:
             column_range = range(1, len(columns) + 1)
 
         cutoffs = [1 - self.contamination,
                    0.99] if cutoffs is None else cutoffs
-        plt.plot(column_range, self.O.loc[ind, columns],
-                 label='Outlier Score')
+
+        # plot outlier scores
+        plt.scatter(column_range, self.O[ind, columns], marker='^', c='black',
+                    label='Outlier Score')
+
         for i in cutoffs:
             plt.plot(column_range,
-                     self.O.loc[:, columns].quantile(q=i, axis=0), '-',
+                     np.quantile(self.O[:, columns], q=i, axis=0),
+                     '--',
                      label='{percentile} Cutoff Band'.format(percentile=i))
         plt.xlim([1, max(column_range)])
-        plt.ylim([0, int(self.O.loc[:, columns].max().max()) + 1])
+        plt.ylim([0, int(self.O[:, columns].max().max()) + 1])
         plt.ylabel('Dimensional Outlier Score')
         plt.xlabel('Dimension')
 
-        ticks = column_range
+        ticks = list(column_range)
         if feature_names is not None:
             assert len(feature_names) == len(ticks), \
                 "Length of feature_names does not match dataset dimensions."
@@ -270,13 +278,23 @@ class COPOD(BaseDetector):
         else:
             plt.xticks(ticks)
 
-        plt.yticks(range(0, int(self.O.loc[:, columns].max().max()) + 1))
+        plt.yticks(range(0, int(self.O[:, columns].max().max()) + 1))
+        plt.xlim(0.95, ticks[-1] + 0.05)
         label = 'Outlier' if self.labels_[ind] == 1 else 'Inlier'
-        plt.title('Outlier Score Breakdown for Data #{index} ({label})'.format(
-            index=ind + 1, label=label))
+        plt.title(
+            'Outlier score breakdown for sample #{index} ({label})'.format(
+                index=ind + 1, label=label))
         plt.legend()
+        plt.tight_layout()
+
+        # save the file if specified
+        if file_name is not None:
+            if file_type is not None:
+                plt.savefig(file_name + '.' + file_type, dpi=300)
+            # if not specified, save as png
+            else:
+                plt.savefig(file_name + '.' + 'png', dpi=300)
         plt.show()
-        return self.O.loc[ind, columns], self.O.loc[:, columns].quantile(
-            q=cutoffs[0],
-            axis=0), self.O.loc[:, columns].quantile(
-            q=cutoffs[1], axis=0)
+
+        # todo: consider returning results
+        # return self.O[ind, columns], self.O[:, columns].quantile(q=cutoffs[0], axis=0), self.O[:, columns].quantile(q=cutoffs[1], axis=0)
