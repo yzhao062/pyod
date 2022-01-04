@@ -77,6 +77,16 @@ pyod.models.deep\_svdd module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.ecod module
+------------------------
+
+.. automodule:: pyod.models.ecod
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.feature\_bagging module
 -----------------------------------
 
