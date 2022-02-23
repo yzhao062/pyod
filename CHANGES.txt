@@ -147,7 +147,8 @@ v<0.9.6>, <11/05/2021> -- Minor bug fix for COPOD.
 v<0.9.6>, <12/24/2021> -- Bug fix for MAD (#358).
 v<0.9.6>, <12/24/2021> -- Bug fix for COPOD plotting (#337).
 v<0.9.6>, <12/24/2021> -- Model persistence doc improvement.
-v<0.9.7>, <01/03/2021> -- Add ECOD.
+v<0.9.7>, <01/03/2022> -- Add ECOD.
+v<0.9.8>, <02/23/2022> -- Add Feature Importance for iForest.
 
 
 

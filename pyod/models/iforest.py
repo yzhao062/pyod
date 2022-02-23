@@ -7,12 +7,14 @@
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
+from joblib import Parallel
+from joblib.parallel import delayed
+from sklearn.utils.fixes import _joblib_parallel_args
+
 from sklearn.ensemble import IsolationForest
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.fixes import _joblib_parallel_args
-from sklearn.utils.fixes import delayed
 from sklearn.utils import check_array
-from joblib import Parallel
 
 from .base import BaseDetector
 from ..utils.utility import invert_order
@@ -284,15 +286,17 @@ class IForest(BaseDetector):
 
     @property
     def feature_importances_(self):
-        """
-        The impurity-based feature importances.
-        The higher, the more important the feature.
-        The importance of a feature is computed as the (normalized)
-        total reduction of the criterion brought by that feature.  It is also
-        known as the Gini importance.
-        Warning: impurity-based feature importances can be misleading for
+        """The impurity-based feature importance. The higher, the more
+        important the feature. The importance of a feature is computed as the
+        (normalized) total reduction of the criterion brought by that feature.
+        It is also known as the Gini importance.
+
+        .. warning::
+        impurity-based feature importance can be misleading for
         high cardinality features (many unique values). See
-        :func:`sklearn.inspection.permutation_importance` as an alternative.
+        https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
+        as an alternative.
+
         Returns
         -------
         feature_importances_ : ndarray of shape (n_features,)

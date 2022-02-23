@@ -147,6 +147,10 @@ class TestIForest(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_feature_importances(self):
+        feature_importances = self.clf.feature_importances_
+        assert (len(feature_importances) == 2)
+
     def tearDown(self):
         pass
 
