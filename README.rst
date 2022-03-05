@@ -61,8 +61,8 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 30 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest COPOD (ICDM 2020) and SUOD (MLSys 2021). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_.
+the latest SUOD (MLSys 2021) and ECOD (TKDE 2022). Since 2017, PyOD has been successfully used in numerous academic researches and
+commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_ with more than 5 million downloads.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
@@ -74,7 +74,7 @@ It is also well acknowledged by the machine learning community with various dedi
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like COPOD**.
+* **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Fast training & prediction with SUOD** [#Zhao2021SUOD]_.
 * **Compatible with both Python 2 & 3**.
@@ -86,9 +86,9 @@ PyOD is featured for:
 .. code-block:: python
 
 
-    # train the COPOD detector
-    from pyod.models.copod import COPOD
-    clf = COPOD()
+    # train the ECOD detector
+    from pyod.models.ecod import ECOD
+    clf = ECOD()
     clf.fit(X_train)
 
     # get outlier scores
@@ -307,7 +307,7 @@ PyOD toolkit consists of three major functional groups:
 ===================  ==================  ======================================================================================================  =====  ========================================
 Type                 Abbr                Algorithm                                                                                               Year   Ref
 ===================  ==================  ======================================================================================================  =====  ========================================
-Probabilistic        ECOD                Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions                        2021   [#Li2021ECOD]_
+Probabilistic        ECOD                Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions                        2022   [#Li2021ECOD]_
 Probabilistic        ABOD                Angle-Based Outlier Detection                                                                           2008   [#Kriegel2008Angle]_
 Probabilistic        FastABOD            Fast Angle-Based Outlier Detection using approximation                                                  2008   [#Kriegel2008Angle]_
 Probabilistic        COPOD               COPOD: Copula-Based Outlier Detection                                                                   2020   [#Li2020COPOD]_
@@ -572,7 +572,7 @@ Reference
 
 .. [#Li2020COPOD] Li, Z., Zhao, Y., Botta, N., Ionescu, C. and Hu, X. COPOD: Copula-Based Outlier Detection. *IEEE International Conference on Data Mining (ICDM)*, 2020.
 
-.. [#Li2021ECOD] Li, Z., Zhao, Y., Hu, X., Botta, N., Ionescu, C. and Chen, H. G. ECOD: Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions. arXiv preprint arXiv:2201.00382 (2021).
+.. [#Li2021ECOD] Li, Z., Zhao, Y., Hu, X., Botta, N., Ionescu, C. and Chen, H. G. ECOD: Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions. *IEEE Transactions on Knowledge and Data Engineering (TKDE)*, 2022.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
 

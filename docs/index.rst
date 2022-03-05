@@ -67,8 +67,8 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 30 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest COPOD (ICDM 2020) and SUOD (MLSys 2021). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
-academic researches and commercial products :cite:`a-zhao2019lscp,a-zhao2021suod`.
+the latest SUOD (MLSys 2021) and ECOD (TKDE 2020). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
+academic researches and commercial products :cite:`a-zhao2019lscp,a-zhao2021suod` with more than 5 million downloads.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_,
@@ -80,7 +80,7 @@ It is also well acknowledged by the machine learning community with various dedi
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like COPOD**.
+* **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
 * **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Fast training & prediction with SUOD** :cite:`a-zhao2021suod`.
 * **Compatible with both Python 2 & 3**.
@@ -92,9 +92,9 @@ PyOD is featured for:
 .. code-block:: python
 
 
-    # train the COPOD detector
-    from pyod.models.copod import COPOD
-    clf = COPOD()
+    # train the ECOD detector
+    from pyod.models.ecod import ECOD
+    clf = ECOD()
     clf.fit(X_train)
 
     # get outlier scores
@@ -146,7 +146,7 @@ PyOD toolkit consists of three major functional groups:
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 Type                 Abbr              Algorithm                                                                                               Year   Class                                                Ref
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
-Probabilistic        ECOD              Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions                        2021   :class:`pyod.models.ecod.ECOD`                       :cite:`a-li2021ecod`
+Probabilistic        ECOD              Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions                        2022   :class:`pyod.models.ecod.ECOD`                       :cite:`a-li2021ecod`
 Probabilistic        COPOD             COPOD: Copula-Based Outlier Detection                                                                   2020   :class:`pyod.models.copod.COPOD`                     :cite:`a-li2020copod`
 Probabilistic        ABOD              Angle-Based Outlier Detection                                                                           2008   :class:`pyod.models.abod.ABOD`                       :cite:`a-kriegel2008angle`
 Probabilistic        FastABOD          Fast Angle-Based Outlier Detection using approximation                                                  2008   :class:`pyod.models.abod.ABOD`                       :cite:`a-kriegel2008angle`
