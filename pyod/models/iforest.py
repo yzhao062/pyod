@@ -7,6 +7,11 @@
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
+from joblib import Parallel
+from joblib.parallel import delayed
+from sklearn.utils.fixes import _joblib_parallel_args
+
 from sklearn.ensemble import IsolationForest
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
@@ -278,3 +283,38 @@ class IForest(BaseDetector):
         Decorator for scikit-learn Isolation Forest attributes.
         """
         return self.detector_.max_samples_
+
+    @property
+    def feature_importances_(self):
+        """The impurity-based feature importance. The higher, the more
+        important the feature. The importance of a feature is computed as the
+        (normalized) total reduction of the criterion brought by that feature.
+        It is also known as the Gini importance.
+
+        .. warning::
+        impurity-based feature importance can be misleading for
+        high cardinality features (many unique values). See
+        https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
+        as an alternative.
+
+        Returns
+        -------
+        feature_importances_ : ndarray of shape (n_features,)
+            The values of this array sum to 1, unless all trees are single node
+            trees consisting of only the root node, in which case it will be an
+            array of zeros.
+        """
+        check_is_fitted(self)
+        all_importances = Parallel(
+            n_jobs=self.n_jobs, **_joblib_parallel_args(prefer="threads")
+        )(
+            delayed(getattr)(tree, "feature_importances_")
+            for tree in self.detector_.estimators_
+            if tree.tree_.node_count > 1
+        )
+
+        if not all_importances:
+            return np.zeros(self.n_features_in_, dtype=np.float64)
+
+        all_importances = np.mean(all_importances, axis=0, dtype=np.float64)
+        return all_importances / np.sum(all_importances)
