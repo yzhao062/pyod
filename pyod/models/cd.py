@@ -182,8 +182,7 @@ class CD(BaseDetector):
         # Compute the influence threshold
         if self.rule_of_thumb:
             influence_threshold_ = 4 / X.shape[0]
-        else:
-            influence_threshold_ = np.quantile(self.distance_, 1.0 - contamination)
+            self.contamination = sum(self.distance_ > influence_threshold_) / X.shape[0]
 
 
         return self.distance_
