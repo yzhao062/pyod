@@ -83,7 +83,7 @@ class MAD(BaseDetector):
         self : object
             Fitted estimator.
         """
-        X = check_array(X, ensure_2d=False)
+        X = check_array(X, ensure_2d=False, force_all_finite=False)
         _check_dim(X)
         self._set_n_classes(y)
         self.median = None  # reset median after each call
@@ -129,7 +129,7 @@ class MAD(BaseDetector):
         # `self.median` will be None only before `fit()` is called
         self.median = np.nanmedian(obs) if self.median is None else self.median
         diff = np.abs(obs - self.median)
-        self.median_diff = np.median(diff) if self.median_diff is None else self.median_diff
+        self.median_diff = np.nanmedian(diff) if self.median_diff is None else self.median_diff
         return np.nan_to_num(np.ravel(0.6745 * diff / self.median_diff))
 
     def _process_decision_scores(self):
