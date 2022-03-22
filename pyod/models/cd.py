@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""Cook's distance outlier detection (CD)
+"""
+
+# Author: D Kulik
+# License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
@@ -10,6 +16,35 @@ from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 from ..utils.utility import check_parameter
+
+def whiten_data(X, pca):
+
+    X = pca.transform(X)
+
+    return X
+
+
+def Cooks_dist(X, y, model):
+    
+    # Leverage is computed as the diagonal of the projection matrix of X
+    leverage = (X * np.linalg.pinv(X).T).sum(1)
+
+    # Compute the rank and the degrees of freedom of the model
+    rank = np.linalg.matrix_rank(X)
+    df = X.shape[0] - rank
+
+    # Compute the MSE from the residuals
+    residuals = y - model.predict(X)
+    mse = np.dot(residuals, residuals) / df
+
+    # Compute Cook's distance
+    residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(1 - leverage)
+    distance_ = residuals_studentized ** 2 / X.shape[1]
+    distance_ *= leverage / (1 - leverage)
+
+    return distance_
+
+    
 
 class CD(BaseDetector):
     """Cook's distance can be used to identify points that negatively
@@ -25,7 +60,7 @@ class CD(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
         
-    whitening : None or string ['PCA', 'ZCA', 'SVD'], optional (default=None)
+    whiten : None or string ['PCA', 'ZCA', 'SVD'], optional (default=None)
         transform X to have a covariance matrix that is the identity matrix 
         of 1 in the diagonal and 0 for the other cells
 
@@ -57,7 +92,7 @@ class CD(BaseDetector):
         """
 
 
-    def __init__(self, whitening=None, contamination=0.1, rule_of_thumb=False):
+    def __init__(self, whitening=True, contamination=0.1, rule_of_thumb=False):
 
             super(CD, self).__init__(contamination=contamination)
             self.whitening = whitening
@@ -77,7 +112,7 @@ class CD(BaseDetector):
         """
 
         # Define OLS model 
-        model = LinearRegression()
+        self.model = LinearRegression()
 
         # Validate inputs X and y
         try:
@@ -86,69 +121,26 @@ class CD(BaseDetector):
             X = X.reshape(-1,1)
             
         y = np.squeeze(check_array(y, ensure_2d=False))
-        
+        self._set_n_classes(y)
 
-        # Whiten data
-        if self.whitening is not None:
-
-            if self.whitening=='PCA':
-                
-                # Whitening transform using PCA (Principal Component Analysis)
-                pca = PCA(whiten=True)
-                X = pca.fit_transform(X)
-                
-            elif self.whitening=='ZCA':
-
-                # Center data
-                X_ = X - X.mean(axis=0)
-                
-                # Calculate covariance matrix
-                cov = np.dot(X_.T, X_) / (X_.shape[0] - 1)
-
-                # Create Single Value Decomposition
-                U, S, Vt = np.linalg.svd(cov)
-                
-                # Create a diagonal matrix
-                epsilon = .1e-5 # Solves division error 
-                s_inv = np.diag(1./np.sqrt(S + epsilon))
-                
-                # Whitening transform using ZCA (Zero Component Analysis)
-                X = np.dot(X_, np.dot(np.dot(U, s_inv), U.T))
-
-            elif self.whitening=='SVD':
-
-                # Create Single Value Decomposition
-                U, S, Vt = np.linalg.svd(X, full_matrices=False)
-
-                # Whitening transform using SVD (Single Value Decomposition)
-                X = np.dot(U, Vt)
-
+        # Apply whitening
+        if self.whitening:
+            self.pca = PCA(whiten=True)
+            self.pca.fit(X)
+            X = whiten_data(X, self.pca)
 
         # Fit a linear model to X and y
-        model.fit(X, y)
-        
-        # Leverage is computed as the diagonal of the projection matrix of X
-        leverage = (X * np.linalg.pinv(X).T).sum(1)
+        self.model.fit(X, y)
 
-        # Compute the rank and the degrees of freedom of the model
-        rank = np.linalg.matrix_rank(X)
-        df = X.shape[0] - rank
-
-        # Compute the MSE from the residuals
-        residuals = y - model.predict(X)
-        mse = np.dot(residuals, residuals) / df
-
-        # Compute Cook's distance
-        residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(1 - leverage)
-        self.distance_ = residuals_studentized ** 2 / X.shape[1]
-        self.distance_ *= leverage / (1 - leverage)
+        # Get Cook's Distance
+        distance_ = Cooks_dist(X, y, self.model)
 
         # Compute the influence threshold
         if self.rule_of_thumb:
             influence_threshold_ = 4 / X.shape[0]
-            self.contamination = sum(self.distance_ > influence_threshold_) / X.shape[0]
+            self.contamination = sum(distance_ > influence_threshold_) / X.shape[0]
 
-        self.decision_scores_ = self.distance_
+        self.decision_scores_ = distance_
 
         self._process_decision_scores()
 
@@ -174,18 +166,22 @@ class CD(BaseDetector):
             The anomaly score of the input samples.
         """
 
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+
         try:
             X = check_array(X)
         except ValueError: 
             X = X.reshape(-1,1)
         
-        # Compute the influence threshold
-        if self.rule_of_thumb:
-            influence_threshold_ = 4 / X.shape[0]
-            self.contamination = sum(self.distance_ > influence_threshold_) / X.shape[0]
+        y = X[:,-1]
+        X = X[:,:-1]
+    
 
+        # Apply whitening
+        if self.whitening:
+            X = whiten_data(X, self.pca) 
 
-        return self.distance_
+        # Get Cook's Distance
+        distance_ = Cooks_dist(X, y, self.model)
 
-
-
+        return distance_
