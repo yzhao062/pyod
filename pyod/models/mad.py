@@ -111,7 +111,7 @@ class MAD(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        X = check_array(X, ensure_2d=False)
+        X = check_array(X, ensure_2d=False, force_all_finite=False)
         _check_dim(X)
         return self._mad(X)
 
@@ -147,7 +147,7 @@ class MAD(BaseDetector):
         self.labels_ = (self.decision_scores_ > self.threshold_).astype('int').ravel()
 
         # calculate for predict_proba()
-        self._mu = np.mean(self.decision_scores_)
-        self._sigma = np.std(self.decision_scores_)
+        self._mu = np.nanmean(self.decision_scores_)
+        self._sigma = np.nanstd(self.decision_scores_)
 
         return self
