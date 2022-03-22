@@ -191,6 +191,20 @@ class TestMAD(unittest.TestCase):
         self.assertGreaterEqual(score[0], self.clf.threshold_)
         self.assertEqual(anomaly[0], 1)
 
+    def test_detect_anomaly_with_nan(self):
+        X_test = [[10000]]
+        score = self.clf.decision_function(X_test)
+        anomaly = self.clf.predict(X_test)
+        self.assertGreaterEqual(score[0], self.clf.threshold_)
+        self.assertEqual(anomaly[0], 1)
+
+    def test_detect_anomaly_with_inf(self):
+        X_test = [[10000]]
+        score = self.clf.decision_function(X_test)
+        anomaly = self.clf.predict(X_test)
+        self.assertGreaterEqual(score[0], self.clf.threshold_)
+        self.assertEqual(anomaly[0], 1)
+
     # todo: fix clone issue
     def test_model_clone(self):
         pass
