@@ -167,9 +167,47 @@ class TestMAD(unittest.TestCase):
         assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
+    def test_predict_rank_with_nan(self):
+        pred_scores = self.clf_nan.decision_function(self.X_test_nan)
+        pred_ranks = self.clf_nan._predict_rank(self.X_test_nan)
+        print(pred_ranks)
+
+        # assert the order is reserved
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
+        assert_array_less(pred_ranks, self.X_train_nan.shape[0] + 1)
+        assert_array_less(-0.1, pred_ranks)
+
+    def test_predict_rank_with_inf(self):
+        pred_scores = self.clf_inf.decision_function(self.X_test_inf)
+        pred_ranks = self.clf_inf._predict_rank(self.X_test_inf)
+        print(pred_ranks)
+
+        # assert the order is reserved
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
+        assert_array_less(pred_ranks, self.X_train_inf.shape[0] + 1)
+        assert_array_less(-0.1, pred_ranks)
+
     def test_predict_rank_normalized(self):
         pred_scores = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
+
+        # assert the order is reserved
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
+        assert_array_less(pred_ranks, 1.01)
+        assert_array_less(-0.1, pred_ranks)
+
+    def test_predict_rank_normalized_with_nan(self):
+        pred_scores = self.clf_nan.decision_function(self.X_test_nan)
+        pred_ranks = self.clf_nan._predict_rank(self.X_test_nan, normalized=True)
+
+        # assert the order is reserved
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
+        assert_array_less(pred_ranks, 1.01)
+        assert_array_less(-0.1, pred_ranks)
+
+    def test_predict_rank_normalized_with_inf(self):
+        pred_scores = self.clf_inf.decision_function(self.X_test_inf)
+        pred_ranks = self.clf_inf._predict_rank(self.X_test_inf, normalized=True)
 
         # assert the order is reserved
         assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=2)
