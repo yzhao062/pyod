@@ -1,0 +1,2 @@
+1. ECOD parallelization and interpretability
+2. Add latest deep learning algorithms.
