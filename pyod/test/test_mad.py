@@ -138,23 +138,23 @@ class TestMAD(unittest.TestCase):
                                        scoring='something')
 
     def test_fit_predict_score_with_nan(self):
-        self.clf.fit_predict_score(self.X_test_nan, self.y_test_nan)
-        self.clf.fit_predict_score(self.X_test_nan, self.y_test_nan,
+        self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan)
+        self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan,
                                    scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test_nan, self.y_test_nan,
+        self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan,
                                    scoring='prc_n_score')
         with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test_nan, self.y_test_nan,
+            self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan,
                                        scoring='something')
 
     def test_fit_predict_score_with_inf(self):
-        self.clf.fit_predict_score(self.X_test_inf, self.y_test_inf)
-        self.clf.fit_predict_score(self.X_test_inf, self.y_test_inf,
+        self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf)
+        self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf,
                                    scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test_inf, self.y_test_inf,
+        self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf,
                                    scoring='prc_n_score')
         with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test_inf, self.y_test_inf,
+            self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf,
                                        scoring='something')
 
     def test_predict_rank(self):
@@ -193,16 +193,16 @@ class TestMAD(unittest.TestCase):
 
     def test_detect_anomaly_with_nan(self):
         X_test = [[10000]]
-        score = self.clf.decision_function(X_test)
-        anomaly = self.clf.predict(X_test)
-        self.assertGreaterEqual(score[0], self.clf.threshold_)
+        score = self.clf_nan.decision_function(X_test)
+        anomaly = self.clf_nan.predict(X_test)
+        self.assertGreaterEqual(score[0], self.clf_nan.threshold_)
         self.assertEqual(anomaly[0], 1)
 
     def test_detect_anomaly_with_inf(self):
         X_test = [[10000]]
-        score = self.clf.decision_function(X_test)
-        anomaly = self.clf.predict(X_test)
-        self.assertGreaterEqual(score[0], self.clf.threshold_)
+        score = self.clf_inf.decision_function(X_test)
+        anomaly = self.clf_inf.predict(X_test)
+        self.assertGreaterEqual(score[0], self.clf_inf.threshold_)
         self.assertEqual(anomaly[0], 1)
 
     # todo: fix clone issue
