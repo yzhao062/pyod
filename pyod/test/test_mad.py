@@ -140,22 +140,22 @@ class TestMAD(unittest.TestCase):
     def test_fit_predict_score_with_nan(self):
         self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan)
         self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan,
-                                   scoring='roc_auc_score')
+                                       scoring='roc_auc_score')
         self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan,
-                                   scoring='prc_n_score')
+                                       scoring='prc_n_score')
         with assert_raises(NotImplementedError):
             self.clf_nan.fit_predict_score(self.X_test_nan, self.y_test_nan,
-                                       scoring='something')
+                                           scoring='something')
 
     def test_fit_predict_score_with_inf(self):
         self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf)
         self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf,
-                                   scoring='roc_auc_score')
+                                       scoring='roc_auc_score')
         self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf,
-                                   scoring='prc_n_score')
+                                       scoring='prc_n_score')
         with assert_raises(NotImplementedError):
             self.clf_inf.fit_predict_score(self.X_test_inf, self.y_test_inf,
-                                       scoring='something')
+                                           scoring='something')
 
     def test_predict_rank(self):
         pred_scores = self.clf.decision_function(self.X_test)
