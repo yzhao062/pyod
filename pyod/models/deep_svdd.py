@@ -70,6 +70,9 @@ class DeepSVDD(BaseDetector):
 
     batch_size : int, optional (default=32)
         Number of samples per gradient update.
+    
+    callbacks : list, optional (default=None)
+        Callbacks to use during training.
 
     dropout_rate : float in (0., 1), optional (default=0.2)
         The dropout to be used across all layers.
@@ -79,6 +82,11 @@ class DeepSVDD(BaseDetector):
         applied on each layer. By default, l2 regularizer is used. See
         https://keras.io/regularizers/
 
+    validation_data : tuple, optional (default=None)
+        Data on which to evaluate the loss and any model metrics at the end
+        of each epoch. Should be : 
+        - A tuple (x_val, y_val) of Numpy arrays or tensors.
+    
     validation_size : float in (0., 1), optional (default=0.1)
         The percentage of data to be used for validation.
 
@@ -138,9 +146,9 @@ class DeepSVDD(BaseDetector):
                  hidden_activation='relu',
                  output_activation='sigmoid',
                  optimizer='adam',
-                 epochs=100, batch_size=32, dropout_rate=0.2,
-                 l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbose=1, random_state=None, contamination=0.1):
+                 epochs=100, batch_size=32, callbacks=None, dropout_rate=0.2,
+                 l2_regularizer=0.1, validation_data=None, validation_size=0.1, 
+                 preprocessing=True, verbose=1, random_state=None, contamination=0.1):
         super(DeepSVDD, self).__init__(contamination=contamination)
         self.c = c
         self.use_ae = use_ae
@@ -164,6 +172,10 @@ class DeepSVDD(BaseDetector):
             self.hidden_neurons = [64, 32]
 
         self.hidden_neurons_ = self.hidden_neurons
+        self.callbacks = callbacks
+        self.validation_data = validation_data
+        if self.validation_data is not None:
+            self.validation_size = None
 
         check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
                         include_left=True)
@@ -248,6 +260,12 @@ class DeepSVDD(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
+        # validate input validation_data if available (X only)
+        if self.validation_data is not None:
+            X_val, y_val = self.validation_data
+            X_val = check_array(X_val)
+            self.validation_data = (X_val, y_val)
+
         # Verify and construct the hidden units
         self.n_samples_, self.n_features_ = X.shape[0], X.shape[1]
 
@@ -255,12 +273,16 @@ class DeepSVDD(BaseDetector):
         if self.preprocessing:
             self.scaler_ = StandardScaler()
             X_norm = self.scaler_.fit_transform(X)
+            if self.validation_data is not None:
+                X_val_norm = self.scaler_.transform(X_val)
+                self.validation_data = (X_val_norm, y_val)
         else:
             X_norm = np.copy(X)
 
         # Shuffle the data for validation as Keras do not shuffling for
         # Validation Split
-        np.random.shuffle(X_norm)
+        if self.validation_size is not None:
+            np.random.shuffle(X_norm)
 
         # Validate and complete the number of hidden neurons
         if np.min(self.hidden_neurons) > self.n_features_ and self.use_ae:
@@ -276,8 +298,9 @@ class DeepSVDD(BaseDetector):
         self.history_ = self.model_.fit(X_norm, X_norm,
                                         epochs=self.epochs,
                                         batch_size=self.batch_size,
-                                        shuffle=True,
+                                        shuffle=True, callbacks=self.callbacks,
                                         validation_split=self.validation_size,
+                                        validation_data=self.validation_data,
                                         verbose=self.verbose).history
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
