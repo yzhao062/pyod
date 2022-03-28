@@ -51,7 +51,7 @@ class CD(BaseDetector):
        affect a regression model. A combination of each observation’s
        leverage and residual values are used in the measurement. Higher
        leverage and residuals relate to  higher Cook’s distances.
-       Read more in the :cite:`cook1977outlier`.
+       Read more in the :cite:`cook1977detection`.
 
     Parameters
     ----------

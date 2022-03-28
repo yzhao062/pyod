@@ -26,7 +26,7 @@ with open(path.join(this_directory, 'requirements.txt'),
 setup(
     name='pyod',
     version=__version__,
-    description='A Python Toolbox for Scalable Outlier Detection (Anomaly Detection)',
+    description='A Comprehensive and Scalable Python Library for Outlier Detection (Anomaly Detection)',
     long_description=readme(),
     long_description_content_type='text/x-rst',
     author='Yue Zhao',
