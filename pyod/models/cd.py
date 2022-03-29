@@ -51,7 +51,7 @@ class CD(BaseDetector):
        affect a regression model. A combination of each observation’s
        leverage and residual values are used in the measurement. Higher
        leverage and residuals relate to  higher Cook’s distances.
-       Read more in the :cite:`cook1977outlier`.
+       Read more in the :cite:`cook1977detection``.
 
     Parameters
     ----------
@@ -60,9 +60,9 @@ class CD(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
         
-    whiten : None or string ['PCA', 'ZCA', 'SVD'], optional (default=None)
+    whiten : bool, optional (default=True)
         transform X to have a covariance matrix that is the identity matrix 
-        of 1 in the diagonal and 0 for the other cells
+        of 1 in the diagonal and 0 for the other cells using PCA
 
     rule_of_thumb : bool, optional (default=False)
         to apply the rule of thumb prediction (4 / n) as the influence
@@ -157,8 +157,10 @@ class CD(BaseDetector):
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
-            The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
+            The independent and dependent/target samples with the target 
+            samples being the last column of the numpy array such that
+            eg: X = np.append(x, y.reshape(-1,1), axis=1). Sparse matrices are 
+            accepted only if they are supported by the base estimator.
 
         Returns
         -------
