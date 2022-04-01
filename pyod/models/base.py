@@ -347,15 +347,10 @@ class BaseDetector(object):
 
         self.fit(X)
 
-        # remove missing and infinite values:
-        idx = np.logical_not(np.logical_or(np.isnan(y), np.isinf(y)))
-        y = y[idx]
-        decision_scores_naomit = self.decision_scores_[idx]
-
         if scoring == 'roc_auc_score':
-            score = roc_auc_score(y, decision_scores_naomit)
+            score = roc_auc_score(y, self.decision_scores_)
         elif scoring == 'prc_n_score':
-            score = precision_n_scores(y, decision_scores_naomit)
+            score = precision_n_scores(y, self.decision_scores_)
         else:
             raise NotImplementedError('PyOD built-in scoring only supports '
                                       'ROC and Precision @ rank n')
