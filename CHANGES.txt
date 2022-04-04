@@ -150,6 +150,10 @@ v<0.9.6>, <12/24/2021> -- Model persistence doc improvement.
 v<0.9.7>, <01/03/2022> -- Add ECOD.
 v<0.9.8>, <02/23/2022> -- Add Feature Importance for iForest.
 v<0.9.8>, <03/05/2022> -- Update ECOD (TKDE 2022).
+v<0.9.9>, <03/20/2022> -- Renovate documentation.
+v<0.9.9>, <03/23/2022> -- Add example for COPOD interpretability.
+v<0.9.9>, <03/23/2022> -- Add outlier detection by Cook’s distances.
+v<0.9.9>, <04/04/2022> -- Various community fix.
 
 
 

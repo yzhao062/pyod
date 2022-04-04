@@ -83,7 +83,7 @@ class MAD(BaseDetector):
         self : object
             Fitted estimator.
         """
-        X = check_array(X, ensure_2d=False)
+        X = check_array(X, ensure_2d=False, force_all_finite=False)
         _check_dim(X)
         self._set_n_classes(y)
         self.median = None  # reset median after each call
@@ -111,7 +111,7 @@ class MAD(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        X = check_array(X, ensure_2d=False)
+        X = check_array(X, ensure_2d=False, force_all_finite=False)
         _check_dim(X)
         return self._mad(X)
 
@@ -129,7 +129,7 @@ class MAD(BaseDetector):
         # `self.median` will be None only before `fit()` is called
         self.median = np.nanmedian(obs) if self.median is None else self.median
         diff = np.abs(obs - self.median)
-        self.median_diff = np.median(diff) if self.median_diff is None else self.median_diff
+        self.median_diff = np.nanmedian(diff) if self.median_diff is None else self.median_diff
         return np.nan_to_num(np.ravel(0.6745 * diff / self.median_diff))
 
     def _process_decision_scores(self):
@@ -147,7 +147,7 @@ class MAD(BaseDetector):
         self.labels_ = (self.decision_scores_ > self.threshold_).astype('int').ravel()
 
         # calculate for predict_proba()
-        self._mu = np.mean(self.decision_scores_)
-        self._sigma = np.std(self.decision_scores_)
+        self._mu = np.nanmean(self.decision_scores_)
+        self._sigma = np.nanstd(self.decision_scores_)
 
         return self
