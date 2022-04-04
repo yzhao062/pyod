@@ -25,7 +25,7 @@ exec(open(version_path).read())
 # -- Project information -----------------------------------------------------
 
 project = 'pyod'
-copyright = '2021, Yue Zhao'
+copyright = '2022, Yue Zhao'
 author = 'Yue Zhao'
 
 # The short X.Y version
@@ -50,8 +50,8 @@ extensions = [
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
     'sphinxcontrib.bibtex',
-    'sphinx.ext.napoleon',
-    'sphinx_rtd_theme',
+    # 'sphinx.ext.napoleon',
+    # 'sphinx_rtd_theme',
 ]
 
 bibtex_bibfiles = ['zreferences.bib']
@@ -90,7 +90,7 @@ pygments_style = 'sphinx'
 #
 # html_theme = 'default'
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -112,8 +112,8 @@ html_static_path = ['_static']
 # 'searchbox.html']``.
 #
 # html_sidebars = {}
-html_sidebars = {'**': ['globaltoc.html', 'relations.html', 'sourcelink.html',
-                        'searchbox.html']}
+# html_sidebars = {'**': ['globaltoc.html', 'relations.html', 'sourcelink.html',
+#                         'searchbox.html']}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 

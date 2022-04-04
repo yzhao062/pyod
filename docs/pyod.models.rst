@@ -57,6 +57,16 @@ pyod.models.combination module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.cd module
+---------------------
+
+.. automodule:: pyod.models.cd
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.copod module
 ------------------------
 
