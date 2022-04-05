@@ -5,9 +5,17 @@ import os
 import sys
 import unittest
 
+import numpy as np
+
 # noinspection PyProtectedMember
-from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
-                           assert_raises)
+from numpy.testing import (
+    assert_allclose,
+    assert_array_less,
+    assert_equal,
+    assert_raises,
+)
+from pyod.models.sampling import Sampling
+from pyod.utils.data import generate_data
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
@@ -15,9 +23,6 @@ from sklearn.metrics import roc_auc_score
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from pyod.models.sampling import Sampling
-from pyod.utils.data import generate_data
 
 
 class TestSampling(unittest.TestCase):
