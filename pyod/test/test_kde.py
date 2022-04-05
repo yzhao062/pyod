@@ -19,7 +19,6 @@ from sklearn.metrics import roc_auc_score
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-class TestKDE(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
         self.n_test = 100
@@ -110,20 +109,20 @@ class TestKDE(unittest.TestCase):
             self.clf.fit_predict_score(self.X_test, self.y_test, scoring="something")
 
     def test_predict_rank(self):
-        pred_socres = self.clf.decision_function(self.X_test)
+        pred_scores = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=4)
         assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
         assert_array_less(-0.1, pred_ranks)
 
     def test_predict_rank_normalized(self):
-        pred_socres = self.clf.decision_function(self.X_test)
+        pred_scores = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
 
         # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
+        assert_allclose(rankdata(pred_ranks), rankdata(pred_scores), atol=4)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
