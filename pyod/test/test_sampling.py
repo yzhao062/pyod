@@ -34,23 +34,7 @@ class TestSampling(unittest.TestCase):
         )
 
         self.clf = Sampling(contamination=self.contamination, random_state=42)
-        self.clf_float = Sampling(
-            subset_size=0.1, contamination=self.contamination, random_state=42
-        )
         self.clf.fit(self.X_train)
-        self.clf_float.fit(self.X_train)
-
-    def test_subset_size_float_upper(self):
-        self.clf = Sampling(subset_size=1.5, random_state=42)
-
-    def test_subset_size_float_lower(self):
-        self.clf = Sampling(subset_size=-1.0, random_state=42)
-
-    def test_subset_size_int_upper(self):
-        self.clf = Sampling(subset_size=100, random_state=42)
-
-    def test_subset_size_int_lower(self):
-        self.clf = Sampling(subset_size=-1, random_state=42)
 
     def test_parameters(self):
         assert (
@@ -144,6 +128,69 @@ class TestSampling(unittest.TestCase):
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
+
+    def tearDown(self):
+        pass
+
+
+class TestSamplingSubsetBound(unittest.TestCase):
+    def setUp(self):
+        self.n_train = 200
+        self.n_test = 100
+        self.contamination = 0.1
+        self.roc_floor = 0.8
+        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
+            n_train=self.n_train,
+            n_test=self.n_test,
+            contamination=self.contamination,
+            random_state=42,
+        )
+
+        self.clf_float = Sampling(
+            subset_size=0.1, contamination=self.contamination, random_state=42
+        )
+        self.clf_float_upper = Sampling(subset_size=1.5, random_state=42)
+        self.clf_float_lower = Sampling(subset_size=1.5, random_state=42)
+        self.clf_int_upper = Sampling(subset_size=1000, random_state=42)
+        self.clf_int_lower = Sampling(subset_size=-1, random_state=42)
+
+    def test_fit(self):
+        self.clf_float.fit(self.X_train)
+        with assert_raises(ValueError):
+            self.clf_float_upper.fit(self.X_train)
+        with assert_raises(ValueError):
+            self.clf_float_lower.fit(self.X_train)
+        with assert_raises(ValueError):
+            self.clf_int_upper.fit(self.X_train)
+        with assert_raises(ValueError):
+            self.clf_int_lower.fit(self.X_train)
+
+    def tearDown(self):
+        pass
+
+
+class TestSamplingMahanobis(unittest.TestCase):
+    def setUp(self):
+        self.n_train = 200
+        self.n_test = 100
+        self.contamination = 0.1
+        self.roc_floor = 0.8
+        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
+            n_train=self.n_train,
+            n_test=self.n_test,
+            contamination=self.contamination,
+            random_state=42,
+        )
+        # calculate covariance for mahalanobis distance
+        X_train_cov = np.cov(self.X_train, rowvar=False)
+
+        self.clf = Sampling(
+            metric="mahalanobis",
+            metric_params={"V": X_train_cov},
+            contamination=self.contamination,
+            random_state=42,
+        )
+        self.clf.fit(self.X_train)
 
     def tearDown(self):
         pass
