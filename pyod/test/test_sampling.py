@@ -34,7 +34,23 @@ class TestSampling(unittest.TestCase):
         )
 
         self.clf = Sampling(contamination=self.contamination, random_state=42)
+        self.clf_float = Sampling(
+            subset_size=0.1, contamination=self.contamination, random_state=42
+        )
         self.clf.fit(self.X_train)
+        self.clf_float.fit(self.X_train)
+
+    def test_subset_size_float_upper(self):
+        self.clf = Sampling(subset_size=1.5, random_state=42)
+
+    def test_subset_size_float_lower(self):
+        self.clf = Sampling(subset_size=-1.0, random_state=42)
+
+    def test_subset_size_int_upper(self):
+        self.clf = Sampling(subset_size=100, random_state=42)
+
+    def test_subset_size_int_lower(self):
+        self.clf = Sampling(subset_size=-1, random_state=42)
 
     def test_parameters(self):
         assert (
