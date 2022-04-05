@@ -127,7 +127,7 @@ class Sampling(BaseDetector):
 
         n_samples, _ = X.shape
         if (isinstance(self.subset_size, int) is True) and (
-            not 0 <= self.subset_size <= n_samples
+            not 0 < self.subset_size <= n_samples
         ):
             raise ValueError(
                 "subset_size=%r must be between 0 and n_samples=%r."
