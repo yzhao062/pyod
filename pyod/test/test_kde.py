@@ -18,7 +18,7 @@ from sklearn.metrics import roc_auc_score
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-
+class TestKDE(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
         self.n_test = 100
