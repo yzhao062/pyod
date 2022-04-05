@@ -174,7 +174,7 @@ class TestSamplingSubsetBound(unittest.TestCase):
         pass
 
 
-class TestSamplingMahanobis(unittest.TestCase):
+class TestSamplingMahalanobis(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
         self.n_test = 100
@@ -195,6 +195,9 @@ class TestSamplingMahanobis(unittest.TestCase):
             contamination=self.contamination,
             random_state=42,
         )
+        self.clf.fit(self.X_train)
+
+    def test_fit(self):
         self.clf.fit(self.X_train)
 
     def tearDown(self):
