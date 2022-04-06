@@ -313,6 +313,7 @@ Probabilistic        FastABOD            Fast Angle-Based Outlier Detection usin
 Probabilistic        COPOD               COPOD: Copula-Based Outlier Detection                                                                   2020   [#Li2020COPOD]_
 Probabilistic        MAD                 Median Absolute Deviation (MAD)                                                                         1993   [#Iglewicz1993How]_
 Probabilistic        SOS                 Stochastic Outlier Selection                                                                            2012   [#Janssens2012Stochastic]_
+Probabilistic        KDE                 Outlier Detection with Kernel Density Functions                                                         2007   [#Latecki2007Outlier]_
 Linear Model         PCA                 Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
 Linear Model         MCD                 Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
 Linear Model         CD                  Use Cook's distance for outlier detection                                                               1977   [#Cook1977Detection]_
@@ -568,6 +569,8 @@ Reference
 .. [#Kriegel2008Angle] Kriegel, H.P. and Zimek, A., 2008, August. Angle-based outlier detection in high-dimensional data. In *KDD '08*\ , pp. 444-452. ACM.
 
 .. [#Kriegel2009Outlier] Kriegel, H.P., Kröger, P., Schubert, E. and Zimek, A., 2009, April. Outlier detection in axis-parallel subspaces of high dimensional data. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining*\ , pp. 831-838. Springer, Berlin, Heidelberg.
+
+.. [#Latecki2007Outlier] Latecki, L.J., Lazarevic, A. and Pokrajac, D., 2007, July. Outlier detection with kernel density functions. In International Workshop on Machine Learning and Data Mining in Pattern Recognition (pp. 61-75). Springer, Berlin, Heidelberg.
 
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 

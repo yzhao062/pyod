@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-
-"""Kernel Density Estimaion (KDE) for Unsupervised Outlier Detection.
-
-Reference:
-    Latecki, L. J., Lazarevic, A. and Pokrajac, D. (2007), 'Outlier detection
-    with kernel density functions,' in Proceedings of the 5th International
-    Conference on Machine Learning and Data Mining in Pattern Recognition.
+"""Kernel Density Estimation (KDE) for Unsupervised Outlier Detection.
 """
 # Author: Akira Tamamori <tamamori5917@gmail.com>
 # License: BSD 2 clause
@@ -25,8 +19,10 @@ from .base import BaseDetector
 class KDE(BaseDetector):
     """KDE class for outlier detection.
 
-    For an observation, its negative log probabilitiy density could be viewed
+    For an observation, its negative log probability density could be viewed
     as the outlying score.
+
+    See :cite:`latecki2007outlier` for details.
 
     Parameters
     ----------
