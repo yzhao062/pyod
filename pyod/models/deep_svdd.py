@@ -186,15 +186,15 @@ class DeepSVDD(BaseDetector):
     def _build_model(self, training=True):
 
         inputs = Input(shape=(self.n_features_,))
-        x = Dense(self.hidden_neurons_[0], activation=self.hidden_activation,
+        x = Dense(self.hidden_neurons_[0], use_bias=False, activation=self.hidden_activation,
                   activity_regularizer=l2(self.l2_regularizer))(inputs)
         for hidden_neurons in self.hidden_neurons_[1:-1]:
-            x = Dense(hidden_neurons, activation=self.hidden_activation,
+            x = Dense(hidden_neurons, use_bias=False, activation=self.hidden_activation,
                       activity_regularizer=l2(self.l2_regularizer))(x)
             x = Dropout(self.dropout_rate)(x)
 
         # add name to last hidden layer
-        x = Dense(self.hidden_neurons_[-1], activation=self.hidden_activation,
+        x = Dense(self.hidden_neurons_[-1], use_bias=False, activation=self.hidden_activation,
                   activity_regularizer=l2(self.l2_regularizer),
                   name='net_output')(x)
 
@@ -212,10 +212,10 @@ class DeepSVDD(BaseDetector):
         # Use AutoEncoder version of DeepSVDD
         if self.use_ae:
             for reversed_neurons in self.hidden_neurons_[::-1]:
-                x = Dense(reversed_neurons, activation=self.hidden_activation,
+                x = Dense(reversed_neurons, use_bias=False, activation=self.hidden_activation,
                           activity_regularizer=l2(self.l2_regularizer))(x)
                 x = Dropout(self.dropout_rate)(x)
-            x = Dense(self.n_features_, activation=self.output_activation,
+            x = Dense(self.n_features_, use_bias=False, activation=self.output_activation,
                       activity_regularizer=l2(self.l2_regularizer))(x)
             dsvd.add_loss(
                 loss + tf.math.reduce_mean(tf.math.square(x - inputs)) + w_d)
