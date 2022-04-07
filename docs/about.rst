@@ -48,5 +48,5 @@ Rafał Bodziony (Data Scientist):
 
 Dr Akira Tamamori (Associate Professor @ Aichi Institute of Technology):
 
-- Joined in 2022 (implemented multiple OD algorithms such as KDE, )
+- Joined in 2022 (implemented multiple OD algorithms such as KDE, sampling, and more)
 - `Homepage (Dr Akira Tamamori) <https://researchmap.jp/tamamori?lang=en>`_
