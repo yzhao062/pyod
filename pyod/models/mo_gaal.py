@@ -55,7 +55,7 @@ class MO_GAAL(BaseDetector):
         The number of sub generators.
 
     stop_epochs : int, optional (default=20)
-        The number of epochs of training.
+        The number of epochs of training. The number of total epochs equals to three times of stop_epochs.
 
     lr_d : float, optional (default=0.01)
         The learn rate of the discriminator.
