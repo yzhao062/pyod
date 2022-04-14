@@ -25,24 +25,24 @@ Alternatively, you could clone and run setup.py file:
 **Required Dependencies**\ :
 
 
-* Python 2.7, 3.5, 3.6, or 3.7
-* combo>=0.0.8
+* Python 3.6+
+* combo>=0.1.3
 * joblib
 * numpy>=1.13
 * numba>=0.35
-* scipy>=0.20.0
-* scikit_learn>=0.19.1
+* scipy>=1.3.1
+* scikit_learn>=0.20.0
+* six
 * statsmodels
 
 
 **Optional Dependencies (see details below)**:
 
 * combo (optional, required for models/combination.py and FeatureBagging)
-* keras (optional, required for AutoEncoder, and other deep learning models)
+* keras/tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
 * suod (optional, required for running SUOD model)
-* tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * xgboost (optional, required for XGBOD)
 
 .. warning::

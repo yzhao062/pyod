@@ -67,32 +67,30 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 30 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest SUOD (MLSys 2021) and ECOD (TKDE 2020). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
-academic researches and commercial products :cite:`a-zhao2019lscp,a-zhao2021suod` with more than 5 million downloads.
+the latest ECOD (TKDE 2020). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
+academic researches and commercial products :cite:`a-zhao2019lscp,a-zhao2021suod` with more than 6 million downloads.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_,
-`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
-`Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_, and
+`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
 `awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
 
 
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
-* **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
+* **Advanced models**\ , including **classical ones by distance and density estimation, **latest deep learning methods**, and **emerging algorithms like ECOD**.
+* **Optimized performance with JIT and parallelization** using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Fast training & prediction with SUOD** :cite:`a-zhao2021suod`.
-* **Compatible with both Python 2 & 3**.
 
 
-**API Demo**\ :
+**Outlier Detection with 5 Lines of Code**\ :
 
 
 .. code-block:: python
 
 
-    # train the ECOD detector
+    # train an ECOD detector
     from pyod.models.ecod import ECOD
     clf = ECOD()
     clf.fit(X_train)
