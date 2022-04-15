@@ -79,7 +79,7 @@ It is also well acknowledged by the machine learning community with various dedi
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **classical ones by distance and density estimation, **latest deep learning methods**, and **emerging algorithms like ECOD**.
+* **Advanced models**\ , including **classical ones by distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
 * **Optimized performance with JIT and parallelization** using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Fast training & prediction with SUOD** :cite:`a-zhao2021suod`.
 
