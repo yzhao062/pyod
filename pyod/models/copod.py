@@ -79,6 +79,9 @@ class COPOD(BaseDetector):
         The number of jobs to run in parallel for both `fit` and
         `predict`. If -1, then the number of jobs is set to the
         number of cores.
+        
+    verbose : bool (default=True)
+        Controls verbosity of the model.
 
     Attributes
     ----------
@@ -98,9 +101,10 @@ class COPOD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, contamination=0.1, n_jobs=1):
+    def __init__(self, contamination=0.1, n_jobs=1, verbose=True):
         super(COPOD, self).__init__(contamination=contamination)
         self.n_jobs = n_jobs
+        self.verbose = verbose
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -185,7 +189,7 @@ class COPOD(BaseDetector):
                                                             self.n_jobs)
 
         all_results = Parallel(n_jobs=n_jobs, max_nbytes=None,
-                               verbose=True)(
+                               verbose=self.verbose)(
             delayed(_parallel_ecdf)(
                 n_dims_list[i],
                 X[:, starts[i]:starts[i + 1]],
