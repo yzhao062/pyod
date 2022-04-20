@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # train SO_GAAL detector
     clf_name = 'SO_GAAL'
-    clf = SO_GAAL(contamination=contamination)
+    clf = SO_GAAL(stop_epochs=2, contamination=contamination)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
