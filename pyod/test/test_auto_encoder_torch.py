@@ -58,7 +58,7 @@ class TestPyODDataset(unittest.TestCase):
         for data, data_idx in train_loader:
             assert (data.shape[0] == self.batch_size)
             assert (data.shape[1] == self.n_features)
-            assert_almost_equal (data.mean(), 0, decimal=2)
+            assert_almost_equal (data.mean(), 0, decimal=1)
 
 class TestAutoEncoder(unittest.TestCase):
     def setUp(self):
