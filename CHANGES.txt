@@ -154,8 +154,8 @@ v<0.9.9>, <03/20/2022> -- Renovate documentation.
 v<0.9.9>, <03/23/2022> -- Add example for COPOD interpretability.
 v<0.9.9>, <03/23/2022> -- Add outlier detection by Cook’s distances.
 v<0.9.9>, <04/04/2022> -- Various community fix.
-
-
-
-
+v<1.0.0>, <04/04/2022> -- Add KDE detector (#382).
+v<1.0.0>, <04/06/2022> -- Disable the bias term in DeepSVDD (#385).
+v<1.0.0>, <04/21/2022> -- Fix a set of issues of autoencoders (#313, #390, #391).
+v<1.0.0>, <04/23/2022> -- Add sampling based detector (#384).
 

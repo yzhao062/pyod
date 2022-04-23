@@ -17,12 +17,6 @@ Key Attributes of a fitted model:
 * :attr:`pyod.models.base.BaseDetector.labels_`: The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
 
 
-**Fast training and prediction**: it is possible to train and predict with
-a large number of detection models in PyOD by leveraging SUOD framework :cite:`zhao2021suod`.
-See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
-and  `repository <https://github.com/yzhao062/SUOD>`_.
-
-
 See base class definition below:
 
 pyod.models.base module

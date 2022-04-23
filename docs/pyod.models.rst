@@ -125,6 +125,15 @@ pyod.models.iforest module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.kde module
+----------------------
+
+.. automodule:: pyod.models.kde
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.knn module
 ----------------------
 
@@ -234,6 +243,15 @@ pyod.models.rod module
 ----------------------
 
 .. automodule:: pyod.models.rod
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.sampling module
+---------------------------
+
+.. automodule:: pyod.models.sampling
     :members:
     :undoc-members:
     :show-inheritance:

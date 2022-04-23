@@ -21,12 +21,12 @@ Winston (Zheng) Li (Founder of `arima <https://www.arimadata.com/>`_, Part-time 
 - Joined in 2018
 - `LinkedIn (Winston Li) <https://www.linkedin.com/in/winstonl>`_
 
-Yahya Almardeny (Software Systems & Machine Learning Engineer @ TSSG):
+Yahya Almardeny (Senior AI/ML & Software Systems Engineer @ General Motors):
 
 - Joined in 2019
 - `LinkedIn (Yahya Almardeny) <https://www.linkedin.com/in/yahya-almardeny/>`_
 
-Antônio Pedro Camargo (University of Campinas)
+Antônio Pedro Camargo (DOE Joint Genome Institute)
 
 - Joined in 2020 (our Conda maintainer)
 - `GitHub (Antônio Pedro Camargo) <https://github.com/apcamargo>`_
@@ -45,3 +45,8 @@ Rafał Bodziony (Data Scientist):
 
 - Joined in 2021 (implemented DeepSVDD)
 - `LinkedIn (Roel Bouman) <https://pl.linkedin.com/in/rafalbodziony>`_
+
+Dr Akira Tamamori (Associate Professor @ Aichi Institute of Technology):
+
+- Joined in 2022 (implemented multiple OD algorithms such as KDE, sampling, and more)
+- `Homepage (Dr Akira Tamamori) <https://researchmap.jp/tamamori?lang=en>`_

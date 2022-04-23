@@ -55,29 +55,27 @@ Python Outlier Detection (PyOD)
 -----
 
 
-PyOD is a comprehensive and scalable **Python toolkit** for **detecting outlying objects** in
+PyOD is the most comprehensive and scalable **Python toolkit** for **detecting outlying objects** in
 multivariate data. This exciting yet challenging field is commonly referred as 
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
-PyOD includes more than 30 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest SUOD (MLSys 2021) and ECOD (TKDE 2022). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_ with more than 5 million downloads.
+PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
+the latest ECOD (TKDE 2022). Since 2017, PyOD has been successfully used in numerous academic researches and
+commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_ with more than 6 million downloads.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
-`Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_,
-`Computer Vision News <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_, and
+`Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_, and
 `awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
 
 
 PyOD is featured for:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **classical ones from scikit-learn**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
-* **Optimized performance with JIT and parallelization** when possible, using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
+* **Advanced models**\ , including **classical ones by distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
+* **Optimized performance with JIT and parallelization** using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Fast training & prediction with SUOD** [#Zhao2021SUOD]_.
-* **Compatible with both Python 2 & 3**.
 
 
 **Outlier Detection with 5 Lines of Code**\ :
@@ -86,7 +84,7 @@ PyOD is featured for:
 .. code-block:: python
 
 
-    # train the ECOD detector
+    # train an ECOD detector
     from pyod.models.ecod import ECOD
     clf = ECOD()
     clf.fit(X_train)
@@ -171,23 +169,23 @@ Alternatively, you could clone and run setup.py file:
 **Required Dependencies**\ :
 
 
-* Python 2.7, 3.5, 3.6, or 3.7
-* combo>=0.0.8
+* Python 3.6+
+* combo>=0.1.3
 * joblib
 * numpy>=1.13
 * numba>=0.35
-* scipy>=0.19.1
+* scipy>=1.3.1
 * scikit_learn>=0.20.0
+* six
 * statsmodels
 
 **Optional Dependencies (see details below)**\ :
 
 * combo (optional, required for models/combination.py and FeatureBagging)
-* keras (optional, required for AutoEncoder, and other deep learning models)
+* keras/tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
 * suod (optional, required for running SUOD model)
-* tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * xgboost (optional, required for XGBOD)
 
 **Warning 1**\ :
@@ -214,7 +212,7 @@ API Cheatsheet & Reference
 Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheatsheet for all detectors:
 
 
-* **fit(X)**\ : Fit detector.
+* **fit(X)**\ : Fit detector. y is ignored in unsupervised methods.
 * **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
 * **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
 * **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
@@ -227,12 +225,6 @@ Key Attributes of a fitted model:
 * **decision_scores_**\ : The outlier scores of the training data. The higher, the more abnormal.
   Outliers tend to have higher scores.
 * **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
-
-
-**Fast training and prediction**: it is possible to train and predict with
-a large number of detection models in PyOD by leveraging SUOD framework [#Zhao2021SUOD]_.
-See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
-and  `repository <https://github.com/yzhao062/SUOD>`_.
 
 
 ----
@@ -313,6 +305,8 @@ Probabilistic        FastABOD            Fast Angle-Based Outlier Detection usin
 Probabilistic        COPOD               COPOD: Copula-Based Outlier Detection                                                                   2020   [#Li2020COPOD]_
 Probabilistic        MAD                 Median Absolute Deviation (MAD)                                                                         1993   [#Iglewicz1993How]_
 Probabilistic        SOS                 Stochastic Outlier Selection                                                                            2012   [#Janssens2012Stochastic]_
+Probabilistic        KDE                 Outlier Detection with Kernel Density Functions                                                         2007   [#Latecki2007Outlier]_
+Probabilistic        Sampling            Rapid distance-based outlier detection via sampling                                                     2013   [#Sugiyama2013Rapid]_
 Linear Model         PCA                 Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
 Linear Model         MCD                 Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
 Linear Model         CD                  Use Cook's distance for outlier detection                                                               1977   [#Cook1977Detection]_
@@ -569,6 +563,8 @@ Reference
 
 .. [#Kriegel2009Outlier] Kriegel, H.P., Kröger, P., Schubert, E. and Zimek, A., 2009, April. Outlier detection in axis-parallel subspaces of high dimensional data. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining*\ , pp. 831-838. Springer, Berlin, Heidelberg.
 
+.. [#Latecki2007Outlier] Latecki, L.J., Lazarevic, A. and Pokrajac, D., 2007, July. Outlier detection with kernel density functions. In International Workshop on Machine Learning and Data Mining in Pattern Recognition (pp. 61-75). Springer, Berlin, Heidelberg.
+
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
 
 .. [#Li2019MADGAN] Li, D., Chen, D., Jin, B., Shi, L., Goh, J. and Ng, S.K., 2019, September. MAD-GAN: Multivariate anomaly detection for time series data with generative adversarial networks. In *International Conference on Artificial Neural Networks* (pp. 703-716). Springer, Cham.
@@ -596,6 +592,8 @@ Reference
 .. [#Scholkopf2001Estimating] Scholkopf, B., Platt, J.C., Shawe-Taylor, J., Smola, A.J. and Williamson, R.C., 2001. Estimating the support of a high-dimensional distribution. *Neural Computation*, 13(7), pp.1443-1471.
 
 .. [#Shyu2003A] Shyu, M.L., Chen, S.C., Sarinnapakorn, K. and Chang, L., 2003. A novel anomaly detection scheme based on principal component classifier. *MIAMI UNIV CORAL GABLES FL DEPT OF ELECTRICAL AND COMPUTER ENGINEERING*.
+
+.. [#Sugiyama2013Rapid] Sugiyama, M. and Borgwardt, K., 2013. Rapid distance-based outlier detection via sampling. Advances in neural information processing systems, 26.
 
 .. [#Tang2002Enhancing] Tang, J., Chen, Z., Fu, A.W.C. and Cheung, D.W., 2002, May. Enhancing effectiveness of outlier detections for low density patterns. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining*, pp. 535-548. Springer, Berlin, Heidelberg.
 

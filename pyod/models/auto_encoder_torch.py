@@ -11,6 +11,7 @@ import torch
 from torch import nn
 
 import numpy as np
+from numpy.testing import assert_almost_equal
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
@@ -37,8 +38,9 @@ class PyODDataset(torch.utils.data.Dataset):
             idx = idx.tolist()
         sample = self.X[idx, :]
 
-        if self.mean.any():
+        if self.mean is not None and self.std is not None:
             sample = (sample - self.mean) / self.std
+            # assert_almost_equal (0, sample.mean(), decimal=1)
 
         return torch.from_numpy(sample), idx
 
@@ -279,7 +281,7 @@ class AutoEncoder(BaseDetector):
 
         # conduct standardization if needed
         if self.preprocessing:
-            self.mean, self.std = np.mean(X, axis=0), np.mean(X, axis=0)
+            self.mean, self.std = np.mean(X, axis=0), np.std(X, axis=0)
             train_set = PyODDataset(X=X, mean=self.mean, std=self.std)
 
         else:
