@@ -17,7 +17,6 @@ from pyod.utils.example import visualize
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
 
-
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
     n_train = 200  # number of training points
@@ -52,14 +51,5 @@ if __name__ == "__main__":
     evaluate_print(clf_name, y_test, y_test_scores)
 
     # visualize the results
-    visualize(
-        clf_name,
-        X_train,
-        y_train,
-        X_test,
-        y_test,
-        y_train_pred,
-        y_test_pred,
-        show_figure=True,
-        save_figure=True,
-    )
+    visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
+              y_test_pred, show_figure=True, save_figure=False)

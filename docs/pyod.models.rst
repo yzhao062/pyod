@@ -248,6 +248,15 @@ pyod.models.rod module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.sampling module
+---------------------------
+
+.. automodule:: pyod.models.sampling
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 
 pyod.models.sod module
 ----------------------
