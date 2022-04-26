@@ -49,12 +49,11 @@ class INNE(BaseDetector):
         of outliers in the data set. Used when fitting to define the threshold
         on the decision function.
 
-    random_state : int, RandomState instance or None, default=None
-        Controls the pseudo-randomness of the selection of the feature
-        and split values for each branching step and each tree in the forest.
-
-        Pass an int for reproducible results across multiple function calls.
-        See :term:`Glossary <random_state>`.
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
 
     Attributes
     ----------

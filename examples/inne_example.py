@@ -1,4 +1,4 @@
-"""Example of using Isolation Forest for outlier detection
+"""Example of using INNE for outlier detection
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
 #         Modified by Xin Han <xinhan197@gmail.com>
@@ -34,7 +34,7 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train IForest detector
+    # train INNE detector
     clf_name = 'INNE'
     clf = INNE(contamination=contamination, max_samples=4)
     clf.fit(X_train)

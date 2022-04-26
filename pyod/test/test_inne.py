@@ -6,7 +6,6 @@ from __future__ import print_function
 import os
 import sys
 
-import numpy as np
 import unittest
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
