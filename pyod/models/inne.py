@@ -30,7 +30,7 @@ class INNE(BaseDetector):
     neighbourhood, enabling it to detect both global and local anomalies. INNE has 
     linear time complexity to efficiently handle large and high-dimensional datasets
     with complex distributions.
-    See :cite:`Bandaragoda2018Isolation` for details.
+    See :cite:`bandaragoda2018isolation` for details.
 
     Parameters
     ----------
@@ -234,7 +234,7 @@ class INNE(BaseDetector):
 
         # each test instance is evaluated against n_estimators sets of hyperspheres
         for i in range(self.n_estimators):
-            x_dists = euclidean_distances(X, self._centroids[i],  squared=True)
+            x_dists = euclidean_distances(X, self._centroids[i], squared=True)
             # find instances that are covered by at least one hypersphere.
             cover_radius = np.where(
                 x_dists <= self._centroids_radius[i], self._centroids_radius[i], np.nan)

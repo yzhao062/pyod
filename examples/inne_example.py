@@ -1,7 +1,6 @@
 """Example of using INNE for outlier detection
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
-#         Modified by Xin Han <xinhan197@gmail.com>
+# Author: Xin Han <xinhan197@gmail.com>
 # License: BSD 2 clause
 
 from __future__ import division
