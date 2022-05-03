@@ -245,7 +245,7 @@ class GMM(BaseDetector):
         """The covariance of each mixture component.
         Decorator for scikit-learn Gaussian Mixture Model attributes.
         """
-        return self.detector_.convariances_
+        return self.detector_.covariances_
 
     @property
     def precisions_(self):
