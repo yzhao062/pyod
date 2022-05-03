@@ -6,12 +6,8 @@ import sys
 import unittest
 
 # noinspection PyProtectedMember
-from numpy.testing import (
-    assert_allclose,
-    assert_array_less,
-    assert_equal,
-    assert_raises,
-)
+from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
+                           assert_raises)
 from pyod.models.gmm import GMM
 from pyod.utils.data import generate_data
 from scipy.stats import rankdata
@@ -47,6 +43,17 @@ class TestKDE(unittest.TestCase):
         )
         assert hasattr(self.clf, "labels_") and self.clf.labels_ is not None
         assert hasattr(self.clf, "threshold_") and self.clf.threshold_ is not None
+        assert hasattr(self.clf, "weights_") and self.clf.weights_ is not None
+        assert hasattr(self.clf, "means_") and self.clf.means_ is not None
+        assert hasattr(self.clf, "covariances_") and self.clf.covariances_ is not None
+        assert hasattr(self.clf, "precisions_") and self.clf.precisions_ is not None
+        assert (
+            hasattr(self.clf, "precisions_cholesky_")
+            and self.clf.precisions_cholesky_ is not None
+        )
+        assert hasattr(self.clf, "converged_") and self.clf.converged_ is not None
+        assert hasattr(self.clf, "n_iter_") and self.clf.n_iter_ is not None
+        assert hasattr(self.clf, "lower_bound_") and self.clf.lower_bound_ is not None
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
