@@ -10,7 +10,6 @@ from __future__ import print_function
 import numpy as np
 from joblib import Parallel
 from joblib.parallel import delayed
-from sklearn.utils.fixes import _joblib_parallel_args
 
 from sklearn.ensemble import IsolationForest
 from sklearn.utils.validation import check_is_fitted
@@ -306,8 +305,7 @@ class IForest(BaseDetector):
         """
         check_is_fitted(self)
         all_importances = Parallel(
-            n_jobs=self.n_jobs, **_joblib_parallel_args(prefer="threads")
-        )(
+            n_jobs=self.n_jobs)(
             delayed(getattr)(tree, "feature_importances_")
             for tree in self.detector_.estimators_
             if tree.tree_.node_count > 1

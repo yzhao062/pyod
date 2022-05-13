@@ -158,4 +158,6 @@ v<1.0.0>, <04/04/2022> -- Add KDE detector (#382).
 v<1.0.0>, <04/06/2022> -- Disable the bias term in DeepSVDD (#385).
 v<1.0.0>, <04/21/2022> -- Fix a set of issues of autoencoders (#313, #390, #391).
 v<1.0.0>, <04/23/2022> -- Add sampling based detector (#384).
+v<1.0.1>, <04/27/2022> -- Add INNE (#396).
+v<1.0.1>, <05/13/2022> -- Urgent fix for iForest (#406).
 

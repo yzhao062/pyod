@@ -125,6 +125,16 @@ pyod.models.iforest module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.inne module
+-----------------------
+
+.. automodule:: pyod.models.inne
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.kde module
 ----------------------
 

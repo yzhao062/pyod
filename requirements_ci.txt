@@ -3,9 +3,9 @@ joblib
 keras
 matplotlib
 nose
-numpy>=1.13
-numba>=0.35
-scipy>=0.19.1
+numpy>=1.19
+numba>=0.51
+scipy>=1.5.1
 scikit_learn>=0.20.0
 six
 statsmodels

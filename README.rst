@@ -172,9 +172,9 @@ Alternatively, you could clone and run setup.py file:
 * Python 3.6+
 * combo>=0.1.3
 * joblib
-* numpy>=1.13
-* numba>=0.35
-* scipy>=1.3.1
+* numpy>=1.19
+* numba>=0.51
+* scipy>=1.5.1
 * scikit_learn>=0.20.0
 * six
 * statsmodels
@@ -324,6 +324,7 @@ Proximity-Based      MedKNN              Median kNN (use the median distance to 
 Proximity-Based      SOD                 Subspace Outlier Detection                                                                              2009   [#Kriegel2009Outlier]_
 Proximity-Based      ROD                 Rotation-based Outlier Detection                                                                        2020   [#Almardeny2020A]_
 Outlier Ensembles    IForest             Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
+Outlier Ensembles    INNE                Isolation-based Anomaly Detection Using Nearest-Neighbor Ensembles                                      2018   [#Bandaragoda2018Isolation]_
 Outlier Ensembles    FB                  Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
 Outlier Ensembles    LSCP                LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD               Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
@@ -343,11 +344,12 @@ Neural Networks      DeepSVDD            Deep One-Class Classification          
 ===================  ================  =====================================================================================================  =====  ========================================
 Type                 Abbr              Algorithm                                                                                              Year   Ref
 ===================  ================  =====================================================================================================  =====  ========================================
-Outlier Ensembles                      Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
+Outlier Ensembles    FB                Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
 Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                      2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                              2018   [#Zhao2018XGBOD]_
 Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                              2016   [#Pevny2016Loda]_
 Outlier Ensembles    SUOD              SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection **(Acceleration)**         2021   [#Zhao2021SUOD]_
+Outlier Ensembles    INNE              Isolation-based Anomaly Detection Using Nearest-Neighbor Ensembles                                     2018   [#Bandaragoda2018Isolation]_
 Combination          Average           Simple combination by averaging the scores                                                             2015   [#Aggarwal2015Theoretical]_
 Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   [#Aggarwal2015Theoretical]_
 Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   [#Aggarwal2015Theoretical]_
@@ -538,6 +540,8 @@ Reference
 .. [#Angiulli2002Fast] Angiulli, F. and Pizzuti, C., 2002, August. Fast outlier detection in high dimensional spaces. In *European Conference on Principles of Data Mining and Knowledge Discovery* pp. 15-27.
 
 .. [#Arning1996A] Arning, A., Agrawal, R. and Raghavan, P., 1996, August. A Linear Method for Deviation Detection in Large Databases. In *KDD* (Vol. 1141, No. 50, pp. 972-981).
+
+.. [#Bandaragoda2018Isolation] Bandaragoda, T. R., Ting, K. M., Albrecht, D., Liu, F. T., Zhu, Y., and Wells, J. R., 2018, Isolation-based anomaly detection using nearest-neighbor ensembles. *Computational Intelligence*\ , 34(4), pp. 968-998.
 
 .. [#Breunig2000LOF] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. *ACM Sigmod Record*\ , 29(2), pp. 93-104.
 
