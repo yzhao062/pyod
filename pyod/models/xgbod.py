@@ -26,7 +26,6 @@ from .lof import LOF
 from .iforest import IForest
 from .hbos import HBOS
 from .ocsvm import OCSVM
-from .loda import LODA
 
 from ..utils.utility import check_parameter
 from ..utils.utility import check_detector
