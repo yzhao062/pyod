@@ -209,7 +209,7 @@ class IForest(BaseDetector):
         # to IsolationForest that shifts the location of the anomaly scores
         # noinspection PyProtectedMember
         sklearn_version = _get_sklearn_version()
-        if sklearn_version.minor == 21:
+        if sklearn_version.major == 0 and sklearn_version.minor == 21:
             self.detector_ = IsolationForest(n_estimators=self.n_estimators,
                                              max_samples=self.max_samples,
                                              contamination=self.contamination,
