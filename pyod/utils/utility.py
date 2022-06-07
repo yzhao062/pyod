@@ -437,7 +437,7 @@ def _get_sklearn_version():  # pragma: no cover
 
     Returns
     -------
-    sk_learn version : int
+    sk_learn version : version.Version
 
     """
 
