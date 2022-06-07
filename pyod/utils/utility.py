@@ -6,6 +6,7 @@
 
 from __future__ import division
 from __future__ import print_function
+from packaging import version
 
 import numpy as np
 from numpy import percentile
@@ -446,7 +447,7 @@ def _get_sklearn_version():  # pragma: no cover
     #         sklearn_version.split(".")[1]) > 24:
     #     raise ValueError("Sklearn version error")
 
-    return int(sklearn_version.split(".")[1])
+    return version.parse(sklearn_version)
 
 
 # def _sklearn_version_21():  # pragma: no cover
