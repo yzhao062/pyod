@@ -23,9 +23,9 @@ from pyod.utils.data import generate_data
 
 class TestALOCC(unittest.TestCase):
     def setUp(self):
-        self.n_train = 2000
-        self.n_test = 500
-        self.n_features = 25
+        self.n_train = 5000
+        self.n_test = 100
+        self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
@@ -33,7 +33,15 @@ class TestALOCC(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = ALOCC(epochs=5, contamination=self.contamination)
+        self.clf = ALOCC(G_layers = [2,2,2],
+                        D_layers = [2,2],
+                        train_noise_std = 0.01, lambda_recon = 0.4,
+                        preprocessing = True,
+                        dropout_rate = 0.2, epochs = 600,
+                        learning_rate= 0.001, verbose= True,
+                        batch_size = 100,
+                        contamination = contamination)
+
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -47,8 +55,11 @@ class TestALOCC(unittest.TestCase):
                     self.clf._mu is not None)
         assert(hasattr(self.clf, '_sigma') and
                     self.clf._sigma is not None)
-        assert(hasattr(self.clf, 'model_') and
-                    self.clf.model_ is not None)
+        assert(hasattr(self.clf, 'generator') and
+                    self.clf.generator is not None)
+        assert(hasattr(self.clf, 'discriminator') and
+                    self.clf.discriminator is not None)
+
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

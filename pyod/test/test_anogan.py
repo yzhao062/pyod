@@ -23,17 +23,28 @@ from pyod.utils.data import generate_data
 
 class TestAnoGAN(unittest.TestCase):
     def setUp(self):
-        self.n_train = 25
-        self.n_test = 5
-        self.n_features = 3
+        self.n_train = 200
+        self.n_test = 100
+        self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
-        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
-            n_train=self.n_train, n_test=self.n_test,
-            n_features=self.n_features, contamination=self.contamination,
-            random_state=42)
 
-        self.clf = AnoGAN(G_layers = [10,20], D_layers = [20,2], epochs=5, contamination=self.contamination)
+        # Generate sample data
+        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
+            n_train = self.n_train,
+            n_test = self.n_test,
+            n_features = self.n_features,
+            contamination = self.contamination,
+            behaviour = "new",
+            random_state=42,
+        )
+
+
+
+        self.clf = AnoGAN( G_layers = [10,20], D_layers = [20,2], 
+                  preprocessing = True, index_D_layer_for_recon_error = 1,
+                  epochs = 200, contamination = self.contamination, verbose = 0 )
+
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -47,8 +58,11 @@ class TestAnoGAN(unittest.TestCase):
                     self.clf._mu is not None)
         assert(hasattr(self.clf, '_sigma') and
                     self.clf._sigma is not None)
-        assert(hasattr(self.clf, 'model_') and
-                    self.clf.model_ is not None)
+        assert(hasattr(self.clf, 'generator') and
+                    self.clf.generator is not None)
+        assert(hasattr(self.clf, 'discriminator') and
+                    self.clf.discriminator is not None)
+
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
