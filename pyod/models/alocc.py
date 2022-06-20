@@ -110,7 +110,7 @@ class ALOCC(BaseDetector):
     """
 
     def __init__(self, activation_hidden = 'tanh', dropout_rate = 0.2,
-                 G_layers = [20,10,3,10,20], verbose = False,
+                 G_layers = [20,10,3,10,20], verbose = 1,
                  D_layers = [20,10,5], epochs = 500, train_noise_std = 0.1,
                  lambda_recon = 0.4, preprocessing = False, learning_rate = 0.0001,
                  batch_size = 32, output_activation = None, contamination = 0.1 ):
@@ -193,19 +193,19 @@ class ALOCC(BaseDetector):
         ax.plot(range(len(l_gen)),l_gen, )
         ax.set_title('Generator')
         ax.set_ylabel('Loss')
-        ax.set_ylabel('Iter')
+        ax.set_xlabel('Iter')
     
         ax = fig.add_subplot(1,3,2)
         ax.plot(range(len(l_disc)),l_disc )
         ax.set_title('Discriminator')
         ax.set_ylabel('Loss')
-        ax.set_ylabel('Iter')
+        ax.set_xlabel('Iter')
 
         ax = fig.add_subplot(1,3,3)
         ax.plot(range(len(l_recon)),l_recon)
         ax.set_title('Reconstruction')
         ax.set_ylabel('Loss')
-        ax.set_ylabel('Iter')
+        ax.set_xlabel('Iter')
 
 
 
@@ -345,6 +345,6 @@ class ALOCC(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        # Predict on X and return the reconstruction errors
+        # Predict on X 
         pred_scores = 1 - self.discriminator({'I1': self.generator({'I1':X_norm})}, training=False).numpy()[:,0]
         return pred_scores
