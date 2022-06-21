@@ -23,8 +23,8 @@ from pyod.utils.data import generate_data
 
 class TestAnoGAN(unittest.TestCase):
     def setUp(self):
-        self.n_train = 1000
-        self.n_test = 200
+        self.n_train = 100
+        self.n_test = 50
         self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
