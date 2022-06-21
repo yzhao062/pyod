@@ -23,8 +23,8 @@ from pyod.utils.data import generate_data
 
 class TestAnoGAN(unittest.TestCase):
     def setUp(self):
-        self.n_train = 200
-        self.n_test = 100
+        self.n_train = 1000
+        self.n_test = 200
         self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
@@ -41,9 +41,9 @@ class TestAnoGAN(unittest.TestCase):
 
 
 
-        self.clf = AnoGAN( G_layers = [10,20], D_layers = [20,2], 
-                  preprocessing = True, index_D_layer_for_recon_error = 1,
-                  epochs = 200, contamination = self.contamination, verbose = 0 )
+        self.clf = AnoGAN( G_layers = [10,20], D_layers = [20,2], epochs_query =10,
+                           preprocessing = True, index_D_layer_for_recon_error = 1,
+                           epochs = 500, contamination = contamination, verbose = 0 )
 
         self.clf.fit(self.X_train)
 

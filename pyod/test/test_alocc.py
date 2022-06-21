@@ -24,7 +24,7 @@ from pyod.utils.data import generate_data
 class TestALOCC(unittest.TestCase):
     def setUp(self):
         self.n_train = 5000
-        self.n_test = 100
+        self.n_test = 500
         self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
@@ -40,7 +40,7 @@ class TestALOCC(unittest.TestCase):
                         dropout_rate = 0.2, epochs = 600,
                         learning_rate= 0.001, verbose= True,
                         batch_size = 100,
-                        contamination = contamination)
+                        contamination = self.contamination)
 
         self.clf.fit(self.X_train)
 
