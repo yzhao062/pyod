@@ -31,14 +31,8 @@ class TestAnoGAN(unittest.TestCase):
 
         # Generate sample data
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
-            n_train = self.n_train,
-            n_test = self.n_test,
-            n_features = self.n_features,
-            contamination = self.contamination,
-            behaviour = "new",
-            random_state=42,
-        )
-
+            n_train=self.n_train, n_test=self.n_test,
+            contamination=self.contamination, random_state=42)
 
 
         self.clf = AnoGAN( G_layers = [10,20], D_layers = [20,2], epochs_query =10,
