@@ -359,6 +359,8 @@ class AnoGAN(BaseDetector):
         # the outlier scores. Noted X_norm was shuffled has to recreate
         if self.preprocessing:
             X_norm = self.scaler_.transform(X)
+        else:
+            X_norm = np.copy(X)
 
         scores = []
         # For each sample we use a few backpropagation steps, to obtain a point in the latent 
