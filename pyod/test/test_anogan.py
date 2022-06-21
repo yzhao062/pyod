@@ -43,7 +43,7 @@ class TestAnoGAN(unittest.TestCase):
 
         self.clf = AnoGAN( G_layers = [10,20], D_layers = [20,2], epochs_query =10,
                            preprocessing = True, index_D_layer_for_recon_error = 1,
-                           epochs = 500, contamination = contamination, verbose = 0 )
+                           epochs = 500, contamination = self.contamination, verbose = 0 )
 
         self.clf.fit(self.X_train)
 
