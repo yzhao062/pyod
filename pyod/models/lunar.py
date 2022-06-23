@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example of using LUNAR for outlier detection
-detection
+"""LUNAR
 """
 # Author: Adam Goodge <a.goodge@u.nus.edu>
 #
@@ -99,7 +98,7 @@ class LUNAR(BaseDetector):
     For an observation, its ordered list of distances to its k nearest neighbours is input to a neural network, 
     with one of the following outputs:
 
-        1) SCORE_MODEL: network direclty outputs the anomaly score.
+        1) SCORE_MODEL: network directly outputs the anomaly score.
 
         2) WEIGHT_MODEL: network outputs a set of weights for the k distances, the anomaly score is then the 
                          sum of weighted distances.
