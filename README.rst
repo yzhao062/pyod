@@ -135,7 +135,7 @@ or::
 
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
-* `Benchmark <#benchmark>`_
+* `ADBench Benchmark <#adbench-benchmark>`_
 * `Model Save & Load <#model-save--load>`_
 * `Fast Train with SUOD <#fast-train-with-suod>`_
 * `Implemented Algorithms <#implemented-algorithms>`_
@@ -230,8 +230,8 @@ Key Attributes of a fitted model:
 ----
 
 
-Benchmark
-^^^^^^^^^
+ADBench Benchmark
+^^^^^^^^^^^^^^^^^
 
 We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
 The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
@@ -240,7 +240,7 @@ The organization of **ADBench** is provided below:
 
 .. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :alt: benchmark
+   :alt: benchmark-fig
 
 
 ----
@@ -401,7 +401,7 @@ The organization of **ADBench** is provided below:
 
 .. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :alt: benchmark
+   :alt: benchmark-old
 
 **The content below is obsolete**.
 
