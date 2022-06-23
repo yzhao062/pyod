@@ -18,10 +18,7 @@ class GMM(BaseDetector):
     """Wrapper of scikit-learn Gaussian Mixture Model with more functionalities.
     Unsupervised Outlier Detection.
 
-    Oren Barkan and Amir Averbuch,
-    "Robust mixture models for anomaly detection,"
-    2016 IEEE 26th International Workshop on Machine Learning
-    for Signal Processing (MLSP), pp.1-6, 2016.
+    See :cite:`aggarwal2015outlier` Chapter 2 for details.
 
     Parameters
     ----------
@@ -124,20 +121,20 @@ class GMM(BaseDetector):
     """
 
     def __init__(
-        self,
-        n_components=1,
-        covariance_type="full",
-        tol=1e-3,
-        reg_covar=1e-6,
-        max_iter=100,
-        n_init=1,
-        init_params="kmeans",
-        weights_init=None,
-        means_init=None,
-        precisions_init=None,
-        random_state=None,
-        warm_start=False,
-        contamination=0.1,
+            self,
+            n_components=1,
+            covariance_type="full",
+            tol=1e-3,
+            reg_covar=1e-6,
+            max_iter=100,
+            n_init=1,
+            init_params="kmeans",
+            weights_init=None,
+            means_init=None,
+            precisions_init=None,
+            random_state=None,
+            warm_start=False,
+            contamination=0.1,
     ):
         super().__init__(contamination=contamination)
         self.n_components = n_components
@@ -223,7 +220,7 @@ class GMM(BaseDetector):
         """
         check_is_fitted(self, ["decision_scores_", "threshold_", "labels_"])
 
-        # Invert outlier scores. Outliers comes with higher outlier scores
+        # Invert outlier scores. Outliers come with higher outlier scores
         return invert_order(self.detector_.score_samples(X))
 
     @property
