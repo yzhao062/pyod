@@ -13,8 +13,7 @@ import sys
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
 from pyod.models.lunar import LUNAR
 from pyod.utils.data import generate_data
@@ -36,15 +35,10 @@ if __name__ == "__main__":
 
     # train LUNAR detector
     clf_name = 'LUNAR'
-    clf = LUNAR(epochs=10)
+    clf = LUNAR()
     clf.fit(X_train)
 
-    # get the prediction labels and outlier scores of the training data
-    y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
-    y_train_scores = clf.decision_scores_  # raw outlier scores
-
-    # get the prediction on the test data
-    y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
+    y_train_scores = clf.decision_function(X_train)  # inlier scores
     y_test_scores = clf.decision_function(X_test)  # outlier scores
 
     # evaluate and print the results

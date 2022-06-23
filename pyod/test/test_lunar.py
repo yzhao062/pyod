@@ -20,8 +20,7 @@ from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from pyod.models.lunar import LUNAR
 from pyod.utils.data import generate_data
 
@@ -35,7 +34,7 @@ class TestLUNAR(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
 
-        self.clf = LUNAR(contamination=self.contamination)
+        self.clf = LUNAR()
         self.clf.fit(self.X_train)
 
     def test_parameters(self):

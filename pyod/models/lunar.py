@@ -9,9 +9,9 @@ import os
 from copy import deepcopy
 from sklearn.metrics import roc_auc_score
 import numpy as np
-import matplotlib.pyplot as plt
-import faiss
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.neighbors import NearestNeighbors
 import torch 
 import torch.nn as nn
 import torch.optim as optim
@@ -19,7 +19,7 @@ import torch.nn.functional as F
 
 from .base import BaseDetector
 
-# negative samples to train LUNAR
+# negative samples for training
 def generate_negative_samples(x, sample_type, proportion, epsilon):
     
     n_samples = int(proportion*(len(x)))
@@ -27,10 +27,10 @@ def generate_negative_samples(x, sample_type, proportion, epsilon):
     
     # uniform samples
     rand_unif = np.random.rand(n_samples,n_dim).astype('float32')
-    #  subspace perturbation samples
+    # subspace perturbation samples
     x_temp = x[np.random.choice(np.arange(len(x)),size = n_samples)]
     randmat = np.random.rand(n_samples,n_dim) < 0.3
-    rand_sub = x + randmat*(epsilon*np.random.randn(n_samples,n_dim)).astype('float32')
+    rand_sub = x_temp + randmat*(epsilon*np.random.randn(n_samples,n_dim)).astype('float32')
     
     if sample_type == 'UNIFORM':
         neg_x = rand_unif
@@ -45,9 +45,9 @@ def generate_negative_samples(x, sample_type, proportion, epsilon):
     
     return neg_x.astype('float32'), neg_y.astype('float32')
 
-class GNN(torch.nn.Module):
+class SCORE_MODEL(torch.nn.Module):
         def __init__(self,k):
-            super(GNN, self).__init__()
+            super(SCORE_MODEL, self).__init__()
             self.hidden_size = 256
             self.network = nn.Sequential(
                 nn.Linear(k,self.hidden_size),
@@ -65,77 +65,171 @@ class GNN(torch.nn.Module):
             out = torch.squeeze(out,1)
             return out
 
-class LUNAR(BaseDetector):
-    def __init__(self):
-        super(LUNAR, self).__init__()
-        self.args = {
-        # n_neighbors
-        "k": 5,
-        # negative sampling type
-        "negative_sampling": 'MIXED',
-        # negative sampling parameter
-        "epsilon": 0.1,
-        # ratio of negative samples to normal samples
-        "proportion": 1,
-        "n_epochs": 200,
-        # learning rate
-        "lr": 0.001,
-        # weight decay
-        "wd": 0.1,  
-        "verbose": 0,
-        "device": torch.device('cuda' if torch.cuda.is_available() else 'cpu'), 
-        }
+class WEIGHT_MODEL(torch.nn.Module):
+        def __init__(self,k):
+            super(WEIGHT_MODEL, self).__init__()
+            self.hidden_size = 256
+            self.network =  nn.Sequential(
+                            nn.Linear(k,self.hidden_size),
+                            nn.ReLU(),
+                            nn.Linear(self.hidden_size,self.hidden_size),
+                            nn.ReLU(),
+                            nn.Linear(self.hidden_size,self.hidden_size),
+                            nn.ReLU(),
+                            nn.LayerNorm(self.hidden_size),
+                            nn.Linear(self.hidden_size,k),
+                            )
+            self.final_norm = nn.BatchNorm1d(1)
 
-        self.network = GNN(self.args['k']).to(self.args['device'])
+        def forward(self,x):
+            alpha = self.network(x)
+            # get weights > 0 and sum to 1.0
+            alpha = F.softmax(alpha, dim = 1)
+            # multiply weights by each distance in input vector
+            out = torch.sum(alpha * x, dim=1, keepdim=True)
+            # batch norm
+            out = self.final_norm(out)
+            out = torch.squeeze(out,1)
+            return out
+
+class LUNAR(BaseDetector):
+    """
+    LUNAR class for outlier detection. See https://www.aaai.org/AAAI22Papers/AAAI-51.GoodgeA.pdf for details.
+
+    For an observation, its ordered list of distances to its k nearest neighbours is input to a neural network, 
+    with one of the following outputs:
+
+        1) SCORE_MODEL: network direclty outputs the anomaly score.
+
+        2) WEIGHT_MODEL: network outputs a set of weights for the k distances, the anomaly score is then the 
+                         sum of weighted distances.
+
+    Parameters
+    ----------
+
+    model_type: str in ['WEIGHT', 'SCORE'], optional (default = 'WEIGHT')
+        Whether to use WEIGHT_MODEL or SCORE_MODEL for anomaly scoring.     
+
+    contamination: float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set,
+        i.e. the proportion of outliers in the data set. Used when fitting to
+        define the threshold on the decision function.
+
+    n_neighbors: int, optional (default = 5)
+        Number of neighbors to use by default for k neighbors queries.
+
+    negative_sampling: str in ['UNIFORM', 'SUBSPACE', MIXED'], optional (default = 'MIXED)
+        Type of negative samples to use between:
+            'UNIFORM': uniformly distributed samples
+            'SUBSPACE': subspace perturbation (additive random noise in a subset of features)
+            'MIXED': a combination of both types of samples
+
+    epsilon: float, optional (default = 0.1)
+        Hyper-parameter for the generation of negative samples. 
+        A smaller epsilon results in negative samples more similar to normal samples.
+
+    proportion: float, optional (default = 1.0)
+        Hyper-parameter for the proprotion of negative samples to use relative to the 
+        number of normal training samples.
+
+    n_epochs: int, optional (default = 200)
+        Number of epochs to train neural network.
+
+    lr: float, optional (default = 0.001)
+        Learning rate.
+
+    wd: float, optional (default = 0.1)
+        Weight decay.
+    
+    verbose: int in [0,1], optional (default = 0):
+        To view or hide training progress
+
+    Attributes
+    ----------
+
+
+    """
+    def __init__(self, model_type = "WEIGHT", n_neighbours = 5, negative_sampling = "MIXED",
+                 epsilon = 0.1, proportion = 1.0, n_epochs = 200, lr = 0.001, wd = 0.1, verbose = 0):
+        super(LUNAR, self).__init__()
+
+        self.model_type = model_type
+        self.n_neighbours = n_neighbours
+        self.negative_sampling = negative_sampling
+        self.epsilon = epsilon
+        self.proportion = proportion
+        self.n_epochs = n_epochs
+        self.lr = lr
+        self.wd = wd
+        self.verbose = verbose
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        if model_type == "SCORE":
+            self.network = SCORE_MODEL(n_neighbours).to(self.device)
+        elif model_type == "WEIGHT":
+            self.network = WEIGHT_MODEL(n_neighbours).to(self.device)
+
+        self.scaler = MinMaxScaler()
 
     def fit(self, X, y=None):
-        
-        if y is None:
-            y = np.zeros(len(X))
-        #split  train/val
-        train_x, val_x, train_y, val_y = train_test_split(X, y, test_size=0.2)
-        neg_train_x, neg_train_y = generate_negative_samples(train_x,self.args['negative_sampling'],self.args['proportion'],self.args['epsilon'])
-        neg_val_x, neg_val_y = generate_negative_samples(val_x,self.args['negative_sampling'],self.args['proportion'],self.args['epsilon'])
+        """Fit detector. y is assumed to be 0 for all training samples.
 
-        # concat data
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : Ignored
+            Overwritten with 0 for all training samples (assumed to be normal).
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
+        """
+
+        X = X.astype('float32')
+        y = np.zeros(len(X))
+
+        #split training and validation sets
+        train_x, val_x, train_y, val_y = train_test_split(X, y, test_size=0.2)
+        #fit data scaler to the training set
+        self.scaler.fit(train_x)
+        # generate negative samples for training and validation set seperately 
+        neg_train_x, neg_train_y = generate_negative_samples(train_x,self.negative_sampling,self.proportion,self.epsilon)
+        neg_val_x, neg_val_y = generate_negative_samples(val_x,self.negative_sampling,self.proportion,self.epsilon)
+        # concatenate data
         x = np.vstack((train_x,neg_train_x,val_x,neg_val_x))
         y = np.hstack((train_y,neg_train_y,val_y,neg_val_y))
-
-        # all training set
+        # scale data
+        x = self.scaler.transform(x)
+        # mask for the training set
         train_mask = np.hstack((np.ones(len(train_x)),np.ones(len(neg_train_x)),
                                 np.zeros(len(val_x)),np.zeros(len(neg_val_x))))
-
-        # normal training points
+        # mask for the normal training points (used for nearest neighbour search)
         neighbor_mask = np.hstack((np.ones(len(train_x)), np.zeros(len(neg_train_x)), 
                                 np.zeros(len(val_y)), np.zeros(len(neg_val_x))))
-                                
-        # nearest neighbour object
-        self.neigh = faiss.IndexFlatL2(x.shape[-1])
-        # add nearest neighbour candidates using neighbour mask
-        self.neigh.add(x[neighbor_mask==1])
-
-        # distances and idx of neighbour points for the neighbour candidates (k+1 as the first one will be the point itself)
-        dist_train, idx_train = self.neigh.search(x[neighbor_mask==1], k = self.args['k']+1)
-        # remove 1st nearest neighbours to remove self loops
-        dist_train, idx_train = dist_train[:,1:], idx_train[:,1:]
-        # distances and idx of neighbour points for the non-neighbour candidates
-        dist, idx = self.neigh.search(x[neighbor_mask==0], k = self.args['k'])
-        #concat
-        dist = np.sqrt(np.vstack((dist_train, dist)))
-        idx = np.vstack((idx_train, idx))
-
-        dist = torch.tensor(dist,dtype=torch.float32).to(self.args['device'])
-        y = torch.tensor(y,dtype=torch.float32).to(self.args['device'])
-
+        # nearest neighbour search
+        self.neigh = NearestNeighbors(n_neighbors= self.n_neighbours+1)
+        self.neigh.fit(x[neighbor_mask==1])
+        dist_train, _ = self.neigh.kneighbors(x[neighbor_mask==1], n_neighbors = self.n_neighbours+1)
+        # remove self loops in normal training points
+        dist_train = dist_train[:,1:]
+        dist, _ = self.neigh.kneighbors(x[neighbor_mask==0], n_neighbors = self.n_neighbours)
+        #concatenate distances of different samples
+        dist = np.vstack((dist_train, dist))
+        dist = torch.tensor(dist,dtype=torch.float32).to(self.device)
+        y = torch.tensor(y,dtype=torch.float32).to(self.device)
+        #loss function
         criterion = nn.MSELoss(reduction = 'none')    
-        
-        optimizer = optim.Adam(self.network.parameters(), lr = self.args['lr'], weight_decay = self.args['wd'])
-        
+        # optimizer
+        optimizer = optim.Adam(self.network.parameters(), lr = self.lr, weight_decay = self.wd)
+        # for early stopping
         best_val_score = 0
-        
-        for epoch in range(self.args['n_epochs']):
+        # model training
+        for epoch in range(self.n_epochs):
 
-            # see performance of model on each set before each epoch
+            # see performance of model before epoch
             with torch.no_grad():
                 
                 self.network.eval()
@@ -145,7 +239,7 @@ class LUNAR(BaseDetector):
                 train_score = roc_auc_score(y[train_mask==1].cpu(), out[train_mask==1])
                 val_score = roc_auc_score(y[train_mask == 0].cpu(), out[train_mask == 0])
 
-                # save best model 
+                # save best model
                 if val_score >= best_val_score:  
                     best_dict = {'epoch': epoch,
                                 'model_state_dict': deepcopy(self.network.state_dict()),
@@ -154,13 +248,13 @@ class LUNAR(BaseDetector):
                                 'val_score': val_score,
                                 }
 
-                    # reset best score so far
+                    # reset current best score
                     best_val_score = val_score
                 
-                if self.args['verbose'] == 1:
+                if self.verbose == 1:
                     print(f"Epoch {epoch} \t Train Score {np.round(train_score,6)} \t Val Score {np.round(val_score,6)}")
 
-            #training
+            #training loop
             self.network.train()
             optimizer.zero_grad()
             out = self.network(dist)
@@ -168,20 +262,38 @@ class LUNAR(BaseDetector):
             loss.backward()
             optimizer.step()
         
-        if self.args['verbose'] == 1:
-            print(f"Epoch {best_dict['epoch']} Train Score {best_dict['train_score']} Val Score {best_dict['val_score']}")
-
-        # load best model
+        #print best model after training
+        if self.verbose == 1:
+            print(f"Finished training...\nBest Model: Epoch {best_dict['epoch']} \t Train Score {best_dict['train_score']} \t Val Score {best_dict['val_score']}")
+        # load best model after training
         self.network.load_state_dict(best_dict['model_state_dict'])
 
         return self
 
     def decision_function(self, X):
-        dist, _ = self.neigh.search(X,self.args['k'])
-        dist = torch.tensor(dist,dtype=torch.float32).to(self.args['device'])
+        """Predict raw anomaly score of X using the fitted detector.
+
+        For consistency, outliers are assigned with larger anomaly scores.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+            The anomaly score of the input samples.
+        """
+
+        X = X.astype('float32')
+        # scale data
+        X = self.scaler.transform(X)
+        # nearest neighbour search
+        dist, _ = self.neigh.kneighbors(X,self.n_neighbours)
+        dist = torch.tensor(dist,dtype=torch.float32).to(self.device)
+        #forward pass
         with torch.no_grad():
             self.network.eval()
-            out = self.network(dist)
-        
-        # return output for test points
-        return out.cpu().detach().numpy() 
+            anomaly_scores = self.network(dist)
+        return anomaly_scores.cpu().detach().numpy() 
