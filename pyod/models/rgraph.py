@@ -31,7 +31,7 @@ class RGraph(BaseDetector):
 
     def __init__(self, transition_steps = 10, n_nonzero = 10 , gamma = 50.0, gamma_nz = True,
                 algorithm = 'lasso_lars', tau = 1.0, preprocessing = True, contamination = 0.1,
-                support_init='L2', maxiter = 40, support_size= 100):
+                support_init='L2', maxiter = 40, support_size= 100, active_support = True, verbose = True):
 
         super(RGraph, self).__init__(contamination = contamination)
 
@@ -46,10 +46,9 @@ class RGraph(BaseDetector):
         self.support_init = support_init
         self.maxiter = maxiter
         self.support_size = support_size
+        self.active_support = active_support
+        self.verbose = verbose
 
-        
-#         self.active_support = active_support
-#         self.active_support_params = active_support_params
 
     
 
@@ -224,6 +223,9 @@ class RGraph(BaseDetector):
         curr_pos = 0
      
         for i in range(n_samples):
+            if( (i % 25 == 0) and (self.verbose == 1) ):
+                print('{}/{}'.format(i,n_samples))
+
             y = X[i, :].copy().reshape(1, -1)
             X[i, :] = 0
             
@@ -324,7 +326,7 @@ class RGraph(BaseDetector):
 
         A = self.elastic_net_subspace_clustering(X_norm, gamma = self.gamma , gamma_nz = self.gamma_nz, 
                                                  tau= self.tau, algorithm= self.algorithm, 
-                                                 active_support=True, n_nonzero = self.n_nonzero,
+                                                 active_support= self.active_support, n_nonzero = self.n_nonzero,
                                                  active_support_params={'support_init' : self.support_init, 'support_size': self.support_size, 'maxiter':self.maxiter}
                                                  )
 
