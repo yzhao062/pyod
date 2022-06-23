@@ -106,6 +106,16 @@ pyod.models.feature\_bagging module
     :show-inheritance:
     :inherited-members:
 
+
+pyod.models.gmm module
+----------------------
+
+.. automodule:: pyod.models.gmm
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.hbos module
 -----------------------
 
