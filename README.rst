@@ -51,23 +51,28 @@ Python Outlier Detection (PyOD)
    :target: https://github.com/yzhao062/pyod/blob/master/LICENSE
    :alt: License
 
+.. image:: https://img.shields.io/badge/ADBench-benchmark_results-pink
+   :target: https://github.com/Minqi824/ADBench
+   :alt: Benchmark
+
 
 -----
 
+**News**: We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
 
-PyOD is the most comprehensive and scalable **Python toolkit** for **detecting outlying objects** in
+PyOD is the most comprehensive and scalable **Python library** for **detecting outlying objects** in
 multivariate data. This exciting yet challenging field is commonly referred as 
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
 the latest ECOD (TKDE 2022). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_ with more than 6 million downloads.
+commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_ with more than 7 million downloads.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
-`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_,
-`Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_, and
-`awesome-machine-learning <https://github.com/josephmisiti/awesome-machine-learning#python-general-purpose>`_.
+`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
+`Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
 
 PyOD is featured for:
@@ -130,6 +135,7 @@ or::
 
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
+* `Benchmark <#benchmark>`_
 * `Model Save & Load <#model-save--load>`_
 * `Fast Train with SUOD <#fast-train-with-suod>`_
 * `Implemented Algorithms <#implemented-algorithms>`_
@@ -229,6 +235,21 @@ Key Attributes of a fitted model:
 
 ----
 
+
+Benchmark
+^^^^^^^^^
+
+We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
+
+The organization of **ADBench** is provided below:
+
+.. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
+   :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
+   :alt: benchmark
+
+
+----
 
 Model Save & Load
 ^^^^^^^^^^^^^^^^^
