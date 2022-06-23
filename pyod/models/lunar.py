@@ -109,11 +109,6 @@ class LUNAR(BaseDetector):
     model_type: str in ['WEIGHT', 'SCORE'], optional (default = 'WEIGHT')
         Whether to use WEIGHT_MODEL or SCORE_MODEL for anomaly scoring.     
 
-    contamination: float in (0., 0.5), optional (default=0.1)
-        The amount of contamination of the data set,
-        i.e. the proportion of outliers in the data set. Used when fitting to
-        define the threshold on the decision function.
-
     n_neighbors: int, optional (default = 5)
         Number of neighbors to use by default for k neighbors queries.
 
