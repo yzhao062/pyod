@@ -290,4 +290,5 @@ class LUNAR(BaseDetector):
         with torch.no_grad():
             self.network.eval()
             anomaly_scores = self.network(dist)
-        return anomaly_scores.cpu().detach().numpy() 
+        return anomaly_scores.cpu().detach().numpy()
+        
