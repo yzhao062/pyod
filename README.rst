@@ -139,7 +139,7 @@ or::
 * `Model Save & Load <#model-save--load>`_
 * `Fast Train with SUOD <#fast-train-with-suod>`_
 * `Implemented Algorithms <#implemented-algorithms>`_
-* `Algorithm Benchmark <#algorithm-benchmark>`_
+* `Old Algorithm Benchmark <#old-algorithm-benchmark>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
 * `Inclusion Criteria <#inclusion-criteria>`_
@@ -176,8 +176,8 @@ Alternatively, you could clone and run setup.py file:
 
 
 * Python 3.6+
-* combo>=0.1.3
 * joblib
+* matplotlib
 * numpy>=1.19
 * numba>=0.51
 * scipy>=1.5.1
@@ -189,24 +189,18 @@ Alternatively, you could clone and run setup.py file:
 
 * combo (optional, required for models/combination.py and FeatureBagging)
 * keras/tensorflow (optional, required for AutoEncoder, and other deep learning models)
-* matplotlib (optional, required for running examples)
 * pandas (optional, required for running benchmark)
 * suod (optional, required for running SUOD model)
 * xgboost (optional, required for XGBOD)
 
-**Warning 1**\ :
+**Warning**\ :
 PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in both PyTorch and Tensorflow. However, PyOD does **NOT** install DL libraries for you.
+implemented in both Tensorflow and PyTorch. However, PyOD does **NOT** install these deep learning libraries for you.
 This reduces the risk of interfering with your local copies.
-If you want to use neural-net based models, please make sure Keras and a backend library, e.g., TensorFlow, are installed.
+If you want to use neural-net based models, please make sure these deep learning libraries are installed.
 Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
 Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
 
-**Warning 2**\ :
-PyOD contains multiple models that also exist in scikit-learn. However, these two
-libraries' API is not exactly the same--it is recommended to use only one of them
-for consistency but not mix the results. Refer `Differences between scikit-learn and PyOD <https://pyod.readthedocs.io/en/latest/issues.html>`_
-for more information.
 
 
 ----
@@ -397,8 +391,19 @@ Utility              precision_n_scores      calculate precision @ rank n       
 ----
 
 
-Algorithm Benchmark
-^^^^^^^^^^^^^^^^^^^
+Old Algorithm Benchmark
+^^^^^^^^^^^^^^^^^^^^^^^
+
+In June 2022, we released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
+
+The organization of **ADBench** is provided below:
+
+.. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
+   :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
+   :alt: benchmark
+
+**The content below is obsolete**.
 
 **The comparison among of implemented models** is made available below
 (\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
