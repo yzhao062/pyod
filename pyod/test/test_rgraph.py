@@ -50,8 +50,8 @@ class TestRGraph(unittest.TestCase):
                     self.clf._mu is not None)
         assert(hasattr(self.clf, '_sigma') and
                     self.clf._sigma is not None)
-        assert(hasattr(self.clf, 'transition_matrix') and
-                    self.clf._sigma is not None)
+        assert(hasattr(self.clf, 'transition_matrix_') and
+                    self.clf.transition_matrix_ is not None)
 
 
     def test_train_scores(self):
