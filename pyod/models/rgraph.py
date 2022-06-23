@@ -24,8 +24,8 @@ from .base_dl import _get_tensorflow_version
 from scipy import sparse
 from sklearn.decomposition import sparse_encode
 from sklearn.preprocessing import normalize
+from sklearn.linear_model import LinearRegression
 import warnings
-
 
 class RGraph(BaseDetector):
 
@@ -108,7 +108,6 @@ class RGraph(BaseDetector):
             #                      lambda1=tau*alpha, lambda2=(1.0-tau)*alpha)
             #     cs = np.asarray(cs.todense()).T
             # else:
-            
             cs = sparse_encode(y, Xs, algorithm=algorithm, alpha=alpha)
           
             delta = (y - np.dot(cs, Xs)) / alpha
@@ -209,7 +208,9 @@ class RGraph(BaseDetector):
         [2] E. Elhaifar, R. Vidal, Sparse Subspace Clustering: Algorithm, Theory, and Applications, TPAMI 2013
         [3] C. Lu, et al. Robust and efficient subspace segmentation via least squares regression, ECCV 2012
         """
-        if algorithm in ('lasso_lars', 'lasso_cd') and tau < 1.0 - 1.0e-10:  
+
+
+        if( (algorithm in ('lasso_lars', 'lasso_cd')) and (tau < 1.0 - 1.0e-10) ) :  
             warnings.warn('algorithm {} cannot handle tau smaller than 1. Using tau = 1'.format(algorithm))
             tau = 1.0
 
@@ -222,6 +223,7 @@ class RGraph(BaseDetector):
         vals = np.zeros(n_samples * n_nonzero)
         curr_pos = 0
      
+        gamma_is_zero_notification = False
         for i in range(n_samples):
             if( (i % 25 == 0) and (self.verbose == 1) ):
                 print('{}/{}'.format(i,n_samples))
@@ -229,23 +231,38 @@ class RGraph(BaseDetector):
             y = X[i, :].copy().reshape(1, -1)
             X[i, :] = 0
             
-            if algorithm in ('lasso_lars', 'lasso_cd', 'spams'):
+            if algorithm in ('lasso_lars', 'lasso_cd'):
                 if gamma_nz == True:
                     coh = np.delete(np.absolute(np.dot(X, y.T)), i)
                     alpha0 = np.amax(coh) / tau  # value for which the solution is zero
                     alpha = alpha0 / gamma
                 else:
                     alpha = 1.0 / gamma
+                    
+                if( gamma > 10**4):
+                    if( gamma_is_zero_notification == False):
+                        print('Set alpha = 0 i.e. LinearRegression() is used')
+                        gamma_is_zero_notification = True
 
-                if active_support == True:
+                    alpha = 0
+                    
+
+                if( alpha == 0):
+                    lr = LinearRegression()
+                    lr.fit(X.T , y[0]  )
+                    c = lr.coef_
+                        
+
+                elif active_support == True:
                     c = self.active_support_elastic_net(X, y, alpha, tau, algorithm, **active_support_params)
                 else:
-                    if algorithm == 'spams':
-                        c = spams.lasso(np.asfortranarray(y.T), D=np.asfortranarray(X.T), 
-                                        lambda1=tau * alpha, lambda2=(1.0-tau) * alpha)
-                        c = np.asarray(c.todense()).T[0]
-                    else:
-                        c = sparse_encode(y, X, algorithm=algorithm, alpha=alpha)[0]
+                    # if algorithm == 'spams':
+                        # c = spams.lasso(np.asfortranarray(y.T), D=np.asfortranarray(X.T), 
+                        #                 lambda1=tau * alpha, lambda2=(1.0-tau) * alpha)
+                        # c = np.asarray(c.todense()).T[0]
+                    # else:
+                    c = sparse_encode(y, X, algorithm=algorithm, alpha=alpha)[0]
+
             else:
                 warnings.warn("algorithm {} not found".format(algorithm))
 
