@@ -13,12 +13,11 @@ from warnings import warn
 
 import numpy as np
 from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.validation import check_is_fitted, check_random_state
 from sklearn.metrics import euclidean_distances
 
 from .base import BaseDetector
-from ..utils.utility import invert_order
-
+from ..utils.utility import MAX_INT, invert_order
 
 class INNE(BaseDetector):
     """ Isolation-based anomaly detection using nearest-neighbor ensembles.
@@ -161,23 +160,22 @@ class INNE(BaseDetector):
         self : object
         """
 
-        n, m = X.shape
+        n_samples, n_features = X.shape
         self._centroids = np.empty(
-            [self.n_estimators, self.max_samples_, m])
+            [self.n_estimators, self.max_samples_, n_features])
         self._ratio = np.empty([self.n_estimators, self.max_samples_])
         self._centroids_radius = np.empty(
             [self.n_estimators, self.max_samples_])
 
+        random_state = check_random_state(self.random_state)
+        self._seeds = random_state.randit(MAX_INT, size=self.n_estimators)
+
         for i in range(self.n_estimators):
-            if isinstance(self.random_state, numbers.Integral):
-                if i == 0:
-                    rn_seed = self.random_state
-                else:
-                    rn_seed += 5
-                np.random.seed(rn_seed)
+            rnd = check_random_state(self._seeds[i])
             # randomly selected subsamples of size max_samples_ as centroids.
-            center_index = np.random.choice(
-                n, self.max_samples_, replace=False)
+            center_index = rnd.choice(
+                n_samples, self.max_samples_, replace=False)
+
             self._centroids[i] = X[center_index]
             center_dist = euclidean_distances(
                 self._centroids[i], self._centroids[i], squared=True)
