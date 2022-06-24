@@ -19,6 +19,9 @@ from sklearn.metrics import euclidean_distances
 from .base import BaseDetector
 from ..utils.utility import MAX_INT, invert_order
 
+MIN_FLOAT = np.finfo(float).eps
+
+
 class INNE(BaseDetector):
     """ Isolation-based anomaly detection using nearest-neighbor ensembles.
 
@@ -107,14 +110,12 @@ class INNE(BaseDetector):
 
         # Check data
         X = check_array(X, accept_sparse=False)
-        # Remove repeat rows
-        X = np.unique(X, axis=0)
         self._set_n_classes(y)
 
         n_samples = X.shape[0]
         if isinstance(self.max_samples, str):
             if self.max_samples == "auto":
-                max_samples = min(16, n_samples)
+                max_samples = min(8, n_samples)
             else:
                 raise ValueError(
                     "max_samples (%s) is not supported."
@@ -168,7 +169,7 @@ class INNE(BaseDetector):
             [self.n_estimators, self.max_samples_])
 
         random_state = check_random_state(self.random_state)
-        self._seeds = random_state.randit(MAX_INT, size=self.n_estimators)
+        self._seeds = random_state.randint(MAX_INT, size=self.n_estimators)
 
         for i in range(self.n_estimators):
             rnd = check_random_state(self._seeds[i])
@@ -186,7 +187,8 @@ class INNE(BaseDetector):
             cnn_index = np.argmin(center_dist, axis=1)
             cnn_radius = self._centroids_radius[i][cnn_index]
 
-            self._ratio[i] = 1 - cnn_radius / self._centroids_radius[i]
+            self._ratio[i] = 1 - (cnn_radius + MIN_FLOAT) / \
+                (self._centroids_radius[i] + MIN_FLOAT)
         return self
 
     def decision_function(self, X):
