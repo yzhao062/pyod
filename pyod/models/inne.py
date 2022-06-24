@@ -108,6 +108,8 @@ class INNE(BaseDetector):
 
         # Check data
         X = check_array(X, accept_sparse=False)
+        # Remove repeat rows
+        X = np.unique(X, axis=0)
         self._set_n_classes(y)
 
         n_samples = X.shape[0]
