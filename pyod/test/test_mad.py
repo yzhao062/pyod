@@ -37,14 +37,14 @@ class TestMAD(unittest.TestCase):
         self.clf = MAD()
         self.clf.fit(self.X_train)
         # generate data and fit model with missing value:
-        self.X_train_nan, self.y_train_nan, self.X_test_nan, self.y_test_nan = generate_data(
+        self.X_train_nan, self.X_test_nan, self.y_train_nan, self.y_test_nan = generate_data(
             n_train=self.n_train, n_test=self.n_test, n_features=1,
             contamination=self.contamination, random_state=42,
             n_nan=1)
         self.clf_nan = MAD()
         self.clf_nan.fit(self.X_train_nan)
         # generate data and fit model with infinite value:
-        self.X_train_inf, self.y_train_inf, self.X_test_inf, self.y_test_inf = generate_data(
+        self.X_train_inf, self.X_test_inf, self.y_train_inf, self.y_test_inf = generate_data(
             n_train=self.n_train, n_test=self.n_test, n_features=1,
             contamination=self.contamination, random_state=42,
             n_inf=1)
