@@ -162,3 +162,5 @@ v<1.0.1>, <04/27/2022> -- Add INNE (#396).
 v<1.0.1>, <05/13/2022> -- Urgent fix for iForest (#406).
 v<1.0.2>, <06/21/2022> -- Add GMM detector (#402).
 v<1.0.2>, <06/23/2022> -- Add ADBench Benchmark.
+v<1.0.3>, <06/27/2022> -- Change default generation to new behaviors (#409).
+

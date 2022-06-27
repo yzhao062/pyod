@@ -30,7 +30,7 @@ class TestMCD(unittest.TestCase):
         self.n_test = 100
         self.contamination = 0.1
         self.roc_floor = 0.8
-        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
+        self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination, random_state=42)
 
