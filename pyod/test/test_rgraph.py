@@ -24,8 +24,8 @@ from pyod.utils.data import generate_data
 class TestRGraph(unittest.TestCase):
     def setUp(self):
         self.n_train = 100
-        self.n_test = 50
-        self.n_features = 50
+        self.n_test = 100
+        self.n_features = 75
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
@@ -33,9 +33,10 @@ class TestRGraph(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = RGraph( n_nonzero = 100, transition_steps = 20 , gamma = 50, blocksize_test_data = 10,
+        self.clf = RGraph( n_nonzero = 100, transition_steps = 20 , gamma = 50, blocksize_test_data = 20,
                           tau = 1, preprocessing=True, active_support = False, gamma_nz = False,
-                          algorithm= 'lasso_lars', maxiter= 40, verbose = 1, contamination = self.contamination)
+                          maxiter_lasso = 100, contamination = self.contamination,
+                          algorithm= 'lasso_lars', verbose = 0 )
 
         self.clf.fit(self.X_train)
 

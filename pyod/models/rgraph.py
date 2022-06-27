@@ -54,6 +54,9 @@ class RGraph(BaseDetector):
         Algorithm for computing the representation. Either lasso_lars or lasso_cd.
         Note: ``lasso_lars`` and ``lasso_cd`` only support tau = 1. For cases tau << 1 linear regression is used.
 
+    maxiter_lasso : int, default 1000
+        The maximum number of iterations for ``lasso_lars`` and ``lasso_cd``.
+
     n_nonzero : int, default 50
         This is an upper bound on the number of nonzero entries of each representation vector. 
         If there are more than n_nonzero nonzero entries,  only the top n_nonzero number of
@@ -96,8 +99,8 @@ class RGraph(BaseDetector):
         to define the threshold on the decision function.
 
     blocksize_test_data: int, optional (default=10)
-        Test set is chopped into blocks of the size ``blocksize_test_data``
-        to at least partially separate test and train set
+        Test set is splitted into blocks of the size ``blocksize_test_data``
+        to at least partially separate test - and train set
 
     Attributes
     ----------
@@ -126,7 +129,7 @@ class RGraph(BaseDetector):
     """
 
     def __init__(self, transition_steps = 10, n_nonzero = 10 , gamma = 50.0, gamma_nz = True,
-                algorithm = 'lasso_lars', tau = 1.0, preprocessing = True, contamination = 0.1, blocksize_test_data = 10,
+                algorithm = 'lasso_lars', tau = 1.0, maxiter_lasso = 1000, preprocessing = True, contamination = 0.1, blocksize_test_data = 10,
                 support_init='L2', maxiter = 40, support_size= 100, active_support = True, verbose = True):
 
         super(RGraph, self).__init__(contamination = contamination)
@@ -139,6 +142,7 @@ class RGraph(BaseDetector):
         self.tau = tau
         self.preprocessing = preprocessing
         self.contamination = contamination
+        self.maxiter_lasso = maxiter_lasso
         self.support_init = support_init
         self.maxiter = maxiter
         self.support_size = support_size
@@ -148,12 +152,8 @@ class RGraph(BaseDetector):
 
 
     
-
-        
-        
-    
     def active_support_elastic_net(self, X, y, alpha, tau=1.0, algorithm='lasso_lars', support_init='L2', 
-                                   support_size=100, maxiter=40):
+                                   support_size=100, maxiter=40, maxiter_lasso = 1000 ):
         """
         Source: https://github.com/ChongYou/subspace-clustering/blob/master/cluster/selfrepresentation.py
             An active support based algorithm for solving the elastic net optimization problem
@@ -205,7 +205,7 @@ class RGraph(BaseDetector):
             #                      lambda1=tau*alpha, lambda2=(1.0-tau)*alpha)
             #     cs = np.asarray(cs.todense()).T
             # else:
-            cs = sparse_encode(y, Xs, algorithm=algorithm, alpha=alpha)
+            cs = sparse_encode(y, Xs, algorithm=algorithm, alpha=alpha, max_iter = maxiter_lasso)
           
             delta = (y - np.dot(cs, Xs)) / alpha
 
@@ -240,7 +240,7 @@ class RGraph(BaseDetector):
 
 
     def elastic_net_subspace_clustering(self, X, gamma=50.0, gamma_nz=True, tau=1.0, algorithm='lasso_lars', 
-                                        active_support=True, active_support_params=None, n_nonzero=50 ):
+                                        active_support=True, active_support_params=None, n_nonzero=50, maxiter_lasso = 1000 ):
         """
         Source: https://github.com/ChongYou/subspace-clustering/blob/master/cluster/selfrepresentation.py
         
@@ -336,7 +336,7 @@ class RGraph(BaseDetector):
                 else:
                     alpha = 1.0 / gamma
                     
-                if( gamma > 10**4):
+                if( gamma > 10**4 ):
                     if( gamma_is_zero_notification == False):
                         warnings.warn('Set alpha = 0 i.e. LinearRegression() is used')
                         gamma_is_zero_notification = True
@@ -360,7 +360,7 @@ class RGraph(BaseDetector):
                         #                 lambda1=tau * alpha, lambda2=(1.0-tau) * alpha)
                         # c = np.asarray(c.todense()).T[0]
                     # else:
-                    c = sparse_encode(y, X, algorithm=algorithm, alpha=alpha)[0]
+                    c = sparse_encode(y, X, algorithm=algorithm, alpha=alpha, max_iter = maxiter_lasso)[0]
 
             else:
                 warnings.warn("algorithm {} not found".format(algorithm))
@@ -395,6 +395,12 @@ class RGraph(BaseDetector):
         self : object
             Fitted estimator.
         """
+
+        # If we "re-fit" the model then we need to make sure previour self.X_train is first deleted
+        # since this parameter is used downstream in the analysis in self.decision_function().
+        if hasattr(self, 'X_train'):
+            del self.X_train
+
         X = check_array(X)
 
         if self.preprocessing:
@@ -482,7 +488,7 @@ class RGraph(BaseDetector):
 
         A = self.elastic_net_subspace_clustering(X_norm, gamma = self.gamma , gamma_nz = self.gamma_nz, 
                                                  tau= self.tau, algorithm= self.algorithm, 
-                                                 active_support= self.active_support, n_nonzero = self.n_nonzero,
+                                                 active_support= self.active_support, n_nonzero = self.n_nonzero, maxiter_lasso = self.maxiter_lasso,
                                                  active_support_params={'support_init' : self.support_init, 'support_size': self.support_size, 'maxiter':self.maxiter}
                                                  )
 
@@ -500,7 +506,7 @@ class RGraph(BaseDetector):
         pi_bar /= self.transition_steps
         scores = pi_bar[0]
     
-        # smaller scores correspond with outliers, thus we use 1- score such that
+        # smaller scores correspond with outliers, thus we use -1 * score such that
         # higher scores are associated with outliers
         scores = -1 * scores
 
