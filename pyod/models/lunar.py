@@ -187,7 +187,7 @@ class LUNAR(BaseDetector):
             Fitted estimator.
         """
 
-        X = check_array(X)
+        # X = check_array(X)
         self._set_n_classes(y)
         X = X.astype('float32')
         y = np.zeros(len(X))
@@ -286,7 +286,7 @@ class LUNAR(BaseDetector):
         # Determine outlier scores for train set
         # scale data if scaler has been passed
         if( self.scaler == None):
-            X_norm  = X
+            X_norm  = np.copy(X)
         else:
             X_norm = self.scaler.transform(X)
 
@@ -322,22 +322,24 @@ class LUNAR(BaseDetector):
         """
 
         check_is_fitted(self, ['decision_scores_'])
-        X = check_array(X)
+        # X = check_array(X)
         X = X.astype('float32')
 
         # scale data
         if( self.scaler == None):
-            pass
+            X_norm = np.copy(X)
         else:
-            X = self.scaler.transform(X)
+            X_norm = self.scaler.transform(X)
 
 
         # nearest neighbour search
-        dist, _ = self.neigh.kneighbors(X,self.n_neighbours)
+        dist, _ = self.neigh.kneighbors(X_norm, self.n_neighbours)
         dist = torch.tensor(dist,dtype=torch.float32).to(self.device)
         #forward pass
         with torch.no_grad():
             self.network.eval()
             anomaly_scores = self.network(dist)
-        return anomaly_scores.cpu().detach().numpy()
-        
+
+        scores  = anomaly_scores.cpu().detach().numpy()
+     
+        return scores
