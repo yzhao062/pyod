@@ -9,8 +9,11 @@ from copy import deepcopy
 from sklearn.metrics import roc_auc_score
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.neighbors import NearestNeighbors
+from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
+
 import torch 
 import torch.nn as nn
 import torch.optim as optim
@@ -143,8 +146,8 @@ class LUNAR(BaseDetector):
 
 
     """
-    def __init__(self, model_type = "WEIGHT", n_neighbours = 5, negative_sampling = "MIXED",
-                 epsilon = 0.1, proportion = 1.0, n_epochs = 200, lr = 0.001, wd = 0.1, verbose = 0):
+    def __init__(self, model_type = "WEIGHT", n_neighbours = 5, negative_sampling = "MIXED", test_size = 0.1, 
+                 scaler = None, epsilon = 0.1, proportion = 1.0, n_epochs = 200, lr = 0.001, wd = 0.1, verbose = 0):
         super(LUNAR, self).__init__()
 
         self.model_type = model_type
@@ -153,8 +156,10 @@ class LUNAR(BaseDetector):
         self.epsilon = epsilon
         self.proportion = proportion
         self.n_epochs = n_epochs
+        self.scaler = scaler
         self.lr = lr
         self.wd = wd
+        self.test_size = test_size
         self.verbose = verbose
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -163,7 +168,7 @@ class LUNAR(BaseDetector):
         elif model_type == "WEIGHT":
             self.network = WEIGHT_MODEL(n_neighbours).to(self.device)
 
-        self.scaler = MinMaxScaler()
+        
 
     def fit(self, X, y=None):
         """Fit detector. y is assumed to be 0 for all training samples.
@@ -182,21 +187,34 @@ class LUNAR(BaseDetector):
             Fitted estimator.
         """
 
+        X = check_array(X)
         X = X.astype('float32')
         y = np.zeros(len(X))
 
         #split training and validation sets
-        train_x, val_x, train_y, val_y = train_test_split(X, y, test_size=0.2)
-        #fit data scaler to the training set
-        self.scaler.fit(train_x)
+        train_x, val_x, train_y, val_y = train_test_split(X, y, test_size= self.test_size )
+        
+        
+        #fit data scaler to the training set if scaler has been passed
+        if( self.scaler == None):
+            pass
+        else:
+            self.scaler.fit(train_x)
+
+
         # generate negative samples for training and validation set seperately 
         neg_train_x, neg_train_y = generate_negative_samples(train_x,self.negative_sampling,self.proportion,self.epsilon)
         neg_val_x, neg_val_y = generate_negative_samples(val_x,self.negative_sampling,self.proportion,self.epsilon)
         # concatenate data
         x = np.vstack((train_x,neg_train_x,val_x,neg_val_x))
         y = np.hstack((train_y,neg_train_y,val_y,neg_val_y))
-        # scale data
-        x = self.scaler.transform(x)
+
+        # scale data if scaler has been passed
+        if( self.scaler == None):
+            pass
+        else:
+            x = self.scaler.transform(x)
+
         # mask for the training set
         train_mask = np.hstack((np.ones(len(train_x)),np.ones(len(neg_train_x)),
                                 np.zeros(len(val_x)),np.zeros(len(neg_val_x))))
@@ -262,6 +280,28 @@ class LUNAR(BaseDetector):
         # load best model after training
         self.network.load_state_dict(best_dict['model_state_dict'])
 
+
+
+        # Determine outlier scores for train set
+        # scale data if scaler has been passed
+        if( self.scaler == None):
+            X_norm  = X
+        else:
+            X_norm = self.scaler.transform(X)
+
+
+        # nearest neighbour search
+        dist, _ = self.neigh.kneighbors(X_norm,self.n_neighbours)
+        dist = torch.tensor(dist,dtype=torch.float32).to(self.device)
+        #forward pass
+        with torch.no_grad():
+            self.network.eval()
+            anomaly_scores = self.network(dist)
+   
+
+        self.decision_scores_ = anomaly_scores.cpu().detach().numpy()
+        self._process_decision_scores()
+
         return self
 
     def decision_function(self, X):
@@ -280,9 +320,17 @@ class LUNAR(BaseDetector):
             The anomaly score of the input samples.
         """
 
+        check_is_fitted(self, ['decision_scores_'])
+        X = check_array(X)
         X = X.astype('float32')
+
         # scale data
-        X = self.scaler.transform(X)
+        if( self.scaler == None):
+            pass
+        else:
+            X = self.scaler.transform(X)
+
+
         # nearest neighbour search
         dist, _ = self.neigh.kneighbors(X,self.n_neighbours)
         dist = torch.tensor(dist,dtype=torch.float32).to(self.device)
