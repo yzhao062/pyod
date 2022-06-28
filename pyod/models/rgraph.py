@@ -54,6 +54,11 @@ class RGraph(BaseDetector):
         Algorithm for computing the representation. Either lasso_lars or lasso_cd.
         Note: ``lasso_lars`` and ``lasso_cd`` only support tau = 1. For cases tau << 1 linear regression is used.
 
+
+    fit_intercept_LR: bool, optional (default=False)
+        For  ``gamma`` > 10000 linear regression is used instead of ``lasso_lars`` or ``lasso_cd``. This parameter determines whether the 
+        intercept for the model is calculated.
+
     maxiter_lasso : int, default 1000
         The maximum number of iterations for ``lasso_lars`` and ``lasso_cd``.
 
@@ -128,9 +133,9 @@ class RGraph(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, transition_steps = 10, n_nonzero = 10 , gamma = 50.0, gamma_nz = True,
-                algorithm = 'lasso_lars', tau = 1.0, maxiter_lasso = 1000, preprocessing = True, contamination = 0.1, blocksize_test_data = 10,
-                support_init='L2', maxiter = 40, support_size= 100, active_support = True, verbose = True):
+    def __init__( self, transition_steps = 10, n_nonzero = 10 , gamma = 50.0, gamma_nz = True, algorithm = 'lasso_lars', tau = 1.0, 
+                 maxiter_lasso = 1000, preprocessing = True, contamination = 0.1, blocksize_test_data = 10,
+                 support_init='L2', maxiter = 40, support_size= 100, active_support = True, fit_intercept_LR = False, verbose = True):
 
         super(RGraph, self).__init__(contamination = contamination)
 
@@ -149,6 +154,7 @@ class RGraph(BaseDetector):
         self.active_support = active_support
         self.verbose = verbose
         self.blocksize_test_data = blocksize_test_data
+        self.fit_intercept_LR = fit_intercept_LR
 
 
     
@@ -239,7 +245,7 @@ class RGraph(BaseDetector):
 
 
 
-    def elastic_net_subspace_clustering(self, X, gamma=50.0, gamma_nz=True, tau=1.0, algorithm='lasso_lars', 
+    def elastic_net_subspace_clustering(self, X, gamma=50.0, gamma_nz=True, tau=1.0, algorithm='lasso_lars', fit_intercept_LR = False,
                                         active_support=True, active_support_params=None, n_nonzero=50, maxiter_lasso = 1000 ):
         """
         Source: https://github.com/ChongYou/subspace-clustering/blob/master/cluster/selfrepresentation.py
@@ -336,7 +342,7 @@ class RGraph(BaseDetector):
                 else:
                     alpha = 1.0 / gamma
                     
-                if( gamma > 10**4 ):
+                if( gamma >= 10**4 ):
                     if( gamma_is_zero_notification == False):
                         warnings.warn('Set alpha = 0 i.e. LinearRegression() is used')
                         gamma_is_zero_notification = True
@@ -345,7 +351,7 @@ class RGraph(BaseDetector):
                     
 
                 if( alpha == 0):
-                    lr = LinearRegression()
+                    lr = LinearRegression( fit_intercept = fit_intercept_LR )
                     lr.fit(X.T , y[0]  )
                     c = lr.coef_
                         
@@ -487,7 +493,7 @@ class RGraph(BaseDetector):
     def _decision_function(self, X_norm):
 
         A = self.elastic_net_subspace_clustering(X_norm, gamma = self.gamma , gamma_nz = self.gamma_nz, 
-                                                 tau= self.tau, algorithm= self.algorithm, 
+                                                 tau= self.tau, algorithm= self.algorithm, fit_intercept_LR = self.fit_intercept_LR,
                                                  active_support= self.active_support, n_nonzero = self.n_nonzero, maxiter_lasso = self.maxiter_lasso,
                                                  active_support_params={'support_init' : self.support_init, 'support_size': self.support_size, 'maxiter':self.maxiter}
                                                  )
