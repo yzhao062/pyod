@@ -16,6 +16,7 @@ from numpy.testing import assert_raises
 
 from sklearn.metrics import roc_auc_score
 from sklearn.base import clone
+from sklearn.preprocessing import StandardScaler
 from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
@@ -24,11 +25,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pyod.models.lunar import LUNAR
 from pyod.utils.data import generate_data
 
+
+
 class TestLUNAR(unittest.TestCase):
     def setUp(self):
-        self.n_train = 3000
-        self.n_test = 1000
-        self.n_features = 200
+        self.n_train = 500
+        self.n_test = 100
+        self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
@@ -36,7 +39,7 @@ class TestLUNAR(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = LUNAR()
+        self.clf = LUNAR(n_epochs = 100, scaler = StandardScaler(), verbose = 0 )
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -142,6 +145,8 @@ class TestLUNAR(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -188,6 +188,7 @@ class LUNAR(BaseDetector):
         """
 
         X = check_array(X)
+        self._set_n_classes(y)
         X = X.astype('float32')
         y = np.zeros(len(X))
 
