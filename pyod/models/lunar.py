@@ -176,7 +176,7 @@ class LUNAR(BaseDetector):
         # X = check_array(X)
         self._set_n_classes(y)
         X = X.astype('float32')
-        y = np.zeros(len(X))
+        y = np.zeros(len(X), dtype = 'int64')
 
         #split training and validation sets
         train_x, val_x, train_y, val_y = train_test_split(X, y, test_size = self.val_size)
