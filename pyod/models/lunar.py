@@ -285,7 +285,7 @@ class LUNAR(BaseDetector):
             self.network.eval()
             anomaly_scores = self.network(dist)
 
-        self.decision_scores_ = anomaly_scores.cpu().detach().numpy()
+        self.decision_scores_ = anomaly_scores.cpu().detach().numpy().ravel()
         self._process_decision_scores()
 
         return self
@@ -321,6 +321,6 @@ class LUNAR(BaseDetector):
             self.network.eval()
             anomaly_scores = self.network(dist)
 
-        scores  = anomaly_scores.cpu().detach().numpy()
+        scores  = anomaly_scores.cpu().detach().numpy().ravel()
 
         return scores 
