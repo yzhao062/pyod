@@ -28,7 +28,7 @@ class TestLUNAR(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
         self.n_test = 100
-        self.n_features = 2
+        self.n_features = 10
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
