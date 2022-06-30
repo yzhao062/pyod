@@ -176,7 +176,7 @@ class LUNAR(BaseDetector):
         # X = check_array(X)
         self._set_n_classes(y)
         X = X.astype('float32')
-        y = np.zeros(len(X), dtype = 'int64')
+        y = np.zeros(len(X))
 
         #split training and validation sets
         train_x, val_x, train_y, val_y = train_test_split(X, y, test_size = self.val_size)
@@ -220,7 +220,7 @@ class LUNAR(BaseDetector):
         val_dist = torch.tensor(val_dist,dtype=torch.float32).to(self.device)
         val_y = torch.tensor(val_y, dtype = torch.float32).to(self.device)
         #loss function
-        criterion = nn.MSELoss(reduction = 'none')    
+        criterion = nn.MSELoss(reduction = 'none')
         # optimizer
         optimizer = optim.Adam(self.network.parameters(), lr = self.lr, weight_decay = self.wd)
         # for early stopping
