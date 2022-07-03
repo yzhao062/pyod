@@ -276,7 +276,7 @@ class BaseDetector(object):
 
         # Transform the outlier probability into a confidence value
         confidence = np.vectorize(
-            lambda p: 1 - binom.cdf(n - np.int(n * self.contamination), n, p))(
+            lambda p: 1 - binom.cdf(n - int(n * self.contamination), n, p))(
             posterior_prob)
         prediction = (test_scores > self.threshold_).astype('int').ravel()
         np.place(confidence, prediction == 0, 1 - confidence[prediction == 0])
