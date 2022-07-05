@@ -55,3 +55,8 @@ Michiel Bongaerts (PhD student @ Erasmus Medical Centre Metabolomics & Genetics)
 
 - Joined in 2022 (implemented AnoGAN and more)
 - `GitHub (Michiel Bongaerts) <https://github.com/mbongaerts>`_
+
+Adam Goodge (PhD Researcher @ National University of Singapore):
+
+- Joined in 2022 (implemented LUNAR)
+- `LinkedIn (Adam Goodge) <https://www.linkedin.com/in/adam-goodge-33908691/>`_
