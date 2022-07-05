@@ -40,13 +40,12 @@ if __name__ == "__main__":
 
     # train AutoEncoder detector
     clf_name = 'AnoGAN'
-    clf = AnoGAN( G_layers = [10,20], D_layers = [20,2], 
-                  preprocessing = True, index_D_layer_for_recon_error = 1,
-                  epochs = 200, contamination = contamination, verbose = 1 )
-    
+    clf = AnoGAN(G_layers=[10, 20], D_layers=[20, 2],
+                 preprocessing=True, index_D_layer_for_recon_error=1,
+                 epochs=200, contamination=contamination, verbose=1)
+
     clf.fit(X_train)
 
-    
     # get the prediction labels and outlier scores of the training data
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
     y_train_scores = clf.decision_scores_  # raw outlier scores
@@ -60,11 +59,9 @@ if __name__ == "__main__":
     evaluate_print(clf_name, y_train, y_train_scores)
     print("\nOn Test Data:")
     evaluate_print(clf_name, y_test, y_test_scores)
-    
+
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=True)
-
+              y_test_pred, show_figure=True, save_figure=False)
 
     clf.plot_learning_curves(window_smoothening=30)
-

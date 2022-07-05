@@ -11,6 +11,15 @@ pyod.models.abod module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.anogan module
+-------------------------
+
+.. automodule:: pyod.models.anogan
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.auto\_encoder module
 --------------------------------
 
