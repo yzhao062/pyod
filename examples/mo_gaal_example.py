@@ -27,7 +27,7 @@ if __name__ == "__main__":
     n_features = 300  # number of features
 
     # Generate sample data
-    X_train, y_train, X_test, y_test = \
+    X_train, X_test, y_train, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
                       n_features=n_features,

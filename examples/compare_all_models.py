@@ -33,14 +33,10 @@ from pyod.models.hbos import HBOS
 from pyod.models.iforest import IForest
 from pyod.models.knn import KNN
 from pyod.models.lof import LOF
-from pyod.models.loci import LOCI
 from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
-from pyod.models.sos import SOS
 from pyod.models.lscp import LSCP
-from pyod.models.cof import COF
-from pyod.models.sod import SOD
 
 # TODO: add neural networks, LOCI, SOS, COF, SOD
 

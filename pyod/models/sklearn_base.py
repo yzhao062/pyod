@@ -46,8 +46,7 @@ def _partition_estimators(n_estimators, n_jobs):
     n_jobs = min(_get_n_jobs(n_jobs), n_estimators)
 
     # Partition estimators between jobs
-    n_estimators_per_job = (n_estimators // n_jobs) * np.ones(n_jobs,
-                                                              dtype=np.int)
+    n_estimators_per_job = (n_estimators // n_jobs) * np.ones(n_jobs, dtype=int)
     n_estimators_per_job[:n_estimators % n_jobs] += 1
     starts = np.cumsum(n_estimators_per_job)
 

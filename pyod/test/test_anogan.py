@@ -7,34 +7,38 @@ import sys
 
 import unittest
 # noinspection PyProtectedMember
-from numpy.testing import assert_allclose
-from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
 from sklearn.metrics import roc_auc_score
 from sklearn.base import clone
-from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.lof import LOF
+from pyod.models.anogan import AnoGAN
 from pyod.utils.data import generate_data
 
 
-class TestLOF(unittest.TestCase):
+class TestAnoGAN(unittest.TestCase):
     def setUp(self):
-        self.n_train = 200
-        self.n_test = 100
+        self.n_train = 100
+        self.n_test = 50
+        self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
+
+        # Generate sample data
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
-            contamination=self.contamination, random_state=42)
+            n_features=self.n_features, contamination=self.contamination,
+            random_state=42)
 
-        self.clf = LOF(contamination=self.contamination)
+        self.clf = AnoGAN(G_layers=[10, 20], D_layers=[20, 2], epochs_query=10,
+                          preprocessing=True, index_D_layer_for_recon_error=1,
+                          epochs=500, contamination=self.contamination, verbose=0)
+
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -48,8 +52,10 @@ class TestLOF(unittest.TestCase):
                 self.clf._mu is not None)
         assert (hasattr(self.clf, '_sigma') and
                 self.clf._sigma is not None)
-        assert (hasattr(self.clf, 'n_neighbors_') and
-                self.clf.n_neighbors_ is not None)
+        assert (hasattr(self.clf, 'generator') and
+                self.clf.generator is not None)
+        assert (hasattr(self.clf, 'discriminator') and
+                self.clf.discriminator is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
@@ -119,25 +125,8 @@ class TestLOF(unittest.TestCase):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
 
-    def test_predict_rank(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test)
-
-        # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
-        assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
-        assert_array_less(-0.1, pred_ranks)
-
-    def test_predict_rank_normalized(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
-
-        # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
-        assert_array_less(pred_ranks, 1.01)
-        assert_array_less(-0.1, pred_ranks)
-
     def test_model_clone(self):
+        # for deep models this may not apply
         clone_clf = clone(self.clf)
 
     def tearDown(self):
