@@ -28,9 +28,9 @@ def generate_negative_samples(x, sample_type, proportion, epsilon):
     n_samples = int(proportion*(len(x)))
     n_dim = x.shape[-1]
 
-    # uniform samples in range [0,1]
-    rand_unif = np.random.rand(n_samples,n_dim).astype('float32')
-    #rand_unif = x.min() + (x.max() - x.min())*np.random.rand(n_samples,n_dim).astype('float32')
+    # uniform samples in range [x.min(),x.max()]
+    #rand_unif = np.random.rand(n_samples,n_dim).astype('float32')
+    rand_unif = x.min() + (x.max() - x.min())*np.random.rand(n_samples,n_dim).astype('float32')
     # subspace perturbation samples
     x_temp = x[np.random.choice(np.arange(len(x)),size = n_samples)]
     randmat = np.random.rand(n_samples,n_dim) < 0.3
