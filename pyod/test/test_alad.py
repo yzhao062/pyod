@@ -46,7 +46,7 @@ class TestALAD(unittest.TestCase):
                          enc_layers=[ 100, 75 ], 
                          disc_layers= [ 100, 75 ], spectral_normalization = False, 
                          activation_hidden_disc = 'tanh', activation_hidden_gen = 'tanh' , 
-                         preprocessing=True, batch_size = 200, contamination = contamination)
+                         preprocessing=True, batch_size = 200, contamination = self.contamination)
         
         self.clf.fit(self.X_train)
 
