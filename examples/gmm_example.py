@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
-"""Example of using Isolation Forest for outlier detection
+"""Example of using GMM for outlier detection
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+
+# Author: Akira Tamamori
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import os
 import sys
 
+from pyod.models.gmm import GMM
+from pyod.utils.data import evaluate_print, generate_data_clusters
+from pyod.utils.example import visualize
+
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
-
-from pyod.models.iforest import IForest
-from pyod.utils.data import generate_data
-
-from pyod.utils.data import evaluate_print
-from pyod.utils.example import visualize
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
@@ -27,16 +24,18 @@ if __name__ == "__main__":
     n_test = 100  # number of testing points
 
     # Generate sample data
-    X_train, X_test, y_train, y_test = \
-        generate_data(n_train=n_train,
-                      n_test=n_test,
-                      n_features=2,
-                      contamination=contamination,
-                      random_state=42)
+    X_train, X_test, y_train, y_test = generate_data_clusters(
+        n_train=n_train,
+        n_test=n_test,
+        n_features=2,
+        n_clusters=4,
+        contamination=contamination,
+        random_state=42,
+    )
 
-    # train IForest detector
-    clf_name = 'IForest'
-    clf = IForest()
+    # train kNN detector
+    clf_name = "GMM"
+    clf = GMM(n_components=4)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
@@ -52,10 +51,6 @@ if __name__ == "__main__":
     evaluate_print(clf_name, y_train, y_train_scores)
     print("\nOn Test Data:")
     evaluate_print(clf_name, y_test, y_test_scores)
-
-    # example of the feature importance
-    feature_importance = clf.feature_importances_
-    print("Feature importance", feature_importance)
 
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,

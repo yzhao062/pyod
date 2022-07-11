@@ -11,6 +11,15 @@ pyod.models.abod module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.anogan module
+-------------------------
+
+.. automodule:: pyod.models.anogan
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.auto\_encoder module
 --------------------------------
 
@@ -101,6 +110,16 @@ pyod.models.feature\_bagging module
 -----------------------------------
 
 .. automodule:: pyod.models.feature_bagging
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+
+pyod.models.gmm module
+----------------------
+
+.. automodule:: pyod.models.gmm
     :members:
     :undoc-members:
     :show-inheritance:

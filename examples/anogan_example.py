@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Example of using Isolation Forest for outlier detection
+"""Example for Anomaly Detection with Generative Adversarial Networks  (AnoGAN)
+ Paper: https://arxiv.org/pdf/1703.05921.pdf
+ Note, that this is another implementation of AnoGAN as the one from https://github.com/fuchami/ANOGAN
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Michiel Bongaerts (but not author of the AnoGAN method)
 # License: BSD 2 clause
+
 
 from __future__ import division
 from __future__ import print_function
@@ -15,9 +18,8 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from pyod.models.iforest import IForest
+from pyod.models.anogan import AnoGAN
 from pyod.utils.data import generate_data
-
 from pyod.utils.data import evaluate_print
 from pyod.utils.example import visualize
 
@@ -27,16 +29,21 @@ if __name__ == "__main__":
     n_test = 100  # number of testing points
 
     # Generate sample data
-    X_train, X_test, y_train, y_test = \
-        generate_data(n_train=n_train,
-                      n_test=n_test,
-                      n_features=2,
-                      contamination=contamination,
-                      random_state=42)
+    X_train, X_test, y_train, y_test = generate_data(
+        n_train=n_train,
+        n_test=n_test,
+        n_features=2,
+        contamination=contamination,
+        behaviour="new",
+        random_state=42,
+    )
 
-    # train IForest detector
-    clf_name = 'IForest'
-    clf = IForest()
+    # train AutoEncoder detector
+    clf_name = 'AnoGAN'
+    clf = AnoGAN(G_layers=[10, 20], D_layers=[20, 2],
+                 preprocessing=True, index_D_layer_for_recon_error=1,
+                 epochs=200, contamination=contamination, verbose=1)
+
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
@@ -53,10 +60,8 @@ if __name__ == "__main__":
     print("\nOn Test Data:")
     evaluate_print(clf_name, y_test, y_test_scores)
 
-    # example of the feature importance
-    feature_importance = clf.feature_importances_
-    print("Feature importance", feature_importance)
-
     # visualize the results
     visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
               y_test_pred, show_figure=True, save_figure=False)
+
+    clf.plot_learning_curves(window_smoothening=30)
