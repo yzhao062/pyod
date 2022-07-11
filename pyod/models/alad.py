@@ -28,7 +28,7 @@ else:
     from tensorflow.keras.models import Model
     from tensorflow.keras.layers import Input, Dense, Dropout
     from tensorflow.keras.optimizers import Adam
-    import tensorflow_addons as tfa
+    
     
 
 
@@ -115,7 +115,7 @@ class ALAD(BaseDetector):
                  epochs = 200,
                  verbose = 0,
                  preprocessing = False, 
-                 add_disc_zz_loss = True,
+                 add_disc_zz_loss = True,  spectral_normalization = False,
                  batch_size = 32, contamination=0.1):
         super(ALAD, self).__init__(contamination=contamination)
 
@@ -138,6 +138,16 @@ class ALAD(BaseDetector):
         self.preprocessing = preprocessing
         self.batch_size = batch_size
         self.verbose = verbose
+        self.spectral_normalization = spectral_normalization
+
+        if( self.spectral_normalization == True):
+            try:
+                import tensorflow_addons as tfa
+            except ModuleNotFoundError:
+                # Error handling
+                print('tensorflow_addons not found, cannot use spectral normalization. Install tensorflow_addons first.')
+                self.spectral_normalization = False
+
 
         check_parameter(dropout_rate, 0, 1, param_name='dropout_rate', include_left=True)
 
@@ -193,8 +203,12 @@ class ALAD(BaseDetector):
         disc_xz_hl_dict = {}
         for i, l_dim in enumerate(self.disc_layers):
             layer_name = 'hl_{}'.format(i)
-            disc_xz_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                tfa.layers.SpectralNormalization( Dense(l_dim, activation=self.activation_hidden_disc) )(last_layer) )
+
+            if( self.spectral_normalization == True):
+                disc_xz_hl_dict[layer_name] = Dropout(self.dropout_rate)(tfa.layers.SpectralNormalization( Dense(l_dim, activation=self.activation_hidden_disc) )(last_layer) )
+            else:
+                disc_xz_hl_dict[layer_name] = Dropout(self.dropout_rate)( Dense(l_dim, activation=self.activation_hidden_disc)(last_layer) )
+
             last_layer = disc_xz_hl_dict[layer_name]
 
         disc_xz_out = Dense(1, activation= 'sigmoid'  )(last_layer)
@@ -213,8 +227,12 @@ class ALAD(BaseDetector):
         disc_xx_hl_dict = {}
         for i, l_dim in enumerate(self.disc_layers):
             layer_name = 'hl_{}'.format(i)
-            disc_xx_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                tfa.layers.SpectralNormalization( Dense(l_dim, activation=self.activation_hidden_disc) )(last_layer)  ) 
+
+            if( self.spectral_normalization == True):
+                disc_xx_hl_dict[layer_name] = Dropout(self.dropout_rate)(tfa.layers.SpectralNormalization( Dense(l_dim, activation=self.activation_hidden_disc) )(last_layer) )
+            else:
+                disc_xx_hl_dict[layer_name] = Dropout(self.dropout_rate)( Dense(l_dim, activation=self.activation_hidden_disc)(last_layer) )
+
             last_layer = disc_xx_hl_dict[layer_name]
 
         disc_xx_out = Dense(1, activation= 'sigmoid' )(last_layer)
@@ -234,8 +252,12 @@ class ALAD(BaseDetector):
         disc_zz_hl_dict = {}
         for i, l_dim in enumerate(self.disc_layers):
             layer_name = 'hl_{}'.format(i)
-            disc_zz_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                tfa.layers.SpectralNormalization( Dense(l_dim, activation=self.activation_hidden_disc) )(last_layer) ) 
+
+            if( self.spectral_normalization == True):
+                disc_zz_hl_dict[layer_name] = Dropout(self.dropout_rate)(tfa.layers.SpectralNormalization( Dense(l_dim, activation=self.activation_hidden_disc) )(last_layer) )
+            else:
+                disc_zz_hl_dict[layer_name] = Dropout(self.dropout_rate)( Dense(l_dim, activation=self.activation_hidden_disc)(last_layer) )
+
             last_layer = disc_zz_hl_dict[layer_name]
 
         disc_zz_out = Dense(1, activation= 'sigmoid' )(last_layer)

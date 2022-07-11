@@ -42,7 +42,7 @@ if __name__ == "__main__":
                  add_disc_zz_loss = True,
                  dec_layers=[ 75, 100 ], 
                  enc_layers=[ 100, 75 ], 
-                 disc_layers= [ 100, 75 ],
+                 disc_layers= [ 100, 75 ], spectral_normalization = False, 
                  activation_hidden_disc = 'tanh', activation_hidden_gen = 'tanh' , 
                  preprocessing=True, batch_size = 200, contamination = contamination)
     
