@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Using Adversarially Learned Anomaly Detection
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
-# License: BSD 2 clause
+# Author: Michiel Bongaerts (but not author of the ALAD method)
 
 from __future__ import division
 from __future__ import print_function
@@ -153,12 +152,12 @@ class ALAD(BaseDetector):
 
     def _build_model(self):
         
-        
         #### Decoder #####
         dec_in = Input(shape=(self.latent_dim,), name='I1')
         dec_1 = Dropout(self.dropout_rate)(dec_in)
         last_layer = dec_1
 
+        # Store all hidden layers in dict
         dec_hl_dict = {}
         for i, l_dim in enumerate(self.dec_layers):
             layer_name = 'hl_{}'.format(i)
@@ -177,6 +176,7 @@ class ALAD(BaseDetector):
         enc_1 = Dropout(self.dropout_rate)(enc_in)
         last_layer = enc_1
 
+        # Store all hidden layers in dict
         enc_hl_dict = {}
         for i, l_dim in enumerate(self.enc_layers):
             layer_name = 'hl_{}'.format(i)
@@ -200,6 +200,7 @@ class ALAD(BaseDetector):
         disc_xz_1 = Dropout(self.dropout_rate )(disc_xz_in)
         last_layer = disc_xz_1
 
+        # Store all hidden layers in dict
         disc_xz_hl_dict = {}
         for i, l_dim in enumerate(self.disc_layers):
             layer_name = 'hl_{}'.format(i)
@@ -224,6 +225,7 @@ class ALAD(BaseDetector):
         disc_xx_1 = Dropout(self.dropout_rate, input_shape=(self.n_features_,))(disc_xx_in)
         last_layer = disc_xx_1
 
+        # Store all hidden layers in dict
         disc_xx_hl_dict = {}
         for i, l_dim in enumerate(self.disc_layers):
             layer_name = 'hl_{}'.format(i)
@@ -249,6 +251,7 @@ class ALAD(BaseDetector):
         disc_zz_1 = Dropout(self.dropout_rate, input_shape=(self.n_features_,))(disc_zz_in)
         last_layer = disc_zz_1
 
+        # Store all hidden layers in dict
         disc_zz_hl_dict = {}
         for i, l_dim in enumerate(self.disc_layers):
             layer_name = 'hl_{}'.format(i)
@@ -311,7 +314,7 @@ class ALAD(BaseDetector):
             out_fakexx, _ = self.disc_xx({'I1': x_real, 'I2': self.dec({'I1':  self.enc({'I1': x_real }, training=True) }) }, training=True)  
             
             
-            #Losses
+            #Losses for discriminators
             loss_dxz = cross_entropy(y_true, out_truexz) + cross_entropy( y_fake,out_fakexz)
             loss_dxx = cross_entropy(y_true, out_truexx) + cross_entropy( y_fake,out_fakexx)
             if( self.add_disc_zz_loss == True):
@@ -320,6 +323,7 @@ class ALAD(BaseDetector):
             else:
                 loss_disc = loss_dxz + loss_dxx
 
+            #Losses for generator
             loss_gexz = cross_entropy( y_true,out_fakexz) + cross_entropy( y_fake,out_truexz)
             loss_gexx = cross_entropy( y_true,out_fakexx) + cross_entropy( y_fake,out_truexx)
             if( self.add_disc_zz_loss == True):
@@ -406,11 +410,11 @@ class ALAD(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        # Verify and construct the hidden units
+        # Get number of sampels and features from train set
         self.n_samples_, self.n_features_ = X.shape[0], X.shape[1]
         self._build_model()
 
-        # Standardize data for better performance
+        # Apply data scaling or not
         if self.preprocessing:
             self.scaler_ = StandardScaler()
             X_norm = self.scaler_.fit_transform(X)
@@ -432,8 +436,8 @@ class ALAD(BaseDetector):
             
             
 
-        # Predict on X itself and calculate the reconstruction error as
-        # the outlier scores. Noted X_norm was shuffled has to recreate
+        # Predict on X itself and calculate the the outlier scores. 
+        # Note, X_norm was shuffled and needs to be recreated
         if self.preprocessing:
             X_norm = self.scaler_.transform(X)
         else:
@@ -448,8 +452,14 @@ class ALAD(BaseDetector):
             
             
     def train_more(self, X, epochs=100, noise_std = 0.1 ):
+        """This function allows the researcher to perform extra training instead of the fixed number determined
+        by the fit() function.
+        """
 
-        # Standardize data for better performance
+        # fit() should have been called first
+        check_is_fitted(self, ['decision_scores_'])
+
+        # Apply data scaling or not
         if self.preprocessing:
             X_norm = self.scaler_.transform(X)
         else:
@@ -465,7 +475,22 @@ class ALAD(BaseDetector):
             X_train_sel = X_norm[0: min(self.batch_size, self.n_samples_), :]
             latent_noise = np.random.normal(0, 1, (X_train_sel.shape[0], self.latent_dim))
             X_train_sel += np.random.normal(0,noise_std, size = X_train_sel.shape)
-            self.train_step( ( np.float32(X_train_sel), np.float32(latent_noise) ) )          
+            self.train_step( ( np.float32(X_train_sel), np.float32(latent_noise) ) )   
+
+
+
+        # Predict on X itself and calculate the the outlier scores. 
+        # Note, X_norm was shuffled and needs to be recreated
+        if self.preprocessing:
+            X_norm = self.scaler_.transform(X)
+        else:
+            X_norm = np.copy(X)
+
+        pred_scores = self.get_outlier_scores(X_norm)
+        self.decision_scores_ = pred_scores
+        self._process_decision_scores()
+        return self
+
             
 
     def get_outlier_scores(self, X_norm):
