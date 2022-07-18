@@ -60,8 +60,14 @@ class ALAD(BaseDetector):
     enc_layers : list, optional (default=[25,10,5])
         List that indicates the number of nodes per hidden layer for the encoder network.
         Thus, [10,10] indicates 2 hidden layers having each 10 nodes.
-    disc_layers : list, optional (default=[25,10,5])
-        List that indicates the number of nodes per hidden layer for the discrimator networks.
+    disc_xx_layers : list, optional (default=[25,10,5])
+        List that indicates the number of nodes per hidden layer for discrimator_xx.
+        Thus, [10,10] indicates 2 hidden layers having each 10 nodes.
+    disc_zz_layers : list, optional (default=[25,10,5])
+        List that indicates the number of nodes per hidden layer for discrimator_zz.
+        Thus, [10,10] indicates 2 hidden layers having each 10 nodes.
+    disc_xz_layers : list, optional (default=[25,10,5])
+        List that indicates the number of nodes per hidden layer for discrimator_xz.
         Thus, [10,10] indicates 2 hidden layers having each 10 nodes.
     learning_rate_gen: float in (0., 1), optional (default=0.001)
         learning rate of training the the encoder and decoder
@@ -108,7 +114,9 @@ class ALAD(BaseDetector):
                  latent_dim=2,
                  dec_layers=[5, 10, 25], 
                  enc_layers=[25, 10, 5], 
-                 disc_layers=[25, 10, 5], 
+                 disc_xx_layers=[25, 10, 5], 
+                 disc_zz_layers=[25, 10, 5], 
+                 disc_xz_layers=[25, 10, 5], 
                  learning_rate_gen = 0.0001, learning_rate_disc = 0.0001,
                  add_recon_loss = False, lambda_recon_loss = 0.1,
                  epochs = 200,
@@ -124,7 +132,11 @@ class ALAD(BaseDetector):
         self.latent_dim = latent_dim
         self.dec_layers = dec_layers
         self.enc_layers = enc_layers
-        self.disc_layers = disc_layers
+
+        self.disc_xx_layers = disc_xx_layers
+        self.disc_zz_layers = disc_zz_layers
+        self.disc_xz_layers = disc_xz_layers
+
         self.add_recon_loss = add_recon_loss
         self.lambda_recon_loss = lambda_recon_loss
         self.add_disc_zz_loss = add_disc_zz_loss
@@ -202,7 +214,7 @@ class ALAD(BaseDetector):
 
         # Store all hidden layers in dict
         disc_xz_hl_dict = {}
-        for i, l_dim in enumerate(self.disc_layers):
+        for i, l_dim in enumerate(self.disc_xz_layers):
             layer_name = 'hl_{}'.format(i)
 
             if( self.spectral_normalization == True):
@@ -227,7 +239,7 @@ class ALAD(BaseDetector):
 
         # Store all hidden layers in dict
         disc_xx_hl_dict = {}
-        for i, l_dim in enumerate(self.disc_layers):
+        for i, l_dim in enumerate(self.disc_xx_layers):
             layer_name = 'hl_{}'.format(i)
 
             if( self.spectral_normalization == True):
@@ -253,7 +265,7 @@ class ALAD(BaseDetector):
 
         # Store all hidden layers in dict
         disc_zz_hl_dict = {}
-        for i, l_dim in enumerate(self.disc_layers):
+        for i, l_dim in enumerate(self.disc_zz_layers):
             layer_name = 'hl_{}'.format(i)
 
             if( self.spectral_normalization == True):
