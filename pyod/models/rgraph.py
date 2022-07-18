@@ -409,6 +409,7 @@ class RGraph(BaseDetector):
 
         X = check_array(X)
 
+        # Fit scaler on train set
         if self.preprocessing:
             self.scaler_ = StandardScaler()
             self.scaler_.fit(X)
@@ -461,10 +462,13 @@ class RGraph(BaseDetector):
 
                 if( X_block_i.shape[0] >= 1):
                     original_size_i = X_block_i.shape[0]
+
+                    # Concatenate train set with part of the test set
                     X_i = np.concatenate((self.X_train, X_block_i), axis=0)
 
-                    # Standardize data for better performance
+                    
                     if self.preprocessing:
+                        # Scale concatenated data 
                         X_i_norm = self.scaler_.transform(X_i)
                     else:
                         X_i_norm = np.copy(X_i)
@@ -477,9 +481,9 @@ class RGraph(BaseDetector):
             return scores
 
         else:
-
-            # Train set
+            
             if self.preprocessing:
+                # Scale train set
                 X_norm = self.scaler_.transform(X)
             else:
                 X_norm = np.copy(X)
