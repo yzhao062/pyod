@@ -62,21 +62,6 @@ class TestRGraph(unittest.TestCase):
                     self.clf.transition_matrix_ is not None)
 
 
-        assert (hasattr(self.clf, 'decision_scores_') and
-                self.clf.decision_scores_ is not None)
-        assert (hasattr(self.clf, 'labels_') and
-                self.clf.labels_ is not None)
-        assert (hasattr(self.clf, 'threshold_') and
-                self.clf.threshold_ is not None)
-        assert (hasattr(self.clf, '_mu') and
-                self.clf._mu is not None)
-        assert (hasattr(self.clf, '_sigma') and
-                self.clf._sigma is not None)
-        assert (hasattr(self.clf, 'generator') and
-                self.clf.generator is not None)
-        assert (hasattr(self.clf, 'discriminator') and
-                self.clf.discriminator is not None)
-
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
