@@ -28,19 +28,31 @@ class TestRGraph(unittest.TestCase):
         self.n_features = 75
         self.contamination = 0.1
         self.roc_floor = 0.8
+<<<<<<< HEAD:pyod/test/test_rgraph.py
+=======
+
+        # Generate sample data
+>>>>>>> c2839e0c6acd08b219398804326b43ba3e262af4:pyod/test/test_anogan.py
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
+<<<<<<< HEAD:pyod/test/test_rgraph.py
         self.clf = RGraph( n_nonzero = 100, transition_steps = 20 , gamma = 50, blocksize_test_data = 20,
                           tau = 1, preprocessing=True, active_support = False, gamma_nz = False,
                           maxiter_lasso = 100, contamination = self.contamination,
                           algorithm= 'lasso_lars', verbose = 0 )
+=======
+        self.clf = AnoGAN(G_layers=[10, 20], D_layers=[20, 2], epochs_query=10,
+                          preprocessing=True, index_D_layer_for_recon_error=1,
+                          epochs=500, contamination=self.contamination, verbose=0)
+>>>>>>> c2839e0c6acd08b219398804326b43ba3e262af4:pyod/test/test_anogan.py
 
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
+<<<<<<< HEAD:pyod/test/test_rgraph.py
         assert(hasattr(self.clf, 'decision_scores_') and
                     self.clf.decision_scores_ is not None)
         assert(hasattr(self.clf, 'labels_') and
@@ -54,6 +66,22 @@ class TestRGraph(unittest.TestCase):
         assert(hasattr(self.clf, 'transition_matrix_') and
                     self.clf.transition_matrix_ is not None)
 
+=======
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, '_mu') and
+                self.clf._mu is not None)
+        assert (hasattr(self.clf, '_sigma') and
+                self.clf._sigma is not None)
+        assert (hasattr(self.clf, 'generator') and
+                self.clf.generator is not None)
+        assert (hasattr(self.clf, 'discriminator') and
+                self.clf.discriminator is not None)
+>>>>>>> c2839e0c6acd08b219398804326b43ba3e262af4:pyod/test/test_anogan.py
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
@@ -122,6 +150,7 @@ class TestRGraph(unittest.TestCase):
         with assert_raises(NotImplementedError):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
+
     def test_model_clone(self):
         # for deep models this may not apply
         clone_clf = clone(self.clf)

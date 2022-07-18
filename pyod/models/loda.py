@@ -91,7 +91,7 @@ class LODA(BaseDetector):
 
         n_components = X.shape[1]
         n_nonzero_components = np.sqrt(n_components)
-        n_zero_components = n_components - np.int(n_nonzero_components)
+        n_zero_components = n_components - int(n_nonzero_components)
 
         self.projections_ = np.random.randn(self.n_random_cuts, n_components)
 

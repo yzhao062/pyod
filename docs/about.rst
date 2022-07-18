@@ -44,9 +44,19 @@ Roel Bouman (Ph.D. Student @ Radboud University):
 Rafał Bodziony (Data Scientist):
 
 - Joined in 2021 (implemented DeepSVDD)
-- `LinkedIn (Roel Bouman) <https://pl.linkedin.com/in/rafalbodziony>`_
+- `LinkedIn (Rafał Bodziony) <https://pl.linkedin.com/in/rafalbodziony>`_
 
 Dr Akira Tamamori (Associate Professor @ Aichi Institute of Technology):
 
 - Joined in 2022 (implemented multiple OD algorithms such as KDE, sampling, and more)
 - `Homepage (Dr Akira Tamamori) <https://researchmap.jp/tamamori?lang=en>`_
+
+Michiel Bongaerts (PhD student @ Erasmus Medical Centre Metabolomics & Genetics):
+
+- Joined in 2022 (implemented AnoGAN and more)
+- `GitHub (Michiel Bongaerts) <https://github.com/mbongaerts>`_
+
+Adam Goodge (PhD Researcher @ National University of Singapore):
+
+- Joined in 2022 (implemented LUNAR)
+- `LinkedIn (Adam Goodge) <https://www.linkedin.com/in/adam-goodge-33908691/>`_

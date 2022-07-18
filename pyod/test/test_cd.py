@@ -36,7 +36,7 @@ class TestCD(unittest.TestCase):
         self.contamination = 0.1
         # GAN may yield unstable results; turning performance check off
         # self.roc_floor = 0.8
-        self.X_train, self.y_train, self.X_test, self.y_test = generate_data(
+        self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
