@@ -153,6 +153,7 @@ class ALAD(BaseDetector):
 
         if( self.spectral_normalization == True):
             try:
+                global tfa
                 import tensorflow_addons as tfa
             except ModuleNotFoundError:
                 # Error handling
