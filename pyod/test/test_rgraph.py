@@ -17,45 +17,51 @@ from sklearn.base import clone
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.anogan import AnoGAN
+from pyod.models.rgraph import RGraph
 from pyod.utils.data import generate_data
 
 
-class TestAnoGAN(unittest.TestCase):
+class TestRGraph(unittest.TestCase):
     def setUp(self):
         self.n_train = 100
-        self.n_test = 50
-        self.n_features = 2
+        self.n_test = 100
+        self.n_features = 80
         self.contamination = 0.1
         self.roc_floor = 0.8
 
         # Generate sample data
+
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = AnoGAN(G_layers=[10, 20], D_layers=[20, 2], epochs_query=10,
-                          preprocessing=True, index_D_layer_for_recon_error=1,
-                          epochs=500, contamination=self.contamination, verbose=0)
+
+        self.clf = RGraph( n_nonzero = 100, transition_steps = 20 , gamma = 50, blocksize_test_data = 20,
+                          tau = 1, preprocessing=True, active_support = False, gamma_nz = False,
+                          maxiter_lasso = 100, contamination = self.contamination,
+                          algorithm= 'lasso_lars', verbose = 0 )
+
+
 
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        assert (hasattr(self.clf, 'decision_scores_') and
-                self.clf.decision_scores_ is not None)
-        assert (hasattr(self.clf, 'labels_') and
-                self.clf.labels_ is not None)
-        assert (hasattr(self.clf, 'threshold_') and
-                self.clf.threshold_ is not None)
-        assert (hasattr(self.clf, '_mu') and
-                self.clf._mu is not None)
-        assert (hasattr(self.clf, '_sigma') and
-                self.clf._sigma is not None)
-        assert (hasattr(self.clf, 'generator') and
-                self.clf.generator is not None)
-        assert (hasattr(self.clf, 'discriminator') and
-                self.clf.discriminator is not None)
+
+        assert(hasattr(self.clf, 'decision_scores_') and
+                    self.clf.decision_scores_ is not None)
+        assert(hasattr(self.clf, 'labels_') and
+                    self.clf.labels_ is not None)
+        assert(hasattr(self.clf, 'threshold_') and
+                    self.clf.threshold_ is not None)
+        assert(hasattr(self.clf, '_mu') and
+                    self.clf._mu is not None)
+        assert(hasattr(self.clf, '_sigma') and
+                    self.clf._sigma is not None)
+        assert(hasattr(self.clf, 'transition_matrix_') and
+                    self.clf.transition_matrix_ is not None)
+
+
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
