@@ -214,6 +214,7 @@ pyod.models.lunar module
 
 .. automodule:: pyod.models.lunar
     :members:
+    :exclude-members: SCORE_MODEL, WEIGHT_MODEL
     :show-inheritance:
     :inherited-members:
 
