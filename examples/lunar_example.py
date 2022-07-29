@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Example of using LUNAR for outlier detection
-detection
 """
 # Author: Adam Goodge <a.goodge@u.nus.edu>
 #
@@ -11,7 +10,6 @@ from __future__ import print_function
 import os
 import sys
 
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
@@ -30,7 +28,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
-                      n_features=2,
+                      n_features=n_features,
                       contamination=contamination,
                       random_state=42)
 

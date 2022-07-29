@@ -17,7 +17,6 @@ sys.path.append(
 
 from pyod.models.lscp import LSCP
 from pyod.models.lof import LOF
-from pyod.utils.utility import standardizer
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
 from pyod.utils.example import visualize

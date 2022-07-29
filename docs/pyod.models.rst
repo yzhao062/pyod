@@ -209,6 +209,15 @@ pyod.models.loci module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.lunar module
+------------------------
+
+.. automodule:: pyod.models.lunar
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.lscp module
 -----------------------
 
