@@ -9,17 +9,10 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
-
-from ..utils.utility import check_parameter
 
 from .base import BaseDetector
-from .base_dl import _get_tensorflow_version
-
-
 
 from scipy import sparse
 from sklearn.decomposition import sparse_encode
@@ -27,8 +20,10 @@ from sklearn.preprocessing import normalize
 from sklearn.linear_model import LinearRegression
 import warnings
 
+
 class RGraph(BaseDetector):
-    """ R-graph
+    """ Outlier Detection via R-graph. Paper: https://openaccess.thecvf.com/content_cvpr_2017/papers/You_Provable_Self-Representation_Based_CVPR_2017_paper.pdf
+     See :cite:`you2017provable` for details.
 
     Parameters
     ----------
@@ -133,15 +128,16 @@ class RGraph(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__( self, transition_steps = 10, n_nonzero = 10 , gamma = 50.0, gamma_nz = True, algorithm = 'lasso_lars', tau = 1.0, 
-                 maxiter_lasso = 1000, preprocessing = True, contamination = 0.1, blocksize_test_data = 10,
-                 support_init='L2', maxiter = 40, support_size= 100, active_support = True, fit_intercept_LR = False, verbose = True):
+    def __init__(self, transition_steps=10, n_nonzero=10, gamma=50.0, gamma_nz=True, algorithm='lasso_lars', tau=1.0,
+                 maxiter_lasso=1000, preprocessing=True, contamination=0.1, blocksize_test_data=10,
+                 support_init='L2', maxiter=40, support_size=100, active_support=True, fit_intercept_LR=False,
+                 verbose=True):
 
-        super(RGraph, self).__init__(contamination = contamination)
+        super(RGraph, self).__init__(contamination=contamination)
 
         self.transition_steps = transition_steps
         self.n_nonzero = n_nonzero
-        self.gamma =gamma
+        self.gamma = gamma
         self.gamma_nz = gamma_nz
         self.algorithm = algorithm
         self.tau = tau
@@ -156,10 +152,8 @@ class RGraph(BaseDetector):
         self.blocksize_test_data = blocksize_test_data
         self.fit_intercept_LR = fit_intercept_LR
 
-
-    
-    def active_support_elastic_net(self, X, y, alpha, tau=1.0, algorithm='lasso_lars', support_init='L2', 
-                                   support_size=100, maxiter=40, maxiter_lasso = 1000 ):
+    def active_support_elastic_net(self, X, y, alpha, tau=1.0, algorithm='lasso_lars', support_init='L2',
+                                   support_size=100, maxiter=40, maxiter_lasso=1000):
         """
         Source: https://github.com/ChongYou/subspace-clustering/blob/master/cluster/selfrepresentation.py
             An active support based algorithm for solving the elastic net optimization problem
@@ -193,7 +187,7 @@ class RGraph(BaseDetector):
 
         if n_samples <= support_size:  # skip active support search for small scale data
             supp = np.arange(n_samples, dtype=int)  # this results in the following iteration to converge in 1 iteration
-        else:    
+        else:
             if support_init == 'L2':
                 L2sol = np.linalg.solve(np.identity(y.shape[1]) * alpha + np.dot(X.T, X), y.T)
                 c0 = np.dot(X, L2sol)[:, 0]
@@ -204,18 +198,19 @@ class RGraph(BaseDetector):
         curr_obj = float("inf")
         for _ in range(maxiter):
             Xs = X[supp, :]
-            
+
             ## Removed the original option to use 'spams' since this would require the spams dependency 
             # if algorithm == 'spams':
             #     cs = spams.lasso(np.asfortranarray(y.T), D=np.asfortranarray(Xs.T), 
             #                      lambda1=tau*alpha, lambda2=(1.0-tau)*alpha)
             #     cs = np.asarray(cs.todense()).T
             # else:
-            cs = sparse_encode(y, Xs, algorithm=algorithm, alpha=alpha, max_iter = maxiter_lasso)
-          
+            cs = sparse_encode(y, Xs, algorithm=algorithm, alpha=alpha, max_iter=maxiter_lasso)
+
             delta = (y - np.dot(cs, Xs)) / alpha
 
-            obj = tau * np.sum(np.abs(cs[0])) + (1.0 - tau)/2.0 * np.sum(np.power(cs[0], 2.0)) + alpha/2.0 * np.sum(np.power(delta, 2.0))
+            obj = tau * np.sum(np.abs(cs[0])) + (1.0 - tau) / 2.0 * np.sum(np.power(cs[0], 2.0)) + alpha / 2.0 * np.sum(
+                np.power(delta, 2.0))
             if curr_obj - obj < 1.0e-10 * curr_obj:
                 break
             curr_obj = obj
@@ -223,30 +218,31 @@ class RGraph(BaseDetector):
             coherence = np.abs(np.dot(delta, X.T))[0]
             coherence[supp] = 0
             addedsupp = np.nonzero(coherence > tau + 1.0e-10)[0]
-            
+
             if addedsupp.size == 0:  # converged
                 break
 
             # Find the set of nonzero entries of cs.
-            activesupp = supp[np.abs(cs[0]) > 1.0e-10]  
-            
+            activesupp = supp[np.abs(cs[0]) > 1.0e-10]
+
             if activesupp.size > 0.8 * support_size:  # this suggests that support_size is too small and needs to be increased
                 support_size = min([round(max([activesupp.size, support_size]) * 1.1), n_samples])
-            
+
             if addedsupp.size + activesupp.size > support_size:
-                ord = np.argpartition(-coherence[addedsupp], support_size - activesupp.size)[0:support_size - activesupp.size]
+                ord = np.argpartition(-coherence[addedsupp], support_size - activesupp.size)[
+                      0:support_size - activesupp.size]
                 addedsupp = addedsupp[ord]
-            
+
             supp = np.concatenate([activesupp, addedsupp])
-        
+
         c = np.zeros(n_samples)
         c[supp] = cs
         return c
 
-
-
-    def elastic_net_subspace_clustering(self, X, gamma=50.0, gamma_nz=True, tau=1.0, algorithm='lasso_lars', fit_intercept_LR = False,
-                                        active_support=True, active_support_params=None, n_nonzero=50, maxiter_lasso = 1000 ):
+    def elastic_net_subspace_clustering(self, X, gamma=50.0, gamma_nz=True, tau=1.0, algorithm='lasso_lars',
+                                        fit_intercept_LR=False,
+                                        active_support=True, active_support_params=None, n_nonzero=50,
+                                        maxiter_lasso=1000):
         """
         Source: https://github.com/ChongYou/subspace-clustering/blob/master/cluster/selfrepresentation.py
         
@@ -312,8 +308,7 @@ class RGraph(BaseDetector):
         [3] C. Lu, et al. Robust and efficient subspace segmentation via least squares regression, ECCV 2012
         """
 
-
-        if( (algorithm in ('lasso_lars', 'lasso_cd')) and (tau < 1.0 - 1.0e-10) ) :  
+        if ((algorithm in ('lasso_lars', 'lasso_cd')) and (tau < 1.0 - 1.0e-10)):
             warnings.warn('algorithm {} cannot handle tau smaller than 1. Using tau = 1'.format(algorithm))
             tau = 1.0
 
@@ -325,15 +320,15 @@ class RGraph(BaseDetector):
         cols = np.zeros(n_samples * n_nonzero)
         vals = np.zeros(n_samples * n_nonzero)
         curr_pos = 0
-     
+
         gamma_is_zero_notification = False
         for i in range(n_samples):
-            if( (i % 25 == 0) and (self.verbose == 1) ):
-                print('{}/{}'.format(i,n_samples))
+            if ((i % 25 == 0) and (self.verbose == 1)):
+                print('{}/{}'.format(i, n_samples))
 
             y = X[i, :].copy().reshape(1, -1)
             X[i, :] = 0
-            
+
             if algorithm in ('lasso_lars', 'lasso_cd'):
                 if gamma_nz == True:
                     coh = np.delete(np.absolute(np.dot(X, y.T)), i)
@@ -341,20 +336,19 @@ class RGraph(BaseDetector):
                     alpha = alpha0 / gamma
                 else:
                     alpha = 1.0 / gamma
-                    
-                if( gamma >= 10**4 ):
-                    if( gamma_is_zero_notification == False):
+
+                if (gamma >= 10 ** 4):
+                    if (gamma_is_zero_notification == False):
                         warnings.warn('Set alpha = 0 i.e. LinearRegression() is used')
                         gamma_is_zero_notification = True
 
                     alpha = 0
-                    
 
-                if( alpha == 0):
-                    lr = LinearRegression( fit_intercept = fit_intercept_LR )
-                    lr.fit(X.T , y[0]  )
+                if (alpha == 0):
+                    lr = LinearRegression(fit_intercept=fit_intercept_LR)
+                    lr.fit(X.T, y[0])
                     c = lr.coef_
-                        
+
 
                 elif active_support == True:
                     c = self.active_support_elastic_net(X, y, alpha, tau, algorithm, **active_support_params)
@@ -362,31 +356,27 @@ class RGraph(BaseDetector):
 
                     ## Removed the original option to use 'spams' since this would require the spams dependency 
                     # if algorithm == 'spams':
-                        # c = spams.lasso(np.asfortranarray(y.T), D=np.asfortranarray(X.T), 
-                        #                 lambda1=tau * alpha, lambda2=(1.0-tau) * alpha)
-                        # c = np.asarray(c.todense()).T[0]
+                    # c = spams.lasso(np.asfortranarray(y.T), D=np.asfortranarray(X.T),
+                    #                 lambda1=tau * alpha, lambda2=(1.0-tau) * alpha)
+                    # c = np.asarray(c.todense()).T[0]
                     # else:
-                    c = sparse_encode(y, X, algorithm=algorithm, alpha=alpha, max_iter = maxiter_lasso)[0]
+                    c = sparse_encode(y, X, algorithm=algorithm, alpha=alpha, max_iter=maxiter_lasso)[0]
 
             else:
                 warnings.warn("algorithm {} not found".format(algorithm))
 
             index = np.flatnonzero(c)
             if index.size > n_nonzero:
-            #  warnings.warn("The number of nonzero entries in sparse subspace clustering exceeds n_nonzero")
+                #  warnings.warn("The number of nonzero entries in sparse subspace clustering exceeds n_nonzero")
                 index = index[np.argsort(-np.absolute(c[index]))[0:n_nonzero]]
             rows[curr_pos:curr_pos + len(index)] = i
             cols[curr_pos:curr_pos + len(index)] = index
             vals[curr_pos:curr_pos + len(index)] = c[index]
             curr_pos += len(index)
-            
+
             X[i, :] = y
 
         return sparse.csr_matrix((vals, (rows, cols)), shape=(n_samples, n_samples))
-
-
-
-
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -414,17 +404,12 @@ class RGraph(BaseDetector):
             self.scaler_ = StandardScaler()
             self.scaler_.fit(X)
 
-
         self._set_n_classes(y)
         self.decision_scores_ = self.decision_function(X)
         self.X_train = X
         self._process_decision_scores()
         return self
 
-
-
-
-    
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
 
@@ -445,28 +430,26 @@ class RGraph(BaseDetector):
         """
 
         X = check_array(X)
-        
 
         # Since we already have a train set, we want to only partially concatenate the test set to the 
         # train set. This will be done by splitting the test set into different parts and concatenate 
         # those to the train set.
         if hasattr(self, 'X_train'):
-            N = int( X.shape[0] / self.blocksize_test_data) + 1
-            
+            N = int(X.shape[0] / self.blocksize_test_data) + 1
+
             scores = []
             for i in range(N):
-                if( self.verbose == 1):
-                    print("Test block {}/{}".format(i,N))
+                if (self.verbose == 1):
+                    print("Test block {}/{}".format(i, N))
 
-                X_block_i = np.copy( X[i*self.blocksize_test_data : (i+1)*self.blocksize_test_data] )
+                X_block_i = np.copy(X[i * self.blocksize_test_data: (i + 1) * self.blocksize_test_data])
 
-                if( X_block_i.shape[0] >= 1):
+                if (X_block_i.shape[0] >= 1):
                     original_size_i = X_block_i.shape[0]
 
                     # Concatenate train set with part of the test set
                     X_i = np.concatenate((self.X_train, X_block_i), axis=0)
 
-                    
                     if self.preprocessing:
                         # Scale concatenated data 
                         X_i_norm = self.scaler_.transform(X_i)
@@ -481,7 +464,7 @@ class RGraph(BaseDetector):
             return scores
 
         else:
-            
+
             if self.preprocessing:
                 # Scale train set
                 X_norm = self.scaler_.transform(X)
@@ -491,22 +474,22 @@ class RGraph(BaseDetector):
             scores = self._decision_function(X_norm)
             return scores
 
-
-
-
     def _decision_function(self, X_norm):
 
-        A = self.elastic_net_subspace_clustering(X_norm, gamma = self.gamma , gamma_nz = self.gamma_nz, 
-                                                 tau= self.tau, algorithm= self.algorithm, fit_intercept_LR = self.fit_intercept_LR,
-                                                 active_support= self.active_support, n_nonzero = self.n_nonzero, maxiter_lasso = self.maxiter_lasso,
-                                                 active_support_params={'support_init' : self.support_init, 'support_size': self.support_size, 'maxiter':self.maxiter}
+        A = self.elastic_net_subspace_clustering(X_norm, gamma=self.gamma, gamma_nz=self.gamma_nz,
+                                                 tau=self.tau, algorithm=self.algorithm,
+                                                 fit_intercept_LR=self.fit_intercept_LR,
+                                                 active_support=self.active_support, n_nonzero=self.n_nonzero,
+                                                 maxiter_lasso=self.maxiter_lasso,
+                                                 active_support_params={'support_init': self.support_init,
+                                                                        'support_size': self.support_size,
+                                                                        'maxiter': self.maxiter}
                                                  )
 
+        self.transition_matrix_ = normalize(np.abs(A.toarray()), norm='l1')
 
-        self.transition_matrix_ = normalize( np.abs(  A.toarray() ), norm='l1')
-
-        pi = np.ones((1, len(self.transition_matrix_)), dtype = 'float64' ) / len(self.transition_matrix_)
-        pi_bar = np.zeros((1, len(self.transition_matrix_)), dtype = 'float64')
+        pi = np.ones((1, len(self.transition_matrix_)), dtype='float64') / len(self.transition_matrix_)
+        pi_bar = np.zeros((1, len(self.transition_matrix_)), dtype='float64')
 
         # Do transition steps
         for _ in range(self.transition_steps):
@@ -515,15 +498,9 @@ class RGraph(BaseDetector):
 
         pi_bar /= self.transition_steps
         scores = pi_bar[0]
-    
+
         # smaller scores correspond with outliers, thus we use -1 * score such that
         # higher scores are associated with outliers
         scores = -1 * scores
 
         return scores
-    
-    
-    
-    
-
-

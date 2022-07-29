@@ -276,6 +276,14 @@ pyod.models.pca module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.rgraph module
+-------------------------
+
+.. automodule:: pyod.models.rgraph
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
 
 pyod.models.rod module
 ----------------------

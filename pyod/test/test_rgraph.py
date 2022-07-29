@@ -36,32 +36,26 @@ class TestRGraph(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-
-        self.clf = RGraph( n_nonzero = 100, transition_steps = 20 , gamma = 50, blocksize_test_data = 20,
-                          tau = 1, preprocessing=True, active_support = False, gamma_nz = False,
-                          maxiter_lasso = 100, contamination = self.contamination,
-                          algorithm= 'lasso_lars', verbose = 0 )
-
-
+        self.clf = RGraph(n_nonzero=100, transition_steps=20, gamma=50, blocksize_test_data=20,
+                          tau=1, preprocessing=True, active_support=False, gamma_nz=False,
+                          maxiter_lasso=100, contamination=self.contamination,
+                          algorithm='lasso_lars', verbose=0)
 
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-
-        assert(hasattr(self.clf, 'decision_scores_') and
-                    self.clf.decision_scores_ is not None)
-        assert(hasattr(self.clf, 'labels_') and
-                    self.clf.labels_ is not None)
-        assert(hasattr(self.clf, 'threshold_') and
-                    self.clf.threshold_ is not None)
-        assert(hasattr(self.clf, '_mu') and
-                    self.clf._mu is not None)
-        assert(hasattr(self.clf, '_sigma') and
-                    self.clf._sigma is not None)
-        assert(hasattr(self.clf, 'transition_matrix_') and
-                    self.clf.transition_matrix_ is not None)
-
-
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, '_mu') and
+                self.clf._mu is not None)
+        assert (hasattr(self.clf, '_sigma') and
+                self.clf._sigma is not None)
+        assert (hasattr(self.clf, 'transition_matrix_') and
+                self.clf.transition_matrix_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
