@@ -11,7 +11,6 @@ import torch
 from torch import nn
 
 import numpy as np
-from numpy.testing import assert_almost_equal
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 

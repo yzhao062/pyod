@@ -4,7 +4,6 @@
 # Author: Adam Goodge <a.goodge@u.nus.edu>
 #
 
-import os
 from copy import deepcopy
 from sklearn.metrics import roc_auc_score
 import numpy as np
@@ -47,7 +46,7 @@ def generate_negative_samples(x, sample_type, proportion, epsilon):
     return neg_x.astype('float32'), neg_y.astype('float32')
 
 
-class SCORE_MODEL(torch.nn.Module):
+class SCORE_MODEL(nn.Module):
     def __init__(self, k):
         super(SCORE_MODEL, self).__init__()
         self.hidden_size = 256
@@ -68,7 +67,7 @@ class SCORE_MODEL(torch.nn.Module):
         return out
 
 
-class WEIGHT_MODEL(torch.nn.Module):
+class WEIGHT_MODEL(nn.Module):
     def __init__(self, k):
         super(WEIGHT_MODEL, self).__init__()
         self.hidden_size = 256
