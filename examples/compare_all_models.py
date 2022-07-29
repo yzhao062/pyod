@@ -37,6 +37,10 @@ from pyod.models.mcd import MCD
 from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
 from pyod.models.lscp import LSCP
+from pyod.models.inne import INNE
+from pyod.models.gmm import GMM
+from pyod.models.kde import KDE
+from pyod.models.lmdd import LMDD
 
 # TODO: add neural networks, LOCI, SOS, COF, SOD
 
@@ -87,26 +91,20 @@ classifiers = {
         contamination=outliers_fraction),
     'Average KNN': KNN(method='mean',
                        contamination=outliers_fraction),
-    # 'Median KNN': KNN(method='median',
-    #                   contamination=outliers_fraction),
     'Local Outlier Factor (LOF)':
         LOF(n_neighbors=35, contamination=outliers_fraction),
-    # 'Local Correlation Integral (LOCI)':
-    #     LOCI(contamination=outliers_fraction),
     'Minimum Covariance Determinant (MCD)': MCD(
         contamination=outliers_fraction, random_state=random_state),
     'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
     'Principal Component Analysis (PCA)': PCA(
         contamination=outliers_fraction, random_state=random_state),
-    # 'Stochastic Outlier Selection (SOS)': SOS(
-    #     contamination=outliers_fraction),
     'Locally Selective Combination (LSCP)': LSCP(
         detector_list, contamination=outliers_fraction,
         random_state=random_state),
-    # 'Connectivity-Based Outlier Factor (COF)':
-    #     COF(n_neighbors=35, contamination=outliers_fraction),
-    # 'Subspace Outlier Detection (SOD)':
-    #     SOD(contamination=outliers_fraction),
+    'INNE': INNE(contamination=outliers_fraction),
+    'GMM': GMM(contamination=outliers_fraction),
+    'KDE': KDE(contamination=outliers_fraction),
+    'LMDD': LMDD(contamination=outliers_fraction),
 }
 
 # Show all detectors
@@ -125,7 +123,7 @@ for i, offset in enumerate(clusters_separation):
     X = np.r_[X, np.random.uniform(low=-6, high=6, size=(n_outliers, 2))]
 
     # Fit the model
-    plt.figure(figsize=(15, 12))
+    plt.figure(figsize=(15, 16))
     for i, (clf_name, clf) in enumerate(classifiers.items()):
         print()
         print(i + 1, 'fitting', clf_name)
@@ -139,11 +137,11 @@ for i, offset in enumerate(clusters_separation):
 
         Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()]) * -1
         Z = Z.reshape(xx.shape)
-        subplot = plt.subplot(3, 4, i + 1)
+        subplot = plt.subplot(4, 4, i + 1)
         subplot.contourf(xx, yy, Z, levels=np.linspace(Z.min(), threshold, 7),
                          cmap=plt.cm.Blues_r)
-        a = subplot.contour(xx, yy, Z, levels=[threshold],
-                            linewidths=2, colors='red')
+        # a = subplot.contour(xx, yy, Z, levels=[threshold],
+        #                     linewidths=2, colors='red')
         subplot.contourf(xx, yy, Z, levels=[threshold, Z.max()],
                          colors='orange')
         b = subplot.scatter(X[:-n_outliers, 0], X[:-n_outliers, 1], c='white',
@@ -152,8 +150,12 @@ for i, offset in enumerate(clusters_separation):
                             s=20, edgecolor='k')
         subplot.axis('tight')
         subplot.legend(
-            [a.collections[0], b, c],
-            ['learned decision function', 'true inliers', 'true outliers'],
+            [
+                # a.collections[0],
+                b, c],
+            [
+                # 'learned decision function', 
+                'true inliers', 'true outliers'],
             prop=matplotlib.font_manager.FontProperties(size=10),
             loc='lower right')
         subplot.set_xlabel("%d. %s (errors: %d)" % (i + 1, clf_name, n_errors))
