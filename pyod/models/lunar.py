@@ -103,8 +103,8 @@ class LUNAR(BaseDetector):
     with one of the following outputs:
 
         1) SCORE_MODEL: network directly outputs the anomaly score.
-        2) WEIGHT_MODEL: network outputs a set of weights for the k distances, the anomaly score is then the 
-                         sum of weighted distances.
+        2) WEIGHT_MODEL: network outputs a set of weights for the k distances, the anomaly score is then the
+            sum of weighted distances.
 
     See :cite:`goodge2022lunar` for details.
 
@@ -148,6 +148,7 @@ class LUNAR(BaseDetector):
     
     verbose: int in {0,1}, optional (default = 0):
         To view or hide training progress
+
     Attributes
     ----------
     """

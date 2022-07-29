@@ -34,7 +34,7 @@ pyod.models.auto\_encoder\_torch module
 
 .. automodule:: pyod.models.auto_encoder_torch
     :members:
-    :undoc-members:
+    :exclude-members: inner_autoencoder
     :show-inheritance:
     :inherited-members:
 
@@ -214,7 +214,6 @@ pyod.models.lunar module
 
 .. automodule:: pyod.models.lunar
     :members:
-    :undoc-members:
     :show-inheritance:
     :inherited-members:
 
