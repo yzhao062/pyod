@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Example of using LSCP for outlier detection
+"""Example of using LUNAR for outlier detection
 """
-# Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
-# License: BSD 2 clause
+# Author: Adam Goodge <a.goodge@u.nus.edu>
+#
 
 from __future__ import division
 from __future__ import print_function
@@ -12,33 +12,29 @@ import sys
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from pyod.models.lscp import LSCP
-from pyod.models.lof import LOF
+from pyod.models.lunar import LUNAR
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
-from pyod.utils.example import visualize
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 200  # number of training points
-    n_test = 100  # number of testing points
+    n_train = 5000  # number of training points
+    n_test = 1000  # number of testing points
+    n_features = 100  # number of features
 
     # Generate sample data
     X_train, X_test, y_train, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
-                      n_features=2,
+                      n_features=n_features,
                       contamination=contamination,
                       random_state=42)
 
-    # train lscp
-    clf_name = 'LSCP'
-    detector_list = [LOF(n_neighbors=15), LOF(n_neighbors=20),
-                     LOF(n_neighbors=25), LOF(n_neighbors=35)]
-    clf = LSCP(detector_list, random_state=42)
+    # train LUNAR detector
+    clf_name = 'LUNAR'
+    clf = LUNAR()
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
@@ -54,7 +50,3 @@ if __name__ == "__main__":
     evaluate_print(clf_name, y_train, y_train_scores)
     print("\nOn Test Data:")
     evaluate_print(clf_name, y_test, y_test_scores)
-
-    # visualize the results
-    visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=False)

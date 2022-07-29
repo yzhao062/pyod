@@ -185,7 +185,7 @@ class AnoGAN(BaseDetector):
         self.generator.compile(optimizer=opt)
         self.discriminator.compile(optimizer=opt)
 
-    def plot_learning_curves(self, start_ind=0, window_smoothening=10):
+    def plot_learning_curves(self, start_ind=0, window_smoothening=10):  # pragma: no cover
         fig = plt.figure(figsize=(12, 5))
 
         l_gen = pd.Series(self.hist_loss_generator[start_ind:]).rolling(window_smoothening).mean()

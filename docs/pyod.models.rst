@@ -34,7 +34,7 @@ pyod.models.auto\_encoder\_torch module
 
 .. automodule:: pyod.models.auto_encoder_torch
     :members:
-    :undoc-members:
+    :exclude-members: inner_autoencoder
     :show-inheritance:
     :inherited-members:
 
@@ -209,6 +209,15 @@ pyod.models.loci module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.lunar module
+------------------------
+
+.. automodule:: pyod.models.lunar
+    :members:
+    :exclude-members: SCORE_MODEL, WEIGHT_MODEL
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.lscp module
 -----------------------
 
@@ -267,6 +276,14 @@ pyod.models.pca module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.rgraph module
+-------------------------
+
+.. automodule:: pyod.models.rgraph
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
 
 pyod.models.rod module
 ----------------------
