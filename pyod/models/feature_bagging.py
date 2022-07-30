@@ -6,26 +6,20 @@
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
 import numbers
 
-from joblib import Parallel
-from joblib.parallel import delayed
-
+import numpy as np
 from sklearn.base import clone
-from sklearn.utils import check_random_state
 from sklearn.utils import check_array
+from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.random import sample_without_replacement
 
-from .lof import LOF
 from .base import BaseDetector
-from .sklearn_base import _partition_estimators
 from .combination import average, maximization
-from ..utils.utility import check_parameter
-from ..utils.utility import generate_indices
-from ..utils.utility import generate_bagging_indices
+from .lof import LOF
 from ..utils.utility import check_detector
+from ..utils.utility import check_parameter
+from ..utils.utility import generate_bagging_indices
 
 MAX_INT = np.iinfo(np.int32).max
 

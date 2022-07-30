@@ -9,8 +9,8 @@ from __future__ import print_function
 from warnings import warn
 
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import BallTree
+from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 

@@ -4,13 +4,13 @@
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
-import numpy as np
 import numba as nb
+import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 
-from ..utils.utility import check_parameter
 from .base import BaseDetector
+from ..utils.utility import check_parameter
 
 
 @nb.njit(parallel=True)

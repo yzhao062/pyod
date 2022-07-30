@@ -9,6 +9,7 @@ from __future__ import division
 from __future__ import print_function
 
 import matplotlib.pyplot as plt
+
 from .data import check_consistent_shape
 from .data import get_outliers_inliers
 

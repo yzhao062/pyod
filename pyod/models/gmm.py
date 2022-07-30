@@ -7,11 +7,12 @@ Outlier detection based on Gaussian Mixture Model (GMM).
 
 from __future__ import division, print_function
 
-from pyod.models.base import BaseDetector
-from pyod.utils.utility import invert_order
 from sklearn.mixture import GaussianMixture
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+
+from pyod.models.base import BaseDetector
+from pyod.utils.utility import invert_order
 
 
 class GMM(BaseDetector):

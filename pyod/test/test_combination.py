@@ -5,14 +5,13 @@ from __future__ import print_function
 
 import os
 import sys
-
 import unittest
+
+import numpy as np
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_equal
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-
-import numpy as np
 from sklearn.utils import shuffle
 
 # temporary solution for relative imports in case pyod is not installed

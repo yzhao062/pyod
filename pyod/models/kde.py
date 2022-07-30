@@ -12,8 +12,8 @@ from sklearn.neighbors import KernelDensity
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import invert_order
 from .base import BaseDetector
+from ..utils.utility import invert_order
 
 
 class KDE(BaseDetector):

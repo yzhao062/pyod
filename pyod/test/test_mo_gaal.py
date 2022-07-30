@@ -4,11 +4,9 @@ from __future__ import print_function
 
 import os
 import sys
-
 import unittest
+
 # noinspection PyProtectedMember
-from numpy.testing import assert_allclose
-from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from sklearn.base import clone

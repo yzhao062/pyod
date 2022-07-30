@@ -10,15 +10,14 @@ from __future__ import print_function
 import numpy as np
 from joblib import Parallel
 from joblib.parallel import delayed
-
 from sklearn.ensemble import IsolationForest
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
-from ..utils.utility import invert_order
 # noinspection PyProtectedMember
 from ..utils.utility import _get_sklearn_version
+from ..utils.utility import invert_order
 
 
 # TODO: behavior of Isolation Forest will change in sklearn 0.22. See below.

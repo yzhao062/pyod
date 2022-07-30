@@ -10,9 +10,9 @@ from __future__ import print_function
 
 import numpy as np
 from numba import njit
+from scipy.spatial.distance import pdist, squareform
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from scipy.spatial.distance import pdist, squareform
 
 from .base import BaseDetector
 

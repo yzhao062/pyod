@@ -12,9 +12,9 @@ import numbers
 from warnings import warn
 
 import numpy as np
+from sklearn.metrics import euclidean_distances
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted, check_random_state
-from sklearn.metrics import euclidean_distances
 
 from .base import BaseDetector
 from ..utils.utility import MAX_INT, invert_order

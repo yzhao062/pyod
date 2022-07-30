@@ -9,13 +9,13 @@ from __future__ import division
 from __future__ import print_function
 
 import warnings
-import numpy as np
 
-from statsmodels.distributions.empirical_distribution import ECDF
+import matplotlib.pyplot as plt
+import numpy as np
+from joblib import Parallel, delayed
 from scipy.stats import skew
 from sklearn.utils import check_array
-from joblib import Parallel, delayed, effective_n_jobs
-import matplotlib.pyplot as plt
+from statsmodels.distributions.empirical_distribution import ECDF
 
 from .base import BaseDetector
 from .sklearn_base import _partition_estimators

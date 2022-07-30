@@ -8,17 +8,17 @@
 from __future__ import division
 from __future__ import print_function
 
+import warnings
+
 import numpy as np
+from scipy import sparse
+from sklearn.decomposition import sparse_encode
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import normalize
 from sklearn.utils import check_array
 
 from .base import BaseDetector
-
-from scipy import sparse
-from sklearn.decomposition import sparse_encode
-from sklearn.preprocessing import normalize
-from sklearn.linear_model import LinearRegression
-import warnings
 
 
 class RGraph(BaseDetector):

@@ -9,13 +9,13 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from sklearn.linear_model import LinearRegression
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
-from ..utils.utility import check_parameter
+
 
 def whiten_data(X, pca):
 

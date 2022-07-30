@@ -4,19 +4,16 @@ from __future__ import print_function
 
 import os
 import sys
-
 import unittest
+
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-
-from sklearn.utils.estimator_checks import check_estimator
-
-from sklearn.metrics import roc_auc_score
-from sklearn.base import clone
 from scipy.stats import rankdata
+from sklearn.base import clone
+from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line

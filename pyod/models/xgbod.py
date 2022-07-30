@@ -10,8 +10,8 @@ from __future__ import print_function
 import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_X_y
+from sklearn.utils.validation import check_is_fitted
 
 try:
     import xgboost

@@ -16,34 +16,32 @@ Reference:
 # Author: Andrij Vasylenko <andrij@liverpool.ac.uk>
 # License: BSD 2 clause
 
+from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import absolute_import
 
 import numpy as np
-
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
-from ..utils.stat_models import pairwise_distances_no_broadcast
-
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
+from ..utils.stat_models import pairwise_distances_no_broadcast
+from ..utils.utility import check_parameter
 
 # if tensorflow 2, import from tf directly
 if _get_tensorflow_version() == 1:
     from keras.models import Model
     from keras.layers import Lambda, Input, Dense, Dropout
     from keras.regularizers import l2
-    from keras.losses import mse, binary_crossentropy
+    from keras.losses import mse
     from keras import backend as K
 else:
     from tensorflow.keras.models import Model
     from tensorflow.keras.layers import Lambda, Input, Dense, Dropout
     from tensorflow.keras.regularizers import l2
-    from tensorflow.keras.losses import mse, binary_crossentropy
+    from tensorflow.keras.losses import mse
     from tensorflow.keras import backend as K
 
 

@@ -6,13 +6,13 @@ import sys
 import unittest
 
 # noinspection PyProtectedMember
-from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
+from numpy.testing import (assert_array_less, assert_equal,
                            assert_raises)
-from pyod.models.gmm import GMM
-from pyod.utils.data import generate_data_clusters
-from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
+
+from pyod.models.gmm import GMM
+from pyod.utils.data import generate_data_clusters
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line

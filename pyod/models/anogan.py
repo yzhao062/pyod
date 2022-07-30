@@ -7,18 +7,16 @@
 # License: BSD 2 clause
 
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
-
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
-
-import matplotlib.pyplot as plt
+from ..utils.utility import check_parameter
 
 # if tensorflow 2, import from tf directly
 if _get_tensorflow_version() == 1:

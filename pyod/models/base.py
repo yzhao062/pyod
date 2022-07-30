@@ -7,23 +7,21 @@
 from __future__ import division
 from __future__ import print_function
 
+import abc
 import warnings
 from collections import defaultdict
-
 from inspect import signature
 
-import abc
-import six
-
 import numpy as np
+import six
 from numpy import percentile
 from scipy.special import erf
 from scipy.stats import binom
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import deprecated
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils.validation import check_is_fitted
 
 from .sklearn_base import _pprint
 from ..utils.utility import precision_n_scores

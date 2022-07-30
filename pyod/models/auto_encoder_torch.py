@@ -7,16 +7,15 @@
 from __future__ import division
 from __future__ import print_function
 
-import torch
-from torch import nn
-
 import numpy as np
+import torch
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from torch import nn
 
 from .base import BaseDetector
-from ..utils.torch_utility import get_activation_by_name
 from ..utils.stat_models import pairwise_distances_no_broadcast
+from ..utils.torch_utility import get_activation_by_name
 
 
 class PyODDataset(torch.utils.data.Dataset):

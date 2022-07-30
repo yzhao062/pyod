@@ -4,15 +4,11 @@ from __future__ import print_function
 
 import os
 import sys
-
 import unittest
+
 # noinspection PyProtectedMember
-from numpy.testing import assert_allclose
-from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-
-from sklearn.metrics import roc_auc_score
 from sklearn.base import clone
 
 # temporary solution for relative imports in case pyod is not installed
@@ -21,7 +17,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.so_gaal import SO_GAAL
 from pyod.utils.data import generate_data
-from pyod.utils.data import evaluate_print
 
 
 class TestSO_GAAL(unittest.TestCase):

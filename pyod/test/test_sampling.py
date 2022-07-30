@@ -6,7 +6,6 @@ import sys
 import unittest
 
 import numpy as np
-
 # noinspection PyProtectedMember
 from numpy.testing import (
     assert_allclose,
@@ -14,11 +13,12 @@ from numpy.testing import (
     assert_equal,
     assert_raises,
 )
-from pyod.models.sampling import Sampling
-from pyod.utils.data import generate_data
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
+
+from pyod.models.sampling import Sampling
+from pyod.utils.data import generate_data
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
