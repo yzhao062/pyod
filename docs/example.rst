@@ -46,7 +46,7 @@ Full example: `knn_example.py <https://github.com/yzhao062/Pyod/blob/master/exam
         n_train = 200  # number of training points
         n_test = 100  # number of testing points
 
-        X_train, y_train, X_test, y_test = generate_data(
+        X_train, X_test, y_train, y_test = generate_data(
             n_train=n_train, n_test=n_test, contamination=contamination)
 
 3. Initialize a :class:`pyod.models.knn.KNN` detector, fit the model, and make
