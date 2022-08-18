@@ -128,3 +128,53 @@ please navigate to **"/notebooks/Model Combination.ipynb"**
 
 * `Quick Start for Combining Outlier Scores from Various Base Detectors <#quick-start-for-combining-outlier-scores-from-various-base-detectors>`_
 
+* `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
+
+* `Old Algorithm Benchmark <#old-algorithm-benchmark>`_
+
+----
+
+
+Old Algorithm Benchmark
+^^^^^^^^^^^^^^^^^^^^^^^
+
+In June 2022, we released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
+
+The organization of **ADBench** is provided below:
+
+.. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
+   :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
+   :alt: benchmark-old
+
+**The content below is obsolete**.
+
+**The comparison among of implemented models** is made available below
+(\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
+`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
+
+
+.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
+   :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
+   :alt: Comparision_of_All
+
+A benchmark is supplied for select algorithms to provide an overview of the implemented models.
+In total, 17 benchmark datasets are used for comparison, which
+can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
+
+For each dataset, it is first split into 60% for training and 40% for testing.
+All experiments are repeated 10 times independently with random splits.
+The mean of 10 trials is regarded as the final result. Three evaluation metrics
+are provided:
+
+- The area under receiver operating characteristic (ROC) curve
+- Precision @ rank n (P@N)
+- Execution time
+
+Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_. You could replicate this process by running
+`benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
+
+
+----

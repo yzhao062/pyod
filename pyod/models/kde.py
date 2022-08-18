@@ -98,13 +98,13 @@ class KDE(BaseDetector):
     """
 
     def __init__(
-        self,
-        contamination=0.1,
-        bandwidth=1.0,
-        algorithm="auto",
-        leaf_size=30,
-        metric="minkowski",
-        metric_params=None,
+            self,
+            contamination=0.1,
+            bandwidth=1.0,
+            algorithm="auto",
+            leaf_size=30,
+            metric="minkowski",
+            metric_params=None,
     ):
         super().__init__(contamination=contamination)
         self.bandwidth = bandwidth

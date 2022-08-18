@@ -149,7 +149,8 @@ class Sampling(BaseDetector):
         if self.metric_params is None:
             self.dist = DistanceMetric.get_metric(self.metric)
         else:
-            self.dist = DistanceMetric.get_metric(self.metric, **self.metric_params)
+            self.dist = DistanceMetric.get_metric(self.metric,
+                                                  **self.metric_params)
 
         pair_dist = self.dist.pairwise(X, self.subset)
         anomaly_scores = np.min(pair_dist, axis=1)
