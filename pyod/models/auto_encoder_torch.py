@@ -63,7 +63,6 @@ class InnerAutoencoder(nn.Module):
 
         # create the dimensions for the input and hidden layers
         self.layers_neurons_encoder_ = [self.n_features, *hidden_neurons]
-        print(self.layers_neurons_encoder_)
         self.layers_neurons_decoder_ = self.layers_neurons_encoder_[::-1]
 
         # get the object for the activations functions
