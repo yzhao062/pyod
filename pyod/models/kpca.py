@@ -29,7 +29,6 @@ class PyODKernelPCA(KernelPCA):
         eigen_solver="auto",
         tol=0,
         max_iter=None,
-        iterated_power="auto",
         remove_zero_eig=False,
         copy_X=True,
         n_jobs=None,
@@ -46,7 +45,6 @@ class PyODKernelPCA(KernelPCA):
             eigen_solver=eigen_solver,
             tol=tol,
             max_iter=max_iter,
-            iterated_power=iterated_power,
             remove_zero_eig=remove_zero_eig,
             n_jobs=n_jobs,
             copy_X=copy_X,
@@ -148,11 +146,6 @@ class KPCA(BaseDetector):
         Maximum number of iterations for arpack.
         If None, optimal value will be chosen by arpack.
 
-    iterated_power : int >= 0, or 'auto', optional (default='auto')
-        Number of iterations for the power method computed by
-        svd_solver == 'randomized'. When 'auto', it is set to 7 when
-        `n_components < 0.1 * min(X.shape)`, other it is set to 4.
-
     remove_zero_eig : bool, optional (default=False)
         If True, then all components with zero eigenvalues are removed, so
         that the number of components in the output may be < n_components
@@ -217,7 +210,6 @@ class KPCA(BaseDetector):
         eigen_solver="auto",
         tol=0,
         max_iter=None,
-        iterated_power="auto",
         remove_zero_eig=False,
         copy_X=True,
         n_jobs=None,
@@ -247,7 +239,6 @@ class KPCA(BaseDetector):
             eigen_solver=eigen_solver,
             tol=tol,
             max_iter=max_iter,
-            iterated_power=iterated_power,
             remove_zero_eig=remove_zero_eig,
             copy_X=copy_X,
             n_jobs=n_jobs,
