@@ -5,11 +5,12 @@
 # License: BSD 2 clause
 
 import numpy as np
-from pyod.models.base import BaseDetector
-from pyod.utils.utility import check_parameter
 from sklearn.decomposition import KernelPCA
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
+
+from ..utils.utility import check_parameter
+from .base import BaseDetector
 
 
 class PyODKernelPCA(KernelPCA):
