@@ -151,6 +151,12 @@ class TestKPCASubsetBound(unittest.TestCase):
             contamination=self.contamination,
             random_state=42,
         )
+        self.clf_int = KPCA(
+            sampling=True,
+            subset_size=50,
+            contamination=self.contamination,
+            random_state=42,
+        )
         self.clf_float_upper = KPCA(sampling=True, subset_size=1.5, random_state=42)
         self.clf_float_lower = KPCA(sampling=True, subset_size=0, random_state=42)
         self.clf_int_upper = KPCA(
@@ -160,6 +166,7 @@ class TestKPCASubsetBound(unittest.TestCase):
 
     def test_bound(self):
         self.clf_float.fit(self.X_train)
+        self.clf_int.fit(self.X_train)
         with assert_raises(ValueError):
             self.clf_float_upper.fit(self.X_train)
         with assert_raises(ValueError):
