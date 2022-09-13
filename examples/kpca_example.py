@@ -34,7 +34,7 @@ if __name__ == "__main__":
         behaviour="new",
     )
 
-    # train kNN detector
+    # train KPCA detector
     clf_name = "KPCA"
     clf = KPCA()
     clf.fit(X_train)
