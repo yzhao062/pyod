@@ -5,6 +5,7 @@
 # License: BSD 2 clause
 
 import numpy as np
+import sklearn
 from sklearn.decomposition import KernelPCA
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
@@ -323,7 +324,14 @@ class KPCA(BaseDetector):
         centerer = self.kpca.get_centerer
         kernel = self.kpca.get_kernel
 
-        x_transformed = self.kpca.eigenvectors_ * np.sqrt(self.kpca.eigenvalues_)
+        if int(sklearn.__version__[0]) < 1:
+            eigenvalues_ = self.kpca.lambdas_
+            eigenvectors_ = self.kpca.alphas_
+        else:
+            eigenvalues_ = self.kpca.eigenvalues_
+            eigenvectors_ = self.kpca.eigenvectors_
+
+        x_transformed = eigenvectors_ * np.sqrt(eigenvalues_)
         x_transformed = x_transformed[:, : self.n_selected_components_]
 
         potential = []
@@ -358,7 +366,6 @@ class KPCA(BaseDetector):
             The anomaly score of the input samples.
         """
         check_is_fitted(self, ["decision_scores_", "threshold_", "labels_"])
-
         X = check_array(X)
 
         # Compute centered gram matrix between X and training data X_fit_
@@ -367,11 +374,18 @@ class KPCA(BaseDetector):
         gram_matrix = kernel(X, self.kpca.X_fit_)
         centered_g = centerer.transform(gram_matrix)
 
+        if int(sklearn.__version__[0]) < 1:
+            eigenvalues_ = self.kpca.lambdas_
+            eigenvectors_ = self.kpca.alphas_
+        else:
+            eigenvalues_ = self.kpca.eigenvalues_
+            eigenvectors_ = self.kpca.eigenvectors_
+
         # scale eigenvectors (properly account for null-space for dot product)
-        non_zeros = np.flatnonzero(self.kpca.eigenvalues_)
-        scaled_alphas = np.zeros_like(self.kpca.eigenvectors_)
-        scaled_alphas[:, non_zeros] = self.kpca.eigenvectors_[:, non_zeros] / np.sqrt(
-            self.kpca.eigenvalues_[non_zeros]
+        non_zeros = np.flatnonzero(eigenvalues_)
+        scaled_alphas = np.zeros_like(eigenvectors_)
+        scaled_alphas[:, non_zeros] = eigenvectors_[:, non_zeros] / np.sqrt(
+            eigenvalues_[non_zeros]
         )
 
         # Project with a scalar product between K and the scaled eigenvectors
