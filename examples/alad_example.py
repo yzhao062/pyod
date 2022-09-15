@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Example of using Adversarially Learned Anomaly Detection(ALAD) for outlier detection
+"""Example of using Adversarially Learned Anomaly Detection (ALAD) for outlier
+detection
 """
 from __future__ import division
 from __future__ import print_function
@@ -33,22 +34,22 @@ if __name__ == "__main__":
 
     # train ALAD detector
     clf_name = 'ALAD'
-    clf  = ALAD( epochs = 100,   latent_dim = 2,     
-                 learning_rate_disc = 0.0001,  
-                 learning_rate_gen = 0.0001,  
-                 dropout_rate = 0.2, 
-                 add_recon_loss = False, 
-                 lambda_recon_loss= 0.05, 
-                 add_disc_zz_loss = True,
-                 dec_layers=[ 75, 100 ], 
-                 enc_layers=[ 100, 75 ], 
-                 disc_xx_layers= [ 100, 75 ], 
-                 disc_zz_layers= [ 25, 25 ], 
-                 disc_xz_layers= [ 100, 75 ], 
-                 spectral_normalization = False, 
-                 activation_hidden_disc = 'tanh', activation_hidden_gen = 'tanh' , 
-                 preprocessing=True, batch_size = 200, contamination = contamination)
-    
+    clf = ALAD(epochs=100, latent_dim=2,
+               learning_rate_disc=0.0001,
+               learning_rate_gen=0.0001,
+               dropout_rate=0.2,
+               add_recon_loss=False,
+               lambda_recon_loss=0.05,
+               add_disc_zz_loss=True,
+               dec_layers=[75, 100],
+               enc_layers=[100, 75],
+               disc_xx_layers=[100, 75],
+               disc_zz_layers=[25, 25],
+               disc_xz_layers=[100, 75],
+               spectral_normalization=False,
+               activation_hidden_disc='tanh', activation_hidden_gen='tanh',
+               preprocessing=True, batch_size=200, contamination=contamination)
+
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

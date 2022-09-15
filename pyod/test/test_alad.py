@@ -4,14 +4,13 @@ from __future__ import print_function
 
 import os
 import sys
-
 import unittest
+
 # noinspection PyProtectedMember
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-
-from sklearn.metrics import roc_auc_score
 from sklearn.base import clone
+from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -19,8 +18,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.alad import ALAD
 from pyod.utils.data import generate_data
-
-
 
 
 class TestALAD(unittest.TestCase):
@@ -35,22 +32,25 @@ class TestALAD(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = ALAD( epochs = 100,   latent_dim = 2,     
-                         learning_rate_disc = 0.0001,  
-                         learning_rate_gen = 0.0001,  
-                         dropout_rate = 0.2, 
-                         add_recon_loss = False, 
-                         lambda_recon_loss= 0.05, # only important when add_recon_loss = True
-                         add_disc_zz_loss = True, 
-                         dec_layers=[ 75, 100 ], 
-                         enc_layers=[ 100, 75 ], 
-                         disc_xx_layers= [ 100, 75 ], 
-                         disc_zz_layers= [ 25, 25 ], 
-                         disc_xz_layers= [ 100, 75 ], 
-                         spectral_normalization = False, 
-                         activation_hidden_disc = 'tanh', activation_hidden_gen = 'tanh' , 
-                         preprocessing=True, batch_size = 200, contamination = self.contamination)
-        
+        self.clf = ALAD(epochs=100, latent_dim=2,
+                        learning_rate_disc=0.0001,
+                        learning_rate_gen=0.0001,
+                        dropout_rate=0.2,
+                        add_recon_loss=False,
+                        lambda_recon_loss=0.05,
+                        # only important when add_recon_loss = True
+                        add_disc_zz_loss=True,
+                        dec_layers=[75, 100],
+                        enc_layers=[100, 75],
+                        disc_xx_layers=[100, 75],
+                        disc_zz_layers=[25, 25],
+                        disc_xz_layers=[100, 75],
+                        spectral_normalization=False,
+                        activation_hidden_disc='tanh',
+                        activation_hidden_gen='tanh',
+                        preprocessing=True, batch_size=200,
+                        contamination=self.contamination)
+
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -64,7 +64,6 @@ class TestALAD(unittest.TestCase):
                 self.clf._mu is not None)
         assert (hasattr(self.clf, '_sigma') and
                 self.clf._sigma is not None)
-
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
@@ -133,6 +132,7 @@ class TestALAD(unittest.TestCase):
         with assert_raises(NotImplementedError):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
+
     def test_model_clone(self):
         # for deep models this may not apply
         clone_clf = clone(self.clf)
