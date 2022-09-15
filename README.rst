@@ -371,6 +371,7 @@ Neural Networks      SO_GAAL             Single-Objective Generative Adversarial
 Neural Networks      MO_GAAL             Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2019Generative]_
 Neural Networks      DeepSVDD            Deep One-Class Classification                                                                           2018   [#Ruff2018Deep]_
 Neural Networks      AnoGAN              Anomaly Detection with Generative Adversarial Networks                                                  2017   [#Schlegl2017Unsupervised]_
+Neural Networks      ALAD                Adversarially learned anomaly detection                                                                 2018   [#Zenati2018Adversarially]_
 Graph-based          R-Graph             Outlier detection by R-graph                                                                            2017   [#You2017Provable]_
 Graph-based          LUNAR               LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   [#Goodge2022Lunar]_
 ===================  ==================  ======================================================================================================  =====  ========================================
@@ -612,6 +613,8 @@ Reference
 .. [#Wang2020adVAE] Wang, X., Du, Y., Lin, S., Cui, P., Shen, Y. and Yang, Y., 2019. adVAE: A self-adversarial variational autoencoder with Gaussian anomaly prior knowledge for anomaly detection. *Knowledge-Based Systems*.
 
 .. [#You2017Provable] You, C., Robinson, D.P. and Vidal, R., 2017. Provable self-representation based outlier detection in a union of subspaces. In Proceedings of the IEEE conference on computer vision and pattern recognition.
+
+.. [#Zenati2018Adversarially] Zenati, H., Romain, M., Foo, C.S., Lecouat, B. and Chandrasekhar, V., 2018, November. Adversarially learned anomaly detection. In 2018 IEEE International conference on data mining (ICDM) (pp. 727-736). IEEE.
 
 .. [#Zhao2018XGBOD] Zhao, Y. and Hryniewicki, M.K. XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning. *IEEE International Joint Conference on Neural Networks*\ , 2018.
 
