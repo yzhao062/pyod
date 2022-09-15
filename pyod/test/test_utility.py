@@ -5,17 +5,15 @@ from __future__ import print_function
 
 import os
 import sys
-
 import unittest
 
+import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from sklearn.metrics import precision_score
 from sklearn.utils import check_random_state
-
-import numpy as np
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line

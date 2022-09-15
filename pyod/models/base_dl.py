@@ -9,6 +9,7 @@ from __future__ import print_function
 
 import tensorflow
 
+
 def _get_tensorflow_version():  # pragma: no cover
     """ Utility function to decide the version of tensorflow, which will 
     affect how to import keras models. 

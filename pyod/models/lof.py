@@ -8,13 +8,14 @@ from __future__ import division
 from __future__ import print_function
 
 from sklearn.neighbors import LocalOutlierFactor
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_array
+from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 from ..utils.utility import invert_order
+
+
 # noinspection PyProtectedMember
-from ..utils.utility import _get_sklearn_version
 
 
 class LOF(BaseDetector):

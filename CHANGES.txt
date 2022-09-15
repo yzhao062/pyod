@@ -167,4 +167,6 @@ v<1.0.3>, <07/04/2022> -- Add AnoGAN (#412).
 v<1.0.4>, <07/29/2022> -- General improvement of code quality and test coverage.
 v<1.0.4>, <07/29/2022> -- Add LUNAR (#413).
 v<1.0.4>, <07/29/2022> -- Add LUNAR (#415).
-
+v<1.0.5>, <07/29/2022> -- Import optimization.
+v<1.0.5>, <08/27/2022> -- Code optimization.
+v<1.0.5>, <09/14/2022> -- Add ALAD.

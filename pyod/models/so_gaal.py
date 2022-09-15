@@ -12,14 +12,13 @@ from __future__ import print_function
 from collections import defaultdict
 
 import numpy as np
-
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
+from .base_dl import _get_tensorflow_version
 from .gaal_base import create_discriminator
 from .gaal_base import create_generator
-from .base_dl import _get_tensorflow_version
 
 # if tensorflow 2, import from tf directly
 if _get_tensorflow_version() == 1:

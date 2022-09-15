@@ -12,9 +12,9 @@ import numbers
 from warnings import warn
 
 import numpy as np
+from sklearn.metrics import euclidean_distances
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted, check_random_state
-from sklearn.metrics import euclidean_distances
 
 from .base import BaseDetector
 from ..utils.utility import MAX_INT, invert_order
@@ -25,13 +25,14 @@ MIN_FLOAT = np.finfo(float).eps
 class INNE(BaseDetector):
     """ Isolation-based anomaly detection using nearest-neighbor ensembles.
 
-    The INNE algorithm uses the nearest neighbour ensemble to isolate anomalies.
-    It partitions the data space into regions using a subsample and determines an
-    isolation score for each region. As each region adapts to local distribution,
-    the calculated isolation score is a local measure that is relative to the local
-    neighbourhood, enabling it to detect both global and local anomalies. INNE has 
-    linear time complexity to efficiently handle large and high-dimensional datasets
-    with complex distributions.
+    The INNE algorithm uses the nearest neighbour ensemble to isolate
+    anomalies. It partitions the data space into regions using a subsample and
+    determines an isolation score for each region. As each region adapts to
+    local distribution, the calculated isolation score is a local measure that
+    is relative to the local neighbourhood, enabling it to detect both global
+    and local anomalies. INNE has linear time complexity to efficiently handle
+    large and high-dimensional datasets with complex distributions.
+
     See :cite:`bandaragoda2018isolation` for details.
 
     Parameters
@@ -181,14 +182,15 @@ class INNE(BaseDetector):
             center_dist = euclidean_distances(
                 self._centroids[i], self._centroids[i], squared=True)
             np.fill_diagonal(center_dist, np.inf)
-            # radius of each hypersphere is the Nearest Neighbors distance of centroid.
+            # radius of each hypersphere is the Nearest Neighbors
+            # distance of centroid.
             self._centroids_radius[i] = np.amin(center_dist, axis=1)
             # Nearest Neighbors of centroids
             cnn_index = np.argmin(center_dist, axis=1)
             cnn_radius = self._centroids_radius[i][cnn_index]
 
             self._ratio[i] = 1 - (cnn_radius + MIN_FLOAT) / \
-                (self._centroids_radius[i] + MIN_FLOAT)
+                             (self._centroids_radius[i] + MIN_FLOAT)
         return self
 
     def decision_function(self, X):
@@ -234,14 +236,17 @@ class INNE(BaseDetector):
         X = check_array(X, accept_sparse=False)
         isolation_scores = np.ones([self.n_estimators, X.shape[0]])
 
-        # each test instance is evaluated against n_estimators sets of hyperspheres
+        # each test instance is evaluated against n_estimators sets of
+        # hyperspheres
         for i in range(self.n_estimators):
             x_dists = euclidean_distances(X, self._centroids[i], squared=True)
             # find instances that are covered by at least one hypersphere.
             cover_radius = np.where(
-                x_dists <= self._centroids_radius[i], self._centroids_radius[i], np.nan)
+                x_dists <= self._centroids_radius[i],
+                self._centroids_radius[i], np.nan)
             x_covered = np.where(~np.isnan(cover_radius).all(axis=1))
-            # the centroid of the hypersphere covering x and having the smallest radius
+            # the centroid of the hypersphere covering x and having the
+            # smallest radius
             cnn_x = np.nanargmin(cover_radius[x_covered], axis=1)
             isolation_scores[i][x_covered] = self._ratio[i][cnn_x]
         # the isolation scores are averaged to produce the anomaly score

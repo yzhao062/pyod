@@ -7,19 +7,17 @@
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
-from numpy import percentile
 import numbers
 
+import numpy as np
 import sklearn
+from numpy import percentile
 from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
-
-from sklearn.utils import column_or_1d
 from sklearn.utils import check_array
 from sklearn.utils import check_consistent_length
-
 from sklearn.utils import check_random_state
+from sklearn.utils import column_or_1d
 from sklearn.utils.random import sample_without_replacement
 
 MAX_INT = np.iinfo(np.int32).max

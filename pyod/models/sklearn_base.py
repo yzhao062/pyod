@@ -7,8 +7,8 @@
 from __future__ import division
 from __future__ import print_function
 
-import six
 import numpy as np
+import six
 from joblib.parallel import cpu_count
 
 

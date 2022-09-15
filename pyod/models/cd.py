@@ -9,23 +9,21 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from sklearn.linear_model import LinearRegression
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
-from ..utils.utility import check_parameter
+
 
 def whiten_data(X, pca):
-
     X = pca.transform(X)
 
     return X
 
 
 def Cooks_dist(X, y, model):
-    
     # Leverage is computed as the diagonal of the projection matrix of X
     leverage = (X * np.linalg.pinv(X).T).sum(1)
 
@@ -44,7 +42,6 @@ def Cooks_dist(X, y, model):
 
     return distance_
 
-    
 
 class CD(BaseDetector):
     """Cook's distance can be used to identify points that negatively
@@ -61,7 +58,7 @@ class CD(BaseDetector):
         define the threshold on the decision function.
         
     whiten : bool, optional (default=True)
-        transform X to have a covariance matrix that is the identity matrix 
+        transform X to have a covariance matrix that is the identity matrix
         of 1 in the diagonal and 0 for the other cells using PCA
 
     rule_of_thumb : bool, optional (default=False)
@@ -91,13 +88,11 @@ class CD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
         """
 
-
     def __init__(self, whitening=True, contamination=0.1, rule_of_thumb=False):
 
-            super(CD, self).__init__(contamination=contamination)
-            self.whitening = whitening
-            self.rule_of_thumb = rule_of_thumb
-            
+        super(CD, self).__init__(contamination=contamination)
+        self.whitening = whitening
+        self.rule_of_thumb = rule_of_thumb
 
     def fit(self, X, y):
         """Fit detector. y is necessary for supervised method.
@@ -117,9 +112,9 @@ class CD(BaseDetector):
         # Validate inputs X and y
         try:
             X = check_array(X)
-        except ValueError: 
-            X = X.reshape(-1,1)
-            
+        except ValueError:
+            X = X.reshape(-1, 1)
+
         y = np.squeeze(check_array(y, ensure_2d=False))
         self._set_n_classes(y)
 
@@ -138,14 +133,14 @@ class CD(BaseDetector):
         # Compute the influence threshold
         if self.rule_of_thumb:
             influence_threshold_ = 4 / X.shape[0]
-            self.contamination = sum(distance_ > influence_threshold_) / X.shape[0]
+            self.contamination = sum(distance_ > influence_threshold_) / \
+                                 X.shape[0]
 
         self.decision_scores_ = distance_
 
         self._process_decision_scores()
 
         return self
-
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
@@ -172,18 +167,17 @@ class CD(BaseDetector):
 
         try:
             X = check_array(X)
-        except ValueError: 
-            X = X.reshape(-1,1)
-        
-        y = X[:,-1]
-        X = X[:,:-1]
-    
+        except ValueError:
+            X = X.reshape(-1, 1)
+
+        y = X[:, -1]
+        X = X[:, :-1]
 
         # Apply whitening
         if self.whitening:
-            X = whiten_data(X, self.pca) 
+            X = whiten_data(X, self.pca)
 
-        # Get Cook's Distance
+            # Get Cook's Distance
         distance_ = Cooks_dist(X, y, self.model)
 
         return distance_

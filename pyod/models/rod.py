@@ -6,9 +6,10 @@
 from __future__ import division
 from __future__ import print_function
 
+import multiprocessing
 from itertools import combinations as com
 from multiprocessing import Pool
-import multiprocessing
+
 import numba
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, RobustScaler

@@ -68,17 +68,17 @@ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
 the latest ECOD (TKDE 2022). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products [#Zhao2019LSCP]_ [#Zhao2021SUOD]_ with more than 7 million downloads.
+commercial products with more than `8 million downloads <https://pepy.tech/project/pyod>`_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
 `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
 
-PyOD is featured for:
+**PyOD is featured for**:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **classical ones by distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
+* **Advanced models**\, including **classical distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
 * **Optimized performance with JIT and parallelization** using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Fast training & prediction with SUOD** [#Zhao2021SUOD]_.
 
@@ -98,6 +98,13 @@ PyOD is featured for:
     y_train_scores = clf.decision_scores_  # raw outlier scores on the train data
     y_test_scores = clf.decision_function(X_test)  # predict raw outlier scores on test
 
+
+**Personal suggestion on selecting an OD algorithm**. If you do not know which algorithm to try, go with:
+
+- `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_: Example of using ECOD for outlier detection
+- `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_: Example of using Isolation Forest for outlier detection
+
+They are both fast and interpretable. Or, you could try more data-driven approach `MetaOD <https://github.com/yzhao062/MetaOD>`_.
 
 **Citing PyOD**\ :
 
@@ -126,7 +133,6 @@ or::
 
 
 * `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
-* `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
 * `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
@@ -139,7 +145,6 @@ or::
 * `Model Save & Load <#model-save--load>`_
 * `Fast Train with SUOD <#fast-train-with-suod>`_
 * `Implemented Algorithms <#implemented-algorithms>`_
-* `Old Algorithm Benchmark <#old-algorithm-benchmark>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
 * `Inclusion Criteria <#inclusion-criteria>`_
@@ -241,6 +246,19 @@ The organization of **ADBench** is provided below:
 .. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :alt: benchmark-fig
+
+
+**The comparison of selected models** is made available below
+(\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
+`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
+For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
+
+
+.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
+   :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
+   :alt: Comparision_of_All
+
 
 
 ----
@@ -353,6 +371,7 @@ Neural Networks      SO_GAAL             Single-Objective Generative Adversarial
 Neural Networks      MO_GAAL             Multiple-Objective Generative Adversarial Active Learning                                               2019   [#Liu2019Generative]_
 Neural Networks      DeepSVDD            Deep One-Class Classification                                                                           2018   [#Ruff2018Deep]_
 Neural Networks      AnoGAN              Anomaly Detection with Generative Adversarial Networks                                                  2017   [#Schlegl2017Unsupervised]_
+Neural Networks      ALAD                Adversarially learned anomaly detection                                                                 2018   [#Zenati2018Adversarially]_
 Graph-based          R-Graph             Outlier detection by R-graph                                                                            2017   [#You2017Provable]_
 Graph-based          LUNAR               LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   [#Goodge2022Lunar]_
 ===================  ==================  ======================================================================================================  =====  ========================================
@@ -392,52 +411,6 @@ Utility              precision_n_scores      calculate precision @ rank n       
 ===================  ======================  =====================================================================================================================================================  ======================================================================================================================================
 
 ----
-
-
-Old Algorithm Benchmark
-^^^^^^^^^^^^^^^^^^^^^^^
-
-In June 2022, we released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
-
-The organization of **ADBench** is provided below:
-
-.. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :alt: benchmark-old
-
-**The content below is obsolete**.
-
-**The comparison among of implemented models** is made available below
-(\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
-`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
-`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
-For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
-
-
-.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
-   :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
-   :alt: Comparision_of_All
-
-A benchmark is supplied for select algorithms to provide an overview of the implemented models.
-In total, 17 benchmark datasets are used for comparison, which
-can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
-
-For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 10 times independently with random splits.
-The mean of 10 trials is regarded as the final result. Three evaluation metrics
-are provided:
-
-- The area under receiver operating characteristic (ROC) curve
-- Precision @ rank n (P@N)
-- Execution time
-
-Check the latest `benchmark <https://pyod.readthedocs.io/en/latest/benchmark.html>`_. You could replicate this process by running
-`benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
-
-
-----
-
 
 Quick Start for Outlier Detection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -640,6 +613,8 @@ Reference
 .. [#Wang2020adVAE] Wang, X., Du, Y., Lin, S., Cui, P., Shen, Y. and Yang, Y., 2019. adVAE: A self-adversarial variational autoencoder with Gaussian anomaly prior knowledge for anomaly detection. *Knowledge-Based Systems*.
 
 .. [#You2017Provable] You, C., Robinson, D.P. and Vidal, R., 2017. Provable self-representation based outlier detection in a union of subspaces. In Proceedings of the IEEE conference on computer vision and pattern recognition.
+
+.. [#Zenati2018Adversarially] Zenati, H., Romain, M., Foo, C.S., Lecouat, B. and Chandrasekhar, V., 2018, November. Adversarially learned anomaly detection. In 2018 IEEE International conference on data mining (ICDM) (pp. 727-736). IEEE.
 
 .. [#Zhao2018XGBOD] Zhao, Y. and Hryniewicki, M.K. XGBOD: Improving Supervised Outlier Detection with Unsupervised Representation Learning. *IEEE International Joint Conference on Neural Networks*\ , 2018.
 

@@ -9,17 +9,18 @@ from __future__ import division
 from __future__ import print_function
 
 from warnings import warn
+
 import numpy as np
 from sklearn.datasets import make_blobs
-from sklearn.model_selection import train_test_split
-from sklearn.utils import column_or_1d
-from sklearn.utils import check_X_y
-from sklearn.utils import check_random_state
-from sklearn.utils import check_consistent_length
 from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.utils import check_X_y
+from sklearn.utils import check_consistent_length
+from sklearn.utils import check_random_state
+from sklearn.utils import column_or_1d
 
-from .utility import precision_n_scores
 from .utility import check_parameter
+from .utility import precision_n_scores
 
 MAX_INT = np.iinfo(np.int32).max
 

@@ -12,11 +12,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
-from ..utils.stat_models import pairwise_distances_no_broadcast
-
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
+from ..utils.stat_models import pairwise_distances_no_broadcast
+from ..utils.utility import check_parameter
 
 # if tensorflow 2, import from tf directly
 if _get_tensorflow_version() == 1:

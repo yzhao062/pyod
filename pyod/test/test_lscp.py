@@ -5,22 +5,20 @@ from __future__ import print_function
 
 import os
 import sys
+import unittest
 from os import path
 
-import unittest
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-
+from scipy.io import loadmat
+from scipy.stats import rankdata
+from sklearn.base import clone
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import check_X_y
-from scipy.io import loadmat
-
-from sklearn.metrics import roc_auc_score
-from sklearn.base import clone
-from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -28,7 +26,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.lscp import LSCP
 from pyod.models.lof import LOF
-from pyod.utils.utility import standardizer
 from pyod.utils.data import generate_data
 
 

@@ -16,6 +16,7 @@ from sklearn.neighbors import KDTree
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+
 from .base import BaseDetector
 from ..utils.utility import check_parameter
 

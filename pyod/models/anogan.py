@@ -7,18 +7,16 @@
 # License: BSD 2 clause
 
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
-
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
-
-import matplotlib.pyplot as plt
+from ..utils.utility import check_parameter
 
 # if tensorflow 2, import from tf directly
 if _get_tensorflow_version() == 1:
@@ -32,8 +30,9 @@ else:
 
 
 class AnoGAN(BaseDetector):
-    """Anomaly Detection with Generative Adversarial Networks  (AnoGAN). See the original paper
-    "Unsupervised anomaly detection with generative adversarial networks to guide marker discovery"
+    """Anomaly Detection with Generative Adversarial Networks  (AnoGAN).
+    See the original paper "Unsupervised anomaly detection with generative
+    adversarial networks to guide marker discovery".
 
     See :cite:`schlegl2017unsupervised` for details.
 
@@ -59,28 +58,31 @@ class AnoGAN(BaseDetector):
         The dropout to be used across all layers.
 
     G_layers : list, optional (default=[20,10,3,10,20])
-        List that indicates the number of nodes per hidden layer for the generator.
-        Thus, [10,10] indicates 2 hidden layers having each 10 nodes.
+        List that indicates the number of nodes per hidden layer for the
+        generator. Thus, [10,10] indicates 2 hidden layers having each 10 nodes.
 
     D_layers : list, optional (default=[20,10,5])
-        List that indicates the number of nodes per hidden layer for the discriminator.
-        Thus, [10,10] indicates 2 hidden layers having each 10 nodes.
+        List that indicates the number of nodes per hidden layer for the
+        discriminator. Thus, [10,10] indicates 2 hidden layers having each 10
+        nodes.
 
 
     learning_rate: float in (0., 1), optional (default=0.001)
-        learning rate of training the the network
+        learning rate of training the network
 
     index_D_layer_for_recon_error: int, optional (default = 1)
-        This is the index of the hidden layer in the discriminator for which the reconstruction error 
-        will be determined between query sample and the sample created from the latent space.
+        This is the index of the hidden layer in the discriminator for which
+        the reconstruction error will be determined between query sample and
+        the sample created from the latent space.
 
     learning_rate_query: float in (0., 1), optional (default=0.001)
-        learning rate for the backpropagation steps needed to find a point in the latent space
-        of the generator that approximate the query sample
+        learning rate for the backpropagation steps needed to find a point in
+        the latent space of the generator that approximate the query sample
 
 
     epochs_query: int, optional (default=20) 
-        Number of epochs to approximate the query sample in the latent space of the generator
+        Number of epochs to approximate the query sample in the latent space
+        of the generator
 
     preprocessing : bool, optional (default=True)
         If True, apply standardization on the data.
@@ -116,14 +118,21 @@ class AnoGAN(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, activation_hidden='tanh', dropout_rate=0.2,
+    def __init__(self, activation_hidden='tanh',
+                 dropout_rate=0.2,
                  latent_dim_G=2,
-                 G_layers=[20, 10, 3, 10, 20], verbose=0,
-                 D_layers=[20, 10, 5], index_D_layer_for_recon_error=1,
+                 G_layers=[20, 10, 3, 10, 20],
+                 verbose=0,
+                 D_layers=[20, 10, 5],
+                 index_D_layer_for_recon_error=1,
                  epochs=500,
-                 preprocessing=False, learning_rate=0.001, learning_rate_query=0.01,
+                 preprocessing=False,
+                 learning_rate=0.001,
+                 learning_rate_query=0.01,
                  epochs_query=20,
-                 batch_size=32, output_activation=None, contamination=0.1):
+                 batch_size=32,
+                 output_activation=None,
+                 contamination=0.1):
         super(AnoGAN, self).__init__(contamination=contamination)
 
         self.activation_hidden = activation_hidden
@@ -142,7 +151,8 @@ class AnoGAN(BaseDetector):
         self.batch_size = batch_size
         self.verbose = verbose
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate', include_left=True)
+        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
+                        include_left=True)
 
     def _build_model(self):
         #### Generator #####
@@ -157,7 +167,8 @@ class AnoGAN(BaseDetector):
                 Dense(l_dim, activation=self.activation_hidden)(last_layer))
             last_layer = G_hl_dict[layer_name]
 
-        G_out = Dense(self.n_features_, activation=self.output_activation)(last_layer)
+        G_out = Dense(self.n_features_, activation=self.output_activation)(
+            last_layer)
 
         self.generator = Model(inputs=(G_in), outputs=[G_out])
         self.hist_loss_generator = []
@@ -176,8 +187,10 @@ class AnoGAN(BaseDetector):
 
         classifier_node = Dense(1, activation='sigmoid')(last_layer)
 
-        self.discriminator = Model(inputs=(D_in), outputs=[classifier_node, D_hl_dict[
-            'hl_{}'.format(self.index_D_layer_for_recon_error)]])
+        self.discriminator = Model(inputs=(D_in),
+                                   outputs=[classifier_node,
+                                            D_hl_dict['hl_{}'.format(
+                                                self.index_D_layer_for_recon_error)]])
         self.hist_loss_discriminator = []
 
         # Set optimizer
@@ -185,11 +198,14 @@ class AnoGAN(BaseDetector):
         self.generator.compile(optimizer=opt)
         self.discriminator.compile(optimizer=opt)
 
-    def plot_learning_curves(self, start_ind=0, window_smoothening=10):  # pragma: no cover
+    def plot_learning_curves(self, start_ind=0,
+                             window_smoothening=10):  # pragma: no cover
         fig = plt.figure(figsize=(12, 5))
 
-        l_gen = pd.Series(self.hist_loss_generator[start_ind:]).rolling(window_smoothening).mean()
-        l_disc = pd.Series(self.hist_loss_discriminator[start_ind:]).rolling(window_smoothening).mean()
+        l_gen = pd.Series(self.hist_loss_generator[start_ind:]).rolling(
+            window_smoothening).mean()
+        l_disc = pd.Series(self.hist_loss_discriminator[start_ind:]).rolling(
+            window_smoothening).mean()
 
         ax = fig.add_subplot(1, 2, 1)
         ax.plot(range(len(l_gen)), l_gen, )
@@ -212,31 +228,40 @@ class AnoGAN(BaseDetector):
         with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
             X_gen = self.generator({'I1': latent_noise}, training=True)
 
-            real_output, _ = self.discriminator({'I1': X_original}, training=True)
+            real_output, _ = self.discriminator({'I1': X_original},
+                                                training=True)
             fake_output, _ = self.discriminator({'I1': X_gen}, training=True)
 
             # Correctly predicted
-            loss_discriminator = cross_entropy(tf.ones_like(fake_output), fake_output)
+            loss_discriminator = cross_entropy(tf.ones_like(fake_output),
+                                               fake_output)
             total_loss_generator = loss_discriminator
 
             ## Losses discriminator                  
-            real_loss = cross_entropy(tf.ones_like(real_output, dtype='float32') * 0.9,
-                                      real_output)  # one-sided label smoothening
+            real_loss = cross_entropy(
+                tf.ones_like(real_output, dtype='float32') * 0.9,
+                real_output)  # one-sided label smoothening
             fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
             total_loss_discriminator = real_loss + fake_loss
 
         # Compute gradients
-        gradients_gen = gen_tape.gradient(total_loss_generator, self.generator.trainable_variables)
+        gradients_gen = gen_tape.gradient(total_loss_generator,
+                                          self.generator.trainable_variables)
         # Update weights
-        self.generator.optimizer.apply_gradients(zip(gradients_gen, self.generator.trainable_variables))
+        self.generator.optimizer.apply_gradients(
+            zip(gradients_gen, self.generator.trainable_variables))
 
         # Compute gradients
-        gradients_disc = disc_tape.gradient(total_loss_discriminator, self.discriminator.trainable_variables)
+        gradients_disc = disc_tape.gradient(total_loss_discriminator,
+                                            self.discriminator.trainable_variables)
         # Update weights
-        self.discriminator.optimizer.apply_gradients(zip(gradients_disc, self.discriminator.trainable_variables))
+        self.discriminator.optimizer.apply_gradients(
+            zip(gradients_disc, self.discriminator.trainable_variables))
 
-        self.hist_loss_generator.append(np.float64(total_loss_generator.numpy()))
-        self.hist_loss_discriminator.append(np.float64(total_loss_discriminator.numpy()))
+        self.hist_loss_generator.append(
+            np.float64(total_loss_generator.numpy()))
+        self.hist_loss_discriminator.append(
+            np.float64(total_loss_discriminator.numpy()))
 
     def fit_query(self, query_sample):
 
@@ -246,15 +271,19 @@ class AnoGAN(BaseDetector):
         # Make pseudo input (just zeros)
         zeros = np.zeros((1, self.latent_dim_G))
 
-        ### build model for back-propagating a approximate latent space where reconstruction with
-        # query sample is optimal ###
+        # build model for back-propagating a approximate latent space where
+        # reconstruction with query sample is optimal
         pseudo_in = Input(shape=(self.latent_dim_G,), name='I1')
-        z_gamma = Dense(self.latent_dim_G, activation=None, use_bias=True)(pseudo_in)
+        z_gamma = Dense(self.latent_dim_G, activation=None, use_bias=True)(
+            pseudo_in)
 
         sample_gen = self.generator({'I1': z_gamma}, training=False)
-        _, sample_disc_latent = self.discriminator({'I1': sample_gen}, training=False)
+        _, sample_disc_latent = self.discriminator({'I1': sample_gen},
+                                                   training=False)
 
-        self.query_model = Model(inputs=(pseudo_in), outputs=[z_gamma, sample_gen, sample_disc_latent])
+        self.query_model = Model(inputs=(pseudo_in),
+                                 outputs=[z_gamma, sample_gen,
+                                          sample_disc_latent])
 
         opt = Adam(learning_rate=self.learning_rate_query)
         self.query_model.compile(optimizer=opt)
@@ -266,23 +295,31 @@ class AnoGAN(BaseDetector):
 
             with tf.GradientTape() as tape:
 
-                z, sample_gen, sample_disc_latent = self.query_model({'I1': zeros}, training=True)
+                z, sample_gen, sample_disc_latent = self.query_model(
+                    {'I1': zeros}, training=True)
 
-                _, sample_disc_latent_original = self.discriminator({'I1': query_sample}, training=False)
+                _, sample_disc_latent_original = self.discriminator(
+                    {'I1': query_sample}, training=False)
 
                 # Reconstruction loss generator
                 abs_err = tf.keras.backend.abs(query_sample - sample_gen)
-                loss_recon_gen = tf.keras.backend.mean(tf.keras.backend.mean(abs_err, axis=-1))
+                loss_recon_gen = tf.keras.backend.mean(
+                    tf.keras.backend.mean(abs_err, axis=-1))
 
                 # Reconstruction loss latent space of discrimator
-                abs_err = tf.keras.backend.abs(sample_disc_latent_original - sample_disc_latent)
-                loss_recon_disc = tf.keras.backend.mean(tf.keras.backend.mean(abs_err, axis=-1))
+                abs_err = tf.keras.backend.abs(
+                    sample_disc_latent_original - sample_disc_latent)
+                loss_recon_disc = tf.keras.backend.mean(
+                    tf.keras.backend.mean(abs_err, axis=-1))
                 total_loss = loss_recon_gen + loss_recon_disc  # equal weighting both terms
 
             # Compute gradients
-            gradients = tape.gradient(total_loss, self.query_model.trainable_variables[0:2])
+            gradients = tape.gradient(total_loss,
+                                      self.query_model.trainable_variables[
+                                      0:2])
             # Update weights
-            self.query_model.optimizer.apply_gradients(zip(gradients, self.query_model.trainable_variables[0:2]))
+            self.query_model.optimizer.apply_gradients(
+                zip(gradients, self.query_model.trainable_variables[0:2]))
 
         return total_loss.numpy()
 
@@ -325,7 +362,8 @@ class AnoGAN(BaseDetector):
             np.random.shuffle(X_norm)
 
             X_train_sel = X_norm[0: min(self.batch_size, self.n_samples_), :]
-            latent_noise = np.random.normal(0, 1, (X_train_sel.shape[0], self.latent_dim_G))
+            latent_noise = np.random.normal(0, 1, (
+                X_train_sel.shape[0], self.latent_dim_G))
 
             self.train_step((np.float32(X_train_sel),
                              np.float32(latent_noise)))

@@ -8,11 +8,12 @@ import unittest
 # noinspection PyProtectedMember
 from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
                            assert_raises)
-from pyod.models.kde import KDE
-from pyod.utils.data import generate_data
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
+
+from pyod.models.kde import KDE
+from pyod.utils.data import generate_data
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line

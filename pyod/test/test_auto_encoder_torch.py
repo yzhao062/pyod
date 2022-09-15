@@ -4,18 +4,15 @@ from __future__ import print_function
 
 import os
 import sys
+import unittest
 
 import numpy as np
 import torch
-
-import unittest
+from numpy.testing import assert_almost_equal
 # noinspection PyProtectedMember
 from numpy.testing import assert_equal
-from numpy.testing import assert_almost_equal
 from numpy.testing import assert_raises
-
 from sklearn.metrics import roc_auc_score
-from sklearn.base import clone
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line

@@ -74,17 +74,17 @@ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
 the latest ECOD (TKDE 2020). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
-academic researches and commercial products :cite:`a-zhao2019lscp,a-zhao2021suod` with more than 7 million downloads.
+academic researches and commercial products with more than `8 million downloads <https://pepy.tech/project/pyod>`_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
 `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
 
-PyOD is featured for:
+**PyOD is featured for**:
 
 * **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\ , including **classical ones by distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
+* **Advanced models**\, including **classical distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
 * **Optimized performance with JIT and parallelization** using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
 * **Fast training & prediction with SUOD** :cite:`a-zhao2021suod`.
 
@@ -104,6 +104,13 @@ PyOD is featured for:
     y_train_scores = clf.decision_scores_  # raw outlier scores on the train data
     y_test_scores = clf.decision_function(X_test)  # predict raw outlier scores on test
 
+
+**Personal suggestion on selecting an OD algorithm**. If you do not know which algorithm to try, go with:
+
+- `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_: Example of using ECOD for outlier detection
+- `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_: Example of using Isolation Forest for outlier detection
+
+They are both fast and interpretable. Or, you could try more data-driven approach `MetaOD <https://github.com/yzhao062/MetaOD>`_.
 
 
 **Citing PyOD**\ :
@@ -200,6 +207,7 @@ Neural Networks      SO_GAAL           Single-Objective Generative Adversarial A
 Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   :class:`pyod.models.mo_gaal.MO_GAAL`                 :cite:`a-liu2019generative`
 Neural Networks      DeepSVDD          Deep One-Class Classification                                                                           2018   :class:`pyod.models.deep_svdd.DeepSVDD`              :cite:`a-ruff2018deepsvdd`
 Neural Networks      AnoGAN            Anomaly Detection with Generative Adversarial Networks                                                  2017   :class:`pyod.models.anogan.AnoGAN`                   :cite:`a-schlegl2017unsupervised`
+Neural Networks      ALAD                Adversarially learned anomaly detection                                                               2018   :class:`pyod.models.alad.ALAD`                       :cite:`a-zenati2018adversarially`
 Graph-based          R-Graph           Outlier detection by R-graph                                                                            2017   :class:`pyod.models.rgraph.RGraph`                   :cite:`you2017provable`
 Graph-based          LUNAR             LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   :class:`pyod.models.lunar.LUNAR`                     :cite:`a-goodge2022lunar`
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================

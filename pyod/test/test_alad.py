@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import division
 from __future__ import print_function
 
@@ -8,7 +7,6 @@ import sys
 import unittest
 
 # noinspection PyProtectedMember
-from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from sklearn.base import clone
@@ -16,15 +14,17 @@ from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from pyod.models.lunar import LUNAR
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from pyod.models.alad import ALAD
 from pyod.utils.data import generate_data
 
-class TestLUNAR(unittest.TestCase):
+
+class TestALAD(unittest.TestCase):
     def setUp(self):
-        self.n_train = 200
-        self.n_test = 100
-        self.n_features = 10
+        self.n_train = 500
+        self.n_test = 200
+        self.n_features = 2
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
@@ -32,7 +32,25 @@ class TestLUNAR(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = LUNAR()
+        self.clf = ALAD(epochs=100, latent_dim=2,
+                        learning_rate_disc=0.0001,
+                        learning_rate_gen=0.0001,
+                        dropout_rate=0.2,
+                        add_recon_loss=False,
+                        lambda_recon_loss=0.05,
+                        # only important when add_recon_loss = True
+                        add_disc_zz_loss=True,
+                        dec_layers=[75, 100],
+                        enc_layers=[100, 75],
+                        disc_xx_layers=[100, 75],
+                        disc_zz_layers=[25, 25],
+                        disc_xz_layers=[100, 75],
+                        spectral_normalization=False,
+                        activation_hidden_disc='tanh',
+                        activation_hidden_gen='tanh',
+                        preprocessing=True, batch_size=200,
+                        contamination=self.contamination)
+
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
@@ -115,29 +133,13 @@ class TestLUNAR(unittest.TestCase):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
 
-    def test_predict_rank(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test)
-
-        # assert the order is reserved
-        # assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
-        assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
-        assert_array_less(-0.1, pred_ranks)
-
-    def test_predict_rank_normalized(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
-
-        # assert the order is reserved
-        # assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=2)
-        assert_array_less(pred_ranks, 1.01)
-        assert_array_less(-0.1, pred_ranks)
-
     def test_model_clone(self):
+        # for deep models this may not apply
         clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass
+
 
 if __name__ == '__main__':
     unittest.main()

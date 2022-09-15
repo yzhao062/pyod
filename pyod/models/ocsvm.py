@@ -8,8 +8,8 @@ from __future__ import division
 from __future__ import print_function
 
 from sklearn.svm import OneClassSVM
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 from ..utils.utility import invert_order
