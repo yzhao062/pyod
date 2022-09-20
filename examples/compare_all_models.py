@@ -101,10 +101,15 @@ classifiers = {
     'Locally Selective Combination (LSCP)': LSCP(
         detector_list, contamination=outliers_fraction,
         random_state=random_state),
-    'INNE': INNE(contamination=outliers_fraction),
-    'GMM': GMM(contamination=outliers_fraction),
+    'INNE': INNE(
+        max_samples=2, contamination=outliers_fraction,
+        random_state=random_state,
+        ),
+    'GMM': GMM(contamination=outliers_fraction,
+               random_state=random_state),
     'KDE': KDE(contamination=outliers_fraction),
-    'LMDD': LMDD(contamination=outliers_fraction),
+    'LMDD': LMDD(contamination=outliers_fraction,
+                 random_state=random_state),
 }
 
 # Show all detectors
