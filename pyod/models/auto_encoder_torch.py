@@ -75,13 +75,16 @@ class InnerAutoencoder(nn.Module):
         for idx, layer in enumerate(self.layers_neurons_encoder_[:-1]):
 
             # create a linear layer of neurons
-            self.encoder.add_module("linear" + str(idx),
-                                    torch.nn.Linear(layer, self.layers_neurons_encoder_[idx + 1]))
+            self.encoder.add_module(
+                "linear" + str(idx),
+                torch.nn.Linear(layer,self.layers_neurons_encoder_[idx + 1]))
 
             # add a batch norm per layer if wanted (leave out first layer)
             if batch_norm:
                 self.encoder.add_module("batch_norm" + str(idx),
-                                        nn.BatchNorm1d(self.layers_neurons_encoder_[idx + 1]))
+                                        nn.BatchNorm1d(
+                                            self.layers_neurons_encoder_[
+                                                idx + 1]))
 
             # create the activation
             self.encoder.add_module(self.hidden_activation + str(idx),
@@ -95,13 +98,17 @@ class InnerAutoencoder(nn.Module):
         for idx, layer in enumerate(self.layers_neurons_decoder_[:-1]):
 
             # create a linear layer of neurons
-            self.decoder.add_module("linear" + str(idx),
-                                    torch.nn.Linear(layer, self.layers_neurons_decoder_[idx + 1]))
+            self.decoder.add_module(
+                "linear" + str(idx),
+                torch.nn.Linear(layer,self.layers_neurons_decoder_[idx + 1]))
 
-            # create a batch norm per layer if wanted (only if it is not the last layer)
+            # create a batch norm per layer if wanted (only if it is not the
+            # last layer)
             if batch_norm and idx < len(self.layers_neurons_decoder_[:-1]) - 1:
                 self.decoder.add_module("batch_norm" + str(idx),
-                                        nn.BatchNorm1d(self.layers_neurons_decoder_[idx + 1]))
+                                        nn.BatchNorm1d(
+                                            self.layers_neurons_decoder_[
+                                                idx + 1]))
 
             # create the activation
             self.decoder.add_module(self.hidden_activation + str(idx),
@@ -113,7 +120,8 @@ class InnerAutoencoder(nn.Module):
                                         torch.nn.Dropout(dropout_rate))
 
     def forward(self, x):
-        # we could return the latent representation here after the encoder as the latent representation
+        # we could return the latent representation here after the encoder
+        # as the latent representation
         x = self.encoder(x)
         x = self.decoder(x)
         return x
