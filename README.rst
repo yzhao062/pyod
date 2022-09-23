@@ -114,20 +114,29 @@ If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 
     @article{zhao2019pyod,
-      author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
-      title   = {PyOD: A Python Toolbox for Scalable Outlier Detection},
-      journal = {Journal of Machine Learning Research},
-      year    = {2019},
-      volume  = {20},
-      number  = {96},
-      pages   = {1-7},
-      url     = {http://jmlr.org/papers/v20/19-011.html}
+        author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+        title   = {PyOD: A Python Toolbox for Scalable Outlier Detection},
+        journal = {Journal of Machine Learning Research},
+        year    = {2019},
+        volume  = {20},
+        number  = {96},
+        pages   = {1-7},
+        url     = {http://jmlr.org/papers/v20/19-011.html}
     }
 
 or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
+If you want more general insights of anomaly detection and/or algorithm performance comparison, please see our
+NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_::
+
+    @inproceedings{han2022adbench,
+        title={ADBench: Anomaly Detection Benchmark},
+        author={Songqiao Han and Xiyang Hu and Hailiang Huang and Mingqi Jiang and Yue Zhao},
+        booktitle={Neural Information Processing Systems (NeurIPS)}
+        year={2022},
+    }
 
 **Key Links and Resources**\ :
 
@@ -238,8 +247,8 @@ Key Attributes of a fitted model:
 ADBench Benchmark
 ^^^^^^^^^^^^^^^^^
 
-We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_ [#Han2022ADBench]_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
+We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_ [#Han2022ADBench]_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 The organization of **ADBench** is provided below:
 
