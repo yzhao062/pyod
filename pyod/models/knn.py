@@ -92,7 +92,7 @@ class KNN(BaseDetector):
 
         Valid values for metric are:
 
-        - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1', 'l2',
+        - from scikit-learn: ['cityblock', 'euclidean', 'l1', 'l2',
           'manhattan']
 
         - from scipy.spatial.distance: ['braycurtis', 'canberra', 'chebyshev',
