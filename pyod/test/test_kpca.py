@@ -8,11 +8,12 @@ import unittest
 # noinspection PyProtectedMember
 from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
                            assert_raises)
-from pyod.models.kpca import KPCA
-from pyod.utils.data import generate_data
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
+
+from pyod.models.kpca import KPCA
+from pyod.utils.data import generate_data
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -37,8 +38,8 @@ class TestKPCA(unittest.TestCase):
 
     def test_parameters(self):
         assert (
-            hasattr(self.clf, "decision_scores_")
-            and self.clf.decision_scores_ is not None
+                hasattr(self.clf, "decision_scores_")
+                and self.clf.decision_scores_ is not None
         )
         assert hasattr(self.clf, "labels_") and self.clf.labels_ is not None
         assert hasattr(self.clf, "threshold_") and self.clf.threshold_ is not None

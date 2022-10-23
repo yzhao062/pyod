@@ -58,8 +58,11 @@ Python Outlier Detection (PyOD)
 
 -----
 
-**News**: We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
+**News**: We just released a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+
+**For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
+**For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
 
 PyOD is the most comprehensive and scalable **Python library** for **detecting outlying objects** in
 multivariate data. This exciting yet challenging field is commonly referred as 
@@ -68,7 +71,7 @@ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
 the latest ECOD (TKDE 2022). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products with more than `8 million downloads <https://pepy.tech/project/pyod>`_.
+commercial products with more than `10 million downloads <https://pepy.tech/project/pyod>`_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
@@ -129,7 +132,7 @@ or::
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
 If you want more general insights of anomaly detection and/or algorithm performance comparison, please see our
-NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_::
+NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_::
 
     @inproceedings{han2022adbench,
         title={ADBench: Anomaly Detection Benchmark},
@@ -351,6 +354,7 @@ Probabilistic        KDE                 Outlier Detection with Kernel Density F
 Probabilistic        Sampling            Rapid distance-based outlier detection via sampling                                                     2013   [#Sugiyama2013Rapid]_
 Probabilistic        GMM                 Probabilistic Mixture Modeling for Outlier Analysis                                                            [#Aggarwal2015Outlier]_ [Ch.2]
 Linear Model         PCA                 Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   [#Shyu2003A]_
+Linear Model         KPCA                Kernel Principal Component Analysis                                                                     2007   [#Hoffmann2007Kernel]_
 Linear Model         MCD                 Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   [#Hardin2004Outlier]_ [#Rousseeuw1999A]_
 Linear Model         CD                  Use Cook's distance for outlier detection                                                               1977   [#Cook1977Detection]_
 Linear Model         OCSVM               One-Class Support Vector Machines                                                                       2001   [#Scholkopf2001Estimating]_
@@ -572,6 +576,8 @@ Reference
 .. [#Hardin2004Outlier] Hardin, J. and Rocke, D.M., 2004. Outlier detection in the multiple cluster setting using the minimum covariance determinant estimator. *Computational Statistics & Data Analysis*\ , 44(4), pp.625-638.
 
 .. [#He2003Discovering] He, Z., Xu, X. and Deng, S., 2003. Discovering cluster-based local outliers. *Pattern Recognition Letters*\ , 24(9-10), pp.1641-1650.
+
+.. [#Hoffmann2007Kernel] Hoffmann, H., 2007. Kernel PCA for novelty detection. Pattern recognition, 40(3), pp.863-874.
 
 .. [#Iglewicz1993How] Iglewicz, B. and Hoaglin, D.C., 1993. How to detect and handle outliers (Vol. 16). Asq Press.
 

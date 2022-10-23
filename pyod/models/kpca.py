@@ -10,30 +10,30 @@ from sklearn.decomposition import KernelPCA
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
 from .base import BaseDetector
+from ..utils.utility import check_parameter
 
 
 class PyODKernelPCA(KernelPCA):
     """A wrapper class for KernelPCA class of scikit-learn."""
 
     def __init__(
-        self,
-        n_components=None,
-        kernel="rbf",
-        gamma=None,
-        degree=3,
-        coef0=1,
-        kernel_params=None,
-        alpha=1.0,
-        fit_inverse_transform=False,
-        eigen_solver="auto",
-        tol=0,
-        max_iter=None,
-        remove_zero_eig=False,
-        copy_X=True,
-        n_jobs=None,
-        random_state=None,
+            self,
+            n_components=None,
+            kernel="rbf",
+            gamma=None,
+            degree=3,
+            coef0=1,
+            kernel_params=None,
+            alpha=1.0,
+            fit_inverse_transform=False,
+            eigen_solver="auto",
+            tol=0,
+            max_iter=None,
+            remove_zero_eig=False,
+            copy_X=True,
+            n_jobs=None,
+            random_state=None,
     ):
         super().__init__(
             kernel=kernel,
@@ -69,7 +69,7 @@ class KPCA(BaseDetector):
     PCA is performed on the feature space uniquely determined by the kernel,
     and the reconstruction error on the feature space is used as the anomaly score.
 
-    Reference: See
+    See :cite:`hoffmann2007kernel`
     Heiko Hoffmann, "Kernel PCA for novelty detection,"
     Pattern Recognition, vol.40, no.3, pp. 863-874, 2007.
     https://www.sciencedirect.com/science/article/pii/S0031320306003414
@@ -198,25 +198,25 @@ class KPCA(BaseDetector):
     """
 
     def __init__(
-        self,
-        contamination=0.1,
-        n_components=None,
-        n_selected_components=None,
-        kernel="rbf",
-        gamma=None,
-        degree=3,
-        coef0=1,
-        kernel_params=None,
-        alpha=1.0,
-        eigen_solver="auto",
-        tol=0,
-        max_iter=None,
-        remove_zero_eig=False,
-        copy_X=True,
-        n_jobs=None,
-        sampling=False,
-        subset_size=20,
-        random_state=None,
+            self,
+            contamination=0.1,
+            n_components=None,
+            n_selected_components=None,
+            kernel="rbf",
+            gamma=None,
+            degree=3,
+            coef0=1,
+            kernel_params=None,
+            alpha=1.0,
+            eigen_solver="auto",
+            tol=0,
+            max_iter=None,
+            remove_zero_eig=False,
+            copy_X=True,
+            n_jobs=None,
+            sampling=False,
+            subset_size=20,
+            random_state=None,
     ):
         super().__init__(contamination=contamination)
         self.n_components = n_components
