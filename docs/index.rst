@@ -64,8 +64,11 @@ Welcome to PyOD documentation!
 
 ----
 
-**News**: We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
+**News**: We just released a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+
+**For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
+**For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
 
 PyOD is the most comprehensive and scalable **Python library** for **detecting outlying objects** in
 multivariate data. This exciting yet challenging field is commonly referred as
@@ -73,8 +76,8 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest ECOD (TKDE 2020). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
-academic researches and commercial products with more than `8 million downloads <https://pepy.tech/project/pyod>`_.
+the latest ECOD (TKDE 2022). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
+academic researches and commercial products with more than `10 million downloads <https://pepy.tech/project/pyod>`_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
@@ -121,20 +124,29 @@ If you use PyOD in a scientific publication, we would appreciate
 citations to the following paper::
 
     @article{zhao2019pyod,
-      author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
-      title   = {PyOD: A Python Toolbox for Scalable Outlier Detection},
-      journal = {Journal of Machine Learning Research},
-      year    = {2019},
-      volume  = {20},
-      number  = {96},
-      pages   = {1-7},
-      url     = {http://jmlr.org/papers/v20/19-011.html}
+        author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
+        title   = {PyOD: A Python Toolbox for Scalable Outlier Detection},
+        journal = {Journal of Machine Learning Research},
+        year    = {2019},
+        volume  = {20},
+        number  = {96},
+        pages   = {1-7},
+        url     = {http://jmlr.org/papers/v20/19-011.html}
     }
 
 or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
+If you want more general insights of anomaly detection and/or algorithm performance comparison, please see our
+NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_::
+
+    @inproceedings{han2022adbench,
+        title={ADBench: Anomaly Detection Benchmark},
+        author={Songqiao Han and Xiyang Hu and Hailiang Huang and Mingqi Jiang and Yue Zhao},
+        booktitle={Neural Information Processing Systems (NeurIPS)}
+        year={2022},
+    }
 
 **Key Links and Resources**\ :
 
@@ -148,8 +160,8 @@ or::
 Benchmark
 =========
 
-We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
+We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_.
+The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 The organization of **ADBench** is provided below:
 
@@ -178,6 +190,7 @@ Probabilistic        KDE               Outlier Detection with Kernel Density Fun
 Probabilistic        Sampling          Rapid distance-based outlier detection via sampling                                                     2013   :class:`pyod.models.sampling.Sampling`               :cite:`a-sugiyama2013rapid`
 Probabilistic        GMM               Probabilistic Mixture Modeling for Outlier Analysis                                                            :class:`pyod.models.gmm.GMM`                         :cite:`a-aggarwal2015outlier` [Ch.2]
 Linear Model         PCA               Principal Component Analysis (the sum of weighted projected distances to the eigenvector hyperplanes)   2003   :class:`pyod.models.pca.PCA`                         :cite:`a-shyu2003novel`
+Linear Model         KPCA              Kernel Principal Component Analysis                                                                     2007   :class:`pyod.models.kpca.KPCA`                       :cite:`a-hoffmann2007kernel`
 Linear Model         MCD               Minimum Covariance Determinant (use the mahalanobis distances as the outlier scores)                    1999   :class:`pyod.models.mcd.MCD`                         :cite:`a-rousseeuw1999fast,a-hardin2004outlier`
 Linear Model         CD                Use Cook's distance for outlier detection                                                               1977   :class:`pyod.models.cd.CD`                           :cite:`a-cook1977detection`
 Linear Model         OCSVM             One-Class Support Vector Machines                                                                       2001   :class:`pyod.models.ocsvm.OCSVM`                     :cite:`a-scholkopf2001estimating`

@@ -43,55 +43,85 @@ class PyODDataset(torch.utils.data.Dataset):
         return torch.from_numpy(sample), idx
 
 
-class inner_autoencoder(nn.Module):
+class InnerAutoencoder(nn.Module):
     def __init__(self,
                  n_features,
-                 hidden_neurons=[128, 64],
+                 hidden_neurons=(128, 64),
                  dropout_rate=0.2,
                  batch_norm=True,
                  hidden_activation='relu'):
-        super(inner_autoencoder, self).__init__()
+
+        # initialize the super class
+        super(InnerAutoencoder, self).__init__()
+
+        # save the default values
         self.n_features = n_features
         self.dropout_rate = dropout_rate
         self.batch_norm = batch_norm
         self.hidden_activation = hidden_activation
 
+        # create the dimensions for the input and hidden layers
+        self.layers_neurons_encoder_ = [self.n_features, *hidden_neurons]
+        self.layers_neurons_decoder_ = self.layers_neurons_encoder_[::-1]
+
+        # get the object for the activations functions
         self.activation = get_activation_by_name(hidden_activation)
 
-        self.layers_neurons_ = [self.n_features, *hidden_neurons]
-        self.layers_neurons_decoder_ = self.layers_neurons_[::-1]
+        # initialize encoder and decoder as a sequential
         self.encoder = nn.Sequential()
         self.decoder = nn.Sequential()
 
-        for idx, layer in enumerate(self.layers_neurons_[:-1]):
+        # fill the encoder sequential with hidden layers
+        for idx, layer in enumerate(self.layers_neurons_encoder_[:-1]):
+
+            # create a linear layer of neurons
+            self.encoder.add_module(
+                "linear" + str(idx),
+                torch.nn.Linear(layer,self.layers_neurons_encoder_[idx + 1]))
+
+            # add a batch norm per layer if wanted (leave out first layer)
             if batch_norm:
                 self.encoder.add_module("batch_norm" + str(idx),
                                         nn.BatchNorm1d(
-                                            self.layers_neurons_[idx]))
-            self.encoder.add_module("linear" + str(idx),
-                                    torch.nn.Linear(self.layers_neurons_[idx],
-                                                    self.layers_neurons_[
-                                                        idx + 1]))
+                                            self.layers_neurons_encoder_[
+                                                idx + 1]))
+
+            # create the activation
             self.encoder.add_module(self.hidden_activation + str(idx),
                                     self.activation)
+
+            # create a dropout layer
             self.encoder.add_module("dropout" + str(idx),
                                     torch.nn.Dropout(dropout_rate))
 
-        for idx, layer in enumerate(self.layers_neurons_[:-1]):
-            if batch_norm:
+        # fill the decoder layer
+        for idx, layer in enumerate(self.layers_neurons_decoder_[:-1]):
+
+            # create a linear layer of neurons
+            self.decoder.add_module(
+                "linear" + str(idx),
+                torch.nn.Linear(layer,self.layers_neurons_decoder_[idx + 1]))
+
+            # create a batch norm per layer if wanted (only if it is not the
+            # last layer)
+            if batch_norm and idx < len(self.layers_neurons_decoder_[:-1]) - 1:
                 self.decoder.add_module("batch_norm" + str(idx),
                                         nn.BatchNorm1d(
-                                            self.layers_neurons_decoder_[idx]))
-            self.decoder.add_module("linear" + str(idx), torch.nn.Linear(
-                self.layers_neurons_decoder_[idx],
-                self.layers_neurons_decoder_[idx + 1]))
-            self.encoder.add_module(self.hidden_activation + str(idx),
+                                            self.layers_neurons_decoder_[
+                                                idx + 1]))
+
+            # create the activation
+            self.decoder.add_module(self.hidden_activation + str(idx),
                                     self.activation)
-            self.decoder.add_module("dropout" + str(idx),
-                                    torch.nn.Dropout(dropout_rate))
+
+            # create a dropout layer (only if it is not the last layer)
+            if idx < len(self.layers_neurons_decoder_[:-1]) - 1:
+                self.decoder.add_module("dropout" + str(idx),
+                                        torch.nn.Dropout(dropout_rate))
 
     def forward(self, x):
-        # we could return the latent representation here after the encoder as the latent representation
+        # we could return the latent representation here after the encoder
+        # as the latent representation
         x = self.encoder(x)
         x = self.decoder(x)
         return x
@@ -293,7 +323,7 @@ class AutoEncoder(BaseDetector):
                                                    shuffle=True)
 
         # initialize the model
-        self.model = inner_autoencoder(
+        self.model = InnerAutoencoder(
             n_features=n_features,
             hidden_neurons=self.hidden_neurons,
             dropout_rate=self.dropout_rate,

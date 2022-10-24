@@ -181,6 +181,15 @@ pyod.models.knn module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.kpca module
+-----------------------
+
+.. automodule:: pyod.models.kpca
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.lmdd module
 -----------------------
 
