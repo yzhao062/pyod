@@ -34,6 +34,7 @@ class TestQMCD(unittest.TestCase):
         self.n_test = 200
         self.n_features = 2
         self.contamination = 0.1
+        self.roc_floor = 0.8
 
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
@@ -41,7 +42,7 @@ class TestQMCD(unittest.TestCase):
             random_state=42)
 
         self.clf = QMCD(contamination=self.contamination)
-        self.clf.fit(self.X_train, self.y_train)
+        self.clf.fit(self.X_train)
 
     def test_parameters(self):
         assert (hasattr(self.clf, 'decision_scores_') and

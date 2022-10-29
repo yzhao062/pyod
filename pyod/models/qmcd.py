@@ -77,7 +77,7 @@ class QMCD(BaseDetector):
 
         super(QMCD, self).__init__(contamination=contamination)
 
-    def fit(self, X, y):
+    def fit(self, X, y=None):
         """Fit detector
 
         Parameters
