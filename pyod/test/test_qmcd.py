@@ -8,9 +8,11 @@ import unittest
 
 import numpy as np
 # noinspection PyProtectedMember
-from numpy.testing import assert_equal
-from numpy.testing import assert_raises
+from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
+                           assert_raises)
+from scipy.stats import rankdata
 from sklearn.base import clone
+from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -21,7 +23,7 @@ from pyod.models.qmcd import QMCD
 from pyod.utils.data import generate_data
 
 
-class TestCD(unittest.TestCase):
+class TestQMCD(unittest.TestCase):
     """
     Notes: GAN may yield unstable results, so the test is design for running
     models only, without any performance check.
@@ -32,8 +34,7 @@ class TestCD(unittest.TestCase):
         self.n_test = 200
         self.n_features = 2
         self.contamination = 0.1
-        # GAN may yield unstable results; turning performance check off
-        # self.roc_floor = 0.8
+
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
@@ -102,7 +103,7 @@ class TestCD(unittest.TestCase):
         assert (confidence.min() >= 0)
         assert (confidence.max() <= 1)
 
-        def test_fit_predict(self):
+    def test_fit_predict(self):
         pred_labels = self.clf.fit_predict(self.X_train)
         assert_equal(pred_labels.shape, self.y_train.shape)
 

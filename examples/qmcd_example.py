@@ -1,4 +1,4 @@
-"""Example of using Cook's distance (CD) for
+"""Example of using Quasi-Monte Carlo Discrepancy (QMCD) for
 outlier detection
 """
 # Author: D Kulik

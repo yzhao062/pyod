@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Quasi-Monte Carlo Discrepancy outlier detection (CD)
+"""Quasi-Monte Carlo Discrepancy outlier detection (QMCD)
 """
 
 # Author: D Kulik
