@@ -64,7 +64,7 @@ class BaseDetector(object):
     @abc.abstractmethod
     def __init__(self, contamination=0.1):
 
-        if (isinstance(contamination, float)):
+        if (isinstance(contamination, (float,int))):
             
             if not (0. < contamination <= 0.5):
                 raise ValueError("contamination must be in (0, 0.5], "
@@ -167,7 +167,7 @@ class BaseDetector(object):
         pred_score = self.decision_function(X)
         
 
-        if isinstance(self.contamination, float):
+        if isinstance(self.contamination, (float,int)):
             prediction = (pred_score > self.threshold_).astype('int').ravel()
 
         else:
@@ -281,7 +281,7 @@ class BaseDetector(object):
         # Derive the outlier probability using Bayesian approach
         posterior_prob = np.vectorize(lambda x: (1 + x) / (2 + n))(n_instances)
 
-        if not isinstance(self.contamination, float):
+        if not isinstance(self.contamination, (float,int)):
             contam = np.sum(self.labels_)/n
         else:
             contam = self.contamination
@@ -291,7 +291,7 @@ class BaseDetector(object):
             lambda p: 1 - binom.cdf(n - int(n * contam), n, p))(
             posterior_prob)
 
-        if isinstance(self.contamination, float):
+        if isinstance(self.contamination, (float,int)):
             prediction = (test_scores > self.threshold_).astype('int').ravel()
         else:
             prediction = self.contamination.eval(test_scores)
@@ -440,7 +440,7 @@ class BaseDetector(object):
         self
         """
 
-        if isinstance(self.contamination, float):
+        if isinstance(self.contamination, (float,int)):
             self.threshold_ = percentile(self.decision_scores_,
                                          100 * (1 - self.contamination))
             self.labels_ = (self.decision_scores_ > self.threshold_).astype(

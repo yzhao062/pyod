@@ -179,7 +179,11 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
     offset_ = random_state.randint(low=offset)
     coef_ = random_state.random_sample() + 0.001  # in case of underflow
 
-    n_outliers_train = int(n_train * contamination)
+    if isinstance(contamination, (float,int)):
+        n_outliers_train = int(n_train * contamination)
+    else:
+        contamination=0.1
+        
     n_inliers_train = int(n_train - n_outliers_train)
 
     X_train, y_train = _generate_data(n_inliers_train, n_outliers_train,
@@ -378,7 +382,7 @@ def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
     else:
         raise ValueError("n_features should be int, got %s" % n_features)
 
-    if isinstance(contamination, float):
+    if isinstance(contamination, (float,int)):
         check_parameter(contamination, low=0, high=0.5,
                         param_name='contamination')
     else:
@@ -586,7 +590,7 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
     else:
         raise ValueError("n_informative should be int, got %s" % n_informative)
 
-    if isinstance(contamination, float):
+    if isinstance(contamination, (float,int)):
         check_parameter(contamination, low=0, high=0.5,
                         param_name='contamination')
     else:
