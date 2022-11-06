@@ -183,6 +183,7 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
         n_outliers_train = int(n_train * contamination)
     else:
         contamination=0.1
+        n_outliers_train = int(n_train * contamination)
         
     n_inliers_train = int(n_train - n_outliers_train)
 
