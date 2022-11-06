@@ -291,7 +291,7 @@ class BaseDetector(object):
             lambda p: 1 - binom.cdf(n - int(n * contam), n, p))(
             posterior_prob)
 
-        if isinstance(self.contamination, float)
+        if isinstance(self.contamination, float):
             prediction = (test_scores > self.threshold_).astype('int').ravel()
         else:
             prediction = self.contamination.eval(test_scores)
