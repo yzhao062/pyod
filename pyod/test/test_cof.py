@@ -139,8 +139,6 @@ class TestFastCOF(unittest.TestCase):
             COF(contamination=10., n_neighbors=5)
         with assert_raises(TypeError):
             COF(contamination=0.1, n_neighbors='not int')
-        with assert_raises(TypeError):
-            COF(contamination='not float', n_neighbors=5)
         cof_ = COF(contamination=0.1, n_neighbors=10000)
         cof_.fit(self.X_train)
         assert self.X_train.shape[0] > cof_.n_neighbors_
@@ -252,8 +250,6 @@ class TestMemoryCOF(unittest.TestCase):
             COF(contamination=10., n_neighbors=5)
         with assert_raises(TypeError):
             COF(contamination=0.1, n_neighbors='not int')
-        with assert_raises(TypeError):
-            COF(contamination='not float', n_neighbors=5)
         cof_ = COF(contamination=0.1, n_neighbors=10000)
         cof_.fit(self.X_train)
         assert self.X_train.shape[0] > cof_.n_neighbors_
