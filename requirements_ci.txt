@@ -1,4 +1,5 @@
 combo
+geomstats
 joblib
 keras
 matplotlib
@@ -8,6 +9,7 @@ numba>=0.51
 pythresh
 scipy>=1.5.1
 scikit_learn>=0.20.0
+scikit-lego
 six
 statsmodels
 suod

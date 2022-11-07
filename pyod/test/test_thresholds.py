@@ -29,11 +29,15 @@ class TestThresholds(unittest.TestCase):
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def setUp(self):
         
-        from pyod.models.thresholds import ALL
+        from pyod.models.thresholds import (ALL, AUCP, BOOT, CHAU, CLF, CLUST,
+                                            DECOMP, DSN, EB, FGD, FILTER, FWFM,
+                                            GESD, HIST, IQR, KARCH, MAD, MCST,
+                                            META, MOLL, MTT, OCSVM, QMCD, REGR,
+                                            WIND, YJ, ZSCORE)
         
         self.n_train = 200
         self.n_test = 100
-        self.contamination = ALL()
+        self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train,
@@ -42,8 +46,15 @@ class TestThresholds(unittest.TestCase):
             random_state=42,
         )
 
-        self.clf = KDE(contamination=self.contamination)
-        self.clf.fit(self.X_train)
+        self.contam = [ALL(), AUCP(), BOOT(), CHAU(), CLF(), CLUST(),
+                       DECOMP(), DSN(), EB(), FGD(), FILTER(), FWFM(),
+                       GESD(), HIST(), IQR(), KARCH(), MAD(), MCST(),
+                       META(), MOLL(), MTT(), OCSVM(), QMCD(), REGR(),
+                       WIND(), YJ(), ZSCORE()]
+        
+        for contam in self.contam:
+            self.clf = KDE(contamination=contam)
+            self.clf.fit(self.X_train)
 
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def test_parameters(self):
