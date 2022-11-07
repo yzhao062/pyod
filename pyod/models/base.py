@@ -450,7 +450,9 @@ class BaseDetector(object):
 
             self.labels_ = self.contamination.eval(self.decision_scores_)
             self.threshold_ = self.contamination.thresh_
-            
+            if not self.threshold_:
+                
+                self.threshold_ = np.sum(self.labels)/len(self.labels)
 
         # calculate for predict_proba()
 
