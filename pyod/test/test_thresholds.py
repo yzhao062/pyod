@@ -23,7 +23,7 @@ from pyod.utils.data import generate_data
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 global py_ver
-py_ver = Version(python_version())>=Version('3.6.15')
+py_ver = Version(python_version())>Version('3.6.15')
 
 class TestThresholds(unittest.TestCase):
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
