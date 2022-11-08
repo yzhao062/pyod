@@ -33,7 +33,7 @@ class TestThresholds(unittest.TestCase):
                                             DECOMP, DSN, EB, FGD, FILTER, FWFM,
                                             GESD, HIST, IQR, KARCH, MAD, MCST,
                                             META, MOLL, MTT, OCSVM, QMCD, REGR,
-                                            WIND, YJ, ZSCORE)
+                                            VAE, WIND, YJ, ZSCORE)
         
         self.n_train = 200
         self.n_test = 100
@@ -50,7 +50,7 @@ class TestThresholds(unittest.TestCase):
                        DECOMP(), DSN(), EB(), FGD(), FILTER(), FWFM(),
                        GESD(), HIST(), IQR(), KARCH(), MAD(), MCST(),
                        META(), MOLL(), MTT(), OCSVM(), QMCD(), REGR(),
-                       WIND(), YJ(), ZSCORE()]
+                       VAE(), WIND(), YJ(), ZSCORE()]
         
         for contam in self.contam:
             self.clf = KDE(contamination=contam)

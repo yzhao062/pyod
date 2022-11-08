@@ -22,7 +22,7 @@ from pyod.utils.data import evaluate_print
 from pyod.utils.example import visualize
 
 if __name__ == "__main__":
-    contamination = ALL()  # percentage of outliers
+    contamination = 0.1   # percentage of outliers
     n_train = 200  # number of training points
     n_test = 100  # number of testing points
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # train KDE detector
     clf_name = 'KDE'
-    clf = KDE()
+    clf = KDE(contamination=ALL())
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
