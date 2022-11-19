@@ -59,9 +59,6 @@ class SO_GAAL(BaseDetector):
     lr_g : float, optional (default=0.0001)
         The learn rate of the generator.
 
-    decay : float, optional (default=1e-6)
-        The decay parameter for SGD.
-
     momentum : float, optional (default=0.9)
         The momentum parameter for SGD.
 
@@ -84,13 +81,11 @@ class SO_GAAL(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
-                 decay=1e-6, momentum=0.9, contamination=0.1):
+    def __init__(self, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1):
         super(SO_GAAL, self).__init__(contamination=contamination)
         self.stop_epochs = stop_epochs
         self.lr_d = lr_d
         self.lr_g = lr_g
-        self.decay = decay
         self.momentum = momentum
 
     def fit(self, X, y=None):
@@ -119,8 +114,7 @@ class SO_GAAL(BaseDetector):
 
         self.discriminator = create_discriminator(latent_size, data_size)
         self.discriminator.compile(
-            optimizer=SGD(lr=self.lr_d, decay=self.decay,
-                          momentum=self.momentum), loss='binary_crossentropy')
+            optimizer=SGD(lr=self.lr_d, momentum=self.momentum), loss='binary_crossentropy')
 
         self.generator = create_generator(latent_size)
         latent = Input(shape=(latent_size,))
@@ -129,8 +123,7 @@ class SO_GAAL(BaseDetector):
         fake = self.discriminator(fake)
         self.combine_model = Model(latent, fake)
         self.combine_model.compile(
-            optimizer=SGD(lr=self.lr_g, decay=self.decay,
-                          momentum=self.momentum), loss='binary_crossentropy')
+            optimizer=SGD(lr=self.lr_g, momentum=self.momentum), loss='binary_crossentropy')
 
         # Start iteration
         for epoch in range(epochs):
