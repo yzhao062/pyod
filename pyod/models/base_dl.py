@@ -25,4 +25,4 @@ def _get_tensorflow_version():  # pragma: no cover
             tf_version.split(".")[0]) != 2:
         raise ValueError("tensorflow version error")
 
-    return int(tf_version.split(".")[0])
+    return int(tf_version.split(".")[0]) * 100 + int(tf_version.split(".")[1])

@@ -21,14 +21,18 @@ from .gaal_base import create_discriminator
 from .gaal_base import create_generator
 
 # if tensorflow 2, import from tf directly
-if _get_tensorflow_version() == 1:
+if _get_tensorflow_version() < 200:
     from keras.layers import Input
     from keras.models import Model
     from keras.optimizers import SGD
-else:
+elif 200 <= _get_tensorflow_version() <= 209:
     from tensorflow.keras.layers import Input
     from tensorflow.keras.models import Model
     from tensorflow.keras.optimizers import SGD
+else:
+    from tensorflow.keras.layers import Input
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.optimizers.legacy import SGD
 
 
 class MO_GAAL(BaseDetector):

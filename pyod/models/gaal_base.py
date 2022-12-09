@@ -14,7 +14,7 @@ import math
 from .base_dl import _get_tensorflow_version
 
 # if tensorflow 2, import from tf directly
-if _get_tensorflow_version() == 1:
+if _get_tensorflow_version() <= 200:
     import keras
     from keras.layers import Input, Dense
     from keras.models import Sequential, Model

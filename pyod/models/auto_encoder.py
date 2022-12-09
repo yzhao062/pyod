@@ -18,7 +18,7 @@ from ..utils.stat_models import pairwise_distances_no_broadcast
 from ..utils.utility import check_parameter
 
 # if tensorflow 2, import from tf directly
-if _get_tensorflow_version() == 1:
+if _get_tensorflow_version() < 200:
     from keras.models import Sequential
     from keras.layers import Dense, Dropout
     from keras.regularizers import l2
