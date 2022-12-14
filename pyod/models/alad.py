@@ -454,7 +454,7 @@ class ALAD(BaseDetector):
         ax.plot(range(len(l_gen)), l_gen, )
         ax.set_title('Generator')
         ax.set_ylabel('Loss')
-        ax.set_ylabel('Iter')
+        ax.set_xlabel('Iter')
 
         ax = fig.add_subplot(1, 2, 2)
         ax.plot(range(len(l_disc)), l_disc)
