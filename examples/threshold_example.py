@@ -22,7 +22,7 @@ from pyod.utils.data import evaluate_print
 from pyod.utils.example import visualize
 
 if __name__ == "__main__":
-    contamination = 0.1   # percentage of outliers
+    contamination = 0.1  # percentage of outliers
     n_train = 200  # number of training points
     n_test = 100  # number of testing points
 

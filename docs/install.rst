@@ -43,6 +43,7 @@ Alternatively, you could clone and run setup.py file:
 * pandas (optional, required for running benchmark)
 * suod (optional, required for running SUOD model)
 * xgboost (optional, required for XGBOD)
+* pythresh to use thresholding
 
 .. warning::
 
