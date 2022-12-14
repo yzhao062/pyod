@@ -18,13 +18,18 @@ from .base_dl import _get_tensorflow_version
 from ..utils.utility import check_parameter
 
 # if tensorflow 2, import from tf directly
-if _get_tensorflow_version() == 1:
+if _get_tensorflow_version() < 200:
     raise NotImplementedError('Model not implemented for Tensorflow version 1')
-else:
+elif 200 <= _get_tensorflow_version() <= 209:
     import tensorflow as tf
     from tensorflow.keras.models import Model
     from tensorflow.keras.layers import Input, Dense, Dropout
     from tensorflow.keras.optimizers import Adam
+else:
+    import tensorflow as tf
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import Input, Dense, Dropout
+    from tensorflow.keras.optimizers.legacy import Adam
 
 
 class ALAD(BaseDetector):
@@ -449,7 +454,7 @@ class ALAD(BaseDetector):
         ax.plot(range(len(l_gen)), l_gen, )
         ax.set_title('Generator')
         ax.set_ylabel('Loss')
-        ax.set_ylabel('Iter')
+        ax.set_xlabel('Iter')
 
         ax = fig.add_subplot(1, 2, 2)
         ax.plot(range(len(l_disc)), l_disc)
@@ -496,7 +501,7 @@ class ALAD(BaseDetector):
 
             X_train_sel = X_norm[0: min(self.batch_size, self.n_samples_), :]
             latent_noise = np.random.normal(0, 1, (
-            X_train_sel.shape[0], self.latent_dim))
+                X_train_sel.shape[0], self.latent_dim))
             X_train_sel += np.random.normal(0, noise_std,
                                             size=X_train_sel.shape)
             self.train_step(
@@ -537,7 +542,7 @@ class ALAD(BaseDetector):
 
             X_train_sel = X_norm[0: min(self.batch_size, self.n_samples_), :]
             latent_noise = np.random.normal(0, 1, (
-            X_train_sel.shape[0], self.latent_dim))
+                X_train_sel.shape[0], self.latent_dim))
             X_train_sel += np.random.normal(0, noise_std,
                                             size=X_train_sel.shape)
             self.train_step(

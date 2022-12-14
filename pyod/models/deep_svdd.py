@@ -17,7 +17,7 @@ from .base_dl import _get_tensorflow_version
 from ..utils.utility import check_parameter
 
 # if tensorflow 2, import from tf directly
-if _get_tensorflow_version() == 2:
+if _get_tensorflow_version() >= 200:
     import tensorflow as tf
     from tensorflow.keras.layers import Dense, Dropout
     from tensorflow.keras.regularizers import l2

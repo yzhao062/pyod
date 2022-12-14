@@ -179,7 +179,12 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
     offset_ = random_state.randint(low=offset)
     coef_ = random_state.random_sample() + 0.001  # in case of underflow
 
-    n_outliers_train = int(n_train * contamination)
+    if isinstance(contamination, (float, int)):
+        n_outliers_train = int(n_train * contamination)
+    else:
+        contamination = 0.1
+        n_outliers_train = int(n_train * contamination)
+
     n_inliers_train = int(n_train - n_outliers_train)
 
     X_train, y_train = _generate_data(n_inliers_train, n_outliers_train,
@@ -206,7 +211,6 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
 
     else:
         return X_train, X_test, y_train, y_test
-
 
 
 def check_consistent_shape(X_train, y_train, X_test, y_test, y_train_pred,
@@ -378,7 +382,7 @@ def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
     else:
         raise ValueError("n_features should be int, got %s" % n_features)
 
-    if isinstance(contamination, float):
+    if isinstance(contamination, (float, int)):
         check_parameter(contamination, low=0, high=0.5,
                         param_name='contamination')
     else:
@@ -582,11 +586,11 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
         raise ValueError("n_features should be int, got %s" % n_features)
 
     if isinstance(n_informative, int):
-        check_parameter(n_informative, low=0, high=n_features+1, param_name='n_informative')
+        check_parameter(n_informative, low=0, high=n_features + 1, param_name='n_informative')
     else:
         raise ValueError("n_informative should be int, got %s" % n_informative)
 
-    if isinstance(contamination, float):
+    if isinstance(contamination, (float, int)):
         check_parameter(contamination, low=0, high=0.5,
                         param_name='contamination')
     else:
@@ -595,19 +599,18 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
     if not isinstance(shuffle, bool):
         raise ValueError("shuffle should be bool, got %s" % shuffle)
 
-
     # find the required number of outliers and inliers
     n_samples = n_train + n_test
     n_outliers = int(n_samples * contamination)
     n_inliers = n_samples - n_outliers
 
     if isinstance(n_category_in, int):
-        check_parameter(n_category_in, low=0, high=n_inliers+1, param_name='n_category_in')
+        check_parameter(n_category_in, low=0, high=n_inliers + 1, param_name='n_category_in')
     else:
         raise ValueError("n_category_in should be int, got %s" % n_category_in)
 
     if isinstance(n_category_out, int):
-        check_parameter(n_category_out, low=0, high=n_outliers+1, param_name='n_category_out')
+        check_parameter(n_category_out, low=0, high=n_outliers + 1, param_name='n_category_out')
     else:
         raise ValueError("n_category_out should be int, got %s" % n_category_out)
 
@@ -644,6 +647,6 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
         X.append(list(inliers) + outliers)
 
     return train_test_split(np.array(X).T,
-                            np.array(([0]*n_inliers) + ([1]*n_outliers)),
+                            np.array(([0] * n_inliers) + ([1] * n_outliers)),
                             test_size=n_test,
                             random_state=random_state)

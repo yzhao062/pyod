@@ -64,10 +64,13 @@ class BaseDetector(object):
     @abc.abstractmethod
     def __init__(self, contamination=0.1):
 
-        if not (0. < contamination <= 0.5):
-            raise ValueError("contamination must be in (0, 0.5], "
-                             "got: %f" % contamination)
+        if (isinstance(contamination, (float, int))):
 
+            if not (0. < contamination <= 0.5):
+                raise ValueError("contamination must be in (0, 0.5], "
+                                 "got: %f" % contamination)
+
+        # allow arbitrary input such as PyThreshld object
         self.contamination = contamination
 
     # noinspection PyIncorrectDocstring
@@ -127,7 +130,7 @@ class BaseDetector(object):
         Returns
         -------
         outlier_labels : numpy array of shape (n_samples,)
-            For each observation, tells whether or not
+            For each observation, tells whether
             it should be considered as an outlier according to the
             fitted model. 0 stands for inliers and 1 for outliers.
 
@@ -154,7 +157,7 @@ class BaseDetector(object):
         Returns
         -------
         outlier_labels : numpy array of shape (n_samples,)
-            For each observation, tells whether or not
+            For each observation, tells whether
             it should be considered as an outlier according to the
             fitted model. 0 stands for inliers and 1 for outliers.
         confidence : numpy array of shape (n_samples,).
@@ -163,7 +166,14 @@ class BaseDetector(object):
 
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         pred_score = self.decision_function(X)
-        prediction = (pred_score > self.threshold_).astype('int').ravel()
+
+        if isinstance(self.contamination, (float, int)):
+            prediction = (pred_score > self.threshold_).astype('int').ravel()
+
+        # if this is a PyThresh object
+        else:
+            prediction = self.contamination.eval(pred_score)
+            print(self.contamination)
 
         if return_confidence:
             confidence = self.predict_confidence(X)
@@ -272,11 +282,22 @@ class BaseDetector(object):
         # Derive the outlier probability using Bayesian approach
         posterior_prob = np.vectorize(lambda x: (1 + x) / (2 + n))(n_instances)
 
+        if not isinstance(self.contamination, (float, int)):
+            contam = np.sum(self.labels_) / n
+        # if this is a PyThresh object
+        else:
+            contam = self.contamination
+
         # Transform the outlier probability into a confidence value
         confidence = np.vectorize(
-            lambda p: 1 - binom.cdf(n - int(n * self.contamination), n, p))(
+            lambda p: 1 - binom.cdf(n - int(n * contam), n, p))(
             posterior_prob)
-        prediction = (test_scores > self.threshold_).astype('int').ravel()
+
+        if isinstance(self.contamination, (float, int)):
+            prediction = (test_scores > self.threshold_).astype('int').ravel()
+        # if this is a PyThresh object
+        else:
+            prediction = self.contamination.eval(test_scores)
         np.place(confidence, prediction == 0, 1 - confidence[prediction == 0])
 
         return confidence
@@ -422,10 +443,18 @@ class BaseDetector(object):
         self
         """
 
-        self.threshold_ = percentile(self.decision_scores_,
-                                     100 * (1 - self.contamination))
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype(
-            'int').ravel()
+        if isinstance(self.contamination, (float, int)):
+            self.threshold_ = percentile(self.decision_scores_,
+                                         100 * (1 - self.contamination))
+            self.labels_ = (self.decision_scores_ > self.threshold_).astype(
+                'int').ravel()
+
+        # if this is a PyThresh object
+        else:
+            self.labels_ = self.contamination.eval(self.decision_scores_)
+            self.threshold_ = self.contamination.thresh_
+            if not self.threshold_:
+                self.threshold_ = np.sum(self.labels_) / len(self.labels_)
 
         # calculate for predict_proba()
 
