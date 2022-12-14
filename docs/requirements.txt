@@ -1,5 +1,6 @@
 combo
 furo
+geomstats
 joblib
 keras
 matplotlib
@@ -7,8 +8,10 @@ nose
 numpy>=1.19
 numba==0.53 # need to lift this later see github for issue
 pytest
+pythresh
 scipy>=1.5.1
 scikit_learn>=0.20.0
+scikit-lego
 six
 sphinx-rtd-theme
 sphinxcontrib-bibtex
