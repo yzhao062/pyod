@@ -132,7 +132,7 @@ or::
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
 If you want more general insights of anomaly detection and/or algorithm performance comparison, please see our
-NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_::
+NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_::
 
     @inproceedings{han2022adbench,
         title={ADBench: Anomaly Detection Benchmark},
