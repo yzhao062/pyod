@@ -43,10 +43,6 @@ class TestStatModels(unittest.TestCase):
                            [4, 4, 3],
                            [0, 1, 2]])
 
-        # trigger the njit compiler for one of the functions
-        # in the stat models packages
-        column_ecdf(self.mat)
-
     def test_pairwise_distances_no_broadcast(self):
         assert_allclose(pairwise_distances_no_broadcast(self.X, self.Y),
                         [1.41421356, 2.23606798, 4.58257569, 4.12310563])
@@ -71,6 +67,11 @@ class TestStatModels(unittest.TestCase):
 
         assert (np.min(pear_mat) >= -1)
         assert (np.max(pear_mat) <= 1)
+
+    def test_njit_probability_reordering(self):
+        # trigger the njit compiler for one of the functions
+        # in the stat models packages
+        column_ecdf(self.mat)
 
     def test_column_ecdf(self):
 
