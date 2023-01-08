@@ -12,6 +12,7 @@ from numpy.testing import *
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
+from sklearn.base import clone
 from scipy.stats import rankdata
 
 # temporary solution for relative imports in case pyod is not installed
@@ -127,11 +128,14 @@ class TestROD(unittest.TestCase):
 
         with assert_raises(IndexError):
             rod_3D(X_2D)
-        assert_array_equal(ROD().decision_function(X_2D),
+        scores = ROD().fit(X_2D).decision_scores_
+        assert_array_equal(scores,
                            rod_3D(np.hstack((X_2D, np.zeros(
                                shape=(X_2D.shape[0], 3 - X_2D.shape[1])))))[0])
-        assert_array_equal(ROD().decision_function(X_3D), rod_3D(X_3D)[0])
-        assert_array_equal(ROD().decision_function(X_4D),
+        scores = ROD().fit(X_3D).decision_scores_
+        assert_array_equal(scores, rod_3D(X_3D)[0])
+        scores = ROD().fit(X_4D).decision_scores_
+        assert_array_equal(scores,
                            rod_nD(X_4D, False, self.gm, self.data_scaler,
                                   self.angles_scalers1, self.angles_scalers2)[
                                0])
@@ -159,10 +163,8 @@ class TestROD(unittest.TestCase):
         gm, _ = mad(np.array([1, 2, 3]))
         assert_equal([0.6745, 0.0, 0.6745], gm)
 
-    # todo: fix clone issue
     def test_model_clone(self):
-        pass
-        # clone_clf = clone(self.clf)
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass

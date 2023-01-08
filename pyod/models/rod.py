@@ -364,12 +364,7 @@ class ROD(BaseDetector):
         if not isinstance(parallel_execution, bool):
             raise TypeError("parallel_execution should be bool. "
                             "Got {}".format(type(parallel_execution)))
-        self.parallel = parallel_execution
-        self.gm = None  # geometric median(s)
-        self.median = None  # MAD median(s)
-        self.data_scaler = None  # data scaler (in case of d>3)
-        self.angles_scaler1 = None  # scaler(s) of Angles Group 1
-        self.angles_scaler2 = None  # scaler(s) of Angles Group 2
+        self.parallel_execution = parallel_execution
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -390,11 +385,11 @@ class ROD(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
         # reset learning parameters after each fit
-        self.gm = None
-        self.median = None
-        self.data_scaler = None
-        self.angles_scaler1 = None
-        self.angles_scaler2 = None
+        self.gm_ = None
+        self.median_ = None
+        self.data_scaler_ = None
+        self.angles_scaler1_ = None
+        self.angles_scaler2_ = None
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
 
@@ -423,18 +418,18 @@ class ROD(BaseDetector):
             X = np.hstack((X, np.zeros(shape=(X.shape[0], 3 - X.shape[1]))))
 
         if X.shape[1] == 3:
-            scores, self.gm, self.median, self.angles_scaler1, self.angles_scaler2 = rod_3D(x=X, gm=self.gm,
-                                                                                            median=self.median,
-                                                                                            scaler1=self.angles_scaler1,
-                                                                                            scaler2=self.angles_scaler2)
+            scores, self.gm_, self.median_, self.angles_scaler1_, self.angles_scaler2_ = rod_3D(x=X, gm=self.gm_,
+                                                                                            median=self.median_,
+                                                                                            scaler1=self.angles_scaler1_,
+                                                                                            scaler2=self.angles_scaler2_)
             return scores
 
-        scores, self.gm, self.median, self.data_scaler, \
-            self.angles_scaler1, self.angles_scaler2 = rod_nD(X=X,
-                                                              parallel=self.parallel,
-                                                              gm=self.gm,
-                                                              median=self.median,
-                                                              data_scaler=self.data_scaler,
-                                                              angles_scalers1=self.angles_scaler1,
-                                                              angles_scalers2=self.angles_scaler2)
+        scores, self.gm_, self.median_, self.data_scaler_, \
+            self.angles_scaler1_, self.angles_scaler2_ = rod_nD(X=X,
+                                                              parallel=self.parallel_execution,
+                                                              gm=self.gm_,
+                                                              median=self.median_,
+                                                              data_scaler=self.data_scaler_,
+                                                              angles_scalers1=self.angles_scaler1_,
+                                                              angles_scalers2=self.angles_scaler2_)
         return scores

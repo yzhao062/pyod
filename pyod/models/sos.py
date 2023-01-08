@@ -116,7 +116,7 @@ class SOS(BaseDetector):
                  eps=1e-5):
         super(SOS, self).__init__(contamination=contamination)
         self.perplexity = perplexity
-        self.metric = metric.lower()
+        self.metric = metric
         self.eps = eps
 
     def _x2d(self, X):
@@ -135,14 +135,15 @@ class SOS(BaseDetector):
         """
 
         (n, d) = X.shape
-        if self.metric == 'none':
+        metric = self.metric.lower()
+        if metric == 'none':
             if n != d:
                 raise ValueError(
                     "If you specify 'none' as the metric, the data set "
                     "should be a square dissimilarity matrix")
             else:
                 D = X
-        elif self.metric == 'euclidean':
+        elif metric == 'euclidean':
             sumX = np.sum(np.square(X), 1)
 
             # np.abs protects against extremely small negative values
@@ -157,7 +158,7 @@ class SOS(BaseDetector):
                     "Please install scipy if you wish to use a metric "
                     "other than 'euclidean' or 'none'")
             else:
-                D = distance.squareform(distance.pdist(X, self.metric))
+                D = distance.squareform(distance.pdist(X, metric))
         return D
 
     def _d2a(self, D):
