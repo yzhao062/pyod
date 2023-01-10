@@ -156,6 +156,7 @@ NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark Paper <https://www.andr
 * `ADBench Benchmark <#adbench-benchmark>`_
 * `Model Save & Load <#model-save--load>`_
 * `Fast Train with SUOD <#fast-train-with-suod>`_
+* `Thresholding Outlier Scores <#thresholding-outlier-scores>`_
 * `Implemented Algorithms <#implemented-algorithms>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
@@ -328,7 +329,23 @@ and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_e
     clf = SUOD(base_estimators=detector_list, n_jobs=2, combination='average',
                verbose=False)
 
+----
 
+Thresholding Outlier Scores
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A more data based approach can be taken when setting the contamination level.
+By using a thresholding method, guessing an abritrary value can be replaced
+with tested techniques for seperating inliers and outliers.
+
+
+.. code-block:: python
+
+    from pyod.models.knn import KNN
+    from pyod.models.thresholds import FILTER
+
+    # Set the outlier detection and thresholding methods
+    clf = KNN(contamination=FILTER())
 
 
 ----
@@ -338,7 +355,7 @@ and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_e
 Implemented Algorithms
 ^^^^^^^^^^^^^^^^^^^^^^
 
-PyOD toolkit consists of three major functional groups:
+PyOD toolkit consists of four major functional groups:
 
 **(i) Individual Detection Algorithms** :
 
@@ -411,8 +428,43 @@ Combination          Median            Simple combination by taking the median o
 Combination          majority Vote     Simple combination by taking the majority vote of the labels (weights can be used)                     2015   [#Aggarwal2015Theoretical]_
 ===================  ================  =====================================================================================================  =====  ========================================
 
+**(iii) Outlier Detection Score Thresholding Methods**:
 
-**(iii) Utility Functions**:
+==================================  ================  ===============================================================================================================================================
+Type                                Abbr              Algorithm                                                                                            
+==================================  ================  ===============================================================================================================================================
+Kernel-Based                        AUCP              Area Under Curve Percentage
+Statistical Moment-Based            BOOT              Bootstrapping 
+Normality-Based                     CHAU              Chauvenet's Criterion
+Linear Model                        CLF               Trained Linear Classifier
+Outlier Ensembles                   CLUST             Clustering Based
+Kernel-Based                        CPD               Change Point Detection
+Combination                         DECOMP            Decomposition
+Normality-Based                     DSN               Distance Shift from Normal
+Curve-Based                         EB                Elliptical Boundary
+Kernel-Based                        FGD               Fixed Gradient Descent
+Filter-Based                        FILTER            Filtering Based
+Curve-Based                         FWFM              Full Width at Full Minimum
+Statistical Test-Based              GESD              Generalized Extreme Studentized Deviate
+Filter-Based                        HIST              Histogram Based
+Quantile-Based                      IQR               Inter-Quartile Region
+Statistical Moment-Based            KARCH             Karcher mean (Riemannian Center of Mass)
+Statistical Moment-Based            MAD               Median Absolute Deviation
+Statistical Test-Based              MCST              Monte Carlo Shapiro Tests
+Ensembles-Based                     META              Meta-model Trained Classifier
+Transformation-Based                MOLL              Friedrichs' Mollifier
+Statistical Test-Based              MTT               Modified Thompson Tau Test
+Linear Model                        OCSVM             One-Class Support Vector Machine
+Quantile-Based                      QMCD              Quasi-Monte Carlo Discrepancy
+Linear Model                        REGR              Regression Based
+Neural Networks                     VAE               Variational Autoencoder
+Curve-Based                         WIND              Topological Winding Number
+Transformation-Based                YJ                Yeo-Johnson Transformation
+Normality-Based                     ZSCORE            Z-score
+==================================  ================  ===============================================================================================================================================
+
+
+**(iV) Utility Functions**:
 
 ===================  ======================  =====================================================================================================================================================  ======================================================================================================================================
 Type                 Name                    Function                                                                                                                                               Documentation

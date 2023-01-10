@@ -30,10 +30,10 @@ class TestThresholds(unittest.TestCase):
     def setUp(self):
         
         from pyod.models.thresholds import (ALL, AUCP, BOOT, CHAU, CLF, CLUST,
-                                            DECOMP, DSN, EB, FGD, FILTER, FWFM,
-                                            GESD, HIST, IQR, KARCH, MAD, MCST,
-                                            META, MOLL, MTT, OCSVM, QMCD, REGR,
-                                            VAE, WIND, YJ, ZSCORE)
+                                            CPD, DECOMP, DSN, EB, FGD, FILTER, 
+                                            FWFM, GESD, HIST, IQR, KARCH, MAD, 
+                                            MCST, META, MOLL, MTT, OCSVM, QMCD, 
+                                            REGR, VAE, WIND, YJ, ZSCORE)
         
         self.n_train = 200
         self.n_test = 100
@@ -47,10 +47,10 @@ class TestThresholds(unittest.TestCase):
         )
 
         self.contam = [ALL(), AUCP(), BOOT(), CHAU(), CLF(), CLUST(),
-                       DECOMP(), DSN(), EB(), FGD(), FILTER(), FWFM(),
-                       GESD(), HIST(), IQR(), KARCH(), MAD(), MCST(),
-                       META(), MOLL(), MTT(), OCSVM(), QMCD(), REGR(),
-                       VAE(), WIND(), YJ(), ZSCORE()]
+                       CPD(), DECOMP(), DSN(), EB(), FGD(), FILTER(), 
+                       FWFM(), GESD(), HIST(), IQR(), KARCH(), MAD(), 
+                       MCST(), META(), MOLL(), MTT(), OCSVM(), QMCD(), 
+                       REGR(), VAE(), WIND(), YJ(), ZSCORE()]
         
         for contam in self.contam:
             self.clf = KDE(contamination=contam)
