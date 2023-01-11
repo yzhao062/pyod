@@ -136,6 +136,7 @@ def CLUST(**kwargs):
     from pythresh.thresholds.clust import CLUST as CLUST_thres
     return CLUST_thres(**kwargs)
 
+
 def CPD(**kwargs):
     """CPD class for Change Point Detection thresholder.
 
@@ -161,6 +162,9 @@ def CPD(**kwargs):
             - 'kde': Use the kernel density estimation
             
     """
+    
+    from pythresh.thresholds.cpd import CPD as CPD_thres
+    return CPD_thres(**kwargs)
 
 
 def DECOMP(**kwargs):
