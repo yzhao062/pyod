@@ -13,6 +13,7 @@ from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from scipy.stats import rankdata
+from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
@@ -65,12 +66,12 @@ class TestSOD(unittest.TestCase):
                 self.clf.labels_ is not None)
         assert (hasattr(self.clf, 'threshold_') and
                 self.clf.threshold_ is not None)
-        assert (hasattr(self.clf, 'alpha_') and
-                self.clf.alpha_ is not None)
-        assert (hasattr(self.clf, 'ref_set_') and
-                self.clf.ref_set_ is not None)
-        assert (hasattr(self.clf, 'n_neighbors_') and
-                self.clf.n_neighbors_ is not None)
+        assert (hasattr(self.clf, 'alpha') and
+                self.clf.alpha is not None)
+        assert (hasattr(self.clf, 'ref_set') and
+                self.clf.ref_set is not None)
+        assert (hasattr(self.clf, 'n_neighbors') and
+                self.clf.n_neighbors is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
@@ -157,10 +158,8 @@ class TestSOD(unittest.TestCase):
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
-    # todo: fix clone issue
     def test_model_clone(self):
-        pass
-        # clone_clf = clone(self.clf)
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass
