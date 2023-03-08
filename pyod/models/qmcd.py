@@ -33,7 +33,7 @@ def _wrap_around_discrepancy(data):
             for k in prange(d):
                 x_kikj = abs(data[i, k] - data[j, k])
                 prod *= 3.0 / 2.0 - x_kikj + x_kikj ** 2
-                    
+
             dc += prod
         disc[i] = dc
 
@@ -46,10 +46,10 @@ class QMCD(BaseDetector):
        It quantifies the distance between the continuous uniform distribution on a 
        hypercube and the discrete uniform distribution on distinct sample points. 
        Therefore, lower discrepancy values for a sample point indicates that it provides 
-       better coverage of the parameter space with regards to the rest of the samples. This
-       method is kernel based and the a higher discrepancy score is relative to the
+       better coverage of the parameter space with regard to the rest of the samples. This
+       method is kernel based and a higher discrepancy score is relative to the
        rest of the samples, the higher the likelihood of it being an outlier. 
-       Read more in the :cite:`qmcd2000detection`.
+       Read more in the :cite:`fang2001wrap`.
     
     Parameters
     ----------          
@@ -88,7 +88,7 @@ class QMCD(BaseDetector):
         y : Ignored
             Not used, present for API consistency by convention.
         """
-        
+
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -96,18 +96,18 @@ class QMCD(BaseDetector):
         # Normalize data between 0 and 1
         scaler = MinMaxScaler()
         X_norm = scaler.fit_transform(X)
-        X_norm = (X_norm/(X_norm.max(axis=0, keepdims=True)
-                         + np.spacing(0)))
+        X_norm = (X_norm / (X_norm.max(axis=0, keepdims=True)
+                            + np.spacing(0)))
 
         # Calculate WD QMCD scores
         scores = _wrap_around_discrepancy(X_norm)
-        
+
         # Normalize scores between 0 and 1
-        scores = (scores-scores.min())/(scores.max()-scores.min())
-        
+        scores = (scores - scores.min()) / (scores.max() - scores.min())
+
         # Invert score order if majority is beyond 0.5
-        if len(scores[scores>0.5])>0.5*len(scores):
-            scores = 1-scores
+        if len(scores[scores > 0.5]) > 0.5 * len(scores):
+            scores = 1 - scores
 
         self.decision_scores_ = scores
 
@@ -137,24 +137,23 @@ class QMCD(BaseDetector):
         """
 
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
-        
+
         X = check_array(X)
-        
+
         # Normalize data between 0 and 1
         scaler = MinMaxScaler()
         X_norm = scaler.fit_transform(X)
-        X_norm = (X_norm/(X_norm.max(axis=0, keepdims=True)
-                         + np.spacing(0)))
+        X_norm = (X_norm / (X_norm.max(axis=0, keepdims=True)
+                            + np.spacing(0)))
 
         # Calculate WD QMCD scores
         scores = _wrap_around_discrepancy(X_norm)
-        
-        # Normalize scores between 0 and 1
-        scores = (scores-scores.min())/(scores.max()-scores.min())
-        
-        # Invert score order if majority is beyond 0.5
-        if len(scores[scores>0.5])>0.5*len(scores):
-            scores = 1-scores
 
+        # Normalize scores between 0 and 1
+        scores = (scores - scores.min()) / (scores.max() - scores.min())
+
+        # Invert score order if majority is beyond 0.5
+        if len(scores[scores > 0.5]) > 0.5 * len(scores):
+            scores = 1 - scores
 
         return scores

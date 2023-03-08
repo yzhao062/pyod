@@ -6,7 +6,6 @@ import os
 import sys
 import unittest
 
-import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
                            assert_raises)
