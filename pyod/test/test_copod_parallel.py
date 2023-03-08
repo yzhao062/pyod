@@ -40,6 +40,10 @@ class TestCOPODParallel(unittest.TestCase):
         self.clf_ = COPOD(contamination=self.contamination)
         self.clf_.fit(self.X_train)
 
+    def test_fit(self):
+        clf = COPOD(contamination=self.contamination, n_jobs=3)
+        clf.fit(self.X_train[:, :2])
+
     def test_parameters(self):
         assert (hasattr(self.clf, 'decision_scores_') and
                 self.clf.decision_scores_ is not None)
@@ -137,6 +141,11 @@ class TestCOPODParallel(unittest.TestCase):
         assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=3)
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
+
+    def test_fit_single_feature_multiple_jobs(self):
+        clf = COPOD(contamination=self.contamination, n_jobs=5)
+        with assert_raises(ValueError):
+            clf.fit(self.X_train[:, 0])
 
     # def test_plot(self):
     #     os, cutoff1, cutoff2 = self.clf.explain_outlier(ind=1)
