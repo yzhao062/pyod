@@ -107,10 +107,9 @@ class SOD(BaseDetector):
         else:
             raise ValueError("alpha should be float. Got %s" % type(alpha))
 
-        self.n_neighbors_ = n_neighbors
-        self.ref_set_ = ref_set
-        self.alpha_ = alpha
-        self.decision_scores_ = None
+        self.n_neighbors = n_neighbors
+        self.ref_set = ref_set
+        self.alpha = alpha
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -166,11 +165,11 @@ class SOD(BaseDetector):
         snn_indices : numpy array of shape (n_shared_nearest_neighbors,)
             The indices of top k shared nearest neighbors for each observation.
         """
-        knn = NearestNeighbors(n_neighbors=self.n_neighbors_)
+        knn = NearestNeighbors(n_neighbors=self.n_neighbors)
         knn.fit(X)
         # Get the knn index
         ind = knn.kneighbors(return_distance=False)
-        return _snn_imp(ind, self.ref_set_)
+        return _snn_imp(ind, self.ref_set)
 
     def _sod(self, X):
         """This function is called internally to perform subspace outlier 
@@ -188,8 +187,8 @@ class SOD(BaseDetector):
             ref = X[ref_inds[i,],]
             means = np.mean(ref, axis=0)  # mean of each column
             # average squared distance of the reference to the mean
-            var_total = np.sum(np.sum(np.square(ref - means))) / self.ref_set_
-            var_expect = self.alpha_ * var_total / X.shape[1]
+            var_total = np.sum(np.sum(np.square(ref - means))) / self.ref_set
+            var_expect = self.alpha * var_total / X.shape[1]
             var_actual = np.var(ref, axis=0)  # variance of each attribute
             var_inds = [1 if (j < var_expect) else 0 for j in var_actual]
             rel_dim = np.sum(var_inds)

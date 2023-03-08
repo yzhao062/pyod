@@ -86,8 +86,7 @@ class COF(BaseDetector):
         else:
             raise TypeError(
                 "n_neighbors should be int. Got %s" % type(n_neighbors))
-        self.n_neighbors_ = n_neighbors
-        self.decision_scores_ = None
+        self.n_neighbors = n_neighbors
         self.method = method
 
     def fit(self, X, y=None):
@@ -108,6 +107,7 @@ class COF(BaseDetector):
         """
         X = check_array(X)
         self.n_train_ = X.shape[0]
+        self.n_neighbors_ = self.n_neighbors
 
         if self.n_neighbors_ >= self.n_train_:
             self.n_neighbors_ = self.n_train_ - 1

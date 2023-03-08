@@ -14,5 +14,4 @@ dependencies:
   - pip:
       - suod
       - combo
-      - statsmodels
 

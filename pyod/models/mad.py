@@ -59,13 +59,10 @@ class MAD(BaseDetector):
         # contamination is unneeded since threshold must be
         # decided manually by the user
         super(MAD, self).__init__()
-        self.decision_scores_ = None
         if not isinstance(threshold, (float, int)):
             raise TypeError(
                 'threshold must be a number. Got {}'.format(type(threshold)))
-        self.threshold_ = threshold
-        self.median = None
-        self.median_diff = None
+        self.threshold = threshold
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -86,8 +83,9 @@ class MAD(BaseDetector):
         X = check_array(X, ensure_2d=False, force_all_finite=False)
         _check_dim(X)
         self._set_n_classes(y)
-        self.median = None  # reset median after each call
-        self.median_diff = None  # reset median_diff after each call
+        self.threshold_ = self.threshold
+        self.median_ = None  # reset median after each call
+        self.median_diff_ = None  # reset median_diff after each call
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
 
@@ -127,10 +125,10 @@ class MAD(BaseDetector):
         """
         obs = np.reshape(X, (-1, 1))
         # `self.median` will be None only before `fit()` is called
-        self.median = np.nanmedian(obs) if self.median is None else self.median
-        diff = np.abs(obs - self.median)
-        self.median_diff = np.nanmedian(diff) if self.median_diff is None else self.median_diff
-        return np.nan_to_num(np.ravel(0.6745 * diff / self.median_diff))
+        self.median_ = np.nanmedian(obs) if self.median_ is None else self.median_
+        diff = np.abs(obs - self.median_)
+        self.median_diff_ = np.nanmedian(diff) if self.median_diff_ is None else self.median_diff_
+        return np.nan_to_num(np.ravel(0.6745 * diff / self.median_diff_))
 
     def _process_decision_scores(self):
         """This overrides PyOD base class function in order to use the
@@ -144,7 +142,7 @@ class MAD(BaseDetector):
         -------
         self
         """
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype('int').ravel()
+        self.labels_ = (self.decision_scores_ > self.threshold).astype('int').ravel()
 
         # calculate for predict_proba()
         self._mu = np.nanmean(self.decision_scores_)

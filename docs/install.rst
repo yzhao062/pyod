@@ -33,7 +33,6 @@ Alternatively, you could clone and run setup.py file:
 * scipy>=1.5.1
 * scikit_learn>=0.20.0
 * six
-* statsmodels
 
 
 **Optional Dependencies (see details below)**:

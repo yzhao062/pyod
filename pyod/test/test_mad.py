@@ -12,6 +12,7 @@ from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from scipy.stats import rankdata
+from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
@@ -221,10 +222,8 @@ class TestMAD(unittest.TestCase):
         self.assertGreaterEqual(score[0], self.clf_inf.threshold_)
         self.assertEqual(anomaly[0], 1)
 
-    # todo: fix clone issue
     def test_model_clone(self):
-        pass
-        # clone_clf = clone(self.clf)
+        clone_clf = clone(self.clf)
 
     def tearDown(self):
         pass
