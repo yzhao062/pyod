@@ -208,7 +208,7 @@ def column_ecdf(matrix: np.ndarray) -> np.ndarray:
 
     # create a probability array the same shape as the feature matrix which we will reorder to build
     # the ecdf
-    probabilities = np.linspace(np.ones(matrix.shape[1])/matrix.shape[0], np.ones(matrix.shape[1]), matrix.shape[0])
+    probabilities = np.linspace(np.ones(matrix.shape[1]) / matrix.shape[0], np.ones(matrix.shape[1]), matrix.shape[0])
 
     # get the sorting indices for a numpy array
     sort_idx = np.argsort(matrix, axis=0)
@@ -246,6 +246,6 @@ def ecdf_terminate_equals_inplace(matrix: np.ndarray, probabilities: np.ndarray)
 
     """
     for cx in range(probabilities.shape[1]):
-        for rx in range(probabilities.shape[0]-2, -1, -1):
-            if matrix[rx, cx] == matrix[rx+1, cx]:
-                probabilities[rx, cx] = probabilities[rx+1, cx]
+        for rx in range(probabilities.shape[0] - 2, -1, -1):
+            if matrix[rx, cx] == matrix[rx + 1, cx]:
+                probabilities[rx, cx] = probabilities[rx + 1, cx]

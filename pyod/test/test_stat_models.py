@@ -74,7 +74,6 @@ class TestStatModels(unittest.TestCase):
         column_ecdf(self.mat)
 
     def test_column_ecdf(self):
-
         def ecdf(X):
             """Calculated the empirical CDF of a given dataset using the statsmodels function.
             Parameters
@@ -98,7 +97,6 @@ class TestStatModels(unittest.TestCase):
         new = []
         old = []
         for _ in range(50):
-
             # create random matrix for testing
             mat = np.random.rand(1000, 100)
 
@@ -114,9 +112,9 @@ class TestStatModels(unittest.TestCase):
 
             # check that the results are equal
             assert_equal(result, expected)
-
-        print(f'Statsmodels ECDF took {sum(old)/len(old)*1000:0.1f} ms '
-              f'and own implementation {sum(new)/len(new)*1000:0.1f} ms per run.')
+        #
+        # print(f'Statsmodels ECDF took {sum(old) / len(old) * 1000:0.1f} ms '
+        #       f'and own implementation {sum(new) / len(new) * 1000:0.1f} ms per run.')
 
     def tearDown(self):
         pass

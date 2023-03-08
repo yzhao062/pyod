@@ -14,10 +14,10 @@ import numpy as np
 from joblib import Parallel, delayed
 from scipy.stats import skew
 from sklearn.utils import check_array
-from ..utils.stat_models import column_ecdf
 
 from .base import BaseDetector
 from .sklearn_base import _partition_estimators
+from ..utils.stat_models import column_ecdf
 
 
 def _parallel_ecdf(n_dims, X):
