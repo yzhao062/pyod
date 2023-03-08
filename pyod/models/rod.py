@@ -385,11 +385,11 @@ class ROD(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
         # reset learning parameters after each fit
-        self.gm_ = None
-        self.median_ = None
-        self.data_scaler_ = None
-        self.angles_scaler1_ = None
-        self.angles_scaler2_ = None
+        self.gm_ = None  # geometric median(s)
+        self.median_ = None  # MAD median(s)
+        self.data_scaler_ = None  # data scaler (in case of d>3)
+        self.angles_scaler1_ = None  # scaler(s) of Angles Group 1
+        self.angles_scaler2_ = None  # scaler(s) of Angles Group 2
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
 
@@ -418,18 +418,19 @@ class ROD(BaseDetector):
             X = np.hstack((X, np.zeros(shape=(X.shape[0], 3 - X.shape[1]))))
 
         if X.shape[1] == 3:
-            scores, self.gm_, self.median_, self.angles_scaler1_, self.angles_scaler2_ = rod_3D(x=X, gm=self.gm_,
-                                                                                            median=self.median_,
-                                                                                            scaler1=self.angles_scaler1_,
-                                                                                            scaler2=self.angles_scaler2_)
+            scores, self.gm_, self.median_, self.angles_scaler1_, \
+                self.angles_scaler2_ = rod_3D(x=X, gm=self.gm_,
+                                              median=self.median_,
+                                              scaler1=self.angles_scaler1_,
+                                              scaler2=self.angles_scaler2_)
             return scores
 
         scores, self.gm_, self.median_, self.data_scaler_, \
             self.angles_scaler1_, self.angles_scaler2_ = rod_nD(X=X,
-                                                              parallel=self.parallel_execution,
-                                                              gm=self.gm_,
-                                                              median=self.median_,
-                                                              data_scaler=self.data_scaler_,
-                                                              angles_scalers1=self.angles_scaler1_,
-                                                              angles_scalers2=self.angles_scaler2_)
+                                                                parallel=self.parallel_execution,
+                                                                gm=self.gm_,
+                                                                median=self.median_,
+                                                                data_scaler=self.data_scaler_,
+                                                                angles_scalers1=self.angles_scaler1_,
+                                                                angles_scalers2=self.angles_scaler2_)
         return scores
