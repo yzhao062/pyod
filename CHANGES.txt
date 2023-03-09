@@ -173,3 +173,6 @@ v<1.0.5>, <09/14/2022> -- Add ALAD.
 v<1.0.6>, <09/23/2022> -- Update ADBench benchmark for NeruIPS 2022.
 v<1.0.6>, <10/23/2022> -- ADD KPCA.
 v<1.0.7>, <12/14/2022> -- Enable automatic thresholding by pythresh (#454).
+v<1.0.8>, <03/08/2023> -- Improve clone compatibility (#471).
+v<1.0.8>, <03/08/2023> -- Add QMCD detector (#452).
+v<1.0.8>, <03/08/2023> -- Optimized ECDF and drop Statsmodels dependency (#467).

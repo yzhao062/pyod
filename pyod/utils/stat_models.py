@@ -183,3 +183,69 @@ def pearsonr_mat(mat, w=None):
                 pear_mat[cy, cx] = curr_pear
 
     return pear_mat
+
+
+def column_ecdf(matrix: np.ndarray) -> np.ndarray:
+    """
+    Utility function to compute the column wise empirical cumulative distribution of a 2D feature matrix,
+    where the rows are samples and the columns are features per sample. The accumulation is done in the positive
+    direction of the sample axis.
+
+    E.G.
+    p(1) = 0.2, p(0) = 0.3, p(2) = 0.1, p(6) = 0.4
+    ECDF E(5) = p(x <= 5)
+    ECDF E would be E(-1) = 0, E(0) = 0.3, E(1) = 0.5, E(2) = 0.6, E(3) = 0.6, E(4) = 0.6, E(5) = 0.6, E(6) = 1
+
+    Similar to and tested against:
+    https://www.statsmodels.org/stable/generated/statsmodels.distributions.empirical_distribution.ECDF.html
+
+    Returns
+    -------
+
+    """
+    # check the matrix dimensions
+    assert len(matrix.shape) == 2, 'Matrix needs to be two dimensional for the ECDF computation.'
+
+    # create a probability array the same shape as the feature matrix which we will reorder to build
+    # the ecdf
+    probabilities = np.linspace(np.ones(matrix.shape[1]) / matrix.shape[0], np.ones(matrix.shape[1]), matrix.shape[0])
+
+    # get the sorting indices for a numpy array
+    sort_idx = np.argsort(matrix, axis=0)
+
+    # sort the numpy array, as we need to look for duplicates in the feature values (that would have different
+    # probabilities if we would just resort the probabilities array)
+    matrix = np.take_along_axis(matrix, sort_idx, axis=0)
+
+    # deal with equal values
+    ecdf_terminate_equals_inplace(matrix, probabilities)
+
+    # return the resorted accumulated probabilities (by reverting the sorting of the input matrix)
+    # looks a little complicated but is faster this way
+    reordered_probabilities = np.ones_like(probabilities)
+    np.put_along_axis(reordered_probabilities, sort_idx, probabilities, axis=0)
+    return reordered_probabilities
+
+
+@njit
+def ecdf_terminate_equals_inplace(matrix: np.ndarray, probabilities: np.ndarray):
+    """
+    This is a helper function for computing the ecdf of an array. It has been outsourced from the original
+    function in order to be able to use the njit compiler of numpy for increased speeds, as it unfortunately
+    needs a loop over all rows and columns of a matrix. It acts in place on the probabilities' matrix.
+
+    Parameters
+    ----------
+    matrix : a feature matrix where the rows are samples and each column is a feature !(expected to be sorted)!
+
+    probabilities : a probability matrix that will be used building the ecdf. It has values between 0 and 1 and
+                    is also sorted.
+
+    Returns
+    -------
+
+    """
+    for cx in range(probabilities.shape[1]):
+        for rx in range(probabilities.shape[0] - 2, -1, -1):
+            if matrix[rx, cx] == matrix[rx + 1, cx]:
+                probabilities[rx, cx] = probabilities[rx + 1, cx]

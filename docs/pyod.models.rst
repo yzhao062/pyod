@@ -294,6 +294,15 @@ pyod.models.pca module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.qmcd module
+-------------------------
+
+.. automodule:: pyod.models.qmcd
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.rgraph module
 -------------------------
 
