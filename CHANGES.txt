@@ -176,3 +176,4 @@ v<1.0.7>, <12/14/2022> -- Enable automatic thresholding by pythresh (#454).
 v<1.0.8>, <03/08/2023> -- Improve clone compatibility (#471).
 v<1.0.8>, <03/08/2023> -- Add QMCD detector (#452).
 v<1.0.8>, <03/08/2023> -- Optimized ECDF and drop Statsmodels dependency (#467).
+v<1.0.9>, <03/19/2023> -- Hot fix for errors in ECOD and COPOD due to the issue of scipy.
