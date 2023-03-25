@@ -9,21 +9,32 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
+def _Cooks_dist(X, y, model):
+    """Calculated the Cook's distance
 
-def whiten_data(X, pca):
-    X = pca.transform(X)
+    Parameters
+    ----------
+    X : numpy array of shape (n_samples, n_features)
+        The training dataset.
 
-    return X
+    y : numpy array of shape (n_samples)
+        The training datset
 
+    model : object
+        Regression model used to calculate the Cook's distance
 
-def Cooks_dist(X, y, model):
+    Returns
+    -------
+    distances_ : numpy array of shape (n_samples)
+        Cook's distance
+    """
+
     # Leverage is computed as the diagonal of the projection matrix of X
     leverage = (X * np.linalg.pinv(X).T).sum(1)
 
@@ -34,21 +45,70 @@ def Cooks_dist(X, y, model):
     # Compute the MSE from the residuals
     residuals = y - model.predict(X)
     mse = np.dot(residuals, residuals) / df
-
+    
     # Compute Cook's distance
-    residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(1 - leverage)
-    distance_ = residuals_studentized ** 2 / X.shape[1]
-    distance_ *= leverage / (1 - leverage)
+    if (mse!=0) or (mse!=np.nan):
+        residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(1 - leverage)
+        distance_ = residuals_studentized ** 2 / X.shape[1]
+        distance_ *= leverage / (1 - leverage)
+        distance_ = ((distance_ - distance_.min())
+                    / (distance_.max() - distance_.min()))
+
+    else:
+        distance_ = np.ones(len(y))*np.nan
 
     return distance_
+
+def _process_distances(X, model):
+    """Calculated the mean Cook's distances for
+    each feature
+
+    Parameters
+    ----------
+    X : numpy array of shape (n_samples, n_features)
+        The training dataset.
+
+    model : object
+        Regression model used to calculate the Cook's distance
+
+    Returns
+    -------
+    distances_ : numpy array of shape (n_samples)
+        mean Cook's distance
+    """
+
+    distances_ = []
+    for i in range(X.shape[1]):
+
+        mod = model
+
+        # Extract new X and y inputs
+        exp = np.delete(X.copy(), i, axis=1)
+        resp = X[:,i]
+
+        exp = exp.reshape(-1,1) if exp.ndim == 1 else exp
+    
+        # Fit the model
+        mod.fit(exp, resp)
+
+        # Get Cook's Distance
+        distance_ = _Cooks_dist(exp, resp, mod)
+
+        distances_.append(distance_)
+
+    distances_ = np.nanmean(distances_, axis=0)
+
+    return distances_
 
 
 class CD(BaseDetector):
     """Cook's distance can be used to identify points that negatively
        affect a regression model. A combination of each observation’s
        leverage and residual values are used in the measurement. Higher
-       leverage and residuals relate to  higher Cook’s distances.
-       Read more in the :cite:`cook1977detection`.
+       leverage and residuals relate to  higher Cook’s distances. Note
+       that this method is unsupervised and requires at least two 
+       features for X with which to calculate the mean Cook's distance
+       for each datapoint. Read more in the :cite:`cook1977detection`.
 
     Parameters
     ----------
@@ -57,16 +117,8 @@ class CD(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
         
-    whiten : bool, optional (default=True)
-        transform X to have a covariance matrix that is the identity matrix
-        of 1 in the diagonal and 0 for the other cells using PCA
-
-    rule_of_thumb : bool, optional (default=False)
-        to apply the rule of thumb prediction (4 / n) as the influence
-        threshold; where n is the number of samples. This has been know to
-        be a good estimate for values over this point as being outliers.
-        ** Note the contamination level is reset when rule_of_thumb is
-           set to True
+    model : object, optional (default=LinearRegression())
+        Regression model used to calculate the Cook's distance
           
 
     Attributes
@@ -88,55 +140,36 @@ class CD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
         """
 
-    def __init__(self, whitening=True, contamination=0.1, rule_of_thumb=False):
-
+    def __init__(self, contamination=0.1, model=LinearRegression()):
         super(CD, self).__init__(contamination=contamination)
-        self.whitening = whitening
-        self.rule_of_thumb = rule_of_thumb
+        self.model = model
 
-    def fit(self, X, y):
-        """Fit detector. y is necessary for supervised method.
+    def fit(self, X, y=None):
+        """"Fit detector. y is ignored in unsupervised methods.
 
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
             The input samples.
 
-        y : numpy array of shape (n_samples,), optional (default=None)
-            The ground truth of the input samples (labels).
+        y : Ignored
+            Not used, present for API consistency by convention.
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
         """
 
-        # Define OLS model 
-        self.model = LinearRegression()
-
         # Validate inputs X and y
-        try:
-            X = check_array(X)
-        except ValueError:
-            X = X.reshape(-1, 1)
+        X = check_array(X)
 
-        y = np.squeeze(check_array(y, ensure_2d=False))
         self._set_n_classes(y)
 
-        # Apply whitening
-        if self.whitening:
-            self.pca = PCA(whiten=True)
-            self.pca.fit(X)
-            X = whiten_data(X, self.pca)
-
-        # Fit a linear model to X and y
-        self.model.fit(X, y)
-
-        # Get Cook's Distance
-        distance_ = Cooks_dist(X, y, self.model)
-
-        # Compute the influence threshold
-        if self.rule_of_thumb:
-            influence_threshold_ = 4 / X.shape[0]
-            self.contamination = sum(distance_ > influence_threshold_) / \
-                                 X.shape[0]
-
-        self.decision_scores_ = distance_
+        # Get Cook's distance
+        distances_ = _process_distances(X, self.model)
+        
+        self.decision_scores_ = distances_
 
         self._process_decision_scores()
 
@@ -144,18 +177,13 @@ class CD(BaseDetector):
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
-
-        The anomaly score of an input sample is computed based on different
-        detector algorithms. For consistency, outliers are assigned with
-        larger anomaly scores.
+        For consistency, outliers are assigned with larger anomaly scores.
 
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
-            The independent and dependent/target samples with the target 
-            samples being the last column of the numpy array such that
-            eg: X = np.append(x, y.reshape(-1,1), axis=1). Sparse matrices are 
-            accepted only if they are supported by the base estimator.
+            The training input samples. Sparse matrices are accepted only
+            if they are supported by the base estimator.
 
         Returns
         -------
@@ -165,19 +193,10 @@ class CD(BaseDetector):
 
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
 
-        try:
-            X = check_array(X)
-        except ValueError:
-            X = X.reshape(-1, 1)
+        # Validate input X
+        X = check_array(X)
 
-        y = X[:, -1]
-        X = X[:, :-1]
+        # Get Cook's distance
+        distances_ = _process_distances(X, self.model)
 
-        # Apply whitening
-        if self.whitening:
-            X = whiten_data(X, self.pca)
-
-            # Get Cook's Distance
-        distance_ = Cooks_dist(X, y, self.model)
-
-        return distance_
+        return distances_
