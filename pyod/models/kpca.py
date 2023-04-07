@@ -298,7 +298,7 @@ class KPCA(BaseDetector):
 
         # copy the attributes from the sklearn Kernel PCA object
         if self.n_components is None:
-            n_components = X.shape[1]  # use all dimensions
+            n_components = X.shape[0]  # use all dimensions
         else:
             if self.n_components < 1:
                 raise ValueError(
