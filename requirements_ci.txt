@@ -6,7 +6,8 @@ matplotlib
 nose
 numpy>=1.19
 numba>=0.51
-pythresh>=0.2.9
+pyclustering
+pythresh>=0.3.1
 ruptures
 scipy>=1.5.1
 scikit_learn>=0.20.0
