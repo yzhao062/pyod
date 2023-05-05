@@ -29,7 +29,7 @@ class TestThresholds(unittest.TestCase):
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def setUp(self):
         
-        from pyod.models.thresholds import (ALL, AUCP, BOOT, CHAU, CLF, CLUST,
+        from pyod.models.thresholds import (AUCP, BOOT, CHAU, CLF, CLUST,
                                             CPD, DECOMP, DSN, EB, FGD, FILTER, 
                                             FWFM, GESD, HIST, IQR, KARCH, MAD, 
                                             MCST, META, MOLL, MTT, OCSVM, QMCD, 
@@ -46,7 +46,7 @@ class TestThresholds(unittest.TestCase):
             random_state=42,
         )
 
-        self.contam = [ALL(), AUCP(), BOOT(), CHAU(), CLF(), CLUST(),
+        self.contam = [AUCP(), BOOT(), CHAU(), CLF(), CLUST(),
                        CPD(), DECOMP(), DSN(), EB(), FGD(), FILTER(), 
                        FWFM(), GESD(), HIST(), IQR(), KARCH(), MAD(), 
                        MCST(), META(), MOLL(), MTT(), OCSVM(), QMCD(), 
