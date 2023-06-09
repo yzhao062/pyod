@@ -373,6 +373,7 @@ Proximity-Based      SOD                 Subspace Outlier Detection             
 Proximity-Based      ROD                 Rotation-based Outlier Detection                                                                        2020   [#Almardeny2020A]_
 Outlier Ensembles    IForest             Isolation Forest                                                                                        2008   [#Liu2008Isolation]_
 Outlier Ensembles    INNE                Isolation-based Anomaly Detection Using Nearest-Neighbor Ensembles                                      2018   [#Bandaragoda2018Isolation]_
+Outlier Ensembles    DIF                 Deep Isolation Forest for Anomaly Detection                                                             2023   [#Xu2023Deep]_
 Outlier Ensembles    FB                  Feature Bagging                                                                                         2005   [#Lazarevic2005Feature]_
 Outlier Ensembles    LSCP                LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                       2019   [#Zhao2019LSCP]_
 Outlier Ensembles    XGBOD               Extreme Boosting Based Outlier Detection **(Supervised)**                                               2018   [#Zhao2018XGBOD]_
@@ -629,6 +630,8 @@ Reference
 .. [#Tang2002Enhancing] Tang, J., Chen, Z., Fu, A.W.C. and Cheung, D.W., 2002, May. Enhancing effectiveness of outlier detections for low density patterns. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining*, pp. 535-548. Springer, Berlin, Heidelberg.
 
 .. [#Wang2020adVAE] Wang, X., Du, Y., Lin, S., Cui, P., Shen, Y. and Yang, Y., 2019. adVAE: A self-adversarial variational autoencoder with Gaussian anomaly prior knowledge for anomaly detection. *Knowledge-Based Systems*.
+
+.. [#Xu2023Deep] Xu, H., Pang, G., Wang, Y., Wang, Y., 2023. Deep isolation forest for anomaly detection. *IEEE Transactions on Knowledge and Data Engineering*.
 
 .. [#You2017Provable] You, C., Robinson, D.P. and Vidal, R., 2017. Provable self-representation based outlier detection in a union of subspaces. In Proceedings of the IEEE conference on computer vision and pattern recognition.
 
