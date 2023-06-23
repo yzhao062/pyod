@@ -107,7 +107,6 @@ class TestSUOD(unittest.TestCase):
         with assert_raises(ValueError):
             self.clf.predict_proba(self.X_test, method='something')
 
-
     def test_prediction_labels_confidence(self):
         pred_labels, confidence = self.clf.predict(self.X_test,
                                                    return_confidence=True)

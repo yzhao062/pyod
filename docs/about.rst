@@ -5,10 +5,10 @@ About us
 Core Development Team
 ---------------------
 
-Yue Zhao (Ph.D. Student @ Carnegie Mellon University):
+Yue Zhao (Assistant Professor @ USC, Ph.D. @ CMU):
 
 - Initialized the project in 2017
-- `Homepage <https://www.andrew.cmu.edu/user/yuezhao2/>`_
+- `Homepage <https://viterbi-web.usc.edu/~yzhao010/>`_
 - `LinkedIn (Yue Zhao) <https://www.linkedin.com/in/yzhao062/>`_
 
 Zain Nasrullah (Data Scientist at RBC; MSc in Computer Science from University of Toronto):

@@ -136,7 +136,7 @@ def CPD(**kwargs):
             - 'kde': Use the kernel density estimation
             
     """
-    
+
     from pythresh.thresholds.cpd import CPD as CPD_thres
     return CPD_thres(**kwargs)
 
