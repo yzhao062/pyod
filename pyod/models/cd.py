@@ -15,6 +15,7 @@ from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
+
 def _Cooks_dist(X, y, model):
     """Calculated the Cook's distance
 
@@ -45,19 +46,21 @@ def _Cooks_dist(X, y, model):
     # Compute the MSE from the residuals
     residuals = y - model.predict(X)
     mse = np.dot(residuals, residuals) / df
-    
+
     # Compute Cook's distance
-    if (mse!=0) or (mse!=np.nan):
-        residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(1 - leverage)
+    if (mse != 0) or (mse != np.nan):
+        residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(
+            1 - leverage)
         distance_ = residuals_studentized ** 2 / X.shape[1]
         distance_ *= leverage / (1 - leverage)
         distance_ = ((distance_ - distance_.min())
-                    / (distance_.max() - distance_.min()))
+                     / (distance_.max() - distance_.min()))
 
     else:
-        distance_ = np.ones(len(y))*np.nan
+        distance_ = np.ones(len(y)) * np.nan
 
     return distance_
+
 
 def _process_distances(X, model):
     """Calculated the mean Cook's distances for
@@ -79,15 +82,14 @@ def _process_distances(X, model):
 
     distances_ = []
     for i in range(X.shape[1]):
-
         mod = model
 
         # Extract new X and y inputs
         exp = np.delete(X.copy(), i, axis=1)
-        resp = X[:,i]
+        resp = X[:, i]
 
-        exp = exp.reshape(-1,1) if exp.ndim == 1 else exp
-    
+        exp = exp.reshape(-1, 1) if exp.ndim == 1 else exp
+
         # Fit the model
         mod.fit(exp, resp)
 
@@ -168,7 +170,7 @@ class CD(BaseDetector):
 
         # Get Cook's distance
         distances_ = _process_distances(X, self.model)
-        
+
         self.decision_scores_ = distances_
 
         self._process_decision_scores()

@@ -15,7 +15,6 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-import numpy as np
 from pyod.models.cd import CD
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
