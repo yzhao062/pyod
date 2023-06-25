@@ -4,13 +4,12 @@ from __future__ import division, print_function
 import os
 import sys
 import unittest
-
-from packaging.version import Version
 from platform import python_version
 
 # noinspection PyProtectedMember
 from numpy.testing import (assert_allclose, assert_array_less, assert_equal,
                            assert_raises)
+from packaging.version import Version
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
@@ -23,18 +22,18 @@ from pyod.utils.data import generate_data
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 global py_ver
-py_ver = Version(python_version())>Version('3.6.15')
+py_ver = Version(python_version()) > Version('3.6.15')
+
 
 class TestThresholds(unittest.TestCase):
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def setUp(self):
-        
-        from pyod.models.thresholds import (ALL, AUCP, BOOT, CHAU, CLF, CLUST,
-                                            DECOMP, DSN, EB, FGD, FILTER, FWFM,
-                                            GESD, HIST, IQR, KARCH, MAD, MCST,
-                                            META, MOLL, MTT, OCSVM, QMCD, REGR,
-                                            VAE, WIND, YJ, ZSCORE)
-        
+        from pyod.models.thresholds import (AUCP, BOOT, CHAU, CLF, CLUST,
+                                            CPD, DECOMP, DSN, EB, FGD, FILTER,
+                                            FWFM, GESD, HIST, IQR, KARCH, MAD,
+                                            MCST, META, MOLL, MTT, OCSVM, QMCD,
+                                            REGR, VAE, WIND, YJ, ZSCORE)
+
         self.n_train = 200
         self.n_test = 100
         self.contamination = 0.1
@@ -46,12 +45,12 @@ class TestThresholds(unittest.TestCase):
             random_state=42,
         )
 
-        self.contam = [ALL(), AUCP(), BOOT(), CHAU(), CLF(), CLUST(),
-                       DECOMP(), DSN(), EB(), FGD(), FILTER(), FWFM(),
-                       GESD(), HIST(), IQR(), KARCH(), MAD(), MCST(),
-                       META(), MOLL(), MTT(), OCSVM(), QMCD(), REGR(),
-                       VAE(), WIND(), YJ(), ZSCORE()]
-        
+        self.contam = [AUCP(), BOOT(), CHAU(), CLF(), CLUST(),
+                       CPD(), DECOMP(), DSN(), EB(), FGD(), FILTER(),
+                       FWFM(), GESD(), HIST(), IQR(), KARCH(), MAD(),
+                       MCST(), META(), MOLL(), MTT(), OCSVM(), QMCD(),
+                       REGR(), VAE(), WIND(), YJ(), ZSCORE()]
+
         for contam in self.contam:
             self.clf = KDE(contamination=contam)
             self.clf.fit(self.X_train)
@@ -59,11 +58,12 @@ class TestThresholds(unittest.TestCase):
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def test_parameters(self):
         assert (
-            hasattr(self.clf, "decision_scores_")
-            and self.clf.decision_scores_ is not None
+                hasattr(self.clf, "decision_scores_")
+                and self.clf.decision_scores_ is not None
         )
         assert hasattr(self.clf, "labels_") and self.clf.labels_ is not None
-        assert hasattr(self.clf, "threshold_") and self.clf.threshold_ is not None
+        assert hasattr(self.clf,
+                       "threshold_") and self.clf.threshold_ is not None
         assert hasattr(self.clf, "_mu") and self.clf._mu is not None
         assert hasattr(self.clf, "_sigma") and self.clf._sigma is not None
 
@@ -111,7 +111,8 @@ class TestThresholds(unittest.TestCase):
 
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def test_prediction_labels_confidence(self):
-        pred_labels, confidence = self.clf.predict(self.X_test, return_confidence=True)
+        pred_labels, confidence = self.clf.predict(self.X_test,
+                                                   return_confidence=True)
         assert_equal(pred_labels.shape, self.y_test.shape)
         assert_equal(confidence.shape, self.y_test.shape)
         assert confidence.min() >= 0
@@ -137,10 +138,13 @@ class TestThresholds(unittest.TestCase):
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def test_fit_predict_score(self):
         self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test, scoring="roc_auc_score")
-        self.clf.fit_predict_score(self.X_test, self.y_test, scoring="prc_n_score")
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring="roc_auc_score")
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring="prc_n_score")
         with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test, scoring="something")
+            self.clf.fit_predict_score(self.X_test, self.y_test,
+                                       scoring="something")
 
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def test_predict_rank(self):

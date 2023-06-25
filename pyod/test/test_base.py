@@ -169,7 +169,7 @@ class TestBASE(unittest.TestCase):
     def test_predict_proba(self):
         # TODO: create uniform testcases
         pass
-    
+
     def test_predict_confidence(self):
         # TODO: create uniform testcases
         pass

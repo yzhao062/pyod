@@ -367,6 +367,15 @@ pyod.models.suod module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.thresholds module
+-----------------------
+
+.. automodule:: pyod.models.thresholds
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.vae module
 ----------------------
 
