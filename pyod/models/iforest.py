@@ -16,7 +16,6 @@ from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 # noinspection PyProtectedMember
-from ..utils.utility import _get_sklearn_version
 from ..utils.utility import invert_order
 
 
@@ -207,28 +206,15 @@ class IForest(BaseDetector):
         # In sklearn 0.20+ new behaviour is added (arg behaviour={'new','old'})
         # to IsolationForest that shifts the location of the anomaly scores
         # noinspection PyProtectedMember
-        sklearn_version = _get_sklearn_version()
-        if sklearn_version == 21:
-            self.detector_ = IsolationForest(n_estimators=self.n_estimators,
-                                             max_samples=self.max_samples,
-                                             contamination=self.contamination,
-                                             max_features=self.max_features,
-                                             bootstrap=self.bootstrap,
-                                             n_jobs=self.n_jobs,
-                                             behaviour=self.behaviour,
-                                             random_state=self.random_state,
-                                             verbose=self.verbose)
 
-        # Do not pass behaviour argument when sklearn version is < 0.20 or >0.21
-        else:  # pragma: no cover
-            self.detector_ = IsolationForest(n_estimators=self.n_estimators,
-                                             max_samples=self.max_samples,
-                                             contamination=self.contamination,
-                                             max_features=self.max_features,
-                                             bootstrap=self.bootstrap,
-                                             n_jobs=self.n_jobs,
-                                             random_state=self.random_state,
-                                             verbose=self.verbose)
+        self.detector_ = IsolationForest(n_estimators=self.n_estimators,
+                                         max_samples=self.max_samples,
+                                         contamination=self.contamination,
+                                         max_features=self.max_features,
+                                         bootstrap=self.bootstrap,
+                                         n_jobs=self.n_jobs,
+                                         random_state=self.random_state,
+                                         verbose=self.verbose)
 
         self.detector_.fit(X=X, y=None, sample_weight=None)
 

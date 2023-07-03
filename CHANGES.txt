@@ -178,3 +178,4 @@ v<1.0.8>, <03/08/2023> -- Add QMCD detector (#452).
 v<1.0.8>, <03/08/2023> -- Optimized ECDF and drop Statsmodels dependency (#467).
 v<1.0.9>, <03/19/2023> -- Hot fix for errors in ECOD and COPOD due to the issue of scipy.
 v<1.1.0>, <06/19/2023> -- Further integration of PyThresh.
+v<1.1.1>, <07/03/2023> -- Bump up sklearn requirement and some hot fixes.
