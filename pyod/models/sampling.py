@@ -6,12 +6,17 @@
 
 from __future__ import division, print_function
 
+import importlib
+
 import numpy as np
-from sklearn.neighbors import DistanceMetric
+import sklearn
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
+
+skmodule = 'sklearn.metrics' if sklearn.__version__ >= "1.3.0" else 'sklearn.neighbors'
+DistanceMetric = getattr(importlib.import_module(skmodule), 'DistanceMetric')
 
 
 class Sampling(BaseDetector):
