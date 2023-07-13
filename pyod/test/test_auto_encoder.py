@@ -120,6 +120,14 @@ class TestAutoEncoder(unittest.TestCase):
     def test_model_clone(self):
         # for deep models this may not apply
         clone_clf = clone(self.clf)
+    
+    def test_layer_count(self):
+        hidden_layers = len(self.clf.hidden_neurons)
+        # add one to account for the dropout after the input layer
+        dropout_layers = hidden_layers + 1
+        # add two for the input and output layers
+        expected_layer_count = hidden_layers + dropout_layers + 2
+        assert(len(self.clf.model_.layers) == expected_layer_count)
 
     def tearDown(self):
         pass
