@@ -6,6 +6,7 @@ matplotlib
 nose
 numpy>=1.19
 numba>=0.51
+pandas
 pyclustering
 pythresh>=0.3.1
 ruptures
