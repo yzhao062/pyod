@@ -216,7 +216,7 @@ class BaseDetector(object):
         train_scores = self.decision_scores_
 
         test_scores = self.decision_function(X)
-
+        test_scores[test_scores==np.inf]=np.finfo(np.float64).max
         probs = np.zeros([X.shape[0], int(self._classes)])
         if method == 'linear':
             scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
