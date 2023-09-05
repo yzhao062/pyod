@@ -15,9 +15,6 @@ from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from torch.utils.data import DataLoader
 
-# from pyod.models.base import BaseDetector
-# from pyod.utils.utility import check_parameter
-# from pyod.utils.torch_utility import get_activation_by_name
 from .base import BaseDetector
 from ..utils.utility import check_parameter
 from ..utils.torch_utility import get_activation_by_name
@@ -26,8 +23,7 @@ from ..utils.torch_utility import get_activation_by_name
 class DIF(BaseDetector):
     """Deep Isolation Forest (DIF) is an extension of iForest. It uses deep
     representation ensemble to achieve non-linear isolation on original data
-    space. See :cite:`xu2023dif`
-    for details.    
+    space. See :cite:`xu2023dif` for details.
 
     Parameters
     ----------
@@ -265,7 +261,9 @@ class DIF(BaseDetector):
         x_reduced = []
 
         with torch.no_grad():
-            loader = DataLoader(X, batch_size=self.batch_size, drop_last=False, pin_memory=True, shuffle=False)
+            loader = DataLoader(X, batch_size=self.batch_size,
+                                drop_last=False, pin_memory=True,
+                                shuffle=False)
             for batch_x in loader:
                 batch_x = batch_x.float().to(self.device)
                 batch_x_reduced = net(batch_x)
@@ -278,7 +276,7 @@ class DIF(BaseDetector):
 
 
 class MLPnet(torch.nn.Module):
-    def __init__(self, n_features, n_hidden=[500, 100], n_output=20, mid_channels=None,
+    def __init__(self, n_features, n_hidden=[500, 100], n_output=20,
                  activation='ReLU', bias=False, batch_norm=False,
                  skip_connection=False):
         super(MLPnet, self).__init__()
@@ -295,8 +293,9 @@ class MLPnet(torch.nn.Module):
 
         self.layers = []
         for i in range(num_layers+1):
-            in_channels, out_channels = self.get_in_out_channels(i, num_layers, n_features,
-                                                                 n_hidden, n_output, skip_connection)
+            in_channels, out_channels = \
+                self.get_in_out_channels(i, num_layers, n_features,
+                                         n_hidden, n_output, skip_connection)
             self.layers += [
                 LinearBlock(in_channels, out_channels,
                             bias=bias, batch_norm=batch_norm,
@@ -362,10 +361,6 @@ def _cal_score(xx, clf):
     leaf_samples = np.zeros((xx.shape[0], len(clf.estimators_)))
 
     for ii, estimator_tree in enumerate(clf.estimators_):
-        # estimator_population_ind = sample_without_replacement(n_population=xx.shape[0], n_samples=256,
-        #                                                       random_state=estimator_tree.random_state)
-        # estimator_population = xx[estimator_population_ind]
-
         tree = estimator_tree.tree_
         n_node = tree.node_count
 
@@ -383,7 +378,8 @@ def _cal_score(xx, clf):
         # The number of training samples in each test sample leaf
         n_node_samples = estimator_tree.tree_.n_node_samples
 
-        # node_indicator is a sparse matrix with shape (n_samples, n_nodes), indicating the path of input data samples
+        # node_indicator is a sparse matrix with shape (n_samples, n_nodes),
+        # indicating the path of input data samples
         # each layer would result in a non-zero element in this matrix,
         # and then the row-wise summation is the depth of data sample
         n_samples_leaf = estimator_tree.tree_.n_node_samples[leaves_index]
@@ -394,7 +390,8 @@ def _cal_score(xx, clf):
         # decision path of data matrix XX
         node_indicator = np.array(node_indicator.todense())
 
-        # set a matrix with shape [n_sample, n_node], representing the feature value of each sample on each node
+        # set a matrix with shape [n_sample, n_node],
+        # representing the feature value of each sample on each node
         # set the leaf node as -2
         value_mat = np.array([xx[i][feature_lst] for i in range(xx.shape[0])])
         value_mat[:, np.where(feature_lst == -2)[0]] = -2
