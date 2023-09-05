@@ -7,12 +7,18 @@
 from __future__ import division, print_function
 
 import numpy as np
-from sklearn.neighbors import DistanceMetric
+
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
+from ..utils.utility import _get_sklearn_version
 
+sklearn_version = _get_sklearn_version()
+if sklearn_version[:3] >= '1.3':
+    from sklearn.metrics import DistanceMetric
+else:
+    from sklearn.neighbors import DistanceMetric
 
 class Sampling(BaseDetector):
     """Sampling class for outlier detection.

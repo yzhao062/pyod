@@ -156,6 +156,7 @@ NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark Paper <https://www.andr
 * `ADBench Benchmark <#adbench-benchmark>`_
 * `Model Save & Load <#model-save--load>`_
 * `Fast Train with SUOD <#fast-train-with-suod>`_
+* `Thresholding Outlier Scores <#thresholding-outlier-scores>`_
 * `Implemented Algorithms <#implemented-algorithms>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
@@ -327,7 +328,25 @@ and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_e
     clf = SUOD(base_estimators=detector_list, n_jobs=2, combination='average',
                verbose=False)
 
+----
 
+Thresholding Outlier Scores
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A more data based approach can be taken when setting the contamination level.
+By using a thresholding method, guessing an abritrary value can be replaced
+with tested techniques for seperating inliers and outliers. Refer to 
+`PyThresh <https://github.com/KulikDM/pythresh>`_ for
+a more in depth look at thresholding.
+
+
+.. code-block:: python
+
+    from pyod.models.knn import KNN
+    from pyod.models.thresholds import FILTER
+
+    # Set the outlier detection and thresholding methods
+    clf = KNN(contamination=FILTER())
 
 
 ----
@@ -337,7 +356,7 @@ and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_e
 Implemented Algorithms
 ^^^^^^^^^^^^^^^^^^^^^^
 
-PyOD toolkit consists of three major functional groups:
+PyOD toolkit consists of four major functional groups:
 
 **(i) Individual Detection Algorithms** :
 
@@ -412,8 +431,43 @@ Combination          Median            Simple combination by taking the median o
 Combination          majority Vote     Simple combination by taking the majority vote of the labels (weights can be used)                     2015   [#Aggarwal2015Theoretical]_
 ===================  ================  =====================================================================================================  =====  ========================================
 
+**(iii) Outlier Detection Score Thresholding Methods**:
 
-**(iii) Utility Functions**:
+==================================  ================  ================================================================ ====================================================================================================================
+Type                                Abbr              Algorithm                                                        Documentation                                    
+==================================  ================  ================================================================ ====================================================================================================================
+Kernel-Based                        AUCP              Area Under Curve Percentage                                      `AUCP <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.AUCP>`_
+Statistical Moment-Based            BOOT              Bootstrapping                                                    `BOOT <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.BOOT>`_ 
+Normality-Based                     CHAU              Chauvenet's Criterion                                            `CHAU <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CHAU>`_
+Linear Model                        CLF               Trained Linear Classifier                                        `CLF <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CLF>`_
+cluster-Based                       CLUST             Clustering Based                                                 `CLUST <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CLUST>`_
+Kernel-Based                        CPD               Change Point Detection                                           `CPD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CPD>`_
+Transformation-Based                DECOMP            Decomposition                                                    `DECOMP <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.DECOMP>`_
+Normality-Based                     DSN               Distance Shift from Normal                                       `DSN <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.DSN>`_
+Curve-Based                         EB                Elliptical Boundary                                              `EB <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.EB>`_
+Kernel-Based                        FGD               Fixed Gradient Descent                                           `FGD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.FGD>`_
+Filter-Based                        FILTER            Filtering Based                                                  `FILTER <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.FILTER>`_
+Curve-Based                         FWFM              Full Width at Full Minimum                                       `FWFM <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.FWFM>`_
+Statistical Test-Based              GESD              Generalized Extreme Studentized Deviate                          `GESD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.GESD>`_
+Filter-Based                        HIST              Histogram Based                                                  `HIST <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.HIST>`_
+Quantile-Based                      IQR               Inter-Quartile Region                                            `IQR <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.IQR>`_
+Statistical Moment-Based            KARCH             Karcher mean (Riemannian Center of Mass)                         `KARCH <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.KARCH>`_
+Statistical Moment-Based            MAD               Median Absolute Deviation                                        `MAD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MAD>`_
+Statistical Test-Based              MCST              Monte Carlo Shapiro Tests                                        `MCST <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MCST>`_
+Ensembles-Based                     META              Meta-model Trained Classifier                                    `META <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.META>`_
+Transformation-Based                MOLL              Friedrichs' Mollifier                                            `MOLL <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MOLL>`_
+Statistical Test-Based              MTT               Modified Thompson Tau Test                                       `MTT <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MTT>`_
+Linear Model                        OCSVM             One-Class Support Vector Machine                                 `OCSVM <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.OCSVM>`_
+Quantile-Based                      QMCD              Quasi-Monte Carlo Discrepancy                                    `QMCD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.QMCD>`_
+Linear Model                        REGR              Regression Based                                                 `REGR <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.REGR>`_
+Neural Networks                     VAE               Variational Autoencoder                                          `VAE <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.VAE>`_
+Curve-Based                         WIND              Topological Winding Number                                       `WIND <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.WIND>`_
+Transformation-Based                YJ                Yeo-Johnson Transformation                                       `YJ <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.YJ>`_
+Normality-Based                     ZSCORE            Z-score                                                          `ZSCORE <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.ZSCORE>`_
+==================================  ================  ================================================================ ====================================================================================================================
+
+
+**(iV) Utility Functions**:
 
 ===================  ======================  =====================================================================================================================================================  ======================================================================================================================================
 Type                 Name                    Function                                                                                                                                               Documentation

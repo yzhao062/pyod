@@ -16,7 +16,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
 from pyod.models.kde import KDE
-from pyod.models.thresholds import ALL
+from pyod.models.thresholds import FILTER
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
 from pyod.utils.example import visualize
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # train KDE detector
     clf_name = 'KDE'
-    clf = KDE(contamination=ALL())
+    clf = KDE(contamination=FILTER())
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

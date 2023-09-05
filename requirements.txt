@@ -3,5 +3,5 @@ matplotlib
 numpy>=1.19
 numba>=0.51
 scipy>=1.5.1
-scikit_learn>=0.20.0
+scikit_learn>=0.22.0
 six
