@@ -6,7 +6,7 @@ keras
 matplotlib
 nose
 numpy>=1.19
-numba==0.53 # need to lift this later see github for issue
+numba>=0.51
 pyclustering
 pytest
 pythresh>=0.3.1
