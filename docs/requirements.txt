@@ -17,6 +17,7 @@ scikit-lego
 six
 sphinx-rtd-theme
 sphinxcontrib-bibtex
+statsmodels
 suod
 tensorflow
 torch
