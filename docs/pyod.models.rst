@@ -105,6 +105,17 @@ pyod.models.deep\_svdd module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.dif module
+-----------------------------
+
+.. automodule:: pyod.models.dif
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+
 pyod.models.ecod module
 ------------------------
 
