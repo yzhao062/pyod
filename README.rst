@@ -58,7 +58,7 @@ Python Outlier Detection (PyOD)
 
 -----
 
-**News**: We just released a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_.
+**News**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_.
 The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 **For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
@@ -70,7 +70,7 @@ multivariate data. This exciting yet challenging field is commonly referred as
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest ECOD (TKDE 2022). Since 2017, PyOD has been successfully used in numerous academic researches and
+the latest ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic researches and
 commercial products with more than `10 million downloads <https://pepy.tech/project/pyod>`_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
@@ -199,8 +199,9 @@ Alternatively, you could clone and run setup.py file:
 * numpy>=1.19
 * numba>=0.51
 * scipy>=1.5.1
-* scikit_learn>=0.20.0
+* scikit_learn>=0.22.0
 * six
+
 
 **Optional Dependencies (see details below)**\ :
 
