@@ -33,7 +33,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r docs/requirements_ci.txt
+        pip install -r docs/requirements.txt
         pip install pytest
         pip install coverage
         pip install coveralls
