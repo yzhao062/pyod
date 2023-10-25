@@ -11,7 +11,7 @@ pyclustering
 pythresh>=0.3.1
 ruptures
 scipy>=1.5.1
-scikit_learn>=0.20.0
+scikit_learn>=0.22.0
 scikit-lego
 six
 statsmodels
