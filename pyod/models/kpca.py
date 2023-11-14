@@ -5,7 +5,6 @@
 # License: BSD 2 clause
 
 import numpy as np
-import sklearn
 from sklearn.decomposition import KernelPCA
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
@@ -18,22 +17,22 @@ class PyODKernelPCA(KernelPCA):
     """A wrapper class for KernelPCA class of scikit-learn."""
 
     def __init__(
-            self,
-            n_components=None,
-            kernel="rbf",
-            gamma=None,
-            degree=3,
-            coef0=1,
-            kernel_params=None,
-            alpha=1.0,
-            fit_inverse_transform=False,
-            eigen_solver="auto",
-            tol=0,
-            max_iter=None,
-            remove_zero_eig=False,
-            copy_X=True,
-            n_jobs=None,
-            random_state=None,
+        self,
+        n_components=None,
+        kernel="rbf",
+        gamma=None,
+        degree=3,
+        coef0=1,
+        kernel_params=None,
+        alpha=1.0,
+        fit_inverse_transform=False,
+        eigen_solver="auto",
+        tol=0,
+        max_iter=None,
+        remove_zero_eig=False,
+        copy_X=True,
+        n_jobs=None,
+        random_state=None,
     ):
         super().__init__(
             kernel=kernel,
@@ -198,52 +197,46 @@ class KPCA(BaseDetector):
     """
 
     def __init__(
-            self,
-            contamination=0.1,
-            n_components=None,
-            n_selected_components=None,
-            kernel="rbf",
-            gamma=None,
-            degree=3,
-            coef0=1,
-            kernel_params=None,
-            alpha=1.0,
-            eigen_solver="auto",
-            tol=0,
-            max_iter=None,
-            remove_zero_eig=False,
-            copy_X=True,
-            n_jobs=None,
-            sampling=False,
-            subset_size=20,
-            random_state=None,
+        self,
+        contamination=0.1,
+        n_components=None,
+        n_selected_components=None,
+        kernel="rbf",
+        gamma=None,
+        degree=3,
+        coef0=1,
+        kernel_params=None,
+        alpha=1.0,
+        eigen_solver="auto",
+        tol=0,
+        max_iter=None,
+        remove_zero_eig=False,
+        copy_X=True,
+        n_jobs=None,
+        sampling=False,
+        subset_size=20,
+        random_state=None,
     ):
         super().__init__(contamination=contamination)
         self.n_components = n_components
         self.n_selected_components = n_selected_components
-        self.copy_x = copy_X
+        self.kernel = kernel
+        self.gamma = gamma
+        self.degree = degree
+        self.coef0 = coef0
+        self.kernel_params = kernel_params
+        self.alpha = alpha
+        self.eigen_solver = eigen_solver
+        self.tol = tol
+        self.max_iter = max_iter
+        self.remove_zero_eig = remove_zero_eig
+        self.copy_X = copy_X
+        self.n_jobs = n_jobs
         self.sampling = sampling
         self.subset_size = subset_size
         self.random_state = check_random_state(random_state)
         self.decision_scores_ = None
         self.n_selected_components_ = None
-
-        self.kpca = PyODKernelPCA(
-            n_components=n_components,
-            kernel=kernel,
-            gamma=gamma,
-            degree=degree,
-            coef0=coef0,
-            kernel_params=kernel_params,
-            alpha=alpha,
-            fit_inverse_transform=False,
-            eigen_solver=eigen_solver,
-            tol=tol,
-            max_iter=max_iter,
-            remove_zero_eig=remove_zero_eig,
-            copy_X=copy_X,
-            n_jobs=n_jobs,
-        )
 
     def _check_subset_size(self, array):
         """Check subset size."""
@@ -283,7 +276,7 @@ class KPCA(BaseDetector):
         """
 
         # validate inputs X and y (optional)
-        X = check_array(X, copy=self.copy_x)
+        X = check_array(X, copy=self.copy_X)
         self._set_n_classes(y)
 
         # perform subsampling to reduce time complexity
@@ -320,19 +313,27 @@ class KPCA(BaseDetector):
             param_name="n_selected_components",
         )
 
-        self.kpca.fit(X)
+        self.kpca = PyODKernelPCA(
+            n_components=self.n_components,
+            kernel=self.kernel,
+            gamma=self.gamma,
+            degree=self.degree,
+            coef0=self.coef0,
+            kernel_params=self.kernel_params,
+            alpha=self.alpha,
+            fit_inverse_transform=False,
+            eigen_solver=self.eigen_solver,
+            tol=self.tol,
+            max_iter=self.max_iter,
+            remove_zero_eig=self.remove_zero_eig,
+            copy_X=self.copy_X,
+            n_jobs=self.n_jobs,
+            random_state=self.random_state,
+        )
+        x_transformed = self.kpca.fit_transform(X)
+
         centerer = self.kpca.get_centerer
         kernel = self.kpca.get_kernel
-
-        if int(sklearn.__version__[0]) < 1:
-            eigenvalues_ = self.kpca.lambdas_
-            eigenvectors_ = self.kpca.alphas_
-        else:
-            eigenvalues_ = self.kpca.eigenvalues_
-            eigenvectors_ = self.kpca.eigenvectors_
-
-        x_transformed = eigenvectors_ * np.sqrt(eigenvalues_)
-        x_transformed = x_transformed[:, : self.n_selected_components_]
 
         potential = []
         for i in range(X.shape[0]):
@@ -372,26 +373,8 @@ class KPCA(BaseDetector):
         centerer = self.kpca.get_centerer
         kernel = self.kpca.get_kernel
         gram_matrix = kernel(X, self.kpca.X_fit_)
-        centered_g = centerer.transform(gram_matrix)
 
-        if int(sklearn.__version__[0]) < 1:
-            eigenvalues_ = self.kpca.lambdas_
-            eigenvectors_ = self.kpca.alphas_
-        else:
-            eigenvalues_ = self.kpca.eigenvalues_
-            eigenvectors_ = self.kpca.eigenvectors_
-
-        # scale eigenvectors (properly account for null-space for dot product)
-        non_zeros = np.flatnonzero(eigenvalues_)
-        scaled_alphas = np.zeros_like(eigenvectors_)
-        scaled_alphas[:, non_zeros] = eigenvectors_[:, non_zeros] / np.sqrt(
-            eigenvalues_[non_zeros]
-        )
-
-        # Project with a scalar product between K and the scaled eigenvectors
-        x_transformed = np.dot(centered_g, scaled_alphas)
-        x_transformed = x_transformed[:, : self.n_selected_components_]
-
+        x_transformed = self.kpca.transform(X)
         potential = []
         for i in range(X.shape[0]):
             sample = X[i, :].reshape(1, -1)
