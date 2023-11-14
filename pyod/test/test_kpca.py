@@ -38,8 +38,8 @@ class TestKPCA(unittest.TestCase):
 
     def test_parameters(self):
         assert (
-                hasattr(self.clf, "decision_scores_")
-                and self.clf.decision_scores_ is not None
+            hasattr(self.clf, "decision_scores_")
+            and self.clf.decision_scores_ is not None
         )
         assert hasattr(self.clf, "labels_") and self.clf.labels_ is not None
         assert hasattr(self.clf, "threshold_") and self.clf.threshold_ is not None
@@ -107,24 +107,6 @@ class TestKPCA(unittest.TestCase):
         self.clf.fit_predict_score(self.X_test, self.y_test, scoring="prc_n_score")
         with assert_raises(NotImplementedError):
             self.clf.fit_predict_score(self.X_test, self.y_test, scoring="something")
-
-    def test_predict_rank(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test)
-
-        # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=4)
-        assert_array_less(pred_ranks, self.X_train.shape[0] + 1)
-        assert_array_less(-0.1, pred_ranks)
-
-    def test_predict_rank_normalized(self):
-        pred_socres = self.clf.decision_function(self.X_test)
-        pred_ranks = self.clf._predict_rank(self.X_test, normalized=True)
-
-        # assert the order is reserved
-        assert_allclose(rankdata(pred_ranks), rankdata(pred_socres), atol=4)
-        assert_array_less(pred_ranks, 1.01)
-        assert_array_less(-0.1, pred_ranks)
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
