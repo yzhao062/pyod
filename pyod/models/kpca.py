@@ -331,6 +331,7 @@ class KPCA(BaseDetector):
             random_state=self.random_state,
         )
         x_transformed = self.kpca.fit_transform(X)
+        x_transformed = x_transformed[:, : self.n_selected_components_]
 
         centerer = self.kpca.get_centerer
         kernel = self.kpca.get_kernel
@@ -375,6 +376,8 @@ class KPCA(BaseDetector):
         gram_matrix = kernel(X, self.kpca.X_fit_)
 
         x_transformed = self.kpca.transform(X)
+        x_transformed = x_transformed[:, : self.n_selected_components_]
+
         potential = []
         for i in range(X.shape[0]):
             sample = X[i, :].reshape(1, -1)
