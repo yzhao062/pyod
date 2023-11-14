@@ -443,8 +443,11 @@ def _get_sklearn_version():  # pragma: no cover
     # if int(sklearn_version.split(".")[1]) < 19 or int(
     #         sklearn_version.split(".")[1]) > 24:
     #     raise ValueError("Sklearn version error")
+    # print(sklearn_version)
 
-    return int(sklearn_version.split(".")[1])
+    return sklearn_version
+
+    # return int(sklearn_version.split(".")[1])
 
 
 # def _sklearn_version_21():  # pragma: no cover
@@ -544,6 +547,7 @@ def generate_indices(random_state, bootstrap, n_population, n_samples):
 
     return indices
 
+
 # todo: add a test for it in test_utility.py
 def get_optimal_n_bins(X, upper_bound=None, epsilon=1):
     """ Determine optimal number of bins for a histogram using the Birge 
@@ -579,6 +583,6 @@ def get_optimal_n_bins(X, upper_bound=None, epsilon=1):
 
         maximum_likelihood[i] = np.sum(
             histogram * np.log(b * histogram / n + epsilon) - (
-                        b - 1 + np.power(np.log(b), 2.5)))
+                    b - 1 + np.power(np.log(b), 2.5)))
 
     return np.argmax(maximum_likelihood) + 1

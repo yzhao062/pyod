@@ -173,7 +173,6 @@ class BaseDetector(object):
         # if this is a PyThresh object
         else:
             prediction = self.contamination.eval(pred_score)
-            print(self.contamination)
 
         if return_confidence:
             confidence = self.predict_confidence(X)

@@ -105,6 +105,17 @@ pyod.models.deep\_svdd module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.dif module
+-----------------------------
+
+.. automodule:: pyod.models.dif
+    :members:
+    :exclude-members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+
 pyod.models.ecod module
 ------------------------
 
@@ -362,6 +373,15 @@ pyod.models.suod module
 -----------------------
 
 .. automodule:: pyod.models.suod
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.thresholds module
+-----------------------
+
+.. automodule:: pyod.models.thresholds
     :members:
     :undoc-members:
     :show-inheritance:
