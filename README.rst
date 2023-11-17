@@ -58,20 +58,32 @@ Python Outlier Detection (PyOD)
 
 -----
 
-**News**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
-**For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
-**For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
+Read Me First
+^^^^^^^^^^^^^
 
-PyOD is the most comprehensive and scalable **Python library** for **detecting outlying objects** in
+Welcome to PyOD, a versatile Python library for detecting anomalies in multivariate data. Whether you're tackling a small-scale project or large datasets, PyOD offers a range of algorithms to suit your needs.
+
+* **For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
+* **For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
+
+* **Performance Comparison \& Datasets**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+
+* **Learn more about anomaly detection** \@ `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+----
+
+About PyOD
+^^^^^^^^^^
+
+PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** in
 multivariate data. This exciting yet challenging field is commonly referred as 
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
-PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products with more than `10 million downloads <https://pepy.tech/project/pyod>`_.
+PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000) to
+the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic researches and
+commercial products with more than `17 million downloads <https://pepy.tech/project/pyod>`_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
@@ -80,10 +92,10 @@ It is also well acknowledged by the machine learning community with various dedi
 
 **PyOD is featured for**:
 
-* **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\, including **classical distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
-* **Optimized performance with JIT and parallelization** using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
-* **Fast training & prediction with SUOD** [#Zhao2021SUOD]_.
+* **Unified, User-Friendly Interface** across various algorithms.
+* **Wide Range of Models**\, from classic techniques to the latest deep learning methods.
+* **High Performance & Efficiency**, leveraging `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_ for JIT compilation and parallel processing.
+* **Fast Training & Prediction**, achieved through the SUOD framework [#Zhao2021SUOD]_.
 
 
 **Outlier Detection with 5 Lines of Code**\ :
@@ -92,22 +104,19 @@ It is also well acknowledged by the machine learning community with various dedi
 .. code-block:: python
 
 
-    # train an ECOD detector
+    # Example: Training an ECOD detector
     from pyod.models.ecod import ECOD
     clf = ECOD()
     clf.fit(X_train)
+    y_train_scores = clf.decision_scores_  # Outlier scores for training data
+    y_test_scores = clf.decision_function(X_test)  # Outlier scores for test data
 
-    # get outlier scores
-    y_train_scores = clf.decision_scores_  # raw outlier scores on the train data
-    y_test_scores = clf.decision_function(X_test)  # predict raw outlier scores on test
-
-
-**Personal suggestion on selecting an OD algorithm**. If you do not know which algorithm to try, go with:
+**Selecting the Right Algorithm:**. Unsure where to start? Consider these robust and interpretable options:
 
 - `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_: Example of using ECOD for outlier detection
 - `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_: Example of using Isolation Forest for outlier detection
 
-They are both fast and interpretable. Or, you could try more data-driven approach `MetaOD <https://github.com/yzhao062/MetaOD>`_.
+Alternatively, explore `MetaOD <https://github.com/yzhao062/MetaOD>`_ for a data-driven approach.
 
 **Citing PyOD**\ :
 
@@ -131,21 +140,26 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
-If you want more general insights of anomaly detection and/or algorithm performance comparison, please see our
-NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_::
+For a broader perspective on anomaly detection, see our NeurIPS papers
+`ADBench: Anomaly Detection Benchmark Paper <https://viterbi-web.usc.edu/~yzhao010/papers/22-neurips-adbench.pdf>`_ \& `ADGym: Design Choices for Deep Anomaly Detection <https://viterbi-web.usc.edu/~yzhao010/papers/23-neurips-adgym.pdf>`_::
 
-    @inproceedings{han2022adbench,
-        title={ADBench: Anomaly Detection Benchmark},
-        author={Songqiao Han and Xiyang Hu and Hailiang Huang and Mingqi Jiang and Yue Zhao},
-        booktitle={Neural Information Processing Systems (NeurIPS)}
-        year={2022},
+    @article{han2022adbench,
+        title={Adbench: Anomaly detection benchmark},
+        author={Han, Songqiao and Hu, Xiyang and Huang, Hailiang and Jiang, Minqi and Zhao, Yue},
+        journal={Advances in Neural Information Processing Systems},
+        volume={35},
+        pages={32142--32159},
+        year={2022}
     }
 
-**Key Links and Resources**\ :
+    @article{jiang2023adgym,
+        title={ADGym: Design Choices for Deep Anomaly Detection},
+        author={Jiang, Minqi and Hou, Chaochuan and Zheng, Ao and Han, Songqiao and Huang, Hailiang and Wen, Qingsong and Hu, Xiyang and Zhao, Yue},
+        journal={Advances in Neural Information Processing Systems},
+        volume={36},
+        year={2023}
+    }
 
-
-* `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
-* `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
 **Table of Contents**\ :
@@ -169,8 +183,8 @@ NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark Paper <https://www.andr
 Installation
 ^^^^^^^^^^^^
 
-It is recommended to use **pip** or **conda** for installation. Please make sure
-**the latest version** is installed, as PyOD is updated frequently:
+PyOD is designed for easy installation using either **pip** or **conda**.
+We recommend using the latest version of PyOD due to frequent updates and enhancements:
 
 .. code-block:: bash
 
@@ -193,7 +207,7 @@ Alternatively, you could clone and run setup.py file:
 **Required Dependencies**\ :
 
 
-* Python 3.6+
+* Python 3.6 or higher
 * joblib
 * matplotlib
 * numpy>=1.19
@@ -207,19 +221,12 @@ Alternatively, you could clone and run setup.py file:
 
 * combo (optional, required for models/combination.py and FeatureBagging)
 * keras/tensorflow (optional, required for AutoEncoder, and other deep learning models)
-* pandas (optional, required for running benchmark)
 * suod (optional, required for running SUOD model)
 * xgboost (optional, required for XGBOD)
-* pythresh to use thresholding
+* pythresh (optional, required for thresholding)
 
 **Warning**\ :
-PyOD has multiple neural network based models, e.g., AutoEncoders, which are
-implemented in both Tensorflow and PyTorch. However, PyOD does **NOT** install these deep learning libraries for you.
-This reduces the risk of interfering with your local copies.
-If you want to use neural-net based models, please make sure these deep learning libraries are installed.
-Instructions are provided: `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_.
-Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce xgboost installation by default.
-
+PyOD includes several neural network-based models, such as AutoEncoders, implemented in Tensorflow and PyTorch. These deep learning libraries are not automatically installed by PyOD to avoid conflicts with existing installations. If you plan to use neural-net based models, please ensure these libraries are installed. See the `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_ for guidance. Additionally, xgboost is not installed by default but is required for models like XGBOD.
 
 
 ----
@@ -228,22 +235,20 @@ Similarly, models depending on **xgboost**, e.g., XGBOD, would **NOT** enforce x
 API Cheatsheet & Reference
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Full API Reference: (https://pyod.readthedocs.io/en/latest/pyod.html). API cheatsheet for all detectors:
+The full API Reference is available at `PyOD Documentation <https://pyod.readthedocs.io/en/latest/pyod.html>`_. Below is a quick cheatsheet for all detectors:
+
+* **fit(X)**\ : Fit the detector. The parameter y is ignored in unsupervised methods.
+* **decision_function(X)**\ : Predict raw anomaly scores for X using the fitted detector.
+* **predict(X)**\ : Determine whether a sample is an outlier or not as binary labels using the fitted detector.
+* **predict_proba(X)**\ : Estimate the probability of a sample being an outlier using the fitted detector.
+* **predict_confidence(X)**\ : Assess the model's confidence on a per-sample basis (applicable in predict and predict_proba) [#Perini2020Quantifying]_.
 
 
-* **fit(X)**\ : Fit detector. y is ignored in unsupervised methods.
-* **decision_function(X)**\ : Predict raw anomaly score of X using the fitted detector.
-* **predict(X)**\ : Predict if a particular sample is an outlier or not using the fitted detector.
-* **predict_proba(X)**\ : Predict the probability of a sample being outlier using the fitted detector.
-* **predict_confidence(X)**\ : Predict the model's sample-wise confidence (available in predict and predict_proba) [#Perini2020Quantifying]_.
+**Key Attributes of a fitted model**:
 
 
-Key Attributes of a fitted model:
-
-
-* **decision_scores_**\ : The outlier scores of the training data. The higher, the more abnormal.
-  Outliers tend to have higher scores.
-* **labels_**\ : The binary labels of the training data. 0 stands for inliers and 1 for outliers/anomalies.
+* **decision_scores_**\ : Outlier scores of the training data. Higher scores typically indicate more abnormal behavior. Outliers usually have higher scores.
+* **labels_**\ : Binary labels of the training data, where 0 indicates inliers and 1 indicates outliers/anomalies.
 
 
 ----
