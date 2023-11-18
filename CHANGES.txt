@@ -182,3 +182,4 @@ v<1.1.1>, <07/03/2023> -- Bump up sklearn requirement and some hot fixes.
 v<1.1.1>, <10/24/2023> -- Add deep isolation forest (#506).
 v<1.1.2>, <11/17/2023> -- Massive documentation optimization.
 v<1.1.2>, <11/17/2023> -- Fix the issue of contamination.
+v<1.1.2>, <11/17/2023> -- KPCA bug fix (#494).

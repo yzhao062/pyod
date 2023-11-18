@@ -43,7 +43,7 @@ pyod.models.auto\_encoder\_torch module
 
 .. automodule:: pyod.models.auto_encoder_torch
     :members:
-    :exclude-members: inner_autoencoder
+    :exclude-members: LinearBlock, MLPnet
     :show-inheritance:
     :inherited-members:
 
