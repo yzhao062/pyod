@@ -154,8 +154,8 @@ class LUNAR(BaseDetector):
 
     def __init__(self, model_type="WEIGHT", n_neighbours=5, negative_sampling="MIXED",
                  val_size=0.1, scaler=MinMaxScaler(), epsilon=0.1, proportion=1.0,
-                 n_epochs=200, lr=0.001, wd=0.1, verbose=0):
-        super(LUNAR, self).__init__()
+                 n_epochs=200, lr=0.001, wd=0.1, verbose=0, contamination=0.1):
+        super(LUNAR, self).__init__(contamination=contamination)
 
         self.model_type = model_type
         self.n_neighbours = n_neighbours

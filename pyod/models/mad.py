@@ -55,10 +55,8 @@ class MAD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, threshold=3.5):
-        # contamination is unneeded since threshold must be
-        # decided manually by the user
-        super(MAD, self).__init__()
+    def __init__(self, threshold=3.5, contamination=0.1):
+        super(MAD, self).__init__(contamination=contamination)
         if not isinstance(threshold, (float, int)):
             raise TypeError(
                 'threshold must be a number. Got {}'.format(type(threshold)))
