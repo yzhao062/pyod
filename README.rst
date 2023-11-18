@@ -65,11 +65,14 @@ Read Me First
 Welcome to PyOD, a versatile Python library for detecting anomalies in multivariate data. Whether you're tackling a small-scale project or large datasets, PyOD offers a range of algorithms to suit your needs.
 
 * **For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
+
 * **For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
 
 * **Performance Comparison \& Datasets**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 * **Learn more about anomaly detection** \@ `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+* **PyOD on Distributed Systems**: you could also run `PyOD on databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_.
 
 ----
 
@@ -167,7 +170,7 @@ For a broader perspective on anomaly detection, see our NeurIPS papers
 
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
-* `ADBench Benchmark <#adbench-benchmark>`_
+* `ADBench Benchmark and Datasets <#adbench-benchmark-and-datasets>`_
 * `Model Save & Load <#model-save--load>`_
 * `Fast Train with SUOD <#fast-train-with-suod>`_
 * `Thresholding Outlier Scores <#thresholding-outlier-scores>`_
@@ -254,8 +257,8 @@ The full API Reference is available at `PyOD Documentation <https://pyod.readthe
 ----
 
 
-ADBench Benchmark
-^^^^^^^^^^^^^^^^^
+ADBench Benchmark and Datasets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_ [#Han2022ADBench]_.
 The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
@@ -267,16 +270,12 @@ The organization of **ADBench** is provided below:
    :alt: benchmark-fig
 
 
-**The comparison of selected models** is made available below
-(\ `Figure <https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png>`_\ ,
-`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\ ,
-`Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_\ ).
-For Jupyter Notebooks, please navigate to **"/notebooks/Compare All Models.ipynb"**.
+For a simpler visualization, we make **the comparison of selected models** via
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\.
 
-
-.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
-   :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/ALL.png
-   :alt: Comparision_of_All
+.. image:: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :target: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :alt: Comparison_of_All
 
 
 

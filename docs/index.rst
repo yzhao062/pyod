@@ -70,11 +70,14 @@ Read Me First
 Welcome to PyOD, a versatile Python library for detecting anomalies in multivariate data. Whether you're tackling a small-scale project or large datasets, PyOD offers a range of algorithms to suit your needs.
 
 * **For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
+
 * **For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
 
 * **Performance Comparison \& Datasets**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 * **Learn more about anomaly detection** \@ `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+* **PyOD on Distributed Systems**: you could also run `PyOD on databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_.
 
 ----
 
@@ -169,17 +172,25 @@ For a broader perspective on anomaly detection, see our NeurIPS papers
 
 ----
 
-Benchmark
-=========
+ADBench Benchmark and Datasets
+==============================
 
-We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_.
+We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_ :cite:`a-han2022adbench`.
 The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 The organization of **ADBench** is provided below:
 
 .. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :alt: benchmark
+   :alt: benchmark-fig
+
+
+For a simpler visualization, we make **the comparison of selected models** via
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\.
+
+.. image:: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :target: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :alt: Comparison_of_All
 
 
 Implemented Algorithms
