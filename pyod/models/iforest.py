@@ -267,6 +267,27 @@ class IForest(BaseDetector):
         Decorator for scikit-learn Isolation Forest attributes.
         """
         return self.detector_.max_samples_
+    
+    @property
+    def estimators_features_(self):
+        """The indeces of the subset of features used to train the estimators.
+        Decorator for scikit-learn Isolation Forest attributes.
+        """
+        return self.detector_.estimators_features_
+
+    @property
+    def n_features_in_(self):
+        """The number of features seen during the fit. 
+        Decorator for scikit-learn Isolation Forest attributes.
+        """
+        return self.detector_.n_features_in_
+
+    @property
+    def offset_(self):
+        """Offset used to define the decision function from the raw scores. 
+        Decorator for scikit-learn Isolation Forest attributes.
+        """
+        return self.detector_.offset_
 
     @property
     def feature_importances_(self):
