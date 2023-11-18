@@ -54,6 +54,13 @@ class TestIForest(unittest.TestCase):
                 self.clf.estimators_samples_ is not None)
         assert (hasattr(self.clf, 'max_samples_') and
                 self.clf.max_samples_ is not None)
+        assert (hasattr(self.clf, 'estimators_features_') and
+                self.clf.estimators_features_ is not None)
+        assert (hasattr(self.clf, 'n_features_in_') and
+                self.clf.n_features_in_ is not None)
+        assert (hasattr(self.clf, 'offset_') and
+                self.clf.offset_ is not None)
+        
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

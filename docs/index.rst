@@ -64,20 +64,34 @@ Welcome to PyOD documentation!
 
 ----
 
-**News**: We just released a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+Read Me First
+^^^^^^^^^^^^^
 
-**For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
-**For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
+Welcome to PyOD, a versatile Python library for detecting anomalies in multivariate data. Whether you're tackling a small-scale project or large datasets, PyOD offers a range of algorithms to suit your needs.
 
-PyOD is the most comprehensive and scalable **Python library** for **detecting outlying objects** in
+* **For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
+
+* **For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
+
+* **Performance Comparison \& Datasets**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+
+* **Learn more about anomaly detection** \@ `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+
+* **PyOD on Distributed Systems**: you could also run `PyOD on databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_.
+
+----
+
+About PyOD
+^^^^^^^^^^
+
+PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** in
 multivariate data. This exciting yet challenging field is commonly referred as
 `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
 or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
-PyOD includes more than 40 detection algorithms, from classical LOF (SIGMOD 2000) to
-the latest ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD :cite:`a-zhao2019pyod` has been successfully used in numerous
-academic researches and commercial products with more than `10 million downloads <https://pepy.tech/project/pyod>`_.
+PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000) to
+the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic researches and
+commercial products with more than `17 million downloads <https://pepy.tech/project/pyod>`_.
 It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
 `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
 `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
@@ -86,10 +100,10 @@ It is also well acknowledged by the machine learning community with various dedi
 
 **PyOD is featured for**:
 
-* **Unified APIs, detailed documentation, and interactive examples** across various algorithms.
-* **Advanced models**\, including **classical distance and density estimation**, **latest deep learning methods**, and **emerging algorithms like ECOD**.
-* **Optimized performance with JIT and parallelization** using `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_.
-* **Fast training & prediction with SUOD** :cite:`a-zhao2021suod`.
+* **Unified, User-Friendly Interface** across various algorithms.
+* **Wide Range of Models**\, from classic techniques to the latest deep learning methods.
+* **High Performance & Efficiency**, leveraging `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_ for JIT compilation and parallel processing.
+* **Fast Training & Prediction**, achieved through the SUOD framework [#Zhao2021SUOD]_.
 
 
 **Outlier Detection with 5 Lines of Code**\ :
@@ -98,23 +112,19 @@ It is also well acknowledged by the machine learning community with various dedi
 .. code-block:: python
 
 
-    # train an ECOD detector
+    # Example: Training an ECOD detector
     from pyod.models.ecod import ECOD
     clf = ECOD()
     clf.fit(X_train)
+    y_train_scores = clf.decision_scores_  # Outlier scores for training data
+    y_test_scores = clf.decision_function(X_test)  # Outlier scores for test data
 
-    # get outlier scores
-    y_train_scores = clf.decision_scores_  # raw outlier scores on the train data
-    y_test_scores = clf.decision_function(X_test)  # predict raw outlier scores on test
-
-
-**Personal suggestion on selecting an OD algorithm**. If you do not know which algorithm to try, go with:
+**Selecting the Right Algorithm:**. Unsure where to start? Consider these robust and interpretable options:
 
 - `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_: Example of using ECOD for outlier detection
 - `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_: Example of using Isolation Forest for outlier detection
 
-They are both fast and interpretable. Or, you could try more data-driven approach `MetaOD <https://github.com/yzhao062/MetaOD>`_.
-
+Alternatively, explore `MetaOD <https://github.com/yzhao062/MetaOD>`_ for a data-driven approach.
 
 **Citing PyOD**\ :
 
@@ -138,36 +148,49 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
-If you want more general insights of anomaly detection and/or algorithm performance comparison, please see our
-NeurIPS 2022 paper `ADBench: Anomaly Detection Benchmark <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_::
+For a broader perspective on anomaly detection, see our NeurIPS papers
+`ADBench: Anomaly Detection Benchmark <https://viterbi-web.usc.edu/~yzhao010/papers/22-neurips-adbench.pdf>`_ \& `ADGym: Design Choices for Deep Anomaly Detection <https://viterbi-web.usc.edu/~yzhao010/papers/23-neurips-adgym.pdf>`_::
 
-    @inproceedings{han2022adbench,
-        title={ADBench: Anomaly Detection Benchmark},
-        author={Songqiao Han and Xiyang Hu and Hailiang Huang and Mingqi Jiang and Yue Zhao},
-        booktitle={Neural Information Processing Systems (NeurIPS)}
-        year={2022},
+    @article{han2022adbench,
+        title={Adbench: Anomaly detection benchmark},
+        author={Han, Songqiao and Hu, Xiyang and Huang, Hailiang and Jiang, Minqi and Zhao, Yue},
+        journal={Advances in Neural Information Processing Systems},
+        volume={35},
+        pages={32142--32159},
+        year={2022}
     }
 
-**Key Links and Resources**\ :
+    @article{jiang2023adgym,
+        title={ADGym: Design Choices for Deep Anomaly Detection},
+        author={Jiang, Minqi and Hou, Chaochuan and Zheng, Ao and Han, Songqiao and Huang, Hailiang and Wen, Qingsong and Hu, Xiyang and Zhao, Yue},
+        journal={Advances in Neural Information Processing Systems},
+        volume={36},
+        year={2023}
+    }
 
-* `View the latest codes on Github <https://github.com/yzhao062/pyod>`_
-* `Execute Interactive Jupyter Notebooks <https://mybinder.org/v2/gh/yzhao062/pyod/master>`_
-* `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 
 ----
 
-Benchmark
-=========
+ADBench Benchmark and Datasets
+==============================
 
-We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_.
+We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_ :cite:`a-han2022adbench`.
 The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 The organization of **ADBench** is provided below:
 
 .. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :alt: benchmark
+   :alt: benchmark-fig
+
+
+For a simpler visualization, we make **the comparison of selected models** via
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\.
+
+.. image:: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :target: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :alt: Comparison_of_All
 
 
 Implemented Algorithms

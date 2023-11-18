@@ -43,7 +43,7 @@ pyod.models.auto\_encoder\_torch module
 
 .. automodule:: pyod.models.auto_encoder_torch
     :members:
-    :exclude-members: inner_autoencoder
+    :exclude-members:
     :show-inheritance:
     :inherited-members:
 
@@ -110,7 +110,7 @@ pyod.models.dif module
 
 .. automodule:: pyod.models.dif
     :members:
-    :exclude-members:
+    :exclude-members: LinearBlock, MLPnet
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -159,7 +159,7 @@ pyod.models.iforest module
 
 .. automodule:: pyod.models.iforest
     :members:
-    :exclude-members: estimators_, max_samples_, estimators_samples_
+    :exclude-members:
     :undoc-members:
     :show-inheritance:
     :inherited-members:

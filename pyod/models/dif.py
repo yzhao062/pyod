@@ -34,8 +34,7 @@ class DIF(BaseDetector):
 
 	hidden_neurons, list, optional (default=[64, 32])
 		The number of neurons per hidden layers. So the network has the
-		structure as [n_features, hidden_neurons[0], hidden_neurons[1],
-		 ..., representation_dim]
+		structure as [n_features, hidden_neurons[0], hidden_neurons[1], ..., representation_dim]
 
 	hidden_activation, str, optional (default='tanh')
 		Activation function to use for hidden layers.

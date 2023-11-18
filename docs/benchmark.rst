@@ -4,7 +4,7 @@ Benchmarks
 Latest ADBench (2022)
 ---------------------
 
-We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-preprint-adbench.pdf>`_ :cite:`a-han2022adbench`.
+We just released a 36-page, the most comprehensive `anomaly detection benchmark paper <https://arxiv.org/abs/2206.09426>`_ :cite:`a-han2022adbench`.
 The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 55 benchmark datasets.
 
 The organization of **ADBench** is provided below:
@@ -13,6 +13,13 @@ The organization of **ADBench** is provided below:
    :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :alt: benchmark
 
+
+For a simpler visualization, we make **the comparison of selected models** via
+`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\.
+
+.. image:: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :target: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
+   :alt: Comparison_of_All
 
 Old Results (2019)
 ------------------
