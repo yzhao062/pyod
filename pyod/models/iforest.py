@@ -281,6 +281,13 @@ class IForest(BaseDetector):
 		Decorator for scikit-learn Isolation Forest attributes.
 		"""
 		return self.detector_.max_samples_
+	
+	@property
+	def _max_features(self):
+		"""The number of features used by the model (i.e. self.max_features * X.shape[1]).
+		Decorator for scikit-learn Isolation Forest attributes.
+		"""
+		return self.detector_._max_features
 
 	@property
 	def estimators_features_(self):
@@ -340,10 +347,33 @@ class IForest(BaseDetector):
 	# The functions below have been adapted from the sklearn source code
 
 	def decision_function_single_tree(self, tree_idx, X):
+		"""Modification of the decision_function method from sklearn.ensemble.IsolationForest which compute the decision function 
+		for a single tree of the forest. 
+
+		Parameters
+		----------
+		tree_idx : Index of the iTree on which the decision function is computed. 
+		X : numpy array of shape (n_samples, n_features) representing the in-bag sample of the tree. 
+
+		Returns
+		-------
+		decision_function : numpy array of shape (n_samples,) representing the decision function of the tree on its in-bag sample.
+		"""
 		return self._score_samples(tree_idx, X) - self.offset_
 
 
 	def _score_samples(self, tree_idx, X):
+		"""Modification of the score_samples method from sklearn.ensemble.IsolationForest which compute the score samples for a single tree of the forest. 
+
+		Parameters
+		----------
+		tree_idx : Index of the iTree on which the decision function is computed. 
+		X : numpy array of shape (n_samples, n_features) representing the in-bag sample of the tree. 
+
+		Returns
+		-------
+		score_samples : numpy array of shape (n_samples,) representing the score samples of the tree on its in-bag sample.
+		"""
 		n_feat= self.n_features_in_
 		if n_feat != X.shape[1]:
 			raise ValueError("Number of features of the model must "
@@ -354,6 +384,18 @@ class IForest(BaseDetector):
 
 
 	def _compute_chunked_score_samples(self, tree_idx, X):
+		"""Modification of the compute_chunked_score_samples method from sklearn.ensemble.IsolationForest 
+		used to compute the score samples on the maximum number of rows processable by the working memory for a single tree of the forest. 
+
+		Parameters
+		----------
+		tree_idx : Index of the iTree on which the decision function is computed. 
+		X : numpy array of shape (n_samples, n_features) representing the in-bag sample of the tree. 
+
+		Returns
+		-------
+		score_samples : numpy array of shape (n_samples,) representing the score samples of the tree on a batch of the in-bag sample.
+		"""
 		n_samples = _num_samples(X)
 		if int(self.max_features*X.shape[1]) == X.shape[1]:
 			subsample_features = False
@@ -369,6 +411,19 @@ class IForest(BaseDetector):
 
 
 	def _compute_score_samples_single_tree(self, tree_idx, X, subsample_features):
+		"""Modification of the _compute_score_samples method from sklearn.ensemble.IsolationForest 
+		used to compute the score samples for each sample for a single tree of the forest. 
+
+		Parameters
+		----------
+		tree_idx : Index of the iTree on which the decision function is computed. 
+		X : numpy array of shape (n_samples, n_features) representing the in-bag sample of the tree.
+		subsample_features : boolean indicating if the tree has been trained on a subsample of the features.
+
+		Returns
+		-------
+		score_samples : numpy array of shape (n_samples,) representing the score samples of the tree in its in-bag sample.
+		"""
 		n_samples = X.shape[0]
 		depths = np.zeros(n_samples, order="f")
 		tree = self.estimators_[tree_idx]
@@ -382,6 +437,12 @@ class IForest(BaseDetector):
 		return scores
 	
 	def fs_datasets_hyperparams(self,dataset):
+		"""Returns a list of hyperparametr values to train the iForest model for different datasets. 
+
+		Parameters
+		----------
+		dataset : Dataset name. Available names are: 'cardio', 'ionosphere', 'lympho', 'letter', 'musk', 'satellite'.
+		"""
 		data = {
 				# cardio
 				('cardio'): {'contamination': 0.1, 'max_samples': 64, 'n_estimators': 150},
@@ -399,6 +460,18 @@ class IForest(BaseDetector):
 		return data[dataset]
 	
 	def diffi_ib(self, X, adjust_iic=True): # "ib" stands for "in-bag"
+		"""Computes the Global Feature Importance scores for a set of input samples according to the DIFFI algorithm. 
+
+		Parameters
+		----------
+		X : numpy array of shape (n_samples, n_features) representing the input samples.
+		adjust_iic : boolean indicating if the IICs (Induced Imbalance Coefficients) should be adjusted or not.
+
+		Returns
+		-------
+		fi_ib : numpy array of shape (n_features,) representing the Global Feature Importance scores.
+		exec_time : float representing the execution time of the algorithm.
+		"""
 		# start time
 		start = time.time()
 		# initialization
@@ -482,6 +555,17 @@ class IForest(BaseDetector):
 
 
 	def local_diffi(self, x):
+		"""Compute the Local Feature Importance scores for a single input sample according to the DIFFI algorithm.
+
+		Parameters
+		----------
+		x : numpy array of shape (n_features,) representing the input sample.
+
+		Returns
+		-------
+		fi : numpy array of shape (n_features,) representing the Local Feature Importance scores.
+		exec_time : float representing the execution time of the algorithm.
+		"""
 		# start time
 		start = time.time()
 		# initialization 
@@ -529,7 +613,20 @@ class IForest(BaseDetector):
 		return fi, exec_time
 
 
-	def _get_iic(estimator, predictions, is_leaves, adjust_iic):
+	def _get_iic(self,estimator, predictions, is_leaves, adjust_iic):
+		"""Computes the Induced Imbalance Coefficients (IIC) for a tree of the iForest.
+
+		Parameters
+		----------
+		estimator : Tree of the iForest.
+		predictions : Subset of the initial training set, containing the inliers or the outliers, on which the IIC are computed.
+		is_leaves : Boolean array of shape (n_nodes,) indicating if a node is a leaf or not.
+		adjust_iic : Boolean indicating if the IIC should be adjusted or not.
+
+		Returns
+		-------
+		lambda_ : numpy array of shape (n_nodes,) representing the IIC for each node of the tree.
+		"""
 		desired_min = 0.5
 		desired_max = 1.0
 		epsilon = 0.0
@@ -566,6 +663,19 @@ class IForest(BaseDetector):
 		return lambda_
 	
 	def local_diffi_batch(self, X):
+		"""Computes the Local Feature Importance scores for a set of input samples according to the DIFFI algorithm.
+
+		Parameters
+		----------
+		X : numpy array of shape (n_samples, n_features) representing the input samples.
+
+		Returns
+		-------
+		fi : numpy array of shape (n_samples, n_features) representing the Local Feature Importance scores.
+		ord_idx : numpy array of shape (n_samples, n_features) representing the order of the features according to their Local Feature Importance scores.
+		The samples are sorted in decreasing order of Feature Importance. 
+		exec_time : float representing the execution time of the algorithm.
+		"""
 		fi = []
 		ord_idx = []
 		exec_time = []
@@ -590,17 +700,19 @@ class IForest(BaseDetector):
 		
 		Parameters
 		----------
-		self: Current instance of the Isolation Forest model
 		X: Input dataset   
 		name: Dataset's name   
 		pwd_imp_score: Directory where the Importance Scores results will be saved as pkl files, by default the current working directory
 		pwd_plt_data: Directory where the plot data results will be saved as pkl files, by default the current working directory        
 	
-		Returns:
-			imps: 2-dimensional array containing the local Feature Importance values for the samples of the input dataset X. The array is also locally saved in a pkl file for the sake of reproducibility.
-			plt_data: Dictionary containig the average Importance Scores values, the feature order and the standard deviations on the Importance Scores. The dictionary is also locally saved in a pkl file for the sake of reproducibility.
-			path_fi: Path of the pkl file containing the Importance Scores
-			path_plt_data: Path of the pkl file containing the plt data        
+		Returns
+		----------
+		imps: array of shape (n_samples,n_features) containing the local Feature Importance values for the samples of the input dataset X. 
+		The array is also locally saved in a pkl file for the sake of reproducibility.
+		plt_data: Dictionary containig the average Importance Scores values, the feature order and the standard deviations on the Importance Scores. 
+		The dictionary is also locally saved in a pkl file for the sake of reproducibility.
+		path_fi: Path of the pkl file containing the Importance Scores.
+		path_plt_data: Path of the pkl file containing the plt data.    
 		"""
 
 		name='LFI_'+name
@@ -641,19 +753,22 @@ class IForest(BaseDetector):
 		Collect useful information that will be successively used by the plt_importances_bars,plt_global_importance_bar and plt_feat_bar_plot
 		functions. 
 		
-		Parameters:
-			model: An instance of the Isolation Forest model
-			X: Input Dataset
-			n_runs: Number of runs to perform in order to compute the Global Feature Importance Scores.
-			name: Dataset's name   
-			pwd_imp_score: Directory where the Importance Scores results will be saved as pkl files, by default the current working directory
-			pwd_plt_data: Directory where the plot data results will be saved as pkl files, by default the current working directory        
+		Parameters
+		----------
+		X: Input Dataset
+		n_runs: Number of runs to perform in order to compute the Global Feature Importance Scores.
+		name: Dataset's name   
+		pwd_imp_score: Directory where the Importance Scores results will be saved as pkl files, by default the current working directory
+		pwd_plt_data: Directory where the plot data results will be saved as pkl files, by default the current working directory        
 					
-		Returns:
-			imps: 2-dimensional array containing the local Feature Importance values for the samples of the input dataset X. The array is also locally saved in a pkl file for the sake of reproducibility.
-			plt_data: Dictionary containig the average Importance Scores values, the feature order and the standard deviations on the Importance Scores. The dictionary is also locally saved in a pkl file for the sake of reproducibility.
-			path_fi: Path of the pkl file containing the Importance Scores
-			path_plt_data: Path of the pkl file containing the plt data    
+		Returns
+		----------
+		imps: array of shape (n_samples,n_features) containing the local Feature Importance values for the samples of the input dataset X. 
+		The array is also locally saved in a pkl file for the sake of reproducibility.
+		plt_data: Dictionary containing the average Importance Scores values, the feature order and the standard deviations on the Importance Scores. 
+		The dictionary is also locally saved in a pkl file for the sake of reproducibility.
+		path_fi: Path of the pkl file containing the Importance Scores
+		path_plt_data: Path of the pkl file containing the plt data    
 		"""
 
 		name='GFI_'+name
@@ -686,20 +801,32 @@ class IForest(BaseDetector):
 
 		return fi,plt_data,path_fi,path_plt_data
 	
-	def plt_importances_bars(self,imps_path: str, name: str, pwd: str =os.getcwd(),f: int = 6,save: bool =True):
+	def plt_importances_bars(self,imps_path: str, name: str, pwd: str =os.getcwd(),f: int = 6,is_local: bool=False, save: bool =True):
 		"""
-		Obtain the Global Importance Bar Plot given the Importance Scores values computed in the compute_imps function. 
+		Obtain the Global Importance Bar Plot given the Importance Scores values computed in the compute_local_importance or compute_global_importance functions. 
 		
-		Parameters:
-			imps_path: Path of the pkl file containing the 2-dimensional array of the LFI/GFI Scores for the input dataset.Obtained from the compute_imps function.   
-			name: Dataset's name 
-			pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.    
-			f: Number of vertical bars to include in the Bar Plot. By default f is set to 6.   
-			save: Boolean variable used to decide weather to save the Bar Plot locally as a PDF or not.
+		Parameters
+		----------
+		imps_path: Path of the pkl file containing the array of shape (n_samples,n_features) with the LFI/GFI Scores for the input dataset.
+		Obtained from the compute_local_importance or compute_global_importance functions.   
+		name: Dataset's name 
+		pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.    
+		f: Number of vertical bars to include in the Bar Plot. By default f is set to 6. 
+		is_local: Boolean variable used to specify weather we are plotting the Global or Local Feature Importance in order to set the file name.
+		If is_local is True the result will be the LFI Score Plot (based on the LFI scores of the input samples), otherwise the result is the GFI 
+		Score Plot (based on the GFI scores obtained in the different n_runs execution of the model). By default is_local is set to False.  
+		save: Boolean variable used to decide weather to save the Bar Plot locally as a PDF or not. BY default save is set to True. 
 		
-		Returns:
-			Obtain the Bar Plot which is then saved locally as a PDF.    
+		Returns
+		----------
+		fig,ax : plt.figure  and plt.axes objects used to create the plot 
+		bars: pd.DataFrame containing the percentage count of the features in the first f positions of the Bar Plot.    
 		"""
+
+		name_file='GFI_Bar_plot_'+name 
+
+		if is_local:
+			name_file='LFI_Bar_plot_'+name
 		
 		#Load the imps array from the pkl file contained in imps_path -> the imps_path is returned from the 
 		#compute_local_importances or compute_global_importances functions so we have it for free 
@@ -714,7 +841,6 @@ class IForest(BaseDetector):
 		dim=int(dim)
 		bars = [[(list(importances_matrix[:,j]).count(i)/len(importances_matrix))*100 for i in range(dim)] for j in range(dim)]
 		bars = pd.DataFrame(bars)
-		#display(bars)
 
 		tick_names=[]
 		for i in range(1,f+1):
@@ -746,34 +872,39 @@ class IForest(BaseDetector):
 		ax.legend(bbox_to_anchor=(1.05, 0.95), loc="upper left",ncol=ncols)
 
 		if save:
-			plt.savefig(pwd + '/{}_bar_plot.pdf'.format(name), bbox_inches='tight')
+			plt.savefig(pwd + '/{}_bar_plot.pdf'.format(name_file), bbox_inches='tight')
 
 		return fig, ax, bars
 
 
-	def plt_feat_bar_plot(self,plt_data_path: str,name: str,pwd: str =os.getcwd(),is_local: bool =True,save: bool =True):
+	def plt_feat_bar_plot(self,plt_data_path: str,name: str,pwd: str =os.getcwd(),is_local: bool =False,save: bool =True):
 		"""
-		Obtain the Global Feature Importance Score Plot exploiting the information obtained from compute_imps function. 
+		Obtain the Global Feature Importance Score Plot exploiting the information obtained from the compute_local_importance or compute_global_importance functions. 
 		
 		Parameters
 		----------
-			plt_data_path: Dictionary generated from the compute_imps function with the necessary information to create the Score Plot.
-			name: Dataset's name
-			pwd: Directory where the plot will be saved as pkl files. By default the value of pwd is set to the current working directory.  
-			is_local: Boolean variable used to specify weather we are plotting the Global or Local Feature Importance in order to set the file name.
-				If is_local is True the result will be the LFI Score Plot (based on the LFI scores of the input samples), otherwise the result is the GFI 
-				Score Plot (based on the GFI scores obtained in the different n_runs execution of the model).
-			save: Boolean variable used to decide weather to save the Score Plot locally as a PDF or not. 
+		plt_data_path: Dictionary generated from the compute_local_importance or compute_global_importance functions 
+		with the necessary information to create the Score Plot.
+		name: Dataset's name
+		pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.  
+		is_local: Boolean variable used to specify weather we are plotting the Global or Local Feature Importance in order to set the file name.
+		If is_local is True the result will be the LFI Score Plot (based on the LFI scores of the input samples), otherwise the result is the GFI 
+		Score Plot (based on the GFI scores obtained in the different n_runs execution of the model). By default is_local is set to False. 
+		save: Boolean variable used to decide weather to save the Score Plot locally as a PDF or not. By default save is set to True.
 					
-		Returns:
-			Obtain the Score Plot which is also locally saved as a PDF. 
+		Returns
+		----------
+		ax1,ax2: The two plt.axes objects used to create the plot.  
 		"""
 		#Load the plt_data dictionary from the pkl file contained in plt_data_path -> the plt_data_path is returned from the 
 		#compute_local_importances or compute_global_importances functions so we have it for free 
 		with open(plt_data_path, 'rb') as f:
 			plt_data = pickle.load(f)
 
-		name_file='Score_plot_'+name 
+		name_file='GFI_Score_plot_'+name 
+
+		if is_local:
+			name_file='LFI_Score_plot_'+name
 
 		patterns = [None, "/" , "\\" , "|" , "-" , "+" , "x", "o", "O", ".", "*" ]
 		imp_vals=plt_data['Importances']
@@ -825,22 +956,23 @@ class IForest(BaseDetector):
 		"""
 		Produce the Local Feature Importance Scoremap.   
 		
-		Parameters:
-			name: Dataset's name
-			model: Instance of the Isolation Forest model. 
-			X_train: Training Set 
-			y_train: Dataset training labels
-			resolution: Scoremap resolution 
-			pwd: Directory where the plot will be saved. By default the value of pwd is set to the current working directory.
-			save: Boolean variable used to decide weather to save the Score Plot locally as a PDF or not.  
-			m: Boolean variable regulating the plt.pcolor advanced settings. By defualt the value of m is set to None
-			factor: Integer factor used to define the minimum and maximum value of the points used to create the scoremap. By default the value of f is set to 3.
-			feats_plot: This tuple contains the indexes of the pair features to compare in the Scoremap. By default the value of feats_plot
-					is set to (0,1)
-			plt: Plt object used to create the plot.  
+		Parameters
+		----------
+		name: Dataset's name
+		X_train: Training Set 
+		y_train: Dataset training labels
+		resolution: Scoremap resolution 
+		pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.
+		save: Boolean variable used to decide weather to save the Score Plot locally as a PDF or not. By default save is set to True.
+		m: Boolean variable regulating the plt.pcolor advanced settings. By defualt the value of m is set to None.
+		factor: Integer factor used to define the minimum and maximum value of the points used to create the scoremap. By default the value of f is set to 3.
+		feats_plot: This tuple contains the indexes of the pair features to compare in the Scoremap. By default the value of feats_plot
+				is set to (0,1).
+		ax: plt.axes object used to create the plot. By default ax is set to None.
 					
-		Returns:
-			Obtain the Scoremap which is also locally saved as a PDF. 
+		Returns
+		----------
+		fig,ax : plt.figure  and plt.axes objects used to create the plot 
 		"""
 		mins = X_train.min(axis=0)[list(feats_plot)]
 		maxs = X_train.max(axis=0)[list(feats_plot)]  
@@ -892,19 +1024,19 @@ class IForest(BaseDetector):
 		return fig, ax
 
 	def plot_complete_scoremap(self,name:str,dim:int,X: pd.DataFrame, y: np.array, pwd:str =os.getcwd()):
-			"""
-			Produce the Complete Local Feature Importance Scoremap: a Scoremap for each pair of features in the input dataset.   
+			"""Produce the Complete Local Feature Importance Scoremap: a Scoremap for each pair of features in the input dataset.   
 			
-			Parameters:
-					name: Dataset's name
-					dim: Number of input features in the dataset
-					model: Instance of the Isolation Forest model. 
-					X: Input dataset 
-					y: Dataset labels
-					pwd: Directory where the plot will be saved. By default the value of pwd is set to the current working directory.
+			Parameters
+			----------
+			name: Dataset's name
+			dim: Number of input features in the dataset
+			X: Input dataset 
+			y: Dataset labels
+			pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.
 			
-			Returns:
-					Obtain the Complete Scoremap which is also locally saved as a PDF. 
+			Returns
+			----------
+			fig,ax : plt.figure  and plt.axes objects used to create the plot  
 			"""
 				
 			fig, ax = plt.subplots(dim, dim, figsize=(50, 50))
@@ -915,7 +1047,6 @@ class IForest(BaseDetector):
 						#matrix of plots to reduce a little bit the execution time. 
 						_,_=self.plot_importance_map(name,X, y, 50, pwd, feats_plot = (features[0],features[1]), ax=ax[i,j],save=False)
 						_,_=self.plot_importance_map(name,X, y, 50, pwd, feats_plot = (features[1],features[0]), ax=ax[j,i],save=False)
-						#fig.suptitle("comparison between DIFFI and ExIFFI "+name+" dataset",fontsize=20)
 
 			plt.savefig(pwd+'/Local_Importance_Scoremap_{}_complete.pdf'.format(name),bbox_inches='tight')
 			return fig,ax
