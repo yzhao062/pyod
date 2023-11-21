@@ -323,8 +323,8 @@ class TestIForest(unittest.TestCase):
     def test_compute_local_importances(self):
     
         #Create a path to save the pkl files created by compute_local_importances
-        test_imp_score_path=os.path.join(os.getcwd(),'test_data','test_imp_score_local')
-        test_plt_data_path=os.path.join(os.getcwd(),'test_data','test_plt_data_local')
+        test_imp_score_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score')
+        test_plt_data_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plt_data')
         name='test_local_pima'
 
         #If the folder do not exist create them:
@@ -334,7 +334,7 @@ class TestIForest(unittest.TestCase):
             os.makedirs(test_plt_data_path)
 
         # We will use the data contained in pima.mat for the tests
-        path = os.path.join(os.getcwd(), 'data', 'ufs', 'pima.mat')
+        path = os.path.join(os.getcwd(), 'pyod','test','data','pima.mat')
         data = scipy.io.loadmat(path)
         X_tr=data['X']
         y_tr=data['y']
@@ -388,8 +388,8 @@ class TestIForest(unittest.TestCase):
     def test_compute_global_importances(self):
 
         #Create a path to save the pkl files created by compute_local_importances
-        test_imp_score_path=os.path.join(os.getcwd(),'test_data','test_imp_score_global')
-        test_plt_data_path=os.path.join(os.getcwd(),'test_data','test_plt_data_global')
+        test_imp_score_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score')
+        test_plt_data_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plt_data')
         name='test_global_pima'
 
         #If the folder do not exist create them:
@@ -399,14 +399,14 @@ class TestIForest(unittest.TestCase):
             os.makedirs(test_plt_data_path)
 
         # We will use the data contained in pima.mat for the tests
-        path = os.path.join(os.getcwd(), 'data', 'ufs', 'pima.mat')
+        path = os.path.join(os.getcwd(),'pyod','test', 'data', 'pima.mat')
         data = scipy.io.loadmat(path)
         X_tr=data['X']
         y_tr=data['y']
         X, _ = shuffle(X_tr, y_tr, random_state=0)
 
         # create an isolation forest model
-        iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
+        iforest = IForest(n_estimators=10, max_samples=64)
         iforest.fit(X)
         nruns=np.random.randint(1,10)
 
@@ -462,12 +462,12 @@ class TestIForest(unittest.TestCase):
 
         #We create the plot with plot_importances_bars and we will then compare it with the 
         #expected result contained in GFI_glass_synt.pdf
-        imps_path=os.path.join(os.getcwd(),'test_data','test_imp_score_global','imp_score_LFI_test_global_pima.pkl')
+        imps_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score','imp_scores_GFI_test_global_pima.pkl')
 
         imps=pickle.load(open(imps_path,'rb'))
 
         #Create a path to save the plot image 
-        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
+        plot_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
 
         #If the folder do not exist create it:
         if not os.path.exists(plot_path):
@@ -510,28 +510,39 @@ class TestIForest(unittest.TestCase):
         """
         Tests on bars
 
-        The main test o perform on bars is that the sum of the percentages values on each column should be 100. 
+        The main test to perform on bars is that the sum of the percentages values on each column should be 100. 
         """
         assert type(bars) == pd.DataFrame
         assert bars.shape == (imps.shape[1],imps.shape[1])
-        assert np.all(bars.sum()==100) == True
+
+        #Check that the sum of the values in each column of bars is almost equal to 100 
+        bars_sum=np.array([bars[i].sum() for i in range(bars.shape[1])])
+        assert_array_almost_equal(bars_sum,np.full(bars.shape[1],100))
+
         #Same on bars1
         assert type(bars1) == pd.DataFrame
         assert bars1.shape == (imps.shape[1],imps.shape[1])
-        assert np.all(bars1.sum()==100) == True
+        
+        #Check that the sum of the values in each column of bars1 is almost equal to 100 
+        bars1_sum=np.array([bars1[i].sum() for i in range(bars1.shape[1])])
+        assert_array_almost_equal(bars1_sum,np.full(bars1.shape[1],100))
 
     def test_plt_feat_bar_plot(self):
 
         # We need the plt_data array: let's consider the global case with plt_data_GFI_glass.pkl and 
         # the local case with plt_data_LFI_glass.pkl
 
-        plt_data_global_path=os.path.join(os.getcwd(),'plt_data','plt_data_GFI_test_global_pima.pkl')
-        plt_data_local_path=os.path.join(os.getcwd(),'plt_data','plt_data_LFI_test_local_pima.pkl')
+        plt_data_global_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plt_data','plt_data_GFI_test_global_pima.pkl')
+        plt_data_local_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plt_data','plt_data_LFI_test_local_pima.pkl')
 
         name_global='test_GFI_pima'
         name_local='test_LFI_pima'
 
-        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
+        plot_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
+
+        #If the folder do not exist create it:
+        if not os.path.exists(plot_path):
+            os.makedirs(plot_path)
 
         #Create an IForest object to call the plt_feat_bar_plot method
         iforest=IForest()
@@ -567,7 +578,7 @@ class TestIForest(unittest.TestCase):
     def test_plot_importance_map(self):
 
         # Let's perform the test on the pima.mat dataset 
-        path = os.path.join(os.getcwd(), 'data', 'ufs', 'pima.mat')
+        path = os.path.join(os.getcwd(),'pyod','test','data','pima.mat')
         data = scipy.io.loadmat(path)
         X_tr=data['X']
         y_tr=data['y']
@@ -578,7 +589,11 @@ class TestIForest(unittest.TestCase):
         # create an isolation forest model
         iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
         iforest.fit(X_tr)
-        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
+        plot_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
+
+        #If the folder do not exist create it:
+        if not os.path.exists(plot_path):
+            os.makedirs(plot_path)
 
         fig,ax=iforest.plot_importance_map(name,X,y,30,pwd=plot_path)
 
@@ -603,9 +618,13 @@ class TestIForest(unittest.TestCase):
         # create an isolation forest model
         iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
         iforest.fit(X)
-        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
+        plot_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
 
-        fig,ax=iforest.plot_complete_scoremap(name,X.shape[1],iforest,X,y,pwd=plot_path)
+        #If the folder do not exist create it:
+        if not os.path.exists(plot_path):
+            os.makedirs(plot_path)
+
+        fig,ax=iforest.plot_complete_scoremap(name,X.shape[1],X,y,pwd=plot_path)
             
         """
         Tests on ax
