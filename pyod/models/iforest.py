@@ -952,7 +952,7 @@ class IForest(BaseDetector):
 
 
 	def plot_importance_map(self,name: str, X_train: pd.DataFrame,y_train: np.array ,resolution: int,
-							pwd: str =os.getcwd(),save: bool =True,m: bool =None,factor: int =3,feats_plot: tuple[int,int] =(0,1),ax=None):
+							pwd: str =os.getcwd(),save: bool =True,m: bool =None,factor: int =3,feats_plot: tuple[int,int] =(0,1),ax=None,labels: bool=True):
 		"""
 		Produce the Local Feature Importance Scoremap.   
 		
@@ -969,6 +969,8 @@ class IForest(BaseDetector):
 		feats_plot: This tuple contains the indexes of the pair features to compare in the Scoremap. By default the value of feats_plot
 				is set to (0,1).
 		ax: plt.axes object used to create the plot. By default ax is set to None.
+		labels: Boolean variable used to decide weather to include the x and y label name in the plot.
+		When calling the plot_importance_map function inside plot_complete_scoremap this parameter will be set to False 
 					
 		Returns
 		----------
@@ -1014,8 +1016,13 @@ class IForest(BaseDetector):
 			print('Handling the IndexError Exception...')
 			ax.scatter(x[(y_train == 0)[:, 0]], y[(y_train == 0)[:, 0]], s=40, c="tab:blue", marker="o", edgecolors="k", label="inliers")
 			ax.scatter(x[(y_train == 1)[:, 0]], y[(y_train == 1)[:, 0]], s=60, c="tab:orange", marker="*", edgecolors="k", label="outliers")
-
+		
+		if labels:
+			ax.set_xlabel(f'Feature {feats_plot[0]}')
+			ax.set_ylabel(f'Feature {feats_plot[1]}')
+		
 		ax.legend()
+
 		if save:
 			plt.savefig(pwd + '/Local_Importance_Scoremap_{}.pdf'.format(name), bbox_inches='tight')
 		else: 
@@ -1045,8 +1052,8 @@ class IForest(BaseDetector):
 						features = [i,j]
 						# One of the successive two lines can be commented so that we obtain only one "half" of the 
 						#matrix of plots to reduce a little bit the execution time. 
-						_,_=self.plot_importance_map(name,X, y, 50, pwd, feats_plot = (features[0],features[1]), ax=ax[i,j],save=False)
-						_,_=self.plot_importance_map(name,X, y, 50, pwd, feats_plot = (features[1],features[0]), ax=ax[j,i],save=False)
+						_,_=self.plot_importance_map(name,X, y, 50, pwd, feats_plot = (features[0],features[1]), ax=ax[i,j],save=False,labels=False)
+						_,_=self.plot_importance_map(name,X, y, 50, pwd, feats_plot = (features[1],features[0]), ax=ax[j,i],save=False,labels=False)
 
 			plt.savefig(pwd+'/Local_Importance_Scoremap_{}_complete.pdf'.format(name),bbox_inches='tight')
 			return fig,ax
