@@ -794,7 +794,7 @@ class IForest(BaseDetector):
 				'std': std_imp[mean_imp.argsort()]}
 		
 		# Save the plt_data dictionary in a pkl file
-		path_plt_data = pwd_plt_data  +  '/plt_data' + name + '.pkl'
+		path_plt_data = pwd_plt_data  +  '/plt_data_' + name + '.pkl'
 		with open(path_plt_data, 'wb') as fl:
 			pickle.dump(plt_data,fl)
 		
