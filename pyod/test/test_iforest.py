@@ -9,6 +9,7 @@ import unittest
 import numpy as np 
 import pandas as pd
 import pickle
+import scipy
 
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
@@ -20,6 +21,7 @@ from numpy.testing import assert_raises
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
+from sklearn.utils import shuffle
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -161,6 +163,8 @@ class TestIForest(unittest.TestCase):
     def test_feature_importances(self):
         feature_importances = self.clf.feature_importances_
         assert (len(feature_importances) == 2)
+
+    # New tests inserted from here
 
     def test_decision_function_single_tree(self):
 
@@ -319,9 +323,9 @@ class TestIForest(unittest.TestCase):
     def test_compute_local_importances(self):
     
         #Create a path to save the pkl files created by compute_local_importances
-        test_imp_score_path=os.path.join(os.getcwd(),'tests','test_imp_score_local')
-        test_plt_data_path=os.path.join(os.getcwd(),'tests','test_plt_data_local')
-        name='test_local'
+        test_imp_score_path=os.path.join(os.getcwd(),'test_data','test_imp_score_local')
+        test_plt_data_path=os.path.join(os.getcwd(),'test_data','test_plt_data_local')
+        name='test_local_pima'
 
         #If the folder do not exist create them:
         if not os.path.exists(test_imp_score_path):
@@ -329,8 +333,13 @@ class TestIForest(unittest.TestCase):
         if not os.path.exists(test_plt_data_path):
             os.makedirs(test_plt_data_path)
 
-        np.random.seed(0)
-        X = np.random.randn(100, 10)
+        # We will use the data contained in pima.mat for the tests
+        path = os.path.join(os.getcwd(), 'data', 'ufs', 'pima.mat')
+        data = scipy.io.loadmat(path)
+        X_tr=data['X']
+        y_tr=data['y']
+        X, _ = shuffle(X_tr, y_tr, random_state=0)
+
         # create an isolation forest model
         iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
         iforest.fit(X)
@@ -379,9 +388,9 @@ class TestIForest(unittest.TestCase):
     def test_compute_global_importances(self):
 
         #Create a path to save the pkl files created by compute_local_importances
-        test_imp_score_path=os.path.join(os.getcwd(),'tests','test_imp_score_global')
-        test_plt_data_path=os.path.join(os.getcwd(),'tests','test_plt_data_global')
-        name='test_global'
+        test_imp_score_path=os.path.join(os.getcwd(),'test_data','test_imp_score_global')
+        test_plt_data_path=os.path.join(os.getcwd(),'test_data','test_plt_data_global')
+        name='test_global_pima'
 
         #If the folder do not exist create them:
         if not os.path.exists(test_imp_score_path):
@@ -389,8 +398,13 @@ class TestIForest(unittest.TestCase):
         if not os.path.exists(test_plt_data_path):
             os.makedirs(test_plt_data_path)
 
-        np.random.seed(0)
-        X = np.random.randn(100, 10)
+        # We will use the data contained in pima.mat for the tests
+        path = os.path.join(os.getcwd(), 'data', 'ufs', 'pima.mat')
+        data = scipy.io.loadmat(path)
+        X_tr=data['X']
+        y_tr=data['y']
+        X, _ = shuffle(X_tr, y_tr, random_state=0)
+
         # create an isolation forest model
         iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
         iforest.fit(X)
@@ -448,12 +462,12 @@ class TestIForest(unittest.TestCase):
 
         #We create the plot with plot_importances_bars and we will then compare it with the 
         #expected result contained in GFI_glass_synt.pdf
-        imps_path=os.path.join(os.getcwd(),'imp_scores','imp_score_GFI_glass.pkl')
+        imps_path=os.path.join(os.getcwd(),'test_data','test_imp_score_global','imp_score_LFI_test_global_pima.pkl')
 
         imps=pickle.load(open(imps_path,'rb'))
 
         #Create a path to save the plot image 
-        plot_path=os.path.join(os.getcwd(),'tests','test_plots')
+        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
 
         #If the folder do not exist create it:
         if not os.path.exists(plot_path):
@@ -463,7 +477,7 @@ class TestIForest(unittest.TestCase):
         iforest=IForest()
 
         #Create a name for the plot
-        name='test_Glass'
+        name='test_pima'
         f=6
         fig,ax,bars=iforest.plt_importances_bars(imps_path,name,pwd=plot_path,f=f)
 
@@ -487,7 +501,7 @@ class TestIForest(unittest.TestCase):
 
         #See if the plot correctly changes if I pass from f=6 (default value) to f=9
         f1=9
-        fig1,ax1,bars1=iforest.plt_importances_bars(imps_path,name='test_Glass_9',pwd=plot_path,f=f1)
+        fig1,ax1,bars1=iforest.plt_importances_bars(imps_path,name='test_pima_9',pwd=plot_path,f=f1)
 
         #Check that the xtick  and y tick labels are correct
         x_tick_labels1 = [tick.get_text() for tick in ax1.get_xticklabels()]
@@ -511,13 +525,13 @@ class TestIForest(unittest.TestCase):
         # We need the plt_data array: let's consider the global case with plt_data_GFI_glass.pkl and 
         # the local case with plt_data_LFI_glass.pkl
 
-        plt_data_global_path=os.path.join(os.getcwd(),'plt_data','plt_data_GFI_glass.pkl')
-        plt_data_local_path=os.path.join(os.getcwd(),'plt_data','plt_data_LFI_glass.pkl')
+        plt_data_global_path=os.path.join(os.getcwd(),'plt_data','plt_data_GFI_test_global_pima.pkl')
+        plt_data_local_path=os.path.join(os.getcwd(),'plt_data','plt_data_LFI_test_local_pima.pkl')
 
-        name_global='test_GFI_Glass'
-        name_local='test_LFI_Glass'
+        name_global='test_GFI_pima'
+        name_local='test_LFI_pima'
 
-        plot_path=os.path.join(os.getcwd(),'tests','test_plots')
+        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
 
         #Create an IForest object to call the plt_feat_bar_plot method
         iforest=IForest()
@@ -552,24 +566,19 @@ class TestIForest(unittest.TestCase):
 
     def test_plot_importance_map(self):
 
-        # Let's perform the test on the Glass dataset 
-        with open(os.path.join(os.getcwd(), 'data', 'local', 'glass.pkl'), 'rb') as f:
-            data = pickle.load(f)
-        # training data (inliers and outliers)
-        X_tr = np.concatenate((data['X_in'], data['X_out_5'], data['X_out_6']))
-        y_tr = np.concatenate((data['y_in'], data['y_out_5'], data['y_out_6']))
-        X_tr, y_tr = shuffle(X_tr, y_tr, random_state=0)
-        # test outliers
-        X_te = data['X_out_7'] 
-        y_te = data['y_out_7']
-        y_te=np.ones(shape=X_te.shape[0])
-        X=np.r_[X_tr,X_te]
-        y=np.r_[y_tr,y_te]    
-        name='Glass'
+        # Let's perform the test on the pima.mat dataset 
+        path = os.path.join(os.getcwd(), 'data', 'ufs', 'pima.mat')
+        data = scipy.io.loadmat(path)
+        X_tr=data['X']
+        y_tr=data['y']
+        X, y = shuffle(X_tr, y_tr, random_state=0)
+
+        name='test_pima'
+
         # create an isolation forest model
         iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
         iforest.fit(X_tr)
-        plot_path=os.path.join(os.getcwd(),'tests','test_plots')
+        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
 
         fig,ax=iforest.plot_importance_map(name,X,y,30,pwd=plot_path)
 
@@ -594,7 +603,7 @@ class TestIForest(unittest.TestCase):
         # create an isolation forest model
         iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
         iforest.fit(X)
-        plot_path=os.path.join(os.getcwd(),'tests','test_plots')
+        plot_path=os.path.join(os.getcwd(),'test_data','test_plots')
 
         fig,ax=iforest.plot_complete_scoremap(name,X.shape[1],iforest,X,y,pwd=plot_path)
             
