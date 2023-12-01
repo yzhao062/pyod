@@ -367,6 +367,8 @@ class TestIForest(unittest.TestCase):
         """
         #Check that all the elements of fi are finite
         assert np.all(np.isfinite(fi)) == True
+        #Check that all the elements of fi are not nan
+        assert np.all(np.isnan(fi)) == False
         # check that the output has the correct shape
         assert fi.shape[0] == X.shape[0]
         #Extract the keys of plt_data
@@ -436,6 +438,8 @@ class TestIForest(unittest.TestCase):
         assert nruns >= 0
         #Check that all the elements of fi are finite
         assert np.all(np.isfinite(fi)) == True
+        #Check that all the elements of fi are not nan
+        assert np.all(np.isnan(fi)) == False
         # check that the output has the correct shape
         assert fi.shape[1] == X.shape[1]
         #Extract the keys of plt_data

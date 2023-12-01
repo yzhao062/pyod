@@ -718,6 +718,11 @@ class IForest(BaseDetector):
 		name='LFI_'+name
 		fi,_,_=self.local_diffi_batch(X)
 
+		# Handle the case in which there are some np.nan or np.inf values in the fi array
+		if np.isnan(fi).any() or np.isinf(fi).any():
+			#Substitute the np.nan values with 0 and the np.inf values with the maximum value of the fi array plus 1. 
+			fi=np.nan_to_num(fi,nan=0,posinf=np.nanmax(fi[np.isfinite(fi)])+1)
+		
 		# Save the Importance Scores in a pkl file
 		path_fi = pwd_imp_score  + '/imp_scores_' + name + '.pkl'
 		with open(path_fi, 'wb') as fl:
@@ -776,6 +781,11 @@ class IForest(BaseDetector):
 		for i in range(n_runs):
 			self.fit(X)
 			fi[i,:],_=self.diffi_ib(X)
+
+		# Handle the case in which there are some np.nan or np.inf values in the fi array
+		if np.isnan(fi).any() or np.isinf(fi).any():
+			#Substitute the np.nan values with 0 and the np.inf values with the maximum value of the fi array plus 1. 
+			fi=np.nan_to_num(fi,nan=0,posinf=np.nanmax(fi[np.isfinite(fi)])+1)
 
 		# Save the Importance Scores in a pkl file
 		path_fi = pwd_imp_score + '/imp_scores_'  + name + '.pkl'
