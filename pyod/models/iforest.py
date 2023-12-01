@@ -925,7 +925,8 @@ class IForest(BaseDetector):
 		if is_local:
 			name_file='LFI_Score_plot_'+name
 
-		patterns = [None, "/" , "\\" , "|" , "-" , "+" , "x", "o", "O", ".", "*" ]
+		patterns=[None,'!','@','#','$','^','&','*','°','(',')','-','_','+','=','[',']','{','}',
+          '|',';',':','\l',',','.','<','>','/','?','`','~','\\','!!','@@','##','$$','^^','&&','**','°°','((']
 		imp_vals=plt_data['Importances']
 		feat_imp=pd.DataFrame({'Global Importance': np.round(imp_vals,3),
 							'Feature': plt_data['feat_order'],
