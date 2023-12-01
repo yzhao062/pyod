@@ -846,8 +846,8 @@ class IForest(BaseDetector):
 
 		number_colours = 20
 		color = plt.cm.get_cmap('tab20',number_colours).colors
-		special_characters="!@#$%^&*°()-=_+[]{}|;:\l,.<>/?`~\\abcdefghi"
-		patterns = random.sample(special_characters, len(special_characters))
+		patterns=[None,'!','@','#','$','^','&','*','°','(',')','-','_','+','=','[',']','{','}',
+          '|',';',':','\l',',','.','<','>','/','?','`','~','\\','!!','@@','##','$$','^^','&&','**','°°','((']
 		importances_matrix = np.array([np.array(pd.Series(x).sort_values(ascending = False).index).T for x in importances])
 		dim=importances.shape[1]
 		dim=int(dim)
