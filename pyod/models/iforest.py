@@ -870,7 +870,14 @@ class IForest(BaseDetector):
 		ncols=1
 		if importances.shape[1]>15:
 			ncols=2
-
+		elif importances.shape[1]>30:
+			ncols=3
+		elif importances.shape[1]>45:
+			ncols=4
+		elif importances.shape[1]>60:
+			ncols=5
+		elif importances.shape[1]>75:
+			ncols=6
 
 		fig, ax = plt.subplots()
 
