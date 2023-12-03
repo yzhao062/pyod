@@ -1071,6 +1071,23 @@ class IForest(BaseDetector):
 	def plot_importance_map_col_names(self,name: str, X:pd.DataFrame, X_train: np.array,y_train: np.array ,resolution: int,
 							pwd: str =os.getcwd(),save: bool =True,m: bool =None,factor: int =3, 
 							col_names=None,ax=None,labels: bool=True):
+		"""Stub method of plot_importance_map used to give the user the possibility of specifying the names of the features to compare in the Scoremap.
+		
+		Parameters
+		----------
+		name: Dataset's name
+		X: Input dataset as a pd.DataFrame
+		X_train: Training Set
+		y_train: Dataset training labels
+		resolution: Scoremap resolution
+		pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.
+		save: Boolean variable used to decide weather to save the Score Plot locally as a PDF or not. By default save is set to True.
+		m: Boolean variable regulating the plt.pcolor advanced settings. By defualt the value of m is set to None.
+		factor: Integer factor used to define the minimum and maximum value of the points used to create the scoremap. By default the value of f is set to 3.
+		col_names: List with the names of the two features that will be compares, by default None.
+		ax: plt.axes object used to create the plot. By default ax is set to None.
+		labels: Boolean variable used to decide weather to include the x and y label name in the plot.
+		"""
 		
 		feats_plot=tuple((X.columns.get_loc(col_names[0]),X.columns.get_loc(col_names[1])))
 		col_names=list(X.columns)
