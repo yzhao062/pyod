@@ -460,7 +460,7 @@ class IForest(BaseDetector):
 				}
 		return data[dataset]
 	
-	def diffi_ib(self, X, adjust_iic=True): # "ib" stands for "in-bag"
+	def diffi_ib(self, X: np.array, adjust_iic=True): # "ib" stands for "in-bag"
 		"""Computes the Global Feature Importance scores for a set of input samples according to the DIFFI algorithm. 
 
 		Parameters
@@ -555,7 +555,7 @@ class IForest(BaseDetector):
 		return fi_ib, exec_time
 
 
-	def local_diffi(self, x):
+	def local_diffi(self, x: np.array):
 		"""Compute the Local Feature Importance scores for a single input sample according to the DIFFI algorithm.
 
 		Parameters
@@ -663,7 +663,7 @@ class IForest(BaseDetector):
 					lambda_[node] = tmp
 		return lambda_
 	
-	def local_diffi_batch(self, X):
+	def local_diffi_batch(self, X: np.array):
 		"""Computes the Local Feature Importance scores for a set of input samples according to the DIFFI algorithm.
 
 		Parameters
@@ -694,14 +694,14 @@ class IForest(BaseDetector):
 
 
 	
-	def compute_local_importances(self,X: pd.DataFrame,name: str,pwd_imp_score: str = os.getcwd(), pwd_plt_data: str = os.getcwd()) -> tuple[np.array,dict,str,str]:
+	def compute_local_importances(self,X: np.array,name: str,pwd_imp_score: str = os.getcwd(), pwd_plt_data: str = os.getcwd()) -> tuple[np.array,dict,str,str]:
 		"""
 		Collect useful information that will be successively used by the plt_importances_bars,plt_global_importance_bar and plt_feat_bar_plot
 		functions. 
 		
 		Parameters
 		----------
-		X: Input dataset   
+		X: Input dataset,np.array of shape (n_samples,n_features)
 		name: Dataset's name   
 		pwd_imp_score: Directory where the Importance Scores results will be saved as pkl files, by default the current working directory
 		pwd_plt_data: Directory where the plot data results will be saved as pkl files, by default the current working directory        
@@ -754,14 +754,14 @@ class IForest(BaseDetector):
 
 		return fi,plt_data,path_fi,path_plt_data
 	
-	def compute_global_importances(self,X: pd.DataFrame, n_runs:int, name: str,pwd_imp_score: str = os.getcwd(), pwd_plt_data: str = os.getcwd()) -> tuple[np.array,dict,str,str]:
+	def compute_global_importances(self,X: np.array, n_runs:int, name: str,pwd_imp_score: str = os.getcwd(), pwd_plt_data: str = os.getcwd()) -> tuple[np.array,dict,str,str]:
 		"""
 		Collect useful information that will be successively used by the plt_importances_bars,plt_global_importance_bar and plt_feat_bar_plot
 		functions. 
 		
 		Parameters
 		----------
-		X: Input Dataset
+		X: Input Dataset,np.array of shape (n_samples,n_features)
 		n_runs: Number of runs to perform in order to compute the Global Feature Importance Scores.
 		name: Dataset's name   
 		pwd_imp_score: Directory where the Importance Scores results will be saved as pkl files, by default the current working directory
@@ -812,7 +812,7 @@ class IForest(BaseDetector):
 
 		return fi,plt_data,path_fi,path_plt_data
 	
-	def plt_importances_bars(self,imps_path: str, name: str, pwd: str =os.getcwd(),f: int = 6,is_local: bool=False, save: bool =True):
+	def plt_importances_bars(self,imps_path: str, name: str, pwd: str =os.getcwd(),f: int = 6,col_names = None, is_local: bool=False, save: bool =True):
 		"""
 		Obtain the Global Importance Bar Plot given the Importance Scores values computed in the compute_local_importance or compute_global_importance functions. 
 		
@@ -822,7 +822,8 @@ class IForest(BaseDetector):
 		Obtained from the compute_local_importance or compute_global_importance functions.   
 		name: Dataset's name 
 		pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.    
-		f: Number of vertical bars to include in the Bar Plot. By default f is set to 6. 
+		f: Number of vertical bars to include in the Bar Plot. By default f is set to 6.
+		col_names: List with the names of the features of the input dataset, by default None. 
 		is_local: Boolean variable used to specify weather we are plotting the Global or Local Feature Importance in order to set the file name.
 		If is_local is True the result will be the LFI Score Plot (based on the LFI scores of the input samples), otherwise the result is the GFI 
 		Score Plot (based on the GFI scores obtained in the different n_runs execution of the model). By default is_local is set to False.  
@@ -882,7 +883,10 @@ class IForest(BaseDetector):
 		fig, ax = plt.subplots()
 
 		for i in range(dim):
-			ax.bar(r[:f], bars.T.iloc[i, :f].values, bottom=bars.T.iloc[:i, :f].sum().values, color=color[i % number_colours], edgecolor='white', width=barWidth, label=str(i), hatch=patterns[i // number_colours])
+			if col_names is not None: 
+				ax.bar(r[:f], bars.T.iloc[i, :f].values, bottom=bars.T.iloc[:i, :f].sum().values, color=color[i % number_colours], edgecolor='white', width=barWidth, label=col_names[i], hatch=patterns[i // number_colours])
+			else:
+				ax.bar(r[:f], bars.T.iloc[i, :f].values, bottom=bars.T.iloc[:i, :f].sum().values, color=color[i % number_colours], edgecolor='white', width=barWidth, label=str(i), hatch=patterns[i // number_colours])
 
 		ax.set_xlabel("Rank", fontsize=20)
 		ax.set_xticks(range(f), tick_names[:f])
@@ -896,7 +900,7 @@ class IForest(BaseDetector):
 		return fig, ax, bars
 
 
-	def plt_feat_bar_plot(self,plt_data_path: str,name: str,pwd: str =os.getcwd(),is_local: bool =False,save: bool =True):
+	def plt_feat_bar_plot(self,plt_data_path: str,name: str,pwd: str =os.getcwd(),col_names=None,is_local: bool =False,save: bool =True):
 		"""
 		Obtain the Global Feature Importance Score Plot exploiting the information obtained from the compute_local_importance or compute_global_importance functions. 
 		
@@ -905,7 +909,8 @@ class IForest(BaseDetector):
 		plt_data_path: Dictionary generated from the compute_local_importance or compute_global_importance functions 
 		with the necessary information to create the Score Plot.
 		name: Dataset's name
-		pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory.  
+		pwd: Directory where the plot will be saved as a PDF file. By default the value of pwd is set to the current working directory. 
+		col_names: List with the names of the features of the input dataset, by default None.  
 		is_local: Boolean variable used to specify weather we are plotting the Global or Local Feature Importance in order to set the file name.
 		If is_local is True the result will be the LFI Score Plot (based on the LFI scores of the input samples), otherwise the result is the GFI 
 		Score Plot (based on the GFI scores obtained in the different n_runs execution of the model). By default is_local is set to False. 
@@ -965,14 +970,21 @@ class IForest(BaseDetector):
 		ax1.set_ylabel('Features',fontsize=20)
 		plt.xlim(xlim)
 		plt.subplots_adjust(left=0.3)
+
+		if col_names is not None:
+			ax1.set_yticks(range(dim))
+			ax1.set_yticklabels(col_names)
+
+	
 		if save:
 			plt.savefig(pwd+'/{}.pdf'.format(name_file),bbox_inches='tight')
 			
 		return ax1,ax2
 
 
-	def plot_importance_map(self,name: str, X_train: pd.DataFrame,y_train: np.array ,resolution: int,
-							pwd: str =os.getcwd(),save: bool =True,m: bool =None,factor: int =3,feats_plot: tuple[int,int] =(0,1),ax=None,labels: bool=True):
+	def plot_importance_map(self,name: str, X_train: np.array,y_train: np.array ,resolution: int,
+							pwd: str =os.getcwd(),save: bool =True,m: bool =None,factor: int =3, feats_plot: tuple =(0,1),
+							col_names=None,ax=None,labels: bool=True):
 		"""
 		Produce the Local Feature Importance Scoremap.   
 		
@@ -987,7 +999,9 @@ class IForest(BaseDetector):
 		m: Boolean variable regulating the plt.pcolor advanced settings. By defualt the value of m is set to None.
 		factor: Integer factor used to define the minimum and maximum value of the points used to create the scoremap. By default the value of f is set to 3.
 		feats_plot: This tuple contains the indexes of the pair features to compare in the Scoremap. By default the value of feats_plot
-				is set to (0,1).
+		is set to (0,1). Do not use in case we pass the col_names parameter.
+		col_names: List with the names of the features of the input dataset, by default None.
+		two features will be compared. 
 		ax: plt.axes object used to create the plot. By default ax is set to None.
 		labels: Boolean variable used to decide weather to include the x and y label name in the plot.
 		When calling the plot_importance_map function inside plot_complete_scoremap this parameter will be set to False 
@@ -996,6 +1010,7 @@ class IForest(BaseDetector):
 		----------
 		fig,ax : plt.figure  and plt.axes objects used to create the plot 
 		"""
+
 		mins = X_train.min(axis=0)[list(feats_plot)]
 		maxs = X_train.max(axis=0)[list(feats_plot)]  
 		mean = X_train.mean(axis = 0)
@@ -1037,9 +1052,12 @@ class IForest(BaseDetector):
 			ax.scatter(x[(y_train == 0)[:, 0]], y[(y_train == 0)[:, 0]], s=40, c="tab:blue", marker="o", edgecolors="k", label="inliers")
 			ax.scatter(x[(y_train == 1)[:, 0]], y[(y_train == 1)[:, 0]], s=60, c="tab:orange", marker="*", edgecolors="k", label="outliers")
 		
-		if labels:
-			ax.set_xlabel(f'Feature {feats_plot[0]}')
-			ax.set_ylabel(f'Feature {feats_plot[1]}')
+		if (labels) and (col_names is not None):
+			ax.set_xlabel(col_names[feats_plot[0]],fontsize=20)
+			ax.set_ylabel(col_names[feats_plot[1]],fontsize=20)
+		elif (labels) and (col_names is None):
+			ax.set_xlabel(f'Feature {feats_plot[0]}',fontsize=20)
+			ax.set_ylabel(f'Feature {feats_plot[1]}',fontsize=20)
 		
 		ax.legend()
 
@@ -1049,6 +1067,17 @@ class IForest(BaseDetector):
 			fig,ax=None,None
 
 		return fig, ax
+	
+	def plot_importance_map_col_names(self,name: str, X:pd.DataFrame, X_train: np.array,y_train: np.array ,resolution: int,
+							pwd: str =os.getcwd(),save: bool =True,m: bool =None,factor: int =3, 
+							col_names=None,ax=None,labels: bool=True):
+		
+		feats_plot=tuple((X.columns.get_loc(col_names[0]),X.columns.get_loc(col_names[1])))
+		col_names=list(X.columns)
+
+		return self.plot_importance_map(name,X_train,y_train,resolution,pwd,save,m,factor,feats_plot,col_names,ax,labels)
+	
+	#col_names: A list with the names of the two features to compare in the Scoremap. By default the value of col_names is set to None and the first 
 
 	def plot_complete_scoremap(self,name:str,dim:int,X: pd.DataFrame, y: np.array, pwd:str =os.getcwd()):
 			"""Produce the Complete Local Feature Importance Scoremap: a Scoremap for each pair of features in the input dataset.   

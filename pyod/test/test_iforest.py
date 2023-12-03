@@ -361,6 +361,9 @@ class TestIForest(unittest.TestCase):
         #Check that the pkl files can be loaded
         assert pickle.load(open(path_fi,'rb')) is not None
         assert pickle.load(open(path_plt_data,'rb')) is not None
+        #Check that X_tr and y_tr are of type np.array
+        assert type(X_tr) == np.ndarray
+        assert type(y_tr) == np.ndarray
 
         """
         Tests on fi and plt_data
@@ -430,6 +433,9 @@ class TestIForest(unittest.TestCase):
         #Check that the pkl files can be loaded
         assert pickle.load(open(path_fi,'rb')) is not None
         assert pickle.load(open(path_plt_data,'rb')) is not None
+        #Check that X_tr and y_tr are of type np.array
+        assert type(X_tr) == np.ndarray
+        assert type(y_tr) == np.ndarray
 
         """
         Tests on fi and plt_data
@@ -600,6 +606,37 @@ class TestIForest(unittest.TestCase):
             os.makedirs(plot_path)
 
         fig,ax=iforest.plot_importance_map(name,X,y,30,pwd=plot_path)
+
+        """
+        Tests on ax
+        """
+
+        #Check that the returned ax is not None
+        assert ax is not None
+        assert fig is not None
+
+    def test_plot_importance_map_col_names(self):
+        
+        # Let's perform the test on the pima.mat dataset 
+        path = os.path.join(os.getcwd(),'pyod','test','data','pima.csv')
+        data=pd.read_csv(path)
+        X_tr=data.drop(columns=['Outcome'])
+        y_tr=data['Outcome']
+        X_tr,y_tr=shuffle(X_tr,y_tr,random_state=0)
+        X,y=X_tr.values,y_tr.values
+
+        name='test_pima_col_names'
+
+        # create an isolation forest model
+        iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
+        iforest.fit(X_tr)
+        plot_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
+
+        #If the folder do not exist create it:
+        if not os.path.exists(plot_path):
+            os.makedirs(plot_path)
+
+        fig,ax=iforest.plot_importance_map_col_names(name,X_tr,X,y,30,pwd=plot_path,col_names=['Pregnancies','Glucose'])
 
         """
         Tests on ax
