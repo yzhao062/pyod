@@ -973,7 +973,9 @@ class IForest(BaseDetector):
 
 		if col_names is not None:
 			ax1.set_yticks(range(dim))
-			ax1.set_yticklabels(col_names)
+			idx=list(feat_imp['Feature'])
+			yticks=[col_names[i] for i in idx]
+			ax1.set_yticklabels(yticks)
 
 	
 		if save:
