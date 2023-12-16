@@ -21,5 +21,6 @@ statsmodels
 suod
 tensorflow
 torch
+tqdm
 xgboost
 docutils
