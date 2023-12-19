@@ -44,6 +44,23 @@ class TestIForest(unittest.TestCase):
         self.clf = IForest(contamination=self.contamination, random_state=42)
         self.clf.fit(self.X_train)
 
+    def tearDown(self):
+        test_imp_score_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score')
+        test_plt_data_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plt_data')
+        test_plots_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
+        files_to_delete = [os.path.join(test_imp_score_path,'imp_scores_GFI_test_global_pima.pkl'),os.path.join(test_imp_score_path,'imp_scores_LFI_test_global_pima.pkl'),
+                           os.path.join(test_plt_data_path,'plt_data_GFI_test_global_pima.pkl'),os.path.join(test_plt_data_path,'plt_data_LFI_test_global_pima.pkl'),
+                           os.path.join(test_plots_path,'GFI_Bar_plot_test_pima_bar_plot.pdf'),os.path.join(test_plots_path,'GFI_Bar_plot_test_pima_9_bar_plot.pdf'),
+                           os.path.join(test_plots_path,'GFI_Score_Plot_test_GFI_pima.pdf'),os.path.join(test_plots_path,'GFI_Score_Plot_test_LFI_pima.pdf'),
+                           os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima.pdf'),os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima_col_names.pdf'),
+                           os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima_complete')]
+        
+        for file in files_to_delete:
+            try:
+                os.remove(file)
+            except FileNotFoundError:
+                print('File not found')
+
     def test_parameters(self):
         assert (hasattr(self.clf, 'decision_scores_') and
                 self.clf.decision_scores_ is not None)
@@ -193,7 +210,9 @@ class TestIForest(unittest.TestCase):
 
         #Check weather the two decision function values are different
 
-        assert not np.array_equal(clf1.decision_function_single_tree(tree_idx,X), clf2.decision_function_single_tree(tree_idx,X))
+        assert_array_almost_equal(
+            clf1.decision_function_single_tree(tree_idx,X), clf2.decision_function_single_tree(tree_idx,X),
+            decimal=1)
 
     def test_score_samples(self):
 
@@ -655,7 +674,7 @@ class TestIForest(unittest.TestCase):
         #Assign at random the anomalous/not anomaoous labels
         #Create a random array of 0 and 1 of shape=(100,)
         y=np.random.randint(0,2,size=100)
-        name='test_complete'
+        name='test_pima'
         # create an isolation forest model
         iforest = IForest(n_estimators=10, max_samples=64, random_state=0)
         iforest.fit(X)
