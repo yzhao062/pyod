@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import scipy
+import shutil
 
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
@@ -43,24 +44,7 @@ class TestIForest(unittest.TestCase):
 
         self.clf = IForest(contamination=self.contamination, random_state=42)
         self.clf.fit(self.X_train)
-
-    def tearDown(self):
-        test_imp_score_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score')
-        test_plt_data_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plt_data')
-        test_plots_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
-        files_to_delete = [os.path.join(test_imp_score_path,'imp_scores_GFI_test_global_pima.pkl'),os.path.join(test_imp_score_path,'imp_scores_LFI_test_global_pima.pkl'),
-                           os.path.join(test_plt_data_path,'plt_data_GFI_test_global_pima.pkl'),os.path.join(test_plt_data_path,'plt_data_LFI_test_global_pima.pkl'),
-                           os.path.join(test_plots_path,'GFI_Bar_plot_test_pima_bar_plot.pdf'),os.path.join(test_plots_path,'GFI_Bar_plot_test_pima_9_bar_plot.pdf'),
-                           os.path.join(test_plots_path,'GFI_Score_Plot_test_GFI_pima.pdf'),os.path.join(test_plots_path,'GFI_Score_Plot_test_LFI_pima.pdf'),
-                           os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima.pdf'),os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima_col_names.pdf'),
-                           os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima_complete')]
-        
-        for file in files_to_delete:
-            try:
-                os.remove(file)
-            except FileNotFoundError:
-                print('File not found')
-
+    
     def test_parameters(self):
         assert (hasattr(self.clf, 'decision_scores_') and
                 self.clf.decision_scores_ is not None)
@@ -340,6 +324,12 @@ class TestIForest(unittest.TestCase):
         assert np.all(np.array(exec_time)>=0) == True
 
     def test_compute_local_importances(self):
+
+        test_dir_path=os.path.join(os.getcwd(),'pyod','test','test_data')
+
+        #If the folder do not exist create it:
+        if not os.path.exists(test_dir_path):
+            os.makedirs(test_dir_path)
     
         #Create a path to save the pkl files created by compute_local_importances
         test_imp_score_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score')
@@ -491,9 +481,10 @@ class TestIForest(unittest.TestCase):
 
         #We create the plot with plot_importances_bars and we will then compare it with the 
         #expected result contained in GFI_glass_synt.pdf
-        imps_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score','imp_scores_GFI_test_global_pima.pkl')
+        imps_path_global=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score','imp_scores_GFI_test_global_pima.pkl')
+        imps_path_local=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score','imp_scores_LFI_test_local_pima.pkl')
 
-        imps=pickle.load(open(imps_path,'rb'))
+        imps=pickle.load(open(imps_path_global,'rb'))
 
         #Create a path to save the plot image 
         plot_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
@@ -508,7 +499,7 @@ class TestIForest(unittest.TestCase):
         #Create a name for the plot
         name='test_pima'
         f=6
-        fig,ax,bars=iforest.plt_importances_bars(imps_path,name,pwd=plot_path,f=f)
+        fig,ax,bars=iforest.plt_importances_bars(imps_path_global,name,pwd=plot_path,f=f)
 
         """
         Tests on ax
@@ -530,7 +521,7 @@ class TestIForest(unittest.TestCase):
 
         #See if the plot correctly changes if I pass from f=6 (default value) to f=9
         f1=9
-        fig1,ax1,bars1=iforest.plt_importances_bars(imps_path,name='test_pima_9',pwd=plot_path,f=f1)
+        fig1,ax1,bars1=iforest.plt_importances_bars(imps_path_global,name='test_pima_9',pwd=plot_path,f=f1)
 
         #Check that the xtick  and y tick labels are correct
         x_tick_labels1 = [tick.get_text() for tick in ax1.get_xticklabels()]
@@ -555,6 +546,10 @@ class TestIForest(unittest.TestCase):
         #Check that the sum of the values in each column of bars1 is almost equal to 100 
         bars1_sum=np.array([bars1[i].sum() for i in range(bars1.shape[1])])
         assert_array_almost_equal(bars1_sum,np.full(bars1.shape[1],100))
+
+        #At the end of the test delete the pkl file
+        os.remove(imps_path_global)
+        os.remove(imps_path_local)
 
     def test_plt_feat_bar_plot(self):
 
@@ -603,6 +598,10 @@ class TestIForest(unittest.TestCase):
         #Check that the xtick  and ytick labels are correct
         assert np.all(np.array(y_tick_labels_local).astype('float')>=len(y_tick_labels2_local)-1) == False
         assert np.all(np.array(y_tick_labels_global).astype('float')>=len(y_tick_labels2_global)-1) == False
+
+        #At the end of the test delete the pkl file
+        os.remove(plt_data_global_path)
+        os.remove(plt_data_local_path)
 
     def test_plot_importance_map(self):
 
@@ -695,7 +694,24 @@ class TestIForest(unittest.TestCase):
         assert fig is not None
 
     def tearDown(self):
-        pass
+        test_imp_score_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_imp_score')
+        test_plt_data_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plt_data')
+        test_plots_path=os.path.join(os.getcwd(),'pyod','test','test_data','test_plots')
+        files_to_delete = [os.path.join(test_imp_score_path,'imp_scores_GFI_test_global_pima.pkl'),os.path.join(test_imp_score_path,'imp_scores_LFI_test_local_pima.pkl'),
+                            os.path.join(test_plt_data_path,'plt_data_GFI_test_global_pima.pkl'),os.path.join(test_plt_data_path,'plt_data_LFI_test_local_pima.pkl'),
+                            os.path.join(test_plots_path,'GFI_Bar_plot_test_pima_bar_plot.pdf'),os.path.join(test_plots_path,'GFI_Bar_plot_test_pima_9_bar_plot.pdf'),
+                            os.path.join(test_plots_path,'GFI_Score_plot_test_GFI_pima.pdf'),os.path.join(test_plots_path,'LFI_Score_plot_test_LFI_pima.pdf'),
+                            os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima.pdf'),os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima_col_names.pdf'),
+                            os.path.join(test_plots_path,'Local_Importance_Scoremap_test_pima_complete.pdf')]
+
+        for file in files_to_delete:
+            try:
+                if file.endswith('.pkl'):
+                    pass
+                else:
+                    os.remove(file)
+            except FileNotFoundError:
+                pass
 
 
 if __name__ == '__main__':
