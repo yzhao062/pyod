@@ -245,7 +245,7 @@ The full API Reference is available at `PyOD Documentation <https://pyod.readthe
 * **predict(X)**\ : Determine whether a sample is an outlier or not as binary labels using the fitted detector.
 * **predict_proba(X)**\ : Estimate the probability of a sample being an outlier using the fitted detector.
 * **predict_confidence(X)**\ : Assess the model's confidence on a per-sample basis (applicable in predict and predict_proba) [#Perini2020Quantifying]_.
-
+* **predict_with_rejection(X)**\ : Allow the detector to reject (i.e., abstain from making) highly uncertain predictions (output = -2) [#Perini2023Rejection]_.
 
 **Key Attributes of a fitted model**:
 
@@ -671,6 +671,8 @@ Reference
 .. [#Pevny2016Loda] Pevný, T., 2016. Loda: Lightweight on-line detector of anomalies. *Machine Learning*, 102(2), pp.275-304.
 
 .. [#Perini2020Quantifying] Perini, L., Vercruyssen, V., Davis, J. Quantifying the confidence of anomaly detectors in their example-wise predictions. In *Joint European Conference on Machine Learning and Knowledge Discovery in Databases (ECML-PKDD)*, 2020.
+
+.. [#Perini2020Rejection] Perini, L., Davis, J. Unsupervised anomaly detection with rejection. In *Proceedings of the Thirty-Seven Conference on Neural Information Processing Systems (NeurIPS)*, 2023.
 
 .. [#Ramaswamy2000Efficient] Ramaswamy, S., Rastogi, R. and Shim, K., 2000, May. Efficient algorithms for mining outliers from large data sets. *ACM Sigmod Record*\ , 29(2), pp. 427-438.
 
