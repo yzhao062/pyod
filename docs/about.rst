@@ -5,7 +5,7 @@ About us
 Core Development Team
 ---------------------
 
-Yue Zhao (Assistant Professor @ USC, Ph.D. @ CMU):
+Dr. Yue Zhao (Assistant Professor @ USC, Ph.D. @ CMU):
 
 - Initialized the project in 2017
 - `Homepage <https://viterbi-web.usc.edu/~yzhao010/>`_
@@ -31,7 +31,7 @@ Antônio Pedro Camargo (DOE Joint Genome Institute)
 - Joined in 2020 (our Conda maintainer)
 - `GitHub (Antônio Pedro Camargo) <https://github.com/apcamargo>`_
 
-Dr Andrij Vasylenko (Research Associate @ University of Liverpool)
+Dr. Andrij Vasylenko (Research Associate @ University of Liverpool)
 
 - Joined in 2020 (implemented the VAE and extend to Beta-VAE)
 - `Homepage (Dr Andrij Vasylenko) <https://www.liverpool.ac.uk/chemistry/staff/andrij-vasylenko/>`_
@@ -46,7 +46,7 @@ Rafał Bodziony (Data Scientist):
 - Joined in 2021 (implemented DeepSVDD)
 - `LinkedIn (Rafał Bodziony) <https://pl.linkedin.com/in/rafalbodziony>`_
 
-Dr Akira Tamamori (Associate Professor @ Aichi Institute of Technology):
+Dr. Akira Tamamori (Associate Professor @ Aichi Institute of Technology):
 
 - Joined in 2022 (implemented multiple OD algorithms such as KDE, sampling, and more)
 - `Homepage (Dr Akira Tamamori) <https://researchmap.jp/tamamori?lang=en>`_
@@ -65,3 +65,8 @@ Daniel Kulik (Machine Learning Developer; MSc Student @ University of the Free S
 
 - Joined 2022 (implemented integration with PyThresh and more)
 - `LinkedIn (Daniel Kulik) <https://www.linkedin.com/in/daniel-kulik-148256223>`_
+
+Lorenzo Perini (Ph.D. Researcher, KU Leuven):
+
+- Joined 2023 (implemented prediction confidence and more)
+- `Homepage (Lorenzo Perini) <https://people.cs.kuleuven.be/~lorenzo.perini/>`_
