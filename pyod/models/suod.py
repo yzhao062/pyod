@@ -133,7 +133,6 @@ class SUOD(BaseDetector):
                  target_dim_frac=0.5, jl_method='basic', bps_flag=True,
                  approx_clf_list=None, approx_ng_clf_list=None,
                  approx_flag_global=True, approx_clf=None,
-                 cost_forecast_loc_fit=None, cost_forecast_loc_pred=None,
                  verbose=False):
         super(SUOD, self).__init__(contamination=contamination)
         self.base_estimators = base_estimators
@@ -150,8 +149,6 @@ class SUOD(BaseDetector):
         self.approx_ng_clf_list = approx_ng_clf_list
         self.approx_flag_global = approx_flag_global
         self.approx_clf = approx_clf
-        self.cost_forecast_loc_fit = cost_forecast_loc_fit
-        self.cost_forecast_loc_pred = cost_forecast_loc_pred
         self.verbose = verbose
 
         # by default we will provide a group of performing models
@@ -179,8 +176,6 @@ class SUOD(BaseDetector):
             approx_flag_global=self.approx_flag_global,
             approx_clf=self.approx_clf,
             bps_flag=self.bps_flag,
-            cost_forecast_loc_fit=self.cost_forecast_loc_fit,
-            cost_forecast_loc_pred=self.cost_forecast_loc_pred,
             verbose=self.verbose,
         )
 
