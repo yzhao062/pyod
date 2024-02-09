@@ -103,7 +103,7 @@ It is also well acknowledged by the machine learning community with various dedi
 * **Unified, User-Friendly Interface** across various algorithms.
 * **Wide Range of Models**\, from classic techniques to the latest deep learning methods.
 * **High Performance & Efficiency**, leveraging `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_ for JIT compilation and parallel processing.
-* **Fast Training & Prediction**, achieved through the SUOD framework [#Zhao2021SUOD]_.
+* **Fast Training & Prediction**, achieved through the SUOD framework :cite:`a-zhao2021suod`.
 
 
 **Outlier Detection with 5 Lines of Code**\ :

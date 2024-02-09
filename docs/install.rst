@@ -25,7 +25,7 @@ Alternatively, you could clone and run setup.py file:
 **Required Dependencies**\ :
 
 
-* Python 3.6 or higher
+* Python 3.8 or higher
 * joblib
 * matplotlib
 * numpy>=1.19
