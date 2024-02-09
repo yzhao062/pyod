@@ -8,9 +8,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import six
 from joblib.parallel import cpu_count
-
 
 def _get_n_jobs(n_jobs):
     """Get number of jobs for the computation.
@@ -79,7 +77,7 @@ def _pprint(params, offset=0, printer=repr):
     params_list = list()
     this_line_length = offset
     line_sep = ',\n' + (1 + offset // 2) * ' '
-    for i, (k, v) in enumerate(sorted(six.iteritems(params))):
+    for i, (k, v) in enumerate(sorted(params.items())):
         if type(v) is float:
             # use str for representing floating point numbers
             # this way we get consistent representation across

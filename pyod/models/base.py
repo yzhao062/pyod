@@ -13,7 +13,6 @@ from collections import defaultdict
 from inspect import signature
 
 import numpy as np
-import six
 from numpy import percentile
 from scipy.special import erf
 from scipy.stats import binom
@@ -27,13 +26,9 @@ from .sklearn_base import _pprint
 from ..utils.utility import precision_n_scores
 
 
-@six.add_metaclass(abc.ABCMeta)
-class BaseDetector(object):
+class BaseDetector(metaclass=abc.ABCMeta):
     """Abstract class for all outlier detection algorithms.
 
-    .. warning::
-    pyod would stop supporting Python 2 in the future. Consider move to
-    Python 3.5+.
 
     Parameters
     ----------
@@ -251,7 +246,7 @@ class BaseDetector(object):
         """Predict the model's confidence in making the same prediction
         under slightly different training sets.
         See :cite:`perini2020quantifying`.
-        
+
         Parameters
         -------
         X : numpy array of shape (n_samples, n_features)
@@ -259,7 +254,7 @@ class BaseDetector(object):
 
         Returns
         -------
-        confidence : numpy array of shape (n_samples,) 
+        confidence : numpy array of shape (n_samples,)
             For each observation, tells how consistently the model would
             make the same prediction if the training set was perturbed.
             Return a probability, ranging in [0,1].

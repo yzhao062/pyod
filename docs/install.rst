@@ -32,7 +32,6 @@ Alternatively, you could clone and run setup.py file:
 * numba>=0.51
 * scipy>=1.5.1
 * scikit_learn>=0.22.0
-* six
 
 
 **Optional Dependencies (see details below)**:
