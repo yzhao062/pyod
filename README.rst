@@ -225,11 +225,7 @@ Alternatively, you could clone and run setup.py file:
 * keras/tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * suod (optional, required for running SUOD model)
 * xgboost (optional, required for XGBOD)
-* pythresh (optional, required for thresholding)
-
-**Warning**\ :
-PyOD includes several neural network-based models, such as AutoEncoders, implemented in Tensorflow and PyTorch. These deep learning libraries are not automatically installed by PyOD to avoid conflicts with existing installations. If you plan to use neural-net based models, please ensure these libraries are installed. See the `neural-net FAQ <https://github.com/yzhao062/pyod/wiki/Setting-up-Keras-and-Tensorflow-for-Neural-net-Based-models>`_ for guidance. Additionally, xgboost is not installed by default but is required for models like XGBOD.
-
+* pythresh (optional, required for thresholding)optional
 
 ----
 
@@ -563,41 +559,6 @@ Visualization (\ `knn_figure <https://raw.githubusercontent.com/yzhao062/pyod/ma
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/KNN.png
    :target: https://raw.githubusercontent.com/yzhao062/pyod/master/examples/KNN.png
    :alt: kNN example figure
-
-----
-
-How to Contribute
-^^^^^^^^^^^^^^^^^
-
-You are welcome to contribute to this exciting project:
-
-
-* Please first check Issue lists for "help wanted" tag and comment the one
-  you are interested. We will assign the issue to you.
-
-* Fork the master branch and add your improvement/modification/fix.
-
-* Create a pull request to **development branch** and follow the pull request template `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_
-
-* Automatic tests will be triggered. Make sure all tests are passed. Please make sure all added modules are accompanied with proper test functions.
-
-
-To make sure the code has the same style and standard, please refer to abod.py, hbos.py, or feature_bagging.py for example.
-
-You are also welcome to share your ideas by opening an issue or dropping me an email at zhaoy@cmu.edu :)
-
-
-Inclusion Criteria
-^^^^^^^^^^^^^^^^^^
-
-Similarly to `scikit-learn <https://scikit-learn.org/stable/faq.html#what-are-the-inclusion-criteria-for-new-algorithms>`_,
-We mainly consider well-established algorithms for inclusion.
-A rule of thumb is at least two years since publication, 50+ citations, and usefulness.
-
-However, we encourage the author(s) of newly proposed models to share and add your implementation into PyOD
-for boosting ML accessibility and reproducibility.
-This exception only applies if you could commit to the maintenance of your model for at least two year period.
-
 
 ----
 
