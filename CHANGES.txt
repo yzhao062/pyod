@@ -185,3 +185,4 @@ v<1.1.2>, <11/17/2023> -- Fix the issue of contamination.
 v<1.1.2>, <11/17/2023> -- KPCA bug fix (#494).
 v<1.1.3>, <02/07/2024> -- Minor fix for SUOD changes.
 v<1.1.4>, <02/09/2024> -- Drop support of six for Python 2.
+v<1.1.4>, <03/16/2024> -- Fix documentation and temporarily restrict to Keras 2 in testing.
