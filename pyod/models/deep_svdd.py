@@ -285,7 +285,7 @@ class DeepSVDD(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        self.decision_scores_ = self.model_.predict(X_norm)
+        self.decision_scores_ = self.model_.predict(X_norm, verbose=self.verbose)
         self._process_decision_scores()
         return self
 
@@ -316,5 +316,5 @@ class DeepSVDD(BaseDetector):
             X_norm = np.copy(X)
 
         # Predict on X and return the reconstruction errors
-        pred_scores = self.model_.predict(X_norm)
+        pred_scores = self.model_.predict(X_norm, verbose=self.verbose)
         return pred_scores
