@@ -66,6 +66,11 @@ class SO_GAAL(BaseDetector):
     momentum : float, optional (default=0.9)
         The momentum parameter for SGD.
 
+    verbose : int, optional (default=1)
+        Verbosity mode.
+        - 0 = silent
+        - 1 = show print
+
     Attributes
     ----------
     decision_scores_ : numpy array of shape (n_samples,)
@@ -85,12 +90,13 @@ class SO_GAAL(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1):
+    def __init__(self, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1, verbose: int = 1):
         super(SO_GAAL, self).__init__(contamination=contamination)
         self.stop_epochs = stop_epochs
         self.lr_d = lr_d
         self.lr_g = lr_g
         self.momentum = momentum
+        self.verbose = verbose
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -131,13 +137,15 @@ class SO_GAAL(BaseDetector):
 
         # Start iteration
         for epoch in range(epochs):
-            print('Epoch {} of {}'.format(epoch + 1, epochs))
+            if self.verbose > 0:
+                print('Epoch {} of {}'.format(epoch + 1, epochs))
             batch_size = min(500, data_size)
             num_batches = int(data_size / batch_size)
 
             for index in range(num_batches):
-                print('\nTesting for epoch {} index {}:'.format(epoch + 1,
-                                                                index + 1))
+                if self.verbose > 0:
+                    print('\nTesting for epoch {} index {}:'.format(epoch + 1,
+                                                                    index + 1))
 
                 # Generate noise
                 noise_size = batch_size
@@ -166,7 +174,7 @@ class SO_GAAL(BaseDetector):
                     self.train_history['generator_loss'].append(generator_loss)
                 else:
                     trick = np.array([1] * noise_size)
-                    generator_loss = self.combine_model.evaluate(noise, trick)
+                    generator_loss = self.combine_model.evaluate(noise, trick, verbose=self.verbose)
                     self.train_history['generator_loss'].append(generator_loss)
 
             # Stop training generator
@@ -174,7 +182,7 @@ class SO_GAAL(BaseDetector):
                 stop = 1
 
         # Detection result
-        self.decision_scores_ = self.discriminator.predict(X).ravel()
+        self.decision_scores_ = self.discriminator.predict(X, verbose=self.verbose).ravel()
         self._process_decision_scores()
         return self
 
@@ -198,5 +206,5 @@ class SO_GAAL(BaseDetector):
         """
         check_is_fitted(self, ['discriminator'])
         X = check_array(X)
-        pred_scores = self.discriminator.predict(X).ravel()
+        pred_scores = self.discriminator.predict(X, verbose=self.verbose).ravel()
         return pred_scores
