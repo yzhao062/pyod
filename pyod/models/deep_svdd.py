@@ -172,7 +172,7 @@ class DeepSVDD(BaseDetector):
         model_center = Model(self.model_.inputs,
                              self.model_.get_layer('net_output').output)
 
-        out_ = model_center.predict(X_norm)
+        out_ = model_center.predict(X_norm, verbose=self.verbose)
         nf_predict = out_.shape[0]
         out_ = np.sum(out_, axis=0)
         out_ /= nf_predict
