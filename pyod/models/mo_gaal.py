@@ -24,6 +24,7 @@ from .gaal_base import create_generator
 if _get_tensorflow_version() < 200:
     from keras.layers import Input
     from keras.models import Model
+    from keras.optimizers import SGD
 elif 200 <= _get_tensorflow_version() <= 209:
     from tensorflow.keras.layers import Input
     from tensorflow.keras.models import Model
