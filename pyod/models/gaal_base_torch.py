@@ -1,8 +1,20 @@
+# -*- coding: utf-8 -*-
+"""Base file for Generative Adversarial Active Learning.
+Part of the codes are adapted from
+https://github.com/leibinghe/GAAL-based-outlier-detection
+"""
+
+from __future__ import division
+from __future__ import print_function
+
+import math
 import torch
 import torch.nn as nn
-import math
+import torch.nn.functional as F
 
-def create_discriminator(latent_size, data_size):
+
+# TODO: create a base class for so_gaal and mo_gaal
+def create_discriminator(latent_size, data_size):  # pragma: no cover
     """Create the discriminator of the GAN for a given latent size.
 
     Parameters
@@ -15,26 +27,25 @@ def create_discriminator(latent_size, data_size):
 
     Returns
     -------
-    D : PyTorch model object
-        Returns a model object.
+    D : PyTorch model
+        Returns a model.
     """
 
     class Discriminator(nn.Module):
-        def __init__(self):
+        def __init__(self, latent_size, data_size):
             super(Discriminator, self).__init__()
-            self.fc1 = nn.Linear(latent_size, int(math.ceil(math.sqrt(data_size))))
-            self.fc2 = nn.Linear(int(math.ceil(math.sqrt(data_size))), 1)
-            self.relu = nn.ReLU()
-            self.sigmoid = nn.Sigmoid()
+            self.layer1 = nn.Linear(latent_size, int(math.ceil(math.sqrt(data_size))), bias=True)
+            self.output = nn.Linear(int(math.ceil(math.sqrt(data_size))), 1, bias=True)
 
         def forward(self, x):
-            x = self.relu(self.fc1(x))
-            x = self.sigmoid(self.fc2(x))
+            x = F.relu(self.layer1(x))
+            x = torch.sigmoid(self.output(x))
             return x
 
-    return Discriminator()
+    return Discriminator(latent_size, data_size)
 
-def create_generator(latent_size):
+
+def create_generator(latent_size):  # pragma: no cover
     """Create the generator of the GAN for a given latent size.
 
     Parameters
@@ -44,20 +55,19 @@ def create_generator(latent_size):
 
     Returns
     -------
-    D : PyTorch model object
-        Returns a model object.
+    D : PyTorch model
+        Returns a model.
     """
 
     class Generator(nn.Module):
-        def __init__(self):
+        def __init__(self, latent_size):
             super(Generator, self).__init__()
-            self.fc1 = nn.Linear(latent_size, latent_size)
-            self.fc2 = nn.Linear(latent_size, latent_size)
-            self.relu = nn.ReLU()
+            self.layer1 = nn.Linear(latent_size, latent_size, bias=True)
+            self.layer2 = nn.Linear(latent_size, latent_size, bias=True)
 
         def forward(self, x):
-            x = self.relu(self.fc1(x))
-            x = self.relu(self.fc2(x))
+            x = F.relu(self.layer1(x))
+            x = F.relu(self.layer2(x))
             return x
 
-    return Generator()
+    return Generator(latent_size)
