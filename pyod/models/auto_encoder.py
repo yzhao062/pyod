@@ -22,12 +22,12 @@ if _get_tensorflow_version() < 200:
     from keras.models import Sequential
     from keras.layers import Dense, Dropout
     from keras.regularizers import l2
-    from keras.losses import mean_squared_error
+    from keras.losses import MeanSquaredError
 else:
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import Dense, Dropout
     from tensorflow.keras.regularizers import l2
-    from tensorflow.keras.losses import mean_squared_error
+    from tensorflow.keras.losses import MeanSquaredError
 
 
 # noinspection PyUnresolvedReferences,PyPep8Naming,PyTypeChecker
@@ -135,7 +135,7 @@ class AutoEncoder(BaseDetector):
 
     def __init__(self, hidden_neurons=None,
                  hidden_activation='relu', output_activation='sigmoid',
-                 loss=mean_squared_error, optimizer='adam',
+                 loss=MeanSquaredError, optimizer='adam',
                  epochs=100, batch_size=32, dropout_rate=0.2,
                  l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
                  verbose=1, random_state=None, contamination=0.1):
