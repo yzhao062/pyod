@@ -11,14 +11,14 @@ from numpy.testing import assert_raises
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 
-from pyod.utils.data import generate_data
-from pyod.models.vae_torch import VAE, PyODDataset
-
 # !temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 sys.path.append(os.path.abspath(os.path.dirname("__file__")))
+
+from pyod.utils.data import generate_data
+from pyod.models.vae_torch import VAE, PyODDataset
 
 
 class TestPyODDataset(unittest.TestCase):
