@@ -449,12 +449,13 @@ class VAE(BaseDetector):
         self.model.eval()
 
         outlier_scores = []
-        for x in data_loader:
-            x_gpu = x.to(self.device)
-            x_recon, _, _ = self.model(x_gpu)
-            outlier_scores.append(
-                pairwise_distances_no_broadcast(
-                    x.cpu().numpy(),
-                    x_recon.cpu().detach().numpy())
-            )
+        with torch.no_grad():
+            for x in data_loader:
+                x_gpu = x.to(self.device)
+                x_recon, _, _ = self.model(x_gpu)
+                outlier_scores.append(
+                    pairwise_distances_no_broadcast(
+                        x.cpu().numpy(),
+                        x_recon.cpu().detach().numpy())
+                )
         return np.concatenate(outlier_scores)
