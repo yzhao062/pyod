@@ -31,7 +31,7 @@ class PyODDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return self.X.shape[0]
-    
+
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
@@ -44,10 +44,10 @@ class PyODDataset(torch.utils.data.Dataset):
             return torch.as_tensor(sample, dtype=torch.float32), torch.as_tensor(self.y[idx], dtype=torch.float32)
         else:
             return torch.as_tensor(sample, dtype=torch.float32)
-        
+
 
 class InnerVAE(nn.Module):
-    def __init__(self, 
+    def __init__(self,
                  n_features,
                  encoder_neurons=[128, 64, 32],
                  decoder_neurons=[32, 64, 128],
@@ -67,51 +67,93 @@ class InnerVAE(nn.Module):
         self.encoder = self._build_encoder()
         self.decoder = self._build_decoder()
         self.encoder_mu = nn.Linear(self.encoder_neurons[-1], self.latent_dim)
-        self.encoder_logvar = nn.Linear(self.encoder_neurons[-1], self.latent_dim)
-
+        self.encoder_logvar = nn.Linear(
+            self.encoder_neurons[-1], self.latent_dim)
 
     def _build_encoder(self):
         encoder = nn.Sequential()
-        encoder.add_module('encoder_input', nn.Linear(self.n_features, self.encoder_neurons[0]))
-        encoder.add_module('encoder_input_activation', get_activation_by_name(self.hidden_activation))
+        encoder.add_module(
+            'encoder_input',
+            nn.Linear(self.n_features, self.encoder_neurons[0])
+        )
+        encoder.add_module(
+            'encoder_input_activation',
+            get_activation_by_name(self.hidden_activation)
+        )
         if self.dropout_rate > 0:
-            encoder.add_module('encoder_input_dropout', nn.Dropout(p=self.dropout_rate))
+            encoder.add_module(
+                'encoder_input_dropout',
+                nn.Dropout(p=self.dropout_rate)
+            )
         for i in range(1, len(self.encoder_neurons)):
-            encoder.add_module('encoder_hidden_{}'.format(i), nn.Linear(self.encoder_neurons[i-1], self.encoder_neurons[i]))
-            encoder.add_module('encoder_hidden_activation_{}'.format(i), get_activation_by_name(self.hidden_activation))
+            encoder.add_module(
+                f'encoder_hidden_{i}',
+                nn.Linear(self.encoder_neurons[i-1], self.encoder_neurons[i])
+            )
+            encoder.add_module(
+                f'encoder_hidden_activation_{i}',
+                get_activation_by_name(self.hidden_activation)
+            )
             if self.dropout_rate > 0:
-                encoder.add_module('encoder_hidden_dropout_{}'.format(i), nn.Dropout(p=self.dropout_rate))
+                encoder.add_module(
+                    f'encoder_hidden_dropout_{i}',
+                    nn.Dropout(p=self.dropout_rate)
+                )
         return encoder
-    
+
     def _build_decoder(self):
         decoder = nn.Sequential()
-        decoder.add_module('decoder_input', nn.Linear(self.latent_dim, self.decoder_neurons[0]))
-        decoder.add_module('decoder_input_activation', get_activation_by_name(self.hidden_activation))
+        decoder.add_module(
+            'decoder_input',
+            nn.Linear(self.latent_dim, self.decoder_neurons[0])
+        )
+        decoder.add_module(
+            'decoder_input_activation',
+            get_activation_by_name(self.hidden_activation)
+        )
         if self.dropout_rate > 0:
-            decoder.add_module('decoder_input_dropout', nn.Dropout(p=self.dropout_rate))
+            decoder.add_module(
+                'decoder_input_dropout',
+                nn.Dropout(p=self.dropout_rate)
+            )
         for i in range(1, len(self.decoder_neurons)):
-            decoder.add_module('decoder_hidden_{}'.format(i), nn.Linear(self.decoder_neurons[i-1], self.decoder_neurons[i]))
-            decoder.add_module('decoder_hidden_activation_{}'.format(i), get_activation_by_name(self.hidden_activation))
+            decoder.add_module(
+                f'decoder_hidden_{i}',
+                nn.Linear(self.decoder_neurons[i-1], self.decoder_neurons[i])
+            )
+            decoder.add_module(
+                f'decoder_hidden_activation_{i}',
+                get_activation_by_name(self.hidden_activation)
+            )
             if self.dropout_rate > 0:
-                decoder.add_module('decoder_hidden_dropout_{}'.format(i), nn.Dropout(p=self.dropout_rate))
-        decoder.add_module('decoder_output', nn.Linear(self.decoder_neurons[-1], self.n_features))
-        decoder.add_module('decoder_output_activation', get_activation_by_name(self.output_activation))
+                decoder.add_module(
+                    f'decoder_hidden_dropout_{i}',
+                    nn.Dropout(p=self.dropout_rate)
+                )
+        decoder.add_module(
+            'decoder_output',
+            nn.Linear(self.decoder_neurons[-1], self.n_features)
+        )
+        decoder.add_module(
+            'decoder_output_activation',
+            get_activation_by_name(self.output_activation)
+        )
         return decoder
-    
+
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std).to(mu.device)
         return mu + eps * std
-    
+
     def encode(self, x):
         h = self.encoder(x)
         z_mu = self.encoder_mu(h)
         z_logvar = self.encoder_logvar(h)
         return z_mu, z_logvar
-    
+
     def decode(self, z):
         return self.decoder(z)
-    
+
     def forward(self, x):
         z_mu, z_logvar = self.encode(x)
         z = self.reparameterize(z_mu, z_logvar)
@@ -238,26 +280,26 @@ class VAE(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, 
-                    encoder_neurons=[128, 64, 32], 
-                    decoder_neurons=[32, 64, 128],
-                    latent_dim=2,
-                    hidden_activation='relu',
-                    output_activation='sigmoid',
-                    loss_fn=nn.MSELoss(),
-                    beta=1.0,
-                    capacity=0.0,
-                    learning_rate=1e-3,
-                    optimizer=torch.optim.Adam,
-                    epochs=100,
-                    batch_size=32,
-                    dropout_rate=0.2,
-                    weight_decay=1e-5,
-                    preprocessing=True,
-                    contamination=0.1,
-                    device=None):
+    def __init__(self,
+                 encoder_neurons=[128, 64, 32],
+                 decoder_neurons=[32, 64, 128],
+                 latent_dim=2,
+                 hidden_activation='relu',
+                 output_activation='sigmoid',
+                 loss_fn=nn.MSELoss(),
+                 beta=1.0,
+                 capacity=0.0,
+                 learning_rate=1e-3,
+                 optimizer=torch.optim.Adam,
+                 epochs=100,
+                 batch_size=32,
+                 dropout_rate=0.2,
+                 weight_decay=1e-5,
+                 preprocessing=True,
+                 device=None,
+                 contamination=0.1):
         super(VAE, self).__init__(contamination=contamination)
-        
+
         self.encoder_neurons = encoder_neurons
         self.decoder_neurons = decoder_neurons
         self.latent_dim = latent_dim
@@ -275,8 +317,10 @@ class VAE(BaseDetector):
         self.preprocessing = preprocessing
         self.device = device
         if self.device is None:
-            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-            self.device = torch.device("mps" if torch.backends.mps.is_available() else self.device)
+            self.device = torch.device(
+                "cuda:0" if torch.cuda.is_available() else "cpu")
+            self.device = torch.device(
+                "mps" if torch.backends.mps.is_available() else self.device)
 
         self.model = None
         self.best_model_dict = None
@@ -314,11 +358,11 @@ class VAE(BaseDetector):
             train_set = PyODDataset(X)
 
         # create data loader
-        train_loader = torch.utils.data.DataLoader(train_set, 
-                                                   batch_size=self.batch_size, 
+        train_loader = torch.utils.data.DataLoader(train_set,
+                                                   batch_size=self.batch_size,
                                                    shuffle=True,
                                                    drop_last=True)
-        
+
         # build the model
         self.model = InnerVAE(n_features=n_features,
                               encoder_neurons=self.encoder_neurons,
@@ -336,7 +380,6 @@ class VAE(BaseDetector):
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
 
-
     def compute_loss(self, x, x_recon, mu, logvar):
         # reconstruction loss
         recon_loss = self.loss_fn(x_recon, x)
@@ -346,20 +389,20 @@ class VAE(BaseDetector):
         kl_loss = self.beta * torch.abs(kl_loss - self.capacity)
 
         return recon_loss + kl_loss
-        
+
     def _train_vae(self, train_loader):
         self.model.train()
-        optimizer = self.optimizer(self.model.parameters(), 
-                                   lr=self.learning_rate, 
+        optimizer = self.optimizer(self.model.parameters(),
+                                   lr=self.learning_rate,
                                    weight_decay=self.weight_decay)
-        
+
         # init the best model
         best_loss = float('inf')
         best_model_dict = None
 
         for epoch in range(self.epochs):
             overall_loss = []
-            for i, x in enumerate(train_loader):
+            for x in train_loader:
                 x = x.to(self.device)
                 optimizer.zero_grad()
                 x_recon, mu, logvar = self.model(x)
@@ -373,8 +416,6 @@ class VAE(BaseDetector):
                 best_loss = epoch_loss
                 best_model_dict = self.model.state_dict()
         self.best_model_dict = best_model_dict
-
-
 
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
@@ -403,15 +444,17 @@ class VAE(BaseDetector):
         else:
             dataset = PyODDataset(X)
 
-        data_loader = torch.utils.data.DataLoader(dataset,
-                                                  batch_size=self.batch_size,
-                                                  shuffle=False)
+        data_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=self.batch_size, shuffle=False)
         self.model.eval()
 
         outlier_scores = []
         for x in data_loader:
             x_gpu = x.to(self.device)
             x_recon, _, _ = self.model(x_gpu)
-            outlier_scores.append(pairwise_distances_no_broadcast(x.cpu().numpy(), x_recon.cpu().detach().numpy()))
+            outlier_scores.append(
+                pairwise_distances_no_broadcast(
+                    x.cpu().numpy(),
+                    x_recon.cpu().detach().numpy())
+            )
         return np.concatenate(outlier_scores)
-    

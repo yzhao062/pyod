@@ -6,14 +6,13 @@ import os
 import sys
 import unittest
 
-import numpy as np
-import torch
-from numpy.testing import assert_almost_equal
-# noinspection PyProtectedMember
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
+
+from pyod.utils.data import generate_data
+from pyod.models.vae_torch import VAE, PyODDataset
 
 # !temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -21,9 +20,6 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 sys.path.append(os.path.abspath(os.path.dirname("__file__")))
 
-
-from pyod.utils.data import generate_data
-from pyod.models.vae_torch import VAE, PyODDataset
 
 class TestPyODDataset(unittest.TestCase):
     def setUp(self):
@@ -37,24 +33,24 @@ class TestPyODDataset(unittest.TestCase):
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
-        
+
         self.clf = VAE(epochs=5, contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        assert(hasattr(self.clf, 'decision_scores_') and
-                    self.clf.decision_scores_ is not None)
-        assert(hasattr(self.clf, 'labels_') and
-                    self.clf.labels_ is not None)
-        assert(hasattr(self.clf, 'threshold_') and
-                    self.clf.threshold_ is not None)
-        assert(hasattr(self.clf, '_mu') and
-                    self.clf._mu is not None)
-        assert(hasattr(self.clf, '_sigma') and
-                    self.clf._sigma is not None)
-        assert(hasattr(self.clf, 'model') and
-                    self.clf.model is not None)
-        
+        assert (hasattr(self.clf, 'decision_scores_') and
+                self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and
+                self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and
+                self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, '_mu') and
+                self.clf._mu is not None)
+        assert (hasattr(self.clf, '_sigma') and
+                self.clf._sigma is not None)
+        assert (hasattr(self.clf, 'model') and
+                self.clf.model is not None)
+
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
 
@@ -115,13 +111,14 @@ class TestPyODDataset(unittest.TestCase):
 
     def test_fit_predict_score(self):
         self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='prc_n_score')
+        self.clf.fit_predict_score(
+            self.X_test, self.y_test, scoring='roc_auc_score')
+        self.clf.fit_predict_score(
+            self.X_test, self.y_test, scoring='prc_n_score')
         with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test,
-                                       scoring='something')
+            self.clf.fit_predict_score(
+                self.X_test, self.y_test, scoring='something')
+
     def test_model_clone(self):
         # for deep models this may not apply
         clone_clf = clone(self.clf)

@@ -10,16 +10,15 @@ from __future__ import print_function
 import os
 import sys
 
+from pyod.utils.data import evaluate_print
+from pyod.utils.data import generate_data
+from pyod.models.vae_torch import VAE
+
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 sys.path.append(os.path.abspath(os.path.dirname("__file__")))
-
-
-from pyod.models.vae_torch import VAE
-from pyod.utils.data import generate_data
-from pyod.utils.data import evaluate_print
 
 
 if __name__ == "__main__":
