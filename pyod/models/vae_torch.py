@@ -319,8 +319,9 @@ class VAE(BaseDetector):
         if self.device is None:
             self.device = torch.device(
                 "cuda:0" if torch.cuda.is_available() else "cpu")
-            self.device = torch.device(
-                "mps" if torch.backends.mps.is_available() else self.device)
+            # If you want to use MPS, uncomment the following line
+            # self.device = torch.device(
+            #     "mps" if torch.backends.mps.is_available() else self.device)
 
         self.model = None
         self.best_model_dict = None
