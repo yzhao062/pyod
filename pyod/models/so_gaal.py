@@ -1,14 +1,17 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-
+import numpy as np
+import math
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-
-from .base import BaseDetector
 from collections import defaultdict
-    
+import torch.nn.functional as F
+from torch.utils.data import DataLoader, TensorDataset
+from .base import BaseDetector
+
+
+
 class Generator(nn.Module):
     def __init__(self, latent_size):
         super(Generator, self).__init__()
@@ -35,8 +38,6 @@ class Discriminator(nn.Module):
         x = torch.sigmoid(self.layer2(x))
         return x
 
-
-
 class SO_GAAL(BaseDetector):
     def __init__(self, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1):
         super(SO_GAAL, self).__init__(contamination=contamination)
@@ -54,7 +55,7 @@ class SO_GAAL(BaseDetector):
         epochs = self.stop_epochs * 3
         self.train_history = defaultdict(list)
 
-        self.discriminator = Discriminator(latent_size)
+        self.discriminator = Discriminator(latent_size, data_size)
         self.generator = Generator(latent_size)
 
         optimizer_d = optim.SGD(self.discriminator.parameters(), lr=self.lr_d, momentum=self.momentum)
@@ -119,4 +120,3 @@ class SO_GAAL(BaseDetector):
         X = check_array(X)
         pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32)).detach().numpy().ravel()
         return pred_scores
-
