@@ -7,6 +7,7 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
+from collections import defaultdict
     
 class Generator(nn.Module):
     def __init__(self, latent_size):
