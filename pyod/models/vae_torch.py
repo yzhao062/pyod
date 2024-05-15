@@ -292,7 +292,7 @@ class VAE(BaseDetector):
                  learning_rate=1e-3,
                  optimizer=torch.optim.Adam,
                  epochs=100,
-                 batch_size=32,
+                 batch_size=16,
                  dropout_rate=0.2,
                  weight_decay=1e-5,
                  preprocessing=True,
@@ -362,7 +362,7 @@ class VAE(BaseDetector):
                                                    batch_size=self.batch_size,
                                                    shuffle=True,
                                                    drop_last=True)
-
+        
         # build the model
         self.model = InnerVAE(n_features=n_features,
                               encoder_neurons=self.encoder_neurons,
@@ -455,7 +455,7 @@ class VAE(BaseDetector):
                 x_recon, _, _ = self.model(x_gpu)
                 outlier_scores.append(
                     pairwise_distances_no_broadcast(
-                        x.cpu().numpy(),
+                        x.numpy(),
                         x_recon.cpu().detach().numpy())
                 )
         return np.concatenate(outlier_scores)
