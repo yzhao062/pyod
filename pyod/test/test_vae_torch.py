@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import gc
 import sys
 import unittest
 
@@ -148,14 +147,7 @@ class TestPyODDataset(unittest.TestCase):
         clone_clf = clone(self.clf)
 
     def tearDown(self):
-        del self.clf, self.X_train, self.X_test, self.y_train, self.y_test
-        gc.collect()
-        # cuda
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        # mps
-        elif torch.mps.is_available():
-            torch.mps.empty_cache()
+        pass
 
 
 if __name__ == '__main__':
