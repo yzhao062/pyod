@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
+# from sklearn.utils.validation import check_is_fitted
 import numpy as np
 
 from .base import BaseDetector
@@ -12,56 +12,182 @@ from ..utils.utility import check_parameter
 from ..utils.torch_utility import get_activation_by_name
 
 class InnerDeepSVDD(nn.Module):
-        def __init__(self, n_features, use_ae=False,
-                  hidden_neurons=None, hidden_activation='relu',
-                 output_activation='sigmoid',
-                 dropout_rate=0.2, l2_regularizer=0.1):
-            super(InnerDeepSVDD, self).__init__()
-            self.n_features = n_features
-            self.use_ae = use_ae
-            self.hidden_neurons = hidden_neurons or [64, 32]
-            self.hidden_activation = hidden_activation
-            self.output_activation = output_activation
-            self.dropout_rate = dropout_rate
-            self.l2_regularizer = l2_regularizer
-            self.model = self._build_model()
+    """Inner class for DeepSVDD model.
+
+    Parameters
+    ----------
+    n_features:
+        Number of features in the input data.
+
+    use_ae: bool, optional (default=False)
+            The AutoEncoder type of DeepSVDD it reverse neurons from hidden_neurons
+            if set to True.
+
+    hidden_neurons : list, optional (default=[64, 32])
+        The number of neurons per hidden layers. if use_ae is True, neurons
+        will be reversed eg. [64, 32] -> [64, 32, 32, 64, n_features]
+
+    hidden_activation : str, optional (default='relu')
+        Activation function to use for hidden layers.
+        All hidden layers are forced to use the same type of activation.
+        See https://keras.io/activations/
+
+    output_activation : str, optional (default='sigmoid')
+        Activation function to use for output layer.
+        See https://keras.io/activations/
+
+    dropout_rate : float in (0., 1), optional (default=0.2)
+        The dropout to be used across all layers.
+
+    l2_regularizer : float in (0., 1), optional (default=0.1)
+        The regularization strength of activity_regularizer
+        applied on each layer. By default, l2 regularizer is used. See
+        https://keras.io/regularizers/
+    """
+    def __init__(self, n_features, use_ae,
+                hidden_neurons, hidden_activation,
+                output_activation,
+                dropout_rate, l2_regularizer):
+        super(InnerDeepSVDD, self).__init__()
+        self.n_features = n_features
+        self.use_ae = use_ae
+        self.hidden_neurons = hidden_neurons or [64, 32]
+        self.hidden_activation = hidden_activation
+        self.output_activation = output_activation
+        self.dropout_rate = dropout_rate
+        self.l2_regularizer = l2_regularizer
+        self.model = self._build_model()
+    
+    def _init_c(self, X_norm, eps=0.1):
+        intermediate_output = {}
+        hook_handle = self.model._modules.get('net_output').register_forward_hook(
+            lambda module, input, output: intermediate_output.update({'net_output': output})
+        )
+        output =self.model(X_norm)
+
+        out = intermediate_output['net_output']
+        hook_handle.remove()
+
+        self.c = torch.mean(out, dim=0)
+        self.c[(torch.abs(self.c) < eps) & (self.c < 0)] = -eps
+        self.c[(torch.abs(self.c) < eps) & (self.c > 0)] = eps
+
+    def _build_model(self):
+        layers = nn.Sequential()
+        layers.add_module('input_layer', nn.Linear(self.n_features, self.hidden_neurons[0], bias=False))
+        layers.add_module('hidden_activation_e0', get_activation_by_name(self.hidden_activation))
+        for i in range(1,len(self.hidden_neurons)-1):
+            layers.add_module(f'hidden_layer_e{i}', nn.Linear(self.hidden_neurons[i-1], self.hidden_neurons[i], bias=False))
+            layers.add_module(f'hidden_activation_e{i}', get_activation_by_name(self.hidden_activation))
+            layers.add_module(f'hidden_dropout_e{i}', nn.Dropout(self.dropout_rate))
+        layers.add_module(f'net_output', nn.Linear(self.hidden_neurons[-2], self.hidden_neurons[-1], bias=False))
+        layers.add_module(f'hidden_activation_e{len(self.hidden_neurons)}', get_activation_by_name(self.hidden_activation))
         
-        def _init_c(self, X_norm, eps=0.1):
-            intermediate_output = {}
-            hook_handle = self.model._modules.get('net_output').register_forward_hook(
-                lambda module, input, output: intermediate_output.update({'net_output': output})
-            )
-            output =self.model(X_norm)
+        if self.use_ae:
+            for j in range(len(self.hidden_neurons)-1,0,-1):
+                layers.add_module(f'hidden_layer_d{j}', nn.Linear(self.hidden_neurons[j], self.hidden_neurons[j-1], bias=False))
+                layers.add_module(f'hidden_activation_d{j}', get_activation_by_name(self.hidden_activation))
+                layers.add_module(f'hidden_dropout_d{j}', nn.Dropout(self.dropout_rate))
+            layers.add_module(f'output_layer', nn.Linear(self.hidden_neurons[0], self.n_features, bias=False))
+            layers.add_module(f'output_activation', get_activation_by_name(self.output_activation))
+        return layers
 
-            out = intermediate_output['net_output']
-            hook_handle.remove()
-
-            self.c = torch.mean(out, dim=0)
-            self.c[(torch.abs(self.c) < eps) & (self.c < 0)] = -eps
-            self.c[(torch.abs(self.c) < eps) & (self.c > 0)] = eps
-
-        def _build_model(self):
-            layers = nn.Sequential()
-            layers.add_module('input_layer', nn.Linear(self.n_features, self.hidden_neurons[0], bias=False))
-            for i in range(1,len(self.hidden_neurons)-1):
-                layers.add_module(f'hidden_layer_e{i}', nn.Linear(self.hidden_neurons[i-1], self.hidden_neurons[i], bias=False))
-                layers.add_module(f'hidden_activation_e{i}', get_activation_by_name(self.hidden_activation))
-                layers.add_module(f'hidden_dropout_e{i}', nn.Dropout(self.dropout_rate))
-            layers.add_module(f'net_output', nn.Linear(self.hidden_neurons[-2], self.hidden_neurons[-1], bias=False))
-            
-            if self.use_ae:
-                for j in range(len(self.hidden_neurons)-1,0,-1):
-                    layers.add_module(f'hidden_layer_d{j}', nn.Linear(self.hidden_neurons[j], self.hidden_neurons[j-1], bias=False))
-                    layers.add_module(f'hidden_dropout_d{j}', nn.Dropout(self.dropout_rate))
-                layers.add_module(f'output_layer', nn.Linear(self.hidden_neurons[0], self.n_features, bias=False))
-        
-            return layers
-
-        def forward(self, x):
-            return self.model(x)
+    def forward(self, x):
+        return self.model(x)
 
 
 class DeepSVDD(BaseDetector):
+    """Deep One-Class Classifier with AutoEncoder (AE) is a type of neural
+        networks for learning useful data representations in an unsupervised way.
+        DeepSVDD trains a neural network while minimizing the volume of a
+        hypersphere that encloses the network representations of the data,
+        forcing the network to extract the common factors of variation.
+        Similar to PCA, DeepSVDD could be used to detect outlying objects in the
+        data by calculating the distance from center
+        See :cite:`ruff2018deepsvdd` for details.
+
+        Parameters
+        ----------
+        n_features: int, 
+            Number of features in the input data.
+
+        c: float, optional (default='forwad_nn_pass')
+            Deep SVDD center, the default will be calculated based on network
+            initialization first forward pass. To get repeated results set
+            random_state if c is set to None.
+
+        use_ae: bool, optional (default=False)
+            The AutoEncoder type of DeepSVDD it reverse neurons from hidden_neurons
+            if set to True.
+
+        hidden_neurons : list, optional (default=[64, 32])
+            The number of neurons per hidden layers. if use_ae is True, neurons
+            will be reversed eg. [64, 32] -> [64, 32, 32, 64, n_features]
+
+        hidden_activation : str, optional (default='relu')
+            Activation function to use for hidden layers.
+            All hidden layers are forced to use the same type of activation.
+            See https://keras.io/activations/
+
+        output_activation : str, optional (default='sigmoid')
+            Activation function to use for output layer.
+            See https://keras.io/activations/
+
+        optimizer : str, optional (default='adam')
+            String (name of optimizer) or optimizer instance.
+            See https://keras.io/optimizers/
+
+        epochs : int, optional (default=100)
+            Number of epochs to train the model.
+
+        batch_size : int, optional (default=32)
+            Number of samples per gradient update.
+
+        dropout_rate : float in (0., 1), optional (default=0.2)
+            The dropout to be used across all layers.
+
+        l2_regularizer : float in (0., 1), optional (default=0.1)
+            The regularization strength of activity_regularizer
+            applied on each layer. By default, l2 regularizer is used. See
+            https://keras.io/regularizers/
+
+        validation_size : float in (0., 1), optional (default=0.1)
+            The percentage of data to be used for validation.
+
+        preprocessing : bool, optional (default=True)
+            If True, apply standardization on the data.
+
+        random_state : random_state: int, RandomState instance or None, optional
+            (default=None)
+            If int, random_state is the seed used by the random
+            number generator; If RandomState instance, random_state is the random
+            number generator; If None, the random number generator is the
+            RandomState instance used by `np.random`.
+
+        contamination : float in (0., 0.5), optional (default=0.1)
+            The amount of contamination of the data set, i.e.
+            the proportion of outliers in the data set. When fitting this is used
+            to define the threshold on the decision function.
+
+        Attributes
+        ----------
+        decision_scores_ : numpy array of shape (n_samples,)
+            The outlier scores of the training data.
+            The higher, the more abnormal. Outliers tend to have higher
+            scores. This value is available once the detector is
+            fitted.
+
+        threshold_ : float
+            The threshold is based on ``contamination``. It is the
+            ``n_samples * contamination`` most abnormal samples in
+            ``decision_scores_``. The threshold is calculated for generating
+            binary outlier labels.
+
+        labels_ : int, either 0 or 1
+            The binary labels of the training data. 0 stands for inliers
+            and 1 for outliers/anomalies. It is generated by applying
+            ``threshold_`` on ``decision_scores_``.
+        """
     def __init__(self, n_features, c=None, use_ae=False, hidden_neurons=None, hidden_activation='relu',
                  output_activation='sigmoid', optimizer='adam', epochs=100, batch_size=32,
                  dropout_rate=0.2, l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
@@ -104,6 +230,21 @@ class DeepSVDD(BaseDetector):
                         include_left=True)
 
     def fit(self, X, y=None):
+        """Fit detector. y is ignored in unsupervised methods.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        y : Ignored
+            Not used, present for API consistency by convention.
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
+        """
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -208,4 +349,5 @@ class DeepSVDD(BaseDetector):
         with torch.no_grad():
             outputs = self.model(X_norm)
             dist = torch.sum((outputs - self.c) ** 2, dim=-1)
-        return dist.numpy()
+        anomaly_scores = dist.numpy()
+        return anomaly_scores
