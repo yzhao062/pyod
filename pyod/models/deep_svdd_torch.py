@@ -18,7 +18,6 @@ class InnerDeepSVDD(nn.Module):
                  dropout_rate=0.2, l2_regularizer=0.1):
             super(InnerDeepSVDD, self).__init__()
             self.n_features = n_features
-            # self.c = c
             self.use_ae = use_ae
             self.hidden_neurons = hidden_neurons or [64, 32]
             self.hidden_activation = hidden_activation
@@ -51,7 +50,7 @@ class InnerDeepSVDD(nn.Module):
             layers.add_module(f'net_output', nn.Linear(self.hidden_neurons[-2], self.hidden_neurons[-1], bias=False))
             
             if self.use_ae:
-                for j in range(len(self.hidden_neurons)-1,1):
+                for j in range(len(self.hidden_neurons)-1,0,-1):
                     layers.add_module(f'hidden_layer_d{j}', nn.Linear(self.hidden_neurons[j], self.hidden_neurons[j-1], bias=False))
                     layers.add_module(f'hidden_dropout_d{j}', nn.Dropout(self.dropout_rate))
                 layers.add_module(f'output_layer', nn.Linear(self.hidden_neurons[0], self.n_features, bias=False))
@@ -152,6 +151,7 @@ class DeepSVDD(BaseDetector):
         best_model_dict = None
 
         optimizer = self.optimizer(self.model.parameters(), weight_decay=self.l2_regularizer)
+        w_d = 1e-6 * sum([torch.linalg.norm(w) for w in self.model.parameters()])
 
         for epoch in range(self.epochs):
             self.model.train()
@@ -160,9 +160,12 @@ class DeepSVDD(BaseDetector):
                 optimizer.zero_grad()
                 outputs = self.model(batch_x)
                 dist = torch.sum((outputs - self.c) ** 2, dim=-1)
-                loss = torch.mean(dist)
+                if self.use_ae:
+                    loss = torch.mean(dist) + w_d + torch.mean(torch.square(outputs - batch_x))
+                else:
+                    loss = torch.mean(dist) + w_d
                 
-                loss.backward()
+                # loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
                 if epoch_loss < best_loss:
