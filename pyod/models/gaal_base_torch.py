@@ -34,12 +34,12 @@ def create_discriminator(latent_size, data_size):  # pragma: no cover
     class Discriminator(nn.Module):
         def __init__(self, latent_size, data_size):
             super(Discriminator, self).__init__()
-            self.layer1 = nn.Linear(latent_size, int(math.ceil(math.sqrt(data_size))), bias=True)
-            self.output = nn.Linear(int(math.ceil(math.sqrt(data_size))), 1, bias=True)
+            self.input_layer = nn.Linear(latent_size, int(math.ceil(math.sqrt(data_size))))
+            self.output_layer = nn.Linear(int(math.ceil(math.sqrt(data_size))), 1)
 
         def forward(self, x):
-            x = F.relu(self.layer1(x))
-            x = torch.sigmoid(self.output(x))
+            x = F.relu(self.input_layer(x))
+            x = torch.sigmoid(self.output_layer(x))  # Ensure this is not done in-place
             return x
 
     return Discriminator(latent_size, data_size)
