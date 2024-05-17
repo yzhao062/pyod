@@ -1,153 +1,105 @@
-# -*- coding: utf-8 -*-
-"""Multiple-Objective Generative Adversarial Active Learning.
-Part of the codes are adapted from
-https://github.com/leibinghe/GAAL-based-outlier-detection
-"""
-# Author: Winston Li <jk_zhengli@hotmail.com>
-# License: BSD 2 clause
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
+from sklearn.utils import check_array
 import numpy as np
-from collections import defaultdict
-
 from .base import BaseDetector
 from .gaal_base_torch import create_discriminator, create_generator
 
-
 class PyODDataset(torch.utils.data.Dataset):
-    """PyOD Dataset class for PyTorch Dataloader
-    """
-
-    def __init__(self, X, y=None, mean=None, std=None):
+    """Custom Dataset for handling data operations in PyTorch for outlier detection."""
+    def __init__(self, X):
         super(PyODDataset, self).__init__()
-        self.X = X
-        self.mean = mean
-        self.std = std
+        self.X = torch.tensor(X, dtype=torch.float32)
 
     def __len__(self):
-        return self.X.shape[0]
+        return len(self.X)
 
     def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-        sample = self.X[idx, :]
-
-        if self.mean is not None and self.std is not None:
-            sample = (sample - self.mean) / self.std
-            # assert_almost_equal (0, sample.mean(), decimal=1)
-
-        return torch.from_numpy(sample), idx
-
-
-
+        return self.X[idx]
 
 class MO_GAAL(BaseDetector):
-    """Multi-Objective Generative Adversarial Active Learning.
-
-    Parameters
-    ----------
-    contamination : float in (0., 0.5), optional (default=0.1)
-        The amount of contamination of the data set, i.e.
-        the proportion of outliers in the data set.
-
-    k : int, optional (default=10)
-        The number of sub generators.
-
-    stop_epochs : int, optional (default=20)
-        The number of epochs of training.
-
-    lr_d : float, optional (default=0.01)
-        The learning rate of the discriminator.
-
-    lr_g : float, optional (default=0.0001)
-        The learning rate of the generator.
-
-    momentum : float, optional (default=0.9)
-        The momentum parameter for the optimizer.
-    """
-
-    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1):
+    def __init__(self, k=10, stop_epochs=20, lr_d=0.0005, lr_g=0.0001, momentum=0.9, contamination=0.1):
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k
         self.stop_epochs = stop_epochs
         self.lr_d = lr_d
         self.lr_g = lr_g
         self.momentum = momentum
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.discriminator = None
+        self.generators = []
 
-    def fit(self, X):
-        torch.autograd.set_detect_anomaly(True)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        X = torch.tensor(X, dtype=torch.float32).to(device)
-        self.discriminator = create_discriminator(X.size(1), X.size(0)).to(device)
-        self.generators = [create_generator(X.size(1)).to(device) for _ in range(self.k)]
+    def init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+            nn.init.constant_(m.bias, 0.01)
 
-        optimizer_d = torch.optim.SGD(self.discriminator.parameters(), lr=self.lr_d, momentum=self.momentum)
-        optimizers_g = [torch.optim.SGD(gen.parameters(), lr=self.lr_g, momentum=self.momentum) for gen in
-                        self.generators]
+    def fit(self, X, y=None):
+        X = check_array(X)
+        self._set_n_classes(y)
+        n_samples, n_features = X.shape
 
-        criterion = torch.nn.BCELoss()
+        self.discriminator = create_discriminator(n_features, n_samples).to(self.device)
+        self.generators = [create_generator(n_features).to(self.device) for _ in range(self.k)]
 
-        epochs = self.stop_epochs * 3
-        batch_size = min(500, X.size(0))
-        num_batches = X.size(0) // batch_size
+        self.discriminator.apply(self.init_weights)
+        for gen in self.generators:
+            gen.apply(self.init_weights)
 
-        decision_scores = []  # List to gather all scores (assuming binary classification for simplicity)
-        for epoch in range(epochs):
-            for index in range(num_batches):
-                real_data = X[index * batch_size:(index + 1) * batch_size]
-                real_labels = torch.ones(real_data.size(0), 1).to(device)
-                fake_labels = torch.zeros(real_data.size(0), 1).to(device)
+        opt_d = optim.Adam(self.discriminator.parameters(), lr=self.lr_d, betas=(0.5, 0.999))
+        opts_g = [optim.Adam(gen.parameters(), lr=self.lr_g, betas=(0.5, 0.999)) for gen in self.generators]
+        criterion = nn.BCELoss()
 
-                # Train discriminator
+        dataset = PyODDataset(X)
+        loader = DataLoader(dataset, batch_size=64, shuffle=True)
+
+        num_batches = len(loader)
+        for epoch in range(self.stop_epochs * 3):
+            self.discriminator.train()
+            for index, real_data in enumerate(loader):
+                real_data = real_data.to(self.device)
+                real_labels = torch.ones(real_data.size(0), 1, device=self.device, dtype=torch.float32)
+                fake_labels = torch.zeros(real_data.size(0), 1, device=self.device, dtype=torch.float32)
+
                 self.discriminator.zero_grad()
-                outputs_real = self.discriminator(real_data)
-                loss_real = criterion(outputs_real, real_labels)
-                loss_real.backward()
+                real_loss = criterion(self.discriminator(real_data), real_labels)
 
-                # Assuming discriminator output as decision scores
-                decision_scores.extend(outputs_real.detach().cpu().numpy())
+                fake_data = [gen(torch.randn(real_data.size(0), n_features).to(self.device)) for gen in self.generators]
+                fake_losses = [criterion(self.discriminator(f_data.detach()), fake_labels) for f_data in fake_data]
+                fake_loss = torch.mean(torch.stack(fake_losses))
+                d_loss = real_loss + fake_loss
+                d_loss.backward()
+                opt_d.step()
 
-                for gen, optimizer_g in zip(self.generators, optimizers_g):
+                for gen, opt_g in zip(self.generators, opts_g):
                     gen.zero_grad()
-                    noise = torch.randn(real_data.size(0), X.size(1)).to(device)
-                    fake_data = gen(noise)
-                    outputs_fake = self.discriminator(fake_data)
-                    loss_fake = criterion(outputs_fake, fake_labels)
-                    loss_fake.backward()
-                    optimizer_g.step()
+                    g_loss = criterion(self.discriminator(gen(torch.randn(real_data.size(0), n_features).to(self.device))), real_labels)
+                    g_loss.backward()
+                    opt_g.step()
 
-                optimizer_d.step()
+            print(f'Epoch {epoch+1}/{self.stop_epochs * 3}, Loss_D: {d_loss.item()}, Loss_G: {g_loss.item()}')
 
-        # Finalize decision scores and labels
-        self.decision_scores_ = np.array([self.decision_function(X[i:i + 1]) for i in range(len(X))]).flatten()
-        self.threshold_ = np.percentile(self.decision_scores_, 100 * (1 - self.contamination))
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype(int)
+        self.discriminator.eval()
+        with torch.no_grad():
+            decision_scores = self.discriminator(torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().numpy()
+            self.decision_scores_ = decision_scores.ravel()
+        self._process_decision_scores()
+
         return self
 
     def decision_function(self, X):
-        """Calculate the anomaly scores for input samples X.
-
-        Parameters
-        ----------
-        X : torch.Tensor
-            Input samples.
-
-        Returns
-        -------
-        scores : torch.Tensor
-            Anomaly scores for each sample.
-        """
-        # Ensuring the discriminator has been moved to a device
-        if next(self.discriminator.parameters()).is_cuda:
-            device = 'cuda'
-        else:
-            device = 'cpu'
-
-        X = torch.tensor(X, dtype=torch.float32).to(device)
+        X = check_array(X)
+        X_tensor = torch.tensor(X, dtype=torch.float32).to(self.device)
+        self.discriminator.eval()
         with torch.no_grad():
-            scores = self.discriminator(X).squeeze()
-        return scores.cpu().numpy()
+            scores = self.discriminator(X_tensor).cpu().numpy()
+        return scores
 
-# Further methods and attributes can be added as needed to match the full functionality.
+    def predict(self, X, return_confidence=False):
+        scores = self.decision_function(X)
+        y_pred = (scores > self.threshold_).astype('int').ravel()
+        if return_confidence:
+            return y_pred, scores.reshape(-1, 1)  # Ensure scores have shape (n_samples, 1)
+        return y_pred

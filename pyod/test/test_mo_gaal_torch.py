@@ -31,42 +31,28 @@ class TestMO_GAAL(unittest.TestCase):
         self.n_test = 200
         self.n_features = 2
         self.contamination = 0.1
-        # GAN may yield unstable results; turning performance check off
-        # self.roc_floor = 0.8
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = MO_GAAL(k=1, stop_epochs=2,
-                           contamination=self.contamination)
+        self.clf = MO_GAAL(k=1, stop_epochs=2, contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
-        assert (hasattr(self.clf, 'decision_scores_') and
-                self.clf.decision_scores_ is not None)
-        assert (hasattr(self.clf, 'labels_') and
-                self.clf.labels_ is not None)
-        assert (hasattr(self.clf, 'threshold_') and
-                self.clf.threshold_ is not None)
-        assert (hasattr(self.clf, '_mu') and
-                self.clf._mu is not None)
-        assert (hasattr(self.clf, '_sigma') and
-                self.clf._sigma is not None)
-        assert (hasattr(self.clf, 'discriminator') and
-                self.clf.discriminator is not None)
+        assert (hasattr(self.clf, 'decision_scores_') and self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'labels_') and self.clf.labels_ is not None)
+        assert (hasattr(self.clf, 'threshold_') and self.clf.threshold_ is not None)
+        assert (hasattr(self.clf, '_mu') and self.clf._mu is not None)
+        assert (hasattr(self.clf, '_sigma') and self.clf._sigma is not None)
+        assert (hasattr(self.clf, 'discriminator') and self.clf.discriminator is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
 
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)
-
-        # check score shapes
         assert_equal(pred_scores.shape[0], self.X_test.shape[0])
-
-        # check performance
-        # assert (roc_auc_score(self.y_test, pred_scores) >= self.roc_floor)
 
     def test_prediction_labels(self):
         pred_labels = self.clf.predict(self.X_test)
@@ -92,21 +78,17 @@ class TestMO_GAAL(unittest.TestCase):
             self.clf.predict_proba(self.X_test, method='something')
 
     def test_prediction_labels_confidence(self):
-        pred_labels, confidence = self.clf.predict(self.X_test,
-                                                   return_confidence=True)
+        pred_labels, confidence = self.clf.predict(self.X_test, return_confidence=True)
         assert_equal(pred_labels.shape, self.y_test.shape)
-        assert_equal(confidence.shape, self.y_test.shape)
+        assert_equal(confidence.shape, (self.y_test.shape[0], 1))
         assert (confidence.min() >= 0)
         assert (confidence.max() <= 1)
 
     def test_prediction_proba_linear_confidence(self):
-        pred_proba, confidence = self.clf.predict_proba(self.X_test,
-                                                        method='linear',
-                                                        return_confidence=True)
+        pred_proba, confidence = self.clf.predict_proba(self.X_test, method='linear', return_confidence=True)
         assert (pred_proba.min() >= 0)
         assert (pred_proba.max() <= 1)
-
-        assert_equal(confidence.shape, self.y_test.shape)
+        assert_equal(confidence.shape, (self.y_test.shape[0], 1))
         assert (confidence.min() >= 0)
         assert (confidence.max() <= 1)
 
@@ -116,13 +98,10 @@ class TestMO_GAAL(unittest.TestCase):
 
     def test_fit_predict_score(self):
         self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='prc_n_score')
+        self.clf.fit_predict_score(self.X_test, self.y_test, scoring='roc_auc_score')
+        self.clf.fit_predict_score(self.X_test, self.y_test, scoring='prc_n_score')
         with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test,
-                                       scoring='something')
+            self.clf.fit_predict_score(self.X_test, self.y_test, scoring='something')
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
