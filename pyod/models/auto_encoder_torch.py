@@ -8,15 +8,16 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import torch
-from torch import nn
-import tqdm
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
+import torch
+from torch import nn
+import tqdm
+
 from .base import BaseDetector
-from ..utils.stat_models import pairwise_distances_no_broadcast
 from ..utils.torch_utility import PyODDataset, LinearBlock
+from ..utils.stat_models import pairwise_distances_no_broadcast
 
 
 class InnerAutoencoder(nn.Module):
@@ -232,7 +233,6 @@ class AutoEncoder(BaseDetector):
         self.weight_decay = weight_decay
         self.preprocessing = preprocessing
         self.loss_fn = loss_fn
-        self.loss_fn = torch.nn.MSELoss()
         self.verbose = verbose
         self.device = device
         if self.device is None:
@@ -325,7 +325,7 @@ class AutoEncoder(BaseDetector):
         if self.verbose >= 1:
             print(self.model)
 
-        for epoch in tqdm.trange(self.epochs, desc='AutoEncoder',
+        for epoch in tqdm.trange(self.epochs, desc='AutoEncoder Training',
                                  disable=not self.verbose==1):
             overall_loss = []
             for data in train_loader:
