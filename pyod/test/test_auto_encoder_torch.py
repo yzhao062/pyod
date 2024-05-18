@@ -16,11 +16,13 @@ from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname("__file__"), '..')))
+sys.path.append(os.path.abspath(os.path.dirname("__file__")))
 
-from pyod.models.auto_encoder_torch import AutoEncoder
-from pyod.utils.data import generate_data
 from pyod.models.auto_encoder_torch import PyODDataset
+from pyod.utils.data import generate_data
+from pyod.models.auto_encoder_torch import AutoEncoder
 
 class TestPyODDataset(unittest.TestCase):
     def setUp(self):
@@ -41,21 +43,21 @@ class TestPyODDataset(unittest.TestCase):
                                                    batch_size=self.batch_size,
                                                    shuffle=True)
 
-        for data, data_idx in train_loader:
+        for data in train_loader:
             assert (data.shape[0] == self.batch_size)
             assert (data.shape[1] == self.n_features)
 
     def test_preprocessing(self):
-
         self.mean, self.std = np.mean(self.X_train, axis=0), np.std(self.X_train, axis=0)
         train_set = PyODDataset(X=self.X_train, mean=self.mean, std=self.std)
         train_loader = torch.utils.data.DataLoader(train_set,
                                                    batch_size=self.batch_size,
                                                    shuffle=True)
-        for data, data_idx in train_loader:
+        for data in train_loader:
             assert (data.shape[0] == self.batch_size)
             assert (data.shape[1] == self.n_features)
-            assert_almost_equal (data.mean(), 0, decimal=1)
+            assert_almost_equal(data.mean(), 0, decimal=1)
+
 
 class TestAutoEncoder(unittest.TestCase):
     def setUp(self):
