@@ -15,35 +15,11 @@ from sklearn.utils.validation import check_is_fitted
 
 import torch
 import torch.nn as nn
+import tqdm
 
 from .base import BaseDetector
-from ..utils.torch_utility import get_activation_by_name
+from ..utils.torch_utility import PyODDataset, LinearBlock
 from ..utils.stat_models import pairwise_distances_no_broadcast
-
-
-class PyODDataset(torch.utils.data.Dataset):
-    def __init__(self, X, y=None, mean=None, std=None):
-        super(PyODDataset, self).__init__()
-        self.X = X
-        self.y = y
-        self.mean = mean
-        self.std = std
-
-    def __len__(self):
-        return self.X.shape[0]
-
-    def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-        sample = self.X[idx, :]
-
-        if self.mean is not None and self.std is not None:
-            sample = (sample - self.mean) / self.std
-
-        if self.y is not None:
-            return torch.as_tensor(sample, dtype=torch.float32), torch.as_tensor(self.y[idx], dtype=torch.float32)
-        else:
-            return torch.as_tensor(sample, dtype=torch.float32)
 
 
 class InnerVAE(nn.Module):
@@ -66,78 +42,54 @@ class InnerVAE(nn.Module):
         self.dropout_rate = dropout_rate
         self.encoder = self._build_encoder()
         self.decoder = self._build_decoder()
-        self.encoder_mu = nn.Linear(self.encoder_neurons[-1], self.latent_dim)
+        self.encoder_mu = nn.Linear(
+            self.encoder_neurons[-1], self.latent_dim)
         self.encoder_logvar = nn.Linear(
             self.encoder_neurons[-1], self.latent_dim)
 
     def _build_encoder(self):
-        encoder = nn.Sequential()
-        encoder.add_module(
-            'encoder_input',
-            nn.Linear(self.n_features, self.encoder_neurons[0])
+        encoder_layers = []
+        encoder_layers.append(
+            LinearBlock(
+                self.n_features,
+                self.encoder_neurons[0],
+                activation_name=self.hidden_activation,
+                dropout_rate=0
+            )
         )
-        encoder.add_module(
-            'encoder_input_activation',
-            get_activation_by_name(self.hidden_activation)
-        )
-        if self.dropout_rate > 0:
-            encoder.add_module(
-                'encoder_input_dropout',
-                nn.Dropout(p=self.dropout_rate)
-            )
-        for i in range(1, len(self.encoder_neurons)):
-            encoder.add_module(
-                f'encoder_hidden_{i}',
-                nn.Linear(self.encoder_neurons[i-1], self.encoder_neurons[i])
-            )
-            encoder.add_module(
-                f'encoder_hidden_activation_{i}',
-                get_activation_by_name(self.hidden_activation)
-            )
-            if self.dropout_rate > 0:
-                encoder.add_module(
-                    f'encoder_hidden_dropout_{i}',
-                    nn.Dropout(p=self.dropout_rate)
+        for i in range(len(self.encoder_neurons) - 1):
+            encoder_layers.append(
+                LinearBlock(
+                    self.encoder_neurons[i], 
+                    self.encoder_neurons[i+1],
+                    activation_name=self.hidden_activation,
+                    dropout_rate=self.dropout_rate
                 )
+            )
+        encoder = nn.Sequential(*encoder_layers)
         return encoder
 
     def _build_decoder(self):
-        decoder = nn.Sequential()
-        decoder.add_module(
-            'decoder_input',
-            nn.Linear(self.latent_dim, self.decoder_neurons[0])
-        )
-        decoder.add_module(
-            'decoder_input_activation',
-            get_activation_by_name(self.hidden_activation)
-        )
-        if self.dropout_rate > 0:
-            decoder.add_module(
-                'decoder_input_dropout',
-                nn.Dropout(p=self.dropout_rate)
-            )
-        for i in range(1, len(self.decoder_neurons)):
-            decoder.add_module(
-                f'decoder_hidden_{i}',
-                nn.Linear(self.decoder_neurons[i-1], self.decoder_neurons[i])
-            )
-            decoder.add_module(
-                f'decoder_hidden_activation_{i}',
-                get_activation_by_name(self.hidden_activation)
-            )
-            if self.dropout_rate > 0:
-                decoder.add_module(
-                    f'decoder_hidden_dropout_{i}',
-                    nn.Dropout(p=self.dropout_rate)
+        decoder_layers = []
+        for i in range(len(self.decoder_neurons)):
+            decoder_layers.append(
+                LinearBlock(
+                    self.decoder_neurons[i-1] \
+                        if i > 0 else self.latent_dim,
+                    self.decoder_neurons[i],
+                    activation_name=self.hidden_activation,
+                    dropout_rate=self.dropout_rate
                 )
-        decoder.add_module(
-            'decoder_output',
-            nn.Linear(self.decoder_neurons[-1], self.n_features)
+            )
+        decoder_layers.append(
+            LinearBlock(
+                self.decoder_neurons[-1],
+                self.n_features,
+                activation_name=self.output_activation,
+                dropout_rate=0
+            )
         )
-        decoder.add_module(
-            'decoder_output_activation',
-            get_activation_by_name(self.output_activation)
-        )
+        decoder = nn.Sequential(*decoder_layers)
         return decoder
 
     def reparameterize(self, mu, logvar):
@@ -182,7 +134,6 @@ class VAE(BaseDetector):
     'Understanding disentangling in beta-VAE'
     https://arxiv.org/pdf/1804.03599.pdf for details.
 
-
     Parameters
     ----------
     encoder_neurons : list, optional (default=[128, 64, 32])
@@ -221,8 +172,7 @@ class VAE(BaseDetector):
     learning_rate : float, optional (default=1e-3)
         Learning rate for the optimizer. This learning_rate is given to
         an Adam optimizer (torch.optim.Adam).
-        See https://pytorch.org/docs/stable/generated/torch.optim.Adam.html
-
+        See https://pytorch.org/docs/stable/generated/torch.optim.Adam.html for details.
 
     optimizer : obj, optional (default=torch.optim.Adam)
 
@@ -240,6 +190,15 @@ class VAE(BaseDetector):
     preprocessing : bool, optional (default=True)
         If True, apply standardization on the data.
 
+    verbose : int, optional (default=1)
+        Verbosity mode.
+
+        - 0 = silent
+        - 1 = progress bar
+        - 2 = one line per epoch.
+
+        For verbose >= 1, model summary may be printed.
+
     random_state : random_state: int, RandomState instance or None, optional
         (default=None)
         If int, random_state is the seed used by the random
@@ -252,6 +211,19 @@ class VAE(BaseDetector):
         The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. When fitting this is
         to define the threshold on the decision function.
+
+    device : str, optional (default=None)
+        The device to use for the model. If None, it will be decided
+        automatically. If you want to use MPS, set it to 'mps'.
+
+    use_compile : bool, optional (default=False)
+        Whether to compile the model. If True, the model will be compiled before training. 
+        This is only available for PyTorch version >= 2.0.0. and Python < 3.12.
+
+    compile_mode : str, optional (default='default')
+        The mode to compile the model. 
+        Can be either “default”, “reduce-overhead”, “max-autotune” or “max-autotune-no-cudagraphs”.
+        See https://pytorch.org/docs/stable/generated/torch.compile.html#torch-compile for details.
 
     Attributes
     ----------
@@ -292,12 +264,15 @@ class VAE(BaseDetector):
                  learning_rate=1e-3,
                  optimizer=torch.optim.Adam,
                  epochs=100,
-                 batch_size=16,
+                 batch_size=32,
                  dropout_rate=0.2,
                  weight_decay=1e-5,
                  preprocessing=True,
+                 verbose=1,
+                 contamination=0.1,
                  device=None,
-                 contamination=0.1):
+                 use_compile=False,
+                 compile_mode='default'):
         super(VAE, self).__init__(contamination=contamination)
 
         self.encoder_neurons = encoder_neurons
@@ -315,13 +290,16 @@ class VAE(BaseDetector):
         self.dropout_rate = dropout_rate
         self.weight_decay = weight_decay
         self.preprocessing = preprocessing
+        self.verbose = verbose
         self.device = device
         if self.device is None:
             self.device = torch.device(
                 "cuda:0" if torch.cuda.is_available() else "cpu")
-            # If you want to use MPS, uncomment the following line
+            # If you want to use MPS, uncomment the following lines
             # self.device = torch.device(
             #     "mps" if torch.backends.mps.is_available() else self.device)
+        self.use_compile = use_compile
+        self.compile_mode = compile_mode
 
         self.model = None
         self.best_model_dict = None
@@ -401,7 +379,15 @@ class VAE(BaseDetector):
         best_loss = float('inf')
         best_model_dict = None
 
-        for epoch in range(self.epochs):
+        if self.use_compile:
+            self.model = torch.compile(model=self.model, mode=self.compile_mode)
+            print('Model compiled.')
+
+        if self.verbose >= 1:
+            print(self.model)
+
+        for epoch in tqdm.trange(self.epochs, desc='VAE Training',
+                                 disable=not self.verbose == 1):
             overall_loss = []
             for x in train_loader:
                 x = x.to(self.device)
@@ -412,7 +398,10 @@ class VAE(BaseDetector):
                 optimizer.step()
                 overall_loss.append(loss.item())
             epoch_loss = np.mean(overall_loss)
-            print(f"Epoch {epoch+1}/{self.epochs}, Loss: {epoch_loss}")
+            if self.verbose >= 2:
+                print(f"Epoch {epoch + 1} / {self.epochs}, Loss: {epoch_loss:.4f}")
+
+            # track the best model
             if epoch_loss < best_loss:
                 best_loss = epoch_loss
                 best_model_dict = self.model.state_dict()
@@ -447,6 +436,7 @@ class VAE(BaseDetector):
 
         data_loader = torch.utils.data.DataLoader(
             dataset, batch_size=self.batch_size, shuffle=False)
+        
         self.model.eval()
 
         outlier_scores = []
