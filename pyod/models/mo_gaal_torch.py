@@ -7,8 +7,10 @@ import numpy as np
 from .base import BaseDetector
 from .gaal_base_torch import create_discriminator, create_generator
 
+
 class PyODDataset(torch.utils.data.Dataset):
     """Custom Dataset for handling data operations in PyTorch for outlier detection."""
+
     def __init__(self, X):
         super(PyODDataset, self).__init__()
         self.X = torch.tensor(X, dtype=torch.float32)
@@ -19,8 +21,10 @@ class PyODDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         return self.X[idx]
 
+
 class MO_GAAL(BaseDetector):
-    def __init__(self, k=10, stop_epochs=20, lr_d=0.0005, lr_g=0.0001, momentum=0.9, contamination=0.1):
+    def __init__(self, k=10, stop_epochs=20, lr_d=0.0005, lr_g=0.0001, momentum=0.9,
+                 contamination=0.1):  # lr_d was 0.01
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k
         self.stop_epochs = stop_epochs
@@ -39,7 +43,7 @@ class MO_GAAL(BaseDetector):
     def fit(self, X, y=None):
         X = check_array(X)
         self._set_n_classes(y)
-        n_samples, n_features = X.shape
+        n_samples, n_features = X.shape  # latent_size, data_size
 
         self.discriminator = create_discriminator(n_features, n_samples).to(self.device)
         self.generators = [create_generator(n_features).to(self.device) for _ in range(self.k)]
@@ -53,7 +57,7 @@ class MO_GAAL(BaseDetector):
         criterion = nn.BCELoss()
 
         dataset = PyODDataset(X)
-        loader = DataLoader(dataset, batch_size=64, shuffle=True)
+        loader = DataLoader(dataset, batch_size=64, shuffle=True)  # in mo_gaal.py: batch_size = min(500, data_size)
 
         num_batches = len(loader)
         for epoch in range(self.stop_epochs * 3):
@@ -75,11 +79,13 @@ class MO_GAAL(BaseDetector):
 
                 for gen, opt_g in zip(self.generators, opts_g):
                     gen.zero_grad()
-                    g_loss = criterion(self.discriminator(gen(torch.randn(real_data.size(0), n_features).to(self.device))), real_labels)
+                    g_loss = criterion(
+                        self.discriminator(gen(torch.randn(real_data.size(0), n_features).to(self.device))),
+                        real_labels)
                     g_loss.backward()
                     opt_g.step()
 
-            print(f'Epoch {epoch+1}/{self.stop_epochs * 3}, Loss_D: {d_loss.item()}, Loss_G: {g_loss.item()}')
+            print(f'Epoch {epoch + 1}/{self.stop_epochs * 3}, Loss_D: {d_loss.item()}, Loss_G: {g_loss.item()}')
 
         self.discriminator.eval()
         with torch.no_grad():
