@@ -6,7 +6,7 @@ from sklearn.utils import check_array
 import numpy as np
 from collections import defaultdict
 from .base import BaseDetector
-from .gaal_base_torch import create_discriminator, create_generator
+from .gaal_base import create_discriminator, create_generator
 from sklearn.utils.validation import check_is_fitted
 
 class PyODDataset(torch.utils.data.Dataset):
