@@ -124,11 +124,6 @@ class MO_GAAL(BaseDetector):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_history = defaultdict(list)
 
-    def init_weights(self, m):
-        if isinstance(m, nn.Linear):
-            nn.init.xavier_uniform_(m.weight)
-            nn.init.constant_(m.bias, 0.01)
-
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
 
@@ -162,7 +157,6 @@ class MO_GAAL(BaseDetector):
         for i in range(self.k):
             generator_name = 'sub_generator' + str(i)
             generator = Generator(latent_size).to(self.device)
-            generator.apply(self.init_weights)
             names[generator_name] = generator
 
             # Define the optimizer for the generator
