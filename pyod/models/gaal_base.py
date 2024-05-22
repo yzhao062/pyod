@@ -30,19 +30,17 @@ def create_discriminator(latent_size, data_size):
     """
 
     class Discriminator(nn.Module):
-        def __init__(self):
+        def __init__(self, latent_size, data_size):
             super(Discriminator, self).__init__()
-            self.network = nn.Sequential(
-                nn.Linear(latent_size, int(math.ceil(math.sqrt(data_size))), bias=True),
-                nn.ReLU(),
-                nn.Linear(int(math.ceil(math.sqrt(data_size))), 1, bias=True),
-                nn.Sigmoid()
-            )
+            self.layer1 = nn.Linear(latent_size, math.ceil(math.sqrt(data_size)))
+            self.layer2 = nn.Linear(math.ceil(math.sqrt(data_size)), 1)
+            nn.init.kaiming_normal_(self.layer1.weight, mode='fan_in', nonlinearity='relu')
+            nn.init.kaiming_normal_(self.layer2.weight, mode='fan_in', nonlinearity='sigmoid')
 
         def forward(self, x):
-            return self.network(x)
-
-    return Discriminator()
+            x = F.relu(self.layer1(x))
+            x = torch.sigmoid(self.layer2(x))
+            return x
 
 
 def create_generator(latent_size):
@@ -61,16 +59,14 @@ def create_generator(latent_size):
     """
 
     class Generator(nn.Module):
-        def __init__(self):
+        def __init__(self, latent_size):
             super(Generator, self).__init__()
-            self.network = nn.Sequential(
-                nn.Linear(latent_size, latent_size, bias=True),
-                nn.ReLU(),
-                nn.Linear(latent_size, latent_size, bias=True),
-                nn.ReLU()
-            )
+            self.layer1 = nn.Linear(latent_size, latent_size)
+            self.layer2 = nn.Linear(latent_size, latent_size)
+            nn.init.eye_(self.layer1.weight)
+            nn.init.eye_(self.layer2.weight)
 
         def forward(self, x):
-            return self.network(x)
-
-    return Generator()
+            x = F.relu(self.layer1(x))
+            x = F.relu(self.layer2(x))
+            return x
