@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""Deep One-Class Classification for outlier detection
+"""
+# Author: Rafal Bodziony <bodziony.rafal@gmail.com>
+# License: BSD 2 clause
+
+from __future__ import division
+from __future__ import print_function
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -5,7 +15,6 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 # from sklearn.utils.validation import check_is_fitted
-import numpy as np
 
 from .base import BaseDetector
 from ..utils.utility import check_parameter
@@ -20,8 +29,8 @@ class InnerDeepSVDD(nn.Module):
         Number of features in the input data.
 
     use_ae: bool, optional (default=False)
-            The AutoEncoder type of DeepSVDD it reverse neurons from hidden_neurons
-            if set to True.
+        The AutoEncoder type of DeepSVDD it reverse neurons from hidden_neurons
+        if set to True.
 
     hidden_neurons : list, optional (default=[64, 32])
         The number of neurons per hidden layers. if use_ae is True, neurons
