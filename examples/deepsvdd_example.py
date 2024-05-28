@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     # train DeepSVDD detector (Without-AE)
     clf_name = 'DeepSVDD'
-    clf = DeepSVDD(use_ae=use_ae, epochs=5, contamination=contamination,
+    clf = DeepSVDD(n_features, use_ae=use_ae, epochs=5, contamination=contamination,
                    random_state=random_state)
     clf.fit(X_train)
 
