@@ -32,9 +32,9 @@ class TestDeepSVDD(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = DeepSVDD(epochs=10, hidden_neurons=[64, 32],
+        self.clf = DeepSVDD(n_features=300, epochs=10, hidden_neurons=[64, 32],
                             contamination=self.contamination, random_state=2021)
-        self.clf_ae = DeepSVDD(epochs=5, use_ae=True, output_activation='relu',
+        self.clf_ae = DeepSVDD(n_features=300, epochs=5, use_ae=True, output_activation='relu',
                                hidden_neurons=[16, 8, 4], contamination=self.contamination,
                                preprocessing=False)
         self.clf.fit(self.X_train)
