@@ -27,6 +27,27 @@ from ..utils.torch_utility import TorchDataset, \
     get_optimizer_by_name, get_criterion_by_name
 from ..utils.stat_models import pairwise_distances_no_broadcast
 
+import tensorflow
+
+
+# Old function, deprecat this in the future
+def _get_tensorflow_version():  # pragma: no cover
+    """ Utility function to decide the version of tensorflow, which will 
+    affect how to import keras models. 
+
+    Returns
+    -------
+    tensorflow version : int
+
+    """
+
+    tf_version = str(tensorflow.__version__)
+    if int(tf_version.split(".")[0]) != 1 and int(
+            tf_version.split(".")[0]) != 2:
+        raise ValueError("tensorflow version error")
+
+    return int(tf_version.split(".")[0]) * 100 + int(tf_version.split(".")[1])
+
 
 class BaseDeepLearningDetector(BaseDetector):
     """
