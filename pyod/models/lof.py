@@ -139,7 +139,7 @@ class LOF(BaseDetector):
 
     def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,
                  metric='minkowski', p=2, metric_params=None,
-                 contamination=0.1, n_jobs=1, novelty=True):
+                 contamination=0.1, n_jobs=1, novelty=False):
         super(LOF, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
         self.algorithm = algorithm
