@@ -124,9 +124,8 @@ class TestDeepSVDD(unittest.TestCase):
                                        scoring='something')
 
     def test_model_clone(self):
-        # clone_clf = clone(self.clf)
-        # clone_clf = clone(self.clf_ae)
-        pass
+        clone_clf = clone(self.clf)
+        clone_clf = clone(self.clf_ae)
 
     def tearDown(self):
         pass

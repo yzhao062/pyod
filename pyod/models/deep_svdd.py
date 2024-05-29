@@ -20,6 +20,19 @@ from .base import BaseDetector
 from ..utils.utility import check_parameter
 from ..utils.torch_utility import get_activation_by_name
 
+optimizer_dict = {
+            'sgd': optim.SGD,
+            'adam': optim.Adam,
+            'rmsprop': optim.RMSprop,
+            'adagrad': optim.Adagrad,
+            'adadelta': optim.Adadelta,
+            'adamw': optim.AdamW,
+            'nadam': optim.NAdam,
+            'sparseadam': optim.SparseAdam,
+            'asgd': optim.ASGD,
+            'lbfgs': optim.LBFGS
+        }
+
 class InnerDeepSVDD(nn.Module):
     """Inner class for DeepSVDD model.
 
@@ -209,19 +222,7 @@ class DeepSVDD(BaseDetector):
         self.hidden_neurons = hidden_neurons or [64, 32]
         self.hidden_activation = hidden_activation
         self.output_activation = output_activation
-        optimizer_dict = {
-            'sgd': optim.SGD,
-            'adam': optim.Adam,
-            'rmsprop': optim.RMSprop,
-            'adagrad': optim.Adagrad,
-            'adadelta': optim.Adadelta,
-            'adamw': optim.AdamW,
-            'nadam': optim.NAdam,
-            'sparseadam': optim.SparseAdam,
-            'asgd': optim.ASGD,
-            'lbfgs': optim.LBFGS
-        }
-        self.optimizer = optimizer_dict[optimizer]
+        self.optimizer = optimizer
         self.epochs = epochs
         self.batch_size = batch_size
         self.dropout_rate = dropout_rate
@@ -230,7 +231,7 @@ class DeepSVDD(BaseDetector):
         self.preprocessing = preprocessing
         self.verbose = verbose
         self.random_state = random_state
-        self.model = None
+        self.model_ = None
         self.best_model_dict = None
 
         if self.random_state is not None:
@@ -278,13 +279,13 @@ class DeepSVDD(BaseDetector):
                              "the number of features")
         
         # Build DeepSVDD model & fit with X
-        self.model = InnerDeepSVDD(self.n_features, use_ae=self.use_ae, hidden_neurons=self.hidden_neurons,
+        self.model_ = InnerDeepSVDD(self.n_features, use_ae=self.use_ae, hidden_neurons=self.hidden_neurons,
                                    hidden_activation=self.hidden_activation, output_activation=self.output_activation,
                                    dropout_rate=self.dropout_rate, l2_regularizer=self.l2_regularizer)
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
         if self.c is None:
             self.c = 0.0
-            self.model._init_c(X_norm)
+            self.model_._init_c(X_norm)
 
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
@@ -300,15 +301,15 @@ class DeepSVDD(BaseDetector):
         best_loss = float('inf')
         best_model_dict = None
 
-        optimizer = self.optimizer(self.model.parameters(), weight_decay=self.l2_regularizer)
-        w_d = 1e-6 * sum([torch.linalg.norm(w) for w in self.model.parameters()])
+        optimizer = optimizer_dict[self.optimizer](self.model_.parameters(), weight_decay=self.l2_regularizer)
+        w_d = 1e-6 * sum([torch.linalg.norm(w) for w in self.model_.parameters()])
 
         for epoch in range(self.epochs):
-            self.model.train()
+            self.model_.train()
             epoch_loss = 0
             for batch_x, _ in dataloader:
                 optimizer.zero_grad()
-                outputs = self.model(batch_x)
+                outputs = self.model_(batch_x)
                 dist = torch.sum((outputs - self.c) ** 2, dim=-1)
                 if self.use_ae:
                     loss = torch.mean(dist) + w_d + torch.mean(torch.square(outputs - batch_x))
@@ -320,7 +321,7 @@ class DeepSVDD(BaseDetector):
                 epoch_loss += loss.item()
                 if epoch_loss < best_loss:
                     best_loss = epoch_loss
-                    best_model_dict = self.model.state_dict()
+                    best_model_dict = self.model_.state_dict()
             print(f"Epoch {epoch+1}/{self.epochs}, Loss: {epoch_loss}")
         self.best_model_dict = best_model_dict
 
@@ -354,9 +355,9 @@ class DeepSVDD(BaseDetector):
         else:
             X_norm = np.copy(X)
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
-        self.model.eval()
+        self.model_.eval()
         with torch.no_grad():
-            outputs = self.model(X_norm)
+            outputs = self.model_(X_norm)
             dist = torch.sum((outputs - self.c) ** 2, dim=-1)
         anomaly_scores = dist.numpy()
         return anomaly_scores
