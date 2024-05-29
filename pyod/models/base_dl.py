@@ -369,22 +369,24 @@ class BaseDeepLearningDetector(BaseDetector):
         Returns
         -------
         loss : float
-            The loss of the model.
+            The loss.item of the model.
         """
-        x = batch_data
-        x = x.to(self.device)
-        # x, y = batch_data
+        # An example implementation:
+        # x = batch_data
         # x = x.to(self.device)
-        # y = y.to(self.device)
-        self.optimizer.zero_grad()
-        output = self.model(x)
-        if hasattr(self.model, 'loss_func'):
-            loss = self.loss_func(output, x)
-        else:
-            loss = self.criterion(output, x)
-        loss.backward()
-        self.optimizer.step()
-        return loss.item()
+        # # x, y = batch_data
+        # # x = x.to(self.device)
+        # # y = y.to(self.device)
+        # self.optimizer.zero_grad()
+        # output = self.model(x)
+        # if hasattr(self.model, 'loss_func'):
+        #     loss = self.loss_func(output, x)
+        # else:
+        #     loss = self.criterion(output, x)
+        # loss.backward()
+        # self.optimizer.step()
+        # return loss.item()
+        pass
     
     @abstractmethod
     def evaluating_forward(self, batch_data):
@@ -402,14 +404,16 @@ class BaseDeepLearningDetector(BaseDetector):
         output : numpy array
             The output of the model.
         """
-        x = batch_data
-        x_gpu = x.to(self.device)
-        # x, y = batch_data
+        # An example implementation:
+        # x = batch_data
         # x_gpu = x.to(self.device)
-        # y = y.to(self.device)
-        output = self.model(x_gpu)
-        return pairwise_distances_no_broadcast(x.numpy(), 
-                                               output.cpu().numpy())
+        # # x, y = batch_data
+        # # x_gpu = x.to(self.device)
+        # # y = y.to(self.device)
+        # output = self.model(x_gpu)
+        # return pairwise_distances_no_broadcast(x.numpy(), 
+        #                                        output.cpu().numpy())
+        pass
     
     def epoch_update(self):
         """

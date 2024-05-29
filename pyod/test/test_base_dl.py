@@ -35,10 +35,10 @@ class DummyLoss(nn.Module):
 class DummyUnchangeModel(nn.Module):
     def __init__(self, feature_size):
         super(DummyUnchangeModel, self).__init__()
-        self.layer1 = nn.Linear(feature_size, 1)
+        self.layer1 = nn.Linear(feature_size, 2)
 
     def forward(self, x):
-        return x
+        return self.layer1(x)
 
 
 class DummyDetector(BaseDeepLearningDetector):
@@ -58,7 +58,22 @@ class DummyDetector(BaseDeepLearningDetector):
         self.model = DummyUnchangeModel(feature_size)
 
     def training_forward(self, batch_data):
-        return self.model(batch_data)
+        x = batch_data
+        x = x.to(self.device)
+        self.optimizer.zero_grad()
+        output = self.model(x)
+        if hasattr(self.model, 'loss_func'):
+            loss = self.loss_func(output, x)
+        else:
+            loss = self.criterion(output, x)
+        loss.backward()
+        self.optimizer.step()
+        return loss.item()
+        
+
+
+
+        
     
     def evaluating_forward(self, batch_data):
         return np.zeros(batch_data.shape[0])
@@ -80,17 +95,15 @@ class TestBaseDL(unittest.TestCase):
             contamination=self.contamination)
         
     def test_init(self):
-        zero_array = np.zeros((self.n_train, 1))
-
         dummy_clf = DummyDetector()
-        dummy_clf.fit(zero_array)
+        dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.contamination, 0.1)
         self.assertIsInstance(dummy_clf.optimizer, torch.optim.Adam)
         self.assertEqual(dummy_clf.loss_func, None)
         self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
         
         dummy_clf = DummyDetector(contamination=0.2, optimizer='sgd', loss_func=loss_function, criterion='mae')
-        dummy_clf.fit(zero_array)
+        dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.contamination, 0.2)
         self.assertIsInstance(dummy_clf.optimizer, torch.optim.SGD)
         self.assertEqual(dummy_clf.loss_func, loss_function)
@@ -105,47 +118,45 @@ class TestBaseDL(unittest.TestCase):
         self.assertRaises(ValueError, DummyDetector, contamination=0.51)
         with self.assertRaises(ValueError):
             dummy_clf = DummyDetector(optimizer='dummy_optimizer')
-            dummy_clf.fit(zero_array)
+            dummy_clf.fit(self.X_train)
         self.assertRaises(ValueError, DummyDetector, loss_func=0)
         self.assertRaises(ValueError, DummyDetector, criterion=0)
 
     def test_fit_decision_function(self):
-        zero_array = np.zeros((self.n_train, 1))
         zero_scores = np.zeros(self.n_train)
 
         dummy_clf = DummyDetector()
-        dummy_clf.fit(zero_array)
+        dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
         dummy_clf = DummyDetector(preprocessing=False)
-        dummy_clf.fit(zero_array)
+        dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
         dummy_clf = DummyDetector(verbose=0)
-        dummy_clf.fit(zero_array)
+        dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
         dummy_clf = DummyDetector(verbose=2)
-        dummy_clf.fit(zero_array)
+        dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
         dummy_clf = DummyDetector(use_compile=True)
-        dummy_clf.fit(zero_array)
+        dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
     def test_save_load(self):
-        zero_array = np.zeros((self.n_train, 1))
         zero_scores = np.zeros(self.n_train)
 
         dummy_clf = DummyDetector()
-        dummy_clf.fit(zero_array)
-        self.assertEqual(dummy_clf.decision_function(zero_array).all(), 
+        dummy_clf.fit(self.X_train)
+        self.assertEqual(dummy_clf.decision_function(self.X_train).all(),
                          zero_scores.all())
         dummy_clf.save('dummy_clf.txt')
         self.assertTrue(os.path.exists('dummy_clf.txt'))
 
         loaded_dummy_clf = DummyDetector.load('dummy_clf.txt')
-        self.assertEqual(loaded_dummy_clf.decision_function(zero_array).all(), 
+        self.assertEqual(loaded_dummy_clf.decision_function(self.X_train).all(),
                          zero_scores.all())
 
         os.remove('dummy_clf.txt')
