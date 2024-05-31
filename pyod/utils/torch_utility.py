@@ -109,8 +109,8 @@ class LinearBlock(nn.Module):
                  dropout_rate=0,
                  init_type='kaiming_uniform',
                  inplace=False,
-                 activation_params: dict = None,
-                 init_params: dict = None):
+                 activation_params: dict = {},
+                 init_params: dict = {}):
         super(LinearBlock, self).__init__()
         self.linear = nn.Linear(in_features, out_features)
         self.has_act = has_act
@@ -127,7 +127,7 @@ class LinearBlock(nn.Module):
         self.dropout_rate = dropout_rate
         if dropout_rate > 0:
             self.dropout = nn.Dropout(p=dropout_rate, inplace=inplace)
-        init_weights(self.linear, init_type=init_type, **init_params)
+        init_weights(layer=self.linear, name=init_type, **init_params)
 
     def forward(self, x):
         x = self.linear(x)
@@ -254,7 +254,8 @@ def get_optimizer_by_name(model, name, lr=1e-3, weight_decay=0,
         raise ValueError(f"{name} is not a valid optimizer.")
     
 
-def get_criterion_by_name(name, reduction='mean'):
+def get_criterion_by_name(name, reduction='mean',
+                          bce_weight=None):
     """
     Get criterion by name
 
@@ -271,6 +272,11 @@ def get_criterion_by_name(name, reduction='mean'):
         'sum': the output will be summed. Note: size_average and reduce are in the process of being deprecated, 
             and in the meantime, specifying either of those two args will override reduction. Default: 'mean'
         See https://pytorch.org/docs/stable/nn.html#loss-functions for details.
+
+    bce_weight : torch.Tensor, optional (default=None)
+        A manual rescaling weight given to the loss of each batch element.
+        See https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html#torch.nn.BCELoss for details.
+
     Returns
     -------
     criterion : torch.nn.Module
@@ -279,7 +285,7 @@ def get_criterion_by_name(name, reduction='mean'):
     criterion_dict = {
         'mse': nn.MSELoss(reduction=reduction),
         'mae': nn.L1Loss(reduction=reduction),
-        'bce': nn.BCELoss(reduction=reduction)
+        'bce': nn.BCELoss(reduction=reduction, weight=bce_weight)
     }
 
     if name in criterion_dict.keys():
@@ -289,16 +295,15 @@ def get_criterion_by_name(name, reduction='mean'):
         raise ValueError(f"{name} is not a valid criterion.")
     
 
-def init_weights(layer, init_type='kaiming_uniform', 
+def init_weights(layer, name='kaiming_uniform', 
                  uniform_a=0.0, uniform_b=1.0,
                  normal_mean=0.0, normal_std=1.0,
                  constant_val=0.0,
-                 dirac_groups=1,
                  xavier_gain=1.0,
                  kaiming_a=0, kaiming_mode='fan_in', kaiming_nonlinearity='leaky_relu',
                  trunc_mean=0.0, trunc_std=1.0, trunc_a=-2, trunc_b=2,
                  orthogonal_gain=1.0,
-                 sparse_sparsity=None, sparse_std=0.01):
+                 sparse_sparsity=None, sparse_std=0.01, sparse_generator=None):
     """
     Initialize weights for a layer
 
@@ -307,7 +312,7 @@ def init_weights(layer, init_type='kaiming_uniform',
     layer : torch.nn.Module
         Layer to be initialized.
 
-    init_type : str, optional (default='kaiming_uniform')
+    name : str, optional (default='kaiming_uniform')
         Initialization type.
         Available types: 'uniform', 'normal', 'constant', 'ones', 'zeros', 'eye', 'dirac',
         'xavier_uniform', 'xavier_normal', 'kaiming_uniform', 'kaiming_normal', 'trunc_normal',
@@ -333,10 +338,6 @@ def init_weights(layer, init_type='kaiming_uniform',
     constant_val : float, optional (default=0.0)
         The value to fill the tensor with.
         See https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.constant_ for details.
-
-    dirac_groups : int, optional (default=1)
-        Number of groups for the dirac initialization.
-        See https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.dirac_ for details.
 
     xavier_gain : float, optional (default=1.0)
         An optional scaling factor.
@@ -375,25 +376,29 @@ def init_weights(layer, init_type='kaiming_uniform',
         See https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.trunc_normal_ for details.
 
     orthogonal_gain : float, optional (default=1.0)
-        Optional scaling factor
+        The optional scaling factor
         See https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.orthogonal_ for details.
 
     sparse_sparsity : float, optional (default=None)
+        This parameter must be provided if used!
         The fraction of elements in each column to be set to zero.
         See https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.sparse_ for details.
 
     sparse_std : float, optional (default=0.01)
-        The tandard deviation of the normal distribution used to generate the non-zero values
+        The standard deviation of the normal distribution used to generate the non-zero values
+        See https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.sparse_ for details.
+
+    sparse_generator : Optional[Generator] (default=None)
+        The torch Generator to sample from.
         See https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.sparse_ for details.
     """
-    init_type_dict = {
+    init_name_dict = {
         'uniform': nn.init.uniform_,
         'normal': nn.init.normal_,
         'constant': nn.init.constant_,
         'ones': nn.init.ones_,
         'zeros': nn.init.zeros_,
         'eye': nn.init.eye_,
-        'dirac': nn.init.dirac_,
         'xavier_uniform': nn.init.xavier_uniform_,
         'xavier_normal': nn.init.xavier_normal_,
         'kaiming_uniform': nn.init.kaiming_uniform_,
@@ -403,39 +408,36 @@ def init_weights(layer, init_type='kaiming_uniform',
         'sparse': nn.init.sparse_
     }
 
-    if init_type in init_type_dict.keys():
-        if init_type == 'uniform':
-            init_type_dict[init_type](layer.weight, a=uniform_a, b=uniform_b)
-        elif init_type == 'normal':
-            init_type_dict[init_type](layer.weight, mean=normal_mean, std=normal_std)
-        elif init_type == 'constant':
-            init_type_dict[init_type](layer.weight, val=constant_val)
-        elif init_type == 'ones':
-            init_type_dict[init_type](layer.weight)
-        elif init_type == 'zeros':
-            init_type_dict[init_type](layer.weight)
-        elif init_type == 'eye':
-            init_type_dict[init_type](layer.weight)
-        elif init_type == 'dirac':
-            init_type_dict[init_type](layer.weight, groups=dirac_groups)
-        elif init_type == 'xavier_uniform':
-            init_type_dict[init_type](layer.weight, gain=xavier_gain)
-        elif init_type == 'xavier_normal':
-            init_type_dict[init_type](layer.weight, gain=xavier_gain)
-        elif init_type == 'kaiming_uniform':
-            init_type_dict[init_type](layer.weight, a=kaiming_a, mode=kaiming_mode, 
-                                      nonlinearity=kaiming_nonlinearity)
-        elif init_type == 'kaiming_normal':
-            init_type_dict[init_type](layer.weight, a=kaiming_a, mode=kaiming_mode, 
-                                      nonlinearity=kaiming_nonlinearity)
-        elif init_type == 'trunc_normal':
-            init_type_dict[init_type](layer.weight, mean=trunc_mean, std=trunc_std, 
-                                      a=trunc_a, b=trunc_b)
-        elif init_type == 'orthogonal':
-            init_type_dict[init_type](layer.weight, gain=orthogonal_gain)
-        elif init_type == 'sparse':
-            init_type_dict[init_type](layer.weight, sparsity=sparse_sparsity, 
-                                      std=sparse_std)
+    if name in init_name_dict.keys():
+        if name == 'uniform':
+            init_name_dict[name](layer.weight, a=uniform_a, b=uniform_b)
+        elif name == 'normal':
+            init_name_dict[name](layer.weight, mean=normal_mean, std=normal_std)
+        elif name == 'constant':
+            init_name_dict[name](layer.weight, val=constant_val)
+        elif name == 'ones':
+            init_name_dict[name](layer.weight)
+        elif name == 'zeros':
+            init_name_dict[name](layer.weight)
+        elif name == 'eye':
+            init_name_dict[name](layer.weight)
+        elif name == 'xavier_uniform':
+            init_name_dict[name](layer.weight, gain=xavier_gain)
+        elif name == 'xavier_normal':
+            init_name_dict[name](layer.weight, gain=xavier_gain)
+        elif name == 'kaiming_uniform':
+            init_name_dict[name](layer.weight, a=kaiming_a, mode=kaiming_mode, 
+                                  nonlinearity=kaiming_nonlinearity)
+        elif name == 'kaiming_normal':
+            init_name_dict[name](layer.weight, a=kaiming_a, mode=kaiming_mode, 
+                                  nonlinearity=kaiming_nonlinearity)
+        elif name == 'trunc_normal':
+            init_name_dict[name](layer.weight, mean=trunc_mean, std=trunc_std, 
+                                  a=trunc_a, b=trunc_b)
+        elif name == 'orthogonal':
+            init_name_dict[name](layer.weight, gain=orthogonal_gain)
+        elif name == 'sparse':
+            init_name_dict[name](layer.weight, sparsity=sparse_sparsity, 
+                                  std=sparse_std)
     else:
-        raise ValueError(f"{init_type} is not a valid initialization type")
-    
+        raise ValueError(f"{name} is not a valid initialization type.")

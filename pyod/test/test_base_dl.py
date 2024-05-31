@@ -69,11 +69,6 @@ class DummyDetector(BaseDeepLearningDetector):
         loss.backward()
         self.optimizer.step()
         return loss.item()
-        
-
-
-
-        
     
     def evaluating_forward(self, batch_data):
         return np.zeros(batch_data.shape[0])
