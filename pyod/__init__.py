@@ -2,6 +2,6 @@
 
 from . import models
 from . import utils
-# TODO: add version information here
+from .version import __version__
 
-__all__ = ['models', 'utils']
+__all__ = ['models', 'utils', '__version__']
