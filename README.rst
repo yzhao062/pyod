@@ -3,55 +3,57 @@ Python Outlier Detection (PyOD)
 
 **Deployment & Documentation & Stats & License**
 
-.. image:: https://img.shields.io/pypi/v/pyod.svg?color=brightgreen
+|badge_pypi| |badge_anaconda| |badge_docs| |badge_stars| |badge_forks| |badge_downloads| |badge_testing| |badge_coverage| |badge_maintainability| |badge_licence| |badge_benchmark|
+
+.. |badge_pypi| image:: https://img.shields.io/pypi/v/pyod.svg?color=brightgreen
    :target: https://pypi.org/project/pyod/
    :alt: PyPI version
 
 
-.. image:: https://anaconda.org/conda-forge/pyod/badges/version.svg
+.. |badge_anaconda| image:: https://anaconda.org/conda-forge/pyod/badges/version.svg
    :target: https://anaconda.org/conda-forge/pyod
    :alt: Anaconda version
 
 
-.. image:: https://readthedocs.org/projects/pyod/badge/?version=latest
+.. |badge_docs| image:: https://readthedocs.org/projects/pyod/badge/?version=latest
    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
 
 
-.. image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
+.. |badge_stars| image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
    :target: https://github.com/yzhao062/pyod/stargazers
    :alt: GitHub stars
 
 
-.. image:: https://img.shields.io/github/forks/yzhao062/pyod.svg?color=blue
+.. |badge_forks| image:: https://img.shields.io/github/forks/yzhao062/pyod.svg?color=blue
    :target: https://github.com/yzhao062/pyod/network
    :alt: GitHub forks
 
 
-.. image:: https://pepy.tech/badge/pyod
+.. |badge_downloads| image:: https://pepy.tech/badge/pyod
    :target: https://pepy.tech/project/pyod
    :alt: Downloads
 
-.. image:: https://github.com/yzhao062/pyod/actions/workflows/testing.yml/badge.svg
+.. |badge_testing| image:: https://github.com/yzhao062/pyod/actions/workflows/testing.yml/badge.svg
    :target: https://github.com/yzhao062/pyod/actions/workflows/testing.yml
    :alt: testing
 
 
-.. image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
+.. |badge_coverage| image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
    :target: https://coveralls.io/github/yzhao062/pyod
    :alt: Coverage Status
 
 
-.. image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
+.. |badge_maintainability| image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
    :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
    :alt: Maintainability
 
 
-.. image:: https://img.shields.io/github/license/yzhao062/pyod.svg
+.. |badge_license| image:: https://img.shields.io/github/license/yzhao062/pyod.svg
    :target: https://github.com/yzhao062/pyod/blob/master/LICENSE
    :alt: License
 
-.. image:: https://img.shields.io/badge/ADBench-benchmark_results-pink
+.. |badge_benchmark| image:: https://img.shields.io/badge/ADBench-benchmark_results-pink
    :target: https://github.com/Minqi824/ADBench
    :alt: Benchmark
 
