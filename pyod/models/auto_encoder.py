@@ -1,119 +1,101 @@
 # -*- coding: utf-8 -*-
-"""Using Auto Encoder with Outlier Detection
+"""Using AutoEncoder with Outlier Detection
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Tiankai Yang <tiankaiy@usc.edu>
 # License: BSD 2 clause
 
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
+from torch import nn
 
-from .base import BaseDetector
-from .base_dl import _get_tensorflow_version
-from ..utils.stat_models import pairwise_distances_no_broadcast
-from ..utils.utility import check_parameter
-
-# if tensorflow 2, import from tf directly
-if _get_tensorflow_version() < 200:
-    from keras.models import Sequential
-    from keras.layers import Dense, Dropout
-    from keras.regularizers import l2
-    from keras.losses import mean_squared_error
-else:
-    from tensorflow.keras.models import Sequential
-    from tensorflow.keras.layers import Dense, Dropout
-    from tensorflow.keras.regularizers import l2
-    from tensorflow.keras.losses import mean_squared_error
+from pyod.models.base_dl import BaseDeepLearningDetector
+from pyod.utils.torch_utility import LinearBlock
+from pyod.utils.stat_models import pairwise_distances_no_broadcast
 
 
-# noinspection PyUnresolvedReferences,PyPep8Naming,PyTypeChecker
-class AutoEncoder(BaseDetector):
-    """Auto Encoder (AE) is a type of neural networks for learning useful data
-    representations unsupervisedly. Similar to PCA, AE could be used to
-    detect outlying objects in the data by calculating the reconstruction
+class AutoEncoder(BaseDeepLearningDetector):
+    """
+    Auto Encoder (AE) is a type of neural networks for learning useful data
+    representations in an unsupervised manner. Similar to PCA, AE could be used
+    to detect outlying objects in the data by calculating the reconstruction
     errors. See :cite:`aggarwal2015outlier` Chapter 3 for details.
 
     Parameters
     ----------
-    hidden_neurons : list, optional (default=[64, 32, 32, 64])
-        The number of neurons per hidden layers.
-
-    hidden_activation : str, optional (default='relu')
-        Activation function to use for hidden layers.
-        All hidden layers are forced to use the same type of activation.
-        See https://keras.io/activations/
-
-    output_activation : str, optional (default='sigmoid')
-        Activation function to use for output layer.
-        See https://keras.io/activations/
-
-    loss : str or obj, optional (default=keras.losses.mean_squared_error)
-        String (name of objective function) or objective function.
-        See https://keras.io/losses/
-
-    optimizer : str, optional (default='adam')
-        String (name of optimizer) or optimizer instance.
-        See https://keras.io/optimizers/
-
-    epochs : int, optional (default=100)
-        Number of epochs to train the model.
-
-    batch_size : int, optional (default=32)
-        Number of samples per gradient update.
-
-    dropout_rate : float in (0., 1), optional (default=0.2)
-        The dropout to be used across all layers.
-
-    l2_regularizer : float in (0., 1), optional (default=0.1)
-        The regularization strength of activity_regularizer
-        applied on each layer. By default, l2 regularizer is used. See
-        https://keras.io/regularizers/
-
-    validation_size : float in (0., 1), optional (default=0.1)
-        The percentage of data to be used for validation.
+    contamination : float in (0., 0.5), optional (default=0.1)
+        The amount of contamination of the data set, 
+        i.e. the proportion of outliers in the data set. 
+        Used when fitting to define the threshold on the decision function.
 
     preprocessing : bool, optional (default=True)
-        If True, apply standardization on the data.
+        If True, apply the preprocessing procedure before training models.
+
+    lr : float, optional (default=1e-3)
+        The initial learning rate for the optimizer.
+
+    epoch_num : int, optional (default=10)
+        The number of epochs for training.
+
+    batch_size : int, optional (default=32)
+        The batch size for training.
+
+    optimizer_name : str, optional (default='adam')
+        The name of theoptimizer used to train the model.
+
+    device : str, optional (default=None)
+        The device to use for the model. If None, it will be decided
+        automatically. If you want to use MPS, set it to 'mps'.
+
+    random_state : int, optional (default=42)
+        The random seed for reproducibility.
+
+    use_compile : bool, optional (default=False)
+        Whether to compile the model.
+        If True, the model will be compiled before training.
+        This is only available for
+        PyTorch version >= 2.0.0. and Python < 3.12.
+
+    compile_mode : str, optional (default='default')
+        The mode to compile the model.
+        Can be either “default”, “reduce-overhead”,
+        “max-autotune” or “max-autotune-no-cudagraphs”.
+        See https://pytorch.org/docs/stable/generated/torch.compile.html#torch-compile for details.
 
     verbose : int, optional (default=1)
         Verbosity mode.
-
         - 0 = silent
         - 1 = progress bar
         - 2 = one line per epoch.
 
-        For verbose >= 1, model summary may be printed.
+    optimizer_params : dict, optional (default={'weight_decay': 1e-5})
+        Additional parameters for the optimizer.
+        For example, `optimizer_params={'weight_decay': 1e-5}`.
 
-    random_state : random_state: int, RandomState instance or None, optional
-        (default=None)
-        If int, random_state is the seed used by the random
-        number generator; If RandomState instance, random_state is the random
-        number generator; If None, the random number generator is the
-        RandomState instance used by `np.random`.
+    hidden_neuron_list : list, optional (default=[64, 32])
+        The number of neurons per hidden layers. 
+        So the network has the structure as [feature_size, 64, 32, 32, 64, feature_size].
 
-    contamination : float in (0., 0.5), optional (default=0.1)
-        The amount of contamination of the data set, i.e.
-        the proportion of outliers in the data set. When fitting this is used
-        to define the threshold on the decision function.
+    hidden_activation_name : str, optional (default='relu')
+        The activation function used in hidden layers.
+
+    batch_norm : boolean, optional (default=True)
+        Whether to apply Batch Normalization,
+        See https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm1d.html
+
+    dropout_rate : float in (0., 1), optional (default=0.2)
+        The dropout to be used across all layers.
 
     Attributes
     ----------
-    encoding_dim_ : int
-        The number of neurons in the encoding layer.
+    model : torch.nn.Module
+        The underlying AutoEncoder model.
 
-    compression_rate_ : float
-        The ratio between the original feature and
-        the number of neurons in the encoding layer.
+    optimizer : torch.optim
+        The optimizer used to train the model.
 
-    model_ : Keras Object
-        The underlying AutoEncoder in Keras.
-
-    history_: Keras Object
-        The AutoEncoder training history.
+    criterion : torch.nn.modules
+        The loss function used to train the model.
 
     decision_scores_ : numpy array of shape (n_samples,)
         The outlier scores of the training data.
@@ -132,163 +114,99 @@ class AutoEncoder(BaseDetector):
         and 1 for outliers/anomalies. It is generated by applying
         ``threshold_`` on ``decision_scores_``.
     """
-
-    def __init__(self, hidden_neurons=None,
-                 hidden_activation='relu', output_activation='sigmoid',
-                 loss=mean_squared_error, optimizer='adam',
-                 epochs=100, batch_size=32, dropout_rate=0.2,
-                 l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbose=1, random_state=None, contamination=0.1):
-        super(AutoEncoder, self).__init__(contamination=contamination)
-        self.hidden_neurons = hidden_neurons
-        self.hidden_activation = hidden_activation
-        self.output_activation = output_activation
-        self.loss = loss
-        self.optimizer = optimizer
-        self.epochs = epochs
-        self.batch_size = batch_size
+    
+    def __init__(self, 
+                 contamination=0.1, preprocessing=True,
+                 lr=1e-3, epoch_num=10, batch_size=32,
+                 optimizer_name='adam', 
+                 device=None, random_state=42,
+                 use_compile=False, compile_mode='default',
+                 verbose=1,
+                 optimizer_params: dict = {'weight_decay': 1e-5},
+                 hidden_neuron_list=[64, 32],
+                 hidden_activation_name='relu',
+                 batch_norm=True, dropout_rate=0.2):
+        super(AutoEncoder, self).__init__(contamination=contamination,
+                                          preprocessing=preprocessing,
+                                          lr=lr, epoch_num=epoch_num, batch_size=batch_size,
+                                          optimizer_name=optimizer_name, criterion_name='mse',
+                                          device=device, random_state=random_state,
+                                          use_compile=use_compile, compile_mode=compile_mode,
+                                          verbose=verbose,
+                                          optimizer_params=optimizer_params)
+        self.hidden_neuron_list = hidden_neuron_list
+        self.hidden_activation_name = hidden_activation_name
+        self.batch_norm = batch_norm
         self.dropout_rate = dropout_rate
-        self.l2_regularizer = l2_regularizer
-        self.validation_size = validation_size
-        self.preprocessing = preprocessing
-        self.verbose = verbose
-        self.random_state = random_state
 
-        # default values
-        if self.hidden_neurons is None:
-            self.hidden_neurons = [64, 32, 32, 64]
+    def build_model(self, feature_size):
+        self.model = AutoEncoderModel(feature_size,
+                                      hidden_neuron_list=self.hidden_neuron_list,
+                                      hidden_activation_name=self.hidden_activation_name,
+                                      batch_norm=self.batch_norm,
+                                      dropout_rate=self.dropout_rate)
+        
+    def training_forward(self, batch_data):
+        x = batch_data
+        x = x.to(self.device)
+        self.optimizer.zero_grad()
+        x_recon = self.model(x)
+        loss = self.criterion(x_recon, x)
+        loss.backward()
+        self.optimizer.step()
+        return loss.item()
+    
+    def evaluating_forward(self, batch_data):
+        x = batch_data
+        x_gpu = x.to(self.device)
+        x_recon = self.model(x_gpu)
+        score = pairwise_distances_no_broadcast(x.numpy(), 
+                                                x_recon.cpu().numpy())
+        return score
 
-        # Verify the network design is valid
-        if not self.hidden_neurons == self.hidden_neurons[::-1]:
-            print(self.hidden_neurons)
-            raise ValueError("Hidden units should be symmetric")
 
-        self.hidden_neurons_ = self.hidden_neurons
+class AutoEncoderModel(nn.Module):
+    def __init__(self,
+                 feature_size,
+                 hidden_neuron_list=[64, 32],
+                 hidden_activation_name='relu',
+                 batch_norm=True,
+                 dropout_rate=0.2):
+        super(AutoEncoderModel, self).__init__()
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
-                        include_left=True)
+        self.feature_size = feature_size
+        self.hidden_neuron_list = hidden_neuron_list
+        self.hidden_activation_name = hidden_activation_name
+        self.batch_norm = batch_norm
+        self.dropout_rate = dropout_rate
 
-    def _build_model(self):
-        model = Sequential()
-        # Input layer
-        model.add(Dense(
-            self.hidden_neurons_[0], activation=self.hidden_activation,
-            input_shape=(self.n_features_,),
-            activity_regularizer=l2(self.l2_regularizer)))
-        model.add(Dropout(self.dropout_rate))
+        self.encoder = self._build_encoder()
+        self.decoder = self._build_decoder()
 
-        # Additional layers
-        for i, hidden_neurons in enumerate(self.hidden_neurons_, 1):
-            model.add(Dense(
-                hidden_neurons,
-                activation=self.hidden_activation,
-                activity_regularizer=l2(self.l2_regularizer)))
-            model.add(Dropout(self.dropout_rate))
-
-        # Output layers
-        model.add(Dense(self.n_features_, activation=self.output_activation,
-                        activity_regularizer=l2(self.l2_regularizer)))
-
-        # Compile model
-        model.compile(loss=self.loss, optimizer=self.optimizer)
-        if self.verbose >= 1:
-            print(model.summary())
-        return model
-
-    # noinspection PyUnresolvedReferences
-    def fit(self, X, y=None):
-        """Fit detector. y is ignored in unsupervised methods.
-
-        Parameters
-        ----------
-        X : numpy array of shape (n_samples, n_features)
-            The input samples.
-
-        y : Ignored
-            Not used, present for API consistency by convention.
-
-        Returns
-        -------
-        self : object
-            Fitted estimator.
-        """
-        # validate inputs X and y (optional)
-        X = check_array(X)
-        self._set_n_classes(y)
-
-        # Verify and construct the hidden units
-        self.n_samples_, self.n_features_ = X.shape[0], X.shape[1]
-
-        # Standardize data for better performance
-        if self.preprocessing:
-            self.scaler_ = StandardScaler()
-            X_norm = self.scaler_.fit_transform(X)
-        else:
-            X_norm = np.copy(X)
-
-        # Shuffle the data for validation as Keras do not shuffling for
-        # Validation Split
-        np.random.shuffle(X_norm)
-
-        # Validate and complete the number of hidden neurons
-        if np.min(self.hidden_neurons) > self.n_features_:
-            raise ValueError("The number of neurons should not exceed "
-                             "the number of features")
-        self.hidden_neurons_.insert(0, self.n_features_)
-
-        # Calculate the dimension of the encoding layer & compression rate
-        self.encoding_dim_ = np.median(self.hidden_neurons)
-        self.compression_rate_ = self.n_features_ // self.encoding_dim_
-
-        # Build AE model & fit with X
-        self.model_ = self._build_model()
-        self.history_ = self.model_.fit(X_norm, X_norm,
-                                        epochs=self.epochs,
-                                        batch_size=self.batch_size,
-                                        shuffle=True,
-                                        validation_split=self.validation_size,
-                                        verbose=self.verbose).history
-        # Reverse the operation for consistency
-        self.hidden_neurons_.pop(0)
-        # Predict on X itself and calculate the reconstruction error as
-        # the outlier scores. Noted X_norm was shuffled has to recreate
-        if self.preprocessing:
-            X_norm = self.scaler_.transform(X)
-        else:
-            X_norm = np.copy(X)
-
-        pred_scores = self.model_.predict(X_norm)
-        self.decision_scores_ = pairwise_distances_no_broadcast(X_norm,
-                                                                pred_scores)
-        self._process_decision_scores()
-        return self
-
-    def decision_function(self, X):
-        """Predict raw anomaly score of X using the fitted detector.
-
-        The anomaly score of an input sample is computed based on different
-        detector algorithms. For consistency, outliers are assigned with
-        larger anomaly scores.
-
-        Parameters
-        ----------
-        X : numpy array of shape (n_samples, n_features)
-            The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
-
-        Returns
-        -------
-        anomaly_scores : numpy array of shape (n_samples,)
-            The anomaly score of the input samples.
-        """
-        check_is_fitted(self, ['model_', 'history_'])
-        X = check_array(X)
-
-        if self.preprocessing:
-            X_norm = self.scaler_.transform(X)
-        else:
-            X_norm = np.copy(X)
-
-        # Predict on X and return the reconstruction errors
-        pred_scores = self.model_.predict(X_norm)
-        return pairwise_distances_no_broadcast(X_norm, pred_scores)
+    def _build_encoder(self):
+        encoder_layers = []
+        last_neuron_size = self.feature_size
+        for neuron_size in self.hidden_neuron_list:
+            encoder_layers.append(LinearBlock(last_neuron_size, neuron_size,
+                                              activation_name=self.hidden_activation_name,
+                                              batch_norm=self.batch_norm,
+                                              dropout_rate=self.dropout_rate))
+            last_neuron_size = neuron_size
+        return nn.Sequential(*encoder_layers)
+    
+    def _build_decoder(self):
+        decoder_layers = []
+        last_neuron_size = self.hidden_neuron_list[-1]
+        for neuron_size in reversed(self.hidden_neuron_list[:-1]):
+            decoder_layers.append(LinearBlock(last_neuron_size, neuron_size,
+                                              activation_name=self.hidden_activation_name,
+                                              batch_norm=self.batch_norm,
+                                              dropout_rate=self.dropout_rate))
+            last_neuron_size = neuron_size
+        decoder_layers.append(nn.Linear(last_neuron_size, self.feature_size))
+        return nn.Sequential(*decoder_layers)
+    
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
