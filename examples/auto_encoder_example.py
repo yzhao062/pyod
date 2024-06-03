@@ -14,6 +14,7 @@ import sys
 # if pyod is installed, no need to use the following line
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
+sys.path.append(os.path.abspath(os.path.dirname("__file__")))
 
 from pyod.models.auto_encoder import AutoEncoder
 from pyod.utils.data import generate_data
@@ -35,7 +36,7 @@ if __name__ == "__main__":
 
     # train AutoEncoder detector
     clf_name = 'AutoEncoder'
-    clf = AutoEncoder(epochs=30, contamination=contamination)
+    clf = AutoEncoder(epoch_num=30, contamination=contamination)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data
