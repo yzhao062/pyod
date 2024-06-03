@@ -20,7 +20,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.dif import DIF
 from pyod.utils.data import generate_data
-from pyod.models.auto_encoder_torch import PyODDataset
 
 
 class TestDIF(unittest.TestCase):
