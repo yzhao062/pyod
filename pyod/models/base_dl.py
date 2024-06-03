@@ -258,7 +258,7 @@ class BaseDeepLearningDetector(BaseDetector):
 
             self.epoch_update()
 
-    def decision_function(self, X, y=None):
+    def decision_function(self, X, batch_size=None):
         """
         Predict raw anomaly score of X using the fitted detector.
 
@@ -270,6 +270,9 @@ class BaseDeepLearningDetector(BaseDetector):
         X : numpy array of shape (n_samples, n_features)
             The training input samples. Sparse matrices are accepted only
             if they are supported by the base estimator.
+        batch_size : int, optional (default=None)
+            The batch size for processing the input samples.
+            If not specified, the default batch size is used.
         Returns
         -------
         anomaly_scores : numpy array of shape (n_samples,)
@@ -277,12 +280,13 @@ class BaseDeepLearningDetector(BaseDetector):
         """
         X = check_array(X)
         if self.preprocessing:
-            dataset = TorchDataset(X=X, y=y, mean=self.X_mean, std=self.X_std)
+            dataset = TorchDataset(X=X, y=None, mean=self.X_mean, std=self.X_std)
         else:
-            dataset = TorchDataset(X=X, y=y)
+            dataset = TorchDataset(X=X, y=None)
 
         data_loader = torch.utils.data.DataLoader(
-            dataset=dataset, batch_size=self.batch_size, shuffle=False)
+            dataset=dataset, batch_size=self.batch_size if batch_size is None else batch_size,
+            shuffle=False, drop_last=False)
 
         # evaluate the model
         anomaly_scores = self.evaluate(data_loader)
