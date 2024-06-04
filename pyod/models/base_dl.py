@@ -144,6 +144,8 @@ class BaseDeepLearningDetector(BaseDetector):
 
         self.X_mean = None
         self.X_std = None
+        self.data_num = None
+        self.feature_size = None
 
         if (isinstance(contamination, (float, int))):
             if not (0. < contamination <= 0.5):
@@ -193,8 +195,8 @@ class BaseDeepLearningDetector(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        feature_size = X.shape[1]
-        self.build_model(feature_size)
+        self.data_num, self.feature_size = X.shape
+        self.build_model()
         self.training_prepare()
 
         if self.preprocessing:
@@ -248,13 +250,23 @@ class BaseDeepLearningDetector(BaseDetector):
             for batch_data in train_loader:
                 loss = self.training_forward(batch_data)
                 overall_loss.append(loss)
-            overall_loss = np.mean(overall_loss)
-
+            # loss could be a tuple or a single value
+            if isinstance(loss, (tuple, list)):
+                overall_loss = np.mean([l for l in overall_loss])
+            else:
+                overall_loss = np.mean(overall_loss)
+            
+            # loss could be a tuple or a single value
             if self.verbose == 2:
-                end_time = time.time()
-                print(f'Epoch: {epoch + 1} / {self.epoch_num}, '
-                      f'Loss: {overall_loss:.4f}, '
-                      f'Time: {end_time - start_time:.2f}s')
+                if isinstance(loss, (tuple, list)):
+                    print(f'Epoch {epoch + 1}/{self.epoch_num},', end=' ')
+                    for i, l in enumerate(loss):
+                        print(f'loss_{i}={l:.4f}', end=', ')
+                    print(f'time={time.time() - start_time:.2f}s')
+                else:
+                    print(f'Epoch {epoch + 1}/{self.epoch_num}, '
+                          f'loss={overall_loss:.4f}, '
+                          f'time={time.time() - start_time:.2f}s')
 
             self.epoch_update()
 
@@ -292,6 +304,9 @@ class BaseDeepLearningDetector(BaseDetector):
         anomaly_scores = self.evaluate(data_loader)
         anomaly_scores = self.decision_function_update(anomaly_scores)
         return anomaly_scores
+    
+    def evaluating_prepare(self):
+        self.model.eval()
 
     def evaluate(self, data_loader):
         """
@@ -307,7 +322,7 @@ class BaseDeepLearningDetector(BaseDetector):
         outlier_scores : numpy array of shape (n_samples,)
             The outlier scores of the input samples.
         """
-        self.model.eval()
+        self.evaluating_prepare()
         anamoly_scores = []
         with torch.no_grad():
             for batch_data in data_loader:
@@ -315,7 +330,7 @@ class BaseDeepLearningDetector(BaseDetector):
                 anamoly_scores.append(score)
         anamoly_scores = np.concatenate(anamoly_scores)
         return anamoly_scores
-
+    
     def save(self, path):
         """Save the model to the specified path.
 
@@ -356,9 +371,10 @@ class BaseDeepLearningDetector(BaseDetector):
         torch.manual_seed(random_state)
 
     @abstractmethod
-    def build_model(self, feature_size):
+    def build_model(self):
         """
-        Need to define `self.model` in this method.
+        Need to define model in this method.
+        self.feature_size is the number of features in the input data.
         """
         pass
 
@@ -375,8 +391,9 @@ class BaseDeepLearningDetector(BaseDetector):
 
         Returns
         -------
-        loss : float
-            The loss.item of the model.
+        loss : float or tuple of float
+            The loss.item of the model, or a tuple of loss.item 
+            if there are multiple losses.
         """
         # An example implementation:
         # x = batch_data

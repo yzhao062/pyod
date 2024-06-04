@@ -54,7 +54,8 @@ class TestBaseDL(unittest.TestCase):
         train_loader = torch.utils.data.DataLoader(train_dataset,
                                                    batch_size=2,
                                                    shuffle=True)
-        dummy_block = LinearBlock(in_features=2, out_features=1, dropout_rate=0.2)
+        dummy_block = LinearBlock(in_features=2, out_features=1, 
+                                  batch_norm=True, dropout_rate=0.2)
 
         for data in train_loader:
             output = dummy_block(data)

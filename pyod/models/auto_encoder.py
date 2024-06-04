@@ -137,8 +137,8 @@ class AutoEncoder(BaseDeepLearningDetector):
         self.batch_norm = batch_norm
         self.dropout_rate = dropout_rate
 
-    def build_model(self, feature_size):
-        self.model = AutoEncoderModel(feature_size,
+    def build_model(self):
+        self.model = AutoEncoderModel(self.feature_size,
                                       hidden_neuron_list=self.hidden_neuron_list,
                                       hidden_activation_name=self.hidden_activation_name,
                                       batch_norm=self.batch_norm,

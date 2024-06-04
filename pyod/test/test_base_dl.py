@@ -55,8 +55,8 @@ class DummyDetector(BaseDeepLearningDetector):
                                             preprocessing=preprocessing,
                                             use_compile=use_compile)
 
-    def build_model(self, feature_size):
-        self.model = DummyUnchangeModel(feature_size)
+    def build_model(self):
+        self.model = DummyUnchangeModel(self.feature_size)
 
     def training_forward(self, batch_data):
         x = batch_data
@@ -70,6 +70,34 @@ class DummyDetector(BaseDeepLearningDetector):
     
     def evaluating_forward(self, batch_data):
         return np.zeros(batch_data.shape[0])
+    
+
+class DummyDetector2(DummyDetector):
+    def __init__(self, contamination=0.1, epoch_num=1, optimizer_name='adam', 
+                 loss_func=None, criterion=None, criterion_name='mse', 
+                 verbose=1, preprocessing=True, use_compile=False):
+        super(DummyDetector2, self).__init__(contamination=contamination,
+                                             epoch_num=epoch_num,
+                                             optimizer_name=optimizer_name,
+                                             loss_func=loss_func,
+                                             criterion=criterion,
+                                             criterion_name=criterion_name,
+                                             verbose=verbose,
+                                             preprocessing=preprocessing,
+                                             use_compile=use_compile)
+
+    def build_model(self):
+        self.model = DummyUnchangeModel(self.feature_size)
+
+    def training_forward(self, batch_data):
+        x = batch_data
+        x = x.to(self.device)
+        self.optimizer.zero_grad()
+        output = self.model(x)
+        loss = self.criterion(output, x)
+        loss.backward()
+        self.optimizer.step()
+        return loss.item(), loss.item()
 
 
 class TestBaseDL(unittest.TestCase):
@@ -134,6 +162,10 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf = DummyDetector(verbose=2)
         dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
+
+        dummy_clf_2 = DummyDetector2(verbose=2)
+        dummy_clf_2.fit(self.X_train)
+        self.assertEqual(dummy_clf_2.decision_scores_.all(), zero_scores.all())
 
         # dummy_clf = DummyDetector(use_compile=True)
         # dummy_clf.fit(self.X_train)
