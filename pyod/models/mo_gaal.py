@@ -17,34 +17,35 @@ import math
 import torch.nn.functional as F
 
 from .base import BaseDetector
+from .gaal_base import create_discriminator, create_generator
 
 
-class Generator(nn.Module):
-    def __init__(self, latent_size):
-        super(Generator, self).__init__()
-        self.layer1 = nn.Linear(latent_size, latent_size)
-        self.layer2 = nn.Linear(latent_size, latent_size)
-        nn.init.eye_(self.layer1.weight)
-        nn.init.eye_(self.layer2.weight)
-
-    def forward(self, x):
-        x = F.relu(self.layer1(x))
-        x = F.relu(self.layer2(x))
-        return x
-
-
-class Discriminator(nn.Module):
-    def __init__(self, latent_size, data_size):
-        super(Discriminator, self).__init__()
-        self.layer1 = nn.Linear(latent_size, math.ceil(math.sqrt(data_size)))
-        self.layer2 = nn.Linear(math.ceil(math.sqrt(data_size)), 1)
-        nn.init.kaiming_normal_(self.layer1.weight, mode='fan_in', nonlinearity='relu')
-        nn.init.kaiming_normal_(self.layer2.weight, mode='fan_in', nonlinearity='sigmoid')
-
-    def forward(self, x):
-        x = F.relu(self.layer1(x))
-        x = torch.sigmoid(self.layer2(x))
-        return x
+# class Generator(nn.Module):
+#     def __init__(self, latent_size):
+#         super(Generator, self).__init__()
+#         self.layer1 = nn.Linear(latent_size, latent_size)
+#         self.layer2 = nn.Linear(latent_size, latent_size)
+#         nn.init.eye_(self.layer1.weight)
+#         nn.init.eye_(self.layer2.weight)
+#
+#     def forward(self, x):
+#         x = F.relu(self.layer1(x))
+#         x = F.relu(self.layer2(x))
+#         return x
+#
+#
+# class Discriminator(nn.Module):
+#     def __init__(self, latent_size, data_size):
+#         super(Discriminator, self).__init__()
+#         self.layer1 = nn.Linear(latent_size, math.ceil(math.sqrt(data_size)))
+#         self.layer2 = nn.Linear(math.ceil(math.sqrt(data_size)), 1)
+#         nn.init.kaiming_normal_(self.layer1.weight, mode='fan_in', nonlinearity='relu')
+#         nn.init.kaiming_normal_(self.layer2.weight, mode='fan_in', nonlinearity='sigmoid')
+#
+#     def forward(self, x):
+#         x = F.relu(self.layer1(x))
+#         x = torch.sigmoid(self.layer2(x))
+#         return x
 
 
 class PyODDataset(torch.utils.data.Dataset):
@@ -149,14 +150,14 @@ class MO_GAAL(BaseDetector):
         latent_size = X.shape[1]
         data_size = X.shape[0]
         # Create discriminator
-        self.discriminator = Discriminator(latent_size, data_size).to(self.device)
+        self.discriminator = create_discriminator(latent_size, data_size)
         optimizer_d = optim.SGD(self.discriminator.parameters(), lr=self.lr_d, momentum=self.momentum)
         criterion = nn.BCELoss()
 
         # Create k generators
         for i in range(self.k):
             generator_name = 'sub_generator' + str(i)
-            generator = Generator(latent_size).to(self.device)
+            generator = create_generator(latent_size)
             names[generator_name] = generator
 
             # Define the optimizer for the generator
@@ -176,7 +177,7 @@ class MO_GAAL(BaseDetector):
             for batch_idx, data_batch in enumerate(dataloader):
                 # print(f'\nTesting for epoch {epoch + 1} index {batch_idx + 1}:')
 
-                data_batch = data_batch[0].to(self.device)
+                data_batch = data_batch[0]
                 batch_size = data_batch.size(0)
 
                 # Generate noise
@@ -215,7 +216,7 @@ class MO_GAAL(BaseDetector):
 
                 # Get the target value of sub-generators
                 with torch.no_grad():
-                    pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().numpy().ravel()
+                    pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32)).cpu().numpy().ravel()
 
                 for i in range(self.k):
                     names['T' + str(i)] = np.percentile(pred_scores, i / self.k * 100)
@@ -248,7 +249,7 @@ class MO_GAAL(BaseDetector):
                     stop = 1
 
         # Detection result
-        decision_scores = self.discriminator(torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().detach().numpy()
+        decision_scores = self.discriminator(torch.tensor(X, dtype=torch.float32)).cpu().detach().numpy()
         self.decision_scores_ = decision_scores.ravel()
         self._process_decision_scores()
 
@@ -274,5 +275,5 @@ class MO_GAAL(BaseDetector):
         """
         check_is_fitted(self, ['discriminator'])
         X = check_array(X)
-        pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().detach().numpy().ravel()
+        pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32)).cpu().detach().numpy().ravel()
         return pred_scores

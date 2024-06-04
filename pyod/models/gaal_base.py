@@ -9,6 +9,7 @@ from __future__ import print_function
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import math
 
 
@@ -42,6 +43,8 @@ def create_discriminator(latent_size, data_size):
             x = torch.sigmoid(self.layer2(x))
             return x
 
+    return Discriminator(latent_size, data_size)
+
 
 def create_generator(latent_size):
     """
@@ -70,3 +73,5 @@ def create_generator(latent_size):
             x = F.relu(self.layer1(x))
             x = F.relu(self.layer2(x))
             return x
+
+    return Generator(latent_size)
