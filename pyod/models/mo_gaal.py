@@ -248,10 +248,10 @@ class MO_GAAL(BaseDetector):
                     stop = 1
 
         # Detection result
-        decision_scores = self.discriminator(
-            torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().detach().numpy()
+        decision_scores = self.discriminator(torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().detach().numpy()
         self.decision_scores_ = decision_scores.ravel()
         self._process_decision_scores()
+
         return self
 
     def decision_function(self, X):
@@ -274,6 +274,5 @@ class MO_GAAL(BaseDetector):
         """
         check_is_fitted(self, ['discriminator'])
         X = check_array(X)
-        pred_scores = self.discriminator(
-            torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().detach().numpy().ravel()
+        pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().detach().numpy().ravel()
         return pred_scores
