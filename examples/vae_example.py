@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Example of using Variational Auto Encoder for outlier detection
 """
-# Author: Andrij Vasylenko <andrij@liverpool.ac.uk>
+# Author: Tiankai Yang <tiankaiy@usc.edu>
 # License: BSD 2 clause
 
 from __future__ import division
