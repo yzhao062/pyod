@@ -46,8 +46,10 @@ class TestVAE(unittest.TestCase):
                 self.clf._mu is not None)
         assert (hasattr(self.clf, '_sigma') and
                 self.clf._sigma is not None)
-        assert (hasattr(self.clf, 'model_') and
-                self.clf.model_ is not None)
+        assert (hasattr(self.clf, 'encoder_') and
+                self.clf.encoder_ is not None)
+        assert (hasattr(self.clf, 'decoder_') and
+                self.clf.decoder_ is not None)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])
