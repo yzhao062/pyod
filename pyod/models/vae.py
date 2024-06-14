@@ -7,7 +7,7 @@ Reference:
         :cite:`kingma2013auto` Kingma, Diederik, Welling
         'Auto-Encodeing Variational Bayes'
         https://arxiv.org/abs/1312.6114
-        
+
         :cite:`burgess2018understanding` Burges et al
         'Understanding disentangling in beta-VAE'
         https://arxiv.org/pdf/1804.03599.pdf
@@ -221,7 +221,7 @@ class VAE(BaseDetector):
         ----------
         args : tensor
             Mean and log of variance of Q(z|X).
-    
+
         Returns
         -------
         z : tensor
@@ -349,7 +349,7 @@ class VAE(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        pred_scores = self.model_.predict(X_norm)
+        pred_scores = self.model_.predict(X_norm, verbose=self.verbose)
         self.decision_scores_ = pairwise_distances_no_broadcast(X_norm,
                                                                 pred_scores)
         self._process_decision_scores()
@@ -382,5 +382,5 @@ class VAE(BaseDetector):
             X_norm = np.copy(X)
 
         # Predict on X and return the reconstruction errors
-        pred_scores = self.model_.predict(X_norm)
+        pred_scores = self.model_.predict(X_norm, verbose=self.verbose)
         return pairwise_distances_no_broadcast(X_norm, pred_scores)
