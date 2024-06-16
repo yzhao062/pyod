@@ -16,8 +16,8 @@ from pyod.utils.example import visualize
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 600  # number of training points
-    n_test = 100  # number of testing points
+    n_train = 3000  # number of training points
+    n_test = 1000  # number of testing points
 
     # Generate sample data
     X_train, X_test, y_train, y_test = \
@@ -27,10 +27,6 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train SOD detector
-    # Note that SOD is meant to work in high dimensions d > 2.
-    # But here we are using 2D for visualization purpose
-    # thus, higher precision is expected in higher dimensions
     clf_name = 'DevNet'
     clf = DevNet()
     clf.fit(X_train, y_train)
