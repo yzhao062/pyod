@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Deep One-Class Classification for outlier detection
 """
-# Author: Rafal Bodziony <bodziony.rafal@gmail.com>
+# Author: Rafal Bodziony <bodziony.rafal@gmail.com> for the TensorFlow version
+# Author: Yuehan Qin <yuehanqi@usc.edu> for the PyTorch version
 # License: BSD 2 clause
 
 from __future__ import division
@@ -11,27 +12,28 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
-# from sklearn.utils.validation import check_is_fitted
+from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
-from ..utils.utility import check_parameter
 from ..utils.torch_utility import get_activation_by_name
+from ..utils.utility import check_parameter
+
 
 optimizer_dict = {
-            'sgd': optim.SGD,
-            'adam': optim.Adam,
-            'rmsprop': optim.RMSprop,
-            'adagrad': optim.Adagrad,
-            'adadelta': optim.Adadelta,
-            'adamw': optim.AdamW,
-            'nadam': optim.NAdam,
-            'sparseadam': optim.SparseAdam,
-            'asgd': optim.ASGD,
-            'lbfgs': optim.LBFGS
-        }
+    'sgd': optim.SGD,
+    'adam': optim.Adam,
+    'rmsprop': optim.RMSprop,
+    'adagrad': optim.Adagrad,
+    'adadelta': optim.Adadelta,
+    'adamw': optim.AdamW,
+    'nadam': optim.NAdam,
+    'sparseadam': optim.SparseAdam,
+    'asgd': optim.ASGD,
+    'lbfgs': optim.LBFGS
+}
+
 
 class InnerDeepSVDD(nn.Module):
     """Inner class for DeepSVDD model.
@@ -66,10 +68,11 @@ class InnerDeepSVDD(nn.Module):
         applied on each layer. By default, l2 regularizer is used. See
         https://keras.io/regularizers/
     """
+
     def __init__(self, n_features, use_ae,
-                hidden_neurons, hidden_activation,
-                output_activation,
-                dropout_rate, l2_regularizer):
+                 hidden_neurons, hidden_activation,
+                 output_activation,
+                 dropout_rate, l2_regularizer):
         super(InnerDeepSVDD, self).__init__()
         self.n_features = n_features
         self.use_ae = use_ae
@@ -79,13 +82,15 @@ class InnerDeepSVDD(nn.Module):
         self.dropout_rate = dropout_rate
         self.l2_regularizer = l2_regularizer
         self.model = self._build_model()
-    
+
     def _init_c(self, X_norm, eps=0.1):
         intermediate_output = {}
-        hook_handle = self.model._modules.get('net_output').register_forward_hook(
-            lambda module, input, output: intermediate_output.update({'net_output': output})
+        hook_handle = self.model._modules.get(
+            'net_output').register_forward_hook(
+            lambda module, input, output: intermediate_output.update(
+                {'net_output': output})
         )
-        output =self.model(X_norm)
+        output = self.model(X_norm)
 
         out = intermediate_output['net_output']
         hook_handle.remove()
@@ -96,22 +101,41 @@ class InnerDeepSVDD(nn.Module):
 
     def _build_model(self):
         layers = nn.Sequential()
-        layers.add_module('input_layer', nn.Linear(self.n_features, self.hidden_neurons[0], bias=False))
-        layers.add_module('hidden_activation_e0', get_activation_by_name(self.hidden_activation))
-        for i in range(1,len(self.hidden_neurons)-1):
-            layers.add_module(f'hidden_layer_e{i}', nn.Linear(self.hidden_neurons[i-1], self.hidden_neurons[i], bias=False))
-            layers.add_module(f'hidden_activation_e{i}', get_activation_by_name(self.hidden_activation))
-            layers.add_module(f'hidden_dropout_e{i}', nn.Dropout(self.dropout_rate))
-        layers.add_module(f'net_output', nn.Linear(self.hidden_neurons[-2], self.hidden_neurons[-1], bias=False))
-        layers.add_module(f'hidden_activation_e{len(self.hidden_neurons)}', get_activation_by_name(self.hidden_activation))
-        
+        layers.add_module('input_layer',
+                          nn.Linear(self.n_features, self.hidden_neurons[0],
+                                    bias=False))
+        layers.add_module('hidden_activation_e0',
+                          get_activation_by_name(self.hidden_activation))
+        for i in range(1, len(self.hidden_neurons) - 1):
+            layers.add_module(f'hidden_layer_e{i}',
+                              nn.Linear(self.hidden_neurons[i - 1],
+                                        self.hidden_neurons[i], bias=False))
+            layers.add_module(f'hidden_activation_e{i}',
+                              get_activation_by_name(self.hidden_activation))
+            layers.add_module(f'hidden_dropout_e{i}',
+                              nn.Dropout(self.dropout_rate))
+        layers.add_module(f'net_output', nn.Linear(self.hidden_neurons[-2],
+                                                   self.hidden_neurons[-1],
+                                                   bias=False))
+        layers.add_module(f'hidden_activation_e{len(self.hidden_neurons)}',
+                          get_activation_by_name(self.hidden_activation))
+
         if self.use_ae:
-            for j in range(len(self.hidden_neurons)-1,0,-1):
-                layers.add_module(f'hidden_layer_d{j}', nn.Linear(self.hidden_neurons[j], self.hidden_neurons[j-1], bias=False))
-                layers.add_module(f'hidden_activation_d{j}', get_activation_by_name(self.hidden_activation))
-                layers.add_module(f'hidden_dropout_d{j}', nn.Dropout(self.dropout_rate))
-            layers.add_module(f'output_layer', nn.Linear(self.hidden_neurons[0], self.n_features, bias=False))
-            layers.add_module(f'output_activation', get_activation_by_name(self.output_activation))
+            for j in range(len(self.hidden_neurons) - 1, 0, -1):
+                layers.add_module(f'hidden_layer_d{j}',
+                                  nn.Linear(self.hidden_neurons[j],
+                                            self.hidden_neurons[j - 1],
+                                            bias=False))
+                layers.add_module(f'hidden_activation_d{j}',
+                                  get_activation_by_name(
+                                      self.hidden_activation))
+                layers.add_module(f'hidden_dropout_d{j}',
+                                  nn.Dropout(self.dropout_rate))
+            layers.add_module(f'output_layer',
+                              nn.Linear(self.hidden_neurons[0],
+                                        self.n_features, bias=False))
+            layers.add_module(f'output_activation',
+                              get_activation_by_name(self.output_activation))
         return layers
 
     def forward(self, x):
@@ -210,12 +234,16 @@ class DeepSVDD(BaseDetector):
             and 1 for outliers/anomalies. It is generated by applying
             ``threshold_`` on ``decision_scores_``.
         """
-    def __init__(self, n_features, c=None, use_ae=False, hidden_neurons=None, hidden_activation='relu',
-                 output_activation='sigmoid', optimizer='adam', epochs=100, batch_size=32,
-                 dropout_rate=0.2, l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
+
+    def __init__(self, n_features, c=None, use_ae=False, hidden_neurons=None,
+                 hidden_activation='relu',
+                 output_activation='sigmoid', optimizer='adam', epochs=100,
+                 batch_size=32,
+                 dropout_rate=0.2, l2_regularizer=0.1, validation_size=0.1,
+                 preprocessing=True,
                  verbose=1, random_state=None, contamination=0.1):
         super(DeepSVDD, self).__init__(contamination=contamination)
-        
+
         self.n_features = n_features
         self.c = c
         self.use_ae = use_ae
@@ -277,11 +305,14 @@ class DeepSVDD(BaseDetector):
         if np.min(self.hidden_neurons) > self.n_features_ and self.use_ae:
             raise ValueError("The number of neurons should not exceed "
                              "the number of features")
-        
+
         # Build DeepSVDD model & fit with X
-        self.model_ = InnerDeepSVDD(self.n_features, use_ae=self.use_ae, hidden_neurons=self.hidden_neurons,
-                                   hidden_activation=self.hidden_activation, output_activation=self.output_activation,
-                                   dropout_rate=self.dropout_rate, l2_regularizer=self.l2_regularizer)
+        self.model_ = InnerDeepSVDD(self.n_features, use_ae=self.use_ae,
+                                    hidden_neurons=self.hidden_neurons,
+                                    hidden_activation=self.hidden_activation,
+                                    output_activation=self.output_activation,
+                                    dropout_rate=self.dropout_rate,
+                                    l2_regularizer=self.l2_regularizer)
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
         if self.c is None:
             self.c = 0.0
@@ -293,16 +324,19 @@ class DeepSVDD(BaseDetector):
             X_norm = self.scaler_.transform(X)
         else:
             X_norm = np.copy(X)
-        
+
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
         dataset = TensorDataset(X_norm, X_norm)
-        dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
+        dataloader = DataLoader(dataset, batch_size=self.batch_size,
+                                shuffle=True)
 
         best_loss = float('inf')
         best_model_dict = None
 
-        optimizer = optimizer_dict[self.optimizer](self.model_.parameters(), weight_decay=self.l2_regularizer)
-        w_d = 1e-6 * sum([torch.linalg.norm(w) for w in self.model_.parameters()])
+        optimizer = optimizer_dict[self.optimizer](self.model_.parameters(),
+                                                   weight_decay=self.l2_regularizer)
+        w_d = 1e-6 * sum(
+            [torch.linalg.norm(w) for w in self.model_.parameters()])
 
         for epoch in range(self.epochs):
             self.model_.train()
@@ -312,17 +346,18 @@ class DeepSVDD(BaseDetector):
                 outputs = self.model_(batch_x)
                 dist = torch.sum((outputs - self.c) ** 2, dim=-1)
                 if self.use_ae:
-                    loss = torch.mean(dist) + w_d + torch.mean(torch.square(outputs - batch_x))
+                    loss = torch.mean(dist) + w_d + torch.mean(
+                        torch.square(outputs - batch_x))
                 else:
                     loss = torch.mean(dist) + w_d
-                
+
                 # loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
                 if epoch_loss < best_loss:
                     best_loss = epoch_loss
                     best_model_dict = self.model_.state_dict()
-            print(f"Epoch {epoch+1}/{self.epochs}, Loss: {epoch_loss}")
+            print(f"Epoch {epoch + 1}/{self.epochs}, Loss: {epoch_loss}")
         self.best_model_dict = best_model_dict
 
         self.decision_scores_ = self.decision_function(X)

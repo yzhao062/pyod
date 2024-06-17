@@ -188,3 +188,4 @@ v<1.1.4>, <02/09/2024> -- Drop support of six for Python 2.
 v<1.1.4>, <03/16/2024> -- Fix documentation and temporarily restrict to Keras 2 in testing.
 v<2.0.0>, <05/21/2024> -- Moving from TF to Torch -- reimplement SO_GAAL.
 v<2.0.0>, <05/21/2024> -- Moving from TF to Torch -- implement dl base with more utilities.
+v<2.0.1>, <06/16/2024> -- Moving from TF to Torch -- reimplement DeepSVDD.
