@@ -43,6 +43,7 @@ pyod.models.auto\_encoder\_torch module
 
 .. automodule:: pyod.models.auto_encoder_torch
     :members:
+    :exclude-members: InnerAutoencoder
     :exclude-members:
     :show-inheritance:
     :inherited-members:
@@ -121,7 +122,7 @@ pyod.models.ecod module
 
 .. automodule:: pyod.models.ecod
     :members:
-    :exclude-members:
+    :exclude-members: InnerDeepSVDD,
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -197,6 +198,7 @@ pyod.models.kpca module
 
 .. automodule:: pyod.models.kpca
     :members:
+    :exclude-members: PyODKernelPCA
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -328,6 +330,7 @@ pyod.models.rod module
 
 .. automodule:: pyod.models.rod
     :members:
+    :exclude-members: angle, euclidean, geometric_median, mad, process_sub, rod_3D, rod_nD, scale_angles, sigmoid
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -356,6 +359,7 @@ pyod.models.so\_gaal module
 
 .. automodule:: pyod.models.so_gaal
     :members:
+    :exclude-members: Discriminator, Generator
     :undoc-members:
     :show-inheritance:
     :inherited-members:
