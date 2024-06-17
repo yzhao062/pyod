@@ -25,7 +25,7 @@ class TestDevNet(unittest.TestCase):
     def setUp(self):
         self.n_train = 3000
         self.n_test = 1000
-        self.n_features = 200
+        self.n_features = 2000
         self.contamination = 0.1
         self.roc_floor = 0.8
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
