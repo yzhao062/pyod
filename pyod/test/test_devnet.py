@@ -21,7 +21,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pyod.models.devnet import DevNet
 from pyod.utils.data import generate_data
 
-class TestDevNet(unittest.TestCase):
+class TestDevNet(unittest.TestCase): 
     def setUp(self):
         self.n_train = 3000
         self.n_test = 1000
