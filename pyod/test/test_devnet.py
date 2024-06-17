@@ -9,17 +9,18 @@ import unittest
 import numpy as np
 import torch
 from numpy.testing import assert_almost_equal
-# noinspection PyProtectedMember
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.devnet import DevNet
 from pyod.utils.data import generate_data
+
 
 class TestDevNet(unittest.TestCase): 
     def setUp(self):
