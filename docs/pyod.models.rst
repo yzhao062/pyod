@@ -101,7 +101,7 @@ pyod.models.deep\_svdd module
 
 .. automodule:: pyod.models.deep_svdd
     :members:
-    :exclude-members:
+    :exclude-members: InnerDeepSVDD
     :undoc-members:
     :show-inheritance:
     :inherited-members:
