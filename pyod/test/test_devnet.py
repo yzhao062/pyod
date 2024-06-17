@@ -20,42 +20,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.devnet import DevNet
 from pyod.utils.data import generate_data
-from pyod.models.auto_encoder_torch import PyODDataset
-
-class TestPyODDataset(unittest.TestCase):
-    def setUp(self):
-        self.n_train = 3000
-        self.n_test = 1000
-        self.n_features = 200
-        self.contamination = 0.1
-        self.batch_size = 1000
-
-        self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
-            n_train=self.n_train, n_test=self.n_test,
-            n_features=self.n_features, contamination=self.contamination,
-            random_state=42)
-
-    def test_no_preprocessing(self):
-        train_set = PyODDataset(X=self.X_train)
-        train_loader = torch.utils.data.DataLoader(train_set,
-                                                   batch_size=self.batch_size,
-                                                   shuffle=True)
-
-        for data, data_idx in train_loader:
-            assert (data.shape[0] == self.batch_size)
-            assert (data.shape[1] == self.n_features)
-
-    def test_preprocessing(self):
-
-        self.mean, self.std = np.mean(self.X_train, axis=0), np.std(self.X_train, axis=0)
-        train_set = PyODDataset(X=self.X_train, mean=self.mean, std=self.std)
-        train_loader = torch.utils.data.DataLoader(train_set,
-                                                   batch_size=self.batch_size,
-                                                   shuffle=True)
-        for data, data_idx in train_loader:
-            assert (data.shape[0] == self.batch_size)
-            assert (data.shape[1] == self.n_features)
-            assert_almost_equal (data.mean(), 0, decimal=1)
 
 class TestDevNet(unittest.TestCase):
     def setUp(self):
