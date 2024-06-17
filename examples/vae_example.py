@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Example of using Variational Auto Encoder for outlier detection
 """
-# Author: Andrij Vasylenko <andrij@liverpool.ac.uk>
+# Author: Tiankai Yang <tiankaiy@usc.edu>
 # License: BSD 2 clause
 
 from __future__ import division
@@ -14,6 +14,7 @@ import sys
 # if pyod is installed, no need to use the following line
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
+sys.path.append(os.path.abspath(os.path.dirname("__file__")))
 
 from pyod.models.vae import VAE
 from pyod.utils.data import generate_data
@@ -35,7 +36,7 @@ if __name__ == "__main__":
 
     # train VAE detector (Beta-VAE)
     clf_name = 'VAE'
-    clf = VAE(epochs=30, contamination=contamination, gamma=0.8, capacity=0.2)
+    clf = VAE(epoch_num=30, contamination=contamination, beta=0.8, capacity=0.2)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

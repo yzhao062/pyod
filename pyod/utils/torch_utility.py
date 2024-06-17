@@ -104,7 +104,7 @@ class LinearBlock(nn.Module):
     """
     def __init__(self, in_features, out_features,
                  has_act=True, activation_name='relu',
-                 batch_norm=True, bn_eps=1e-5, bn_momentum=0.1,
+                 batch_norm=False, bn_eps=1e-5, bn_momentum=0.1,
                  bn_affine=True, bn_track_running_stats=True,
                  dropout_rate=0,
                  init_type='kaiming_uniform',
