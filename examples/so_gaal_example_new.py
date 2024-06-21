@@ -5,8 +5,6 @@ Learning (SO_GAAL) for outlier detection
 # Author: Tiankai Yang <tiankaiy@usc.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import os
 import sys
@@ -15,7 +13,6 @@ import sys
 # if pyod is installed, no need to use the following line
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
-sys.path.append(os.path.abspath(os.path.dirname("__file__")))
 
 from pyod.models.so_gaal_new import SO_GAAL
 from pyod.utils.data import generate_data

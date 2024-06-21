@@ -11,7 +11,27 @@ from __future__ import print_function
 
 import math
 
-from .base_dl import _get_tensorflow_version
+import tensorflow
+
+
+# Old function, deprecat this in the future
+def _get_tensorflow_version():  # pragma: no cover
+    """ Utility function to decide the version of tensorflow, which will
+    affect how to import keras models.
+
+    Returns
+    -------
+    tensorflow version : int
+
+    """
+
+    tf_version = str(tensorflow.__version__)
+    if int(tf_version.split(".")[0]) != 1 and int(
+            tf_version.split(".")[0]) != 2:
+        raise ValueError("tensorflow version error")
+
+    return int(tf_version.split(".")[0]) * 100 + int(tf_version.split(".")[1])
+
 
 # if tensorflow 2, import from tf directly
 if _get_tensorflow_version() <= 200:

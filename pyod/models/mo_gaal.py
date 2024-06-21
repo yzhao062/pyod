@@ -12,13 +12,33 @@ from __future__ import print_function
 from collections import defaultdict
 
 import numpy as np
+import tensorflow
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
-from .base_dl import _get_tensorflow_version
 from .gaal_base import create_discriminator
 from .gaal_base import create_generator
+
+
+# Old function, deprecat this in the future
+def _get_tensorflow_version():  # pragma: no cover
+    """ Utility function to decide the version of tensorflow, which will
+    affect how to import keras models.
+
+    Returns
+    -------
+    tensorflow version : int
+
+    """
+
+    tf_version = str(tensorflow.__version__)
+    if int(tf_version.split(".")[0]) != 1 and int(
+            tf_version.split(".")[0]) != 2:
+        raise ValueError("tensorflow version error")
+
+    return int(tf_version.split(".")[0]) * 100 + int(tf_version.split(".")[1])
+
 
 # if tensorflow 2, import from tf directly
 if _get_tensorflow_version() < 200:
@@ -89,7 +109,8 @@ class MO_GAAL(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1):
+    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
+                 momentum=0.9, contamination=0.1):
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k
         self.stop_epochs = stop_epochs
@@ -125,7 +146,8 @@ class MO_GAAL(BaseDetector):
         # Create discriminator
         self.discriminator = create_discriminator(latent_size, data_size)
         self.discriminator.compile(
-            optimizer=SGD(lr=self.lr_d, momentum=self.momentum), loss='binary_crossentropy')
+            optimizer=SGD(lr=self.lr_d, momentum=self.momentum),
+            loss='binary_crossentropy')
 
         # Create k combine models
         for i in range(self.k):
