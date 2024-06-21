@@ -87,7 +87,8 @@ class MO_GAAL(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1):
+    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
+                 momentum=0.9, contamination=0.1):
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k
         self.stop_epochs = stop_epochs

@@ -5,8 +5,6 @@ Learning (SO_GAAL) for outlier detection
 # Author: Winston Li <jk_zhengli@hotmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import os
 import sys
