@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 """Single-Objective Generative Adversarial Active Learning.
@@ -13,8 +12,8 @@ import math
 import torch
 import torch.nn as nn
 
-from pyod.models.base_dl import BaseDeepLearningDetector
-from pyod.utils.torch_utility import LinearBlock, get_optimizer_by_name
+from .base_dl import BaseDeepLearningDetector
+from ..utils.torch_utility import LinearBlock, get_optimizer_by_name
 
 
 class SO_GAAL(BaseDeepLearningDetector):
@@ -32,6 +31,7 @@ class SO_GAAL(BaseDeepLearningDetector):
     ----------
     
     """
+
     def __init__(self, contamination=0.1, preprocessing=True,
                  epoch_num=100,
                  criterion_name='bce',
@@ -44,7 +44,8 @@ class SO_GAAL(BaseDeepLearningDetector):
                                       epoch_num=epoch_num,
                                       criterion_name=criterion_name,
                                       device=device, random_state=random_state,
-                                      use_compile=use_compile, compile_mode=compile_mode,
+                                      use_compile=use_compile,
+                                      compile_mode=compile_mode,
                                       verbose=verbose)
         self.lr_d = lr_d
         self.lr_g = lr_g
@@ -66,13 +67,13 @@ class SO_GAAL(BaseDeepLearningDetector):
         self.generator.to(self.device)
         self.discriminator.to(self.device)
 
-        self.optimizer_d = get_optimizer_by_name(self.discriminator, 'sgd', 
-                                                 lr=self.lr_d, 
+        self.optimizer_d = get_optimizer_by_name(self.discriminator, 'sgd',
+                                                 lr=self.lr_d,
                                                  sgd_momentum=self.momentum)
-        self.optimizer_g = get_optimizer_by_name(self.generator, 'sgd', 
-                                                 lr=self.lr_g, 
+        self.optimizer_g = get_optimizer_by_name(self.generator, 'sgd',
+                                                 lr=self.lr_g,
                                                  sgd_momentum=self.momentum)
-        
+
         if self.use_compile:
             self.generator = torch.compile(model=self.generator,
                                            mode=self.compile_mode)
@@ -91,9 +92,10 @@ class SO_GAAL(BaseDeepLearningDetector):
         batch_data = batch_data.to(self.device)
         batch_data_num = batch_data.size(0)
         self.optimizer_d.zero_grad()
-        
+
         # Draw samples from the uniform distribution
-        noise = torch.rand(batch_data_num, self.feature_size, device=self.device)
+        noise = torch.rand(batch_data_num, self.feature_size,
+                           device=self.device)
 
         # Train Discriminator
         generated_data = self.generator(noise)
@@ -122,7 +124,7 @@ class SO_GAAL(BaseDeepLearningDetector):
             loss_g = torch.tensor(0.0)
 
         return loss_d.item(), loss_g.item()
-    
+
     def epoch_update(self):
         if self.epoch_num >= self.stop_epoch_num:
             self.stop_flag = True
@@ -131,14 +133,14 @@ class SO_GAAL(BaseDeepLearningDetector):
         batch_data = batch_data.to(self.device)
         score = self.discriminator(batch_data).cpu().numpy().ravel()
         return score
-    
+
 
 class Generator(nn.Module):
     def __init__(self, feature_size):
         super(Generator, self).__init__()
-        self.block1 = LinearBlock(feature_size, feature_size, 
+        self.block1 = LinearBlock(feature_size, feature_size,
                                   activation_name='relu', init_type="eye")
-        self.block2 = LinearBlock(feature_size, feature_size, 
+        self.block2 = LinearBlock(feature_size, feature_size,
                                   activation_name='relu', init_type="eye")
 
     def forward(self, x):
@@ -151,19 +153,18 @@ class Discriminator(nn.Module):
     def __init__(self, feature_size, data_num):
         super(Discriminator, self).__init__()
         intermidiate_size = math.ceil(math.sqrt(data_num))
-        self.block1 = LinearBlock(feature_size, intermidiate_size, 
-                                  activation_name='relu', 
-                                  init_type="kaiming_normal", 
-                                  init_params={'kaiming_mode':'fan_in', 
-                                               'kaiming_nonlinearity':'relu'})
+        self.block1 = LinearBlock(feature_size, intermidiate_size,
+                                  activation_name='relu',
+                                  init_type="kaiming_normal",
+                                  init_params={'kaiming_mode': 'fan_in',
+                                               'kaiming_nonlinearity': 'relu'})
         self.block2 = LinearBlock(intermidiate_size, 1,
-                                  activation_name='sigmoid', 
-                                  init_type="kaiming_normal", 
-                                  init_params={'kaiming_mode':'fan_in', 
-                                               'kaiming_nonlinearity':'sigmoid'})
-        
+                                  activation_name='sigmoid',
+                                  init_type="kaiming_normal",
+                                  init_params={'kaiming_mode': 'fan_in',
+                                               'kaiming_nonlinearity': 'sigmoid'})
+
     def forward(self, x):
         x = self.block1(x)
         x = self.block2(x)
         return x
-    

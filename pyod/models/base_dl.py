@@ -121,7 +121,7 @@ class BaseDeepLearningDetector(BaseDetector):
                  contamination=0.1, preprocessing=True,
                  lr=1e-3, epoch_num=10, batch_size=32,
                  optimizer_name='adam',
-                 loss_func=None, criterion=None, criterion_name='mse', 
+                 loss_func=None, criterion=None, criterion_name='mse',
                  device=None, random_state=42,
                  use_compile=False, compile_mode='default',
                  verbose=1,
@@ -165,7 +165,7 @@ class BaseDeepLearningDetector(BaseDetector):
             else:
                 if isinstance(criterion_name, str):
                     self.criterion = get_criterion_by_name(name=criterion_name,
-                                                        **self.criterion_params)
+                                                           **self.criterion_params)
                 else:
                     raise ValueError('Invalid criterion name.')
 
@@ -255,7 +255,7 @@ class BaseDeepLearningDetector(BaseDetector):
                 overall_loss = np.mean([l for l in overall_loss])
             else:
                 overall_loss = np.mean(overall_loss)
-            
+
             # loss could be a tuple or a single value
             if self.verbose == 2:
                 if isinstance(loss, (tuple, list)):
@@ -292,19 +292,21 @@ class BaseDeepLearningDetector(BaseDetector):
         """
         X = check_array(X)
         if self.preprocessing:
-            dataset = TorchDataset(X=X, y=None, mean=self.X_mean, std=self.X_std)
+            dataset = TorchDataset(X=X, y=None, mean=self.X_mean,
+                                   std=self.X_std)
         else:
             dataset = TorchDataset(X=X, y=None)
 
         data_loader = torch.utils.data.DataLoader(
-            dataset=dataset, batch_size=self.batch_size if batch_size is None else batch_size,
+            dataset=dataset,
+            batch_size=self.batch_size if batch_size is None else batch_size,
             shuffle=False, drop_last=False)
 
         # evaluate the model
         anomaly_scores = self.evaluate(data_loader)
         anomaly_scores = self.decision_function_update(anomaly_scores)
         return anomaly_scores
-    
+
     def evaluating_prepare(self):
         self.model.eval()
 
@@ -330,7 +332,7 @@ class BaseDeepLearningDetector(BaseDetector):
                 anamoly_scores.append(score)
         anamoly_scores = np.concatenate(anamoly_scores)
         return anamoly_scores
-    
+
     def save(self, path):
         """Save the model to the specified path.
 
