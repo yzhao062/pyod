@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import os
 import sys
+import torch
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -34,6 +35,11 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    X_train = torch.tensor(X_train, dtype=torch.float32).to(device).cpu().numpy()
+    X_test = torch.tensor(X_test, dtype=torch.float32).to(device).cpu().numpy()
+
     # train MO_GAAL detector
     clf_name = 'MO_GAAL'
     clf = MO_GAAL(k=3, stop_epochs=2, contamination=contamination)
@@ -47,14 +53,8 @@ if __name__ == "__main__":
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
     y_test_scores = clf.decision_function(X_test)  # outlier scores
 
-    # Assuming clf is an instance of your model
-    probabilities, confidence = clf.predict_proba(X_test, return_confidence=True)
-    # print("Probabilities shape:", probabilities.shape)
-    # print("Confidence shape:", confidence.shape)
-
     # evaluate and print the results
     print("\nOn Training Data:")
     evaluate_print(clf_name, y_train, y_train_scores)
     print("\nOn Test Data:")
     evaluate_print(clf_name, y_test, y_test_scores)
-

@@ -123,14 +123,14 @@ class MO_GAAL(BaseDetector):
         latent_size = X.shape[1]
         data_size = X.shape[0]
         # Create discriminator
-        self.discriminator = create_discriminator(latent_size, data_size)
+        self.discriminator = create_discriminator(latent_size, data_size).to(self.device)
         optimizer_d = optim.SGD(self.discriminator.parameters(), lr=self.lr_d, momentum=self.momentum)
         criterion = nn.BCELoss()
 
         # Create k generators
         for i in range(self.k):
             generator_name = 'sub_generator' + str(i)
-            generator = create_generator(latent_size)
+            generator = create_generator(latent_size).to(self.device)
             names[generator_name] = generator
 
             # Define the optimizer for the generator
@@ -138,7 +138,7 @@ class MO_GAAL(BaseDetector):
             optimizer_g = optim.SGD(generator.parameters(), lr=self.lr_g, momentum=self.momentum)
             names[optimizer_name] = optimizer_g
 
-        dataloader = DataLoader(TensorDataset(torch.tensor(X, dtype=torch.float32)),
+        dataloader = DataLoader(TensorDataset(torch.tensor(X, dtype=torch.float32).to(self.device)),
                                 batch_size=min(500, data_size),
                                 shuffle=True)
 
@@ -150,7 +150,7 @@ class MO_GAAL(BaseDetector):
             for batch_idx, data_batch in enumerate(dataloader):
                 # print(f'\nTesting for epoch {epoch + 1} index {batch_idx + 1}:')
 
-                data_batch = data_batch[0]
+                data_batch = data_batch[0].to(self.device)
                 batch_size = data_batch.size(0)
 
                 # Generate noise
@@ -248,5 +248,5 @@ class MO_GAAL(BaseDetector):
         """
         check_is_fitted(self, ['discriminator'])
         X = check_array(X)
-        pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32)).cpu().detach().numpy().ravel()
+        pred_scores = self.discriminator(torch.tensor(X, dtype=torch.float32).to(self.device)).cpu().detach().numpy().ravel()
         return pred_scores
