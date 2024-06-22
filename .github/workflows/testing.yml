@@ -29,7 +29,11 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        
+
+    - name: Install libomp for macOS
+      if: startsWith(matrix.os, 'macos')
+      run: brew install libomp
+      
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
