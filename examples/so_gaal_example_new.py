@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Example of using Autoencoder for outlier detection (pytorch)
-detection
+"""Example of using Single-Objective Generative Adversarial Active
+Learning (SO_GAAL) for outlier detection
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Tiankai Yang <tiankaiy@usc.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import os
 import sys
@@ -16,15 +14,14 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from pyod.models.auto_encoder_torch import AutoEncoder
+from pyod.models.so_gaal_new import SO_GAAL
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
 
-
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 20000  # number of training points
-    n_test = 2000  # number of testing points
+    n_train = 30000  # number of training points
+    n_test = 3000  # number of testing points
     n_features = 300  # number of features
 
     # Generate sample data
@@ -35,9 +32,9 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train AutoEncoder detector
-    clf_name = 'AutoEncoder'
-    clf = AutoEncoder(epochs=10)
+    # train SO_GAAL detector
+    clf_name = 'SO_GAAL'
+    clf = SO_GAAL(epoch_num=6, contamination=contamination, verbose=2)
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

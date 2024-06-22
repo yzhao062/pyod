@@ -21,7 +21,7 @@ class TorchDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.X)
-    
+
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
@@ -35,7 +35,7 @@ class TorchDataset(torch.utils.data.Dataset):
                 torch.as_tensor(self.y[idx], dtype=self.y_dtype)
         else:
             return torch.as_tensor(sample, dtype=self.X_dtype)
-        
+
 
 class LinearBlock(nn.Module):
     """
@@ -102,9 +102,10 @@ class LinearBlock(nn.Module):
             'uniform_a': 0.0, 
             'uniform_b': 1.0}`.
     """
+
     def __init__(self, in_features, out_features,
                  has_act=True, activation_name='relu',
-                 batch_norm=True, bn_eps=1e-5, bn_momentum=0.1,
+                 batch_norm=False, bn_eps=1e-5, bn_momentum=0.1,
                  bn_affine=True, bn_track_running_stats=True,
                  dropout_rate=0,
                  init_type='kaiming_uniform',
@@ -116,13 +117,13 @@ class LinearBlock(nn.Module):
         self.has_act = has_act
         if has_act:
             # only use the variable about activation function in **kwargs
-            self.activation = get_activation_by_name(activation_name, 
-                                                     inplace=inplace, 
+            self.activation = get_activation_by_name(activation_name,
+                                                     inplace=inplace,
                                                      **activation_params)
         self.batch_norm = batch_norm
         if batch_norm:
-            self.bn = nn.BatchNorm1d(out_features, eps=bn_eps, 
-                                     momentum=bn_momentum, affine=bn_affine, 
+            self.bn = nn.BatchNorm1d(out_features, eps=bn_eps,
+                                     momentum=bn_momentum, affine=bn_affine,
                                      track_running_stats=bn_track_running_stats)
         self.dropout_rate = dropout_rate
         if dropout_rate > 0:
@@ -141,7 +142,7 @@ class LinearBlock(nn.Module):
 
 
 def get_activation_by_name(name, inplace=False,
-                           elu_alpha=1.0, 
+                           elu_alpha=1.0,
                            leaky_relu_negative_slope=0.01,
                            softmax_dim=None,
                            softplus_beta=1.0, softplus_threshold=20.0):
@@ -185,12 +186,12 @@ def get_activation_by_name(name, inplace=False,
     """
     activation_dict = {
         'elu': nn.ELU(alpha=elu_alpha, inplace=inplace),
-        'leaky_relu': nn.LeakyReLU(negative_slope=leaky_relu_negative_slope, 
+        'leaky_relu': nn.LeakyReLU(negative_slope=leaky_relu_negative_slope,
                                    inplace=inplace),
         'relu': nn.ReLU(inplace=inplace),
         'sigmoid': nn.Sigmoid(),
         'softmax': nn.Softmax(dim=softmax_dim),
-        'softplus': nn.Softplus(beta=softplus_beta, 
+        'softplus': nn.Softplus(beta=softplus_beta,
                                 threshold=softplus_threshold),
         'tanh': nn.Tanh()
     }
@@ -200,7 +201,7 @@ def get_activation_by_name(name, inplace=False,
 
     else:
         raise ValueError(f"{name} is not a valid activation.")
-    
+
 
 def get_optimizer_by_name(model, name, lr=1e-3, weight_decay=0,
                           adam_eps=1e-8,
@@ -241,18 +242,20 @@ def get_optimizer_by_name(model, name, lr=1e-3, weight_decay=0,
         Optimizer
     """
     optimizer_dict = {
-        'adam': torch.optim.Adam(model.parameters(), lr=lr, 
+        'adam': torch.optim.Adam(model.parameters(), lr=lr,
                                  weight_decay=weight_decay, eps=adam_eps),
-        'sgd': torch.optim.SGD(model.parameters(), lr=lr, momentum=sgd_momentum,
-                               weight_decay=weight_decay, nesterov=sgd_nesterov)
+        'sgd': torch.optim.SGD(model.parameters(), lr=lr,
+                               momentum=sgd_momentum,
+                               weight_decay=weight_decay,
+                               nesterov=sgd_nesterov)
     }
 
     if name in optimizer_dict.keys():
         return optimizer_dict[name]
-    
+
     else:
         raise ValueError(f"{name} is not a valid optimizer.")
-    
+
 
 def get_criterion_by_name(name, reduction='mean',
                           bce_weight=None):
@@ -290,17 +293,18 @@ def get_criterion_by_name(name, reduction='mean',
 
     if name in criterion_dict.keys():
         return criterion_dict[name]
-    
+
     else:
         raise ValueError(f"{name} is not a valid criterion.")
-    
 
-def init_weights(layer, name='kaiming_uniform', 
+
+def init_weights(layer, name='kaiming_uniform',
                  uniform_a=0.0, uniform_b=1.0,
                  normal_mean=0.0, normal_std=1.0,
                  constant_val=0.0,
                  xavier_gain=1.0,
-                 kaiming_a=0, kaiming_mode='fan_in', kaiming_nonlinearity='leaky_relu',
+                 kaiming_a=0, kaiming_mode='fan_in',
+                 kaiming_nonlinearity='leaky_relu',
                  trunc_mean=0.0, trunc_std=1.0, trunc_a=-2, trunc_b=2,
                  orthogonal_gain=1.0,
                  sparse_sparsity=None, sparse_std=0.01, sparse_generator=None):
@@ -412,7 +416,8 @@ def init_weights(layer, name='kaiming_uniform',
         if name == 'uniform':
             init_name_dict[name](layer.weight, a=uniform_a, b=uniform_b)
         elif name == 'normal':
-            init_name_dict[name](layer.weight, mean=normal_mean, std=normal_std)
+            init_name_dict[name](layer.weight, mean=normal_mean,
+                                 std=normal_std)
         elif name == 'constant':
             init_name_dict[name](layer.weight, val=constant_val)
         elif name == 'ones':
@@ -426,18 +431,18 @@ def init_weights(layer, name='kaiming_uniform',
         elif name == 'xavier_normal':
             init_name_dict[name](layer.weight, gain=xavier_gain)
         elif name == 'kaiming_uniform':
-            init_name_dict[name](layer.weight, a=kaiming_a, mode=kaiming_mode, 
-                                  nonlinearity=kaiming_nonlinearity)
+            init_name_dict[name](layer.weight, a=kaiming_a, mode=kaiming_mode,
+                                 nonlinearity=kaiming_nonlinearity)
         elif name == 'kaiming_normal':
-            init_name_dict[name](layer.weight, a=kaiming_a, mode=kaiming_mode, 
-                                  nonlinearity=kaiming_nonlinearity)
+            init_name_dict[name](layer.weight, a=kaiming_a, mode=kaiming_mode,
+                                 nonlinearity=kaiming_nonlinearity)
         elif name == 'trunc_normal':
-            init_name_dict[name](layer.weight, mean=trunc_mean, std=trunc_std, 
-                                  a=trunc_a, b=trunc_b)
+            init_name_dict[name](layer.weight, mean=trunc_mean, std=trunc_std,
+                                 a=trunc_a, b=trunc_b)
         elif name == 'orthogonal':
             init_name_dict[name](layer.weight, gain=orthogonal_gain)
         elif name == 'sparse':
-            init_name_dict[name](layer.weight, sparsity=sparse_sparsity, 
-                                  std=sparse_std)
+            init_name_dict[name](layer.weight, sparsity=sparse_sparsity,
+                                 std=sparse_std)
     else:
         raise ValueError(f"{name} is not a valid initialization type.")
