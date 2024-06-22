@@ -111,13 +111,14 @@ class MO_GAAL(BaseDetector):
         latent_size = X.shape[1]
         data_size = X.shape[0]
 
-        dataloader = DataLoader(TensorDataset(torch.tensor(X, dtype=torch.float32).to(self.device)), batch_size=min(500, len(X)), shuffle=True)
+        dataloader = DataLoader(TensorDataset(torch.tensor(X, dtype=torch.float32).to(self.device)),
+                                batch_size=min(500, data_size), shuffle=True)
 
         self.discriminator = create_discriminator(latent_size, data_size).to(self.device)
         self.generators = [create_generator(latent_size).to(self.device) for _ in range(self.k)]
 
-        d_optimizer = optim.Adam(self.discriminator.parameters(), lr=self.lr_d)
-        g_optimizers = [optim.Adam(generator.parameters(), lr=self.lr_g) for generator in self.generators]
+        optimizer_d = optim.Adam(self.discriminator.parameters(), lr=self.lr_d)
+        optimizer_g = [optim.Adam(generator.parameters(), lr=self.lr_g) for generator in self.generators]
 
         criterion = nn.BCELoss()
 
@@ -147,7 +148,7 @@ class MO_GAAL(BaseDetector):
                     fake_loss.backward()
                     d_loss_total += fake_loss.item()
 
-                d_optimizer.step()
+                optimizer_d.step()
 
                 # Train Generators
                 for i in range(self.k):
@@ -157,7 +158,7 @@ class MO_GAAL(BaseDetector):
                     outputs = self.discriminator(fake_data)
                     g_loss = criterion(outputs, real_labels)
                     g_loss.backward()
-                    g_optimizers[i].step()
+                    optimizer_g[i].step()
 
                     self.train_history[f'sub_generator{i}_loss'].append(g_loss.item())
 

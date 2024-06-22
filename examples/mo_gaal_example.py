@@ -35,10 +35,8 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # 定义设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # 将数据移动到设备
     X_train = torch.tensor(X_train, dtype=torch.float32).to(device).cpu().numpy()
     X_test = torch.tensor(X_test, dtype=torch.float32).to(device).cpu().numpy()
 
@@ -54,11 +52,6 @@ if __name__ == "__main__":
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
     y_test_scores = clf.decision_function(X_test)  # outlier scores
-
-    # Assuming clf is an instance of your model
-    probabilities, confidence = clf.predict_proba(X_test, return_confidence=True)
-    # print("Probabilities shape:", probabilities.shape)
-    # print("Confidence shape:", confidence.shape)
 
     # evaluate and print the results
     print("\nOn Training Data:")
