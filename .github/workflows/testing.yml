@@ -45,9 +45,12 @@ jobs:
     - name: Test with pytest
       run: |
         coverage run --source=pyod -m pytest
-    - name: coverage report
+
+    - name: Coverage report
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COVERALLS_SERVICE_NAME: github-actions
       run: |
-        coveralls --service=github
+        coveralls --service=github || echo "Coveralls failed to submit - retrying..." && coveralls --service=github
+
 
