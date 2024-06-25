@@ -7,7 +7,7 @@ The full API Reference is available at `PyOD Documentation <https://pyod.readthe
 * :func:`pyod.models.base.BaseDetector.decision_function`: Predict raw anomaly scores for X using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict`: Determine whether a sample is an outlier or not as binary labels using the fitted detector.
 * :func:`pyod.models.base.BaseDetector.predict_proba`: Estimate the probability of a sample being an outlier using the fitted detector.
-* :func:`pyod.models.base.BaseDetector.predict_confidence`: Assess the model's confidence on a per-sample basis (applicable in predict and predict_proba) [#Perini2020Quantifying]_.
+* :func:`pyod.models.base.BaseDetector.predict_confidence`: Assess the model's confidence on a per-sample basis (applicable in predict and predict_proba) :cite:`a-perini2020quantifying`.
 
 
 **Key Attributes of a fitted model**:
