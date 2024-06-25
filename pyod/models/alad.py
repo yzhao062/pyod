@@ -2,53 +2,22 @@
 """Using Adversarially Learned Anomaly Detection
 """
 # Author: Michiel Bongaerts (but not author of the ALAD method)
+# Pytorch version Author: Jiaqi Li <jli77629@usc.edu>
 
 from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import pandas as pd
-import tensorflow
-from matplotlib import pyplot as plt
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-
+from matplotlib import pyplot as plt
+import pandas as pd
 from .base import BaseDetector
 from ..utils.utility import check_parameter
-
-
-# Old function, deprecat this in the future
-def _get_tensorflow_version():  # pragma: no cover
-    """ Utility function to decide the version of tensorflow, which will
-    affect how to import keras models.
-
-    Returns
-    -------
-    tensorflow version : int
-
-    """
-
-    tf_version = str(tensorflow.__version__)
-    if int(tf_version.split(".")[0]) != 1 and int(
-            tf_version.split(".")[0]) != 2:
-        raise ValueError("tensorflow version error")
-
-    return int(tf_version.split(".")[0]) * 100 + int(tf_version.split(".")[1])
-
-# if tensorflow 2, import from tf directly
-if _get_tensorflow_version() < 200:
-    raise NotImplementedError('Model not implemented for Tensorflow version 1')
-elif 200 <= _get_tensorflow_version() <= 209:
-    import tensorflow as tf
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import Input, Dense, Dropout
-    from tensorflow.keras.optimizers import Adam
-else:
-    import tensorflow as tf
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import Input, Dense, Dropout
-    from tensorflow.keras.optimizers.legacy import Adam
 
 
 class ALAD(BaseDetector):
@@ -134,6 +103,11 @@ class ALAD(BaseDetector):
         the proportion of outliers in the data set. When fitting this is used
         to define the threshold on the decision function.
 
+    device : str or None, optional (default=None)
+        The device to use for computation. If None, the default device will be used.
+        Possible values include 'cpu' or 'gpu'. This parameter allows the user
+        to specify the preferred device for running the model.
+        
     Attributes
     ----------
     decision_scores_ : numpy array of shape (n_samples,)
@@ -170,11 +144,13 @@ class ALAD(BaseDetector):
                  verbose=0,
                  preprocessing=False,
                  add_disc_zz_loss=True, spectral_normalization=False,
-                 batch_size=32, contamination=0.1):
+                 batch_size=32, contamination=0.1, device=None):
         super(ALAD, self).__init__(contamination=contamination)
 
+        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.activation_hidden_disc = activation_hidden_disc
         self.activation_hidden_gen = activation_hidden_gen
+        self.output_activation = output_activation
         self.dropout_rate = dropout_rate
         self.latent_dim = latent_dim
         self.dec_layers = dec_layers
@@ -188,7 +164,6 @@ class ALAD(BaseDetector):
         self.lambda_recon_loss = lambda_recon_loss
         self.add_disc_zz_loss = add_disc_zz_loss
 
-        self.output_activation = output_activation
         self.contamination = contamination
         self.epochs = epochs
         self.learning_rate_gen = learning_rate_gen
@@ -198,290 +173,141 @@ class ALAD(BaseDetector):
         self.verbose = verbose
         self.spectral_normalization = spectral_normalization
 
-        if (self.spectral_normalization == True):
+        if self.spectral_normalization:
             try:
-                global tfa
-                import tensorflow_addons as tfa
-            except ModuleNotFoundError:
-                # Error handling
-                print(
-                    'tensorflow_addons not found, cannot use spectral normalization. Install tensorflow_addons first.')
+                import torch.nn.utils.spectral_norm as spectral_norm
+                self.spectral_norm = spectral_norm
+            except ImportError:
+                print('Spectral normalization not available. Install torch>=1.0.0.')
                 self.spectral_normalization = False
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
-                        include_left=True)
+        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate', include_left=True)
 
     def _build_model(self):
-
-        #### Decoder #####
-        dec_in = Input(shape=(self.latent_dim,), name='I1')
-        dec_1 = Dropout(self.dropout_rate)(dec_in)
-        last_layer = dec_1
-
-        # Store all hidden layers in dict
-        dec_hl_dict = {}
-        for i, l_dim in enumerate(self.dec_layers):
-            layer_name = 'hl_{}'.format(i)
-            dec_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                Dense(l_dim, activation=self.activation_hidden_gen)(
-                    last_layer))
-            last_layer = dec_hl_dict[layer_name]
-
-        dec_out = Dense(self.n_features_, activation=self.output_activation)(
-            last_layer)
-
-        self.dec = Model(inputs=(dec_in), outputs=[dec_out])
-        self.hist_loss_dec = []
-
-        #### Encoder #####
-        enc_in = Input(shape=(self.n_features_,), name='I1')
-        enc_1 = Dropout(self.dropout_rate)(enc_in)
-        last_layer = enc_1
-
-        # Store all hidden layers in dict
-        enc_hl_dict = {}
-        for i, l_dim in enumerate(self.enc_layers):
-            layer_name = 'hl_{}'.format(i)
-            enc_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                Dense(l_dim, activation=self.activation_hidden_gen)(
-                    last_layer))
-            last_layer = enc_hl_dict[layer_name]
-
-        enc_out = Dense(self.latent_dim, activation=self.output_activation)(
-            last_layer)
-
-        self.enc = Model(inputs=(enc_in), outputs=[enc_out])
-        self.hist_loss_enc = []
-
-        #### Discriminator_xz #####
-        disc_xz_in_x = Input(shape=(self.n_features_,), name='I1')
-        disc_xz_in_z = Input(shape=(self.latent_dim,), name='I2')
-        disc_xz_in = tf.concat([disc_xz_in_x, disc_xz_in_z], axis=1)
-
-        disc_xz_1 = Dropout(self.dropout_rate)(disc_xz_in)
-        last_layer = disc_xz_1
-
-        # Store all hidden layers in dict
-        disc_xz_hl_dict = {}
-        for i, l_dim in enumerate(self.disc_xz_layers):
-            layer_name = 'hl_{}'.format(i)
-
-            if (self.spectral_normalization == True):
-                disc_xz_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                    tfa.layers.SpectralNormalization(
-                        Dense(l_dim, activation=self.activation_hidden_disc))(
-                        last_layer))
+        def get_activation(name):
+            if name == 'tanh':
+                return nn.Tanh()
+            elif name == 'sigmoid':
+                return nn.Sigmoid()
+            elif name == 'relu':
+                return nn.ReLU()
             else:
-                disc_xz_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                    Dense(l_dim, activation=self.activation_hidden_disc)(
-                        last_layer))
+                raise ValueError("Unsupported activation function: {}".format(name))
 
-            last_layer = disc_xz_hl_dict[layer_name]
+        # Create the decoder
+        dec_layers = []
+        input_dim = self.latent_dim
+        for l_dim in self.dec_layers:
+            dec_layers.append(nn.Linear(input_dim, l_dim))
+            dec_layers.append(nn.Dropout(self.dropout_rate))
+            dec_layers.append(get_activation(self.activation_hidden_gen))
+            input_dim = l_dim
+        dec_layers.append(nn.Linear(input_dim, self.n_features_))
+        if self.output_activation:
+            dec_layers.append(get_activation(self.output_activation))
+        self.dec = nn.Sequential(*dec_layers).to(self.device)
 
-        disc_xz_out = Dense(1, activation='sigmoid')(last_layer)
-        self.disc_xz = Model(inputs=(disc_xz_in_x, disc_xz_in_z),
-                             outputs=[disc_xz_out])
-        # self.hist_loss_disc_xz = []
+        # Create the encoder
+        enc_layers = []
+        input_dim = self.n_features_
+        for l_dim in self.enc_layers:
+            enc_layers.append(nn.Linear(input_dim, l_dim))
+            enc_layers.append(nn.Dropout(self.dropout_rate))
+            enc_layers.append(get_activation(self.activation_hidden_gen))
+            input_dim = l_dim
+        enc_layers.append(nn.Linear(input_dim, self.latent_dim))
+        if self.output_activation:
+            enc_layers.append(get_activation(self.output_activation))
+        self.enc = nn.Sequential(*enc_layers).to(self.device)
 
-        #### Discriminator_xx #####
-        disc_xx_in_x = Input(shape=(self.n_features_,), name='I1')
-        disc_xx_in_x_hat = Input(shape=(self.n_features_,), name='I2')
-        disc_xx_in = tf.concat([disc_xx_in_x, disc_xx_in_x_hat], axis=1)
+        # Create the discriminators
+        def create_discriminator(layers, input_dim):
+            disc_layers = []
+            for l_dim in layers:
+                disc_layers.append(nn.Linear(input_dim, l_dim))
+                if self.spectral_normalization:
+                    disc_layers[-1] = nn.utils.spectral_norm(disc_layers[-1])
+                disc_layers.append(nn.Dropout(self.dropout_rate))
+                disc_layers.append(get_activation(self.activation_hidden_disc))
+                input_dim = l_dim
+            disc_layers.append(nn.Linear(input_dim, 1))
+            disc_layers.append(nn.Sigmoid())
+            return nn.Sequential(*disc_layers).to(self.device)
 
-        disc_xx_1 = Dropout(self.dropout_rate,
-                            input_shape=(self.n_features_,))(disc_xx_in)
-        last_layer = disc_xx_1
+        self.disc_xx = create_discriminator(self.disc_xx_layers, 2 * self.n_features_)
+        self.disc_zz = create_discriminator(self.disc_zz_layers, 2 * self.latent_dim)
+        self.disc_xz = create_discriminator(self.disc_xz_layers, self.n_features_ + self.latent_dim)
 
-        # Store all hidden layers in dict
-        disc_xx_hl_dict = {}
-        for i, l_dim in enumerate(self.disc_xx_layers):
-            layer_name = 'hl_{}'.format(i)
-
-            if (self.spectral_normalization == True):
-                disc_xx_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                    tfa.layers.SpectralNormalization(
-                        Dense(l_dim, activation=self.activation_hidden_disc))(
-                        last_layer))
-            else:
-                disc_xx_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                    Dense(l_dim, activation=self.activation_hidden_disc)(
-                        last_layer))
-
-            last_layer = disc_xx_hl_dict[layer_name]
-
-        disc_xx_out = Dense(1, activation='sigmoid')(last_layer)
-        self.disc_xx = Model(inputs=(disc_xx_in_x, disc_xx_in_x_hat),
-                             outputs=[disc_xx_out, last_layer])
-        # self.hist_loss_disc_xx = []
-
-        #### Discriminator_zz #####
-        disc_zz_in_z = Input(shape=(self.latent_dim,), name='I1')
-        disc_zz_in_z_prime = Input(shape=(self.latent_dim,), name='I2')
-        disc_zz_in = tf.concat([disc_zz_in_z, disc_zz_in_z_prime], axis=1)
-
-        disc_zz_1 = Dropout(self.dropout_rate,
-                            input_shape=(self.n_features_,))(disc_zz_in)
-        last_layer = disc_zz_1
-
-        # Store all hidden layers in dict
-        disc_zz_hl_dict = {}
-        for i, l_dim in enumerate(self.disc_zz_layers):
-            layer_name = 'hl_{}'.format(i)
-
-            if (self.spectral_normalization == True):
-                disc_zz_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                    tfa.layers.SpectralNormalization(
-                        Dense(l_dim, activation=self.activation_hidden_disc))(
-                        last_layer))
-            else:
-                disc_zz_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                    Dense(l_dim, activation=self.activation_hidden_disc)(
-                        last_layer))
-
-            last_layer = disc_zz_hl_dict[layer_name]
-
-        disc_zz_out = Dense(1, activation='sigmoid')(last_layer)
-        self.disc_zz = Model(inputs=(disc_zz_in_z, disc_zz_in_z_prime),
-                             outputs=[disc_zz_out])
-        # self.hist_loss_disc_zz = []
-
-        # Set optimizer
-        opt_gen = Adam(learning_rate=self.learning_rate_gen)
-        opt_disc = Adam(learning_rate=self.learning_rate_disc)
-
-        self.dec.compile(optimizer=opt_gen)
-        self.enc.compile(optimizer=opt_gen)
-        self.disc_xz.compile(optimizer=opt_disc)
-        self.disc_xx.compile(optimizer=opt_disc)
-        self.disc_zz.compile(optimizer=opt_disc)
+        # Optimizers
+        self.opt_gen = optim.Adam(list(self.enc.parameters()) + list(self.dec.parameters()), lr=self.learning_rate_gen)
+        self.opt_disc = optim.Adam(list(self.disc_xx.parameters()) + list(self.disc_xz.parameters()) + list(self.disc_zz.parameters()), lr=self.learning_rate_disc)
 
         self.hist_loss_disc = []
         self.hist_loss_gen = []
 
     def train_step(self, data):
-        cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=False)
-
         x_real, z_real = data
 
-        def get_losses():
-            y_true = tf.ones_like(x_real[:, [0]])
-            y_fake = tf.zeros_like(x_real[:, [0]])
+        x_real = torch.FloatTensor(x_real).to(self.device)
+        z_real = torch.FloatTensor(z_real).to(self.device)
 
-            # Generator
-            x_gen = self.dec({'I1': z_real}, training=True)
+        self.opt_disc.zero_grad()
+        x_gen = self.dec(z_real)
+        z_gen = self.enc(x_real)
 
-            # Encoder
-            z_gen = self.enc({'I1': x_real}, training=True)
+        out_true_xz = self.disc_xz(torch.cat((x_real, z_gen), dim=1))
+        out_fake_xz = self.disc_xz(torch.cat((x_gen, z_real), dim=1))
 
-            # Discriminatorxz
-            out_truexz = self.disc_xz({'I1': x_real, 'I2': z_gen},
-                                      training=True)
-            out_fakexz = self.disc_xz({'I1': x_gen, 'I2': z_real},
-                                      training=True)
+        out_true_xx = self.disc_xx(torch.cat((x_real, x_real), dim=1))
+        out_fake_xx = self.disc_xx(torch.cat((x_real, x_gen), dim=1))
 
-            # Discriminatorzz
-            if (self.add_disc_zz_loss == True):
-                out_truezz = self.disc_zz({'I1': z_real, 'I2': z_real},
-                                          training=True)
-                out_fakezz = self.disc_zz({'I1': z_real, 'I2': self.enc(
-                    {'I1': self.dec({'I1': z_real}, training=True)})},
-                                          training=True)
+        loss_dxz = nn.BCELoss()(out_true_xz, torch.ones_like(out_true_xz)) + nn.BCELoss()(out_fake_xz, torch.zeros_like(out_fake_xz))
+        loss_dxx = nn.BCELoss()(out_true_xx, torch.ones_like(out_true_xx)) + nn.BCELoss()(out_fake_xx, torch.zeros_like(out_fake_xx))
 
-                # Discriminatorxx
-            out_truexx, _ = self.disc_xx({'I1': x_real, 'I2': x_real},
-                                         training=True)  # self.Dxx(x_real, x_real)
-            out_fakexx, _ = self.disc_xx({'I1': x_real, 'I2': self.dec(
-                {'I1': self.enc({'I1': x_real}, training=True)})},
-                                         training=True)
+        if self.add_disc_zz_loss:
+            out_true_zz = self.disc_zz(torch.cat((z_real, z_real), dim=1))
+            out_fake_zz = self.disc_zz(torch.cat((z_real, z_gen), dim=1))
+            loss_dzz = nn.BCELoss()(out_true_zz, torch.ones_like(out_true_zz)) + nn.BCELoss()(out_fake_zz, torch.zeros_like(out_fake_zz))
+            loss_disc = loss_dxz + loss_dzz + loss_dxx
+        else:
+            loss_disc = loss_dxz + loss_dxx
 
-            # Losses for discriminators
-            loss_dxz = cross_entropy(y_true, out_truexz) + cross_entropy(
-                y_fake, out_fakexz)
-            loss_dxx = cross_entropy(y_true, out_truexx) + cross_entropy(
-                y_fake, out_fakexx)
-            if (self.add_disc_zz_loss == True):
-                loss_dzz = cross_entropy(y_true, out_truezz) + cross_entropy(
-                    y_fake, out_fakezz)
-                loss_disc = loss_dxz + loss_dzz + loss_dxx
-            else:
-                loss_disc = loss_dxz + loss_dxx
+        loss_disc.backward()
+        self.opt_disc.step()
 
-            # Losses for generator
-            loss_gexz = cross_entropy(y_true, out_fakexz) + cross_entropy(
-                y_fake, out_truexz)
-            loss_gexx = cross_entropy(y_true, out_fakexx) + cross_entropy(
-                y_fake, out_truexx)
-            if (self.add_disc_zz_loss == True):
-                loss_gezz = cross_entropy(y_true, out_fakezz) + cross_entropy(
-                    y_fake, out_truezz)
-                cycle_consistency = loss_gezz + loss_gexx
-                loss_gen = loss_gexz + cycle_consistency
-            else:
-                cycle_consistency = loss_gexx
-                loss_gen = loss_gexz + cycle_consistency
+        self.opt_gen.zero_grad()
+        x_gen = self.dec(z_real)
+        z_gen = self.enc(x_real)
 
-            if (self.add_recon_loss == True):
-                # Extra recon loss
-                x_recon = self.dec(
-                    {'I1': self.enc({'I1': x_real}, training=True)})
-                loss_recon = tf.reduce_mean((x_real - x_recon) ** 2)
-                loss_gen += loss_recon * self.lambda_recon_loss
+        out_true_xz = self.disc_xz(torch.cat((x_real, z_gen), dim=1))
+        out_fake_xz = self.disc_xz(torch.cat((x_gen, z_real), dim=1))
 
-            return loss_disc, loss_gen
+        out_true_xx = self.disc_xx(torch.cat((x_real, x_real), dim=1))
+        out_fake_xx = self.disc_xx(torch.cat((x_real, x_gen), dim=1))
 
-        with tf.GradientTape() as enc_tape, tf.GradientTape() as dec_tape, tf.GradientTape() as disc_xx_tape, tf.GradientTape() as disc_xz_tape, tf.GradientTape() as disc_zz_tape:
-            loss_disc, loss_gen = get_losses()
+        loss_gexz = nn.BCELoss()(out_fake_xz, torch.ones_like(out_fake_xz)) + nn.BCELoss()(out_true_xz, torch.zeros_like(out_true_xz))
+        loss_gexx = nn.BCELoss()(out_fake_xx, torch.ones_like(out_fake_xx)) + nn.BCELoss()(out_true_xx, torch.zeros_like(out_true_xx))
 
-        self.hist_loss_disc.append(np.float64(loss_disc.numpy()))
-        self.hist_loss_gen.append(np.float64(loss_gen.numpy()))
+        if self.add_disc_zz_loss:
+            out_true_zz = self.disc_zz(torch.cat((z_real, z_real), dim=1))
+            out_fake_zz = self.disc_zz(torch.cat((z_real, z_gen), dim=1))
+            loss_gezz = nn.BCELoss()(out_fake_zz, torch.ones_like(out_fake_zz)) + nn.BCELoss()(out_true_zz, torch.zeros_like(out_true_zz))
+            cycle_consistency = loss_gezz + loss_gexx
+            loss_gen = loss_gexz + cycle_consistency
+        else:
+            cycle_consistency = loss_gexx
+            loss_gen = loss_gexz + cycle_consistency
 
-        gradients_dec = dec_tape.gradient(loss_gen,
-                                          self.dec.trainable_variables)
-        self.dec.optimizer.apply_gradients(
-            zip(gradients_dec, self.dec.trainable_variables))
+        if self.add_recon_loss:
+            x_recon = self.dec(self.enc(x_real))
+            loss_recon = torch.mean((x_real - x_recon) ** 2)
+            loss_gen += loss_recon * self.lambda_recon_loss
 
-        gradients_enc = enc_tape.gradient(loss_gen,
-                                          self.enc.trainable_variables)
-        self.enc.optimizer.apply_gradients(
-            zip(gradients_enc, self.enc.trainable_variables))
+        loss_gen.backward()
+        self.opt_gen.step()
 
-        gradients_disc_xx = disc_xx_tape.gradient(loss_disc,
-                                                  self.disc_xx.trainable_variables)
-        self.disc_xx.optimizer.apply_gradients(
-            zip(gradients_disc_xx, self.disc_xx.trainable_variables))
-
-        if (self.add_disc_zz_loss == True):
-            gradients_disc_zz = disc_zz_tape.gradient(loss_disc,
-                                                      self.disc_zz.trainable_variables)
-            self.disc_zz.optimizer.apply_gradients(
-                zip(gradients_disc_zz, self.disc_zz.trainable_variables))
-
-        gradients_disc_xz = disc_xz_tape.gradient(loss_disc,
-                                                  self.disc_xz.trainable_variables)
-        self.disc_xz.optimizer.apply_gradients(
-            zip(gradients_disc_xz, self.disc_xz.trainable_variables))
-
-    def plot_learning_curves(self, start_ind=0, window_smoothening=10):
-        fig = plt.figure(figsize=(12, 5))
-
-        l_gen = pd.Series(self.hist_loss_gen[start_ind:]).rolling(
-            window_smoothening).mean()
-        l_disc = pd.Series(self.hist_loss_disc[start_ind:]).rolling(
-            window_smoothening).mean()
-
-        ax = fig.add_subplot(1, 2, 1)
-        ax.plot(range(len(l_gen)), l_gen, )
-        ax.set_title('Generator')
-        ax.set_ylabel('Loss')
-        ax.set_xlabel('Iter')
-
-        ax = fig.add_subplot(1, 2, 2)
-        ax.plot(range(len(l_disc)), l_disc)
-        ax.set_title('Discriminator(s)')
-        ax.set_ylabel('Loss')
-        ax.set_xlabel('Iter')
-
-        plt.show()
+        self.hist_loss_disc.append(loss_disc.item())
+        self.hist_loss_gen.append(loss_gen.item())
 
     def fit(self, X, y=None, noise_std=0.1):
         """Fit detector. y is ignored in unsupervised methods.
@@ -512,22 +338,17 @@ class ALAD(BaseDetector):
             X_norm = np.copy(X)
 
         for n in range(self.epochs):
-            if ((n % 50 == 0) and (n != 0) and (self.verbose == 1)):
-                print('Train iter:{}'.format(n))
+            if n % 50 == 0 and n != 0 and self.verbose == 1:
+                print(f'Train iter: {n}')
 
             # Shuffle train 
             np.random.shuffle(X_norm)
 
-            X_train_sel = X_norm[0: min(self.batch_size, self.n_samples_), :]
-            latent_noise = np.random.normal(0, 1, (
-                X_train_sel.shape[0], self.latent_dim))
-            X_train_sel += np.random.normal(0, noise_std,
-                                            size=X_train_sel.shape)
-            self.train_step(
-                (np.float32(X_train_sel), np.float32(latent_noise)))
+            X_train_sel = X_norm[:min(self.batch_size, self.n_samples_)].astype(np.float32)
+            latent_noise = np.random.normal(0, 1, (X_train_sel.shape[0], self.latent_dim))
+            X_train_sel += np.random.normal(0, noise_std, size=X_train_sel.shape)
+            self.train_step((X_train_sel, latent_noise))
 
-            # Predict on X itself and calculate the the outlier scores.
-        # Note, X_norm was shuffled and needs to be recreated
         if self.preprocessing:
             X_norm = self.scaler_.transform(X)
         else:
@@ -537,12 +358,11 @@ class ALAD(BaseDetector):
         self.decision_scores_ = pred_scores
         self._process_decision_scores()
         return self
-
+    
     def train_more(self, X, epochs=100, noise_std=0.1):
         """This function allows the researcher to perform extra training instead of the fixed number determined
         by the fit() function.
         """
-
         # fit() should have been called first
         check_is_fitted(self, ['decision_scores_'])
 
@@ -553,22 +373,17 @@ class ALAD(BaseDetector):
             X_norm = np.copy(X)
 
         for n in range(epochs):
-            if ((n % 50 == 0) and (n != 0) and (self.verbose == 1)):
-                print('Train iter:{}'.format(n))
+            if n % 50 == 0 and n != 0 and self.verbose == 1:
+                print(f'Train iter: {n}')
 
             # Shuffle train 
             np.random.shuffle(X_norm)
 
-            X_train_sel = X_norm[0: min(self.batch_size, self.n_samples_), :]
-            latent_noise = np.random.normal(0, 1, (
-                X_train_sel.shape[0], self.latent_dim))
-            X_train_sel += np.random.normal(0, noise_std,
-                                            size=X_train_sel.shape)
-            self.train_step(
-                (np.float32(X_train_sel), np.float32(latent_noise)))
+            X_train_sel = X_norm[:min(self.batch_size, self.n_samples_)].astype(np.float32)
+            latent_noise = np.random.normal(0, 1, (X_train_sel.shape[0], self.latent_dim))
+            X_train_sel += np.random.normal(0, noise_std, size=X_train_sel.shape)
+            self.train_step((X_train_sel, latent_noise))
 
-            # Predict on X itself and calculate the the outlier scores.
-        # Note, X_norm was shuffled and needs to be recreated
         if self.preprocessing:
             X_norm = self.scaler_.transform(X)
         else:
@@ -580,19 +395,14 @@ class ALAD(BaseDetector):
         return self
 
     def get_outlier_scores(self, X_norm):
+        X_norm = torch.FloatTensor(X_norm).to(self.device)
+        X_enc = self.enc(X_norm).detach().cpu().numpy()
+        X_enc_gen = self.dec(torch.FloatTensor(X_enc).to(self.device)).detach().cpu().numpy()
 
-        X_enc = self.enc({'I1': X_norm}).numpy()
-        X_enc_gen = self.dec({'I1': X_enc}).numpy()
+        out_true_xx = self.disc_xx(torch.cat((X_norm, X_norm), dim=1)).detach().cpu().numpy()
+        out_fake_xx = self.disc_xx(torch.cat((X_norm, torch.FloatTensor(X_enc_gen).to(self.device)), dim=1)).detach().cpu().numpy()
 
-        _, act_layer_xx = self.disc_xx({'I1': X_norm, 'I2': X_norm},
-                                       training=False)
-        act_layer_xx = act_layer_xx.numpy()
-        _, act_layer_xx_enc_gen = self.disc_xx({'I1': X_norm, 'I2': X_enc_gen},
-                                               training=False)
-        act_layer_xx_enc_gen = act_layer_xx_enc_gen.numpy()
-        outlier_scores = np.mean(
-            np.abs((act_layer_xx - act_layer_xx_enc_gen) ** 2), axis=1)
-
+        outlier_scores = np.mean(np.abs((out_true_xx - out_fake_xx) ** 2), axis=1)
         return outlier_scores
 
     def decision_function(self, X):
@@ -618,6 +428,26 @@ class ALAD(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        # Predict on X 
-        pred_scores = self.get_outlier_scores(X_norm)
+        X_norm = torch.FloatTensor(X_norm).to(self.device)
+        pred_scores = self.get_outlier_scores(X_norm.cpu().numpy())
         return pred_scores
+
+    def plot_learning_curves(self, start_ind=0, window_smoothening=10):
+        fig = plt.figure(figsize=(12, 5))
+
+        l_gen = pd.Series(self.hist_loss_gen[start_ind:]).rolling(window=window_smoothening).mean()
+        l_disc = pd.Series(self.hist_loss_disc[start_ind:]).rolling(window=window_smoothening).mean()
+
+        ax = fig.add_subplot(1, 2, 1)
+        ax.plot(range(len(l_gen)), l_gen)
+        ax.set_title('Generator')
+        ax.set_ylabel('Loss')
+        ax.set_xlabel('Iter')
+
+        ax = fig.add_subplot(1, 2, 2)
+        ax.plot(range(len(l_disc)), l_disc)
+        ax.set_title('Discriminator(s)')
+        ax.set_ylabel('Loss')
+        ax.set_xlabel('Iter')
+
+        plt.show()
