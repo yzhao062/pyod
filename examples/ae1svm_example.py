@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Example of using AE1SVM for outlier detection (pytorch)
 """
-# Author: Zhuo Xiao
+# Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
 from __future__ import division, print_function
 
