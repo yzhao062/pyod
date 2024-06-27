@@ -2,7 +2,7 @@
 """Using AE-1SVM with Outlier Detection (PyTorch)
     Source: https://arxiv.org/pdf/1804.04888
 """
-# Author: Zhuo Xiao
+# Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
 from __future__ import division, print_function
 
