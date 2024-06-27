@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # train AE1SVM detector
     clf_name = 'AE1SVM'
-    clf = AE1SVM(epochs=10)
+    clf = AE1SVM()
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

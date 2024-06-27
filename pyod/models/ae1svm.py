@@ -51,7 +51,8 @@ class InnerAE1SVM(nn.Module):
         layers_neurons_encoder = [n_features, *hidden_neurons, encoding_dim]
 
         for idx in range(len(layers_neurons_encoder) - 1):
-            self.encoder.add_module(f"linear{idx}", nn.Linear(layers_neurons_encoder[idx], layers_neurons_encoder[idx + 1]))
+            self.encoder.add_module(f"linear{idx}",
+                                    nn.Linear(layers_neurons_encoder[idx], layers_neurons_encoder[idx + 1]))
             if batch_norm:
                 self.encoder.add_module(f"batch_norm{idx}", nn.BatchNorm1d(layers_neurons_encoder[idx + 1]))
             self.encoder.add_module(f"activation{idx}", activation)
@@ -60,7 +61,8 @@ class InnerAE1SVM(nn.Module):
         layers_neurons_decoder = layers_neurons_encoder[::-1]
 
         for idx in range(len(layers_neurons_decoder) - 1):
-            self.decoder.add_module(f"linear{idx}", nn.Linear(layers_neurons_decoder[idx], layers_neurons_decoder[idx + 1]))
+            self.decoder.add_module(f"linear{idx}",
+                                    nn.Linear(layers_neurons_decoder[idx], layers_neurons_decoder[idx + 1]))
             if batch_norm and idx < len(layers_neurons_decoder) - 2:
                 self.decoder.add_module(f"batch_norm{idx}", nn.BatchNorm1d(layers_neurons_decoder[idx + 1]))
             self.decoder.add_module(f"activation{idx}", activation)
@@ -92,9 +94,9 @@ class AE1SVM(BaseDetector):
     """Auto Encoder with One-class SVM for anomaly detection."""
 
     def __init__(self, hidden_neurons=None, hidden_activation='relu',
-                 batch_norm=True, learning_rate=1e-3, epochs=100, batch_size=32,
+                 batch_norm=True, learning_rate=1e-3, epochs=50, batch_size=32,
                  dropout_rate=0.2, weight_decay=1e-5, preprocessing=True,
-                 loss_fn=None, contamination=0.1, device=None, alpha=1.0, sigma=1.0, nu=0.1, kernel_approx_features=1000):
+                 loss_fn=None, contamination=0.1, alpha=1.0, sigma=1.0, nu=0.1, kernel_approx_features=1000):
         super(AE1SVM, self).__init__(contamination=contamination)
 
         self.model = None
@@ -111,7 +113,8 @@ class AE1SVM(BaseDetector):
         self.weight_decay = weight_decay
         self.preprocessing = preprocessing
         self.loss_fn = loss_fn or torch.nn.MSELoss()
-        self.device = device or torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
         self.hidden_neurons = hidden_neurons or [64, 32]
         self.alpha = alpha
         self.sigma = sigma
@@ -125,18 +128,24 @@ class AE1SVM(BaseDetector):
         n_samples, n_features = X.shape
         if self.preprocessing:
             self.mean, self.std = np.mean(X, axis=0), np.std(X, axis=0)
+            self.std[self.std == 0] = 1e-6  # Avoid division by zero
             train_set = PyODDataset(X=X, mean=self.mean, std=self.std)
         else:
             train_set = PyODDataset(X=X)
 
         train_loader = torch.utils.data.DataLoader(train_set, batch_size=self.batch_size, shuffle=True)
-        self.model = InnerAE1SVM(n_features=n_features, encoding_dim=32, rff_dim=self.kernel_approx_features, sigma=self.sigma,
+        self.model = InnerAE1SVM(n_features=n_features, encoding_dim=32, rff_dim=self.kernel_approx_features,
+                                 sigma=self.sigma,
                                  hidden_neurons=self.hidden_neurons, dropout_rate=self.dropout_rate,
                                  batch_norm=self.batch_norm, hidden_activation=self.hidden_activation)
         self.model = self.model.to(self.device)
         self._train_autoencoder(train_loader)
 
-        self.model.load_state_dict(self.best_model_dict)
+        if self.best_model_dict is not None:
+            self.model.load_state_dict(self.best_model_dict)
+        else:
+            raise ValueError('Training failed, no valid model state found')
+
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
         return self
@@ -160,7 +169,8 @@ class AE1SVM(BaseDetector):
                 loss.backward()
                 optimizer.step()
                 overall_loss.append(loss.item())
-            print(f'Epoch {epoch + 1}/{self.epochs}, Loss: {np.mean(overall_loss)}')
+            if (epoch + 1) % 10 == 0:
+                print(f'Epoch {epoch + 1}/{self.epochs}, Loss: {np.mean(overall_loss)}')
 
             if np.mean(overall_loss) < self.best_loss:
                 self.best_loss = np.mean(overall_loss)
