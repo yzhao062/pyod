@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Using AE-1SVM with Outlier Detection (PyTorch)
-    Source: https://arxiv.org/pdf/1804.04888
-    There is another implementation of this model by Minh Nghia: https://github.com/minh-nghia/AE-1SVM (Tensorflow)
+   Source: https://arxiv.org/pdf/1804.04888
+   There is another implementation of this model by Minh Nghia: https://github.com/minh-nghia/AE-1SVM (Tensorflow)
 """
 # Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
@@ -14,6 +14,7 @@ from torch import nn
 from .base import BaseDetector
 from ..utils.stat_models import pairwise_distances_no_broadcast
 from ..utils.torch_utility import get_activation_by_name, TorchDataset
+
 
 class InnerAE1SVM(nn.Module):
     """Internal model combining an Autoencoder and One-class SVM.
@@ -50,12 +51,17 @@ class InnerAE1SVM(nn.Module):
                  dropout_rate=0.2, batch_norm=True, hidden_activation='relu'):
         super(InnerAE1SVM, self).__init__()
 
-        # Encoder: Sequential model consisting of linear, batch norm, activation, and dropout layers.
+        # Encoder: Sequential model consisting of linear, batch norm,
+        # activation, and dropout layers.
         self.encoder = nn.Sequential()
-        # Decoder: Sequential model to reconstruct the input from the encoded representation.
+
+        # Decoder: Sequential model to reconstruct the input from the
+        # encoded representation.
         self.decoder = nn.Sequential()
+
         # Random Fourier Features layer for approximating the kernel function.
         self.rff = RandomFourierFeatures(encoding_dim, rff_dim, sigma)
+
         # Parameters for the SVM.
         self.svm_weights = nn.Parameter(torch.randn(rff_dim))
         self.svm_bias = nn.Parameter(torch.randn(1))
@@ -100,7 +106,7 @@ class InnerAE1SVM(nn.Module):
 
         Returns
         -------
-        tuple of torch.Tensor
+        tuple of torch. Tensor
             Reconstructed input and random Fourier features.
         """
         x = self.encoder(x)
@@ -164,7 +170,8 @@ class RandomFourierFeatures(nn.Module):
 class AE1SVM(BaseDetector):
     """Auto Encoder with One-class SVM for anomaly detection.
 
-    Note: self.device is needed or all tensors may not be on the same device (if device w/ GPU running)
+    Note: self.device is needed or all tensors may not be on the same device
+    (if device w/ GPU running)
 
     Parameters
     ----------
