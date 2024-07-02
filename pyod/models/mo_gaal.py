@@ -19,20 +19,6 @@ from .base import BaseDetector
 from .gaal_base import create_discriminator, create_generator
 
 
-class PyODDataset(torch.utils.data.Dataset):
-    """Custom Dataset for handling data operations in PyTorch for outlier detection."""
-
-    def __init__(self, X):
-        super(PyODDataset, self).__init__()
-        self.X = torch.tensor(X, dtype=torch.float32)
-
-    def __len__(self):
-        return len(self.X)
-
-    def __getitem__(self, idx):
-        return self.X[idx]
-
-
 class MO_GAAL(BaseDetector):
     """Multi-Objective Generative Adversarial Active Learning.
 
@@ -143,8 +129,8 @@ class MO_GAAL(BaseDetector):
 
         dataloader = DataLoader(TensorDataset(
             torch.tensor(X, dtype=torch.float32).to(self.device)),
-                                batch_size=min(500, data_size),
-                                shuffle=True)
+            batch_size=min(500, data_size),
+            shuffle=True)
 
         stop = 0
 
@@ -166,15 +152,15 @@ class MO_GAAL(BaseDetector):
                     if i != (self.k - 1):
                         noise_start = int(
                             (((self.k + (self.k - i + 1)) * i) / 2) * (
-                                        batch_size // block))
+                                    batch_size // block))
                         noise_end = int(
                             (((self.k + (self.k - i)) * (i + 1)) / 2) * (
-                                        batch_size // block))
+                                    batch_size // block))
                         names['noise' + str(i)] = noise[noise_start:noise_end]
                     else:
                         noise_start = int(
                             (((self.k + (self.k - i + 1)) * i) / 2) * (
-                                        batch_size // block))
+                                    batch_size // block))
                         names['noise' + str(i)] = noise[noise_start:batch_size]
 
                     names['generated_data' + str(i)] = names[

@@ -13,26 +13,7 @@ from torch import nn
 
 from .base import BaseDetector
 from ..utils.stat_models import pairwise_distances_no_broadcast
-from ..utils.torch_utility import get_activation_by_name
-
-
-class PyODDataset(torch.utils.data.Dataset):
-    """PyOD Dataset class for PyTorch Dataloader"""
-
-    def __init__(self, X, y=None, mean=None, std=None):
-        super(PyODDataset, self).__init__()
-        self.X = X
-        self.mean = mean
-        self.std = std
-
-    def __len__(self):
-        return self.X.shape[0]
-
-    def __getitem__(self, idx):
-        sample = self.X[idx, :]
-        if self.mean is not None and self.std is not None:
-            sample = (sample - self.mean) / self.std
-        return torch.from_numpy(sample), idx
+from ..utils.torch_utility import get_activation_by_name, TorchDataset
 
 
 class InnerAE1SVM(nn.Module):
@@ -135,9 +116,10 @@ class AE1SVM(BaseDetector):
         if self.preprocessing:
             self.mean, self.std = np.mean(X, axis=0), np.std(X, axis=0)
             self.std[self.std == 0] = 1e-6  # Avoid division by zero
-            train_set = PyODDataset(X=X, mean=self.mean, std=self.std)
+            train_set = TorchDataset(X=X, mean=self.mean, std=self.std,
+                                     return_idx=True)
         else:
-            train_set = PyODDataset(X=X)
+            train_set = TorchDataset(X=X, return_idx=True)
 
         train_loader = torch.utils.data.DataLoader(train_set,
                                                    batch_size=self.batch_size,
@@ -193,9 +175,9 @@ class AE1SVM(BaseDetector):
     def decision_function(self, X):
         check_is_fitted(self, ['model', 'best_model_dict'])
         X = check_array(X)
-        dataset = PyODDataset(X=X, mean=self.mean,
-                              std=self.std) if self.preprocessing else (
-            PyODDataset(X=X))
+        dataset = TorchDataset(X=X, mean=self.mean,
+                               std=self.std, return_idx=True) \
+            if self.preprocessing else (TorchDataset(X=X, return_idx=True))
         dataloader = torch.utils.data.DataLoader(dataset,
                                                  batch_size=self.batch_size,
                                                  shuffle=False)
