@@ -3,6 +3,7 @@
 Part of the codes are adapted from
 https://github.com/leibinghe/GAAL-based-outlier-detection
 """
+# Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
 from collections import defaultdict
 
