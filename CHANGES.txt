@@ -192,3 +192,4 @@ v<2.0.1>, <06/16/2024> -- Moving from TF to Torch -- reimplement DeepSVDD.
 v<2.0.1>, <06/17/2024> -- Moving from TF to Torch -- reimplement dl_base.
 v<2.0.1>, <06/21/2024> -- Moving from TF to Torch -- reimplement MO_GAAL.
 v<2.0.1>, <06/21/2024> -- Moving from TF to Torch -- reimplement AE and VAE.
+v<2.0.2>, <07/01/2024> -- Add AE1SVM.

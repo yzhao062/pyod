@@ -3,8 +3,6 @@
 """
 # Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
-from __future__ import division, print_function
-
 import os
 import sys
 
@@ -16,7 +14,6 @@ sys.path.append(
 from pyod.models.ae1svm import AE1SVM
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
-
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers

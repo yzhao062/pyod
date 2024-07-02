@@ -4,7 +4,6 @@
 """
 # Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
-from __future__ import division, print_function
 
 import numpy as np
 import torch
@@ -37,7 +36,8 @@ class PyODDataset(torch.utils.data.Dataset):
 
 
 class InnerAE1SVM(nn.Module):
-    def __init__(self, n_features, encoding_dim, rff_dim, sigma=1.0, hidden_neurons=(128, 64),
+    def __init__(self, n_features, encoding_dim, rff_dim, sigma=1.0,
+                 hidden_neurons=(128, 64),
                  dropout_rate=0.2, batch_norm=True, hidden_activation='relu'):
         super(InnerAE1SVM, self).__init__()
 
@@ -52,9 +52,11 @@ class InnerAE1SVM(nn.Module):
 
         for idx in range(len(layers_neurons_encoder) - 1):
             self.encoder.add_module(f"linear{idx}",
-                                    nn.Linear(layers_neurons_encoder[idx], layers_neurons_encoder[idx + 1]))
+                                    nn.Linear(layers_neurons_encoder[idx],
+                                              layers_neurons_encoder[idx + 1]))
             if batch_norm:
-                self.encoder.add_module(f"batch_norm{idx}", nn.BatchNorm1d(layers_neurons_encoder[idx + 1]))
+                self.encoder.add_module(f"batch_norm{idx}", nn.BatchNorm1d(
+                    layers_neurons_encoder[idx + 1]))
             self.encoder.add_module(f"activation{idx}", activation)
             self.encoder.add_module(f"dropout{idx}", nn.Dropout(dropout_rate))
 
@@ -62,12 +64,15 @@ class InnerAE1SVM(nn.Module):
 
         for idx in range(len(layers_neurons_decoder) - 1):
             self.decoder.add_module(f"linear{idx}",
-                                    nn.Linear(layers_neurons_decoder[idx], layers_neurons_decoder[idx + 1]))
+                                    nn.Linear(layers_neurons_decoder[idx],
+                                              layers_neurons_decoder[idx + 1]))
             if batch_norm and idx < len(layers_neurons_decoder) - 2:
-                self.decoder.add_module(f"batch_norm{idx}", nn.BatchNorm1d(layers_neurons_decoder[idx + 1]))
+                self.decoder.add_module(f"batch_norm{idx}", nn.BatchNorm1d(
+                    layers_neurons_decoder[idx + 1]))
             self.decoder.add_module(f"activation{idx}", activation)
             if idx < len(layers_neurons_decoder) - 2:
-                self.decoder.add_module(f"dropout{idx}", nn.Dropout(dropout_rate))
+                self.decoder.add_module(f"dropout{idx}",
+                                        nn.Dropout(dropout_rate))
 
     def forward(self, x):
         x = self.encoder(x)
@@ -96,7 +101,8 @@ class AE1SVM(BaseDetector):
     def __init__(self, hidden_neurons=None, hidden_activation='relu',
                  batch_norm=True, learning_rate=1e-3, epochs=50, batch_size=32,
                  dropout_rate=0.2, weight_decay=1e-5, preprocessing=True,
-                 loss_fn=None, contamination=0.1, alpha=1.0, sigma=1.0, nu=0.1, kernel_approx_features=1000):
+                 loss_fn=None, contamination=0.1, alpha=1.0, sigma=1.0, nu=0.1,
+                 kernel_approx_features=1000):
         super(AE1SVM, self).__init__(contamination=contamination)
 
         self.model = None
@@ -133,11 +139,16 @@ class AE1SVM(BaseDetector):
         else:
             train_set = PyODDataset(X=X)
 
-        train_loader = torch.utils.data.DataLoader(train_set, batch_size=self.batch_size, shuffle=True)
-        self.model = InnerAE1SVM(n_features=n_features, encoding_dim=32, rff_dim=self.kernel_approx_features,
+        train_loader = torch.utils.data.DataLoader(train_set,
+                                                   batch_size=self.batch_size,
+                                                   shuffle=True)
+        self.model = InnerAE1SVM(n_features=n_features, encoding_dim=32,
+                                 rff_dim=self.kernel_approx_features,
                                  sigma=self.sigma,
-                                 hidden_neurons=self.hidden_neurons, dropout_rate=self.dropout_rate,
-                                 batch_norm=self.batch_norm, hidden_activation=self.hidden_activation)
+                                 hidden_neurons=self.hidden_neurons,
+                                 dropout_rate=self.dropout_rate,
+                                 batch_norm=self.batch_norm,
+                                 hidden_activation=self.hidden_activation)
         self.model = self.model.to(self.device)
         self._train_autoencoder(train_loader)
 
@@ -151,7 +162,9 @@ class AE1SVM(BaseDetector):
         return self
 
     def _train_autoencoder(self, train_loader):
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        optimizer = torch.optim.Adam(self.model.parameters(),
+                                     lr=self.learning_rate,
+                                     weight_decay=self.weight_decay)
         self.best_loss = float('inf')
         self.best_model_dict = None
 
@@ -170,7 +183,8 @@ class AE1SVM(BaseDetector):
                 optimizer.step()
                 overall_loss.append(loss.item())
             if (epoch + 1) % 10 == 0:
-                print(f'Epoch {epoch + 1}/{self.epochs}, Loss: {np.mean(overall_loss)}')
+                print(
+                    f'Epoch {epoch + 1}/{self.epochs}, Loss: {np.mean(overall_loss)}')
 
             if np.mean(overall_loss) < self.best_loss:
                 self.best_loss = np.mean(overall_loss)
@@ -179,8 +193,12 @@ class AE1SVM(BaseDetector):
     def decision_function(self, X):
         check_is_fitted(self, ['model', 'best_model_dict'])
         X = check_array(X)
-        dataset = PyODDataset(X=X, mean=self.mean, std=self.std) if self.preprocessing else PyODDataset(X=X)
-        dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False)
+        dataset = PyODDataset(X=X, mean=self.mean,
+                              std=self.std) if self.preprocessing else (
+            PyODDataset(X=X))
+        dataloader = torch.utils.data.DataLoader(dataset,
+                                                 batch_size=self.batch_size,
+                                                 shuffle=False)
         self.model.eval()
 
         outlier_scores = np.zeros([X.shape[0], ])
@@ -188,6 +206,7 @@ class AE1SVM(BaseDetector):
             for data, data_idx in dataloader:
                 data = data.to(self.device).float()
                 reconstructions, rff_features = self.model(data)
-                scores = pairwise_distances_no_broadcast(data.cpu().numpy(), reconstructions.cpu().numpy())
+                scores = pairwise_distances_no_broadcast(data.cpu().numpy(),
+                                                         reconstructions.cpu().numpy())
                 outlier_scores[data_idx] = scores
         return outlier_scores

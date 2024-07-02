@@ -11,6 +11,18 @@ pyod.models.abod module
     :show-inheritance:
     :inherited-members:
 
+
+pyod.models.ae1svm module
+-------------------------
+
+.. automodule:: pyod.models.ae1svm
+    :members:
+    :exclude-members: RandomFourierFeatures, InnerAE1SVM, _train_autoencoder
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+
 pyod.models.alad module
 -----------------------
 
