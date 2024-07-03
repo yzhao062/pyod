@@ -9,6 +9,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+import scipy.stats as stats
 from numba import njit, prange
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import check_array
@@ -18,20 +19,21 @@ from .base import BaseDetector
 
 
 @njit(fastmath=True, parallel=True)
-def _wrap_around_discrepancy(data):
+def _wrap_around_discrepancy(data, check):
     """Wrap-around Quasi-Monte Carlo discrepancy method"""
 
     n = data.shape[0]
     d = data.shape[1]
+    p = check.shape[0]
 
-    disc = np.zeros(n)
+    disc = np.zeros(p)
 
-    for i in prange(n):
+    for i in prange(p):
         dc = 0.0
         for j in prange(n):
             prod = 1.0
             for k in prange(d):
-                x_kikj = abs(data[i, k] - data[j, k])
+                x_kikj = abs(check[i, k] - data[j, k])
                 prod *= 3.0 / 2.0 - x_kikj + x_kikj ** 2
 
             dc += prod
@@ -94,20 +96,23 @@ class QMCD(BaseDetector):
         self._set_n_classes(y)
 
         # Normalize data between 0 and 1
-        scaler = MinMaxScaler()
-        X_norm = scaler.fit_transform(X)
-        X_norm = (X_norm / (X_norm.max(axis=0, keepdims=True)
-                            + np.spacing(0)))
+        self._scaler = MinMaxScaler()
+        X_norm = self._scaler.fit_transform(X)
+
+        self._fitted_data = X_norm.copy()
 
         # Calculate WD QMCD scores
-        scores = _wrap_around_discrepancy(X_norm)
+        scores = _wrap_around_discrepancy(X_norm, X_norm)
 
-        # Normalize scores between 0 and 1
-        scores = (scores - scores.min()) / (scores.max() - scores.min())
+        # Get criterion for inverting scores
+        self._is_flipped = False
+        skew = stats.skew(scores)
+        kurt = stats.kurtosis(scores)
 
-        # Invert score order if majority is beyond 0.5
-        if len(scores[scores > 0.5]) > 0.5 * len(scores):
-            scores = 1 - scores
+        # Invert score order based on criterion
+        if (skew<0) or ((skew>=0) & (kurt<0)):
+            scores = scores.max() + scores.min() - scores
+            self._is_flipped = True
 
         self.decision_scores_ = scores
 
@@ -140,20 +145,15 @@ class QMCD(BaseDetector):
 
         X = check_array(X)
 
-        # Normalize data between 0 and 1
-        scaler = MinMaxScaler()
-        X_norm = scaler.fit_transform(X)
-        X_norm = (X_norm / (X_norm.max(axis=0, keepdims=True)
-                            + np.spacing(0)))
+        # Scale data to fitted data
+        X_norm = self._scaler.transform(X)
 
         # Calculate WD QMCD scores
-        scores = _wrap_around_discrepancy(X_norm)
+        scores = _wrap_around_discrepancy(self._fitted_data, X_norm)
 
-        # Normalize scores between 0 and 1
-        scores = (scores - scores.min()) / (scores.max() - scores.min())
+        # Invert score order based on criterion
+        if self._is_flipped:
+            scores = self.decision_scores_.max() + self.decision_scores_.min() - scores
 
-        # Invert score order if majority is beyond 0.5
-        if len(scores[scores > 0.5]) > 0.5 * len(scores):
-            scores = 1 - scores
 
         return scores

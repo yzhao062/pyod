@@ -73,7 +73,7 @@ Welcome to PyOD, a versatile Python library for detecting anomalies in multivari
 
 * **For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
 
-* **Performance Comparison \& Datasets**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+* **Performance Comparison \& Datasets**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://arxiv.org/pdf/2206.09426>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
 * **Learn more about anomaly detection** \@ `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
@@ -245,8 +245,9 @@ Neural Networks      SO_GAAL           Single-Objective Generative Adversarial A
 Neural Networks      MO_GAAL           Multiple-Objective Generative Adversarial Active Learning                                               2019   :class:`pyod.models.mo_gaal.MO_GAAL`                 :cite:`a-liu2019generative`
 Neural Networks      DeepSVDD          Deep One-Class Classification                                                                           2018   :class:`pyod.models.deep_svdd.DeepSVDD`              :cite:`a-ruff2018deepsvdd`
 Neural Networks      AnoGAN            Anomaly Detection with Generative Adversarial Networks                                                  2017   :class:`pyod.models.anogan.AnoGAN`                   :cite:`a-schlegl2017unsupervised`
-Neural Networks      ALAD                Adversarially learned anomaly detection                                                               2018   :class:`pyod.models.alad.ALAD`                       :cite:`a-zenati2018adversarially`
-Graph-based          R-Graph           Outlier detection by R-graph                                                                            2017   :class:`pyod.models.rgraph.RGraph`                   :cite:`you2017provable`
+Neural Networks      ALAD              Adversarially learned anomaly detection                                                                 2018   :class:`pyod.models.alad.ALAD`                       :cite:`a-zenati2018adversarially`
+Neural Networks      AE1SVM            Autoencoder-based One-class Support Vector Machine                                                      2019   :class:`pyod.models.ae1svm.AE1SVM`                   :cite:`a-nguyen2019scalable`
+Graph-based          R-Graph           Outlier detection by R-graph                                                                            2017   :class:`pyod.models.rgraph.RGraph`                   :cite:`a-you2017provable`
 Graph-based          LUNAR             LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   :class:`pyod.models.lunar.LUNAR`                     :cite:`a-goodge2022lunar`
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 

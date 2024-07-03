@@ -33,7 +33,7 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    # train HBOS detector
+    # train Cook's distance outlier detector
     clf_name = 'CD'
     clf = CD()
     clf.fit(X_train)
@@ -51,7 +51,3 @@ if __name__ == "__main__":
     evaluate_print(clf_name, y_train, y_train_scores)
     print("\nOn Test Data:")
     evaluate_print(clf_name, y_test, y_test_scores)
-
-    # visualize the results
-    visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
-              y_test_pred, show_figure=True, save_figure=False)

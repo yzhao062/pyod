@@ -7,9 +7,22 @@ pyod.models.abod module
 
 .. automodule:: pyod.models.abod
     :members:
+    :exclude-members: get_params, set_params
     :undoc-members:
     :show-inheritance:
     :inherited-members:
+
+
+pyod.models.ae1svm module
+-------------------------
+
+.. automodule:: pyod.models.ae1svm
+    :members:
+    :exclude-members: get_params, set_params, RandomFourierFeatures, InnerAE1SVM, _train_autoencoder
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 
 pyod.models.alad module
 -----------------------
@@ -34,6 +47,7 @@ pyod.models.auto\_encoder module
 
 .. automodule:: pyod.models.auto_encoder
     :members:
+    :exclude-members: get_params, set_params, decision_function_update, epoch_update, evaluating_prepare, evaluating_forward, AutoEncoderModel, load
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -43,6 +57,7 @@ pyod.models.auto\_encoder\_torch module
 
 .. automodule:: pyod.models.auto_encoder_torch
     :members:
+    :exclude-members: get_params, set_params, InnerAutoencoder
     :exclude-members:
     :show-inheritance:
     :inherited-members:
@@ -52,6 +67,7 @@ pyod.models.cblof module
 
 .. automodule:: pyod.models.cblof
     :members:
+    :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -61,7 +77,7 @@ pyod.models.cof module
 
 .. automodule:: pyod.models.cof
     :members:
-    :exclude-members:
+    :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -71,6 +87,7 @@ pyod.models.combination module
 
 .. automodule:: pyod.models.combination
     :members:
+    :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -80,7 +97,7 @@ pyod.models.cd module
 
 .. automodule:: pyod.models.cd
     :members:
-    :exclude-members:
+    :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -100,7 +117,7 @@ pyod.models.deep\_svdd module
 
 .. automodule:: pyod.models.deep_svdd
     :members:
-    :exclude-members:
+    :exclude-members: InnerDeepSVDD
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -121,7 +138,7 @@ pyod.models.ecod module
 
 .. automodule:: pyod.models.ecod
     :members:
-    :exclude-members:
+    :exclude-members: InnerDeepSVDD,
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -159,7 +176,7 @@ pyod.models.iforest module
 
 .. automodule:: pyod.models.iforest
     :members:
-    :exclude-members:
+    :exclude-members: estimators_, estimators_features_, estimators_samples_, get_params, set_params,
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -197,6 +214,7 @@ pyod.models.kpca module
 
 .. automodule:: pyod.models.kpca
     :members:
+    :exclude-members: PyODKernelPCA
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -328,6 +346,7 @@ pyod.models.rod module
 
 .. automodule:: pyod.models.rod
     :members:
+    :exclude-members: angle, euclidean, geometric_median, mad, process_sub, rod_3D, rod_nD, scale_angles, sigmoid
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -356,6 +375,7 @@ pyod.models.so\_gaal module
 
 .. automodule:: pyod.models.so_gaal
     :members:
+    :exclude-members: Discriminator, Generator
     :undoc-members:
     :show-inheritance:
     :inherited-members:

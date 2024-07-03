@@ -1,30 +1,24 @@
 # -*- coding: utf-8 -*-
-"""Example of using Multiple-Objective Generative Adversarial Active
-Learning (MO_GAAL) for outlier detection
+"""Example of using AE1SVM for outlier detection (pytorch)
 """
-# Author: Winston Li <jk_zhengli@hotmail.com>
-# License: BSD 2 clause
-
-from __future__ import division
-from __future__ import print_function
+# Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
 import os
 import sys
-import torch
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from pyod.models.mo_gaal import MO_GAAL
+from pyod.models.ae1svm import AE1SVM
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
-    n_train = 30000  # number of training points
-    n_test = 3000  # number of testing points
+    n_train = 20000  # number of training points
+    n_test = 2000  # number of testing points
     n_features = 300  # number of features
 
     # Generate sample data
@@ -35,14 +29,9 @@ if __name__ == "__main__":
                       contamination=contamination,
                       random_state=42)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    X_train = torch.tensor(X_train, dtype=torch.float32).to(device).cpu().numpy()
-    X_test = torch.tensor(X_test, dtype=torch.float32).to(device).cpu().numpy()
-
-    # train MO_GAAL detector
-    clf_name = 'MO_GAAL'
-    clf = MO_GAAL(k=3, stop_epochs=2, contamination=contamination)
+    # train AE1SVM detector
+    clf_name = 'AE1SVM'
+    clf = AE1SVM()
     clf.fit(X_train)
 
     # get the prediction labels and outlier scores of the training data

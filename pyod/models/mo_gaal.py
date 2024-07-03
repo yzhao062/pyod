@@ -3,36 +3,20 @@
 Part of the codes are adapted from
 https://github.com/leibinghe/GAAL-based-outlier-detection
 """
-# Author: Winston Li <jk_zhengli@hotmail.com>
-# License: BSD 2 clause
-
-from __future__ import division
-from __future__ import print_function
+# Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
 from collections import defaultdict
 
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
-from .base_dl import _get_tensorflow_version
-from .gaal_base import create_discriminator
-from .gaal_base import create_generator
-
-# if tensorflow 2, import from tf directly
-if _get_tensorflow_version() < 200:
-    from keras.layers import Input
-    from keras.models import Model
-    from keras.optimizers import SGD
-elif 200 <= _get_tensorflow_version() <= 209:
-    from tensorflow.keras.layers import Input
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.optimizers import SGD
-else:
-    from tensorflow.keras.layers import Input
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.optimizers.legacy import SGD
+from .gaal_base import create_discriminator, create_generator
 
 
 class MO_GAAL(BaseDetector):
@@ -66,7 +50,6 @@ class MO_GAAL(BaseDetector):
     lr_g : float, optional (default=0.0001)
         The learn rate of the generator.
 
-
     momentum : float, optional (default=0.9)
         The momentum parameter for SGD.
 
@@ -89,13 +72,17 @@ class MO_GAAL(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001, momentum=0.9, contamination=0.1):
+    def __init__(self, k=10, stop_epochs=20, lr_d=0.01, lr_g=0.0001,
+                 momentum=0.9, contamination=0.1):
         super(MO_GAAL, self).__init__(contamination=contamination)
         self.k = k
         self.stop_epochs = stop_epochs
         self.lr_d = lr_d
         self.lr_g = lr_g
         self.momentum = momentum
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
+        self.train_history = defaultdict(list)
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -119,44 +106,45 @@ class MO_GAAL(BaseDetector):
         self.train_history = defaultdict(list)
         names = locals()
         epochs = self.stop_epochs * 3
-        stop = 0
         latent_size = X.shape[1]
         data_size = X.shape[0]
         # Create discriminator
-        self.discriminator = create_discriminator(latent_size, data_size)
-        self.discriminator.compile(
-            optimizer=SGD(lr=self.lr_d, momentum=self.momentum), loss='binary_crossentropy')
+        self.discriminator = create_discriminator(latent_size, data_size).to(
+            self.device)
+        optimizer_d = optim.SGD(self.discriminator.parameters(), lr=self.lr_d,
+                                momentum=self.momentum)
+        criterion = nn.BCELoss()
 
-        # Create k combine models
+        # Create k generators
         for i in range(self.k):
-            names['sub_generator' + str(i)] = create_generator(latent_size)
-            latent = Input(shape=(latent_size,))
-            names['fake' + str(i)] = names['sub_generator' + str(i)](latent)
-            self.discriminator.trainable = False
-            names['fake' + str(i)] = self.discriminator(names['fake' + str(i)])
-            names['combine_model' + str(i)] = Model(latent,
-                                                    names['fake' + str(i)])
-            names['combine_model' + str(i)].compile(
-                optimizer=SGD(lr=self.lr_g,
-                              momentum=self.momentum),
-                loss='binary_crossentropy')
+            generator_name = 'sub_generator' + str(i)
+            generator = create_generator(latent_size).to(self.device)
+            names[generator_name] = generator
+
+            # Define the optimizer for the generator
+            optimizer_name = 'optimizer_g' + str(i)
+            optimizer_g = optim.SGD(generator.parameters(), lr=self.lr_g,
+                                    momentum=self.momentum)
+            names[optimizer_name] = optimizer_g
+
+        dataloader = DataLoader(TensorDataset(
+            torch.tensor(X, dtype=torch.float32).to(self.device)),
+            batch_size=min(500, data_size),
+            shuffle=True)
+
+        stop = 0
 
         # Start iteration
         for epoch in range(epochs):
             print('Epoch {} of {}'.format(epoch + 1, epochs))
-            batch_size = min(500, data_size)
-            num_batches = int(data_size / batch_size)
+            for batch_idx, data_batch in enumerate(dataloader):
+                # print(f'\nTesting for epoch {epoch + 1} index {batch_idx + 1}:')
 
-            for index in range(num_batches):
-                print('\nTesting for epoch {} index {}:'.format(epoch + 1,
-                                                                index + 1))
+                data_batch = data_batch[0].to(self.device)
+                batch_size = data_batch.size(0)
 
                 # Generate noise
-                noise_size = batch_size
-                noise = np.random.uniform(0, 1, (int(noise_size), latent_size))
-
-                # Get training data
-                data_batch = X[index * batch_size: (index + 1) * batch_size]
+                noise = torch.rand(batch_size, latent_size, device=self.device)
 
                 # Generate potential outliers
                 block = ((1 + self.k) * self.k) // 2
@@ -164,80 +152,106 @@ class MO_GAAL(BaseDetector):
                     if i != (self.k - 1):
                         noise_start = int(
                             (((self.k + (self.k - i + 1)) * i) / 2) * (
-                                    noise_size // block))
+                                    batch_size // block))
                         noise_end = int(
                             (((self.k + (self.k - i)) * (i + 1)) / 2) * (
-                                    noise_size // block))
+                                    batch_size // block))
                         names['noise' + str(i)] = noise[noise_start:noise_end]
-                        names['generated_data' + str(i)] = names[
-                            'sub_generator' + str(i)].predict(
-                            names['noise' + str(i)], verbose=0)
                     else:
                         noise_start = int(
                             (((self.k + (self.k - i + 1)) * i) / 2) * (
-                                    noise_size // block))
-                        names['noise' + str(i)] = noise[noise_start:noise_size]
-                        names['generated_data' + str(i)] = names[
-                            'sub_generator' + str(i)].predict(
-                            names['noise' + str(i)], verbose=0)
+                                    batch_size // block))
+                        names['noise' + str(i)] = noise[noise_start:batch_size]
+
+                    names['generated_data' + str(i)] = names[
+                        'sub_generator' + str(i)](names['noise' + str(i)])
 
                 # Concatenate real data to generated data
-                for i in range(self.k):
-                    if i == 0:
-                        x = np.concatenate(
-                            (data_batch, names['generated_data' + str(i)]))
-                    else:
-                        x = np.concatenate(
-                            (x, names['generated_data' + str(i)]))
-                y = np.array([1] * batch_size + [0] * int(noise_size))
+                all_data = torch.cat(
+                    [data_batch] + [names['generated_data' + str(i)] for i in
+                                    range(self.k)], dim=0)
+                labels = torch.cat(
+                    [torch.ones(batch_size, 1, device=self.device),
+                     torch.zeros(
+                         sum([d.size(0) for d in
+                              [names['generated_data' + str(i)] for i in
+                               range(self.k)]]), 1, device=self.device)],
+                    dim=0)
+
+                # Ensure outputs and labels are the same size
+                assert all_data.size(0) == labels.size(
+                    0), "Mismatch between all_data and labels sizes"
 
                 # Train discriminator
-                discriminator_loss = self.discriminator.train_on_batch(x, y)
+                self.discriminator.train()
+                self.discriminator.zero_grad()
+                outputs = self.discriminator(all_data)
+                outputs = outputs.view(-1,
+                                       1)  # Ensure outputs shape matches labels shape
+                discriminator_loss = criterion(outputs, labels)
+                discriminator_loss.backward()
+                optimizer_d.step()
                 self.train_history['discriminator_loss'].append(
-                    discriminator_loss)
+                    discriminator_loss.item())
 
-                # Get the target value of sub-generator
-                pred_scores = self.discriminator.predict(X).ravel()
+                # Get the target value of sub-generators
+                with torch.no_grad():
+                    pred_scores = self.discriminator(
+                        torch.tensor(X, dtype=torch.float32,
+                                     device=self.device)).cpu().numpy().ravel()
 
                 for i in range(self.k):
                     names['T' + str(i)] = np.percentile(pred_scores,
                                                         i / self.k * 100)
-                    names['trick' + str(i)] = np.array(
-                        [float(names['T' + str(i)])] * noise_size)
+                    names['trick' + str(i)] = torch.tensor(
+                        [float(names['T' + str(i)])] * names[
+                            'noise' + str(i)].size(0),
+                        device=self.device).unsqueeze(1)
 
-                # Train generator
-                noise = np.random.uniform(0, 1, (int(noise_size), latent_size))
+                # Train generators
                 if stop == 0:
                     for i in range(self.k):
-                        names['sub_generator' + str(i) + '_loss'] = \
-                            names['combine_model' + str(i)].train_on_batch(
-                                noise, names['trick' + str(i)])
-                        self.train_history[
-                            'sub_generator{}_loss'.format(i)].append(
-                            names['sub_generator' + str(i) + '_loss'])
+                        names['optimizer_g' + str(i)].zero_grad()
+                        fake_data = names['sub_generator' + str(i)](
+                            names['noise' + str(i)])
+                        fake_outputs = self.discriminator(fake_data)
+                        generator_loss = criterion(fake_outputs,
+                                                   names['trick' + str(i)])
+                        generator_loss.backward()
+                        names['optimizer_g' + str(i)].step()
+                        names['sub_generator' + str(
+                            i) + '_loss'] = generator_loss.item()
+                        self.train_history[f'sub_generator{i}_loss'].append(
+                            generator_loss.item())
                 else:
                     for i in range(self.k):
-                        names['sub_generator' + str(i) + '_loss'] = names[
-                            'combine_model' + str(i)].evaluate(noise, names[
-                            'trick' + str(i)])
-                        self.train_history[
-                            'sub_generator{}_loss'.format(i)].append(
-                            names['sub_generator' + str(i) + '_loss'])
+                        with torch.no_grad():
+                            fake_data = names['sub_generator' + str(i)](
+                                names['noise' + str(i)])
+                            fake_outputs = self.discriminator(fake_data)
+                            generator_loss = criterion(fake_outputs,
+                                                       names['trick' + str(i)])
+                            names['sub_generator' + str(
+                                i) + '_loss'] = generator_loss.item()
+                            self.train_history[
+                                f'sub_generator{i}_loss'].append(
+                                generator_loss.item())
 
-                generator_loss = 0
-                for i in range(self.k):
-                    generator_loss = generator_loss + names[
-                        'sub_generator' + str(i) + '_loss']
-                generator_loss = generator_loss / self.k
+                generator_loss = np.mean(
+                    [names['sub_generator' + str(i) + '_loss'] for i in
+                     range(self.k)])
                 self.train_history['generator_loss'].append(generator_loss)
 
-                # Stop training generator
                 if epoch + 1 > self.stop_epochs:
                     stop = 1
 
         # Detection result
-        self.decision_scores_ = self.discriminator.predict(X).ravel()
+        decision_scores = self.discriminator(
+            torch.tensor(X, dtype=torch.float32,
+                         device=self.device)).cpu().detach().numpy()
+        self.decision_scores_ = decision_scores.ravel()
         self._process_decision_scores()
+
         return self
 
     def decision_function(self, X):
@@ -260,5 +274,7 @@ class MO_GAAL(BaseDetector):
         """
         check_is_fitted(self, ['discriminator'])
         X = check_array(X)
-        pred_scores = self.discriminator.predict(X).ravel()
+        pred_scores = self.discriminator(
+            torch.tensor(X, dtype=torch.float32).to(
+                self.device)).cpu().detach().numpy().ravel()
         return pred_scores
