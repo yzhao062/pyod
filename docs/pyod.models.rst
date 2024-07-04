@@ -159,6 +159,7 @@ pyod.models.gmm module
 
 .. automodule:: pyod.models.gmm
     :members:
+    :exclude-members: weights_, get_params, set_params, n_iter_, lower_bound_, means_, converged_, covariances_
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -413,6 +414,7 @@ pyod.models.vae module
 
 .. automodule:: pyod.models.vae
     :members:
+    :exclude-members: VAEModel, vae_loss
     :undoc-members:
     :show-inheritance:
     :inherited-members:
