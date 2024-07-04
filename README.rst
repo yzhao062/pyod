@@ -9,26 +9,21 @@ Python Outlier Detection (PyOD)
    :target: https://pypi.org/project/pyod/
    :alt: PyPI version
 
-
 .. |badge_anaconda| image:: https://anaconda.org/conda-forge/pyod/badges/version.svg
    :target: https://anaconda.org/conda-forge/pyod
    :alt: Anaconda version
-
 
 .. |badge_docs| image:: https://readthedocs.org/projects/pyod/badge/?version=latest
    :target: https://pyod.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
 
-
 .. |badge_stars| image:: https://img.shields.io/github/stars/yzhao062/pyod.svg
    :target: https://github.com/yzhao062/pyod/stargazers
    :alt: GitHub stars
 
-
 .. |badge_forks| image:: https://img.shields.io/github/forks/yzhao062/pyod.svg?color=blue
    :target: https://github.com/yzhao062/pyod/network
    :alt: GitHub forks
-
 
 .. |badge_downloads| image:: https://pepy.tech/badge/pyod
    :target: https://pepy.tech/project/pyod
@@ -36,18 +31,16 @@ Python Outlier Detection (PyOD)
 
 .. |badge_testing| image:: https://github.com/yzhao062/pyod/actions/workflows/testing.yml/badge.svg
    :target: https://github.com/yzhao062/pyod/actions/workflows/testing.yml
-   :alt: testing
+   :alt: Testing
 
 
 .. |badge_coverage| image:: https://coveralls.io/repos/github/yzhao062/pyod/badge.svg
    :target: https://coveralls.io/github/yzhao062/pyod
    :alt: Coverage Status
 
-
 .. |badge_maintainability| image:: https://api.codeclimate.com/v1/badges/bdc3d8d0454274c753c4/maintainability
    :target: https://codeclimate.com/github/yzhao062/Pyod/maintainability
    :alt: Maintainability
-
 
 .. |badge_license| image:: https://img.shields.io/github/license/yzhao062/pyod.svg
    :target: https://github.com/yzhao062/pyod/blob/master/LICENSE
@@ -64,50 +57,37 @@ Python Outlier Detection (PyOD)
 Read Me First
 ^^^^^^^^^^^^^
 
-Welcome to PyOD, a versatile Python library for detecting anomalies in multivariate data. Whether you're tackling a small-scale project or large datasets, PyOD offers a range of algorithms to suit your needs.
+Welcome to PyOD, a comprehensive but easy-to-use Python library for detecting anomalies in multivariate data. Whether you're tackling a small-scale project or large datasets, PyOD offers a range of algorithms to suit your needs.
 
 * **For time-series outlier detection**, please use `TODS <https://github.com/datamllab/tods>`_.
 
 * **For graph outlier detection**, please use `PyGOD <https://pygod.org/>`_.
 
-* **Performance Comparison \& Datasets**: We have a 45-page, the most comprehensive `anomaly detection benchmark paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/22-neurips-adbench.pdf>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+* **Performance Comparison & Datasets**: We have a 45-page, comprehensive `anomaly detection benchmark paper <https://openreview.net/forum?id=foA_SFQ9zo0>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
 
-* **Learn more about anomaly detection** \@ `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
+* **Learn more about anomaly detection** at `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
-* **PyOD on Distributed Systems**: you could also run `PyOD on databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_.
+* **PyOD on Distributed Systems**: you can also run `PyOD on databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_.
 
 ----
 
 About PyOD
 ^^^^^^^^^^
 
-PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** in
-multivariate data. This exciting yet challenging field is commonly referred as 
-`Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_
-or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
+PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** in multivariate data. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
-PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000) to
-the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic researches and
-commercial products with more than `17 million downloads <https://pepy.tech/project/pyod>`_.
-It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including
-`Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_,
-`KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and
-`Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
-
+PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000) to the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic research projects and commercial products with more than `22 million downloads <https://pepy.tech/project/pyod>`_. It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
 **PyOD is featured for**:
 
 * **Unified, User-Friendly Interface** across various algorithms.
-* **Wide Range of Models**\, from classic techniques to the latest deep learning methods.
+* **Wide Range of Models**, from classic techniques to the latest deep learning methods in **PyTorch**.
 * **High Performance & Efficiency**, leveraging `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_ for JIT compilation and parallel processing.
 * **Fast Training & Prediction**, achieved through the SUOD framework [#Zhao2021SUOD]_.
 
-
-**Outlier Detection with 5 Lines of Code**\ :
-
+**Outlier Detection with 5 Lines of Code**:
 
 .. code-block:: python
-
 
     # Example: Training an ECOD detector
     from pyod.models.ecod import ECOD
@@ -116,19 +96,17 @@ It is also well acknowledged by the machine learning community with various dedi
     y_train_scores = clf.decision_scores_  # Outlier scores for training data
     y_test_scores = clf.decision_function(X_test)  # Outlier scores for test data
 
-**Selecting the Right Algorithm:**. Unsure where to start? Consider these robust and interpretable options:
+
+**Selecting the Right Algorithm:** Unsure where to start? Consider these robust and interpretable options:
 
 - `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_: Example of using ECOD for outlier detection
 - `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_: Example of using Isolation Forest for outlier detection
 
 Alternatively, explore `MetaOD <https://github.com/yzhao062/MetaOD>`_ for a data-driven approach.
 
-**Citing PyOD**\ :
+**Citing PyOD**:
 
-`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in
-`Journal of Machine Learning Research (JMLR) <http://www.jmlr.org/>`_ (MLOSS track).
-If you use PyOD in a scientific publication, we would appreciate
-citations to the following paper::
+`PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in `Journal of Machine Learning Research (JMLR) <http://www.jmlr.org/>`_ (MLOSS track). If you use PyOD in a scientific publication, we would appreciate citations to the following paper::
 
     @article{zhao2019pyod,
         author  = {Zhao, Yue and Nasrullah, Zain and Li, Zheng},
@@ -145,8 +123,7 @@ or::
 
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
-For a broader perspective on anomaly detection, see our NeurIPS papers
-`ADBench: Anomaly Detection Benchmark Paper <https://viterbi-web.usc.edu/~yzhao010/papers/22-neurips-adbench.pdf>`_ \& `ADGym: Design Choices for Deep Anomaly Detection <https://viterbi-web.usc.edu/~yzhao010/papers/23-neurips-adgym.pdf>`_::
+For a broader perspective on anomaly detection, see our NeurIPS papers `ADBench: Anomaly Detection Benchmark Paper <https://arxiv.org/abs/2206.09426>`_ and `ADGym: Design Choices for Deep Anomaly Detection <https://arxiv.org/abs/2309.15376>`_::
 
     @article{han2022adbench,
         title={Adbench: Anomaly detection benchmark},
@@ -166,9 +143,7 @@ For a broader perspective on anomaly detection, see our NeurIPS papers
     }
 
 
-
-**Table of Contents**\ :
-
+**Table of Contents**:
 
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
@@ -181,15 +156,12 @@ For a broader perspective on anomaly detection, see our NeurIPS papers
 * `How to Contribute <#how-to-contribute>`_
 * `Inclusion Criteria <#inclusion-criteria>`_
 
-
 ----
-
 
 Installation
 ^^^^^^^^^^^^
 
-PyOD is designed for easy installation using either **pip** or **conda**.
-We recommend using the latest version of PyOD due to frequent updates and enhancements:
+PyOD is designed for easy installation using either **pip** or **conda**. We recommend using the latest version of PyOD due to frequent updates and enhancements:
 
 .. code-block:: bash
 
@@ -200,7 +172,7 @@ We recommend using the latest version of PyOD due to frequent updates and enhanc
 
    conda install -c conda-forge pyod
 
-Alternatively, you could clone and run setup.py file:
+Alternatively, you can clone and run the setup.py file:
 
 .. code-block:: bash
 
@@ -208,9 +180,7 @@ Alternatively, you could clone and run setup.py file:
    cd pyod
    pip install .
 
-
-**Required Dependencies**\ :
-
+**Required Dependencies**:
 
 * Python 3.8 or higher
 * joblib
@@ -220,14 +190,13 @@ Alternatively, you could clone and run setup.py file:
 * scipy>=1.5.1
 * scikit_learn>=0.22.0
 
-
-**Optional Dependencies (see details below)**\ :
+**Optional Dependencies (see details below)**:
 
 * combo (optional, required for models/combination.py and FeatureBagging)
 * keras/tensorflow (optional, required for AutoEncoder, and other deep learning models)
 * suod (optional, required for running SUOD model)
 * xgboost (optional, required for XGBOD)
-* pythresh (optional, required for thresholding)optional
+* pythresh (optional, required for thresholding)
 
 ----
 
@@ -237,18 +206,16 @@ API Cheatsheet & Reference
 
 The full API Reference is available at `PyOD Documentation <https://pyod.readthedocs.io/en/latest/pyod.html>`_. Below is a quick cheatsheet for all detectors:
 
-* **fit(X)**\ : Fit the detector. The parameter y is ignored in unsupervised methods.
-* **decision_function(X)**\ : Predict raw anomaly scores for X using the fitted detector.
-* **predict(X)**\ : Determine whether a sample is an outlier or not as binary labels using the fitted detector.
-* **predict_proba(X)**\ : Estimate the probability of a sample being an outlier using the fitted detector.
-* **predict_confidence(X)**\ : Assess the model's confidence on a per-sample basis (applicable in predict and predict_proba) [#Perini2020Quantifying]_.
-
+* **fit(X)**: Fit the detector. The parameter y is ignored in unsupervised methods.
+* **decision_function(X)**: Predict raw anomaly scores for X using the fitted detector.
+* **predict(X)**: Determine whether a sample is an outlier or not as binary labels using the fitted detector.
+* **predict_proba(X)**: Estimate the probability of a sample being an outlier using the fitted detector.
+* **predict_confidence(X)**: Assess the model's confidence on a per-sample basis (applicable in predict and predict_proba) [#Perini2020Quantifying]_.
 
 **Key Attributes of a fitted model**:
 
-
-* **decision_scores_**\ : Outlier scores of the training data. Higher scores typically indicate more abnormal behavior. Outliers usually have higher scores.
-* **labels_**\ : Binary labels of the training data, where 0 indicates inliers and 1 indicates outliers/anomalies.
+* **decision_scores_**: Outlier scores of the training data. Higher scores typically indicate more abnormal behavior. Outliers usually have higher scores.
+* **labels_**: Binary labels of the training data, where 0 indicates inliers and 1 indicates outliers/anomalies.
 
 
 ----
@@ -335,12 +302,7 @@ and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_e
 Thresholding Outlier Scores
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A more data based approach can be taken when setting the contamination level.
-By using a thresholding method, guessing an abritrary value can be replaced
-with tested techniques for seperating inliers and outliers. Refer to 
-`PyThresh <https://github.com/KulikDM/pythresh>`_ for
-a more in depth look at thresholding.
-
+A more data-based approach can be taken when setting the contamination level. By using a thresholding method, guessing an arbitrary value can be replaced with tested techniques for separating inliers and outliers. Refer to `PyThresh <https://github.com/KulikDM/pythresh>`_ for a more in-depth look at thresholding.
 
 .. code-block:: python
 
@@ -350,6 +312,8 @@ a more in depth look at thresholding.
     # Set the outlier detection and thresholding methods
     clf = KNN(contamination=FILTER())
 
+
+See supported thresholding methods in `thresholding <https://github.com/yzhao062/pyod/blob/master/docs/thresholding.rst>`_.
 
 ----
 
@@ -434,43 +398,8 @@ Combination          Median            Simple combination by taking the median o
 Combination          majority Vote     Simple combination by taking the majority vote of the labels (weights can be used)                     2015   [#Aggarwal2015Theoretical]_
 ===================  ================  =====================================================================================================  =====  ========================================
 
-**(iii) Outlier Detection Score Thresholding Methods**:
 
-==================================  ================  ================================================================ ====================================================================================================================
-Type                                Abbr              Algorithm                                                        Documentation                                    
-==================================  ================  ================================================================ ====================================================================================================================
-Kernel-Based                        AUCP              Area Under Curve Percentage                                      `AUCP <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.AUCP>`_
-Statistical Moment-Based            BOOT              Bootstrapping                                                    `BOOT <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.BOOT>`_ 
-Normality-Based                     CHAU              Chauvenet's Criterion                                            `CHAU <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CHAU>`_
-Linear Model                        CLF               Trained Linear Classifier                                        `CLF <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CLF>`_
-cluster-Based                       CLUST             Clustering Based                                                 `CLUST <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CLUST>`_
-Kernel-Based                        CPD               Change Point Detection                                           `CPD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.CPD>`_
-Transformation-Based                DECOMP            Decomposition                                                    `DECOMP <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.DECOMP>`_
-Normality-Based                     DSN               Distance Shift from Normal                                       `DSN <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.DSN>`_
-Curve-Based                         EB                Elliptical Boundary                                              `EB <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.EB>`_
-Kernel-Based                        FGD               Fixed Gradient Descent                                           `FGD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.FGD>`_
-Filter-Based                        FILTER            Filtering Based                                                  `FILTER <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.FILTER>`_
-Curve-Based                         FWFM              Full Width at Full Minimum                                       `FWFM <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.FWFM>`_
-Statistical Test-Based              GESD              Generalized Extreme Studentized Deviate                          `GESD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.GESD>`_
-Filter-Based                        HIST              Histogram Based                                                  `HIST <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.HIST>`_
-Quantile-Based                      IQR               Inter-Quartile Region                                            `IQR <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.IQR>`_
-Statistical Moment-Based            KARCH             Karcher mean (Riemannian Center of Mass)                         `KARCH <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.KARCH>`_
-Statistical Moment-Based            MAD               Median Absolute Deviation                                        `MAD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MAD>`_
-Statistical Test-Based              MCST              Monte Carlo Shapiro Tests                                        `MCST <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MCST>`_
-Ensembles-Based                     META              Meta-model Trained Classifier                                    `META <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.META>`_
-Transformation-Based                MOLL              Friedrichs' Mollifier                                            `MOLL <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MOLL>`_
-Statistical Test-Based              MTT               Modified Thompson Tau Test                                       `MTT <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.MTT>`_
-Linear Model                        OCSVM             One-Class Support Vector Machine                                 `OCSVM <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.OCSVM>`_
-Quantile-Based                      QMCD              Quasi-Monte Carlo Discrepancy                                    `QMCD <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.QMCD>`_
-Linear Model                        REGR              Regression Based                                                 `REGR <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.REGR>`_
-Neural Networks                     VAE               Variational Autoencoder                                          `VAE <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.VAE>`_
-Curve-Based                         WIND              Topological Winding Number                                       `WIND <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.WIND>`_
-Transformation-Based                YJ                Yeo-Johnson Transformation                                       `YJ <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.YJ>`_
-Normality-Based                     ZSCORE            Z-score                                                          `ZSCORE <https://pyod.readthedocs.io/en/latest/pyod.models.html#module-pyod.models.thresholds.ZSCORE>`_
-==================================  ================  ================================================================ ====================================================================================================================
-
-
-**(iV) Utility Functions**:
+**(iii) Utility Functions**:
 
 ===================  ======================  =====================================================================================================================================================  ======================================================================================================================================
 Type                 Name                    Function                                                                                                                                               Documentation
@@ -494,8 +423,6 @@ PyOD has been well acknowledged by the machine learning community with a few fea
 **KDnuggets**: `Intuitive Visualization of Outlier Detection Methods <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, `An Overview of Outlier Detection Methods from PyOD <https://www.kdnuggets.com/2019/06/overview-outlier-detection-methods-pyod.html>`_
 
 **Towards Data Science**: `Anomaly Detection for Dummies <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_
-
-**Computer Vision News (March 2019)**: `Python Open Source Toolbox for Outlier Detection <https://rsipvision.com/ComputerVisionNews-2019March/18/>`_
 
 `"examples/knn_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/knn_example.py>`_
 demonstrates the basic API of using kNN detector. **It is noted that the API across all other algorithms are consistent/similar**.
