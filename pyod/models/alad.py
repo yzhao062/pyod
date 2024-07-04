@@ -4,18 +4,17 @@
 # Author: Michiel Bongaerts (but not author of the ALAD method)
 # Pytorch version Author: Jiaqi Li <jli77629@usc.edu>
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from matplotlib import pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from matplotlib import pyplot as plt
-import pandas as pd
+
 from .base import BaseDetector
 from ..utils.utility import check_parameter
 
@@ -147,7 +146,8 @@ class ALAD(BaseDetector):
                  batch_size=32, contamination=0.1, device=None):
         super(ALAD, self).__init__(contamination=contamination)
 
-        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = device if device else torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
         self.activation_hidden_disc = activation_hidden_disc
         self.activation_hidden_gen = activation_hidden_gen
         self.output_activation = output_activation
@@ -178,10 +178,12 @@ class ALAD(BaseDetector):
                 import torch.nn.utils.spectral_norm as spectral_norm
                 self.spectral_norm = spectral_norm
             except ImportError:
-                print('Spectral normalization not available. Install torch>=1.0.0.')
+                print('Spectral normalization not available. '
+                      'Install torch>=1.0.0.')
                 self.spectral_normalization = False
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate', include_left=True)
+        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
+                        include_left=True)
 
     def _build_model(self):
         def get_activation(name):
@@ -192,7 +194,8 @@ class ALAD(BaseDetector):
             elif name == 'relu':
                 return nn.ReLU()
             else:
-                raise ValueError("Unsupported activation function: {}".format(name))
+                raise ValueError(
+                    "Unsupported activation function: {}".format(name))
 
         # Create the decoder
         dec_layers = []
@@ -234,13 +237,20 @@ class ALAD(BaseDetector):
             disc_layers.append(nn.Sigmoid())
             return nn.Sequential(*disc_layers).to(self.device)
 
-        self.disc_xx = create_discriminator(self.disc_xx_layers, 2 * self.n_features_)
-        self.disc_zz = create_discriminator(self.disc_zz_layers, 2 * self.latent_dim)
-        self.disc_xz = create_discriminator(self.disc_xz_layers, self.n_features_ + self.latent_dim)
+        self.disc_xx = create_discriminator(self.disc_xx_layers,
+                                            2 * self.n_features_)
+        self.disc_zz = create_discriminator(self.disc_zz_layers,
+                                            2 * self.latent_dim)
+        self.disc_xz = create_discriminator(self.disc_xz_layers,
+                                            self.n_features_ + self.latent_dim)
 
         # Optimizers
-        self.opt_gen = optim.Adam(list(self.enc.parameters()) + list(self.dec.parameters()), lr=self.learning_rate_gen)
-        self.opt_disc = optim.Adam(list(self.disc_xx.parameters()) + list(self.disc_xz.parameters()) + list(self.disc_zz.parameters()), lr=self.learning_rate_disc)
+        self.opt_gen = optim.Adam(
+            list(self.enc.parameters()) + list(self.dec.parameters()),
+            lr=self.learning_rate_gen)
+        self.opt_disc = optim.Adam(list(self.disc_xx.parameters()) + list(
+            self.disc_xz.parameters()) + list(self.disc_zz.parameters()),
+                                   lr=self.learning_rate_disc)
 
         self.hist_loss_disc = []
         self.hist_loss_gen = []
@@ -261,13 +271,19 @@ class ALAD(BaseDetector):
         out_true_xx = self.disc_xx(torch.cat((x_real, x_real), dim=1))
         out_fake_xx = self.disc_xx(torch.cat((x_real, x_gen), dim=1))
 
-        loss_dxz = nn.BCELoss()(out_true_xz, torch.ones_like(out_true_xz)) + nn.BCELoss()(out_fake_xz, torch.zeros_like(out_fake_xz))
-        loss_dxx = nn.BCELoss()(out_true_xx, torch.ones_like(out_true_xx)) + nn.BCELoss()(out_fake_xx, torch.zeros_like(out_fake_xx))
+        loss_dxz = nn.BCELoss()(out_true_xz,
+                                torch.ones_like(out_true_xz)) + nn.BCELoss()(
+            out_fake_xz, torch.zeros_like(out_fake_xz))
+        loss_dxx = nn.BCELoss()(out_true_xx,
+                                torch.ones_like(out_true_xx)) + nn.BCELoss()(
+            out_fake_xx, torch.zeros_like(out_fake_xx))
 
         if self.add_disc_zz_loss:
             out_true_zz = self.disc_zz(torch.cat((z_real, z_real), dim=1))
             out_fake_zz = self.disc_zz(torch.cat((z_real, z_gen), dim=1))
-            loss_dzz = nn.BCELoss()(out_true_zz, torch.ones_like(out_true_zz)) + nn.BCELoss()(out_fake_zz, torch.zeros_like(out_fake_zz))
+            loss_dzz = nn.BCELoss()(out_true_zz, torch.ones_like(
+                out_true_zz)) + nn.BCELoss()(out_fake_zz,
+                                             torch.zeros_like(out_fake_zz))
             loss_disc = loss_dxz + loss_dzz + loss_dxx
         else:
             loss_disc = loss_dxz + loss_dxx
@@ -285,13 +301,19 @@ class ALAD(BaseDetector):
         out_true_xx = self.disc_xx(torch.cat((x_real, x_real), dim=1))
         out_fake_xx = self.disc_xx(torch.cat((x_real, x_gen), dim=1))
 
-        loss_gexz = nn.BCELoss()(out_fake_xz, torch.ones_like(out_fake_xz)) + nn.BCELoss()(out_true_xz, torch.zeros_like(out_true_xz))
-        loss_gexx = nn.BCELoss()(out_fake_xx, torch.ones_like(out_fake_xx)) + nn.BCELoss()(out_true_xx, torch.zeros_like(out_true_xx))
+        loss_gexz = nn.BCELoss()(out_fake_xz,
+                                 torch.ones_like(out_fake_xz)) + nn.BCELoss()(
+            out_true_xz, torch.zeros_like(out_true_xz))
+        loss_gexx = nn.BCELoss()(out_fake_xx,
+                                 torch.ones_like(out_fake_xx)) + nn.BCELoss()(
+            out_true_xx, torch.zeros_like(out_true_xx))
 
         if self.add_disc_zz_loss:
             out_true_zz = self.disc_zz(torch.cat((z_real, z_real), dim=1))
             out_fake_zz = self.disc_zz(torch.cat((z_real, z_gen), dim=1))
-            loss_gezz = nn.BCELoss()(out_fake_zz, torch.ones_like(out_fake_zz)) + nn.BCELoss()(out_true_zz, torch.zeros_like(out_true_zz))
+            loss_gezz = nn.BCELoss()(out_fake_zz, torch.ones_like(
+                out_fake_zz)) + nn.BCELoss()(out_true_zz,
+                                             torch.zeros_like(out_true_zz))
             cycle_consistency = loss_gezz + loss_gexx
             loss_gen = loss_gexz + cycle_consistency
         else:
@@ -344,9 +366,13 @@ class ALAD(BaseDetector):
             # Shuffle train 
             np.random.shuffle(X_norm)
 
-            X_train_sel = X_norm[:min(self.batch_size, self.n_samples_)].astype(np.float32)
-            latent_noise = np.random.normal(0, 1, (X_train_sel.shape[0], self.latent_dim))
-            X_train_sel += np.random.normal(0, noise_std, size=X_train_sel.shape)
+            X_train_sel = X_norm[
+                          :min(self.batch_size, self.n_samples_)].astype(
+                np.float32)
+            latent_noise = np.random.normal(0, 1, (
+                X_train_sel.shape[0], self.latent_dim))
+            X_train_sel += np.random.normal(0, noise_std,
+                                            size=X_train_sel.shape)
             self.train_step((X_train_sel, latent_noise))
 
         if self.preprocessing:
@@ -358,9 +384,10 @@ class ALAD(BaseDetector):
         self.decision_scores_ = pred_scores
         self._process_decision_scores()
         return self
-    
+
     def train_more(self, X, epochs=100, noise_std=0.1):
-        """This function allows the researcher to perform extra training instead of the fixed number determined
+        """This function allows the researcher to perform extra training
+        instead of the fixed number determined
         by the fit() function.
         """
         # fit() should have been called first
@@ -379,9 +406,13 @@ class ALAD(BaseDetector):
             # Shuffle train 
             np.random.shuffle(X_norm)
 
-            X_train_sel = X_norm[:min(self.batch_size, self.n_samples_)].astype(np.float32)
-            latent_noise = np.random.normal(0, 1, (X_train_sel.shape[0], self.latent_dim))
-            X_train_sel += np.random.normal(0, noise_std, size=X_train_sel.shape)
+            X_train_sel = X_norm[
+                          :min(self.batch_size, self.n_samples_)].astype(
+                np.float32)
+            latent_noise = np.random.normal(0, 1, (
+                X_train_sel.shape[0], self.latent_dim))
+            X_train_sel += np.random.normal(0, noise_std,
+                                            size=X_train_sel.shape)
             self.train_step((X_train_sel, latent_noise))
 
         if self.preprocessing:
@@ -397,12 +428,17 @@ class ALAD(BaseDetector):
     def get_outlier_scores(self, X_norm):
         X_norm = torch.FloatTensor(X_norm).to(self.device)
         X_enc = self.enc(X_norm).detach().cpu().numpy()
-        X_enc_gen = self.dec(torch.FloatTensor(X_enc).to(self.device)).detach().cpu().numpy()
+        X_enc_gen = self.dec(
+            torch.FloatTensor(X_enc).to(self.device)).detach().cpu().numpy()
 
-        out_true_xx = self.disc_xx(torch.cat((X_norm, X_norm), dim=1)).detach().cpu().numpy()
-        out_fake_xx = self.disc_xx(torch.cat((X_norm, torch.FloatTensor(X_enc_gen).to(self.device)), dim=1)).detach().cpu().numpy()
+        out_true_xx = self.disc_xx(
+            torch.cat((X_norm, X_norm), dim=1)).detach().cpu().numpy()
+        out_fake_xx = self.disc_xx(
+            torch.cat((X_norm, torch.FloatTensor(X_enc_gen).to(self.device)),
+                      dim=1)).detach().cpu().numpy()
 
-        outlier_scores = np.mean(np.abs((out_true_xx - out_fake_xx) ** 2), axis=1)
+        outlier_scores = np.mean(np.abs((out_true_xx - out_fake_xx) ** 2),
+                                 axis=1)
         return outlier_scores
 
     def decision_function(self, X):
@@ -435,8 +471,10 @@ class ALAD(BaseDetector):
     def plot_learning_curves(self, start_ind=0, window_smoothening=10):
         fig = plt.figure(figsize=(12, 5))
 
-        l_gen = pd.Series(self.hist_loss_gen[start_ind:]).rolling(window=window_smoothening).mean()
-        l_disc = pd.Series(self.hist_loss_disc[start_ind:]).rolling(window=window_smoothening).mean()
+        l_gen = pd.Series(self.hist_loss_gen[start_ind:]).rolling(
+            window=window_smoothening).mean()
+        l_disc = pd.Series(self.hist_loss_disc[start_ind:]).rolling(
+            window=window_smoothening).mean()
 
         ax = fig.add_subplot(1, 2, 1)
         ax.plot(range(len(l_gen)), l_gen)

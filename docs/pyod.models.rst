@@ -29,6 +29,7 @@ pyod.models.alad module
 
 .. automodule:: pyod.models.alad
     :members:
+    :exclude-members: get_params, set_params, train_step, train_more, get_outlier_scores
     :undoc-members:
     :show-inheritance:
     :inherited-members:
