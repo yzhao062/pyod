@@ -17,22 +17,22 @@ class PyODKernelPCA(KernelPCA):
     """A wrapper class for KernelPCA class of scikit-learn."""
 
     def __init__(
-        self,
-        n_components=None,
-        kernel="rbf",
-        gamma=None,
-        degree=3,
-        coef0=1,
-        kernel_params=None,
-        alpha=1.0,
-        fit_inverse_transform=False,
-        eigen_solver="auto",
-        tol=0,
-        max_iter=None,
-        remove_zero_eig=False,
-        copy_X=True,
-        n_jobs=None,
-        random_state=None,
+            self,
+            n_components=None,
+            kernel="rbf",
+            gamma=None,
+            degree=3,
+            coef0=1,
+            kernel_params=None,
+            alpha=1.0,
+            fit_inverse_transform=False,
+            eigen_solver="auto",
+            tol=0,
+            max_iter=None,
+            remove_zero_eig=False,
+            copy_X=True,
+            n_jobs=None,
+            random_state=None,
     ):
         super().__init__(
             kernel=kernel,
@@ -197,25 +197,25 @@ class KPCA(BaseDetector):
     """
 
     def __init__(
-        self,
-        contamination=0.1,
-        n_components=None,
-        n_selected_components=None,
-        kernel="rbf",
-        gamma=None,
-        degree=3,
-        coef0=1,
-        kernel_params=None,
-        alpha=1.0,
-        eigen_solver="auto",
-        tol=0,
-        max_iter=None,
-        remove_zero_eig=False,
-        copy_X=True,
-        n_jobs=None,
-        sampling=False,
-        subset_size=20,
-        random_state=None,
+            self,
+            contamination=0.1,
+            n_components=None,
+            n_selected_components=None,
+            kernel="rbf",
+            gamma=None,
+            degree=3,
+            coef0=1,
+            kernel_params=None,
+            alpha=1.0,
+            eigen_solver="auto",
+            tol=0,
+            max_iter=None,
+            remove_zero_eig=False,
+            copy_X=True,
+            n_jobs=None,
+            sampling=False,
+            subset_size=20,
+            random_state=None,
     ):
         super().__init__(contamination=contamination)
         self.n_components = n_components
@@ -344,7 +344,8 @@ class KPCA(BaseDetector):
         potential = potential - 2 * centerer.K_fit_rows_ + centerer.K_fit_all_
 
         # reconstruction error
-        self.decision_scores_ = potential - np.sum(np.square(x_transformed), axis=1)
+        self.decision_scores_ = potential - np.sum(np.square(x_transformed),
+                                                   axis=1)
         self._process_decision_scores()
 
         return self

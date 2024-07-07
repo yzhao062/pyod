@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """Clustering Based Local Outlier Factor (CBLOF)
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Yue Zhao <yzhao062@gmail.com>
 #         Shangwen Huang <https://github.com/shangwen777>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import warnings
 

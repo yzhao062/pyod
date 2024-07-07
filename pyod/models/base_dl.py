@@ -13,6 +13,12 @@ from abc import abstractmethod
 from inspect import isfunction
 
 import numpy as np
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 import tqdm
 from sklearn.utils import check_array

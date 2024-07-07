@@ -6,10 +6,17 @@
 # Author: Zhuo Xiao <zhuoxiao@usc.edu>
 
 import numpy as np
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
+from torch import nn
+
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from torch import nn
 
 from .base import BaseDetector
 from ..utils.stat_models import pairwise_distances_no_broadcast

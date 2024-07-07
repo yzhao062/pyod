@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
+
 
 import os
 import sys
@@ -32,10 +31,14 @@ class TestDeepSVDD(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = DeepSVDD(n_features=self.n_features, epochs=10, hidden_neurons=[64, 32],
-                            contamination=self.contamination, random_state=2021)
-        self.clf_ae = DeepSVDD(n_features=self.n_features, epochs=5, use_ae=True, output_activation='relu',
-                               hidden_neurons=[16, 8, 4], contamination=self.contamination,
+        self.clf = DeepSVDD(n_features=self.n_features, epochs=10,
+                            hidden_neurons=[64, 32],
+                            contamination=self.contamination,
+                            random_state=2021)
+        self.clf_ae = DeepSVDD(n_features=self.n_features, epochs=5,
+                               use_ae=True, output_activation='relu',
+                               hidden_neurons=[16, 8, 4],
+                               contamination=self.contamination,
                                preprocessing=False)
         self.clf.fit(self.X_train)
         self.clf_ae.fit(self.X_train)
@@ -88,7 +91,6 @@ class TestDeepSVDD(unittest.TestCase):
     def test_prediction_proba_parameter(self):
         with assert_raises(ValueError):
             self.clf.predict_proba(self.X_test, method='something')
-
 
     def test_prediction_labels_confidence(self):
         pred_labels, confidence = self.clf.predict(self.X_test,

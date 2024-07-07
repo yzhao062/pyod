@@ -4,10 +4,8 @@
 # Author: Akira Tamamori <tamamori5917@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division, print_function
 
 import numpy as np
-
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
 
@@ -19,6 +17,7 @@ if sklearn_version[:3] >= '1.3':
     from sklearn.metrics import DistanceMetric
 else:
     from sklearn.neighbors import DistanceMetric
+
 
 class Sampling(BaseDetector):
     """Sampling class for outlier detection.

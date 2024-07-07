@@ -5,8 +5,6 @@
 # Author: D Kulik
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 import scipy.stats as stats
@@ -110,7 +108,7 @@ class QMCD(BaseDetector):
         kurt = stats.kurtosis(scores)
 
         # Invert score order based on criterion
-        if (skew<0) or ((skew>=0) & (kurt<0)):
+        if (skew < 0) or ((skew >= 0) & (kurt < 0)):
             scores = scores.max() + scores.min() - scores
             self._is_flipped = True
 
@@ -154,6 +152,5 @@ class QMCD(BaseDetector):
         # Invert score order based on criterion
         if self._is_flipped:
             scores = self.decision_scores_.max() + self.decision_scores_.min() - scores
-
 
         return scores

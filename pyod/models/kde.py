@@ -4,7 +4,6 @@
 # Author: Akira Tamamori <tamamori5917@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division, print_function
 
 from warnings import warn
 

@@ -4,25 +4,23 @@ Adapted from the original implementation.
 # Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
 # License: BSD 2 clause
 
-# system imports
+
 import collections
 import warnings
 
-# numpy
 import numpy as np
-# sklearn imports
 from sklearn.neighbors import KDTree
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.validation import check_random_state
 
 # PyOD imports
-from pyod.models.base import BaseDetector
-from pyod.utils.stat_models import pearsonr
-from pyod.utils.utility import argmaxn
-from pyod.utils.utility import check_detector
-from pyod.utils.utility import generate_bagging_indices
-from pyod.utils.utility import standardizer
+from .base import BaseDetector
+from ..utils.stat_models import pearsonr
+from ..utils.utility import argmaxn
+from ..utils.utility import check_detector
+from ..utils.utility import generate_bagging_indices
+from ..utils.utility import standardizer
 
 
 # TODO: find random state that is causing runtime warning in pearson

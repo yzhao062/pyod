@@ -7,6 +7,12 @@
 
 import numpy as np
 import pandas as pd
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 import torch.nn as nn
 import torch.optim as optim

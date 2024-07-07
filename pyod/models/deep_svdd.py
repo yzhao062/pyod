@@ -5,13 +5,18 @@
 # Author: Yuehan Qin <yuehanqi@usc.edu> for the PyTorch version
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from torch.utils.data import DataLoader, TensorDataset
@@ -19,7 +24,6 @@ from torch.utils.data import DataLoader, TensorDataset
 from .base import BaseDetector
 from ..utils.torch_utility import get_activation_by_name
 from ..utils.utility import check_parameter
-
 
 optimizer_dict = {
     'sgd': optim.SGD,

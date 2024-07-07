@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Test AE1SVM for outlier detection (pytorch)
 """
-from __future__ import division, print_function
 
 import os
 import sys

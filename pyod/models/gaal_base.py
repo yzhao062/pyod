@@ -4,13 +4,16 @@ Part of the codes are adapted from
 https://github.com/leibinghe/GAAL-based-outlier-detection
 """
 
-from __future__ import division
-from __future__ import print_function
+import math
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
 
 
 def create_discriminator(latent_size, data_size):
@@ -33,10 +36,13 @@ def create_discriminator(latent_size, data_size):
     class Discriminator(nn.Module):
         def __init__(self, latent_size, data_size):
             super(Discriminator, self).__init__()
-            self.layer1 = nn.Linear(latent_size, math.ceil(math.sqrt(data_size)))
+            self.layer1 = nn.Linear(latent_size,
+                                    math.ceil(math.sqrt(data_size)))
             self.layer2 = nn.Linear(math.ceil(math.sqrt(data_size)), 1)
-            nn.init.kaiming_normal_(self.layer1.weight, mode='fan_in', nonlinearity='relu')
-            nn.init.kaiming_normal_(self.layer2.weight, mode='fan_in', nonlinearity='sigmoid')
+            nn.init.kaiming_normal_(self.layer1.weight, mode='fan_in',
+                                    nonlinearity='relu')
+            nn.init.kaiming_normal_(self.layer2.weight, mode='fan_in',
+                                    nonlinearity='sigmoid')
 
         def forward(self, x):
             x = F.relu(self.layer1(x))

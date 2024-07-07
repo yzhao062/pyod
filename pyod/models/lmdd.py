@@ -4,8 +4,6 @@
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 from numba import njit
@@ -179,8 +177,8 @@ class LMDD(BaseDetector):
             res_[j] = var_max
 
             for k in range(j + 1, X.shape[0]):
-                dk_diff = self.dis_measure_(np.vstack((X[:j], X[k])))\
-                        - self.dis_measure_(np.vstack((X[:j + 1], X[k]))) 
+                dk_diff = self.dis_measure_(np.vstack((X[:j], X[k]))) \
+                          - self.dis_measure_(np.vstack((X[:j + 1], X[k])))
                 if dk_diff >= 0:
                     res_[k] = dk_diff + var_max
 

@@ -5,8 +5,6 @@ Part of the codes are adapted from https://github.com/xhan97/inne
 # Author: Xin Han <xinhan197@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numbers
 from warnings import warn
