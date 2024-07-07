@@ -6,52 +6,91 @@
 # Author: Michiel Bongaerts (but not author of the AnoGAN method)
 # License: BSD 2 clause
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import tensorflow
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+
 from .base import BaseDetector
 from ..utils.utility import check_parameter
+from ..utils.torch_utility import get_activation_by_name
 
 
-# Old function, deprecat this in the future
-def _get_tensorflow_version():  # pragma: no cover
-    """ Utility function to decide the version of tensorflow, which will
-    affect how to import keras models.
+class Generator(nn.Module):
+    def __init__(self, latent_dim_G, n_features, G_layers, dropout_rate, activation_hidden, output_activation):
+        super(Generator, self).__init__()
+        self.latent_dim = latent_dim_G
+        self.n_features = n_features
+        self.layers = G_layers
+        self.dropout_rate = dropout_rate
+        self.activation_hidden = activation_hidden
+        self.output_activation = output_activation
 
-    Returns
-    -------
-    tensorflow version : int
+        self.model = self._build_generator()
 
-    """
+    def _build_generator(self):
+        layers = [nn.Dropout(self.dropout_rate), nn.Linear(
+            self.latent_dim, self.layers[0]), get_activation_by_name(self.activation_hidden)]
+        for i in range(1, len(self.layers)):
+            layers.extend([
+                nn.Dropout(self.dropout_rate),
+                nn.Linear(self.layers[i-1], self.layers[i]),
+                get_activation_by_name(self.activation_hidden)
+            ])
+        layers.append(nn.Linear(self.layers[-1], self.n_features))
+        if self.output_activation:
+            layers.append(get_activation_by_name(self.output_activation))
+        return nn.Sequential(*layers)
 
-    tf_version = str(tensorflow.__version__)
-    if int(tf_version.split(".")[0]) != 1 and int(
-            tf_version.split(".")[0]) != 2:
-        raise ValueError("tensorflow version error")
-
-    return int(tf_version.split(".")[0]) * 100 + int(tf_version.split(".")[1])
+    def forward(self, x):
+        return self.model(x)
 
 
-# if tensorflow 2, import from tf directly
-if _get_tensorflow_version() < 200:
-    raise NotImplementedError('Model not implemented for Tensorflow version 1')
+class Discriminator(nn.Module):
+    def __init__(self, n_features, D_layers, dropout_rate, activation_hidden):
+        super(Discriminator, self).__init__()
+        self.n_features = n_features
+        self.layers = D_layers
+        self.dropout_rate = dropout_rate
+        self.activation_hidden = activation_hidden
 
-elif 200 <= _get_tensorflow_version() <= 209:
-    import tensorflow as tf
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import Input, Dense, Dropout
-    from tensorflow.keras.optimizers import Adam
-else:
-    import tensorflow as tf
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import (Input, Dense, Dropout)
-    from tensorflow.keras.optimizers.legacy import Adam
+        self.model = self._build_discriminator()
+
+    def _build_discriminator(self):
+        layers = [nn.Dropout(self.dropout_rate), nn.Linear(
+            self.n_features, self.layers[0]), get_activation_by_name(self.activation_hidden)]
+        for i in range(1, len(self.layers)):
+            layers.extend([
+                nn.Dropout(self.dropout_rate),
+                nn.Linear(self.layers[i-1], self.layers[i]),
+                get_activation_by_name(self.activation_hidden)
+            ])
+        layers.extend([nn.Linear(self.layers[-1], 1), nn.Sigmoid()])
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.model(x)
+
+
+class QueryModel(nn.Module):
+    def __init__(self, generator, discriminator, latent_dim_G):
+        super(QueryModel, self).__init__()
+        self.generator = generator
+        self.discriminator = discriminator
+        self.z_gamma_layer = nn.Linear(latent_dim_G, latent_dim_G)
+
+    def forward(self, query_sample):
+        z_gamma = self.z_gamma_layer(query_sample)
+        sample_gen = self.generator(z_gamma)
+        sample_disc_latent = self.discriminator(sample_gen)
+        return z_gamma, sample_gen, sample_disc_latent
 
 
 class AnoGAN(BaseDetector):
@@ -143,21 +182,11 @@ class AnoGAN(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, activation_hidden='tanh',
-                 dropout_rate=0.2,
-                 latent_dim_G=2,
-                 G_layers=[20, 10, 3, 10, 20],
-                 verbose=0,
-                 D_layers=[20, 10, 5],
-                 index_D_layer_for_recon_error=1,
-                 epochs=500,
-                 preprocessing=False,
-                 learning_rate=0.001,
-                 learning_rate_query=0.01,
-                 epochs_query=20,
-                 batch_size=32,
-                 output_activation=None,
-                 contamination=0.1):
+    def __init__(self, activation_hidden='tanh', dropout_rate=0.2, latent_dim_G=2,
+                 G_layers=[20, 10, 3, 10, 20], verbose=0, D_layers=[20, 10, 5],
+                 index_D_layer_for_recon_error=1, epochs=500, preprocessing=False,
+                 learning_rate=0.001, learning_rate_query=0.01, epochs_query=20,
+                 batch_size=32, output_activation=None, contamination=0.1, device=None):
         super(AnoGAN, self).__init__(contamination=contamination)
 
         self.activation_hidden = activation_hidden
@@ -176,64 +205,23 @@ class AnoGAN(BaseDetector):
         self.batch_size = batch_size
         self.verbose = verbose
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
-                        include_left=True)
-
-    def _build_model(self):
-        #### Generator #####
-        G_in = Input(shape=(self.latent_dim_G,), name='I1')
-        G_1 = Dropout(self.dropout_rate, input_shape=(self.n_features_,))(G_in)
-        last_layer = G_1
-
-        G_hl_dict = {}
-        for i, l_dim in enumerate(self.G_layers):
-            layer_name = 'hl_{}'.format(i)
-            G_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                Dense(l_dim, activation=self.activation_hidden)(last_layer))
-            last_layer = G_hl_dict[layer_name]
-
-        G_out = Dense(self.n_features_, activation=self.output_activation)(
-            last_layer)
-
-        self.generator = Model(inputs=(G_in), outputs=[G_out])
         self.hist_loss_generator = []
-
-        #### Discriminator #####
-        D_in = Input(shape=(self.n_features_,), name='I1')
-        D_1 = Dropout(self.dropout_rate, input_shape=(self.n_features_,))(D_in)
-        last_layer = D_1
-
-        D_hl_dict = {}
-        for i, l_dim in enumerate(self.D_layers):
-            layer_name = 'hl_{}'.format(i)
-            D_hl_dict[layer_name] = Dropout(self.dropout_rate)(
-                Dense(l_dim, activation=self.activation_hidden)(last_layer))
-            last_layer = D_hl_dict[layer_name]
-
-        classifier_node = Dense(1, activation='sigmoid')(last_layer)
-
-        self.discriminator = Model(inputs=(D_in),
-                                   outputs=[classifier_node,
-                                            D_hl_dict['hl_{}'.format(
-                                                self.index_D_layer_for_recon_error)]])
         self.hist_loss_discriminator = []
 
-        # Set optimizer
-        opt = Adam(learning_rate=self.learning_rate)
-        self.generator.compile(optimizer=opt)
-        self.discriminator.compile(optimizer=opt)
+        self.device = device
 
-    def plot_learning_curves(self, start_ind=0,
-                             window_smoothening=10):  # pragma: no cover
+        check_parameter(dropout_rate, 0, 1,
+                        param_name='dropout_rate', include_left=True)
+
+    def plot_learning_curves(self, start_ind=0, window_smoothening=10):  # pragma: no cover
         fig = plt.figure(figsize=(12, 5))
-
         l_gen = pd.Series(self.hist_loss_generator[start_ind:]).rolling(
             window_smoothening).mean()
         l_disc = pd.Series(self.hist_loss_discriminator[start_ind:]).rolling(
             window_smoothening).mean()
 
         ax = fig.add_subplot(1, 2, 1)
-        ax.plot(range(len(l_gen)), l_gen, )
+        ax.plot(range(len(l_gen)), l_gen)
         ax.set_title('Generator')
         ax.set_ylabel('Loss')
         ax.set_xlabel('Iter')
@@ -245,108 +233,6 @@ class AnoGAN(BaseDetector):
         ax.set_xlabel('Iter')
 
         plt.show()
-
-    def train_step(self, data):
-        cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=False)
-        X_original, latent_noise = data
-
-        with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-            X_gen = self.generator({'I1': latent_noise}, training=True)
-
-            real_output, _ = self.discriminator({'I1': X_original},
-                                                training=True)
-            fake_output, _ = self.discriminator({'I1': X_gen}, training=True)
-
-            # Correctly predicted
-            loss_discriminator = cross_entropy(tf.ones_like(fake_output),
-                                               fake_output)
-            total_loss_generator = loss_discriminator
-
-            ## Losses discriminator                  
-            real_loss = cross_entropy(
-                tf.ones_like(real_output, dtype='float32') * 0.9,
-                real_output)  # one-sided label smoothening
-            fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
-            total_loss_discriminator = real_loss + fake_loss
-
-        # Compute gradients
-        gradients_gen = gen_tape.gradient(total_loss_generator,
-                                          self.generator.trainable_variables)
-        # Update weights
-        self.generator.optimizer.apply_gradients(
-            zip(gradients_gen, self.generator.trainable_variables))
-
-        # Compute gradients
-        gradients_disc = disc_tape.gradient(total_loss_discriminator,
-                                            self.discriminator.trainable_variables)
-        # Update weights
-        self.discriminator.optimizer.apply_gradients(
-            zip(gradients_disc, self.discriminator.trainable_variables))
-
-        self.hist_loss_generator.append(
-            np.float64(total_loss_generator.numpy()))
-        self.hist_loss_discriminator.append(
-            np.float64(total_loss_discriminator.numpy()))
-
-    def fit_query(self, query_sample):
-
-        assert (query_sample.shape[0] == 1)
-        assert (query_sample.shape[1] == self.n_features_)
-
-        # Make pseudo input (just zeros)
-        zeros = np.zeros((1, self.latent_dim_G))
-
-        # build model for back-propagating a approximate latent space where
-        # reconstruction with query sample is optimal
-        pseudo_in = Input(shape=(self.latent_dim_G,), name='I1')
-        z_gamma = Dense(self.latent_dim_G, activation=None, use_bias=True)(
-            pseudo_in)
-
-        sample_gen = self.generator({'I1': z_gamma}, training=False)
-        _, sample_disc_latent = self.discriminator({'I1': sample_gen},
-                                                   training=False)
-
-        self.query_model = Model(inputs=(pseudo_in),
-                                 outputs=[z_gamma, sample_gen,
-                                          sample_disc_latent])
-
-        opt = Adam(learning_rate=self.learning_rate_query)
-        self.query_model.compile(optimizer=opt)
-
-        ###############
-        for i in range(self.epochs_query):
-            if ((i % 25 == 0) and (self.verbose == 1)):
-                print('iter:', i)
-
-            with tf.GradientTape() as tape:
-
-                z, sample_gen, sample_disc_latent = self.query_model(
-                    {'I1': zeros}, training=True)
-
-                _, sample_disc_latent_original = self.discriminator(
-                    {'I1': query_sample}, training=False)
-
-                # Reconstruction loss generator
-                abs_err = tf.keras.backend.abs(query_sample - sample_gen)
-                loss_recon_gen = tf.keras.backend.mean(
-                    tf.keras.backend.mean(abs_err, axis=-1))
-
-                # Reconstruction loss latent space of discrimator
-                abs_err = tf.keras.backend.abs(
-                    sample_disc_latent_original - sample_disc_latent)
-                loss_recon_disc = tf.keras.backend.mean(
-                    tf.keras.backend.mean(abs_err, axis=-1))
-                total_loss = loss_recon_gen + loss_recon_disc  # equal weighting both terms
-
-            # Compute gradients
-            gradients = tape.gradient(total_loss,
-                                      self.query_model.trainable_variables[
-                                      0:2])
-            # Update weights
-            self.query_model.optimizer.apply_gradients(
-                zip(gradients, self.query_model.trainable_variables[0:2]))
-
-        return total_loss.numpy()
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -369,8 +255,7 @@ class AnoGAN(BaseDetector):
         self._set_n_classes(y)
 
         # Verify and construct the hidden units
-        self.n_samples_, self.n_features_ = X.shape[0], X.shape[1]
-        self._build_model()
+        self.n_samples_, self.n_features_ = X.shape
 
         # Standardize data for better performance
         if self.preprocessing:
@@ -378,41 +263,109 @@ class AnoGAN(BaseDetector):
             X_norm = self.scaler_.fit_transform(X)
         else:
             X_norm = np.copy(X)
+        X_norm = torch.tensor(X_norm, dtype=torch.float32)
+        # train the discriminator and generator
+        self.generator = Generator(latent_dim_G=self.latent_dim_G,
+                                   n_features=self.n_features_,
+                                   G_layers=self.G_layers,
+                                   dropout_rate=self.dropout_rate,
+                                   activation_hidden=self.activation_hidden,
+                                   output_activation=self.output_activation)
+        self.discriminator = Discriminator(n_features=self.n_features_,
+                                           D_layers=self.D_layers,
+                                           dropout_rate=self.dropout_rate,
+                                           activation_hidden=self.activation_hidden)
+        
+        self.generator.to(self.device)
+        self.discriminator.to(self.device)
+
+        optimizer_g = optim.Adam(
+            self.generator.parameters(), lr=self.learning_rate)
+        optimizer_d = optim.Adam(
+            self.discriminator.parameters(), lr=self.learning_rate)
+
+        dataset = TensorDataset(X_norm)
+        dataloader = DataLoader(
+            dataset, batch_size=self.batch_size, shuffle=True)
 
         for n in range(self.epochs):
-            if ((n % 100 == 0) and (n != 0) and (self.verbose == 1)):
-                print('Train iter:{}'.format(n))
+            if n % 100 == 0 and n != 0 and self.verbose == 1:
+                print(f'Train iter: {n}')
 
-            # Shuffle train 
-            np.random.shuffle(X_norm)
+            self.generator.train()
+            self.discriminator.train()
+            for X_train_ in dataloader:
+                X_train_sel = X_train_[0].to(self.device)
+                latent_noise = torch.rand(X_train_sel.size(
+                    0), self.latent_dim_G, dtype=torch.float32).to(self.device)
 
-            X_train_sel = X_norm[0: min(self.batch_size, self.n_samples_), :]
-            latent_noise = np.random.normal(0, 1, (
-                X_train_sel.shape[0], self.latent_dim_G))
+                generated_data = self.generator(latent_noise)
+                real_output = self.discriminator(X_train_sel)
+                fake_output = self.discriminator(generated_data.detach())
 
-            self.train_step((np.float32(X_train_sel),
-                             np.float32(latent_noise)))
+                loss_D_real = nn.BCELoss()(real_output, torch.ones_like(real_output) * 0.9).to(self.device)
+                loss_D_fake = nn.BCELoss()(fake_output, torch.zeros_like(fake_output)).to(self.device)
+                loss_D = loss_D_real + loss_D_fake
+                optimizer_d.zero_grad()
+                loss_D.backward()
+                optimizer_d.step()
 
-        # Predict on X itself and calculate the reconstruction error as
-        # the outlier scores. Noted X_norm was shuffled has to recreate
-        if self.preprocessing:
-            X_norm = self.scaler_.transform(X)
-        else:
-            X_norm = np.copy(X)
+                fake_output = self.discriminator(generated_data)
+                loss_G = nn.BCELoss()(fake_output, torch.ones_like(fake_output)).to(self.device)
+                optimizer_g.zero_grad()
+                loss_G.backward()
+                optimizer_g.step()
 
+                self.hist_loss_discriminator.append(loss_D.item())
+                self.hist_loss_generator.append(loss_G.item())
+
+        # Instantiate and train the query model
+        self.generator.eval()
+        self.discriminator.eval()
+        self.query_model = QueryModel(
+            self.generator, self.discriminator, self.latent_dim_G).to(self.device)
+        optimizer_query = optim.Adam(
+            self.query_model.parameters(), lr=self.learning_rate_query)
         scores = []
-        # For each sample we use a few backpropagation steps, to obtain a point in the latent 
-        # space, that best resembles the query sample
+        # For each sample, use a few backpropagation steps to obtain a point in the latent space that best resembles the query sample
+        self.query_model.train()
         for i in range(X_norm.shape[0]):
-            if (self.verbose == 1):
+            if self.verbose == 1:
                 print('query sample {} / {}'.format(i + 1, X_norm.shape[0]))
 
-            sample = X_norm[[i],]
-            score = self.fit_query(sample)
-            scores.append(score)
+            query_sample = X_norm[[i],].to(self.device)
+            assert (query_sample.shape[0] == 1)
+            assert (query_sample.shape[1] == self.n_features_)
+
+            # Make pseudo input (just zeros)
+            zeros = torch.zeros((1, self.latent_dim_G)).to(self.device)
+
+            # build model for back-propagating a approximate latent space where
+            # reconstruction with query sample is optimal
+            for i in range(self.epochs_query):
+                if i % 25 == 0 and self.verbose == 1:
+                    print('iter:', i)
+
+                z, sample_gen, sample_disc_latent = self.query_model(zeros)
+                with torch.no_grad():
+                    sample_disc_latent_original = self.discriminator(
+                        query_sample)
+                # Reconstruction loss generator
+                loss_recon_gen = torch.mean(torch.mean(
+                    torch.abs(query_sample - sample_gen), axis=-1))
+                # Reconstruction loss latent space of discrimator
+                loss_recon_disc = torch.mean(torch.mean(
+                    torch.abs(sample_disc_latent_original - sample_disc_latent), axis=-1))
+                total_loss = loss_recon_gen + loss_recon_disc
+
+                optimizer_query.zero_grad()
+                total_loss.backward()
+                optimizer_query.step()
+            # Predict on X itself and calculate the reconstruction error as
+            # the outlier scores.
+            scores.append(total_loss.item())
 
         self.decision_scores_ = np.array(scores)
-
         self._process_decision_scores()
         return self
 
@@ -442,16 +395,29 @@ class AnoGAN(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        # Predict on X 
+        X_norm = torch.tensor(X_norm, dtype=torch.float32)
+
+        # Predict on X
         pred_scores = []
-        for i in range(X_norm.shape[0]):
-            if (self.verbose == 1):
-                print('query sample {} / {}'.format(i + 1, X_norm.shape[0]))
 
-            sample = X_norm[[i],]
-            score = self.fit_query(sample)
-            pred_scores.append(score)
+        self.query_model.eval()
+        with torch.no_grad():
+            for i in range(X_norm.shape[0]):
+                if self.verbose == 1:
+                    print(
+                        'query sample {} / {}'.format(i + 1, X_norm.shape[0]))
 
-        pred_scores = np.array(pred_scores)
+                query_sample = X_norm[[i],].to(self.device)
 
-        return pred_scores
+                zeros = torch.zeros((1, self.latent_dim_G)).to(self.device)
+                z, sample_gen, sample_disc_latent = self.query_model(zeros)
+                sample_disc_latent_original = self.discriminator(query_sample)
+
+                loss_recon_gen = torch.mean(torch.mean(
+                    torch.abs(query_sample - sample_gen), axis=-1))
+                loss_recon_disc = torch.mean(torch.mean(
+                    torch.abs(sample_disc_latent_original - sample_disc_latent), axis=-1))
+                total_loss = loss_recon_gen + loss_recon_disc
+                pred_scores.append(total_loss.item())
+
+        return np.array(pred_scores)
