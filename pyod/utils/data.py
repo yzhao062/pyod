@@ -56,7 +56,7 @@ def _generate_data(n_inliers, n_outliers, n_features, coef, offset,
         The number of values that are missing (np.nan). Defaults to zero.
 
     n_inf : int
-        The number of values that are infinite. (np.infty). Defaults to zero.
+        The number of values that are infinite. (np.inf). Defaults to zero.
 
     Returns
     -------
@@ -79,8 +79,8 @@ def _generate_data(n_inliers, n_outliers, n_features, coef, offset,
         y = np.r_[y, np.full((n_nan), np.nan)]
 
     if n_inf > 0:
-        X = np.r_[X, np.full((n_inf, n_features), np.infty)]
-        y = np.r_[y, np.full((n_inf), np.infty)]
+        X = np.r_[X, np.full((n_inf, n_features), np.inf)]
+        y = np.r_[y, np.full((n_inf), np.inf)]
 
     return X, y
 
@@ -156,7 +156,7 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
         The number of values that are missing (np.nan). Defaults to zero.
 
     n_inf : int
-        The number of values that are infinite. (np.infty). Defaults to zero.
+        The number of values that are infinite. (np.inf). Defaults to zero.
 
     Returns
     -------
