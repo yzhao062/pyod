@@ -194,3 +194,4 @@ v<2.0.1>, <06/21/2024> -- Moving from TF to Torch -- reimplement MO_GAAL.
 v<2.0.1>, <06/21/2024> -- Moving from TF to Torch -- reimplement AE and VAE.
 v<2.0.2>, <07/01/2024> -- Add AE1SVM.
 v<2.0.2>, <07/04/2024> -- Moving from TF to Torch -- reimplement ALAD.
+v<2.0.2>, <07/04/2024> -- Moving from TF to Torch -- reimplement anogan.
