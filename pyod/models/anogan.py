@@ -108,12 +108,10 @@ class AnoGAN(BaseDetector):
 
     output_activation : str, optional (default=None)
         Activation function to use for output layer.
-        See https://keras.io/activations/
 
 
     activation_hidden : str, optional (default='tanh')
         Activation function to use for output layer.
-        See https://keras.io/activations/
 
     epochs : int, optional (default=500)
         Number of epochs to train the model.

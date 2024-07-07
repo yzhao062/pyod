@@ -54,11 +54,9 @@ class InnerDeepSVDD(nn.Module):
     hidden_activation : str, optional (default='relu')
         Activation function to use for hidden layers.
         All hidden layers are forced to use the same type of activation.
-        See https://keras.io/activations/
 
     output_activation : str, optional (default='sigmoid')
         Activation function to use for output layer.
-        See https://keras.io/activations/
 
     dropout_rate : float in (0., 1), optional (default=0.2)
         The dropout to be used across all layers.
@@ -66,7 +64,6 @@ class InnerDeepSVDD(nn.Module):
     l2_regularizer : float in (0., 1), optional (default=0.1)
         The regularization strength of activity_regularizer
         applied on each layer. By default, l2 regularizer is used. See
-        https://keras.io/regularizers/
     """
 
     def __init__(self, n_features, use_ae,

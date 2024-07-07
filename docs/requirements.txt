@@ -2,7 +2,6 @@ combo
 furo
 geomstats
 joblib
-keras<3.0
 matplotlib
 nose
 numpy>=1.19
@@ -18,7 +17,6 @@ sphinx-rtd-theme
 sphinxcontrib-bibtex
 statsmodels
 suod
-tensorflow
 torch
 tqdm
 xgboost

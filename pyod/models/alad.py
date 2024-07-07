@@ -29,16 +29,13 @@ class ALAD(BaseDetector):
     ----------
     output_activation : str, optional (default=None)
         Activation function to use for output layers for encoder and dector.
-        See https://keras.io/activations/
 
     activation_hidden_disc : str, optional (default='tanh')
         Activation function to use for hidden layers in discrimators.
-        See https://keras.io/activations/
 
     activation_hidden_gen : str, optional (default='tanh')
         Activation function to use for hidden layers in encoder and decoder
         (i.e. generator).
-        See https://keras.io/activations/
 
     epochs : int, optional (default=500)
         Number of epochs to train the model.

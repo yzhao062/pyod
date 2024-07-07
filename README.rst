@@ -193,7 +193,7 @@ Alternatively, you can clone and run the setup.py file:
 **Optional Dependencies (see details below)**:
 
 * combo (optional, required for models/combination.py and FeatureBagging)
-* keras/tensorflow (optional, required for AutoEncoder, and other deep learning models)
+* pytorch (optional, required for AutoEncoder, and other deep learning models)
 * suod (optional, required for running SUOD model)
 * xgboost (optional, required for XGBOD)
 * pythresh (optional, required for thresholding)
