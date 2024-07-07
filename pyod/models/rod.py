@@ -168,7 +168,7 @@ def euclidean(v1, v2, c=False):
             res.append([np.sqrt((_v[0] - v2[0]) ** 2 +
                                 (_v[1] - v2[1]) ** 2 +
                                 (_v[2] - v2[2]) ** 2)])
-        return np.array(res, copy=False)
+        return np.asarray(res)
     return np.sqrt((v1[0] - v2[0]) ** 2 +
                    (v1[1] - v2[1]) ** 2 +
                    (v1[2] - v2[2]) ** 2)
