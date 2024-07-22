@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-"""SDeep anomaly detection with deviation networks}
+"""Deep anomaly detection with deviation networks
 Part of the codes are adapted from
 https://github.com/GuansongPang/deviation-network
 """
-# Author: Sihan Chen <schen976@usc.edu>, Tiankai Yang <tiankaiy@usc.edu>
+# Author: Sihan Chen <schen976@usc.edu>
 # License: BSD 2 clause
 
 
