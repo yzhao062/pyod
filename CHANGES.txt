@@ -196,3 +196,4 @@ v<2.0.2>, <07/01/2024> -- Add AE1SVM.
 v<2.0.2>, <07/04/2024> -- Moving from TF to Torch -- reimplement ALAD.
 v<2.0.2>, <07/04/2024> -- Moving from TF to Torch -- reimplement anogan.
 v<2.0.2>, <07/06/2024> -- Complete of removing all Tensorflow and Keras code.
+v<2.0.2>, <07/21/2024> -- Add DevNet.

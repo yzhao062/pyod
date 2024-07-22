@@ -373,6 +373,7 @@ Neural Networks      DeepSVDD            Deep One-Class Classification          
 Neural Networks      AnoGAN              Anomaly Detection with Generative Adversarial Networks                                                  2017   [#Schlegl2017Unsupervised]_
 Neural Networks      ALAD                Adversarially learned anomaly detection                                                                 2018   [#Zenati2018Adversarially]_
 Neural Networks      AE1SVM              Autoencoder-based One-class Support Vector Machine                                                      2019   [#Nguyen2019scalable]_
+Neural Networks      DevNet              Deep Anomaly Detection with Deviation Networks                                                          2019   [#Pang2019Deep]_
 Graph-based          R-Graph             Outlier detection by R-graph                                                                            2017   [#You2017Provable]_
 Graph-based          LUNAR               LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   [#Goodge2022Lunar]_
 ===================  ==================  ======================================================================================================  =====  ========================================
@@ -557,6 +558,8 @@ Reference
 .. [#Liu2019Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2019. Generative adversarial active learning for unsupervised outlier detection. *IEEE Transactions on Knowledge and Data Engineering*.
 
 .. [#Nguyen2019scalable] Nguyen, M.N. and Vien, N.A., 2019. Scalable and interpretable one-class svms with deep learning and random fourier features. In *Machine Learning and Knowledge Discovery in Databases: European Conference*, ECML PKDD, 2018.
+
+.. [#Pang2019Deep] Pang, Guansong, Chunhua Shen, and Anton Van Den Hengel. "Deep anomaly detection with deviation networks." In *KDD*, pp. 353-362. 2019.
 
 .. [#Papadimitriou2003LOCI] Papadimitriou, S., Kitagawa, H., Gibbons, P.B. and Faloutsos, C., 2003, March. LOCI: Fast outlier detection using the local correlation integral. In *ICDE '03*, pp. 315-326. IEEE.
 

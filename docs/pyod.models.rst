@@ -39,6 +39,7 @@ pyod.models.anogan module
 
 .. automodule:: pyod.models.anogan
     :members:
+    :exclude-members: Discriminator, Generator, QueryModel
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -119,6 +120,16 @@ pyod.models.deep\_svdd module
 .. automodule:: pyod.models.deep_svdd
     :members:
     :exclude-members: InnerDeepSVDD
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+pyod.models.devnet module
+-----------------------------
+
+.. automodule:: pyod.models.devnet
+    :members:
+    :exclude-members: DevNetD, DevNetS, DevNetLinear, deviation_loss, train_and_test, deviation_network, SupDataset, input_batch_generation_sup_sparse, load_model_weight_predict
     :undoc-members:
     :show-inheritance:
     :inherited-members:
