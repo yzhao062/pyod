@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """A collection of model combination functionalities.
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
-
-from __future__ import division
-from __future__ import print_function
 
 
 try:
@@ -14,11 +11,11 @@ except ImportError:
     print('please install combo first for combination by `pip install combo`')
 
 from combo.models.score_comb import aom as combo_aom
-from combo.models.score_comb import moa as combo_moa
 from combo.models.score_comb import average as combo_average
-from combo.models.score_comb import maximization as combo_maximization
 from combo.models.score_comb import majority_vote as combo_majority_vote
+from combo.models.score_comb import maximization as combo_maximization
 from combo.models.score_comb import median as combo_median
+from combo.models.score_comb import moa as combo_moa
 
 
 def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,

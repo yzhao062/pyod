@@ -3,8 +3,7 @@
 """
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
-from __future__ import division
-from __future__ import print_function
+
 
 import multiprocessing
 from itertools import combinations as com
@@ -127,19 +126,24 @@ def scale_angles(gammas, scaler1=None, scaler2=None):
         scaler1 = MinMaxScaler(feature_range=(min_f, max_f))
         # min_f and max_f are required to be fit by scaler for consistency between train and test sets
         scaler1.fit(np.array(first + [min_f, max_f]).reshape(-1, 1))
-        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(-1) if first else []
+        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(
+            -1) if first else []
     else:
-        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(-1) if first else []
+        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(
+            -1) if first else []
     if scaler2 is None:  # this indicates the `fit()`
         min_s, max_s = q1 + 0.001, 2.186
         scaler2 = MinMaxScaler(feature_range=(min_s, max_s))
         # min_s and max_s are required to be fit by scaler for consistency between train and test sets
         scaler2.fit(np.array(second + [min_s, max_s]).reshape(-1, 1))
-        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(-1) if second else []
+        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(
+            -1) if second else []
     else:
-        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(-1) if second else []
+        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(
+            -1) if second else []
     # restore original order
-    return np.concatenate([first, second])[np.argsort(first_ind + second_ind)], scaler1, scaler2
+    return np.concatenate([first, second])[
+        np.argsort(first_ind + second_ind)], scaler1, scaler2
 
 
 def euclidean(v1, v2, c=False):
@@ -164,7 +168,7 @@ def euclidean(v1, v2, c=False):
             res.append([np.sqrt((_v[0] - v2[0]) ** 2 +
                                 (_v[1] - v2[1]) ** 2 +
                                 (_v[2] - v2[2]) ** 2)])
-        return np.array(res, copy=False)
+        return np.asarray(res)
     return np.sqrt((v1[0] - v2[0]) ** 2 +
                    (v1[1] - v2[1]) ** 2 +
                    (v1[2] - v2[2]) ** 2)
@@ -195,8 +199,9 @@ def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
     _x = x - gm
     # calculate the scaled angles between the geometric median and each data point vector
     v_norm = np.linalg.norm(_x, axis=1)
-    gammas, scaler1, scaler2 = scale_angles(np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)),
-                                            scaler1=scaler1, scaler2=scaler2)
+    gammas, scaler1, scaler2 = scale_angles(
+        np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)),
+        scaler1=scaler1, scaler2=scaler2)
     # apply the ROD main equation to find the rotation costs
     costs = np.power(v_norm, 3) * np.cos(gammas) * np.square(np.sin(gammas))
     # apply MAD to calculate the decision scores
@@ -241,10 +246,12 @@ def process_sub(subspace, gm, median, scaler1, scaler2):
                                                         median=median,
                                                         scaler1=scaler1,
                                                         scaler2=scaler2)
-    return sigmoid(np.nan_to_num(np.array(mad_subspace))), gm, median, scaler1, scaler2
+    return sigmoid(
+        np.nan_to_num(np.array(mad_subspace))), gm, median, scaler1, scaler2
 
 
-def rod_nD(X, parallel, gm=None, median=None, data_scaler=None, angles_scalers1=None, angles_scalers2=None):
+def rod_nD(X, parallel, gm=None, median=None, data_scaler=None,
+           angles_scalers1=None, angles_scalers2=None):
     """
     Find ROD overall scores when Data is higher than 3D:
       # scale dataset using Robust Scaler
@@ -280,12 +287,15 @@ def rod_nD(X, parallel, gm=None, median=None, data_scaler=None, angles_scalers1=
     all_subspaces = [X[:, _com] for _com in com(range(dim), 3)]
     all_gms = [None] * len(all_subspaces) if gm is None else gm
     all_meds = [None] * len(all_subspaces) if median is None else median
-    all_angles_scalers1 = [None] * len(all_subspaces) if angles_scalers1 is None else angles_scalers1
-    all_angles_scalers2 = [None] * len(all_subspaces) if angles_scalers2 is None else angles_scalers2
+    all_angles_scalers1 = [None] * len(
+        all_subspaces) if angles_scalers1 is None else angles_scalers1
+    all_angles_scalers2 = [None] * len(
+        all_subspaces) if angles_scalers2 is None else angles_scalers2
     if parallel:
         p = Pool(multiprocessing.cpu_count())
-        args = [[a, b, c, d, e] for a, b, c, d, e in zip(all_subspaces, all_gms, all_meds,
-                                                         all_angles_scalers1, all_angles_scalers2)]
+        args = [[a, b, c, d, e] for a, b, c, d, e in
+                zip(all_subspaces, all_gms, all_meds,
+                    all_angles_scalers1, all_angles_scalers2)]
         results = p.starmap(process_sub, args)
         subspaces_scores, gm, median, angles_scalers1, angles_scalers2 = [], [], [], [], []
         for res in results:
@@ -299,10 +309,14 @@ def rod_nD(X, parallel, gm=None, median=None, data_scaler=None, angles_scalers1=
         p.join()
         return scores, gm, median, data_scaler, angles_scalers1, angles_scalers2
     subspaces_scores, gm, median, angles_scalers1, angles_scalers2 = [], [], [], [], []
-    for subspace, _gm, med, ang_s1, ang_s2 in zip(all_subspaces, all_gms, all_meds, all_angles_scalers1,
+    for subspace, _gm, med, ang_s1, ang_s2 in zip(all_subspaces, all_gms,
+                                                  all_meds,
+                                                  all_angles_scalers1,
                                                   all_angles_scalers2):
-        scores_, gm_, med_, ang_s1_, ang_s2_ = process_sub(subspace=subspace, gm=_gm, median=med,
-                                                           scaler1=ang_s1, scaler2=ang_s2)
+        scores_, gm_, med_, ang_s1_, ang_s2_ = process_sub(subspace=subspace,
+                                                           gm=_gm, median=med,
+                                                           scaler1=ang_s1,
+                                                           scaler2=ang_s2)
         subspaces_scores.append(scores_)
         gm.append(gm_)
         median.append(med_)

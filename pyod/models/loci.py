@@ -5,8 +5,6 @@ Part of the codes are adapted from https://github.com/Cloudy10/loci
 # Author: Winston Li <jk_zhengli@hotmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 from numba import njit

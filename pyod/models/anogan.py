@@ -9,22 +9,28 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from sklearn.preprocessing import StandardScaler
+from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
-from ..utils.utility import check_parameter
 from ..utils.torch_utility import get_activation_by_name
+from ..utils.utility import check_parameter
 
 
 class Generator(nn.Module):
-    def __init__(self, latent_dim_G, n_features, G_layers, dropout_rate, activation_hidden, output_activation):
+    def __init__(self, latent_dim_G, n_features, G_layers, dropout_rate,
+                 activation_hidden, output_activation):
         super(Generator, self).__init__()
         self.latent_dim = latent_dim_G
         self.n_features = n_features
@@ -37,11 +43,12 @@ class Generator(nn.Module):
 
     def _build_generator(self):
         layers = [nn.Dropout(self.dropout_rate), nn.Linear(
-            self.latent_dim, self.layers[0]), get_activation_by_name(self.activation_hidden)]
+            self.latent_dim, self.layers[0]),
+                  get_activation_by_name(self.activation_hidden)]
         for i in range(1, len(self.layers)):
             layers.extend([
                 nn.Dropout(self.dropout_rate),
-                nn.Linear(self.layers[i-1], self.layers[i]),
+                nn.Linear(self.layers[i - 1], self.layers[i]),
                 get_activation_by_name(self.activation_hidden)
             ])
         layers.append(nn.Linear(self.layers[-1], self.n_features))
@@ -65,11 +72,12 @@ class Discriminator(nn.Module):
 
     def _build_discriminator(self):
         layers = [nn.Dropout(self.dropout_rate), nn.Linear(
-            self.n_features, self.layers[0]), get_activation_by_name(self.activation_hidden)]
+            self.n_features, self.layers[0]),
+                  get_activation_by_name(self.activation_hidden)]
         for i in range(1, len(self.layers)):
             layers.extend([
                 nn.Dropout(self.dropout_rate),
-                nn.Linear(self.layers[i-1], self.layers[i]),
+                nn.Linear(self.layers[i - 1], self.layers[i]),
                 get_activation_by_name(self.activation_hidden)
             ])
         layers.extend([nn.Linear(self.layers[-1], 1), nn.Sigmoid()])
@@ -105,12 +113,10 @@ class AnoGAN(BaseDetector):
 
     output_activation : str, optional (default=None)
         Activation function to use for output layer.
-        See https://keras.io/activations/
 
 
     activation_hidden : str, optional (default='tanh')
         Activation function to use for output layer.
-        See https://keras.io/activations/
 
     epochs : int, optional (default=500)
         Number of epochs to train the model.
@@ -182,11 +188,15 @@ class AnoGAN(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, activation_hidden='tanh', dropout_rate=0.2, latent_dim_G=2,
+    def __init__(self, activation_hidden='tanh', dropout_rate=0.2,
+                 latent_dim_G=2,
                  G_layers=[20, 10, 3, 10, 20], verbose=0, D_layers=[20, 10, 5],
-                 index_D_layer_for_recon_error=1, epochs=500, preprocessing=False,
-                 learning_rate=0.001, learning_rate_query=0.01, epochs_query=20,
-                 batch_size=32, output_activation=None, contamination=0.1, device=None):
+                 index_D_layer_for_recon_error=1, epochs=500,
+                 preprocessing=False,
+                 learning_rate=0.001, learning_rate_query=0.01,
+                 epochs_query=20,
+                 batch_size=32, output_activation=None, contamination=0.1,
+                 device=None):
         super(AnoGAN, self).__init__(contamination=contamination)
 
         self.activation_hidden = activation_hidden
@@ -213,7 +223,8 @@ class AnoGAN(BaseDetector):
         check_parameter(dropout_rate, 0, 1,
                         param_name='dropout_rate', include_left=True)
 
-    def plot_learning_curves(self, start_ind=0, window_smoothening=10):  # pragma: no cover
+    def plot_learning_curves(self, start_ind=0,
+                             window_smoothening=10):  # pragma: no cover
         fig = plt.figure(figsize=(12, 5))
         l_gen = pd.Series(self.hist_loss_generator[start_ind:]).rolling(
             window_smoothening).mean()
@@ -275,7 +286,7 @@ class AnoGAN(BaseDetector):
                                            D_layers=self.D_layers,
                                            dropout_rate=self.dropout_rate,
                                            activation_hidden=self.activation_hidden)
-        
+
         self.generator.to(self.device)
         self.discriminator.to(self.device)
 
@@ -303,15 +314,20 @@ class AnoGAN(BaseDetector):
                 real_output = self.discriminator(X_train_sel)
                 fake_output = self.discriminator(generated_data.detach())
 
-                loss_D_real = nn.BCELoss()(real_output, torch.ones_like(real_output) * 0.9).to(self.device)
-                loss_D_fake = nn.BCELoss()(fake_output, torch.zeros_like(fake_output)).to(self.device)
+                loss_D_real = nn.BCELoss()(real_output, torch.ones_like(
+                    real_output) * 0.9).to(self.device)
+                loss_D_fake = nn.BCELoss()(fake_output,
+                                           torch.zeros_like(fake_output)).to(
+                    self.device)
                 loss_D = loss_D_real + loss_D_fake
                 optimizer_d.zero_grad()
                 loss_D.backward()
                 optimizer_d.step()
 
                 fake_output = self.discriminator(generated_data)
-                loss_G = nn.BCELoss()(fake_output, torch.ones_like(fake_output)).to(self.device)
+                loss_G = nn.BCELoss()(fake_output,
+                                      torch.ones_like(fake_output)).to(
+                    self.device)
                 optimizer_g.zero_grad()
                 loss_G.backward()
                 optimizer_g.step()
@@ -323,7 +339,8 @@ class AnoGAN(BaseDetector):
         self.generator.eval()
         self.discriminator.eval()
         self.query_model = QueryModel(
-            self.generator, self.discriminator, self.latent_dim_G).to(self.device)
+            self.generator, self.discriminator, self.latent_dim_G).to(
+            self.device)
         optimizer_query = optim.Adam(
             self.query_model.parameters(), lr=self.learning_rate_query)
         scores = []
@@ -355,7 +372,9 @@ class AnoGAN(BaseDetector):
                     torch.abs(query_sample - sample_gen), axis=-1))
                 # Reconstruction loss latent space of discrimator
                 loss_recon_disc = torch.mean(torch.mean(
-                    torch.abs(sample_disc_latent_original - sample_disc_latent), axis=-1))
+                    torch.abs(
+                        sample_disc_latent_original - sample_disc_latent),
+                    axis=-1))
                 total_loss = loss_recon_gen + loss_recon_disc
 
                 optimizer_query.zero_grad()
@@ -416,7 +435,9 @@ class AnoGAN(BaseDetector):
                 loss_recon_gen = torch.mean(torch.mean(
                     torch.abs(query_sample - sample_gen), axis=-1))
                 loss_recon_disc = torch.mean(torch.mean(
-                    torch.abs(sample_disc_latent_original - sample_disc_latent), axis=-1))
+                    torch.abs(
+                        sample_disc_latent_original - sample_disc_latent),
+                    axis=-1))
                 total_loss = loss_recon_gen + loss_recon_disc
                 pred_scores.append(total_loss.item())
 

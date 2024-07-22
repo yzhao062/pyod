@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-from __future__ import print_function
 
 import os
 import sys
@@ -60,7 +58,6 @@ class TestIForest(unittest.TestCase):
                 self.clf.n_features_in_ is not None)
         assert (hasattr(self.clf, 'offset_') and
                 self.clf.offset_ is not None)
-        
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

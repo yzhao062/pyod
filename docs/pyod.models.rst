@@ -29,6 +29,7 @@ pyod.models.alad module
 
 .. automodule:: pyod.models.alad
     :members:
+    :exclude-members: get_params, set_params, train_step, train_more, get_outlier_scores
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -158,6 +159,7 @@ pyod.models.gmm module
 
 .. automodule:: pyod.models.gmm
     :members:
+    :exclude-members: weights_, get_params, set_params, n_iter_, lower_bound_, means_, converged_, covariances_
     :undoc-members:
     :show-inheritance:
     :inherited-members:
@@ -412,6 +414,7 @@ pyod.models.vae module
 
 .. automodule:: pyod.models.vae
     :members:
+    :exclude-members: VAEModel, vae_loss
     :undoc-members:
     :show-inheritance:
     :inherited-members:

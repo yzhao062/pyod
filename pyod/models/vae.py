@@ -17,6 +17,11 @@ Reference:
 # License: BSD 2 clause
 
 
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 from torch import nn
 

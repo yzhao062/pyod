@@ -5,8 +5,6 @@
 # Author: Michiel Bongaerts (but not author of the R-graph method)
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import warnings
 

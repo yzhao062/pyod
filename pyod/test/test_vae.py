@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
+
 
 import os
 import sys
@@ -22,7 +21,7 @@ from pyod.utils.data import generate_data
 class TestVAE(unittest.TestCase):
     def assertHasAttr(self, obj, intended_attr):
         self.assertTrue(hasattr(obj, intended_attr))
-    
+
     def assertInRange(self, data, lower, upper):
         self.assertGreaterEqual(data.min(), lower)
         self.assertLessEqual(data.max(), upper)
@@ -61,8 +60,8 @@ class TestVAE(unittest.TestCase):
     def test_prediction_scores(self):
         pred_scores = self.clf.decision_function(self.X_test)
         self.assertEqual(pred_scores.shape[0], self.X_test.shape[0])
-        self.assertGreaterEqual(roc_auc_score(self.y_test, pred_scores), self.roc_floor)
-        
+        self.assertGreaterEqual(roc_auc_score(self.y_test, pred_scores),
+                                self.roc_floor)
 
     def test_prediction_labels(self):
         pred_labels = self.clf.predict(self.X_test)
@@ -81,7 +80,8 @@ class TestVAE(unittest.TestCase):
         self.assertInRange(pred_proba, 0, 1)
 
     def test_prediction_proba_parameter(self):
-        self.assertRaises(ValueError, self.clf.predict_proba, self.X_test, method='something')
+        self.assertRaises(ValueError, self.clf.predict_proba, self.X_test,
+                          method='something')
 
     def test_prediction_labels_confidence(self):
         pred_labels, confidence = self.clf.predict(self.X_test,
@@ -108,7 +108,7 @@ class TestVAE(unittest.TestCase):
                                    scoring='roc_auc_score')
         self.clf.fit_predict_score(self.X_test, self.y_test,
                                    scoring='prc_n_score')
-        self.assertRaises(NotImplementedError, self.clf.fit_predict_score, 
+        self.assertRaises(NotImplementedError, self.clf.fit_predict_score,
                           self.X_test, self.y_test, scoring='something')
 
     def tearDown(self):

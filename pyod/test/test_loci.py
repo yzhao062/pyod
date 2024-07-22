@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
+
 
 import os
 import sys
@@ -79,7 +78,6 @@ class TestLOCI(unittest.TestCase):
     def test_prediction_proba_parameter(self):
         with assert_raises(ValueError):
             self.clf.predict_proba(self.X_test, method='something')
-
 
     def test_prediction_labels_confidence(self):
         pred_labels, confidence = self.clf.predict(self.X_test,

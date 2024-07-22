@@ -4,11 +4,10 @@
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 from joblib.parallel import cpu_count
+
 
 def _get_n_jobs(n_jobs):
     """Get number of jobs for the computation.
@@ -44,7 +43,8 @@ def _partition_estimators(n_estimators, n_jobs):
     n_jobs = min(_get_n_jobs(n_jobs), n_estimators)
 
     # Partition estimators between jobs
-    n_estimators_per_job = (n_estimators // n_jobs) * np.ones(n_jobs, dtype=int)
+    n_estimators_per_job = (n_estimators // n_jobs) * np.ones(n_jobs,
+                                                              dtype=int)
     n_estimators_per_job[:n_estimators % n_jobs] += 1
     starts = np.cumsum(n_estimators_per_job)
 

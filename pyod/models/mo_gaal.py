@@ -8,12 +8,19 @@ https://github.com/leibinghe/GAAL-based-outlier-detection
 from collections import defaultdict
 
 import numpy as np
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
 from .gaal_base import create_discriminator, create_generator

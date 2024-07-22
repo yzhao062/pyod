@@ -5,12 +5,18 @@
 # Author: Yuehan Qin <yuehanqi@usc.edu> for the PyTorch version
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 import torch.nn as nn
+import torch.optim as optim
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from torch.utils.data import DataLoader, TensorDataset
@@ -18,6 +24,20 @@ from torch.utils.data import DataLoader, TensorDataset
 from .base import BaseDetector
 from ..utils.torch_utility import get_activation_by_name, get_optimizer_by_name
 from ..utils.utility import check_parameter
+
+
+optimizer_dict = {
+    'sgd': optim.SGD,
+    'adam': optim.Adam,
+    'rmsprop': optim.RMSprop,
+    'adagrad': optim.Adagrad,
+    'adadelta': optim.Adadelta,
+    'adamw': optim.AdamW,
+    'nadam': optim.NAdam,
+    'sparseadam': optim.SparseAdam,
+    'asgd': optim.ASGD,
+    'lbfgs': optim.LBFGS
+}
 
 
 class InnerDeepSVDD(nn.Module):
@@ -39,11 +59,9 @@ class InnerDeepSVDD(nn.Module):
     hidden_activation : str, optional (default='relu')
         Activation function to use for hidden layers.
         All hidden layers are forced to use the same type of activation.
-        See https://keras.io/activations/
 
     output_activation : str, optional (default='sigmoid')
         Activation function to use for output layer.
-        See https://keras.io/activations/
 
     dropout_rate : float in (0., 1), optional (default=0.2)
         The dropout to be used across all layers.
@@ -51,7 +69,6 @@ class InnerDeepSVDD(nn.Module):
     l2_regularizer : float in (0., 1), optional (default=0.1)
         The regularization strength of activity_regularizer
         applied on each layer. By default, l2 regularizer is used. See
-        https://keras.io/regularizers/
     """
 
     def __init__(self, n_features, use_ae,

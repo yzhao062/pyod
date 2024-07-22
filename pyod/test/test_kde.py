@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function
+
 
 import os
 import sys
@@ -19,6 +19,7 @@ from pyod.utils.data import generate_data
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+
 class TestKDE(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
@@ -37,11 +38,12 @@ class TestKDE(unittest.TestCase):
 
     def test_parameters(self):
         assert (
-            hasattr(self.clf, "decision_scores_")
-            and self.clf.decision_scores_ is not None
+                hasattr(self.clf, "decision_scores_")
+                and self.clf.decision_scores_ is not None
         )
         assert hasattr(self.clf, "labels_") and self.clf.labels_ is not None
-        assert hasattr(self.clf, "threshold_") and self.clf.threshold_ is not None
+        assert hasattr(self.clf,
+                       "threshold_") and self.clf.threshold_ is not None
         assert hasattr(self.clf, "_mu") and self.clf._mu is not None
         assert hasattr(self.clf, "_sigma") and self.clf._sigma is not None
 
@@ -81,7 +83,8 @@ class TestKDE(unittest.TestCase):
             self.clf.predict_proba(self.X_test, method="something")
 
     def test_prediction_labels_confidence(self):
-        pred_labels, confidence = self.clf.predict(self.X_test, return_confidence=True)
+        pred_labels, confidence = self.clf.predict(self.X_test,
+                                                   return_confidence=True)
         assert_equal(pred_labels.shape, self.y_test.shape)
         assert_equal(confidence.shape, self.y_test.shape)
         assert confidence.min() >= 0
@@ -104,10 +107,13 @@ class TestKDE(unittest.TestCase):
 
     def test_fit_predict_score(self):
         self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test, scoring="roc_auc_score")
-        self.clf.fit_predict_score(self.X_test, self.y_test, scoring="prc_n_score")
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring="roc_auc_score")
+        self.clf.fit_predict_score(self.X_test, self.y_test,
+                                   scoring="prc_n_score")
         with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test, scoring="something")
+            self.clf.fit_predict_score(self.X_test, self.y_test,
+                                       scoring="something")
 
     def test_predict_rank(self):
         pred_scores = self.clf.decision_function(self.X_test)

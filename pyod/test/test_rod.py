@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
+
 
 import os
 import sys
@@ -12,8 +11,8 @@ from numpy.testing import *
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-from sklearn.base import clone
 from scipy.stats import rankdata
+from sklearn.base import clone
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line

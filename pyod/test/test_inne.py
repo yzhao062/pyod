@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-from __future__ import print_function
 
 import os
 import sys
@@ -22,6 +20,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.inne import INNE
 from pyod.utils.data import generate_data
+
 
 class TestINNE(unittest.TestCase):
     def setUp(self):

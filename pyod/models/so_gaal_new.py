@@ -9,6 +9,11 @@ https://github.com/leibinghe/GAAL-based-outlier-detection
 
 import math
 
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 import torch.nn as nn
 

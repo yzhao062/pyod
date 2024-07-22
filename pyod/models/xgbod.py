@@ -2,10 +2,9 @@
 """XGBOD: Improving Supervised Outlier Detection with Unsupervised
 Representation Learning. A semi-supervised outlier detection framework.
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
-from __future__ import division
-from __future__ import print_function
+
 
 import numpy as np
 from sklearn.metrics import roc_auc_score
@@ -246,7 +245,7 @@ class XGBOD(BaseDetector):
     def _validate_estimator(self, X):
         if self.estimator_list is None:
             self.estimator_list, \
-            self.standardization_flag_list = self._init_detectors(X)
+                self.standardization_flag_list = self._init_detectors(X)
 
         # perform standardization for all detectors by default
         if self.standardization_flag_list is None:

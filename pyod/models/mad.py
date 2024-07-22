@@ -6,8 +6,6 @@ Strictly for Univariate Data.
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 from sklearn.utils import check_array
@@ -123,9 +121,11 @@ class MAD(BaseDetector):
         """
         obs = np.reshape(X, (-1, 1))
         # `self.median` will be None only before `fit()` is called
-        self.median_ = np.nanmedian(obs) if self.median_ is None else self.median_
+        self.median_ = np.nanmedian(
+            obs) if self.median_ is None else self.median_
         diff = np.abs(obs - self.median_)
-        self.median_diff_ = np.nanmedian(diff) if self.median_diff_ is None else self.median_diff_
+        self.median_diff_ = np.nanmedian(
+            diff) if self.median_diff_ is None else self.median_diff_
         return np.nan_to_num(np.ravel(0.6745 * diff / self.median_diff_))
 
     def _process_decision_scores(self):
@@ -140,7 +140,8 @@ class MAD(BaseDetector):
         -------
         self
         """
-        self.labels_ = (self.decision_scores_ > self.threshold).astype('int').ravel()
+        self.labels_ = (self.decision_scores_ > self.threshold).astype(
+            'int').ravel()
 
         # calculate for predict_proba()
         self._mu = np.nanmean(self.decision_scores_)

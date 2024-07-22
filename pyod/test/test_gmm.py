@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function
+
 
 import os
 import sys
@@ -34,27 +34,33 @@ class TestGMM(unittest.TestCase):
             random_state=42,
         )
 
-        self.clf = GMM(n_components=self.n_components, contamination=self.contamination)
+        self.clf = GMM(n_components=self.n_components,
+                       contamination=self.contamination)
         self.clf.fit(self.X_train)
 
     def test_parameters(self):
         assert (
-            hasattr(self.clf, "decision_scores_")
-            and self.clf.decision_scores_ is not None
+                hasattr(self.clf, "decision_scores_")
+                and self.clf.decision_scores_ is not None
         )
         assert hasattr(self.clf, "labels_") and self.clf.labels_ is not None
-        assert hasattr(self.clf, "threshold_") and self.clf.threshold_ is not None
+        assert hasattr(self.clf,
+                       "threshold_") and self.clf.threshold_ is not None
         assert hasattr(self.clf, "weights_") and self.clf.weights_ is not None
         assert hasattr(self.clf, "means_") and self.clf.means_ is not None
-        assert hasattr(self.clf, "covariances_") and self.clf.covariances_ is not None
-        assert hasattr(self.clf, "precisions_") and self.clf.precisions_ is not None
+        assert hasattr(self.clf,
+                       "covariances_") and self.clf.covariances_ is not None
+        assert hasattr(self.clf,
+                       "precisions_") and self.clf.precisions_ is not None
         assert (
-            hasattr(self.clf, "precisions_cholesky_")
-            and self.clf.precisions_cholesky_ is not None
+                hasattr(self.clf, "precisions_cholesky_")
+                and self.clf.precisions_cholesky_ is not None
         )
-        assert hasattr(self.clf, "converged_") and self.clf.converged_ is not None
+        assert hasattr(self.clf,
+                       "converged_") and self.clf.converged_ is not None
         assert hasattr(self.clf, "n_iter_") and self.clf.n_iter_ is not None
-        assert hasattr(self.clf, "lower_bound_") and self.clf.lower_bound_ is not None
+        assert hasattr(self.clf,
+                       "lower_bound_") and self.clf.lower_bound_ is not None
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

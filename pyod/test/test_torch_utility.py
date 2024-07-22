@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
+
 
 import os
 import sys
 import unittest
 
 import numpy as np
-import torch
-from torch import nn
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -40,7 +37,8 @@ class TestBaseDL(unittest.TestCase):
             self.assertTrue(torch.equal(data, torch.ones(2, 2)))
             self.assertTrue(torch.equal(target, torch.ones(2)))
 
-        train_dataset = TorchDataset(X=self.X_train, mean=self.mean, std=self.std)
+        train_dataset = TorchDataset(X=self.X_train, mean=self.mean,
+                                     std=self.std)
         train_loader = torch.utils.data.DataLoader(train_dataset,
                                                    batch_size=2,
                                                    shuffle=True)
@@ -50,11 +48,12 @@ class TestBaseDL(unittest.TestCase):
             self.assertTrue(torch.equal(data, torch.zeros(2, 2)))
 
     def test_linear_block(self):
-        train_dataset = TorchDataset(X=self.X_train, mean=self.mean, std=self.std)
+        train_dataset = TorchDataset(X=self.X_train, mean=self.mean,
+                                     std=self.std)
         train_loader = torch.utils.data.DataLoader(train_dataset,
                                                    batch_size=2,
                                                    shuffle=True)
-        dummy_block = LinearBlock(in_features=2, out_features=1, 
+        dummy_block = LinearBlock(in_features=2, out_features=1,
                                   batch_norm=True, dropout_rate=0.2)
 
         for data in train_loader:
@@ -68,7 +67,7 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(dummy_relu.inplace, False)
         self.assertTrue(
             torch.equal(
-                dummy_relu(torch.tensor([-1.0, 0.0, 1.0])), 
+                dummy_relu(torch.tensor([-1.0, 0.0, 1.0])),
                 torch.tensor([0.0, 0.0, 1.0])
             )
         )
@@ -80,13 +79,14 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(dummy_elu.alpha, 1.0)
         self.assertTrue(
             torch.equal(
-                dummy_elu(torch.tensor([torch.log(torch.tensor(0.5)), 0.0, 1.0])),
+                dummy_elu(
+                    torch.tensor([torch.log(torch.tensor(0.5)), 0.0, 1.0])),
                 torch.tensor([-0.5, 0.0, 1.0])
             )
         )
 
         # test leaky relu activation
-        dummy_leaky_relu = get_activation_by_name('leaky_relu', 
+        dummy_leaky_relu = get_activation_by_name('leaky_relu',
                                                   leaky_relu_negative_slope=0.1)
         self.assertIsInstance(dummy_leaky_relu, nn.LeakyReLU)
         self.assertEqual(dummy_leaky_relu.inplace, False)
@@ -103,7 +103,8 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsInstance(dummy_sigmoid, nn.Sigmoid)
         self.assertTrue(
             torch.equal(
-                dummy_sigmoid(torch.tensor([torch.log(torch.tensor(0.25)), 0.0, torch.log(torch.tensor(4.0))])),
+                dummy_sigmoid(torch.tensor([torch.log(torch.tensor(0.25)), 0.0,
+                                            torch.log(torch.tensor(4.0))])),
                 torch.tensor([0.2, 0.5, 0.8])
             )
         )
@@ -114,23 +115,27 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(dummy_softmax.dim, 1)
         self.assertTrue(
             torch.equal(
-                dummy_softmax(torch.tensor([[0.0, 0.0, torch.log(torch.tensor(2.0))], [0.0, torch.log(torch.tensor(2.0)), 0.0]])),
+                dummy_softmax(torch.tensor(
+                    [[0.0, 0.0, torch.log(torch.tensor(2.0))],
+                     [0.0, torch.log(torch.tensor(2.0)), 0.0]])),
                 torch.tensor([[0.25, 0.25, 0.5], [0.25, 0.5, 0.25]])
             )
         )
 
         # test softplus activation
-        dummy_softplus = get_activation_by_name('softplus', 
-                                                softplus_beta=1.0, 
+        dummy_softplus = get_activation_by_name('softplus',
+                                                softplus_beta=1.0,
                                                 softplus_threshold=20.0)
         self.assertIsInstance(dummy_softplus, nn.Softplus)
         self.assertEqual(dummy_softplus.beta, 1.0)
         self.assertEqual(dummy_softplus.threshold, 20.0)
         self.assertTrue(
             torch.equal(
-                dummy_softplus(torch.tensor([torch.log(torch.tensor(np.e - 1)), 
-                                             torch.log(torch.tensor(np.e**2 - 1)), 
-                                             torch.log(torch.tensor(np.e**3 - 1))])),
+                dummy_softplus(torch.tensor([torch.log(torch.tensor(np.e - 1)),
+                                             torch.log(
+                                                 torch.tensor(np.e ** 2 - 1)),
+                                             torch.log(torch.tensor(
+                                                 np.e ** 3 - 1))])),
                 torch.tensor([1.0, 2.0, 3.0])
             )
         )
@@ -140,29 +145,30 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsInstance(dummy_tanh, nn.Tanh)
         self.assertTrue(
             torch.equal(
-                dummy_tanh(torch.tensor([torch.log(torch.tensor(0.5)), 0.0, torch.log(torch.tensor(2.0))])),
+                dummy_tanh(torch.tensor([torch.log(torch.tensor(0.5)), 0.0,
+                                         torch.log(torch.tensor(2.0))])),
                 torch.tensor([-0.6, 0.0, 0.6])
             )
         )
 
         # test invalid activation
         self.assertRaises(ValueError, get_activation_by_name, name='random')
-        
+
     def test_get_optimizer_by_name(self):
         # define a dummy model
         dummy_model = nn.Linear(2, 1)
 
         # test adam optimizer
-        dummy_optimizer = get_optimizer_by_name(model=dummy_model, 
-                                                name='adam', 
-                                                lr=0.1, 
+        dummy_optimizer = get_optimizer_by_name(model=dummy_model,
+                                                name='adam',
+                                                lr=0.1,
                                                 weight_decay=0.01,
                                                 adam_eps=1e-8)
         self.assertIsInstance(dummy_optimizer, torch.optim.Adam)
         self.assertEqual(dummy_optimizer.param_groups[0]['lr'], 0.1)
         self.assertEqual(dummy_optimizer.param_groups[0]['weight_decay'], 0.01)
         self.assertEqual(dummy_optimizer.param_groups[0]['eps'], 1e-8)
-        
+
         # test sgd optimizer
         dummy_optimizer = get_optimizer_by_name(model=dummy_model,
                                                 name='sgd',
@@ -176,7 +182,8 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(dummy_optimizer.param_groups[0]['weight_decay'], 0.01)
 
         # test invalid optimizer
-        self.assertRaises(ValueError, get_optimizer_by_name, model=dummy_model, name='random')
+        self.assertRaises(ValueError, get_optimizer_by_name, model=dummy_model,
+                          name='random')
 
     def test_get_criterion_by_name(self):
         # test mse loss with reduction mean
@@ -184,7 +191,8 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsInstance(dummy_criterion, nn.MSELoss)
         self.assertTrue(
             torch.equal(
-                dummy_criterion(torch.tensor([3.0, 3.0]), torch.tensor([0.0, 0.0])),
+                dummy_criterion(torch.tensor([3.0, 3.0]),
+                                torch.tensor([0.0, 0.0])),
                 torch.tensor(9.0)
             )
         )
@@ -194,7 +202,8 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsInstance(dummy_criterion, nn.MSELoss)
         self.assertTrue(
             torch.equal(
-                dummy_criterion(torch.tensor([3.0, 3.0]), torch.tensor([0.0, 0.0])),
+                dummy_criterion(torch.tensor([3.0, 3.0]),
+                                torch.tensor([0.0, 0.0])),
                 torch.tensor(18.0)
             )
         )
@@ -204,7 +213,8 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsInstance(dummy_criterion, nn.MSELoss)
         self.assertTrue(
             torch.equal(
-                dummy_criterion(torch.tensor([3.0, 3.0]), torch.tensor([0.0, 0.0])),
+                dummy_criterion(torch.tensor([3.0, 3.0]),
+                                torch.tensor([0.0, 0.0])),
                 torch.tensor([9.0, 9.0])
             )
         )
@@ -214,7 +224,8 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsInstance(dummy_criterion, nn.L1Loss)
         self.assertTrue(
             torch.equal(
-                dummy_criterion(torch.tensor([3.0, 3.0]), torch.tensor([0.0, 0.0])),
+                dummy_criterion(torch.tensor([3.0, 3.0]),
+                                torch.tensor([0.0, 0.0])),
                 torch.tensor([3.0, 3.0])
             )
         )
@@ -224,7 +235,8 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsInstance(dummy_criterion, nn.BCELoss)
         self.assertTrue(
             torch.equal(
-                dummy_criterion(torch.tensor([1 / np.e, 1 - 1 / np.e]), torch.tensor([1.0, 0.0])),
+                dummy_criterion(torch.tensor([1 / np.e, 1 - 1 / np.e]),
+                                torch.tensor([1.0, 0.0])),
                 torch.tensor([1.0, 1.0])
             )
         )
@@ -235,34 +247,39 @@ class TestBaseDL(unittest.TestCase):
     def test_init_weights(self):
         # define a dummy layer
         dummy_layer = nn.Linear(2, 1)
-        
+
         # For the following initializers, 
         # we only test if the function can be called without error 
         # since the actual initialization is random and cannot be tested.
-        for name in ['uniform', 'normal', 'xavier_uniform', 
-                     'xavier_normal', 'kaiming_uniform', 'kaiming_normal', 
+        for name in ['uniform', 'normal', 'xavier_uniform',
+                     'xavier_normal', 'kaiming_uniform', 'kaiming_normal',
                      'trunc_normal', 'orthogonal']:
             init_weights(layer=dummy_layer, name=name)
         init_weights(layer=dummy_layer, name='sparse', sparse_sparsity=0.1)
 
         # test constant initializer
         init_weights(layer=dummy_layer, name='constant', constant_val=0.1)
-        self.assertTrue(torch.equal(dummy_layer.weight, torch.tensor([[0.1, 0.1]])))
+        self.assertTrue(
+            torch.equal(dummy_layer.weight, torch.tensor([[0.1, 0.1]])))
 
         # test ones initializer
         init_weights(layer=dummy_layer, name='ones')
-        self.assertTrue(torch.equal(dummy_layer.weight, torch.tensor([[1.0, 1.0]])))
+        self.assertTrue(
+            torch.equal(dummy_layer.weight, torch.tensor([[1.0, 1.0]])))
 
         # test zeros initializer
         init_weights(layer=dummy_layer, name='zeros')
-        self.assertTrue(torch.equal(dummy_layer.weight, torch.tensor([[0.0, 0.0]])))
+        self.assertTrue(
+            torch.equal(dummy_layer.weight, torch.tensor([[0.0, 0.0]])))
 
         # test eye initializer
         init_weights(layer=dummy_layer, name='eye')
-        self.assertTrue(torch.equal(dummy_layer.weight, torch.tensor([[1.0, 0.0]])))
+        self.assertTrue(
+            torch.equal(dummy_layer.weight, torch.tensor([[1.0, 0.0]])))
 
         # test invalid initializer
-        self.assertRaises(ValueError, init_weights, layer=dummy_layer, name='random')
+        self.assertRaises(ValueError, init_weights, layer=dummy_layer,
+                          name='random')
 
     def tearDown(self):
         pass
@@ -270,5 +287,3 @@ class TestBaseDL(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
