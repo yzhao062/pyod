@@ -208,6 +208,7 @@ def load_model_weight_predict(model, x_test):
 
 class DevNet(BaseDetector):
     """
+    
     Deviation network (DevNet) is introduced in our KDD19 paper, which 
     leverages a limited number of labeled anomaly data and a large set of 
     unlabeled data to perform end-to-end anomaly score learning. It addresses 
