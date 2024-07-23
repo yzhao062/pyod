@@ -20,4 +20,4 @@
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
 #
-__version__ = '1.1.4'  # pragma: no cover
+__version__ = '2.0.1'  # pragma: no cover

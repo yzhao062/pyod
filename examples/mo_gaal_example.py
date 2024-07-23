@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import os
 import sys
+import torch
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -33,6 +34,11 @@ if __name__ == "__main__":
                       n_features=n_features,
                       contamination=contamination,
                       random_state=42)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    X_train = torch.tensor(X_train, dtype=torch.float32).to(device).cpu().numpy()
+    X_test = torch.tensor(X_test, dtype=torch.float32).to(device).cpu().numpy()
 
     # train MO_GAAL detector
     clf_name = 'MO_GAAL'
