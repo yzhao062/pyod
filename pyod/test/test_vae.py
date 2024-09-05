@@ -104,8 +104,10 @@ class TestVAE(unittest.TestCase):
         
     def test_prediction_with_rejection_stats(self):
         _, [expected_rejrate, ub_rejrate, ub_cost] = self.clf.predict_with_rejection(self.X_test, return_stats = True)
-        self.assertInRange(expected_rejrate, 0, 1)
-        self.assertInRange(ub_rejrate, 0, 1)
+        self.assertGreaterEqual(expected_rejrate, 0)
+        self.assertLessEqual(expected_rejrate, 1)
+        self.assertGreaterEqual(ub_rejrate, 0)
+        self.assertLessEqual(ub_rejrate, 1)
         self.assertGreaterEqual(ub_cost, 0)
 
     def test_fit_predict(self):
