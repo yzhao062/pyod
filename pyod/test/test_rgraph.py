@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
+
 
 import os
 import sys
@@ -35,8 +34,10 @@ class TestRGraph(unittest.TestCase):
             n_features=self.n_features, contamination=self.contamination,
             random_state=42)
 
-        self.clf = RGraph(n_nonzero=100, transition_steps=20, gamma=50, blocksize_test_data=20,
-                          tau=1, preprocessing=True, active_support=False, gamma_nz=False,
+        self.clf = RGraph(n_nonzero=100, transition_steps=20, gamma=50,
+                          blocksize_test_data=20,
+                          tau=1, preprocessing=True, active_support=False,
+                          gamma_nz=False,
                           maxiter_lasso=100, contamination=self.contamination,
                           algorithm='lasso_lars', verbose=0)
 

@@ -10,7 +10,8 @@ import torch.nn as nn
 
 class TorchDataset(torch.utils.data.Dataset):
     def __init__(self, X, y=None, mean=None, std=None, eps=1e-8,
-                 X_dtype=torch.float32, y_dtype=torch.float32):
+                 X_dtype=torch.float32, y_dtype=torch.float32,
+                 return_idx=False):
         self.X = X
         self.y = y
         self.mean = mean
@@ -18,6 +19,7 @@ class TorchDataset(torch.utils.data.Dataset):
         self.eps = eps
         self.X_dtype = X_dtype
         self.y_dtype = y_dtype
+        self.return_idx = return_idx
 
     def __len__(self):
         return len(self.X)
@@ -31,10 +33,17 @@ class TorchDataset(torch.utils.data.Dataset):
             sample = (sample - self.mean) / (self.std + self.eps)
 
         if self.y is not None:
-            return torch.as_tensor(sample, dtype=self.X_dtype), \
-                torch.as_tensor(self.y[idx], dtype=self.y_dtype)
+            if self.return_idx:
+                return torch.as_tensor(sample, dtype=self.X_dtype), \
+                    torch.as_tensor(self.y[idx], dtype=self.y_dtype), idx
+            else:
+                return torch.as_tensor(sample, dtype=self.X_dtype), \
+                    torch.as_tensor(self.y[idx], dtype=self.y_dtype)
         else:
-            return torch.as_tensor(sample, dtype=self.X_dtype)
+            if self.return_idx:
+                return torch.as_tensor(sample, dtype=self.X_dtype), idx
+            else:
+                return torch.as_tensor(sample, dtype=self.X_dtype)
 
 
 class LinearBlock(nn.Module):

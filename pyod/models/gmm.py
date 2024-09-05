@@ -5,7 +5,6 @@ Outlier detection based on Gaussian Mixture Model (GMM).
 # Author: Akira Tamamori <tamamori5917@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division, print_function
 
 from sklearn.mixture import GaussianMixture
 from sklearn.utils import check_array

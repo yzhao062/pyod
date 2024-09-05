@@ -4,8 +4,6 @@
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 from sklearn.covariance import MinCovDet
 from sklearn.utils.validation import check_array

@@ -7,10 +7,17 @@
 from copy import deepcopy
 
 import numpy as np
+
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
@@ -26,11 +33,14 @@ def generate_negative_samples(x, sample_type, proportion, epsilon):
     n_dim = x.shape[-1]
 
     # uniform samples in range [x.min(),x.max()]
-    rand_unif = x.min() + (x.max() - x.min()) * np.random.rand(n_samples, n_dim).astype('float32')
+    rand_unif = x.min() + (x.max() - x.min()) * np.random.rand(n_samples,
+                                                               n_dim).astype(
+        'float32')
     # subspace perturbation samples
     x_temp = x[np.random.choice(np.arange(len(x)), size=n_samples)]
     randmat = np.random.rand(n_samples, n_dim) < 0.3
-    rand_sub = x_temp + randmat * (epsilon * np.random.randn(n_samples, n_dim)).astype('float32')
+    rand_sub = x_temp + randmat * (
+            epsilon * np.random.randn(n_samples, n_dim)).astype('float32')
 
     if sample_type == 'UNIFORM':
         neg_x = rand_unif
@@ -152,8 +162,10 @@ class LUNAR(BaseDetector):
     ----------
     """
 
-    def __init__(self, model_type="WEIGHT", n_neighbours=5, negative_sampling="MIXED",
-                 val_size=0.1, scaler=MinMaxScaler(), epsilon=0.1, proportion=1.0,
+    def __init__(self, model_type="WEIGHT", n_neighbours=5,
+                 negative_sampling="MIXED",
+                 val_size=0.1, scaler=MinMaxScaler(), epsilon=0.1,
+                 proportion=1.0,
                  n_epochs=200, lr=0.001, wd=0.1, verbose=0, contamination=0.1):
         super(LUNAR, self).__init__(contamination=contamination)
 
@@ -168,7 +180,8 @@ class LUNAR(BaseDetector):
         self.wd = wd
         self.val_size = val_size
         self.verbose = verbose
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device(
+            'cuda' if torch.cuda.is_available() else 'cpu')
 
         if model_type == "SCORE":
             self.network = SCORE_MODEL(n_neighbours).to(self.device)
@@ -195,7 +208,8 @@ class LUNAR(BaseDetector):
         y = np.zeros(len(X))
 
         # split training and validation sets
-        train_x, val_x, train_y, val_y = train_test_split(X, y, test_size=self.val_size)
+        train_x, val_x, train_y, val_y = train_test_split(X, y,
+                                                          test_size=self.val_size)
 
         # fit data scaler to the training set if scaler has been passed
         if (self.scaler == None):
@@ -211,9 +225,14 @@ class LUNAR(BaseDetector):
             val_x = self.scaler.transform(val_x)
 
         # generate negative samples for training and validation set seperately 
-        neg_train_x, neg_train_y = generate_negative_samples(train_x, self.negative_sampling, self.proportion,
+        neg_train_x, neg_train_y = generate_negative_samples(train_x,
+                                                             self.negative_sampling,
+                                                             self.proportion,
                                                              self.epsilon)
-        neg_val_x, neg_val_y = generate_negative_samples(val_x, self.negative_sampling, self.proportion, self.epsilon)
+        neg_val_x, neg_val_y = generate_negative_samples(val_x,
+                                                         self.negative_sampling,
+                                                         self.proportion,
+                                                         self.epsilon)
 
         train_x = np.vstack((train_x, neg_train_x))
         train_y = np.hstack((train_y, neg_train_y))
@@ -224,21 +243,26 @@ class LUNAR(BaseDetector):
         self.neigh.fit(train_x)
 
         # nearest neighbours of training set
-        train_dist, _ = self.neigh.kneighbors(train_x[train_y == 0], n_neighbors=self.n_neighbours + 1)
-        neg_train_dist, _ = self.neigh.kneighbors(train_x[train_y == 1], n_neighbors=self.n_neighbours)
+        train_dist, _ = self.neigh.kneighbors(train_x[train_y == 0],
+                                              n_neighbors=self.n_neighbours + 1)
+        neg_train_dist, _ = self.neigh.kneighbors(train_x[train_y == 1],
+                                                  n_neighbors=self.n_neighbours)
         # remove self loops of normal training points
         train_dist = np.vstack((train_dist[:, 1:], neg_train_dist))
         # nearest neighbours of validation set
-        val_dist, _ = self.neigh.kneighbors(val_x, n_neighbors=self.n_neighbours)
+        val_dist, _ = self.neigh.kneighbors(val_x,
+                                            n_neighbors=self.n_neighbours)
 
-        train_dist = torch.tensor(train_dist, dtype=torch.float32).to(self.device)
+        train_dist = torch.tensor(train_dist, dtype=torch.float32).to(
+            self.device)
         train_y = torch.tensor(train_y, dtype=torch.float32).to(self.device)
         val_dist = torch.tensor(val_dist, dtype=torch.float32).to(self.device)
         val_y = torch.tensor(val_y, dtype=torch.float32).to(self.device)
         # loss function
         criterion = nn.MSELoss(reduction='none')
         # optimizer
-        optimizer = optim.Adam(self.network.parameters(), lr=self.lr, weight_decay=self.wd)
+        optimizer = optim.Adam(self.network.parameters(), lr=self.lr,
+                               weight_decay=self.wd)
         # for early stopping
         best_val_score = 0
         # model training
@@ -258,8 +282,10 @@ class LUNAR(BaseDetector):
                 # save best model
                 if val_score >= best_val_score:
                     best_dict = {'epoch': epoch,
-                                 'model_state_dict': deepcopy(self.network.state_dict()),
-                                 'optimizer_state_dict': deepcopy(optimizer.state_dict()),
+                                 'model_state_dict': deepcopy(
+                                     self.network.state_dict()),
+                                 'optimizer_state_dict': deepcopy(
+                                     optimizer.state_dict()),
                                  'train_score': train_score,
                                  'val_score': val_score,
                                  }

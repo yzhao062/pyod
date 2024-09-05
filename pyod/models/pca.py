@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """Principal Component Analysis (PCA) Outlier Detector
 """
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 from scipy.spatial.distance import cdist

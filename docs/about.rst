@@ -71,7 +71,6 @@ Lorenzo Perini (Ph.D. Researcher, KU Leuven):
 - Joined 2023 (implemented prediction confidence and more)
 - `Homepage (Lorenzo Perini) <https://people.cs.kuleuven.be/~lorenzo.perini/>`_
 
-
 Tiankai Yang (PhD student @ USC):
 
 - Joined 2024 (implemented Pytorch version of algorithms)
@@ -91,3 +90,8 @@ Zhuo Xiao (MS student @ USC):
 
 - Joined 2024 (implemented Pytorch version of algorithms)
 - `Homepage (Zhuo Xiao) <https://www.linkedin.com/in/zhuox5/>`_
+
+Bourne Li (MS student @ USC):
+
+- Joined 2024 (implemented Pytorch version of algorithms)
+- `Homepage (Bourne Li) <https://www.linkedin.com/in/bourne-li-a9a899231/>`_

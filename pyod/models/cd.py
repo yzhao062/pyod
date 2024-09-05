@@ -5,8 +5,6 @@
 # Author: D Kulik
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 from sklearn.linear_model import LinearRegression

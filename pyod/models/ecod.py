@@ -2,11 +2,9 @@
 Empirical Cumulative Distribution Functions (ECOD)
 """
 # Author: Zheng Li <jk_zhengli@hotmail.com>
-# Author: Yue Zhao <zhaoy@cmu.edu>
+# Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
 
 import warnings
 

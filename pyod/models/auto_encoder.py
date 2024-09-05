@@ -5,6 +5,11 @@
 # License: BSD 2 clause
 
 
+try:
+    import torch
+except ImportError:
+    print('please install torch first')
+
 from torch import nn
 
 from pyod.models.base_dl import BaseDeepLearningDetector

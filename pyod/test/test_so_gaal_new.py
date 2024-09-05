@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
+
 
 import os
 import sys
@@ -21,9 +20,10 @@ class TestSO_GAAL(unittest.TestCase):
     Notes: GAN may yield unstable results, so the test is design for running
     models only, without any performance check.
     """
+
     def assertHasAttr(self, obj, intended_attr):
         self.assertTrue(hasattr(obj, intended_attr))
-    
+
     def assertInRange(self, data, lower, upper):
         self.assertGreaterEqual(data.min(), lower)
         self.assertLessEqual(data.max(), upper)
@@ -33,7 +33,7 @@ class TestSO_GAAL(unittest.TestCase):
         self.n_test = 200
         self.n_features = 2
         self.contamination = 0.1
-        
+
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             n_features=self.n_features, contamination=self.contamination,
@@ -82,7 +82,8 @@ class TestSO_GAAL(unittest.TestCase):
         self.assertInRange(pred_proba, 0, 1)
 
     def test_prediction_proba_parameter(self):
-        self.assertRaises(ValueError, self.clf.predict_proba, self.X_test, method='something')
+        self.assertRaises(ValueError, self.clf.predict_proba, self.X_test,
+                          method='something')
 
     def test_prediction_labels_confidence(self):
         pred_labels, confidence = self.clf.predict(self.X_test,
@@ -109,7 +110,7 @@ class TestSO_GAAL(unittest.TestCase):
                                    scoring='roc_auc_score')
         self.clf.fit_predict_score(self.X_test, self.y_test,
                                    scoring='prc_n_score')
-        self.assertRaises(NotImplementedError, self.clf.fit_predict_score, 
+        self.assertRaises(NotImplementedError, self.clf.fit_predict_score,
                           self.X_test, self.y_test, scoring='something')
 
     def tearDown(self):
