@@ -100,11 +100,14 @@ class TestAutoEncoder(unittest.TestCase):
         self.assertInRange(confidence, 0, 1)
 
     def test_prediction_with_rejection(self):
-        pred_labels = self.clf.predict_with_rejection(self.X_test, return_stats = False)
+        pred_labels = self.clf.predict_with_rejection(self.X_test,
+                                                      return_stats=False)
         self.assertEqual(pred_labels.shape, self.y_test.shape)
-        
+
     def test_prediction_with_rejection_stats(self):
-        _, [expected_rejrate, ub_rejrate, ub_cost] = self.clf.predict_with_rejection(self.X_test, return_stats = True)
+        _, [expected_rejrate, ub_rejrate,
+            ub_cost] = self.clf.predict_with_rejection(self.X_test,
+                                                       return_stats=True)
         self.assertGreaterEqual(expected_rejrate, 0)
         self.assertLessEqual(expected_rejrate, 1)
         self.assertGreaterEqual(ub_rejrate, 0)
