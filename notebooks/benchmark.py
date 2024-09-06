@@ -38,6 +38,35 @@ from pyod.models.pca import PCA
 from pyod.models.cof import COF
 from pyod.models.sod import SOD
 
+
+from pyod.models.auto_encoder import AutoEncoder
+from pyod.models.cd import CD
+from pyod.models.copod import COPOD
+from pyod.models.dif import DIF
+from pyod.models.ecod import ECOD
+from pyod.models.gmm import GMM
+from pyod.models.kde import KDE
+from pyod.models.lmdd import LMDD
+from pyod.models.loci import LOCI  #19S
+from pyod.models.loda import LODA
+from pyod.models.qmcd import QMCD
+from pyod.models.sampling import Sampling
+from pyod.models.sos import SOS
+
+from pyod.models.alad import ALAD   #40s
+from pyod.models.anogan import AnoGAN  #151s
+from pyod.models.inne import INNE
+from pyod.models.kpca import KPCA
+from pyod.models.lscp import LSCP
+from pyod.models.lunar import LUNAR
+from pyod.models.mad import MAD
+from pyod.models.mo_gaal import MO_GAAL
+from pyod.models.rgraph import RGraph  #271S
+from pyod.models.rod import ROD
+from pyod.models.so_gaal import SO_GAAL
+from pyod.models.sod import SOD
+from pyod.models.vae import VAE
+
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import precision_n_scores
 from sklearn.metrics import roc_auc_score
@@ -61,15 +90,19 @@ mat_file_list = ['arrhythmia.mat',
                  'shuttle.mat',
                  'vertebral.mat',
                  'vowels.mat',
-                 'wbc.mat']
+                 'wbc.mat'
+                 ]
 
 # define the number of iterations
-n_ite = 10
-n_classifiers = 10
+n_ite = 1
 
 df_columns = ['Data', '#Samples', '# Dimensions', 'Outlier Perc',
               'ABOD', 'CBLOF', 'FB', 'HBOS', 'IForest', 'KNN', 'LOF',
-              'MCD', 'OCSVM', 'PCA']
+              'MCD', 'OCSVM', 'PCA', 'AutoEncoder', 'CD', 'COPOD', 'DIF', 'ECOD',
+              'GMM', 'KDE', 'LODA', 'QMCD','Sampling', 'SOS', 'ALAD', 'AnoGAN ',
+              'INNE', 'KPCA', 'LMDD', 'LOCI', 'LSCP', 'LUNAR', 'MO_GAAL', 'RGraph', 'SO_GAAL', 'SOD', 'VAE']
+
+n_classifiers = len(df_columns)-4
 
 # initialize the container for saving the results
 roc_df = pd.DataFrame(columns=df_columns)
@@ -106,27 +139,71 @@ for j in range(len(mat_file_list)):
         # standardizing data for processing
         X_train_norm, X_test_norm = standardizer(X_train, X_test)
 
-        classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
-            contamination=outliers_fraction),
+        classifiers = {
+            'Angle-based Outlier Detector (ABOD)': ABOD(
+                contamination=outliers_fraction),
             'Cluster-based Local Outlier Factor': CBLOF(
                 n_clusters=10,
                 contamination=outliers_fraction,
                 check_estimator=False,
                 random_state=random_state),
-            'Feature Bagging': FeatureBagging(contamination=outliers_fraction,
-                                              random_state=random_state),
+            'Feature Bagging': FeatureBagging(
+                contamination=outliers_fraction,
+                random_state=random_state),
             'Histogram-base Outlier Detection (HBOS)': HBOS(
                 contamination=outliers_fraction),
-            'Isolation Forest': IForest(contamination=outliers_fraction,
-                                        random_state=random_state),
-            'K Nearest Neighbors (KNN)': KNN(contamination=outliers_fraction),
+            'Isolation Forest': IForest(
+                contamination=outliers_fraction,
+                random_state=random_state),
+            'K Nearest Neighbors (KNN)': KNN(
+                contamination=outliers_fraction),
             'Local Outlier Factor (LOF)': LOF(
                 contamination=outliers_fraction),
             'Minimum Covariance Determinant (MCD)': MCD(
-                contamination=outliers_fraction, random_state=random_state),
-            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
+                contamination=outliers_fraction,
+                random_state=random_state),
+            'One-class SVM (OCSVM)': OCSVM(
+                contamination=outliers_fraction),
             'Principal Component Analysis (PCA)': PCA(
-                contamination=outliers_fraction, random_state=random_state),
+                contamination=outliers_fraction,
+                random_state=random_state),
+            'AutoEncoder': AutoEncoder(
+                contamination=outliers_fraction),
+            'CD': CD(
+                contamination=outliers_fraction),
+            'COPOD': COPOD(
+                contamination=outliers_fraction),
+            'DIF': DIF(
+                contamination=outliers_fraction),
+            'ECOD': ECOD(
+                contamination=outliers_fraction),
+            'GMM': GMM(
+                contamination=outliers_fraction),
+            'KDE': KDE(
+                contamination=outliers_fraction),
+
+            'LODA': LODA(
+                contamination=outliers_fraction),
+            'QMCD': QMCD(
+                contamination=outliers_fraction),
+            'Sampling': Sampling(
+                contamination=outliers_fraction),
+            'SOS': SOS(
+                contamination=outliers_fraction),
+            # 'ALAD': ALAD(
+            #     contamination=outliers_fraction),
+            # 'AnoGAN':AnoGAN(
+            #     contamination=outliers_fraction),
+            'INNE': INNE(contamination=outliers_fraction),
+            'KPCA': KPCA(contamination=outliers_fraction),
+            'LMDD': LMDD(contamination=outliers_fraction),
+            # 'LOCI': LOCI(contamination=outliers_fraction),
+            'LUNAR': LUNAR(contamination=outliers_fraction),
+            'MO_GAAL': MO_GAAL(contamination=outliers_fraction),
+            # 'RGraph': RGraph(contamination=outliers_fraction),
+            # 'SO_GAAL': SO_GAAL(contamination=outliers_fraction),
+            'SOD': SOD(contamination=outliers_fraction),
+
         }
         classifiers_indices = {
             'Angle-based Outlier Detector (ABOD)': 0,
@@ -139,12 +216,47 @@ for j in range(len(mat_file_list)):
             'Minimum Covariance Determinant (MCD)': 7,
             'One-class SVM (OCSVM)': 8,
             'Principal Component Analysis (PCA)': 9,
+            'AutoEncoder': 10,
+            'CD': 11,
+            'COPOD': 12,
+            'DIF': 13,
+            'ECOD': 14,
+            'GMM': 15,
+            'KDE': 16,
+            'LODA': 17,
+            'QMCD': 18,
+            'Sampling': 19,
+            'SOS': 20,
+            'ALAD': 21,
+            'AnoGAN': 22,
+            'INNE': 23,
+            'KPCA': 24,
+            'LMDD': 25,
+            'LOCI': 26,
+            'LUNAR': 27,
+            'MO_GAAL': 28,
+            'RGraph': 29,
+            'SO_GAAL': 30,
+            'SOD': 31,
+
+
+
         }
+
 
         for clf_name, clf in classifiers.items():
             t0 = time()
             clf.fit(X_train_norm)
             test_scores = clf.decision_function(X_test_norm)
+
+            # Handle NaN values in test_scores
+            test_scores = np.nan_to_num(test_scores,
+                                        nan=0.0,
+                                        posinf=np.nanmax(test_scores),
+                                        neginf=np.nanmin(test_scores))
+            # Handle NaN values in y_test
+            y_test = np.nan_to_num(y_test, nan=0.0, posinf=0.0, neginf=0.0)
+
             t1 = time()
             duration = round(t1 - t0, ndigits=4)
 
