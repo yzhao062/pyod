@@ -125,6 +125,7 @@ class ECOD(BaseDetector):
             The anomaly score of the input samples.
         """
         # use multi-thread execution
+        X = check_array(X)
         if self.n_jobs != 1:
             return self._decision_function_parallel(X)
         if hasattr(self, 'X_train'):
