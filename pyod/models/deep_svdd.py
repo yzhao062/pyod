@@ -336,23 +336,24 @@ class DeepSVDD(BaseDetector):
 
         optimizer = optimizer_dict[self.optimizer](self.model_.parameters(),
                                                    weight_decay=self.l2_regularizer)
-        w_d = 1e-6 * sum(
-            [torch.linalg.norm(w) for w in self.model_.parameters()])
-
+        
         for epoch in range(self.epochs):
             self.model_.train()
             epoch_loss = 0
             for batch_x, _ in dataloader:
-                optimizer.zero_grad()
                 outputs = self.model_(batch_x)
                 dist = torch.sum((outputs - self.c) ** 2, dim=-1)
+
+                w_d = 1e-6 * sum([torch.linalg.norm(w) for w in self.model_.parameters()])
+                
                 if self.use_ae:
                     loss = torch.mean(dist) + w_d + torch.mean(
                         torch.square(outputs - batch_x))
                 else:
                     loss = torch.mean(dist) + w_d
 
-                # loss.backward()
+                optimizer.zero_grad()
+                loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
                 if epoch_loss < best_loss:
