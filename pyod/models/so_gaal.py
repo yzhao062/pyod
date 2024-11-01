@@ -149,7 +149,7 @@ class SO_GAAL(BaseDetector):
 
         dataloader = DataLoader(
             TensorDataset(torch.tensor(X, dtype=torch.float32)),
-            batch_size= data_size,
+            batch_size=data_size,
             shuffle=True)
 
         for epoch in range(epochs):
