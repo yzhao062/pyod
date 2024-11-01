@@ -179,8 +179,7 @@ class SO_GAAL(BaseDetector):
                 optimizer_d.step()
 
                 self.train_history['discriminator_loss'].append(d_loss.item())
-
-                # 在这里重新定义 trick_labels
+                
                 trick_labels = torch.ones(batch_size, 1)
 
                 if stop == 0:
