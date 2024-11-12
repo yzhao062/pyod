@@ -179,10 +179,11 @@ class SO_GAAL(BaseDetector):
                 optimizer_d.step()
 
                 self.train_history['discriminator_loss'].append(d_loss.item())
+                
+                trick_labels = torch.ones(batch_size, 1)
 
                 if stop == 0:
                     # Train Generator
-                    trick_labels = torch.ones(batch_size, 1)
                     g_loss = criterion(
                         self.discriminator(self.generator(noise)),
                         trick_labels)
@@ -197,6 +198,7 @@ class SO_GAAL(BaseDetector):
                         self.discriminator(self.generator(noise)),
                         trick_labels)
                     self.train_history['generator_loss'].append(g_loss.item())
+
 
             if epoch + 1 > self.stop_epochs:
                 stop = 1
