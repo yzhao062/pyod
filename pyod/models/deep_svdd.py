@@ -107,7 +107,7 @@ class InnerDeepSVDD(nn.Module):
         layers.add_module('cnn_pool', nn.MaxPool2d(kernel_size=2, stride=2))
         layers.add_module('cnn_layer2', nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1))
         layers.add_module('cnn_activation2', nn.ReLU())
-        layers.add_module('cnn_adaptive_pool', nn.AdaptiveMaxPool2d((21, 32)))
+        layers.add_module('cnn_adaptive_pool', nn.AdaptiveMaxPool2d((32, 32)))
         layers.add_module('flatten', nn.Flatten())
         layers.add_module('cnn_fc', nn.Linear(32 * 32 * 32, self.n_features, bias=False))
         layers.add_module('cnn_fc_activation', nn.ReLU())
