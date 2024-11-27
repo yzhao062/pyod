@@ -100,16 +100,18 @@ class InnerDeepSVDD(nn.Module):
 
     def _build_model(self):
         layers = nn.Sequential()
+
         channels = self.input_shape[0]
-        layers.add_module('cnn_layer1', nn.Conv2d(channels, 32, kernel_size=3, stride=1, padding=1))
+        layers.add_module('cnn_layer1', nn.Conv2d(channels, 16, kernel_size=3, stride=1, padding=1))
         layers.add_module('cnn_activation1', nn.ReLU())
         layers.add_module('cnn_pool', nn.MaxPool2d(kernel_size=2, stride=2))
-        layers.add_module('cnn_layer2', nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1))
+        layers.add_module('cnn_layer2', nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1))
         layers.add_module('cnn_activation2', nn.ReLU())
-        layers.add_module('cnn_adaptive_pool', nn.AdaptiveMaxPool2d((64, 64)))
+        layers.add_module('cnn_adaptive_pool', nn.AdaptiveMaxPool2d((21, 32)))
         layers.add_module('flatten', nn.Flatten())
-        layers.add_module('cnn_fc', nn.Linear(64 * 64 * 64, self.n_features, bias=False))
+        layers.add_module('cnn_fc', nn.Linear(32 * 32 * 32, self.n_features, bias=False))
         layers.add_module('cnn_fc_activation', nn.ReLU())
+
         layers.add_module('input_layer', nn.Linear(self.n_features, self.hidden_neurons[0], bias=False))
         layers.add_module('hidden_activation_e0', get_activation_by_name(self.hidden_activation))
         for i in range(1, len(self.hidden_neurons) - 1):
