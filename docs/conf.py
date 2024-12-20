@@ -50,8 +50,6 @@ extensions = [
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
     'sphinxcontrib.bibtex',
-    # 'sphinx.ext.napoleon',
-    # 'sphinx_rtd_theme',
 ]
 
 bibtex_bibfiles = ['zreferences.bib']
@@ -173,4 +171,7 @@ texinfo_documents = [
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None)
+}
+
