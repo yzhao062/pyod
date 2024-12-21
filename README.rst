@@ -1,5 +1,5 @@
-Python Outlier Detection (PyOD)
-===============================
+Python Outlier Detection (PyOD) V2
+==================================
 
 **Deployment & Documentation & Stats & License**
 
@@ -59,7 +59,7 @@ Read Me First
 
 Welcome to PyOD, a well-developed and easy-to-use Python library for detecting anomalies in multivariate data. Whether you are working with a small-scale project or large datasets, PyOD provides a range of algorithms to fit your needs.
 
-**PyOD Version 2 is now available** (`Paper <https://www.arxiv.org/abs/2412.12154>`_), featuring:
+**PyOD Version 2 is now available** (`Paper <https://www.arxiv.org/abs/2412.12154>`_) [#Chen2024PyOD]_, featuring:
 
 * **Expanded Deep Learning Support**: Integrates 12 modern neural models into a single PyTorch-based framework, bringing the total number of outlier detection methods to 45.
 * **Enhanced Performance and Ease of Use**: Models are optimized for efficiency and consistent performance across different datasets.
@@ -67,13 +67,14 @@ Welcome to PyOD, a well-developed and easy-to-use Python library for detecting a
 
 **Additional Resources**:
 
+* **NLP Anomaly Detection**: `NLP-ADBench <https://github.com/datamllab/tods>`_ provides both NLP anonaly detection datasets and algorithms
 * **Time-series Outlier Detection**: `TODS <https://github.com/datamllab/tods>`_
 * **Graph Outlier Detection**: `PyGOD <https://pygod.org/>`_
 * **Performance Comparison & Datasets**: Our 45-page `anomaly detection benchmark paper <https://openreview.net/forum?id=foA_SFQ9zo0>`_ and `ADBench <https://github.com/Minqi824/ADBench>`_, comparing 30 algorithms on 57 datasets
 * **PyOD on Distributed Systems**: `PyOD on Databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_
 * **Learn More**: `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
-**Check out our latest research in 2025 on LLM-based anomaly detection**: `AD-LLM: Benchmarking Large Language Models for Anomaly Detection <https://arxiv.org/abs/2412.11142>`_.
+**Check out our latest research in 2025 on LLM-based anomaly detection** [#Yang2024ad]_: `AD-LLM: Benchmarking Large Language Models for Anomaly Detection <https://arxiv.org/abs/2412.11142>`_.
 
 ----
 
@@ -83,7 +84,7 @@ About PyOD
 
 PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** in multivariate data. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
-PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000) to the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic research projects and commercial products with more than `22 million downloads <https://pepy.tech/project/pyod>`_. It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
+PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000) to the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic research projects and commercial products with more than `26 million downloads <https://pepy.tech/project/pyod>`_. It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
 **PyOD is featured for**:
 
@@ -537,6 +538,8 @@ Reference
 
 .. [#Cook1977Detection] Cook, R.D., 1977. Detection of influential observation in linear regression. Technometrics, 19(1), pp.15-18.
 
+.. [#Chen2024PyOD] Chen, S., Qian, Z., Siu, W., Hu, X., Li, J., Li, S., Qin, Y., Yang, T., Xiao, Z., Ye, W. and Zhang, Y., 2024. PyOD 2: A Python Library for Outlier Detection with LLM-powered Model Selection. arXiv preprint arXiv:2412.12154.
+
 .. [#Fang2001Wrap] Fang, K.T. and Ma, C.X., 2001. Wrap-around L2-discrepancy of random sampling, Latin hypercube and uniform designs. Journal of complexity, 17(4), pp.608-624.
 
 .. [#Goldstein2012Histogram] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*\ , pp.59-63.
@@ -608,6 +611,8 @@ Reference
 .. [#Wang2020adVAE] Wang, X., Du, Y., Lin, S., Cui, P., Shen, Y. and Yang, Y., 2019. adVAE: A self-adversarial variational autoencoder with Gaussian anomaly prior knowledge for anomaly detection. *Knowledge-Based Systems*.
 
 .. [#Xu2023Deep] Xu, H., Pang, G., Wang, Y., Wang, Y., 2023. Deep isolation forest for anomaly detection. *IEEE Transactions on Knowledge and Data Engineering*.
+
+.. [#Yang2024ad] Yang, T., Nian, Y., Li, S., Xu, R., Li, Y., Li, J., Xiao, Z., Hu, X., Rossi, R., Ding, K. and Hu, X., 2024. AD-LLM: Benchmarking Large Language Models for Anomaly Detection. arXiv preprint arXiv:2412.11142.
 
 .. [#You2017Provable] You, C., Robinson, D.P. and Vidal, R., 2017. Provable self-representation based outlier detection in a union of subspaces. In Proceedings of the IEEE conference on computer vision and pattern recognition.
 
