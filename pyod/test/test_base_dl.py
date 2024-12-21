@@ -40,8 +40,8 @@ class DummyUnchangeModel(nn.Module):
 
 
 class DummyDetector(BaseDeepLearningDetector):
-    def __init__(self, contamination=0.1, epoch_num=1, optimizer_name='adam', 
-                 loss_func=None, criterion=None, criterion_name='mse', 
+    def __init__(self, contamination=0.1, epoch_num=1, optimizer_name='adam',
+                 loss_func=None, criterion=None, criterion_name='mse',
                  verbose=1, preprocessing=True, use_compile=False):
         super(DummyDetector, self).__init__(contamination=contamination,
                                             epoch_num=epoch_num,
@@ -65,14 +65,14 @@ class DummyDetector(BaseDeepLearningDetector):
         loss.backward()
         self.optimizer.step()
         return loss.item()
-    
+
     def evaluating_forward(self, batch_data):
         return np.zeros(batch_data.shape[0])
-    
+
 
 class DummyDetector2(DummyDetector):
-    def __init__(self, contamination=0.1, epoch_num=1, optimizer_name='adam', 
-                 loss_func=None, criterion=None, criterion_name='mse', 
+    def __init__(self, contamination=0.1, epoch_num=1, optimizer_name='adam',
+                 loss_func=None, criterion=None, criterion_name='mse',
                  verbose=1, preprocessing=True, use_compile=False):
         super(DummyDetector2, self).__init__(contamination=contamination,
                                              epoch_num=epoch_num,
@@ -104,7 +104,7 @@ class TestBaseDL(unittest.TestCase):
 
     def assertNotHasAttr(self, obj, intended_attr):
         self.assertFalse(hasattr(obj, intended_attr))
-        
+
     def setUp(self):
         self.n_train = 100
         self.n_test = 50
@@ -112,15 +112,15 @@ class TestBaseDL(unittest.TestCase):
         self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
             n_train=self.n_train, n_test=self.n_test,
             contamination=self.contamination)
-        
+
     def test_init(self):
         dummy_clf = DummyDetector()
         dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.contamination, 0.1)
         self.assertIsInstance(dummy_clf.optimizer, torch.optim.Adam)
         self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
-        
-        dummy_clf = DummyDetector(contamination=0.2, optimizer_name='sgd', 
+
+        dummy_clf = DummyDetector(contamination=0.2, optimizer_name='sgd',
                                   loss_func=loss_function, criterion='mae')
         dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.contamination, 0.2)
@@ -140,7 +140,8 @@ class TestBaseDL(unittest.TestCase):
             dummy_clf.fit(self.X_train)
         self.assertRaises(ValueError, DummyDetector, loss_func=0)
         self.assertRaises(ValueError, DummyDetector, criterion=0)
-        self.assertRaises(ValueError, DummyDetector, criterion_name='dummy_criterion')
+        self.assertRaises(ValueError, DummyDetector,
+                          criterion_name='dummy_criterion')
 
     def test_fit_decision_function(self):
         zero_scores = np.zeros(self.n_train)
@@ -180,8 +181,9 @@ class TestBaseDL(unittest.TestCase):
         self.assertTrue(os.path.exists('dummy_clf.txt'))
 
         loaded_dummy_clf = DummyDetector.load('dummy_clf.txt')
-        self.assertEqual(loaded_dummy_clf.decision_function(self.X_train).all(),
-                         zero_scores.all())
+        self.assertEqual(
+            loaded_dummy_clf.decision_function(self.X_train).all(),
+            zero_scores.all())
 
         os.remove('dummy_clf.txt')
 

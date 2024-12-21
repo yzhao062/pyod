@@ -197,3 +197,5 @@ v<2.0.2>, <07/04/2024> -- Moving from TF to Torch -- reimplement ALAD.
 v<2.0.2>, <07/04/2024> -- Moving from TF to Torch -- reimplement anogan.
 v<2.0.2>, <07/06/2024> -- Complete of removing all Tensorflow and Keras code.
 v<2.0.2>, <07/21/2024> -- Add DevNet.
+v<2.0.3>, <09/06/2024> -- Add Reject Option in Unsupervised Anomaly Detection (#605).
+v<2.0.3>, <12/20/2024> -- Massive documentation polish.

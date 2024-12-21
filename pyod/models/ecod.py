@@ -55,7 +55,7 @@ class ECOD(BaseDetector):
     Cumulative Distribution Functions (ECOD)
     ECOD is a parameter-free, highly interpretable outlier detection algorithm
     based on empirical CDF functions.
-    See :cite:`Li2021ecod` for details.
+    See :cite:`li2021ecod` for details.
 
     Parameters
     ----------
