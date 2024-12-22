@@ -19,6 +19,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import deprecated
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted
+from scipy.optimize import root_scalar
 
 from .sklearn_base import _pprint
 from ..utils.utility import precision_n_scores
@@ -294,6 +295,167 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         return confidence
 
+    def predict_with_rejection(self, X, T=32, return_stats=False,
+                               delta=0.1, c_fp=1, c_fn=1, c_r=-1):
+        """Predict if a particular sample is an outlier or not, 
+           allowing the detector to reject (i.e., output = -2) 
+           low confidence predictions.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        T : int, optional(default=32)
+            It allows to set the rejection threshold to 1-2exp(-T).
+            The higher the value of T, the more rejections are made.
+            
+        return_stats: bool, optional (default = False)
+                      If true, it returns also three additional float values:
+                      the estimated rejection rate, the upper bound rejection
+                      rate, and the upper bound of the cost.
+                       
+        delta: float, optional (default = 0.1)
+               The upper bound rejection rate holds with probability 1-delta.
+                       
+        c_fp, c_fn, c_r: floats (positive), optional (default = [1,1, contamination])
+                         costs for false positive predictions (c_fp), false negative
+                         predictions (c_fn) and rejections (c_r).
+                
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+                         For each observation, it tells whether it should be
+                         considered as an outlier according to the fitted
+                         model. 0 stands for inliers, 1 for outliers and
+                         -2 for rejection.
+                                   
+        expected_rejection_rate:   float, if return_stats is True;
+        upperbound_rejection_rate: float, if return_stats is True;
+        upperbound_cost:           float, if return_stats is True;
+
+        """
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        if c_r < 0:
+            warnings.warn(
+                "The cost of rejection must be positive. "
+                "It has been set to the contamination rate.")
+            c_r = self.contamination
+
+        if delta <= 0 or delta >= 1:
+            warnings.warn(
+                "delta must belong to (0,1). It's value has been set to 0.1")
+            delta = 0.1
+
+        self.rejection_threshold_ = 1 - 2 * np.exp(-T)
+        prediction = self.predict(X)
+        confidence = self.predict_confidence(X)
+        np.place(confidence, prediction == 0, 1 - confidence[prediction == 0])
+        confidence = 2 * abs(confidence - .5)
+        prediction[np.where(confidence <= self.rejection_threshold_)[0]] = -2
+
+        if return_stats:
+            expected_rejrate, ub_rejrate, ub_cost = self.compute_rejection_stats(
+                T=T, delta=delta,
+                c_fp=c_fp, c_fn=c_fn, c_r=c_r)
+            return prediction, [expected_rejrate, ub_rejrate, ub_cost]
+
+        return prediction
+
+    def compute_rejection_stats(self, T=32, delta=0.1, c_fp=1, c_fn=1, c_r=-1,
+                                verbose=False):
+        """Add reject option into the unsupervised detector. 
+           This comes with guarantees: an estimate of the expected
+           rejection rate (return_rejectrate=True), an upper
+           bound of the rejection rate (return_ub_rejectrate= True),
+           and an upper bound on the cost (return_ub_cost=True).
+           
+        Parameters
+        ----------
+        T: int, optional(default=32)
+           It allows to set the rejection threshold to 1-2exp(-T).
+           The higher the value of T, the more rejections are made.
+            
+        delta: float, optional (default = 0.1)
+               The upper bound rejection rate holds with probability 1-delta.
+                       
+        c_fp, c_fn, c_r: floats (positive),
+                         optional (default = [1,1, contamination])
+                         costs for false positive predictions (c_fp),
+                         false negative predictions (c_fn) and rejections (c_r).
+                         
+        verbose: bool, optional (default = False)
+                 If true, it prints the expected rejection rate, the upper
+                 bound rejection rate, and the upper bound of the cost.
+
+        Returns
+        -------
+        expected_rejection_rate:   float, the expected rejection rate;
+        upperbound_rejection_rate: float, the upper bound for the rejection rate
+                                   satisfied with probability 1-delta;
+        upperbound_cost:           float, the upper bound for the cost;
+        """
+
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+
+        if c_r < 0:
+            c_r = self.contamination
+
+        if delta <= 0 or delta >= 1:
+            delta = 0.1
+
+        # Computing the expected rejection rate
+        n = len(self.decision_scores_)
+        n_gamma_minus1 = int(n * self.contamination) - 1
+        argsmin = (n_gamma_minus1, n, 1 - np.exp(-T))
+        argsmax = (n_gamma_minus1, n, np.exp(-T))
+        q1 = root_scalar(lambda p, k, n, C: binom.cdf(k, n, p) - C,
+                         bracket=[0, 1], method='brentq', args=argsmin).root
+        q2 = root_scalar(lambda p, k, n, C: binom.cdf(k, n, p) - C,
+                         bracket=[0, 1], method='brentq', args=argsmax).root
+        expected_reject_rate = q2 - q1
+
+        # Computing the upper bound for the rejection rate
+        right_mar = (-self.contamination * (n + 2) + n + 1) / n + (
+                    T * (n + 2)) / (np.sqrt(2 * n ** 3 * T))
+        right_mar = min(1, right_mar)
+        left_mar = (
+                (2 + n * (1 - self.contamination) * (n + 1)) / n ** 2
+                - np.sqrt(
+            0.5 * n ** 5 * (
+                    2 * n * (
+                    -3 * self.contamination ** 2
+                    - 2 * n * (1 - self.contamination) ** 2
+                    + 4 * self.contamination - 3
+            )
+                    + T * (n + 2) ** 2 - 8
+            )
+        ) / n ** 4
+        )
+        left_mar = max(0, left_mar)
+        add_term = 2 * np.sqrt(np.log(2 / delta) / (2 * n))
+        upperbound_rejectrate = right_mar - left_mar + add_term
+
+        # Computing the upper bound for the cost function
+        n_gamma_minus1 = int(n * self.contamination) - 1
+        argsmin = (n_gamma_minus1, n, 1 - np.exp(-T))
+        argsmax = (n_gamma_minus1, n, np.exp(-T))
+        q1 = root_scalar(lambda p, k, n, C: binom.cdf(k, n, p) - C,
+                         bracket=[0, 1], method='brentq', args=argsmin).root
+        q2 = root_scalar(lambda p, k, n, C: binom.cdf(k, n, p) - C,
+                         bracket=[0, 1], method='brentq', args=argsmax).root
+        upperbound_cost = np.min([self.contamination, q1]) * c_fp + np.min(
+            [1 - q2, self.contamination]) * c_fn + (q2 - q1) * c_r
+
+        if verbose:
+            print("Expected rejection rate: ",
+                  np.round(expected_reject_rate, 4), '%')
+            print("Upper bound rejection rate: ",
+                  np.round(upperbound_rejectrate, 4), '%')
+            print("Upper bound cost: ", np.round(upperbound_cost, 4))
+
+        return expected_reject_rate, upperbound_rejectrate, upperbound_cost
+
     def _predict_rank(self, X, normalized=False):
         """Predict the outlyingness rank of a sample by a fitted model. The
         method is for outlier detector score combination.
@@ -370,37 +532,6 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         return score
 
-    # def score(self, X, y, scoring='roc_auc_score'):
-    #     """Returns the evaluation resulted on the given test data and labels.
-    #     ROC is chosen as the default evaluation metric
-    #
-    #     :param X: The input samples
-    #     :type X: numpy array of shape (n_samples, n_features)
-    #
-    #     :param y: Outlier labels of the input samples
-    #     :type y: array, shape (n_samples,)
-    #
-    #     :param scoring: Evaluation metric
-    #
-    #             -' roc_auc_score': ROC score
-    #             - 'prc_n_score': Precision @ rank n score
-    #     :type scoring: str, optional (default='roc_auc_score')
-    #
-    #     :return: Evaluation score
-    #     :rtype: float
-    #     """
-    #     check_is_fitted(self, ['decision_scores_'])
-    #     if scoring == 'roc_auc_score':
-    #         score = roc_auc_score(y, self.decision_function(X))
-    #     elif scoring == 'prc_n_score':
-    #         score = precision_n_scores(y, self.decision_function(X))
-    #     else:
-    #         raise NotImplementedError('PyOD built-in scoring only supports '
-    #                                   'ROC and Precision @ rank n')
-    #
-    #     print("{metric}: {score}".format(metric=scoring, score=score))
-    #
-    #     return score
 
     def _set_n_classes(self, y):
         """Set the number of classes if `y` is presented, which is not
