@@ -77,7 +77,7 @@ Welcome to PyOD, a comprehensive but easy-to-use Python library for detecting an
 
 **Additional Resources**:
 
-* **NLP Anomaly Detection**: `NLP-ADBench <https://github.com/datamllab/tods>`_ provides both NLP anomaly detection datasets and algorithms :cite:`a-li2024nlp`
+* **NLP Anomaly Detection**: `NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_ provides both NLP anomaly detection datasets and algorithms :cite:`a-li2024nlp`
 * **Time-series Outlier Detection**: `TODS <https://github.com/datamllab/tods>`_
 * **Graph Outlier Detection**: `PyGOD <https://pygod.org/>`_
 * **Performance Comparison & Datasets**: We have a 45-page, comprehensive `anomaly detection benchmark paper <https://openreview.net/forum?id=foA_SFQ9zo0>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
