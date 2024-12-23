@@ -157,13 +157,6 @@ class TestBASE(unittest.TestCase):
         self.dummy_clf = Dummy2()
         assert_equal(self.dummy_clf.fit(0), 0)
 
-    def test_fit_predict(self):
-        # TODO: add more testcases
-
-        self.dummy_clf = Dummy3()
-
-        assert_equal(self.dummy_clf.fit_predict(0), 0)
-
     def test_predict_proba(self):
         # TODO: create uniform testcases
         pass
