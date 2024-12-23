@@ -13,7 +13,6 @@ def load_model_analyses_labels_only():
     analyses = {}
     model_list = []
 
-    # 假设 model_analysis_jsons 和当前文件在同一个 util 包里
     resource_dir = importlib.resources.files("pyod.utils").joinpath("model_analysis_jsons")
 
 
