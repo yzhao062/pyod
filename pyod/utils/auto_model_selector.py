@@ -4,67 +4,46 @@ import os
 import pandas as pd
 import numpy as np
 from scipy.stats import kurtosis, skew
+import importlib.resources
 import json
 import re
 
 
-def load_model_analyses_labels_only(self, output_folder='model_analysis_jsons'):
-    """
-    Reads all JSON files in the specified folder and returns a tuple containing:
-    - analyses (dict): A dictionary where each key is the model name and the value is a dictionary containing
-      lists of labels for strengths and weaknesses.
-    - model_list (list): A list of model names.
-
-    Parameters:
-    - output_folder (str): The folder where the JSON files are stored.
-
-    Returns:
-    - analyses (dict), model_list (list)
-    """
+def load_model_analyses_labels_only():
     analyses = {}
     model_list = []
 
-    if not os.path.exists(output_folder):
-        print(f"The folder '{output_folder}' does not exist.")
-        return analyses, model_list
+    # 假设 model_analysis_jsons 和当前文件在同一个 util 包里
+    resource_dir = importlib.resources.files("pyod.utils").joinpath("model_analysis_jsons")
 
-    # List all JSON files in the folder
-    json_files = [f for f in os.listdir(output_folder) if f.endswith('.json')]
 
-    for json_file in json_files:
-        model_name = os.path.splitext(json_file)[0]
-        file_path = os.path.join(output_folder, json_file)
+    for file in resource_dir.iterdir():
+        if file.suffix == ".json":
+            model_name = file.stem 
+            with file.open("r", encoding="utf-8") as f:
+                try:
+                    analysis = json.load(f)
+                except json.JSONDecodeError:
+                    print(f"Failed to decode JSON for model {model_name}")
+                    continue
 
-        # Read the JSON file
-        with open(file_path, 'r', encoding='utf-8') as f:
-            try:
-                analysis = json.load(f)
-                # Extract labels only
-                strengths = analysis.get('strengths', [])
-                weaknesses = analysis.get('weaknesses', [])
-                strengths_labels = []
-                for item in strengths:
-                    if isinstance(item, dict) and 'label' in item:
-                        strengths_labels.append(item['label'])
-                    else:
-                        strengths_labels.append(item)
+            # 处理 strengths / weaknesses
+            strengths = analysis.get('strengths', [])
+            weaknesses = analysis.get('weaknesses', [])
+            strengths_labels = []
+            for item in strengths:
+                label = item.get('label') if isinstance(item, dict) else item
+                strengths_labels.append(label)
+            weaknesses_labels = []
+            for item in weaknesses:
+                label = item.get('label') if isinstance(item, dict) else item
+                weaknesses_labels.append(label)
 
-                weaknesses_labels = []
-                for item in weaknesses:
-                    if isinstance(item, dict) and 'label' in item:
-                        weaknesses_labels.append(item['label'])
-                    else:
-                        weaknesses_labels.append(item)
-
-                analyses[model_name] = {
-                    'strengths': strengths_labels,
-                    'weaknesses': weaknesses_labels
-                }
-                model_list.append(model_name)
-
-            except json.JSONDecodeError:
-                print(f'Failed to decode JSON for model {model_name}')
-                continue
+            analyses[model_name] = {
+                'strengths': strengths_labels,
+                'weaknesses': weaknesses_labels
+            }
+            model_list.append(model_name)
 
     return analyses, model_list
 
@@ -85,20 +64,20 @@ class AutoModelSelector:
         self.dataset = dataset
         self.additional_notes = additional_notes
         self.api_key = api_key or os.getenv("API_KEY")
-        self.model_info, self.model_list = load_model_analyses_labels_only(self, output_folder='model_analysis_jsons')
+        self.model_info, self.model_list = load_model_analyses_labels_only()
         self.selected_model = None
         self.reason = None
         self.gpt_response = None
     
     def call_gpt(self, prompt):
         """
-        Calls the OpenAI GPT-4 API with the provided prompt and returns the response.
+        Calls the OpenAI GPT-4o API with the provided prompt and returns the response.
         
         Parameters:
-        - prompt (str): The prompt to send to GPT-4.
+        - prompt (str): The prompt to send to GPT-4o.
         
         Returns:
-        - response (str): The assistant's reply from GPT-4.
+        - response (str): The assistant's reply from GPT-4o.
         """
         client = OpenAI(api_key=self.api_key)
         messages = [
@@ -294,41 +273,41 @@ class AutoModelSelector:
         # Initialize the classifier based on the selected model
         if self.selected_model == 'MO_GAAL':
             from pyod.models.mo_gaal import MO_GAAL
-            clf = MO_GAAL()
+            clf = MO_GAAL(epoch_num=30, batch_size=32)
         elif self.selected_model == 'SO_GAAL':
             from pyod.models.so_gaal import SO_GAAL
             clf = SO_GAAL()
         elif self.selected_model == 'AutoEncoder':
             from pyod.models.auto_encoder import AutoEncoder
-            clf = AutoEncoder(epochs=30, batch_size=32, contamination=0.1)
+            clf = AutoEncoder()
         elif self.selected_model == 'VAE':
             from pyod.models.vae import VAE
-            clf = VAE(epochs=30, batch_size=32, contamination=0.1)
+            clf = VAE()
         elif self.selected_model == 'AnoGAN':
             from pyod.models.anogan import AnoGAN
-            clf = AnoGAN(epochs=30, batch_size=32, contamination=0.1)
+            clf = AnoGAN()
         elif self.selected_model == 'DeepSVDD':
             from pyod.models.deep_svdd import DeepSVDD
-            clf = DeepSVDD(epochs=30, batch_size=32, contamination=0.1)
+            clf = DeepSVDD()
         elif self.selected_model == 'ALAD':
             from pyod.models.alad import ALAD
-            clf = ALAD(epochs=30, batch_size=32, contamination=0.1)
+            clf = ALAD()
         elif self.selected_model == 'AE1SVM':
             from pyod.models.ae1svm import AE1SVM
-            clf = AE1SVM(epochs=30, batch_size=32, contamination=0.1)
+            clf = AE1SVM()
         elif self.selected_model == 'DevNet':
             from pyod.models.devnet import DevNet
-            clf = DevNet(epochs=30, batch_size=32, contamination=0.1)
+            clf = DevNet()
         elif self.selected_model == 'RGraph':
             from pyod.models.rgraph import RGraph
-            clf = RGraph(epochs=30, batch_size=32, contamination=0.1)
+            clf = RGraph()
         elif self.selected_model == 'LUNAR':
             from pyod.models.lunar import LUNAR
-            clf = LUNAR(epochs=30, batch_size=32, contamination=0.1)
+            clf = LUNAR()
         else:
             # Default to AutoEncoder if model not recognized
             from pyod.models.auto_encoder import AutoEncoder
-            clf = AutoEncoder(epochs=30, batch_size=32, contamination=0.1)
+            clf = AutoEncoder()
         
         return clf
 
