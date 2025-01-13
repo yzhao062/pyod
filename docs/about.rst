@@ -66,10 +66,10 @@ Daniel Kulik (Machine Learning Developer; MSc Student @ University of the Free S
 - Joined 2022 (implemented integration with PyThresh and more)
 - `LinkedIn (Daniel Kulik) <https://www.linkedin.com/in/daniel-kulik-148256223>`_
 
-Lorenzo Perini (Ph.D. Researcher, KU Leuven):
+Lorenzo Perini (Research Scientist, Meta):
 
-- Joined 2023 (implemented prediction confidence and more)
-- `Homepage (Lorenzo Perini) <https://people.cs.kuleuven.be/~lorenzo.perini/>`_
+- Joined 2022 (implemented prediction confidence, rejection and more)
+- `Homepage (Lorenzo Perini) <https://lorenzo-perini.github.io/>`_
 
 Tiankai Yang (PhD student @ USC):
 
