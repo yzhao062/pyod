@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools >= 38.6.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyod"
+dynamic = ["version"]
+dependencies = [
+  "joblib",
+  "matplotlib",
+  "numpy>=1.19",
+  "numba>=0.51",
+  "scipy>=1.5.1",
+  "scikit-learn>=0.22.0",
+]
+requires-python = ">=3.6"
+authors = [
+  {name = "Yue Zhao", email = "yzhao062@gmail.com"}
+]
+maintainers = [
+  {name = "Yue Zhao", email = "yzhao062@gmail.com"}
+]
+description = "A Comprehensive and Scalable Python Library for Outlier Detection (Anomaly Detection)"
+readme = "README.rst"
+license = {file = "LICENSE"}
+keywords = ['outlier detection', 'anomaly detection', 'outlier ensembles',
+	'data mining', 'neural networks']
+classifiers = [
+	'Development Status :: 6 - Mature',
+        'Intended Audience :: Education',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+]
+
+[project.optional-dependencies]
+combo = ["combo"]
+pytorch = ["torch"]
+suod = ["suod"]
+xgboost = ["xgboost"]
+pythresh = ["pythresh"]
+
+[project.urls]
+Homepage = "https://github.com/yzhao062/pyod"
+Documentation = "https://pyod.readthedocs.io/"
+Repository = "https://github.com/yzhao062/pyod.git"
+"Bug Tracker" = "https://github.com/yzhao062/pyod/issues"
+Changelog = "https://github.com/yzhao062/pyod/blob/master/CHANGES.txt"
+
+[tool.setuptools.dynamic]
+version = {attr = "pyod.version.__version__"}
+
