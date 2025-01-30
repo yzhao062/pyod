@@ -47,9 +47,9 @@ class TestThresholds(unittest.TestCase):
 
         self.contam = [AUCP(), BOOT(), CHAU(), CLF(), CLUST(), CPD(), 
                        DECOMP(), DSN(), EB(), FGD(), FILTER(), FWFM(), 
-                       GAMGMM(), GESD(), HIST(), IQR(), KARCH(), MAD(), 
-                       MCST(), META(), MIXMOD(), MOLL(), MTT(), OCSVM(), 
-                       QMCD(), REGR(), VAE(), WIND(), YJ(), ZSCORE()]
+                       GAMGMM(skip=True), GESD(), HIST(), IQR(), KARCH(), 
+                       MAD(), MCST(), META(), MIXMOD(), MOLL(), MTT(), 
+                       OCSVM(), QMCD(), REGR(), VAE(), WIND(), YJ(), ZSCORE()]
 
         for contam in self.contam:
             self.clf = KDE(contamination=contam)
