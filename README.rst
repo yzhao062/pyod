@@ -328,10 +328,10 @@ A more data-based approach can be taken when setting the contamination level. By
 .. code-block:: python
 
     from pyod.models.knn import KNN
-    from pyod.models.thresholds import FILTER
+    from pyod.models.thresholds import ZSCORE
 
     # Set the outlier detection and thresholding methods
-    clf = KNN(contamination=FILTER())
+    clf = KNN(contamination=ZSCORE())
 
 
 See supported thresholding methods in `thresholding <https://github.com/yzhao062/pyod/blob/master/docs/thresholding.rst>`_.
