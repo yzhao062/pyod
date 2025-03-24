@@ -1,6 +1,6 @@
 # This is a command list for building pypi packages
 
-python setup.py sdist
+python -m build
 twine check dist/*
 
 # docstring check
