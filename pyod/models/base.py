@@ -166,7 +166,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         # if this is a PyThresh object
         else:
-            prediction = self.contamination.eval(pred_score)
+            prediction = self.contamination.predict(pred_score)
 
         if return_confidence:
             confidence = self.predict_confidence(X)
@@ -290,7 +290,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
             prediction = (test_scores > self.threshold_).astype('int').ravel()
         # if this is a PyThresh object
         else:
-            prediction = self.contamination.eval(test_scores)
+            prediction = self.contamination.predict(test_scores)
         np.place(confidence, prediction == 0, 1 - confidence[prediction == 0])
 
         return confidence
@@ -574,7 +574,8 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         # if this is a PyThresh object
         else:
-            self.labels_ = self.contamination.eval(self.decision_scores_)
+            self.contamination.fit(self.decision_scores_)
+            self.labels_ = self.contamination.labels_
             self.threshold_ = self.contamination.thresh_
             if not self.threshold_:
                 self.threshold_ = np.sum(self.labels_) / len(self.labels_)
