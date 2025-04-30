@@ -1,0 +1,5 @@
+Dataset,Domain,Data Type,Number of Instances,Number of Attributes,Missing Values,Area,Mean,Std Dev,Min,Max
+arrhythmia,Medical,Multivariate,452,279,Yes,Cardiology,10.125108197144888,6.546008639872744,-242.4,780.0
+glass,Forensic Science,Multivariate,214,9,No,Material Identification,11.265851609553478,0.6879278145483789,0.0,75.41
+ionosphere,Astronomy,Multivariate,351,34,No,Space,0.2552029672796339,0.5251381269031516,-1.0,1.0
+lympho,Medical,Multivariate,148,18,No,Oncology,2.0746996996997,0.6997776820615417,1.0,8.0

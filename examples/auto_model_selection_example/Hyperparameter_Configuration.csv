@@ -1,0 +1,14 @@
+Pipeline Design Dimensions,MO-GAAL,AutoEncoder,SO-GAAL,VAE,AnoGAN,Deep SVDD,ALAD
+Data Augmentation,"SMOTE, GAN-based Oversampling",N/A,"Oversampling, GAN-based Augmentation",N/A,N/A,N/A,N/A
+Data Preprocessing,"Normalization, Standardization","StandardScaler, Normalization","MinMax Scaling, Standardization","StandardScaler, MinMax Scaling","StandardScaler, MinMax Scaling","StandardScaler, MinMax Scaling","StandardScaler, MinMax Scaling"
+Network Architecture,"Discriminator, Generator (GAN), MLP, AutoEncoder","AutoEncoder, MLP","Discriminator, Generator (GAN)","VAE, beta-VAE, AutoEncoder","Discriminator, Generator (GAN)","AutoEncoder, One-Class Classifier","Discriminator, Generator (GAN)"
+Hidden Layers,"[[32, 16], [64, 32, 16], [128, 64, 32, 16]]","[[32, 16], [64, 32, 16], [128, 64, 32, 16]]","[[64, 32], [128, 64, 32], [256, 128, 64, 32]]","[[64, 32], [128, 64, 32], [256, 128, 64]]","[[64, 32], [128, 64, 32], [256, 128, 64, 32]]","[[64, 32], [128, 64, 32], [256, 128, 64, 32]]","[[64, 32], [128, 64, 32], [256, 128, 64]]"
+Activation,"ReLU, LeakyReLU, Tanh","ReLU, Tanh, LeakyReLU","ReLU, LeakyReLU, Tanh","ReLU, Tanh, LeakyReLU","ReLU, LeakyReLU, Tanh","ReLU, Tanh, LeakyReLU","ReLU, LeakyReLU, Tanh"
+Dropout,"0.0, 0.25, 0.5","0.0, 0.2, 0.5","0.0, 0.25, 0.5","0.0, 0.3, 0.5","0.0, 0.25, 0.5","0.0, 0.2, 0.5","0.0, 0.25, 0.5"
+Initialization,"Xavier, He, Random Normal","Xavier, He, Random Normal","Xavier, He, Random Normal","Xavier, He, Random Normal","Xavier, He, Random Normal","Xavier, He, Random Normal","Xavier, He, Random Normal"
+Loss Function,"BCE, WGAN Loss, Hinge Loss","Mean Squared Error, Binary Crossentropy","BCE, WGAN Loss","Reconstruction Loss, KL Divergence","Binary Crossentropy, Anomaly Score Loss","SVDD Loss, Reconstruction Loss (AE)","Binary Crossentropy, Adversarial Loss"
+Optimizer,"SGD, Adam, RMSprop","SGD, Adam, RMSprop","Adam, RMSprop, SGD","Adam, RMSprop, SGD","Adam, RMSprop, SGD","Adam, RMSprop, SGD","Adam, RMSprop, SGD"
+Epochs,"50, 100, 200","50, 100, 200","50, 100, 150","50, 100, 200","50, 100, 150","50, 100, 200","50, 100, 150"
+Batch Size,"32, 64, 128","32, 64, 128","32, 64, 128","32, 64, 128","32, 64, 128","32, 64, 128","32, 64, 128"
+Learning Rate,"1e-3, 1e-4, 1e-5","1e-3, 1e-4, 1e-5","1e-3, 1e-4, 1e-5","1e-3, 1e-4, 1e-5","1e-3, 1e-4, 1e-5","1e-3, 1e-4, 1e-5","1e-3, 1e-4, 1e-5"
+Weight Decay,"1e-2, 1e-4","1e-2, 1e-4","1e-2, 1e-4","1e-2, 1e-4","1e-2, 1e-4","1e-2, 1e-4","1e-2, 1e-4"
