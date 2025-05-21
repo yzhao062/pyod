@@ -16,7 +16,6 @@ from scipy.special import erf
 from scipy.stats import binom
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.utils import deprecated
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted
 from scipy.optimize import root_scalar
@@ -107,35 +106,6 @@ class BaseDetector(metaclass=abc.ABCMeta):
             The anomaly score of the input samples.
         """
         pass
-
-    @deprecated()
-    def fit_predict(self, X, y=None):
-        """Fit detector first and then predict whether a particular sample
-        is an outlier or not. y is ignored in unsupervised models.
-
-        Parameters
-        ----------
-        X : numpy array of shape (n_samples, n_features)
-            The input samples.
-
-        y : Ignored
-            Not used, present for API consistency by convention.
-
-        Returns
-        -------
-        outlier_labels : numpy array of shape (n_samples,)
-            For each observation, tells whether
-            it should be considered as an outlier according to the
-            fitted model. 0 stands for inliers and 1 for outliers.
-
-        .. deprecated:: 0.6.9
-          `fit_predict` will be removed in pyod 0.8.0.; it will be
-          replaced by calling `fit` function first and then accessing
-          `labels_` attribute for consistency.
-        """
-
-        self.fit(X, y)
-        return self.labels_
 
     def predict(self, X, return_confidence=False):
         """Predict if a particular sample is an outlier or not.
@@ -487,51 +457,6 @@ class BaseDetector(metaclass=abc.ABCMeta):
             # return normalized ranks
             ranks = ranks / ranks.max()
         return ranks
-
-    @deprecated()
-    def fit_predict_score(self, X, y, scoring='roc_auc_score'):
-        """Fit the detector, predict on samples, and evaluate the model by
-        predefined metrics, e.g., ROC.
-
-        Parameters
-        ----------
-        X : numpy array of shape (n_samples, n_features)
-            The input samples.
-
-        y : Ignored
-            Not used, present for API consistency by convention.
-
-        scoring : str, optional (default='roc_auc_score')
-            Evaluation metric:
-
-            - 'roc_auc_score': ROC score
-            - 'prc_n_score': Precision @ rank n score
-
-        Returns
-        -------
-        score : float
-
-        .. deprecated:: 0.6.9
-          `fit_predict_score` will be removed in pyod 0.8.0.; it will be
-          replaced by calling `fit` function first and then accessing
-          `labels_` attribute for consistency. Scoring could be done by
-          calling an evaluation method, e.g., AUC ROC.
-        """
-
-        self.fit(X)
-
-        if scoring == 'roc_auc_score':
-            score = roc_auc_score(y, self.decision_scores_)
-        elif scoring == 'prc_n_score':
-            score = precision_n_scores(y, self.decision_scores_)
-        else:
-            raise NotImplementedError('PyOD built-in scoring only supports '
-                                      'ROC and Precision @ rank n')
-
-        print("{metric}: {score}".format(metric=scoring, score=score))
-
-        return score
-
 
     def _set_n_classes(self, y):
         """Set the number of classes if `y` is presented, which is not
