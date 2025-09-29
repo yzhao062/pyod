@@ -327,6 +327,6 @@ class CBLOF(BaseDetector):
 
         if self.use_weights:
             # Weights are calculated as the number of elements in the cluster
-            scores = scores * self.cluster_sizes_[labels]
+            scores = scores / self.cluster_sizes_[labels]
 
         return scores.ravel()
