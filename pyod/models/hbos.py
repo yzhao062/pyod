@@ -230,7 +230,8 @@ def _calculate_outlier_scores_auto(X, bin_edges, hist, alpha,
         # Add a regularizer for preventing overflow
         out_score_i = np.log2(hist[i] + alpha)
 
-        optimal_n_bins = get_optimal_n_bins(X[:, i])
+        # Use the number of bins determined during fit (training)
+        optimal_n_bins = hist[i].shape[0]
 
         for j in range(n_samples):
 
