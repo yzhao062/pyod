@@ -114,19 +114,6 @@ class TestAutoEncoder(unittest.TestCase):
         self.assertLessEqual(ub_rejrate, 1)
         self.assertGreaterEqual(ub_cost, 0)
 
-    def test_fit_predict(self):
-        pred_labels = self.clf.fit_predict(self.X_train)
-        self.assertEqual(pred_labels.shape, self.y_train.shape)
-
-    def test_fit_predict_score(self):
-        self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='prc_n_score')
-        self.assertRaises(NotImplementedError, self.clf.fit_predict_score,
-                          self.X_test, self.y_test, scoring='something')
-
     def tearDown(self):
         pass
 

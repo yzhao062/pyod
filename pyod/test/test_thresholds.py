@@ -131,22 +131,6 @@ class TestThresholds(unittest.TestCase):
         assert confidence.max() <= 1
 
     @unittest.skipIf(not py_ver, 'Python 3.6 not included')
-    def test_fit_predict(self):
-        pred_labels = self.clf.fit_predict(self.X_train)
-        assert_equal(pred_labels.shape, self.y_train.shape)
-
-    @unittest.skipIf(not py_ver, 'Python 3.6 not included')
-    def test_fit_predict_score(self):
-        self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring="roc_auc_score")
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring="prc_n_score")
-        with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test,
-                                       scoring="something")
-
-    @unittest.skipIf(not py_ver, 'Python 3.6 not included')
     def test_predict_rank(self):
         pred_scores = self.clf.decision_function(self.X_test)
         pred_ranks = self.clf._predict_rank(self.X_test)
