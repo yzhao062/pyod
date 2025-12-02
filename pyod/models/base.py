@@ -14,6 +14,7 @@ import numpy as np
 from numpy import percentile
 from scipy.special import erf
 from scipy.stats import binom
+from sklearn.base import BaseEstimator
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import deprecated
@@ -25,7 +26,7 @@ from .sklearn_base import _pprint
 from ..utils.utility import precision_n_scores
 
 
-class BaseDetector(metaclass=abc.ABCMeta):
+class BaseDetector(BaseEstimator, metaclass=abc.ABCMeta):
     """Abstract class for all outlier detection algorithms.
 
 
@@ -711,3 +712,16 @@ class BaseDetector(metaclass=abc.ABCMeta):
         class_name = self.__class__.__name__
         return '%s(%s)' % (class_name, _pprint(self.get_params(deep=False),
                                                offset=len(class_name), ),)
+
+
+    def __sklearn_tags__(self):
+        """Return sklearn-style Tags for compatibility with scikit-learn >= 1.8.
+
+        We mark all PyOD detectors as 'outlier_detector' so that utilities
+        such as sklearn.utils._tags.get_tags and is_outlier_detector work.
+        """
+        tags = super().__sklearn_tags__()
+        # match sklearn's OutlierMixin
+        tags.estimator_type = "outlier_detector"
+        return tags
+
