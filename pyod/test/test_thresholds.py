@@ -30,9 +30,9 @@ class TestThresholds(unittest.TestCase):
     def setUp(self):
         from pyod.models.thresholds import (AUCP, BOOT, CHAU, CLF, CLUST,
                                             CPD, DECOMP, DSN, EB, FGD, FILTER,
-                                            FWFM, GESD, HIST, IQR, KARCH, MAD,
-                                            MCST, META, MOLL, MTT, OCSVM, QMCD,
-                                            REGR, VAE, WIND, YJ, ZSCORE)
+                                            FWFM, GAMGMM, GESD, HIST, IQR, KARCH, 
+                                            MAD, MCST, META, MIXMOD, MOLL, MTT, 
+                                            OCSVM, QMCD, REGR, VAE, WIND, YJ, ZSCORE)
 
         self.n_train = 200
         self.n_test = 100
@@ -45,11 +45,11 @@ class TestThresholds(unittest.TestCase):
             random_state=42,
         )
 
-        self.contam = [AUCP(), BOOT(), CHAU(), CLF(), CLUST(),
-                       CPD(), DECOMP(), DSN(), EB(), FGD(), FILTER(),
-                       FWFM(), GESD(), HIST(), IQR(), KARCH(), MAD(),
-                       MCST(), META(), MOLL(), MTT(), OCSVM(), QMCD(),
-                       REGR(), VAE(), WIND(), YJ(), ZSCORE()]
+        self.contam = [AUCP(), BOOT(), CHAU(), CLF(), CLUST(), CPD(), 
+                       DECOMP(), DSN(), EB(), FGD(), FILTER(), FWFM(), 
+                       GAMGMM(skip=True), GESD(), HIST(), IQR(), KARCH(), 
+                       MAD(), MCST(), META(), MIXMOD(), MOLL(), MTT(), 
+                       OCSVM(), QMCD(), REGR(), VAE(), WIND(), YJ(), ZSCORE()]
 
         for contam in self.contam:
             self.clf = KDE(contamination=contam)
