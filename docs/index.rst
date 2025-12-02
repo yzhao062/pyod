@@ -127,11 +127,12 @@ If you use PyOD in a scientific publication, we would appreciate citations to th
 
 `PyOD 2: A Python Library for Outlier Detection with LLM-powered Model Selection <https://arxiv.org/abs/2412.12154>`_ is available as a preprint. If you use PyOD in a scientific publication, we would appreciate citations to the following paper::
 
-    @article{zhao2024pyod2,
-        author  = {Chen, Sihan and Qian, Zhuangzhuang and Siu, Wingchun and Hu, Xingcan and Li, Jiaqi and Li, Shawn and Qin, Yuehan and Yang, Tiankai and Xiao, Zhuo and Ye, Wanghao and Zhang, Yichi and Dong, Yushun and Zhao, Yue},
-        title   = {PyOD 2: A Python Library for Outlier Detection with LLM-powered Model Selection},
-        journal = {arXiv preprint arXiv:2412.12154},
-        year    = {2024}
+    @inproceedings{chen2025pyod,
+      title={Pyod 2: A python library for outlier detection with llm-powered model selection},
+      author={Chen, Sihan and Qian, Zhuangzhuang and Siu, Wingchun and Hu, Xingcan and Li, Jiaqi and Li, Shawn and Qin, Yuehan and Yang, Tiankai and Xiao, Zhuo and Ye, Wanghao and others},
+      booktitle={Companion Proceedings of the ACM on Web Conference 2025},
+      pages={2807--2810},
+      year={2025}
     }
 
 `PyOD paper <http://www.jmlr.org/papers/volume20/19-011/19-011.pdf>`_ is published in `Journal of Machine Learning Research (JMLR) <http://www.jmlr.org/>`_ (MLOSS track).::
