@@ -15,6 +15,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pyod.models.base import BaseDetector
 from pyod.utils.data import generate_data
 
+from sklearn.utils.validation import check_is_fitted
+
+try:
+    # Present in newer sklearn versions (1.3+, 1.4+, 1.8rc1, etc.)
+    from sklearn.utils._tags import get_tags
+except ImportError:
+    get_tags = None
+
 
 # Check sklearn\tests\test_base
 # A few test classes
@@ -206,6 +214,24 @@ class TestBASE(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    @unittest.skipIf(get_tags is None, "sklearn is too old and does not provide get_tags")
+    def test_sklearn_tags_and_check_is_fitted(self):
+        # Dummy1 is a BaseDetector subclass
+        clf = Dummy1()
+
+        # 1. get_tags should work and identify it as outlier_detector
+        tags = get_tags(clf)
+        assert_equal(tags.estimator_type, "outlier_detector")
+
+        # 2. Simulate a fitted model
+        clf.labels_ = np.zeros(10)
+        clf.decision_scores_ = np.zeros(10)
+        clf.threshold_ = 0.5
+
+        # This should NOT raise AttributeError on sklearn >= 1.8
+        check_is_fitted(clf, ['decision_scores_', 'threshold_', 'labels_'])
+
 
 
 if __name__ == '__main__':

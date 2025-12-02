@@ -199,3 +199,7 @@ v<2.0.2>, <07/06/2024> -- Complete of removing all Tensorflow and Keras code.
 v<2.0.2>, <07/21/2024> -- Add DevNet.
 v<2.0.3>, <09/06/2024> -- Add Reject Option in Unsupervised Anomaly Detection (#605).
 v<2.0.3>, <12/20/2024> -- Massive documentation polish.
+v<2.0.4>, <04/29/2025> -- Mistakenly we skipped 2.0.4.
+v<2.0.5>, <04/29/2025> -- Add wheel for better installation.
+v<2.0.6>, <09/04/2025> -- Finally, add the auto model selector (#616).
+v<2.0.6>, <12/01/2025> -- Pre-caution for new sklearn break change(#649).

@@ -166,7 +166,7 @@ class LOF(BaseDetector):
             Fitted estimator.
         """
         # validate inputs X and y (optional)
-        X = check_array(X)
+        X = check_array(X, accept_sparse=True)
         self._set_n_classes(y)
 
         self.detector_ = LocalOutlierFactor(n_neighbors=self.n_neighbors,
