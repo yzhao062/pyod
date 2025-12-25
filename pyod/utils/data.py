@@ -360,11 +360,11 @@ def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
     X_train : numpy array of shape (n_train, n_features)
         Training data.
 
-    y_train : numpy array of shape (n_train,)
-        Training ground truth.
-
     X_test : numpy array of shape (n_test, n_features)
         Test data.
+
+    y_train : numpy array of shape (n_train,)
+        Training ground truth.
 
     y_test : numpy array of shape (n_test,)
         Test ground truth.
