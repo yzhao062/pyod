@@ -242,7 +242,7 @@ class IForest(BaseDetector):
         """
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         # invert outlier scores. Outliers comes with higher outlier scores
-        return invert_order(self.detector_.decision_function(X))
+        return invert_order(self.detector_.decision_function(check_array(X)))
 
     @property
     def estimators_(self):
