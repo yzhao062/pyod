@@ -22,8 +22,9 @@ from sklearn.utils import check_array
 from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
-from ..utils.torch_utility import get_activation_by_name
+from ..utils.torch_utility import get_activation_by_name, get_optimizer_by_name
 from ..utils.utility import check_parameter
+
 
 optimizer_dict = {
     'sgd': optim.SGD,
@@ -242,7 +243,7 @@ class DeepSVDD(BaseDetector):
                  batch_size=32,
                  dropout_rate=0.2, l2_regularizer=0.1, validation_size=0.1,
                  preprocessing=True,
-                 verbose=1, random_state=None, contamination=0.1):
+                 verbose=1, random_state=None, contamination=0.1, device=None):
         super(DeepSVDD, self).__init__(contamination=contamination)
 
         self.n_features = n_features
@@ -262,6 +263,7 @@ class DeepSVDD(BaseDetector):
         self.random_state = random_state
         self.model_ = None
         self.best_model_dict = None
+        self.device = device
 
         if self.random_state is not None:
             torch.manual_seed(self.random_state)
@@ -314,10 +316,11 @@ class DeepSVDD(BaseDetector):
                                     output_activation=self.output_activation,
                                     dropout_rate=self.dropout_rate,
                                     l2_regularizer=self.l2_regularizer)
+        self.model_.to(self.device)
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
         if self.c is None:
             self.c = 0.0
-            self.model_._init_c(X_norm)
+            self.model_._init_c(X_norm.to(self.device))
 
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
@@ -326,7 +329,7 @@ class DeepSVDD(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        X_norm = torch.tensor(X_norm, dtype=torch.float32)
+        X_norm = torch.tensor(X_norm, dtype=torch.float32).to(self.device)
         dataset = TensorDataset(X_norm, X_norm)
         dataloader = DataLoader(dataset, batch_size=self.batch_size,
                                 shuffle=True)
@@ -334,8 +337,7 @@ class DeepSVDD(BaseDetector):
         best_loss = float('inf')
         best_model_dict = None
 
-        optimizer = optimizer_dict[self.optimizer](self.model_.parameters(),
-                                                   weight_decay=self.l2_regularizer)
+        optimizer = get_optimizer_by_name(self.model_, self.optimizer, weight_decay=self.l2_regularizer)
         w_d = 1e-6 * sum(
             [torch.linalg.norm(w) for w in self.model_.parameters()])
 
@@ -343,6 +345,7 @@ class DeepSVDD(BaseDetector):
             self.model_.train()
             epoch_loss = 0
             for batch_x, _ in dataloader:
+                batch_x = batch_x.to(self.device)
                 optimizer.zero_grad()
                 outputs = self.model_(batch_x)
                 dist = torch.sum((outputs - self.c) ** 2, dim=-1)
@@ -390,10 +393,10 @@ class DeepSVDD(BaseDetector):
             X_norm = self.scaler_.transform(X)
         else:
             X_norm = np.copy(X)
-        X_norm = torch.tensor(X_norm, dtype=torch.float32)
+        X_norm = torch.tensor(X_norm, dtype=torch.float32).to(self.device)
         self.model_.eval()
         with torch.no_grad():
             outputs = self.model_(X_norm)
             dist = torch.sum((outputs - self.c) ** 2, dim=-1)
-        anomaly_scores = dist.numpy()
+        anomaly_scores = dist.cpu().numpy()
         return anomaly_scores
