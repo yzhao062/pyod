@@ -136,10 +136,7 @@ class ECOD(BaseDetector):
         skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
-
-        self.O = np.maximum(self.U_l, self.U_r)
-        self.O = np.maximum(self.U_skew, self.O)
-
+        self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
         if hasattr(self, 'X_train'):
             decision_scores_ = self.O.sum(axis=1)[-original_size:]
         else:
@@ -198,10 +195,7 @@ class ECOD(BaseDetector):
         skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
-
-        self.O = np.maximum(self.U_l, self.U_r)
-        self.O = np.maximum(self.U_skew, self.O)
-
+        self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
         if hasattr(self, 'X_train'):
             decision_scores_ = self.O.sum(axis=1)[-original_size:]
         else:
