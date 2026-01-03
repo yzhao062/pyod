@@ -2,9 +2,10 @@
 """Cook's distance outlier detection (CD)
 """
 
-# Author: D Kulik
+# Author: Daniel Kulik
 # License: BSD 2 clause
 
+import copy
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -46,7 +47,7 @@ def _Cooks_dist(X, y, model):
     mse = np.dot(residuals, residuals) / df
 
     # Compute Cook's distance
-    if (mse != 0) or (mse != np.nan):
+    if (mse != 0) & (mse != np.nan):
         residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(
             1 - leverage)
         distance_ = residuals_studentized ** 2 / X.shape[1]
@@ -60,7 +61,7 @@ def _Cooks_dist(X, y, model):
     return distance_
 
 
-def _process_distances(X, model):
+def _process_distances(X, models):
     """Calculated the mean Cook's distances for
     each feature
 
@@ -79,8 +80,8 @@ def _process_distances(X, model):
     """
 
     distances_ = []
+    model_list = []
     for i in range(X.shape[1]):
-        mod = model
 
         # Extract new X and y inputs
         exp = np.delete(X.copy(), i, axis=1)
@@ -89,7 +90,14 @@ def _process_distances(X, model):
         exp = exp.reshape(-1, 1) if exp.ndim == 1 else exp
 
         # Fit the model
-        mod.fit(exp, resp)
+        if len(models)==1:
+            mod = copy.deepcopy(models[0])
+            mod.fit(exp, resp)
+
+        else:
+            mod = models[i]
+
+        model_list.append(mod)
 
         # Get Cook's Distance
         distance_ = _Cooks_dist(exp, resp, mod)
@@ -98,7 +106,7 @@ def _process_distances(X, model):
 
     distances_ = np.nanmean(distances_, axis=0)
 
-    return distances_
+    return distances_, model_list
 
 
 class CD(BaseDetector):
@@ -167,7 +175,7 @@ class CD(BaseDetector):
         self._set_n_classes(y)
 
         # Get Cook's distance
-        distances_ = _process_distances(X, self.model)
+        distances_, self._models = _process_distances(X, [self.model])
 
         self.decision_scores_ = distances_
 
@@ -197,6 +205,6 @@ class CD(BaseDetector):
         X = check_array(X)
 
         # Get Cook's distance
-        distances_ = _process_distances(X, self.model)
+        distances_, _ = _process_distances(X, self._models)
 
         return distances_
