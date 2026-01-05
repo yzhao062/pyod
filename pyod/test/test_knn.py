@@ -135,6 +135,49 @@ class TestKnn(unittest.TestCase):
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
+    def test_get_outlier_explainability_scores(self):
+        """Test get_outlier_explainability_scores() method.
+        
+        Validates that the method returns correct dimensional scores
+        for known outlier and inlier samples.
+        """
+        # Create a simple 2D dataset where outliers are obvious
+        # Point [10, 0] is an outlier in Dimension 0 (X), but normal in Dimension 1 (Y)
+        X_train = np.array([[0, 0], [1, 0], [0, 1], [1, 1], [10, 0]])
+        
+        # Fit model
+        clf = KNN(n_neighbors=3, contamination=0.2)
+        clf.fit(X_train)
+        
+        # Test explaining the outlier (index 4: [10, 0])
+        scores = clf.get_outlier_explainability_scores(ind=4)
+        
+        # Check shape: should have 1 score per feature
+        assert_equal(scores.shape[0], X_train.shape[1])
+        
+        # Check that scores are non-negative (distances cannot be negative)
+        assert_array_less(-1e-10, scores)
+        
+        # For the outlier [10, 0], dimension 0 should have much higher score than dimension 1
+        # because it's far from neighbors in X but close in Y
+        assert (scores[0] > scores[1]), \
+            "Outlier in dimension 0 should have higher score than dimension 1"
+        
+        # Test explaining an inlier (index 0: [0, 0])
+        scores_inlier = clf.get_outlier_explainability_scores(ind=0)
+        assert_equal(scores_inlier.shape[0], X_train.shape[1])
+        assert_array_less(-1e-10, scores_inlier)
+        
+        # Test with specific columns parameter
+        scores_cols = clf.get_outlier_explainability_scores(ind=4, columns=[0])
+        assert_equal(scores_cols.shape[0], 1)
+        assert_array_less(-1e-10, scores_cols)
+        
+        # Test with multiple columns
+        scores_multi = clf.get_outlier_explainability_scores(ind=4, columns=[0, 1])
+        assert_equal(scores_multi.shape[0], 2)
+        assert_array_less(-1e-10, scores_multi)
+
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
