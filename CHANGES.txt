@@ -203,3 +203,4 @@ v<2.0.4>, <04/29/2025> -- Mistakenly we skipped 2.0.4.
 v<2.0.5>, <04/29/2025> -- Add wheel for better installation.
 v<2.0.6>, <09/04/2025> -- Finally, add the auto model selector (#616).
 v<2.0.6>, <12/01/2025> -- Pre-caution for new sklearn break change(#649).
+v<2.0.7>, <01/04/2026> -- Fix compatability issue of new sklearn.

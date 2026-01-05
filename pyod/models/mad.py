@@ -8,6 +8,8 @@ Strictly for Univariate Data.
 
 
 import numpy as np
+import sklearn
+from packaging import version
 from sklearn.utils import check_array
 
 from .base import BaseDetector
@@ -20,6 +22,17 @@ def _check_dim(X):
     if X.shape[1] != 1:
         raise ValueError('MAD algorithm is just for univariate data. '
                          'Got Data with {} Dimensions.'.format(X.shape[1]))
+
+
+def _check_array_compat(X, **kwargs):
+    """
+    Compatibility wrapper for sklearn.utils.check_array.
+    Handles force_all_finite -> ensure_all_finite rename in sklearn 1.6+
+    """
+    if 'force_all_finite' in kwargs:
+        if version.parse(str(sklearn.__version__)) >= version.parse('1.6.0'):
+            kwargs['ensure_all_finite'] = kwargs.pop('force_all_finite')
+    return check_array(X, **kwargs)
 
 
 class MAD(BaseDetector):
@@ -76,7 +89,7 @@ class MAD(BaseDetector):
         self : object
             Fitted estimator.
         """
-        X = check_array(X, ensure_2d=False, force_all_finite=False)
+        X = _check_array_compat(X, ensure_2d=False, force_all_finite=False)
         _check_dim(X)
         self._set_n_classes(y)
         self.threshold_ = self.threshold
@@ -105,7 +118,7 @@ class MAD(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        X = check_array(X, ensure_2d=False, force_all_finite=False)
+        X = _check_array_compat(X, ensure_2d=False, force_all_finite=False)
         _check_dim(X)
         return self._mad(X)
 
