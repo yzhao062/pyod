@@ -63,7 +63,7 @@ class LinearBlock(nn.Module):
 
     activation_name : str, optional (default='relu')
         Activation function name. Available functions: 
-        'elu', 'leaky_relu', 'relu', 'sigmoid',
+        'elu', 'identity', 'leaky_relu', 'relu', 'sigmoid',
         'softmax', 'softplus', 'tanh'.
 
     batch_norm : bool, optional (default=True)
@@ -162,7 +162,7 @@ def get_activation_by_name(name, inplace=False,
     ----------
     name : str
         Activation function name. Available functions: 
-        'elu', 'leaky_relu', 'relu', 'sigmoid',
+        'elu', 'identity', 'leaky_relu', 'relu', 'sigmoid',
         'softmax', 'softplus', 'tanh'.
 
     inplace : bool, optional (default=False)
@@ -195,6 +195,7 @@ def get_activation_by_name(name, inplace=False,
     """
     activation_dict = {
         'elu': nn.ELU(alpha=elu_alpha, inplace=inplace),
+        'identity': nn.Identity(),
         'leaky_relu': nn.LeakyReLU(negative_slope=leaky_relu_negative_slope,
                                    inplace=inplace),
         'relu': nn.ReLU(inplace=inplace),

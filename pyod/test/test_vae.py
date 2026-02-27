@@ -18,6 +18,12 @@ from pyod.models.vae import VAE
 from pyod.utils.data import generate_data
 
 
+class TestVAEConfig(unittest.TestCase):
+    def test_default_output_activation_name(self):
+        clf = VAE(epoch_num=1)
+        self.assertEqual(clf.output_activation_name, 'identity')
+
+
 class TestVAE(unittest.TestCase):
     def assertHasAttr(self, obj, intended_attr):
         self.assertTrue(hasattr(obj, intended_attr))

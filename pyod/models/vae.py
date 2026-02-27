@@ -163,8 +163,10 @@ class VAE(BaseDeepLearningDetector):
     hidden_activation_name : str, optional (default='relu')
         The activation function used in hidden layers.
 
-    output_activation_name : str, optional (default='sigmoid')
+    output_activation_name : str, optional (default='identity')
         The activation function used in output layer.
+        ``identity`` is the default to avoid constraining reconstruction
+        outputs to a bounded range when preprocessing is enabled.
 
     batch_norm : boolean, optional (default=False)
         Whether to apply Batch Normalization,
@@ -213,7 +215,7 @@ class VAE(BaseDeepLearningDetector):
                  decoder_neuron_list=[32, 64, 128],
                  latent_dim=2,
                  hidden_activation_name='relu',
-                 output_activation_name='sigmoid',
+                 output_activation_name='identity',
                  batch_norm=False, dropout_rate=0.2):
         super(VAE, self).__init__(contamination=contamination,
                                   preprocessing=preprocessing,
