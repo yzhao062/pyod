@@ -62,6 +62,27 @@ class SOD(BaseDetector):
            specifies the lower limit for selecting subspace.
            0.8 is set as default as suggested in the original paper.
 
+    algorithm : {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
+        Algorithm used to compute nearest neighbors.
+
+    leaf_size : int, optional (default=30)
+        Leaf size passed to nearest-neighbor tree backends when applicable.
+        This can affect construction/query speed and memory usage.
+
+    metric : str or callable, optional (default='minkowski')
+        Distance metric used for nearest-neighbor computation.
+
+    p : int, optional (default=2)
+        Power parameter for the Minkowski metric when
+        ``metric='minkowski'``.
+
+    metric_params : dict, optional (default=None)
+        Additional keyword arguments for the metric function.
+
+    n_jobs : int, optional (default=1)
+        Number of parallel jobs for nearest-neighbor search.
+        If ``-1``, all available CPU cores are used.
+
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. Used when fitting to
@@ -88,7 +109,9 @@ class SOD(BaseDetector):
     """
 
     def __init__(self, contamination=0.1, n_neighbors=20, ref_set=10,
-                 alpha=0.8):
+                 alpha=0.8, algorithm='auto', leaf_size=30,
+                 metric='minkowski', p=2, metric_params=None, n_jobs=1,
+                 **kwargs):
         super(SOD, self).__init__(contamination=contamination)
         if isinstance(n_neighbors, int):
             check_parameter(n_neighbors, low=1, param_name='n_neighbors')
@@ -110,6 +133,13 @@ class SOD(BaseDetector):
         self.n_neighbors = n_neighbors
         self.ref_set = ref_set
         self.alpha = alpha
+        self.algorithm = algorithm
+        self.leaf_size = leaf_size
+        self.metric = metric
+        self.p = p
+        self.metric_params = metric_params
+        self.n_jobs = n_jobs
+        self.kwargs = kwargs
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -165,7 +195,14 @@ class SOD(BaseDetector):
         snn_indices : numpy array of shape (n_shared_nearest_neighbors,)
             The indices of top k shared nearest neighbors for each observation.
         """
-        knn = NearestNeighbors(n_neighbors=self.n_neighbors)
+        knn = NearestNeighbors(n_neighbors=self.n_neighbors,
+                               algorithm=self.algorithm,
+                               leaf_size=self.leaf_size,
+                               metric=self.metric,
+                               p=self.p,
+                               metric_params=self.metric_params,
+                               n_jobs=self.n_jobs,
+                               **self.kwargs)
         knn.fit(X)
         # Get the knn index
         ind = knn.kneighbors(return_distance=False)

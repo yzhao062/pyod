@@ -232,26 +232,23 @@ class KNN(BaseDetector):
         -------
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
+
+        Notes
+        -----
+        This method performs batched neighbor queries through the fitted
+        ``NearestNeighbors`` estimator, so runtime behavior follows the
+        configured neighbor-search parameters (e.g., ``algorithm``,
+        ``metric``, and ``n_jobs``).
         """
-        check_is_fitted(self, ['tree_', 'decision_scores_',
-                               'threshold_', 'labels_'])
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
 
         X = check_array(X)
 
-        # initialize the output score
-        pred_scores = np.zeros([X.shape[0], 1])
-
-        for i in range(X.shape[0]):
-            x_i = X[i, :]
-            x_i = np.asarray(x_i).reshape(1, x_i.shape[0])
-
-            # get the distance of the current point
-            dist_arr, _ = self.tree_.query(x_i, k=self.n_neighbors)
-            dist = self._get_dist_by_method(dist_arr)
-            pred_score_i = dist[-1]
-
-            # record the current item
-            pred_scores[i, :] = pred_score_i
+        # Use the fitted NearestNeighbors object for batch querying so
+        # query-time behavior is consistent with fit-time configuration.
+        dist_arr, _ = self.neigh_.kneighbors(
+            X, n_neighbors=self.n_neighbors, return_distance=True)
+        pred_scores = self._get_dist_by_method(dist_arr)
 
         return pred_scores.ravel()
 

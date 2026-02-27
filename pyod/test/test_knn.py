@@ -4,6 +4,7 @@
 import os
 import sys
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 # noinspection PyProtectedMember
@@ -342,6 +343,34 @@ class TestKnnTree(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+class TestKnnNearestNeighborsConfig(unittest.TestCase):
+    def setUp(self):
+        self.n_train = 300
+        self.n_test = 80
+        self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
+            n_train=self.n_train, n_test=self.n_test,
+            contamination=0.1, random_state=42)
+
+    def test_neighbor_params_propagation(self):
+        clf = KNN(n_neighbors=7, algorithm='kd_tree', n_jobs=-1)
+        clf.fit(self.X_train)
+        assert_equal(clf.neigh_.algorithm, 'kd_tree')
+        assert_equal(clf.neigh_.n_jobs, -1)
+        scores = clf.decision_function(self.X_test)
+        assert_equal(scores.shape[0], self.X_test.shape[0])
+
+    def test_decision_function_uses_batch_kneighbors(self):
+        clf = KNN(n_neighbors=5, algorithm='brute', n_jobs=1)
+        clf.fit(self.X_train)
+
+        with patch.object(clf.neigh_, 'kneighbors',
+                          wraps=clf.neigh_.kneighbors) as mocked_kneighbors:
+            scores = clf.decision_function(self.X_test)
+            mocked_kneighbors.assert_called_once()
+
+        assert_equal(scores.shape[0], self.X_test.shape[0])
 
 
 if __name__ == '__main__':
