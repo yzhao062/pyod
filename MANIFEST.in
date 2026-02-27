@@ -4,3 +4,4 @@ prune pyod/test
 prune README.md
 include README.rst
 include requirements.txt
+recursive-include pyod/utils/model_analysis_jsons *.json
