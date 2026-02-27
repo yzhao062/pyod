@@ -154,5 +154,27 @@ class TestLUNAR(unittest.TestCase):
         pass
 
 
+class TestLUNARNearestNeighborsConfig(unittest.TestCase):
+    def setUp(self):
+        self.X_train, self.X_test, _, _ = generate_data(
+            n_train=150, n_test=60, n_features=10, contamination=0.1,
+            random_state=42)
+
+    def test_neighbor_params_propagation(self):
+        clf = LUNAR(n_neighbours=5, n_epochs=2, algorithm='kd_tree',
+                    n_jobs=-1)
+        clf.fit(self.X_train)
+        assert_equal(clf.neigh.algorithm, 'kd_tree')
+        assert_equal(clf.neigh.n_jobs, -1)
+        scores = clf.decision_function(self.X_test)
+        assert_equal(scores.shape[0], self.X_test.shape[0])
+
+    def test_bruteforce_neighbor_search(self):
+        clf = LUNAR(n_neighbours=5, n_epochs=2, algorithm='brute', n_jobs=1)
+        clf.fit(self.X_train)
+        scores = clf.decision_function(self.X_test)
+        assert_equal(scores.shape[0], self.X_test.shape[0])
+
+
 if __name__ == '__main__':
     unittest.main()

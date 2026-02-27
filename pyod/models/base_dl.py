@@ -186,10 +186,10 @@ class BaseDeepLearningDetector(BaseDetector):
         if self.preprocessing:
             self.X_mean = np.mean(X, axis=0)
             self.X_std = np.std(X, axis=0)
-            train_set = TorchDataset(X=X, y=y,
+            train_set = TorchDataset(X=X, y=None,
                                      mean=self.X_mean, std=self.X_std)
         else:
-            train_set = TorchDataset(X=X, y=y)
+            train_set = TorchDataset(X=X, y=None)
 
         # create data loader
         train_loader = torch.utils.data.DataLoader(

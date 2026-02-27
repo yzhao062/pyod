@@ -135,6 +135,20 @@ class TestFastABOD(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_fast_mode_tree_and_neighbor_model_consistent(self):
+        assert (hasattr(self.clf, 'neigh_') and self.clf.neigh_ is not None)
+        assert (self.clf.tree_ is self.clf.neigh_)
+
+    def test_fast_mode_neighbor_params_propagation(self):
+        for algorithm in ['auto', 'kd_tree', 'brute']:
+            clf = ABOD(contamination=self.contamination, n_neighbors=5,
+                       method='fast', algorithm=algorithm, n_jobs=-1)
+            clf.fit(self.X_train)
+            assert_equal(clf.neigh_.algorithm, algorithm)
+            assert_equal(clf.neigh_.n_jobs, -1)
+            pred_scores = clf.decision_function(self.X_test)
+            assert_equal(pred_scores.shape[0], self.X_test.shape[0])
+
     def tearDown(self):
         pass
 
