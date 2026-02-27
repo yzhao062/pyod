@@ -207,3 +207,4 @@ v<2.0.7>, <01/04/2026> -- Fix compatability issue of new sklearn.
 v<2.0.7>, <02/27/2026> -- Improve NearestNeighbors consistency/performance in KNN, ABOD, SOD, and LUNAR (issue #654).
 v<2.0.7>, <02/27/2026> -- VAE default output activation changed to identity and added identity activation support/tests (issue #651).
 v<2.0.7>, <02/27/2026> -- Fix package_data/MANIFEST configuration to include auto model selector JSON resources in distributions (issue #642).
+v<2.0.7>, <02/27/2026> -- In BaseDeepLearningDetector, explicitly ignore y during unsupervised fit to avoid batch tuple/list device errors in DL detectors (issue #591).
