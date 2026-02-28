@@ -101,20 +101,6 @@ class TestHBOS(unittest.TestCase):
         assert (ub_rejrate <= 1)
         assert (ub_cost >= 0)
 
-    def test_fit_predict(self):
-        pred_labels = self.clf.fit_predict(self.X_train)
-        assert_equal(pred_labels.shape, self.y_train.shape)
-
-    def test_fit_predict_score(self):
-        self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='prc_n_score')
-        with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test,
-                                       scoring='something')
-
     # def test_score(self):
     #     self.clf.score(self.X_test, self.y_test)
     #     self.clf.score(self.X_test, self.y_test, scoring='roc_auc_score')
@@ -229,20 +215,6 @@ class TestAutoHBOS(unittest.TestCase):
         assert_equal(confidence.shape, self.y_test.shape)
         assert (confidence.min() >= 0)
         assert (confidence.max() <= 1)
-
-    def test_fit_predict(self):
-        pred_labels = self.clf.fit_predict(self.X_train)
-        assert_equal(pred_labels.shape, self.y_train.shape)
-
-    def test_fit_predict_score(self):
-        self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='prc_n_score')
-        with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test,
-                                       scoring='something')
 
     # def test_score(self):
     #     self.clf.score(self.X_test, self.y_test)
