@@ -124,6 +124,8 @@ class LUNAR(BaseDetector):
 
     n_neighbors: int, optional (default = 5)
         Number of neighbors to use by default for k neighbors queries.
+        In the implementation, the constructor argument name is
+        ``n_neighbours`` for backward compatibility.
 
     negative_sampling: str in ['UNIFORM', 'SUBSPACE', MIXED'], optional (default = 'MIXED)
         Type of negative samples to use between:
@@ -158,6 +160,27 @@ class LUNAR(BaseDetector):
     verbose: int in {0,1}, optional (default = 0):
         To view or hide training progress
 
+    algorithm : {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
+        Algorithm used to compute nearest neighbors.
+
+    leaf_size : int, optional (default=30)
+        Leaf size passed to nearest-neighbor tree backends when applicable.
+        This can affect construction/query speed and memory usage.
+
+    metric : str or callable, optional (default='minkowski')
+        Distance metric used for nearest-neighbor computation.
+
+    p : int, optional (default=2)
+        Power parameter for the Minkowski metric when
+        ``metric='minkowski'``.
+
+    metric_params : dict, optional (default=None)
+        Additional keyword arguments for the metric function.
+
+    n_jobs : int, optional (default=1)
+        Number of parallel jobs for nearest-neighbor search.
+        If ``-1``, all available CPU cores are used.
+
     Attributes
     ----------
     """
@@ -166,7 +189,9 @@ class LUNAR(BaseDetector):
                  negative_sampling="MIXED",
                  val_size=0.1, scaler=MinMaxScaler(), epsilon=0.1,
                  proportion=1.0,
-                 n_epochs=200, lr=0.001, wd=0.1, verbose=0, contamination=0.1):
+                 n_epochs=200, lr=0.001, wd=0.1, verbose=0, contamination=0.1,
+                 algorithm='auto', leaf_size=30, metric='minkowski', p=2,
+                 metric_params=None, n_jobs=1, **kwargs):
         super(LUNAR, self).__init__(contamination=contamination)
 
         self.model_type = model_type
@@ -180,6 +205,13 @@ class LUNAR(BaseDetector):
         self.wd = wd
         self.val_size = val_size
         self.verbose = verbose
+        self.algorithm = algorithm
+        self.leaf_size = leaf_size
+        self.metric = metric
+        self.p = p
+        self.metric_params = metric_params
+        self.n_jobs = n_jobs
+        self.kwargs = kwargs
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -239,7 +271,14 @@ class LUNAR(BaseDetector):
         val_x = np.vstack((val_x, neg_val_x))
         val_y = np.hstack((val_y, neg_val_y))
 
-        self.neigh = NearestNeighbors(n_neighbors=self.n_neighbours + 1)
+        self.neigh = NearestNeighbors(n_neighbors=self.n_neighbours + 1,
+                                      algorithm=self.algorithm,
+                                      leaf_size=self.leaf_size,
+                                      metric=self.metric,
+                                      p=self.p,
+                                      metric_params=self.metric_params,
+                                      n_jobs=self.n_jobs,
+                                      **self.kwargs)
         self.neigh.fit(train_x)
 
         # nearest neighbours of training set

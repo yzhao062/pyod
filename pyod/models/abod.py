@@ -10,7 +10,6 @@ from itertools import combinations
 
 import numpy as np
 from numba import njit
-from sklearn.neighbors import KDTree
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -117,6 +116,31 @@ class ABOD(BaseDetector):
         - 'default': original ABOD with all training points, which could be
           slow
 
+    algorithm : {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
+        Algorithm used to compute nearest neighbors when ``method='fast'``.
+
+        - 'ball_tree' will use BallTree
+        - 'kd_tree' will use KDTree
+        - 'brute' will use a brute-force search
+        - 'auto' will attempt to choose the most appropriate algorithm
+
+    leaf_size : int, optional (default=30)
+        Leaf size passed to nearest-neighbor tree backends when applicable.
+        This can affect construction/query speed and memory usage.
+
+    metric : str or callable, optional (default='minkowski')
+        Distance metric used for nearest-neighbor computation in fast mode.
+
+    p : int, optional (default=2)
+        Power parameter for the Minkowski metric when ``metric='minkowski'``.
+
+    metric_params : dict, optional (default=None)
+        Additional keyword arguments for the metric function.
+
+    n_jobs : int, optional (default=1)
+        Number of parallel jobs for nearest-neighbor search.
+        If ``-1``, all available CPU cores are used.
+
     Attributes
     ----------
     decision_scores_ : numpy array of shape (n_samples,)
@@ -137,10 +161,19 @@ class ABOD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, contamination=0.1, n_neighbors=5, method='fast'):
+    def __init__(self, contamination=0.1, n_neighbors=5, method='fast',
+                 algorithm='auto', leaf_size=30, metric='minkowski', p=2,
+                 metric_params=None, n_jobs=1, **kwargs):
         super(ABOD, self).__init__(contamination=contamination)
         self.method = method
         self.n_neighbors = n_neighbors
+        self.algorithm = algorithm
+        self.leaf_size = leaf_size
+        self.metric = metric
+        self.p = p
+        self.metric_params = metric_params
+        self.n_jobs = n_jobs
+        self.kwargs = kwargs
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -208,12 +241,19 @@ class ABOD(BaseDetector):
             check_parameter(self.n_neighbors, 1, self.n_train_,
                             include_left=True, include_right=True)
 
-        self.tree_ = KDTree(self.X_train_)
-
-        neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
-        neigh.fit(self.X_train_)
-        ind_arr = neigh.kneighbors(n_neighbors=self.n_neighbors,
-                                   return_distance=False)
+        self.neigh_ = NearestNeighbors(n_neighbors=self.n_neighbors,
+                                       algorithm=self.algorithm,
+                                       leaf_size=self.leaf_size,
+                                       metric=self.metric,
+                                       p=self.p,
+                                       metric_params=self.metric_params,
+                                       n_jobs=self.n_jobs,
+                                       **self.kwargs)
+        self.neigh_.fit(self.X_train_)
+        self.tree_ = self.neigh_
+        ind_arr = self.neigh_.kneighbors(self.X_train_,
+                                         n_neighbors=self.n_neighbors,
+                                         return_distance=False)
 
         for i in range(self.n_train_):
             curr_pt = self.X_train_[i, :]
@@ -293,12 +333,13 @@ class ABOD(BaseDetector):
 
         """
 
-        check_is_fitted(self, ['tree_'])
+        check_is_fitted(self, ['neigh_'])
         # initialize the output score
         pred_score = np.zeros([X.shape[0], 1])
 
         # get the indexes of the X's k nearest training points
-        _, ind_arr = self.tree_.query(X, k=self.n_neighbors)
+        _, ind_arr = self.neigh_.kneighbors(X, n_neighbors=self.n_neighbors,
+                                            return_distance=True)
 
         for i in range(X.shape[0]):
             curr_pt = X[i, :]

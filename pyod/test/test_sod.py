@@ -178,5 +178,27 @@ class TestSOD(unittest.TestCase):
         pass
 
 
+class TestSODNearestNeighborsConfig(unittest.TestCase):
+    def setUp(self):
+        self.X_train, self.X_test, _, _ = generate_data(
+            n_train=200, n_test=60, contamination=0.1, random_state=42)
+
+    def test_neighbor_params_propagation(self):
+        clf = SOD(n_neighbors=20, ref_set=10, alpha=0.8, algorithm='kd_tree',
+                  n_jobs=-1)
+        clf.fit(self.X_train)
+        assert_equal(clf.algorithm, 'kd_tree')
+        assert_equal(clf.n_jobs, -1)
+        pred_scores = clf.decision_function(self.X_test)
+        assert_equal(pred_scores.shape[0], self.X_test.shape[0])
+
+    def test_bruteforce_neighbor_search(self):
+        clf = SOD(n_neighbors=20, ref_set=10, alpha=0.8, algorithm='brute',
+                  n_jobs=1)
+        clf.fit(self.X_train)
+        pred_scores = clf.decision_function(self.X_test)
+        assert_equal(pred_scores.shape[0], self.X_test.shape[0])
+
+
 if __name__ == '__main__':
     unittest.main()

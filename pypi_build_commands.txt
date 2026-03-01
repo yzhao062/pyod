@@ -1,17 +1,36 @@
-# This is a command list for building pypi packages
+# This is a command list for building and releasing pyod to PyPI (Windows-friendly).
 
+# 0) Optional: run from a clean extracted source directory
+
+# 1) Clean old build artifacts
+Remove-Item -Recurse -Force dist,build,pyod.egg-info -ErrorAction SilentlyContinue
+
+# 2) Build package
 python -m build
+
+# 3) Check metadata
 twine check dist/*
 
-# docstring check
+# 4) Optional checks
 pytest --doctest-modules pyod/
+# pytest pyod/test -q
 
+# 5) Optional smoke test in current env (after local wheel install)
+# cmd.exe:
+#   for %f in (dist\*.whl) do pip install "%f"
+# powershell:
+#   pip install dist/*.whl
+python -c "import pyod; print(pyod.__version__)"
+python -c "from pyod.models.ecod import ECOD; from pyod.utils.data import generate_data; X_train, X_test, y_train, y_test = generate_data(n_train=200, n_test=50); clf=ECOD(); clf.fit(X_train); print('ok', len(clf.decision_scores_))"
+
+# 6) Upload to TestPyPI first
+# NOTE: repository name must match ~/.pypirc section name (here: pypitest)
 twine upload --repository pypitest dist/*
 # https://test.pypi.org/project/pyod/
 
+# 7) Upload to official PyPI
 twine upload dist/*
-
-https://pypi.org/project/pyod/
+# https://pypi.org/project/pyod/
 
 
 #######################################################

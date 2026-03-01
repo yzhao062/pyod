@@ -85,6 +85,16 @@ class TestBaseDL(unittest.TestCase):
             )
         )
 
+        # test identity activation
+        dummy_identity = get_activation_by_name('identity')
+        self.assertIsInstance(dummy_identity, nn.Identity)
+        self.assertTrue(
+            torch.equal(
+                dummy_identity(torch.tensor([-1.0, 0.0, 1.0])),
+                torch.tensor([-1.0, 0.0, 1.0])
+            )
+        )
+
         # test leaky relu activation
         dummy_leaky_relu = get_activation_by_name('leaky_relu',
                                                   leaky_relu_negative_slope=0.1)
