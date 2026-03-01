@@ -184,6 +184,15 @@ pyod.models.hbos module
     :show-inheritance:
     :inherited-members:
 
+pyod.models.hdbscan module
+--------------------------
+
+.. automodule:: pyod.models.hdbscan
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 pyod.models.iforest module
 --------------------------
 

@@ -374,6 +374,7 @@ Proximity-Based      (Incremental) COF   Memory Efficient Connectivity-Based Out
 Proximity-Based      CBLOF               Clustering-Based Local Outlier Factor                                                                   2003   [#He2003Discovering]_
 Proximity-Based      LOCI                LOCI: Fast outlier detection using the local correlation integral                                       2003   [#Papadimitriou2003LOCI]_
 Proximity-Based      HBOS                Histogram-based Outlier Score                                                                           2012   [#Goldstein2012Histogram]_
+Proximity-Based      HDBSCAN             Density-based clustering based on hierarchical density estimates                                        2013   [#Campello2013Density]_
 Proximity-Based      kNN                 k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score)                 2000   [#Ramaswamy2000Efficient]_
 Proximity-Based      AvgKNN              Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   [#Angiulli2002Fast]_
 Proximity-Based      MedKNN              Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
@@ -537,6 +538,8 @@ Reference
 .. [#Breunig2000LOF] Breunig, M.M., Kriegel, H.P., Ng, R.T. and Sander, J., 2000, May. LOF: identifying density-based local outliers. *ACM Sigmod Record*\ , 29(2), pp. 93-104.
 
 .. [#Burgess2018Understanding] Burgess, Christopher P., et al. "Understanding disentangling in beta-VAE." arXiv preprint arXiv:1804.03599 (2018).
+
+.. [#Campello2013Density] Campello, R.J.G.B., Moulavi, D. and Sander, J., 2013, April. Density-based clustering based on hierarchical density estimates. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining* (pp. 160-172). Springer.
 
 .. [#Cook1977Detection] Cook, R.D., 1977. Detection of influential observation in linear regression. Technometrics, 19(1), pp.15-18.
 
