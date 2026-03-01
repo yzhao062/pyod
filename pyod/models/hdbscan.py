@@ -5,7 +5,6 @@
 # License: BSD 2 clause
 
 import numpy as np
-from sklearn.cluster import HDBSCAN as sklearn_HDBSCAN
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -21,7 +20,7 @@ class HDBSCAN(BaseDetector):
     points that do not belong to any cluster (noise) or have weak membership
     in their assigned cluster. The anomaly score is computed as
     ``1 - probabilities_``, where ``probabilities_`` represents each point's
-    cluster membership strength. See :cite:`campello2015hdbscan` for details.
+    cluster membership strength. See :cite:`campello2013density` for details.
 
     For new data prediction, the outlier scores are approximated using
     k-nearest neighbor interpolation from the training data scores.
@@ -54,7 +53,9 @@ class HDBSCAN(BaseDetector):
         during clustering.
 
     n_jobs : int or None, optional (default=1)
-        Number of parallel jobs to run. ``-1`` means using all processors.
+        Number of parallel jobs to run for nearest-neighbor search in
+        :meth:`decision_function` (KNN interpolation on training scores).
+        ``-1`` means using all processors.
 
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e. the proportion
@@ -114,6 +115,14 @@ class HDBSCAN(BaseDetector):
         """
         X = check_array(X)
         self._set_n_classes(y)
+
+        try:
+            from sklearn.cluster import HDBSCAN as sklearn_HDBSCAN
+        except Exception as e:
+            raise ImportError(
+                "HDBSCAN requires scikit-learn with sklearn.cluster.HDBSCAN. "
+                "Please upgrade scikit-learn."
+            ) from e
 
         self.detector_ = sklearn_HDBSCAN(
             min_cluster_size=self.min_cluster_size,

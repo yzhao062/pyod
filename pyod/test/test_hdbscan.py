@@ -14,6 +14,13 @@ from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 
+# Check sklearn HDBSCAN availability (introduced in newer sklearn versions)
+try:
+    from sklearn.cluster import HDBSCAN as _sklearn_hdbscan  # noqa: F401
+    HAS_SKLEARN_HDBSCAN = True
+except Exception:
+    HAS_SKLEARN_HDBSCAN = False
+
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -22,6 +29,7 @@ from pyod.models.hdbscan import HDBSCAN
 from pyod.utils.data import generate_data
 
 
+@unittest.skipIf(not HAS_SKLEARN_HDBSCAN, 'sklearn.cluster.HDBSCAN not available')
 class TestHDBSCAN(unittest.TestCase):
     def setUp(self):
         self.n_train = 200
