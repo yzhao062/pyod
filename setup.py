@@ -38,6 +38,9 @@ setup(
     packages=find_packages(exclude=['test']),
     include_package_data=True,
     package_data={
+        # Keep both patterns to make packaging robust across backends:
+        # one relative to the top-level package and one to pyod.utils.
+        'pyod': ['utils/model_analysis_jsons/*.json'],
         'pyod.utils': ['model_analysis_jsons/*.json'],
     },
     install_requires=requirements,
