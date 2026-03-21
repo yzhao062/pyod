@@ -30,7 +30,14 @@ from ..utils.stat_models import pairwise_distances_no_broadcast
 from ..utils.torch_utility import LinearBlock, get_criterion_by_name
 
 
-def vae_loss(x, x_recon, z_mu, z_logvar, beta=1.0, capacity=0.0):
+def _clamp_logvar(z_logvar, logvar_clip):
+    if logvar_clip is None:
+        return z_logvar
+    return torch.clamp(z_logvar, min=logvar_clip[0], max=logvar_clip[1])
+
+
+def vae_loss(x, x_recon, z_mu, z_logvar, beta=1.0, capacity=0.0,
+             logvar_clip=None):
     """Compute the loss of VAE
 
     Parameters
@@ -58,6 +65,8 @@ def vae_loss(x, x_recon, z_mu, z_logvar, beta=1.0, capacity=0.0):
     loss : torch.Tensor, shape (n_samples,)
         The loss of VAE.
     """
+    z_logvar = _clamp_logvar(z_logvar, logvar_clip)
+
     # Reconstruction loss
     recon_loss = get_criterion_by_name('mse')(x_recon, x)
 
@@ -175,6 +184,10 @@ class VAE(BaseDeepLearningDetector):
     dropout_rate : float in (0., 1), optional (default=0.2)
         The dropout to be used across all layers.
 
+    logvar_clip : tuple of two floats, optional (default=(-30.0, 20.0))
+        Lower and upper bounds used to clip latent log-variance values for
+        numerical stability. Set to ``None`` to disable clipping.
+
     Attributes
     ----------
     model : torch.nn.Module
@@ -216,7 +229,8 @@ class VAE(BaseDeepLearningDetector):
                  latent_dim=2,
                  hidden_activation_name='relu',
                  output_activation_name='identity',
-                 batch_norm=False, dropout_rate=0.2):
+                 batch_norm=False, dropout_rate=0.2,
+                 logvar_clip=(-30.0, 20.0)):
         super(VAE, self).__init__(contamination=contamination,
                                   preprocessing=preprocessing,
                                   lr=lr, epoch_num=epoch_num,
@@ -237,6 +251,7 @@ class VAE(BaseDeepLearningDetector):
         self.output_activation_name = output_activation_name
         self.batch_norm = batch_norm
         self.dropout_rate = dropout_rate
+        self.logvar_clip = self._validate_logvar_clip(logvar_clip)
 
     def build_model(self):
         self.model = VAEModel(self.feature_size,
@@ -246,7 +261,8 @@ class VAE(BaseDeepLearningDetector):
                               hidden_activation_name=self.hidden_activation_name,
                               output_activation_name=self.output_activation_name,
                               batch_norm=self.batch_norm,
-                              dropout_rate=self.dropout_rate)
+                              dropout_rate=self.dropout_rate,
+                              logvar_clip=self.logvar_clip)
 
     def training_forward(self, batch_data):
         x = batch_data
@@ -254,7 +270,8 @@ class VAE(BaseDeepLearningDetector):
         self.optimizer.zero_grad()
         x_recon, z_mu, z_logvar = self.model(x)
         loss = self.criterion(x, x_recon, z_mu, z_logvar,
-                              beta=self.beta, capacity=self.capacity)
+                              beta=self.beta, capacity=self.capacity,
+                              logvar_clip=self.logvar_clip)
         loss.backward()
         self.optimizer.step()
         return loss.item()
@@ -267,6 +284,19 @@ class VAE(BaseDeepLearningDetector):
                                                 x_recon.cpu().numpy())
         return score
 
+    @staticmethod
+    def _validate_logvar_clip(logvar_clip):
+        if logvar_clip is None:
+            return None
+        try:
+            lower, upper = logvar_clip
+        except (TypeError, ValueError):
+            raise ValueError('logvar_clip must contain two values.')
+        if lower >= upper:
+            raise ValueError('logvar_clip lower bound must be smaller than '
+                             'upper bound.')
+        return float(lower), float(upper)
+
 
 class VAEModel(nn.Module):
     def __init__(self,
@@ -276,7 +306,8 @@ class VAEModel(nn.Module):
                  latent_dim=2,
                  hidden_activation_name='relu',
                  output_activation_name='sigmoid',
-                 batch_norm=False, dropout_rate=0.2):
+                 batch_norm=False, dropout_rate=0.2,
+                 logvar_clip=(-30.0, 20.0)):
         super(VAEModel, self).__init__()
 
         self.feature_size = feature_size
@@ -287,6 +318,7 @@ class VAEModel(nn.Module):
         self.output_activation_name = output_activation_name
         self.batch_norm = batch_norm
         self.dropout_rate = dropout_rate
+        self.logvar_clip = logvar_clip
 
         self.encoder = self._build_encoder()
         self.decoder = self._build_decoder()
@@ -327,6 +359,7 @@ class VAEModel(nn.Module):
         return x_recon, z_mu, z_logvar
 
     def reparameterize(self, mu, logvar):
+        logvar = _clamp_logvar(logvar, self.logvar_clip)
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std).to(std.device)
         return mu + eps * std
