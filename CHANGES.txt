@@ -210,3 +210,4 @@ v<2.0.7>, <02/27/2026> -- Fix package_data/MANIFEST configuration to include aut
 v<2.0.7>, <02/27/2026> -- In BaseDeepLearningDetector, explicitly ignore y during unsupervised fit to avoid batch tuple/list device errors in DL detectors (issue #591).
 v<2.0.8>, <02/28/2026> -- Add HDBSCAN detector with tests and documentation updates.
 v<2.0.8>, <04/03/2026> -- Fix CD detector to reuse training-fitted models at prediction time instead of re-fitting on test data; fix broken NaN check in Cook's distance; use sklearn.base.clone instead of deepcopy; fix mutable default argument (PR #624).
+v<2.0.8>, <04/03/2026> -- Fix AutoModelSelector: guard openai/dotenv imports, fix model name mismatches (MO-GAAL/SO-GAAL/Deep SVDD), replace if/elif with registry, add tests (issue #625).
