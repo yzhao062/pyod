@@ -5,3 +5,5 @@ pyod.egg-info/
 __pycache__
 .idea/
 .vscode/
+
+.agent-config/
