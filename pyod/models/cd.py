@@ -2,11 +2,11 @@
 """Cook's distance outlier detection (CD)
 """
 
-# Author: D Kulik
+# Author: Daniel Kulik
 # License: BSD 2 clause
 
-
 import numpy as np
+from sklearn.base import clone as sklearn_clone
 from sklearn.linear_model import LinearRegression
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -46,7 +46,7 @@ def _Cooks_dist(X, y, model):
     mse = np.dot(residuals, residuals) / df
 
     # Compute Cook's distance
-    if (mse != 0) or (mse != np.nan):
+    if (mse != 0) and not np.isnan(mse):
         residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(
             1 - leverage)
         distance_ = residuals_studentized ** 2 / X.shape[1]
@@ -60,27 +60,36 @@ def _Cooks_dist(X, y, model):
     return distance_
 
 
-def _process_distances(X, model):
-    """Calculated the mean Cook's distances for
-    each feature
+def _process_distances(X, models, refit=True):
+    """Calculate the mean Cook's distances for each feature.
 
     Parameters
     ----------
     X : numpy array of shape (n_samples, n_features)
-        The training dataset.
+        The dataset.
 
-    model : object
-        Regression model used to calculate the Cook's distance
+    models : list
+        If refit is True, a single-element list containing the model
+        template to clone (via sklearn.base.clone) and fit for each
+        feature. If refit is False, a list of pre-fitted models (one
+        per feature).
+
+    refit : bool, optional (default=True)
+        If True, clone and fit a new model for each feature.
+        If False, use the pre-fitted models from the list.
 
     Returns
     -------
-    distances_ : numpy array of shape (n_samples)
-        mean Cook's distance
+    distances_ : numpy array of shape (n_samples,)
+        Mean Cook's distance across all features.
+
+    model_list : list
+        Fitted models, one per feature.
     """
 
     distances_ = []
+    model_list = []
     for i in range(X.shape[1]):
-        mod = model
 
         # Extract new X and y inputs
         exp = np.delete(X.copy(), i, axis=1)
@@ -88,8 +97,13 @@ def _process_distances(X, model):
 
         exp = exp.reshape(-1, 1) if exp.ndim == 1 else exp
 
-        # Fit the model
-        mod.fit(exp, resp)
+        if refit:
+            mod = sklearn_clone(models[0])
+            mod.fit(exp, resp)
+        else:
+            mod = models[i]
+
+        model_list.append(mod)
 
         # Get Cook's Distance
         distance_ = _Cooks_dist(exp, resp, mod)
@@ -98,7 +112,7 @@ def _process_distances(X, model):
 
     distances_ = np.nanmean(distances_, axis=0)
 
-    return distances_
+    return distances_, model_list
 
 
 class CD(BaseDetector):
@@ -117,8 +131,10 @@ class CD(BaseDetector):
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
         
-    model : object, optional (default=LinearRegression())
-        Regression model used to calculate the Cook's distance
+    model : sklearn-compatible regressor, optional (default=LinearRegression())
+        Regression model used to calculate the Cook's distance.
+        Must implement the scikit-learn estimator interface
+        (fit, predict, get_params).
           
 
     Attributes
@@ -140,9 +156,9 @@ class CD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
         """
 
-    def __init__(self, contamination=0.1, model=LinearRegression()):
+    def __init__(self, contamination=0.1, model=None):
         super(CD, self).__init__(contamination=contamination)
-        self.model = model
+        self.model = model if model is not None else LinearRegression()
 
     def fit(self, X, y=None):
         """"Fit detector. y is ignored in unsupervised methods.
@@ -167,7 +183,8 @@ class CD(BaseDetector):
         self._set_n_classes(y)
 
         # Get Cook's distance
-        distances_ = _process_distances(X, self.model)
+        distances_, self._models = _process_distances(
+            X, [self.model], refit=True)
 
         self.decision_scores_ = distances_
 
@@ -191,12 +208,14 @@ class CD(BaseDetector):
             The anomaly score of the input samples.
         """
 
-        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_',
+                                '_models'])
 
         # Validate input X
         X = check_array(X)
 
-        # Get Cook's distance
-        distances_ = _process_distances(X, self.model)
+        # Get Cook's distance using models fitted on training data
+        distances_, _ = _process_distances(
+            X, self._models, refit=False)
 
         return distances_
