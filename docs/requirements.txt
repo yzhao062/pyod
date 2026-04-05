@@ -1,6 +1,5 @@
 combo
 furo
-geomstats
 joblib
 matplotlib
 nose
@@ -8,7 +7,7 @@ numpy>=1.19
 numba>=0.51
 pyclustering
 pytest
-pythresh>=0.3.1
+pythresh>=1.0.0
 ruptures
 scipy>=1.5.1
 scikit-learn>=0.22.0

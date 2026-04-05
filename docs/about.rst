@@ -61,7 +61,7 @@ Adam Goodge (PhD Researcher @ National University of Singapore):
 - Joined in 2022 (implemented LUNAR)
 - `LinkedIn (Adam Goodge) <https://www.linkedin.com/in/adam-goodge-33908691/>`_
 
-Daniel Kulik (Machine Learning Developer; MSc Student @ University of the Free State):
+Daniel Kulik (Machine Learning Developer; MSc Astrophysics @ University of the Free State):
 
 - Joined 2022 (implemented integration with PyThresh and more)
 - `LinkedIn (Daniel Kulik) <https://www.linkedin.com/in/daniel-kulik-148256223>`_
