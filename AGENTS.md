@@ -41,6 +41,7 @@ If a local `skills/<skill-name>/SKILL.md` exists in the project repo, the local 
 Copying `.agent-config/repo/.claude/commands/*.md` only overwrites command files with the same name as the shared repo and does not delete unrelated project-local commands.
 Merge shared Claude project defaults (e.g., `effortLevel`, `permissions`) from `.agent-config/repo/.claude/settings.json` into the project `.claude/settings.json`. Shared keys are updated on every bootstrap run; project-only keys are preserved. Merge requires Python; if unavailable the existing file is left untouched.
 Add `.agent-config/` to the project's `.gitignore` so fetched files are not committed.
+Bootstrap also sets up user-level config: it copies `scripts/guard.py` to `~/.claude/hooks/` (a PreToolUse hook that guards against destructive commands) and merges `user/settings.json` into `~/.claude/settings.json` (shared permissions and hook wiring). Remove the user-level section from the bootstrap script if this is not wanted.
 ````
 
 ### What gets shared
