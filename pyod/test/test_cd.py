@@ -115,6 +115,67 @@ class TestCD(unittest.TestCase):
         assert (confidence.min() >= 0)
         assert (confidence.max() <= 1)
 
+    def test_decision_function_uses_train_models(self):
+        # Verify that decision_function uses models fitted on training
+        # data rather than re-fitting on test data.
+        import numpy as np
+        from sklearn.linear_model import LinearRegression
+
+        clf = CD(contamination=self.contamination)
+        clf.fit(self.X_train)
+
+        # The fitted models should exist and match the number of features
+        assert hasattr(clf, '_models')
+        assert_equal(len(clf._models), self.X_train.shape[1])
+
+        # Each stored model should already have coefficients (fitted)
+        for mod in clf._models:
+            assert hasattr(mod, 'coef_')
+
+        # Replace stored models AND self.model with sentinels that
+        # raise on fit(). This catches both the refit=False path and
+        # any regression to the old buggy path that clones self.model.
+        class NoRefitRegressor(LinearRegression):
+            def fit(self, X, y=None, **kwargs):
+                raise AssertionError(
+                    "fit() called during decision_function")
+
+        for i, mod in enumerate(clf._models):
+            sentinel = NoRefitRegressor()
+            sentinel.coef_ = mod.coef_
+            sentinel.intercept_ = mod.intercept_
+            clf._models[i] = sentinel
+
+        clf.model = NoRefitRegressor()
+
+        # decision_function must succeed without calling fit()
+        test_scores = clf.decision_function(self.X_test)
+        assert_equal(len(test_scores), self.n_test)
+
+    def test_sklearn_clone_compatibility(self):
+        # Verify that fit() uses sklearn.base.clone (not deepcopy),
+        # so estimators with non-picklable state still work.
+        import threading
+        import numpy as np
+        from sklearn.base import BaseEstimator, RegressorMixin
+
+        class LockingRegressor(BaseEstimator, RegressorMixin):
+            def __init__(self):
+                self._lock = threading.Lock()
+
+            def fit(self, X, y=None):
+                self.coef_ = np.zeros(X.shape[1])
+                self.intercept_ = 0.0
+                return self
+
+            def predict(self, X):
+                return X @ self.coef_ + self.intercept_
+
+        clf = CD(contamination=self.contamination, model=LockingRegressor())
+        clf.fit(self.X_train)
+        scores = clf.decision_function(self.X_test)
+        assert_equal(len(scores), self.n_test)
+
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 

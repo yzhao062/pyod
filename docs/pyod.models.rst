@@ -1,6 +1,8 @@
 All Models
 ==========
 
+All models inherit from :class:`pyod.models.base.BaseDetector`, which provides the shared API: ``fit``, ``predict``, ``decision_function``, ``predict_proba``, ``predict_confidence``, and ``predict_with_rejection``. See :doc:`api_cc` for the full list. The pages below document only each model's own parameters and methods.
+
 
 pyod.models.abod module
 -----------------------
@@ -10,7 +12,8 @@ pyod.models.abod module
     :exclude-members: get_params, set_params
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 
 pyod.models.ae1svm module
@@ -21,7 +24,8 @@ pyod.models.ae1svm module
     :exclude-members: get_params, set_params, RandomFourierFeatures, InnerAE1SVM, _train_autoencoder
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 
 pyod.models.alad module
@@ -32,7 +36,8 @@ pyod.models.alad module
     :exclude-members: get_params, set_params, train_step, train_more, get_outlier_scores
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.anogan module
 -------------------------
@@ -42,7 +47,8 @@ pyod.models.anogan module
     :exclude-members: Discriminator, Generator, QueryModel
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.auto\_encoder module
 --------------------------------
@@ -52,7 +58,8 @@ pyod.models.auto\_encoder module
     :exclude-members: get_params, set_params, decision_function_update, epoch_update, evaluating_prepare, evaluating_forward, AutoEncoderModel, load
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.auto\_encoder\_torch module
 ---------------------------------------
@@ -62,7 +69,8 @@ pyod.models.auto\_encoder\_torch module
     :exclude-members: get_params, set_params, InnerAutoencoder
     :exclude-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.cblof module
 ------------------------
@@ -72,7 +80,8 @@ pyod.models.cblof module
     :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.cof module
 ----------------------
@@ -82,7 +91,8 @@ pyod.models.cof module
     :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.combination module
 ------------------------------
@@ -92,7 +102,8 @@ pyod.models.combination module
     :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.cd module
 ---------------------
@@ -102,7 +113,8 @@ pyod.models.cd module
     :exclude-members: get_params, set_params,
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.copod module
 ------------------------
@@ -112,7 +124,8 @@ pyod.models.copod module
     :exclude-members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.deep\_svdd module
 -----------------------------
@@ -122,7 +135,8 @@ pyod.models.deep\_svdd module
     :exclude-members: InnerDeepSVDD
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.devnet module
 -----------------------------
@@ -132,7 +146,8 @@ pyod.models.devnet module
     :exclude-members: DevNetD, DevNetS, DevNetLinear, deviation_loss, train_and_test, deviation_network, SupDataset, input_batch_generation_sup_sparse, load_model_weight_predict
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.dif module
 -----------------------------
@@ -142,7 +157,19 @@ pyod.models.dif module
     :exclude-members: LinearBlock, MLPnet
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
+
+
+pyod.models.embedding module
+-----------------------------
+
+.. automodule:: pyod.models.embedding
+    :members:
+    :exclude-members: get_params, set_params, resolve_detector, _DETECTOR_SHORTCUTS
+    :undoc-members:
+    :show-inheritance:
+
 
 
 pyod.models.ecod module
@@ -153,7 +180,8 @@ pyod.models.ecod module
     :exclude-members: InnerDeepSVDD,
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.feature\_bagging module
 -----------------------------------
@@ -162,7 +190,8 @@ pyod.models.feature\_bagging module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 
 pyod.models.gmm module
@@ -173,7 +202,8 @@ pyod.models.gmm module
     :exclude-members: weights_, get_params, set_params, n_iter_, lower_bound_, means_, converged_, covariances_
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.hbos module
 -----------------------
@@ -182,7 +212,18 @@ pyod.models.hbos module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
+
+pyod.models.hdbscan module
+--------------------------
+
+.. automodule:: pyod.models.hdbscan
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 
 pyod.models.iforest module
 --------------------------
@@ -192,7 +233,8 @@ pyod.models.iforest module
     :exclude-members: estimators_, estimators_features_, estimators_samples_, get_params, set_params,
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.inne module
 -----------------------
@@ -202,7 +244,8 @@ pyod.models.inne module
     :exclude-members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.kde module
 ----------------------
@@ -211,7 +254,8 @@ pyod.models.kde module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.knn module
 ----------------------
@@ -220,7 +264,8 @@ pyod.models.knn module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.kpca module
 -----------------------
@@ -230,7 +275,8 @@ pyod.models.kpca module
     :exclude-members: PyODKernelPCA
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.lmdd module
 -----------------------
@@ -239,7 +285,8 @@ pyod.models.lmdd module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.loda module
 -----------------------
@@ -248,7 +295,8 @@ pyod.models.loda module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.lof module
 ----------------------
@@ -258,7 +306,8 @@ pyod.models.lof module
     :exclude-members: negative_outlier_factor_, n_neighbors_
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.loci module
 -----------------------
@@ -267,7 +316,8 @@ pyod.models.loci module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.lunar module
 ------------------------
@@ -276,7 +326,8 @@ pyod.models.lunar module
     :members:
     :exclude-members: SCORE_MODEL, WEIGHT_MODEL
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.lscp module
 -----------------------
@@ -285,7 +336,8 @@ pyod.models.lscp module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.mad module
 ----------------------
@@ -295,7 +347,8 @@ pyod.models.mad module
     :exclude-members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.mcd module
 ----------------------
@@ -305,7 +358,8 @@ pyod.models.mcd module
     :exclude-members: raw_location_, raw_covariance_, raw_support_, location_, covariance_, precision_, support_
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.mo\_gaal module
 ---------------------------
@@ -314,7 +368,8 @@ pyod.models.mo\_gaal module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.ocsvm module
 ------------------------
@@ -324,7 +379,8 @@ pyod.models.ocsvm module
     :exclude-members: coef_, dual_coef_, support_, support_vectors_, intercept_
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.pca module
 ----------------------
@@ -334,7 +390,8 @@ pyod.models.pca module
     :exclude-members: components_, explained_variance_ratio_, singular_values_, mean_
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.qmcd module
 -------------------------
@@ -343,7 +400,8 @@ pyod.models.qmcd module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.rgraph module
 -------------------------
@@ -352,7 +410,8 @@ pyod.models.rgraph module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.rod module
 ----------------------
@@ -362,7 +421,8 @@ pyod.models.rod module
     :exclude-members: angle, euclidean, geometric_median, mad, process_sub, rod_3D, rod_nD, scale_angles, sigmoid
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.sampling module
 ---------------------------
@@ -371,7 +431,8 @@ pyod.models.sampling module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 
 pyod.models.sod module
@@ -381,7 +442,8 @@ pyod.models.sod module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.so\_gaal module
 ---------------------------
@@ -391,7 +453,8 @@ pyod.models.so\_gaal module
     :exclude-members: Discriminator, Generator
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.sos module
 ----------------------
@@ -400,7 +463,8 @@ pyod.models.sos module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.suod module
 -----------------------
@@ -409,7 +473,8 @@ pyod.models.suod module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.thresholds module
 -----------------------
@@ -418,7 +483,8 @@ pyod.models.thresholds module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.vae module
 ----------------------
@@ -428,7 +494,8 @@ pyod.models.vae module
     :exclude-members: VAEModel, vae_loss
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 pyod.models.xgbod module
 ------------------------
@@ -437,7 +504,8 @@ pyod.models.xgbod module
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 
 Module contents
@@ -447,7 +515,8 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
-    :inherited-members:
+
+
 
 .. rubric:: References
 

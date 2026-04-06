@@ -64,17 +64,10 @@ Welcome to PyOD, a well-developed and easy-to-use Python library for detecting a
 * **Expanded Deep Learning Support**: Integrates 12 modern neural models into a single PyTorch-based framework, bringing the total number of outlier detection methods to 45.
 * **Enhanced Performance and Ease of Use**: Models are optimized for efficiency and consistent performance across different datasets.
 * **LLM-based Model Selection**: Automated model selection guided by a large language model reduces manual tuning and assists users who may have limited experience with outlier detection.
+* **Multi-Modal Detection via EmbeddingOD**: Chain foundation model encoders (sentence-transformers, OpenAI, HuggingFace) with any PyOD detector for text and image anomaly detection. See `EmbeddingOD example <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_.
 
-**Additional Resources**:
-
-* **NLP Anomaly Detection**: `NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_ provides both NLP anonaly detection datasets and algorithms
-* **Time-series Outlier Detection**: `TODS <https://github.com/datamllab/tods>`_
-* **Graph Outlier Detection**: `PyGOD <https://pygod.org/>`_
-* **Performance Comparison & Datasets**: Our 45-page `anomaly detection benchmark paper <https://openreview.net/forum?id=foA_SFQ9zo0>`_ and `ADBench <https://github.com/Minqi824/ADBench>`_, comparing 30 algorithms on 57 datasets
-* **PyOD on Distributed Systems**: `PyOD on Databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_
-* **Learn More**: `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
-
-**Check out our latest research in 2025 on LLM-based anomaly detection** [#Yang2024ad]_: `AD-LLM: Benchmarking Large Language Models for Anomaly Detection <https://arxiv.org/abs/2412.11142>`_.
+**PyOD Ecosystem & Resources**:
+`NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_ (NLP anomaly detection) | `TODS <https://github.com/datamllab/tods>`_ (time-series) | `PyGOD <https://pygod.org/>`_ (graph) | `ADBench <https://github.com/Minqi824/ADBench>`_ (benchmark) | `AD-LLM <https://arxiv.org/abs/2412.11142>`_ (LLM-based AD) [#Yang2024ad]_ | `Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 ----
 
@@ -105,12 +98,23 @@ PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000
     y_test_scores = clf.decision_function(X_test)  # Outlier scores for test data
 
 
-**Selecting the Right Algorithm:** Unsure where to start? Consider these robust and interpretable options:
+**Text Anomaly Detection with EmbeddingOD** (``pip install pyod sentence-transformers``):
 
-- `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_: Example of using ECOD for outlier detection
-- `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_: Example of using Isolation Forest for outlier detection
+.. code-block:: python
 
-Alternatively, explore `MetaOD <https://github.com/yzhao062/MetaOD>`_ for a data-driven approach.
+    from pyod.models.embedding import EmbeddingOD
+    clf = EmbeddingOD(encoder='all-MiniLM-L6-v2', detector='KNN')
+    clf.fit(train_texts)                          # list of strings
+    scores = clf.decision_function(test_texts)    # anomaly scores
+    labels = clf.predict(test_texts)              # binary labels
+
+    # Or use a preset:
+    clf = EmbeddingOD.for_text(quality='fast')    # MiniLM + KNN
+
+Image detection requires additional packages (``pip install transformers torch``). See `EmbeddingOD example <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_ for details.
+
+
+**Selecting the Right Algorithm:** Start with `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_ or `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_ for tabular data, `EmbeddingOD <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_ for text/image, or `MetaOD <https://github.com/yzhao062/MetaOD>`_ for data-driven selection.
 
 **Citing PyOD**:
 
@@ -145,24 +149,7 @@ or::
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
 
-For a broader perspective on anomaly detection, see our NeurIPS papers `ADBench: Anomaly Detection Benchmark Paper <https://arxiv.org/abs/2206.09426>`_ and `ADGym: Design Choices for Deep Anomaly Detection <https://arxiv.org/abs/2309.15376>`_::
-
-    @article{han2022adbench,
-        title={Adbench: Anomaly detection benchmark},
-        author={Han, Songqiao and Hu, Xiyang and Huang, Hailiang and Jiang, Minqi and Zhao, Yue},
-        journal={Advances in Neural Information Processing Systems},
-        volume={35},
-        pages={32142--32159},
-        year={2022}
-    }
-
-    @article{jiang2023adgym,
-        title={ADGym: Design Choices for Deep Anomaly Detection},
-        author={Jiang, Minqi and Hou, Chaochuan and Zheng, Ao and Han, Songqiao and Huang, Hailiang and Wen, Qingsong and Hu, Xiyang and Zhao, Yue},
-        journal={Advances in Neural Information Processing Systems},
-        volume={36},
-        year={2023}
-    }
+For a broader perspective on anomaly detection, see our NeurIPS papers on `ADBench <https://arxiv.org/abs/2206.09426>`_ [#Han2022ADBench]_ and `ADGym <https://arxiv.org/abs/2309.15376>`_.
 
 
 **Table of Contents**:
@@ -170,9 +157,7 @@ For a broader perspective on anomaly detection, see our NeurIPS papers `ADBench:
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
 * `ADBench Benchmark and Datasets <#adbench-benchmark-and-datasets>`_
-* `Model Save & Load <#model-save--load>`_
-* `Fast Train with SUOD <#fast-train-with-suod>`_
-* `Thresholding Outlier Scores <#thresholding-outlier-scores>`_
+* `Additional Topics <#additional-topics>`_ (Model Save/Load, SUOD, Thresholding)
 * `Implemented Algorithms <#implemented-algorithms>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
@@ -219,6 +204,9 @@ Alternatively, you can clone and run the setup.py file:
 * suod (optional, required for running SUOD model)
 * xgboost (optional, required for XGBOD)
 * pythresh (optional, required for thresholding)
+* sentence-transformers (optional, required for EmbeddingOD text detection)
+* openai (optional, required for EmbeddingOD with OpenAI embeddings)
+* transformers and torch (optional, required for EmbeddingOD image detection and HuggingFace encoder)
 
 ----
 
@@ -268,75 +256,12 @@ For a simpler visualization, we make **the comparison of selected models** via
 
 ----
 
-Model Save & Load
+Additional Topics
 ^^^^^^^^^^^^^^^^^
 
-PyOD takes a similar approach of sklearn regarding model persistence.
-See `model persistence <https://scikit-learn.org/stable/modules/model_persistence.html>`_ for clarification.
-
-In short, we recommend to use joblib or pickle for saving and loading PyOD models.
-See `"examples/save_load_model_example.py" <https://github.com/yzhao062/pyod/blob/master/examples/save_load_model_example.py>`_ for an example.
-In short, it is simple as below:
-
-.. code-block:: python
-
-    from joblib import dump, load
-
-    # save the model
-    dump(clf, 'clf.joblib')
-    # load the model
-    clf = load('clf.joblib')
-
-It is known that there are challenges in saving neural network models.
-Check `#328 <https://github.com/yzhao062/pyod/issues/328#issuecomment-917192704>`_
-and `#88 <https://github.com/yzhao062/pyod/issues/88#issuecomment-615343139>`_
-for temporary workaround.
-
-
-----
-
-
-Fast Train with SUOD
-^^^^^^^^^^^^^^^^^^^^
-
-**Fast training and prediction**: it is possible to train and predict with
-a large number of detection models in PyOD by leveraging SUOD framework [#Zhao2021SUOD]_.
-See  `SUOD Paper <https://www.andrew.cmu.edu/user/yuezhao2/papers/21-mlsys-suod.pdf>`_
-and  `SUOD example <https://github.com/yzhao062/pyod/blob/master/examples/suod_example.py>`_.
-
-
-.. code-block:: python
-
-    from pyod.models.suod import SUOD
-
-    # initialized a group of outlier detectors for acceleration
-    detector_list = [LOF(n_neighbors=15), LOF(n_neighbors=20),
-                     LOF(n_neighbors=25), LOF(n_neighbors=35),
-                     COPOD(), IForest(n_estimators=100),
-                     IForest(n_estimators=200)]
-
-    # decide the number of parallel process, and the combination method
-    # then clf can be used as any outlier detection model
-    clf = SUOD(base_estimators=detector_list, n_jobs=2, combination='average',
-               verbose=False)
-
-----
-
-Thresholding Outlier Scores
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-A more data-based approach can be taken when setting the contamination level. By using a thresholding method, guessing an arbitrary value can be replaced with tested techniques for separating inliers and outliers. Refer to `PyThresh <https://github.com/KulikDM/pythresh>`_ for a more in-depth look at thresholding.
-
-.. code-block:: python
-
-    from pyod.models.knn import KNN
-    from pyod.models.thresholds import FILTER
-
-    # Set the outlier detection and thresholding methods
-    clf = KNN(contamination=FILTER())
-
-
-See supported thresholding methods in `thresholding <https://github.com/yzhao062/pyod/blob/master/docs/thresholding.rst>`_.
+* `Model Save & Load <https://pyod.readthedocs.io/en/latest/model_persistence.html>`_: Use joblib or pickle for saving and loading PyOD models. See `example <https://github.com/yzhao062/pyod/blob/master/examples/save_load_model_example.py>`_.
+* `Fast Train with SUOD <https://pyod.readthedocs.io/en/latest/fast_train.html>`_: Accelerate training and prediction with the SUOD framework [#Zhao2021SUOD]_. See `example <https://github.com/yzhao062/pyod/blob/master/examples/suod_example.py>`_.
+* `Thresholding Outlier Scores <https://pyod.readthedocs.io/en/latest/thresholding.html>`_: Data-driven approaches for setting contamination levels via `PyThresh <https://github.com/KulikDM/pythresh>`_.
 
 ----
 
@@ -374,6 +299,7 @@ Proximity-Based      (Incremental) COF   Memory Efficient Connectivity-Based Out
 Proximity-Based      CBLOF               Clustering-Based Local Outlier Factor                                                                   2003   [#He2003Discovering]_
 Proximity-Based      LOCI                LOCI: Fast outlier detection using the local correlation integral                                       2003   [#Papadimitriou2003LOCI]_
 Proximity-Based      HBOS                Histogram-based Outlier Score                                                                           2012   [#Goldstein2012Histogram]_
+Proximity-Based      HDBSCAN             Density-based clustering based on hierarchical density estimates                                        2013   [#Campello2013Density]_
 Proximity-Based      kNN                 k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score)                 2000   [#Ramaswamy2000Efficient]_
 Proximity-Based      AvgKNN              Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   [#Angiulli2002Fast]_
 Proximity-Based      MedKNN              Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   [#Angiulli2002Fast]_
@@ -399,41 +325,29 @@ Neural Networks      AE1SVM              Autoencoder-based One-class Support Vec
 Neural Networks      DevNet              Deep Anomaly Detection with Deviation Networks                                                          2019   [#Pang2019Deep]_
 Graph-based          R-Graph             Outlier detection by R-graph                                                                            2017   [#You2017Provable]_
 Graph-based          LUNAR               LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   [#Goodge2022Lunar]_
+Embedding-based      EmbeddingOD         Multi-modal anomaly detection via foundation model embeddings (text, image)                             2025   [#Li2024NLPADBench]_
 ===================  ==================  ======================================================================================================  =====  ========================================
 
 
-**(ii) Outlier Ensembles & Outlier Detector Combination Frameworks**:
-
-===================  ================  =====================================================================================================  =====  ========================================
-Type                 Abbr              Algorithm                                                                                              Year   Ref
-===================  ================  =====================================================================================================  =====  ========================================
-Outlier Ensembles    FB                Feature Bagging                                                                                        2005   [#Lazarevic2005Feature]_
-Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                      2019   [#Zhao2019LSCP]_
-Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                              2018   [#Zhao2018XGBOD]_
-Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                              2016   [#Pevny2016Loda]_
-Outlier Ensembles    SUOD              SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection **(Acceleration)**         2021   [#Zhao2021SUOD]_
-Outlier Ensembles    INNE              Isolation-based Anomaly Detection Using Nearest-Neighbor Ensembles                                     2018   [#Bandaragoda2018Isolation]_
-Combination          Average           Simple combination by averaging the scores                                                             2015   [#Aggarwal2015Theoretical]_
-Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   [#Aggarwal2015Theoretical]_
-Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   [#Aggarwal2015Theoretical]_
-Combination          AOM               Average of Maximum                                                                                     2015   [#Aggarwal2015Theoretical]_
-Combination          MOA               Maximization of Average                                                                                2015   [#Aggarwal2015Theoretical]_
-Combination          Median            Simple combination by taking the median of the scores                                                  2015   [#Aggarwal2015Theoretical]_
-Combination          majority Vote     Simple combination by taking the majority vote of the labels (weights can be used)                     2015   [#Aggarwal2015Theoretical]_
-===================  ================  =====================================================================================================  =====  ========================================
+Ensemble methods (IForest, INNE, DIF, FB, LSCP, LODA, SUOD, XGBOD) are included in the table above. Score combination functions (average, maximization, AOM, MOA, median, majority vote) are in ``pyod.models.combination``. See `API docs <https://pyod.readthedocs.io/en/latest/pyod.html>`_ for details.
 
 
-**(iii) Utility Functions**:
+**(ii) Utility Functions**:
 
-===================  ======================  =====================================================================================================================================================  ======================================================================================================================================
-Type                 Name                    Function                                                                                                                                               Documentation
-===================  ======================  =====================================================================================================================================================  ======================================================================================================================================
-Data                 generate_data           Synthesized data generation; normal data is generated by a multivariate Gaussian and outliers are generated by a uniform distribution                  `generate_data <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.data.generate_data>`_
-Data                 generate_data_clusters  Synthesized data generation in clusters; more complex data patterns can be created with multiple clusters                                              `generate_data_clusters <https://pyod.readthedocs.io/en/latest/pyod.utils.html#pyod.utils.data.generate_data_clusters>`_
-Stat                 wpearsonr               Calculate the weighted Pearson correlation of two samples                                                                                              `wpearsonr <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.stat_models.wpearsonr>`_
-Utility              get_label_n             Turn raw outlier scores into binary labels by assign 1 to top n outlier scores                                                                         `get_label_n <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.utility.get_label_n>`_
-Utility              precision_n_scores      calculate precision @ rank n                                                                                                                           `precision_n_scores <https://pyod.readthedocs.io/en/latest/pyod.utils.html#module-pyod.utils.utility.precision_n_scores>`_
-===================  ======================  =====================================================================================================================================================  ======================================================================================================================================
+===================  ============================  =====================================================================================================================================================
+Type                 Name                          Function
+===================  ============================  =====================================================================================================================================================
+Data                 generate_data                 Synthesized data generation; normal data from multivariate Gaussian, outliers from uniform distribution
+Data                 generate_data_clusters        Synthesized data generation in clusters for more complex patterns
+Evaluation           evaluate_print                Print ROC-AUC and Precision @ Rank n for a detector
+Evaluation           precision_n_scores            Calculate Precision @ Rank n
+Utility              get_label_n                   Turn raw outlier scores into binary labels by assigning 1 to the top n scores
+Stat                 wpearsonr                     Calculate the weighted Pearson correlation of two samples
+Encoding             resolve_encoder               Resolve an encoder from a string name, BaseEncoder instance, or callable
+Encoding             SentenceTransformerEncoder     Encode text via sentence-transformers models (e.g., MiniLM, mpnet)
+Encoding             OpenAIEncoder                 Encode text via OpenAI Embeddings API (text-embedding-3-small/large)
+Encoding             HuggingFaceEncoder            Encode text or images via HuggingFace transformers (BERT, DINOv2, CLIP)
+===================  ============================  =====================================================================================================================================================
 
 ----
 
@@ -538,6 +452,8 @@ Reference
 
 .. [#Burgess2018Understanding] Burgess, Christopher P., et al. "Understanding disentangling in beta-VAE." arXiv preprint arXiv:1804.03599 (2018).
 
+.. [#Campello2013Density] Campello, R.J.G.B., Moulavi, D. and Sander, J., 2013, April. Density-based clustering based on hierarchical density estimates. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining* (pp. 160-172). Springer.
+
 .. [#Cook1977Detection] Cook, R.D., 1977. Detection of influential observation in linear regression. Technometrics, 19(1), pp.15-18.
 
 .. [#Chen2024PyOD] Chen, S., Qian, Z., Siu, W., Hu, X., Li, J., Li, S., Qin, Y., Yang, T., Xiao, Z., Ye, W. and Zhang, Y., 2024. PyOD 2: A Python Library for Outlier Detection with LLM-powered Model Selection. arXiv preprint arXiv:2412.12154.
@@ -571,6 +487,8 @@ Reference
 .. [#Latecki2007Outlier] Latecki, L.J., Lazarevic, A. and Pokrajac, D., 2007, July. Outlier detection with kernel density functions. In International Workshop on Machine Learning and Data Mining in Pattern Recognition (pp. 61-75). Springer, Berlin, Heidelberg.
 
 .. [#Lazarevic2005Feature] Lazarevic, A. and Kumar, V., 2005, August. Feature bagging for outlier detection. In *KDD '05*. 2005.
+
+.. [#Li2024NLPADBench] Li, Y., Li, J., Xiao, Z., Yang, T., Nian, Y., Hu, X. and Zhao, Y., 2025. NLP-ADBench: NLP Anomaly Detection Benchmark. In *Findings of the Association for Computational Linguistics: EMNLP 2025*.
 
 .. [#Li2019MADGAN] Li, D., Chen, D., Jin, B., Shi, L., Goh, J. and Ng, S.K., 2019, September. MAD-GAN: Multivariate anomaly detection for time series data with generative adversarial networks. In *International Conference on Artificial Neural Networks* (pp. 703-716). Springer, Cham.
 

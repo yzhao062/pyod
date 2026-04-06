@@ -208,3 +208,7 @@ v<2.0.7>, <02/27/2026> -- Improve NearestNeighbors consistency/performance in KN
 v<2.0.7>, <02/27/2026> -- VAE default output activation changed to identity and added identity activation support/tests (issue #651).
 v<2.0.7>, <02/27/2026> -- Fix package_data/MANIFEST configuration to include auto model selector JSON resources in distributions (issue #642).
 v<2.0.7>, <02/27/2026> -- In BaseDeepLearningDetector, explicitly ignore y during unsupervised fit to avoid batch tuple/list device errors in DL detectors (issue #591).
+v<2.0.8>, <02/28/2026> -- Add HDBSCAN detector with tests and documentation updates.
+v<2.0.8>, <04/03/2026> -- Fix CD detector to reuse training-fitted models at prediction time instead of re-fitting on test data; fix broken NaN check in Cook's distance; use sklearn.base.clone instead of deepcopy; fix mutable default argument (PR #624).
+v<2.0.8>, <04/03/2026> -- Fix AutoModelSelector: guard openai/dotenv imports, fix model name mismatches (MO-GAAL/SO-GAAL/Deep SVDD), replace if/elif with registry, add tests (issue #625).
+v<2.1.0>, <04/06/2026> -- Multi-modal anomaly detection via foundation model embeddings. Add EmbeddingOD (encoder + detector pipeline for text/image), MultiModalEncoder (early fusion with mean imputation for missing data), and MultiModalOD (score fusion with per-modality standardization). Includes benchmark-informed presets (for_text, for_image), encoder registry (sentence-transformers, OpenAI, HuggingFace, callable), optional dependency extras, and documentation cleanup.

@@ -5,6 +5,8 @@ import os
 import sys
 import unittest
 
+import numpy as np
+
 # noinspection PyProtectedMember
 from sklearn.metrics import roc_auc_score
 
@@ -22,6 +24,19 @@ class TestVAEConfig(unittest.TestCase):
     def test_default_output_activation_name(self):
         clf = VAE(epoch_num=1)
         self.assertEqual(clf.output_activation_name, 'identity')
+
+    def test_default_logvar_clip(self):
+        clf = VAE(epoch_num=1)
+        self.assertEqual(clf.logvar_clip, (-30.0, 20.0))
+
+    def test_custom_logvar_clip(self):
+        clf = VAE(epoch_num=1, logvar_clip=(-10, 5))
+        self.assertEqual(clf.logvar_clip, (-10.0, 5.0))
+
+    def test_invalid_logvar_clip(self):
+        self.assertRaises(ValueError, VAE, epoch_num=1, logvar_clip=(1,))
+        self.assertRaises(ValueError, VAE, epoch_num=1,
+                          logvar_clip=(5, -5))
 
 
 class TestVAE(unittest.TestCase):
@@ -131,6 +146,15 @@ class TestVAE(unittest.TestCase):
                                    scoring='prc_n_score')
         self.assertRaises(NotImplementedError, self.clf.fit_predict_score,
                           self.X_test, self.y_test, scoring='something')
+
+    def test_no_nan_scores_without_preprocessing(self):
+        X = np.random.RandomState(42).randn(64, 10) * 50
+        clf = VAE(epoch_num=3, batch_size=32, contamination=0.1,
+                  preprocessing=False, verbose=0)
+        clf.fit(X)
+
+        self.assertTrue(np.isfinite(clf.decision_scores_).all())
+        self.assertTrue(np.isfinite(clf.decision_function(X[:32])).all())
 
     def tearDown(self):
         pass

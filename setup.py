@@ -41,6 +41,17 @@ setup(
         'pyod.utils': ['model_analysis_jsons/*.json'],
     },
     install_requires=requirements,
+    extras_require={
+        'embedding': ['sentence-transformers>=2.0'],
+        'openai': ['openai>=1.0'],
+        'all': [
+            'sentence-transformers>=2.0',
+            'openai>=1.0',
+            'transformers>=4.0',
+            'torch>=2.0',
+            'Pillow',
+        ],
+    },
     setup_requires=['setuptools>=38.6.0'],
     classifiers=[
         'Development Status :: 6 - Mature',

@@ -74,17 +74,10 @@ Welcome to PyOD, a comprehensive but easy-to-use Python library for detecting an
 * **Expanded Deep Learning Support**: Integrates 12 modern neural models into a single PyTorch-based framework, bringing the total number of outlier detection methods to 45.
 * **Enhanced Performance and Ease of Use**: Models are optimized for efficiency and consistent performance across different datasets.
 * **LLM-based Model Selection**: Automated model selection guided by a large language model reduces manual tuning and assists users who may have limited experience with outlier detection.
+* **Multi-Modal Detection via EmbeddingOD**: Chain foundation model encoders (sentence-transformers, OpenAI, HuggingFace) with any PyOD detector for text and image anomaly detection :cite:`a-li2024nlp`.
 
-**Additional Resources**:
-
-* **NLP Anomaly Detection**: `NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_ provides both NLP anomaly detection datasets and algorithms :cite:`a-li2024nlp`
-* **Time-series Outlier Detection**: `TODS <https://github.com/datamllab/tods>`_
-* **Graph Outlier Detection**: `PyGOD <https://pygod.org/>`_
-* **Performance Comparison & Datasets**: We have a 45-page, comprehensive `anomaly detection benchmark paper <https://openreview.net/forum?id=foA_SFQ9zo0>`_. The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
-* **PyOD on Distributed Systems**: You can also run `PyOD on Databricks <https://www.databricks.com/blog/2023/03/13/unsupervised-outlier-detection-databricks.html>`_
-* **Learn More**: `Anomaly Detection Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
-
-**Check out our latest research on LLM-based anomaly detection** :cite:`a-yang2024ad`: `AD-LLM: Benchmarking Large Language Models for Anomaly Detection <https://arxiv.org/abs/2412.11142>`_.
+**PyOD Ecosystem & Resources**:
+`NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_ (NLP anomaly detection) :cite:`a-li2024nlp` | `TODS <https://github.com/datamllab/tods>`_ (time-series) | `PyGOD <https://pygod.org/>`_ (graph) | `ADBench <https://github.com/Minqi824/ADBench>`_ (benchmark) | `AD-LLM <https://arxiv.org/abs/2412.11142>`_ (LLM-based AD) :cite:`a-yang2024ad` | `Resources <https://github.com/yzhao062/anomaly-detection-resources>`_
 
 ----
 
@@ -114,12 +107,23 @@ PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000
     y_test_scores = clf.decision_function(X_test)  # Outlier scores for test data
 
 
-**Selecting the Right Algorithm:** Unsure where to start? Consider these robust and interpretable options:
+**Text Anomaly Detection with EmbeddingOD** (``pip install pyod sentence-transformers``):
 
-- `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_: Example of using ECOD for outlier detection
-- `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_: Example of using Isolation Forest for outlier detection
+.. code-block:: python
 
-Alternatively, explore `MetaOD <https://github.com/yzhao062/MetaOD>`_ for a data-driven approach.
+    from pyod.models.embedding import EmbeddingOD
+    clf = EmbeddingOD(encoder='all-MiniLM-L6-v2', detector='KNN')
+    clf.fit(train_texts)                          # list of strings
+    scores = clf.decision_function(test_texts)    # anomaly scores
+    labels = clf.predict(test_texts)              # binary labels
+
+    # Or use a preset:
+    clf = EmbeddingOD.for_text(quality='fast')    # MiniLM + KNN
+
+Image detection requires additional packages (``pip install transformers torch``). See `EmbeddingOD example <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_ for details.
+
+
+**Selecting the Right Algorithm:** Start with `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_ or `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_ for tabular data, `EmbeddingOD <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_ for text/image, or `MetaOD <https://github.com/yzhao062/MetaOD>`_ for data-driven selection.
 
 **Citing PyOD**:
 
@@ -153,24 +157,7 @@ or::
     Zhao, Y., Nasrullah, Z. and Li, Z., 2019. PyOD: A Python Toolbox for Scalable Outlier Detection. Journal of machine learning research (JMLR), 20(96), pp.1-7.
 
 
-For a broader perspective on anomaly detection, see our NeurIPS papers `ADBench: Anomaly Detection Benchmark Paper <https://arxiv.org/abs/2206.09426>`_ and `ADGym: Design Choices for Deep Anomaly Detection <https://arxiv.org/abs/2309.15376>`_::
-
-    @article{han2022adbench,
-        title={Adbench: Anomaly detection benchmark},
-        author={Han, Songqiao and Hu, Xiyang and Huang, Hailiang and Jiang, Minqi and Zhao, Yue},
-        journal={Advances in Neural Information Processing Systems},
-        volume={35},
-        pages={32142--32159},
-        year={2022}
-    }
-
-    @article{jiang2023adgym,
-        title={ADGym: Design Choices for Deep Anomaly Detection},
-        author={Jiang, Minqi and Hou, Chaochuan and Zheng, Ao and Han, Songqiao and Huang, Hailiang and Wen, Qingsong and Hu, Xiyang and Zhao, Yue},
-        journal={Advances in Neural Information Processing Systems},
-        volume={36},
-        year={2023}
-    }
+For a broader perspective on anomaly detection, see our NeurIPS papers on `ADBench <https://arxiv.org/abs/2206.09426>`_ :cite:`a-han2022adbench` and `ADGym <https://arxiv.org/abs/2309.15376>`_ :cite:`a-jiang2023adgym`.
 
 
 ----
@@ -228,6 +215,7 @@ Proximity-Based      Incr. COF         Memory Efficient Connectivity-Based Outli
 Proximity-Based      CBLOF             Clustering-Based Local Outlier Factor                                                                   2003   :class:`pyod.models.cblof.CBLOF`                     :cite:`a-he2003discovering`
 Proximity-Based      LOCI              LOCI: Fast outlier detection using the local correlation integral                                       2003   :class:`pyod.models.loci.LOCI`                       :cite:`a-papadimitriou2003loci`
 Proximity-Based      HBOS              Histogram-based Outlier Score                                                                           2012   :class:`pyod.models.hbos.HBOS`                       :cite:`a-goldstein2012histogram`
+Proximity-Based      HDBSCAN           Density-based clustering based on hierarchical density estimates                                        2013   :class:`pyod.models.hdbscan.HDBSCAN`                 :cite:`a-campello2013density`
 Proximity-Based      kNN               k Nearest Neighbors (use the distance to the kth nearest neighbor as the outlier score                  2000   :class:`pyod.models.knn.KNN`                         :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`
 Proximity-Based      AvgKNN            Average kNN (use the average distance to k nearest neighbors as the outlier score)                      2002   :class:`pyod.models.knn.KNN`                         :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`
 Proximity-Based      MedKNN            Median kNN (use the median distance to k nearest neighbors as the outlier score)                        2002   :class:`pyod.models.knn.KNN`                         :cite:`a-ramaswamy2000efficient,a-angiulli2002fast`
@@ -253,41 +241,29 @@ Neural Networks      DevNet            Deep Anomaly Detection with Deviation Net
 Neural Networks      AE1SVM            Autoencoder-based One-class Support Vector Machine                                                      2019   :class:`pyod.models.ae1svm.AE1SVM`                   :cite:`a-nguyen2019scalable`
 Graph-based          R-Graph           Outlier detection by R-graph                                                                            2017   :class:`pyod.models.rgraph.RGraph`                   :cite:`a-you2017provable`
 Graph-based          LUNAR             LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   :class:`pyod.models.lunar.LUNAR`                     :cite:`a-goodge2022lunar`
+Embedding-based      EmbeddingOD       Multi-modal anomaly detection via foundation model embeddings (text, image)                             2025   :class:`pyod.models.embedding.EmbeddingOD`           :cite:`a-li2024nlp`
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 
 
-**(ii) Outlier Ensembles & Outlier Detector Combination Frameworks**:
+Ensemble methods (IForest, INNE, DIF, FB, LSCP, LODA, SUOD, XGBOD) are included in the table above. Score combination functions (average, maximization, AOM, MOA, median, majority vote) are in :mod:`pyod.models.combination`.
 
 
-===================  ================  =====================================================================================================  =====  ===================================================  ======================================================
-Type                 Abbr              Algorithm                                                                                              Year   Ref
-===================  ================  =====================================================================================================  =====  ===================================================  ======================================================
-Outlier Ensembles                      Feature Bagging                                                                                        2005   :class:`pyod.models.feature_bagging.FeatureBagging`  :cite:`a-lazarevic2005feature`
-Outlier Ensembles    LSCP              LSCP: Locally Selective Combination of Parallel Outlier Ensembles                                      2019   :class:`pyod.models.lscp.LSCP`                       :cite:`a-zhao2019lscp`
-Outlier Ensembles    XGBOD             Extreme Boosting Based Outlier Detection **(Supervised)**                                              2018   :class:`pyod.models.xgbod.XGBOD`                     :cite:`a-zhao2018xgbod`
-Outlier Ensembles    LODA              Lightweight On-line Detector of Anomalies                                                              2016   :class:`pyod.models.loda.LODA`                       :cite:`a-pevny2016loda`
-Outlier Ensembles    SUOD              SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection **(Acceleration)**         2021   :class:`pyod.models.suod.SUOD`                       :cite:`a-zhao2021suod`
-Combination          Average           Simple combination by averaging the scores                                                             2015   :func:`pyod.models.combination.average`              :cite:`a-aggarwal2015theoretical`
-Combination          Weighted Average  Simple combination by averaging the scores with detector weights                                       2015   :func:`pyod.models.combination.average`              :cite:`a-aggarwal2015theoretical`
-Combination          Maximization      Simple combination by taking the maximum scores                                                        2015   :func:`pyod.models.combination.maximization`         :cite:`a-aggarwal2015theoretical`
-Combination          AOM               Average of Maximum                                                                                     2015   :func:`pyod.models.combination.aom`                  :cite:`a-aggarwal2015theoretical`
-Combination          MOA               Maximum of Average                                                                                     2015   :func:`pyod.models.combination.moa`                  :cite:`a-aggarwal2015theoretical`
-Combination          Median            Simple combination by taking the median of the scores                                                  2015   :func:`pyod.models.combination.median`               :cite:`a-aggarwal2015theoretical`
-Combination          majority Vote     Simple combination by taking the majority vote of the labels (weights can be used)                     2015   :func:`pyod.models.combination.majority_vote`        :cite:`a-aggarwal2015theoretical`
-===================  ================  =====================================================================================================  =====  ===================================================  ======================================================
+**(ii) Utility Functions**:
 
-
-**(iii) Utility Functions**:
-
-===================  ==============================================  =====================================================================================================================================================
-Type                 Name                                            Function
-===================  ==============================================  =====================================================================================================================================================
-Data                 :func:`pyod.utils.data.generate_data`           Synthesized data generation; normal data is generated by a multivariate Gaussian and outliers are generated by a uniform distribution
-Data                 :func:`pyod.utils.data.generate_data_clusters`  Synthesized data generation in clusters; more complex data patterns can be created with multiple clusters
-Stat                 :func:`pyod.utils.stat_models.wpearsonr`        Calculate the weighted Pearson correlation of two samples
-Utility              :func:`pyod.utils.utility.get_label_n`          Turn raw outlier scores into binary labels by assign 1 to top n outlier scores
-Utility              :func:`pyod.utils.utility.precision_n_scores`   calculate precision @ rank n
-===================  ==============================================  =====================================================================================================================================================
+===================  ===============================================  =====================================================================================================================================================
+Type                 Name                                             Function
+===================  ===============================================  =====================================================================================================================================================
+Data                 :func:`~pyod.utils.data.generate_data`           Synthesized data generation; normal data from multivariate Gaussian, outliers from uniform distribution
+Data                 :func:`~pyod.utils.data.generate_data_clusters`  Synthesized data generation in clusters for more complex patterns
+Evaluation           :func:`~pyod.utils.data.evaluate_print`          Print ROC-AUC and Precision @ Rank n for a detector
+Evaluation           :func:`~pyod.utils.utility.precision_n_scores`   Calculate Precision @ Rank n
+Utility              :func:`~pyod.utils.utility.get_label_n`          Turn raw outlier scores into binary labels by assigning 1 to the top n scores
+Stat                 :func:`~pyod.utils.stat_models.wpearsonr`        Calculate the weighted Pearson correlation of two samples
+Encoding             :func:`~pyod.utils.encoders.resolve_encoder`     Resolve an encoder from a string, BaseEncoder instance, or callable
+Encoding             SentenceTransformerEncoder                       Encode text via sentence-transformers models (see :doc:`pyod.utils <pyod.utils>`)
+Encoding             OpenAIEncoder                                    Encode text via OpenAI Embeddings API (see :doc:`pyod.utils <pyod.utils>`)
+Encoding             HuggingFaceEncoder                               Encode text or images via HuggingFace transformers (see :doc:`pyod.utils <pyod.utils>`)
+===================  ===============================================  =====================================================================================================================================================
 
 
 

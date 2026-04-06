@@ -42,8 +42,13 @@ jobs:
         coverage run --source=pyod -m pytest
         
     - name: Coverage report
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         COVERALLS_SERVICE_NAME: github-actions
       run: |
-        coveralls --service=github || echo "Coveralls failed to submit - retrying..." && coveralls --service=github
+        if ! coveralls --service=github; then
+          echo "Coveralls upload failed; retrying once in 15s for best effort."
+          sleep 15
+          coveralls --service=github || true
+        fi

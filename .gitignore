@@ -1,7 +1,13 @@
 __pycache__/
-pyod.egg-info/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
 .cache/
-.pytest_cache
-__pycache__
+.pytest_cache/
 .idea/
 .vscode/
+.DS_Store
+
+.agent-config/
