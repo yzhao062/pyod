@@ -32,6 +32,16 @@ twine upload --repository pypitest dist/*
 twine upload dist/*
 # https://pypi.org/project/pyod/
 
+# 8) Create GitHub release
+gh release create v<VERSION> --target master --title "v<VERSION>" --notes "<release notes>"
+# https://github.com/yzhao062/pyod/releases
+
+# 9) conda-forge (automatic)
+# The regro-cf-autotick-bot monitors PyPI and opens a PR on
+# https://github.com/conda-forge/pyod-feedstock within hours.
+# Merge the bot's PR to publish on conda-forge. No manual action needed
+# unless new dependencies were added (edit recipe/meta.yaml if so).
+
 
 #######################################################
 # For newly added models, conduct the following checks:
@@ -42,6 +52,8 @@ twine upload dist/*
 4. check comment formats
 5. make sure the test run locally (roc floor)
 6. make sure the example look consistent
-7. add algorithm to pyod.model.rst
+7. add algorithm to pyod.models.rst
 8. add algorithm to index.rst and README.rst
 9. add to benchmark.py and compare_all_models.py; when applicable, change notebooks as well
+10. update CHANGES.txt with the new version entry
+11. bump version in pyod/version.py
