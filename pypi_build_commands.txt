@@ -42,6 +42,9 @@ gh release create v<VERSION> --target master --title "v<VERSION>" --notes "<rele
 # Merge the bot's PR to publish on conda-forge. No manual action needed
 # unless new dependencies were added (edit recipe/meta.yaml if so).
 
+# 10) Clean up build artifacts
+Remove-Item -Recurse -Force dist,build,pyod.egg-info -ErrorAction SilentlyContinue
+
 
 #######################################################
 # For newly added models, conduct the following checks:
