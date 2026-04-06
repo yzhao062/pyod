@@ -163,7 +163,178 @@ class TestOpenAIEncoder(unittest.TestCase):
         assert emb.dtype == np.float64
 
 
-from pyod.utils.encoders import resolve_encoder, _ENCODER_REGISTRY
+from pyod.utils.encoders import resolve_encoder, MultiModalEncoder, \
+    _ENCODER_REGISTRY
+
+
+class TestMultiModalEncoder(unittest.TestCase):
+    def setUp(self):
+        self.n_samples = 20
+        self.text_encoder = CallableEncoder(
+            fn=lambda X: np.random.RandomState(1).randn(len(X), 10))
+        self.image_encoder = CallableEncoder(
+            fn=lambda X: np.random.RandomState(2).randn(len(X), 8))
+        self.data = {
+            'text': [f"text_{i}" for i in range(self.n_samples)],
+            'image': [f"img_{i}" for i in range(self.n_samples)],
+            'tabular': np.random.randn(self.n_samples, 5),
+        }
+
+    def test_two_modalities(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'image': self.image_encoder,
+        })
+        emb = enc.encode({'text': self.data['text'],
+                          'image': self.data['image']})
+        assert_equal(emb.shape, (self.n_samples, 18))  # 10 + 8
+
+    def test_passthrough(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'tabular': 'passthrough',
+        })
+        emb = enc.encode({'text': self.data['text'],
+                          'tabular': self.data['tabular']})
+        assert_equal(emb.shape, (self.n_samples, 15))  # 10 + 5
+
+    def test_three_modalities(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'image': self.image_encoder,
+            'tabular': 'passthrough',
+        })
+        emb = enc.encode(self.data)
+        assert_equal(emb.shape, (self.n_samples, 23))  # 10 + 8 + 5
+
+    def test_weights(self):
+        enc = MultiModalEncoder(
+            {'text': self.text_encoder, 'tabular': 'passthrough'},
+            weights={'text': 0.5, 'tabular': 2.0})
+        emb = enc.encode({'text': self.data['text'],
+                          'tabular': self.data['tabular']})
+        assert_equal(emb.shape, (self.n_samples, 15))
+
+    def test_missing_modality_raises(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'image': self.image_encoder,
+        })
+        with self.assertRaises(KeyError):
+            enc.encode({'text': self.data['text']})
+
+    def test_non_dict_input_raises(self):
+        enc = MultiModalEncoder({'text': self.text_encoder})
+        with self.assertRaises(TypeError):
+            enc.encode(["not", "a", "dict"])
+
+    def test_mismatched_sample_count_raises(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'tabular': 'passthrough',
+        })
+        with self.assertRaises(ValueError):
+            enc.encode({'text': self.data['text'],
+                        'tabular': np.random.randn(5, 3)})
+
+    def test_empty_encoders_raises(self):
+        with self.assertRaises(ValueError):
+            MultiModalEncoder({})
+
+    def test_string_encoder_resolution(self):
+        # String encoders are resolved lazily at encode time
+        enc = MultiModalEncoder({
+            'a': lambda X: np.ones((len(X), 3)),
+            'b': 'passthrough',
+        })
+        emb = enc.encode({'a': ["x", "y"], 'b': np.array([[1], [2]])})
+        assert_equal(emb.shape, (2, 4))  # 3 + 1
+
+    def test_missing_samples_imputed(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'image': self.image_encoder,
+        })
+        # First call without missing to store means
+        full_data = {
+            'text': [f"t_{i}" for i in range(5)],
+            'image': [f"img_{i}" for i in range(5)],
+        }
+        enc.fit_encode(full_data)
+
+        # Second call with missing samples
+        data = {
+            'text': [f"t_{i}" for i in range(5)],
+            'image': ["img_0", None, "img_2", None, "img_4"],
+        }
+        emb = enc.encode(data)
+        assert_equal(emb.shape, (5, 18))  # 10 + 8
+        # Missing image samples (1, 3) should be filled with training mean
+        np.testing.assert_allclose(emb[1, 10:], enc.means_['image'])
+        np.testing.assert_allclose(emb[3, 10:], enc.means_['image'])
+        # Present samples should not equal mean
+        assert not np.allclose(emb[0, 10:], enc.means_['image'])
+
+    def test_missing_passthrough_mean_fill(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'nums': 'passthrough',
+        })
+        # fit_encode to store means
+        full = {
+            'text': [f"t_{i}" for i in range(4)],
+            'nums': np.array([[1.0, 2.0], [3.0, 4.0],
+                              [5.0, 6.0], [7.0, 8.0]]),
+        }
+        enc.fit_encode(full)
+        expected_mean = np.array([4.0, 5.0])  # mean of [1,3,5,7], [2,4,6,8]
+
+        data = {
+            'text': [f"t_{i}" for i in range(4)],
+            'nums': [np.array([1.0, 2.0]), None,
+                     np.array([5.0, 6.0]), None],
+        }
+        emb = enc.encode(data)
+        assert_equal(emb.shape, (4, 12))  # 10 + 2
+        # Missing passthrough samples should be training mean
+        np.testing.assert_allclose(emb[1, 10:], expected_mean)
+        np.testing.assert_allclose(emb[3, 10:], expected_mean)
+        # Present should keep values
+        np.testing.assert_allclose(emb[0, 10:], [1.0, 2.0])
+
+    def test_missing_with_weights_no_double_apply(self):
+        enc = MultiModalEncoder(
+            {'nums': 'passthrough'},
+            weights={'nums': 3.0})
+        # fit_encode to store means
+        enc.fit_encode({'nums': np.array([[1.0, 2.0], [3.0, 4.0]])})
+        # Mean should be [2.0, 3.0] (unweighted)
+        np.testing.assert_allclose(enc.means_['nums'], [2.0, 3.0])
+
+        # Encode with missing sample
+        emb = enc.encode({'nums': [np.array([10.0, 20.0]), None]})
+        # Present row: [10, 20] * 3.0 = [30, 60]
+        np.testing.assert_allclose(emb[0], [30.0, 60.0])
+        # Missing row: mean [2, 3] * 3.0 = [6, 9] (weight applied once)
+        np.testing.assert_allclose(emb[1], [6.0, 9.0])
+
+    def test_all_none_raises(self):
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+        })
+        with self.assertRaises(ValueError):
+            enc.encode({'text': [None, None, None]})
+
+    def test_with_embedding_od(self):
+        from pyod.models.embedding import EmbeddingOD
+        enc = MultiModalEncoder({
+            'text': self.text_encoder,
+            'tabular': 'passthrough',
+        })
+        clf = EmbeddingOD(encoder=enc, detector='KNN')
+        clf.fit(self.data)
+        scores = clf.decision_function(self.data)
+        assert_equal(scores.shape[0], self.n_samples)
 
 
 class TestResolveEncoder(unittest.TestCase):

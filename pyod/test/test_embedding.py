@@ -252,5 +252,197 @@ class TestEmbeddingODIntegration(unittest.TestCase):
         assert_equal(scores.shape[0], len(self.X_test))
 
 
+from pyod.models.embedding import MultiModalOD
+from pyod.models.knn import KNN
+
+
+def _mock_encoder_a(X):
+    rng = np.random.RandomState(10)
+    return rng.randn(len(X), 15)
+
+
+def _mock_encoder_b(X):
+    rng = np.random.RandomState(20)
+    return rng.randn(len(X), 12)
+
+
+class TestMultiModalOD(unittest.TestCase):
+    def setUp(self):
+        self.n_train = 200
+        self.n_test = 100
+        self.train_data = {
+            'text': [f"train_{i}" for i in range(self.n_train)],
+            'tabular': np.random.RandomState(42).randn(self.n_train, 5),
+        }
+        self.test_data = {
+            'text': [f"test_{i}" for i in range(self.n_test)],
+            'tabular': np.random.RandomState(43).randn(self.n_test, 5),
+        }
+
+    def test_fit_and_predict(self):
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'tabular': KNN(),
+        })
+        clf.fit(self.train_data)
+        assert hasattr(clf, 'decision_scores_')
+        assert_equal(len(clf.decision_scores_), self.n_train)
+
+        scores = clf.decision_function(self.test_data)
+        assert_equal(scores.shape[0], self.n_test)
+
+    def test_predict_labels(self):
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'tabular': KNN(),
+        })
+        clf.fit(self.train_data)
+        labels = clf.predict(self.test_data)
+        assert_equal(labels.shape[0], self.n_test)
+        assert set(labels).issubset({0, 1})
+
+    def test_combination_average(self):
+        clf = MultiModalOD(
+            modalities={
+                'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+                'tabular': KNN(),
+            },
+            combination='average')
+        clf.fit(self.train_data)
+        assert hasattr(clf, 'decision_scores_')
+
+    def test_combination_maximization(self):
+        clf = MultiModalOD(
+            modalities={
+                'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+                'tabular': KNN(),
+            },
+            combination='maximization')
+        clf.fit(self.train_data)
+        assert hasattr(clf, 'decision_scores_')
+
+    def test_combination_median(self):
+        clf = MultiModalOD(
+            modalities={
+                'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+                'tabular': KNN(),
+            },
+            combination='median')
+        clf.fit(self.train_data)
+        assert hasattr(clf, 'decision_scores_')
+
+    def test_invalid_combination_raises(self):
+        clf = MultiModalOD(
+            modalities={
+                'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+                'tabular': KNN(),
+            },
+            combination='invalid')
+        with self.assertRaises(ValueError):
+            clf.fit(self.train_data)
+
+    def test_missing_modality_raises(self):
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'tabular': KNN(),
+        })
+        with self.assertRaises(KeyError):
+            clf.fit({'text': self.train_data['text']})
+
+    def test_non_dict_input_raises(self):
+        clf = MultiModalOD(modalities={
+            'tabular': KNN(),
+        })
+        with self.assertRaises(TypeError):
+            clf.fit(np.random.randn(50, 5))
+
+    def test_three_modalities(self):
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'image': EmbeddingOD(encoder=_mock_encoder_b, detector='LOF'),
+            'tabular': KNN(),
+        })
+        train = {
+            'text': self.train_data['text'],
+            'image': [f"img_{i}" for i in range(self.n_train)],
+            'tabular': self.train_data['tabular'],
+        }
+        clf.fit(train)
+        assert len(clf.detectors_) == 3
+
+    def test_no_standardize(self):
+        clf = MultiModalOD(
+            modalities={
+                'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+                'tabular': KNN(),
+            },
+            standardize_scores=False)
+        clf.fit(self.train_data)
+        assert hasattr(clf, 'decision_scores_')
+
+    def test_missing_modality_at_test_time(self):
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'tabular': KNN(),
+        })
+        clf.fit(self.train_data)
+        # At test time, text modality is missing
+        scores = clf.decision_function({
+            'text': None,
+            'tabular': self.test_data['tabular'],
+        })
+        assert_equal(scores.shape[0], self.n_test)
+
+    def test_missing_modality_score_stability(self):
+        """Same sample should get same score regardless of batch size."""
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'tabular': KNN(),
+        })
+        clf.fit(self.train_data)
+
+        # Score one sample with missing text
+        single = {'text': None,
+                  'tabular': self.test_data['tabular'][:1]}
+        score_single = clf.decision_function(single)[0]
+
+        # Score same sample in a batch of 10
+        batch = {'text': None,
+                 'tabular': self.test_data['tabular'][:10]}
+        score_batch = clf.decision_function(batch)[0]
+
+        # Scores should be identical (using training scalers)
+        np.testing.assert_allclose(score_single, score_batch)
+
+    def test_missing_modality_predict(self):
+        """predict() should work with missing modalities."""
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'tabular': KNN(),
+        })
+        clf.fit(self.train_data)
+        labels = clf.predict({
+            'text': None,
+            'tabular': self.test_data['tabular'],
+        })
+        assert_equal(labels.shape[0], self.n_test)
+        assert set(labels).issubset({0, 1})
+
+    def test_all_modalities_missing_raises(self):
+        clf = MultiModalOD(modalities={
+            'text': EmbeddingOD(encoder=_mock_encoder_a, detector='KNN'),
+            'tabular': KNN(),
+        })
+        clf.fit(self.train_data)
+        with self.assertRaises(ValueError):
+            clf.decision_function({'text': None, 'tabular': None})
+
+    def test_detectors_are_cloned(self):
+        original_det = KNN()
+        clf = MultiModalOD(modalities={'tabular': original_det})
+        clf.fit({'tabular': self.train_data['tabular']})
+        assert not hasattr(original_det, 'decision_scores_')
+
+
 if __name__ == '__main__':
     unittest.main()

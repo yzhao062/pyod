@@ -92,6 +92,176 @@ class CallableEncoder(BaseEncoder):
         return self._validate_output(embeddings, n_samples=len(X))
 
 
+class MultiModalEncoder(BaseEncoder):
+    """Encode multiple modalities and concatenate into a single embedding.
+
+    Each modality is encoded by its own encoder. The resulting embeddings
+    are concatenated column-wise into a single feature matrix suitable
+    for any PyOD detector.
+
+    Parameters
+    ----------
+    encoders : dict of {str: encoder}
+        Maps modality name to encoder. Each value can be:
+        - A string (resolved via resolve_encoder at encode time)
+        - A BaseEncoder instance
+        - ``'passthrough'`` for pre-computed numeric features
+
+    weights : dict of {str: float} or None, optional (default=None)
+        Per-modality scaling applied after encoding. Useful when
+        embedding dimensions differ significantly across modalities.
+
+    Examples
+    --------
+    >>> from pyod.utils.encoders import MultiModalEncoder
+    >>> encoder = MultiModalEncoder({
+    ...     'text': 'all-MiniLM-L6-v2',
+    ...     'tabular': 'passthrough',
+    ... })
+    >>> data = {'text': ["hello", "world"], 'tabular': np.array([[1, 2], [3, 4]])}
+    >>> embeddings = encoder.encode(data)
+    >>> embeddings.shape[0]
+    2
+    """
+
+    def __init__(self, encoders, weights=None):
+        if not isinstance(encoders, dict) or len(encoders) == 0:
+            raise ValueError("encoders must be a non-empty dict")
+        self.encoders = encoders
+        self.weights = weights
+
+    def fit_encode(self, X, batch_size=32, show_progress=True):
+        """Encode training data and store per-modality mean embeddings.
+
+        Call this during training (EmbeddingOD.fit) so that mean
+        embeddings are available for imputing missing samples at
+        test time. Subsequent calls to ``encode`` will use these
+        stored means.
+
+        Parameters
+        ----------
+        X : dict of {str: data}
+            Training data. Should not contain ``None`` samples.
+
+        Returns
+        -------
+        embeddings : numpy array of shape (n_samples, total_features)
+        """
+        emb = self.encode(X, batch_size=batch_size,
+                          show_progress=show_progress)
+        # Store per-modality means from training for imputation.
+        # Use _last_parts_unweighted_ (before weights) so that
+        # weights are applied exactly once during encode.
+        self.means_ = {}
+        for name, part in self._last_parts_unweighted_.items():
+            self.means_[name] = np.mean(part, axis=0)
+        return emb
+
+    def encode(self, X, batch_size=32, show_progress=True):
+        """Encode multi-modal input and concatenate.
+
+        Parameters
+        ----------
+        X : dict of {str: data}
+            Maps modality name to input data. Keys must match
+            the ``encoders`` dict. Individual samples may be ``None``
+            to indicate a missing modality for that sample; missing
+            embeddings are imputed with the training mean (if
+            ``fit_encode`` was called) or zeros.
+
+        batch_size : int, optional (default=32)
+            Batch size for encoding.
+
+        show_progress : bool, optional (default=True)
+            Show progress bar.
+
+        Returns
+        -------
+        embeddings : numpy array of shape (n_samples, total_features)
+        """
+        if not isinstance(X, dict):
+            raise TypeError(
+                "MultiModalEncoder expects a dict input, got %s" % type(X))
+
+        # Resolve encoders on first call
+        if not hasattr(self, 'resolved_'):
+            self.resolved_ = {}
+            for name, enc in self.encoders.items():
+                if enc == 'passthrough':
+                    self.resolved_[name] = 'passthrough'
+                else:
+                    self.resolved_[name] = resolve_encoder(enc)
+
+        parts = []
+        self._last_parts_ = {}
+        self._last_parts_unweighted_ = {}
+        n_samples = None
+        for name, enc in self.resolved_.items():
+            if name not in X:
+                raise KeyError(
+                    "Modality '%s' not found in input. "
+                    "Expected keys: %s" % (name, list(self.resolved_.keys())))
+
+            modality_data = X[name]
+            has_missing = isinstance(modality_data, (list, tuple)) and \
+                any(v is None for v in modality_data)
+
+            if has_missing:
+                present_idx = [i for i, v in enumerate(modality_data)
+                               if v is not None]
+                if len(present_idx) == 0:
+                    raise ValueError(
+                        "All samples are None for modality '%s'" % name)
+
+                # Encode or passthrough the present samples
+                if enc == 'passthrough':
+                    present_vals = [modality_data[i] for i in present_idx]
+                    first = np.asarray(present_vals[0], dtype=np.float64)
+                    n_feat = 1 if first.ndim == 0 else first.shape[0]
+                    present_emb = np.zeros((len(present_idx), n_feat),
+                                           dtype=np.float64)
+                    for j, idx in enumerate(present_idx):
+                        present_emb[j] = np.asarray(
+                            modality_data[idx], dtype=np.float64)
+                else:
+                    present_data = [modality_data[i] for i in present_idx]
+                    present_emb = enc.encode(present_data,
+                                             batch_size=batch_size,
+                                             show_progress=show_progress)
+
+                # Impute missing with training mean or zeros
+                n_total = len(modality_data)
+                fill = self.means_.get(name, np.zeros(present_emb.shape[1])) \
+                    if hasattr(self, 'means_') else np.zeros(present_emb.shape[1])
+                emb = np.tile(fill, (n_total, 1))
+                for j, idx in enumerate(present_idx):
+                    emb[idx] = present_emb[j]
+            elif enc == 'passthrough':
+                emb = np.asarray(modality_data, dtype=np.float64)
+                if emb.ndim == 1:
+                    emb = emb.reshape(-1, 1)
+            else:
+                emb = enc.encode(modality_data, batch_size=batch_size,
+                                 show_progress=show_progress)
+
+            if n_samples is None:
+                n_samples = emb.shape[0]
+            elif emb.shape[0] != n_samples:
+                raise ValueError(
+                    "Modality '%s' has %d samples, expected %d"
+                    % (name, emb.shape[0], n_samples))
+
+            self._last_parts_unweighted_[name] = emb.copy()
+
+            if self.weights is not None and name in self.weights:
+                emb = emb * self.weights[name]
+
+            self._last_parts_[name] = emb
+            parts.append(emb)
+
+        return self._validate_output(np.hstack(parts), n_samples=n_samples)
+
+
 # ---- Encoder registry and resolution ----
 
 _ENCODER_REGISTRY = {

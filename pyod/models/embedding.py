@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""EmbeddingOD: Anomaly detection via foundation model embeddings.
+"""EmbeddingOD and MultiModalOD: Anomaly detection via foundation model
+embeddings.
 
-Chains any embedding encoder with any PyOD detector, enabling
-anomaly detection on text, image, and other non-tabular data
-through PyOD's standard API.
-
-This implements the two-step approach shown to outperform end-to-end
-methods in NLP-ADBench (Li et al., EMNLP 2025) and TAD-Bench
-(Cao et al., 2025).
+EmbeddingOD chains any embedding encoder with any PyOD detector, enabling
+anomaly detection on text, image, and other non-tabular data through
+PyOD's standard API. MultiModalOD extends this to multi-modal data
+by running separate detectors per modality and fusing their scores.
 """
 # Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
@@ -190,9 +188,14 @@ class EmbeddingOD(BaseDetector):
         self.encoder_ = resolve_encoder(self.encoder)
         self.detector_ = resolve_detector(self.detector, self.contamination)
 
-        # Encode
-        X_emb = self.encoder_.encode(
-            X, batch_size=self.batch_size, show_progress=True)
+        # Encode (use fit_encode for MultiModalEncoder to store means)
+        from ..utils.encoders import MultiModalEncoder
+        if isinstance(self.encoder_, MultiModalEncoder):
+            X_emb = self.encoder_.fit_encode(
+                X, batch_size=self.batch_size, show_progress=True)
+        else:
+            X_emb = self.encoder_.encode(
+                X, batch_size=self.batch_size, show_progress=True)
 
         # Preprocess (matches NLP-ADBench pipeline)
         X_emb = self._preprocess_fit(X_emb)
@@ -396,3 +399,207 @@ class EmbeddingOD(BaseDetector):
                 "got '%s'" % quality)
         config = {**presets[quality], **kwargs}
         return cls(**config)
+
+
+class MultiModalOD(BaseDetector):
+    """Multi-modal anomaly detection via score fusion.
+
+    Runs a separate detector per modality and combines their anomaly
+    scores. Each modality can use a different detector and encoder.
+    Score combination uses PyOD's existing combination functions.
+
+    This is complementary to using ``MultiModalEncoder`` with
+    ``EmbeddingOD`` (early/feature fusion). Score fusion is preferred
+    when modalities have very different characteristics or when
+    per-modality anomaly scores are independently meaningful.
+
+    Parameters
+    ----------
+    modalities : dict of {str: BaseDetector}
+        Maps modality name to a detector. Each detector can be:
+        - An ``EmbeddingOD`` instance (for text/image modalities)
+        - Any ``BaseDetector`` instance (for tabular modalities)
+
+    combination : str, optional (default='average')
+        Score combination method. One of 'average', 'maximization',
+        'median'.
+
+    contamination : float, optional (default=0.1)
+        Expected proportion of outliers. Used for threshold and labels
+        on the combined scores.
+
+    standardize_scores : bool, optional (default=True)
+        Standardize per-modality scores to zero mean and unit variance
+        before combination. Recommended when detectors produce scores
+        on different scales.
+
+    Attributes
+    ----------
+    decision_scores_ : numpy array of shape (n_samples,)
+        Combined outlier scores of the training data.
+
+    threshold_ : float
+        Score threshold based on ``contamination``.
+
+    labels_ : numpy array of shape (n_samples,)
+        Binary labels (0: inlier, 1: outlier).
+
+    detectors_ : dict of {str: BaseDetector}
+        The fitted detectors per modality.
+
+    Examples
+    --------
+    >>> from pyod.models.embedding import EmbeddingOD, MultiModalOD
+    >>> from pyod.models.knn import KNN
+    >>> clf = MultiModalOD(modalities={
+    ...     'text': EmbeddingOD(encoder='all-MiniLM-L6-v2', detector='KNN'),
+    ...     'tabular': KNN(),
+    ... })
+    >>> data = {'text': train_texts, 'tabular': X_train}
+    >>> clf.fit(data)
+    >>> scores = clf.decision_function(data)
+    """
+
+    def __init__(self, modalities, combination='average',
+                 contamination=0.1, standardize_scores=True):
+        super(MultiModalOD, self).__init__(contamination=contamination)
+        self.modalities = modalities
+        self.combination = combination
+        self.standardize_scores = standardize_scores
+
+    def fit(self, X, y=None):
+        """Fit a detector per modality on the input data.
+
+        Parameters
+        ----------
+        X : dict of {str: data}
+            Maps modality name to training data. Keys must match
+            the ``modalities`` dict.
+
+        y : Ignored
+            Not used, present for API consistency.
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
+        """
+        if not isinstance(X, dict):
+            raise TypeError(
+                "MultiModalOD expects a dict input, got %s" % type(X))
+
+        self._set_n_classes(y)
+
+        # Clone and fit each detector
+        self.detectors_ = {}
+        self.modality_names_ = []
+        train_scores = []
+        n_samples = None
+
+        for name, det in self.modalities.items():
+            if name not in X:
+                raise KeyError(
+                    "Modality '%s' not found in input. "
+                    "Expected keys: %s" % (name, list(self.modalities.keys())))
+
+            fitted = clone(det)
+            fitted.fit(X[name], y)
+            self.detectors_[name] = fitted
+            self.modality_names_.append(name)
+
+            scores_i = fitted.decision_scores_
+            if n_samples is None:
+                n_samples = len(scores_i)
+            elif len(scores_i) != n_samples:
+                raise ValueError(
+                    "Modality '%s' has %d samples, expected %d"
+                    % (name, len(scores_i), n_samples))
+            train_scores.append(scores_i)
+
+        # Standardize and store per-modality scalers
+        score_matrix = np.column_stack(train_scores)
+        if self.standardize_scores:
+            from sklearn.preprocessing import StandardScaler
+            self.score_scalers_ = {}
+            for i, name in enumerate(self.modality_names_):
+                scaler = StandardScaler()
+                score_matrix[:, i] = scaler.fit_transform(
+                    score_matrix[:, i:i + 1]).ravel()
+                self.score_scalers_[name] = scaler
+
+        # Combine scores
+        self.decision_scores_ = self._combine(score_matrix)
+        self._process_decision_scores()
+        return self
+
+    def decision_function(self, X):
+        """Predict combined anomaly scores for X.
+
+        Parameters
+        ----------
+        X : dict of {str: data}
+            Maps modality name to test data. A modality value of
+            ``None`` means that modality is entirely missing for all
+            test samples; its score is imputed as 0. When
+            ``standardize_scores=True`` (default), 0 is the training
+            mean, so the missing modality contributes "average" to
+            the combined score. When ``standardize_scores=False``,
+            0 is a raw score and may not be neutral; enable
+            standardization for principled missing-data handling.
+            Note that imputation reduces variance in the fused score
+            compared to training, so ``predict()`` thresholds may be
+            less calibrated. Use ``decision_function()`` and apply
+            custom thresholds for best results with missing
+            modalities.
+
+        Returns
+        -------
+        anomaly_scores : numpy array of shape (n_samples,)
+        """
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+
+        if not isinstance(X, dict):
+            raise TypeError(
+                "MultiModalOD expects a dict input, got %s" % type(X))
+
+        # Determine n_samples from first available modality
+        n_samples = None
+        for name in self.modality_names_:
+            if name in X and X[name] is not None:
+                data_i = X[name]
+                n_samples = len(data_i) if isinstance(data_i, (list, tuple)) \
+                    else data_i.shape[0]
+                break
+        if n_samples is None:
+            raise ValueError("No modalities available in test input")
+
+        test_scores = []
+        for name in self.modality_names_:
+            if name not in X or X[name] is None:
+                # Impute mean score (0 after standardization)
+                test_scores.append(np.zeros(n_samples))
+            else:
+                det = self.detectors_[name]
+                scores_i = det.decision_function(X[name])
+
+                if self.standardize_scores:
+                    scores_i = self.score_scalers_[name].transform(
+                        scores_i.reshape(-1, 1)).ravel()
+
+                test_scores.append(scores_i)
+
+        score_matrix = np.column_stack(test_scores)
+        return self._combine(score_matrix)
+
+    def _combine(self, score_matrix):
+        """Combine per-modality scores."""
+        if self.combination == 'average':
+            return np.mean(score_matrix, axis=1)
+        elif self.combination == 'maximization':
+            return np.max(score_matrix, axis=1)
+        elif self.combination == 'median':
+            return np.median(score_matrix, axis=1)
+        else:
+            raise ValueError(
+                "combination must be 'average', 'maximization', or "
+                "'median', got '%s'" % self.combination)
