@@ -209,6 +209,37 @@ After bootstrap, run **all** of the following checks and report results in a sho
 - `context/` is synced to co-PI repos and will be available after submodule init.
 - Project-specific submodule details (which directories, which upstream repos, which files are internal-only) belong in `CLAUDE.md` in each project repo, not here.
 
+### Overleaf merge conflict resolution
+
+Overleaf-synced repos (usually submodules) require special care during merges. Overleaf's git bridge creates branches from its own snapshot, which may lag behind the latest local push. When a collaborator edits on Overleaf while we push structural changes locally, the Overleaf branch is based on the **pre-push** state. In a merge, "theirs" means "older base plus collaborator styling edits," not "collaborator's newer version." Using `git checkout --theirs` on such files silently discards our work.
+
+**Co-PI changes are the priority.** Our own structural work (compaction, renames) can be redone in minutes because we know exactly what we changed. A co-PI's content changes on Overleaf -- new sentences, rewritten arguments, added references, terminology choices -- represent their intellectual contribution. If we silently drop their edits, we may not even know what was lost, and they may not notice until weeks later. Losing their work is an order of magnitude worse than losing ours. The merge must preserve both sides, but when in doubt, err toward preserving the co-PI's content.
+
+**Rules for merging Overleaf branches with conflicts:**
+
+1. **Never use `git checkout --theirs`** on files where we have local structural changes (compaction, renames, reorganization). This is the single most dangerous command in an Overleaf merge.
+2. **Never use `git checkout --ours` and stop there.** Starting from our version is correct, but the merge is not done until the co-PI's content changes are accounted for. Treating `--ours` as the final answer silently drops their work.
+3. **Inspect what the collaborator actually changed** before resolving. First find the merge base: `git merge-base HEAD <overleaf-branch>`. Then run `git diff <merge-base>..<overleaf-branch> -- <file>` to isolate the co-PI's edits relative to the common ancestor, without mixing in our structural changes. Classify each change as:
+   - **Content** (new sentences, rewritten arguments, added references, deliberate deletions or shortenings, terminology changes) -- must be preserved. Treat co-PI deletions with the same care as additions; if they removed text, that was a deliberate editorial decision, not noise.
+   - **Formatting** (spacing, font commands, styling) -- apply if consistent with our version.
+   - **Stale reversions** (undoes our rename or compaction because they edited the pre-push snapshot) -- discard, but note that the co-PI has not seen our change yet. Be careful: a change that looks like a stale reversion may actually be a deliberate content choice. When ambiguous, ask the user.
+4. **Apply their content changes onto our structural base.** Start from `git checkout --ours <file>`, then manually integrate every content change identified in step 3. Do not skip any co-PI content change without explicit user approval.
+5. **Double-verify before committing** -- check both directions:
+   - `git diff <pre-merge-commit> -- <file>` -- confirm our structural changes survived.
+   - `git diff <overleaf-branch> -- <file>` -- confirm the only differences from the co-PI's version are our intended structural changes, not dropped content.
+   - If the co-PI added entirely new paragraphs or sections, verify they appear in the merged file.
+6. **Screen for binary artifacts before staging.** Overleaf branches often carry compiled PDFs, review screenshots (`out-review/`), or other build artifacts that should not be tracked. Use the same merge-base diff from pre-merge checklist step 2 to spot unexpected large files. Add them to `.gitignore` before staging the merge.
+
+**Pre-merge checklist** (run before `git merge <overleaf-branch>`):
+
+1. `git fetch` to get the latest Overleaf branch.
+2. `git diff --stat $(git merge-base HEAD <overleaf-branch>)..<overleaf-branch>` -- check which files the co-PI actually touched, spot binary artifacts.
+3. `git log --oneline HEAD..<overleaf-branch>` -- understand what the collaborator did.
+4. If any files we modified structurally appear in the diff, plan to resolve those conflicts manually using the rules above.
+5. If the co-PI touched files we did not modify, those should auto-merge cleanly. After the merge, still spot-check them for unintended content loss.
+
+**Recovery if `--theirs` was already used:** Restore our structural version from the pre-merge commit with `git restore --source=<pre-merge-commit> --worktree -- <file>` (avoids encoding and line-ending issues from shell redirection on Windows). Then reapply the collaborator's content and formatting changes on top. Do not skip the reapply step -- their work matters too.
+
 ## Local Skills Precedence
 
 - If the workspace contains a `skills/` directory, treat repo-local skills as the default source of truth for that project.
