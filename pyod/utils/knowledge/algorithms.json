@@ -850,7 +850,7 @@
     "benchmark_refs": [],
     "benchmark_rank": {},
     "paper": {"id": "xgbod", "short": "Zhao and Hryniewicki, IJCNN 2018"},
-    "default_params": {"contamination": 0.1},
+    "default_params": {},
     "preprocessing_mode": "external",
     "requires": ["xgboost"],
     "version_added": "0.5.0"

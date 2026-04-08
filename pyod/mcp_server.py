@@ -6,6 +6,10 @@ Tier A: knowledge queries + stateless planning.
 
 Usage:
     python -m pyod.mcp_server
+
+Note: On Windows with antivirus software (e.g., Bitdefender), the MCP
+server subprocess may be blocked. If MCP is unavailable, use ADEngine
+directly in Python: ``from pyod.utils.ad_engine import ADEngine``.
 """
 # Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
@@ -13,6 +17,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import keyword
 import os
 import sys
 
@@ -72,8 +77,14 @@ def plan_detection(
         priority: 'speed', 'accuracy', or 'balanced'.
         constraints: Optional JSON, e.g. '{"exclude_detectors": ["ECOD"]}'.
     """
-    profile = json.loads(data_profile)
-    cons = json.loads(constraints) if constraints else None
+    try:
+        profile = json.loads(data_profile)
+    except (json.JSONDecodeError, TypeError) as e:
+        return _to_json({"error": "Invalid JSON", "details": str(e)})
+    try:
+        cons = json.loads(constraints) if constraints else None
+    except (json.JSONDecodeError, TypeError) as e:
+        return _to_json({"error": "Invalid JSON", "details": str(e)})
     return _to_json(engine.plan_detection(profile, priority, cons))
 
 
@@ -87,7 +98,10 @@ def build_detector(plan: str) -> str:
     Args:
         plan: JSON string from plan_detection().
     """
-    plan_dict = json.loads(plan)
+    try:
+        plan_dict = json.loads(plan)
+    except (json.JSONDecodeError, TypeError) as e:
+        return _to_json({"error": "Invalid JSON", "details": str(e)})
     name = plan_dict.get('detector_name', '')
     algo = engine.kb.get_algorithm(name)
     if algo is None:
@@ -96,6 +110,11 @@ def build_detector(plan: str) -> str:
     preset = plan_dict.get('preset')
     params = plan_dict.get('params', {})
 
+    # Validate preset is only used with EmbeddingOD
+    if preset and name != 'EmbeddingOD':
+        return _to_json({"error": "Preset only valid for EmbeddingOD",
+                         "detector": name, "preset": preset})
+
     # Validate preset against known allowlist
     _VALID_PRESETS = {'for_text', 'for_image'}
     if preset and preset not in _VALID_PRESETS:
@@ -103,7 +122,7 @@ def build_detector(plan: str) -> str:
 
     # Validate param keys are simple identifiers (no injection)
     for key in params:
-        if not key.isidentifier():
+        if not key.isidentifier() or keyword.iskeyword(key):
             return _to_json({"error": "Invalid parameter name", "key": key})
 
     if preset:

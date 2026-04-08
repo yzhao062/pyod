@@ -152,7 +152,15 @@ class ADEngine:
                         fallback_name = fb
                         break
             if fallback_name is None:
-                fallback_name = 'IForest'  # absolute last resort
+                return self._make_plan(
+                    detector_name='',
+                    params={},
+                    reason='No valid detector available: all candidates '
+                           'excluded or no matching rule found',
+                    evidence=[],
+                    confidence=0.0,
+                    alternatives=[],
+                    note='no_valid_plan')
 
             return self._make_plan(
                 detector_name=fallback_name, params={},
