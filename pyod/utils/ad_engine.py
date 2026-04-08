@@ -141,10 +141,23 @@ class ADEngine:
             valid.append(rec)
 
         if not valid:
+            # Fallback: pick first non-excluded shipped detector
+            fallback_order = ['IForest', 'ECOD', 'KNN', 'HBOS', 'LOF',
+                              'COPOD', 'PCA']
+            fallback_name = None
+            for fb in fallback_order:
+                if fb not in exclude:
+                    algo = self.kb.get_algorithm(fb)
+                    if algo and algo.get('status') == 'shipped':
+                        fallback_name = fb
+                        break
+            if fallback_name is None:
+                fallback_name = 'IForest'  # absolute last resort
+
             return self._make_plan(
-                detector_name='IForest', params={},
-                reason='Fallback: no routing rule matched; '
-                       'IForest is a robust general-purpose detector',
+                detector_name=fallback_name, params={},
+                reason='Fallback: no routing rule matched or all '
+                       'candidates excluded',
                 evidence=['ADBench'], confidence=0.5,
                 alternatives=[], note='No specific rule matched')
 
@@ -153,36 +166,35 @@ class ADEngine:
             detector_name=r['detector'],
             params=r.get('params', {}),
             preset=r.get('preset'),
-            reason='', evidence=[], confidence=r.get('confidence', 0.5),
+            reason=r.get('_reason', ''),
+            evidence=r.get('_evidence', []),
+            confidence=r.get('confidence', 0.5),
             alternatives=[]) for r in valid[1:3]]
-
-        rule_reason = ''
-        rule_evidence = []
-        for rule in self.kb.routing_rules.get('rules', []):
-            recs = rule.get('recommendations', [])
-            if recs and recs[0].get('detector') == best['detector']:
-                rule_reason = rule.get('reason', '')
-                rule_evidence = rule.get('evidence', [])
-                break
 
         return self._make_plan(
             detector_name=best['detector'],
             params=best.get('params', {}),
             preset=best.get('preset'),
-            reason=rule_reason,
-            evidence=rule_evidence,
+            reason=best.get('_reason', ''),
+            evidence=best.get('_evidence', []),
             confidence=best.get('confidence', 0.7),
             alternatives=alternatives)
 
     def _evaluate_rules(self, profile, priority):
-        """Evaluate routing rules against profile."""
+        """Evaluate routing rules against profile. Returns matched
+        recommendations with their rule context."""
         rules = self.kb.routing_rules.get('rules', [])
         all_recs = []
 
         for rule in rules:
             if self._rule_matches(rule, profile, priority):
+                reason = rule.get('reason', '')
+                evidence = rule.get('evidence', [])
                 for rec in rule.get('recommendations', []):
-                    all_recs.append(rec)
+                    enriched = dict(rec)
+                    enriched['_reason'] = reason
+                    enriched['_evidence'] = evidence
+                    all_recs.append(enriched)
 
         seen = {}
         for rec in all_recs:

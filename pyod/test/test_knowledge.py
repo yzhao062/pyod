@@ -81,6 +81,12 @@ class TestKnowledgeBase(unittest.TestCase):
         names = [a['name'] for a in planned]
         assert 'TimeSeriesOD' in names
 
+    def test_planned_ts_detector_has_correct_data_type(self):
+        algo = self.kb.get_algorithm('TimeSeriesOD')
+        assert algo is not None
+        assert 'time_series' in algo['data_types']
+        assert 'tabular' not in algo['data_types']
+
     def test_caching(self):
         a1 = self.kb.algorithms
         a2 = self.kb.algorithms

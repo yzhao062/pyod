@@ -117,6 +117,14 @@ class TestPlanDetection(unittest.TestCase):
             profile, constraints={'exclude_detectors': ['IForest', 'ECOD']})
         assert plan['detector_name'] not in ('IForest', 'ECOD')
 
+    def test_fallback_respects_exclusions(self):
+        profile = {'data_type': 'tabular', 'n_samples': 5000,
+                   'n_features': 50, 'dimensionality_class': 'medium'}
+        plan = self.engine.plan_detection(
+            profile,
+            constraints={'exclude_detectors': ['IForest', 'ECOD', 'KNN']})
+        assert plan['detector_name'] not in ('IForest', 'ECOD', 'KNN')
+
     def test_plan_is_closed_schema(self):
         profile = {'data_type': 'tabular', 'n_samples': 1000,
                    'n_features': 10, 'dimensionality_class': 'low'}

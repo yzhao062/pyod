@@ -1237,7 +1237,7 @@
     "class_path": "pyod.models.tsod.TimeSeriesOD",
     "full_name": "Time Series Outlier Detection",
     "status": "planned",
-    "data_types": ["tabular"],
+    "data_types": ["time_series"],
     "category": "bridge",
     "complexity": {"time": "varies", "space": "varies"},
     "strengths": [

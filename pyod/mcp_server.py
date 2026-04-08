@@ -88,7 +88,7 @@ def build_detector(plan: str) -> str:
         plan: JSON string from plan_detection().
     """
     plan_dict = json.loads(plan)
-    name = plan_dict['detector_name']
+    name = plan_dict.get('detector_name', '')
     algo = engine.kb.get_algorithm(name)
     if algo is None:
         return _to_json({"error": "Unknown detector", "name": name})
@@ -96,19 +96,27 @@ def build_detector(plan: str) -> str:
     preset = plan_dict.get('preset')
     params = plan_dict.get('params', {})
 
+    # Validate preset against known allowlist
+    _VALID_PRESETS = {'for_text', 'for_image'}
+    if preset and preset not in _VALID_PRESETS:
+        return _to_json({"error": "Unknown preset", "preset": preset})
+
+    # Validate param keys are simple identifiers (no injection)
+    for key in params:
+        if not key.isidentifier():
+            return _to_json({"error": "Invalid parameter name", "key": key})
+
     if preset:
         code = "from pyod.models.embedding import EmbeddingOD\n"
-        code += "clf = EmbeddingOD.%s(%s)" % (
-            preset,
-            ', '.join('%s=%r' % (k, v) for k, v in params.items()))
+        param_str = ', '.join('%s=%r' % (k, v) for k, v in params.items())
+        code += "clf = EmbeddingOD.%s(%s)" % (preset, param_str)
     else:
         class_path = algo['class_path']
         module_path, class_name = class_path.rsplit('.', 1)
         code = "from %s import %s\n" % (module_path, class_name)
         if params:
-            code += "clf = %s(%s)" % (
-                class_name,
-                ', '.join('%s=%r' % (k, v) for k, v in params.items()))
+            param_str = ', '.join('%s=%r' % (k, v) for k, v in params.items())
+            code += "clf = %s(%s)" % (class_name, param_str)
         else:
             code += "clf = %s()" % class_name
 
@@ -172,9 +180,9 @@ def _load_data(path):
 
     ext = os.path.splitext(path)[1].lower()
     if ext == '.npy':
-        return np.load(path, allow_pickle=True)
+        return np.load(path, allow_pickle=False)
     elif ext == '.npz':
-        data = np.load(path, allow_pickle=True)
+        data = np.load(path, allow_pickle=False)
         return data[data.files[0]]
     elif ext == '.csv':
         import csv
