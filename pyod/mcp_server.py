@@ -81,10 +81,14 @@ def plan_detection(
         profile = json.loads(data_profile)
     except (json.JSONDecodeError, TypeError) as e:
         return _to_json({"error": "Invalid JSON", "details": str(e)})
+    if not isinstance(profile, dict):
+        return _to_json({"error": "data_profile must be a JSON object"})
     try:
         cons = json.loads(constraints) if constraints else None
     except (json.JSONDecodeError, TypeError) as e:
         return _to_json({"error": "Invalid JSON", "details": str(e)})
+    if cons is not None and not isinstance(cons, dict):
+        return _to_json({"error": "constraints must be a JSON object"})
     return _to_json(engine.plan_detection(profile, priority, cons))
 
 
@@ -92,8 +96,9 @@ def plan_detection(
 def build_detector(plan: str) -> str:
     """Get constructor metadata for a detector from a plan.
 
-    Returns import path, class name, validated params, and a
-    ready-to-run Python code snippet for instantiation.
+    Returns import path, class name, params, and a Python code
+    snippet for instantiation. Params are passed through from
+    the plan without constructor signature validation.
 
     Args:
         plan: JSON string from plan_detection().
@@ -102,6 +107,8 @@ def build_detector(plan: str) -> str:
         plan_dict = json.loads(plan)
     except (json.JSONDecodeError, TypeError) as e:
         return _to_json({"error": "Invalid JSON", "details": str(e)})
+    if not isinstance(plan_dict, dict):
+        return _to_json({"error": "plan must be a JSON object"})
     name = plan_dict.get('detector_name', '')
     algo = engine.kb.get_algorithm(name)
     if algo is None:
@@ -109,6 +116,8 @@ def build_detector(plan: str) -> str:
 
     preset = plan_dict.get('preset')
     params = plan_dict.get('params', {})
+    if not isinstance(params, dict):
+        return _to_json({"error": "params must be a JSON object"})
 
     # Validate preset is only used with EmbeddingOD
     if preset and name != 'EmbeddingOD':
