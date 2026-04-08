@@ -39,17 +39,20 @@ setup(
     include_package_data=True,
     package_data={
         'pyod.utils': ['model_analysis_jsons/*.json'],
+        'pyod.utils.knowledge': ['*.json'],
     },
     install_requires=requirements,
     extras_require={
         'embedding': ['sentence-transformers>=2.0'],
         'openai': ['openai>=1.0'],
+        'mcp': ['mcp>=1.0'],
         'all': [
             'sentence-transformers>=2.0',
             'openai>=1.0',
             'transformers>=4.0',
             'torch>=2.0',
             'Pillow',
+            'mcp>=1.0',
         ],
     },
     setup_requires=['setuptools>=38.6.0'],
