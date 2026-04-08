@@ -1,0 +1,35 @@
+{
+  "ADBench": {
+    "paper": {"id": "adbench", "short": "Han et al., NeurIPS 2022"},
+    "scope": "tabular",
+    "n_datasets": 57,
+    "n_algorithms": 30,
+    "rankings": {
+      "overall_top_5": ["ECOD", "IForest", "KNN", "COPOD", "HBOS"],
+      "high_dim_top_3": ["ECOD", "COPOD", "IForest"],
+      "low_dim_top_3": ["KNN", "LOF", "CBLOF"]
+    },
+    "key_finding": "No single algorithm dominates; ensemble of top-5 is robust"
+  },
+  "NLP_ADBench": {
+    "paper": {"id": "nlp_adbench", "short": "Li et al., EMNLP 2025"},
+    "scope": "text",
+    "n_datasets": 8,
+    "n_algorithms": 19,
+    "rankings": {
+      "overall_top_5": ["OpenAI+LUNAR", "OpenAI+LOF", "OpenAI+AE", "MiniLM+KNN", "BERT+LOF"]
+    },
+    "key_finding": "Embedding quality >> detector choice; two-step beats end-to-end"
+  },
+  "TSB_AD": {
+    "paper": {"id": "tsb_ad", "short": "Liu & Paparrizos, NeurIPS 2024"},
+    "scope": "time_series",
+    "n_datasets": 1070,
+    "n_algorithms": 40,
+    "rankings": {
+      "overall_top_5": ["IForest", "LOF", "POLY", "KNN", "KShapeAD"],
+      "subsequence_top_3": ["MatrixProfile", "SAND", "Series2Graph"]
+    },
+    "key_finding": "Classical methods competitive with deep; MatrixProfile strong on subsequence anomalies"
+  }
+}

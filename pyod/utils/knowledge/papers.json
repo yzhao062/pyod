@@ -1,0 +1,43 @@
+{
+  "pyod": {
+    "title": "PyOD: A Python Toolbox for Scalable Outlier Detection",
+    "authors": "Zhao, Nasrullah, Li",
+    "venue": "JMLR 2019",
+    "url": "https://jmlr.org/papers/v20/19-011.html"
+  },
+  "adbench": {
+    "title": "ADBench: Anomaly Detection Benchmark",
+    "authors": "Han, Hu, Huang, Jiang, Zhao",
+    "venue": "NeurIPS 2022"
+  },
+  "nlp_adbench": {
+    "title": "NLP-ADBench: NLP Anomaly Detection Benchmark",
+    "authors": "Li, Li, Xiao, Yang, Nian, Hu, Zhao",
+    "venue": "EMNLP Findings 2025"
+  },
+  "tsb_ad": {
+    "title": "TSB-AD: The Elephant in the Room",
+    "authors": "Liu, Paparrizos",
+    "venue": "NeurIPS 2024"
+  },
+  "ad_agent": {
+    "title": "AD-AGENT: A Multi-agent Framework for End-to-end Anomaly Detection",
+    "authors": "Yang et al.",
+    "venue": "arXiv 2025"
+  },
+  "ecod": {
+    "title": "ECOD: Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions",
+    "authors": "Li, Zhao, Hu, Botta",
+    "venue": "TKDE 2022"
+  },
+  "copod": {
+    "title": "COPOD: Copula-Based Outlier Detection",
+    "authors": "Li, Zhao, Botta, Ionescu, Hu",
+    "venue": "ICDM 2020"
+  },
+  "suod": {
+    "title": "SUOD: Accelerating Large-Scale Unsupervised Heterogeneous Outlier Detection",
+    "authors": "Zhao, Hu, Botta, Ionescu, Chen",
+    "venue": "MLSys 2021"
+  }
+}
