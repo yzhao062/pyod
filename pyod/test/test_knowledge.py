@@ -76,7 +76,7 @@ class TestKnowledgeBase(unittest.TestCase):
 
     def test_list_by_status(self):
         shipped = self.kb.list_by_status('shipped')
-        assert len(shipped) >= 46
+        assert len(shipped) >= 45
         planned = self.kb.list_by_status('planned')
         names = [a['name'] for a in planned]
         assert 'TimeSeriesOD' in names

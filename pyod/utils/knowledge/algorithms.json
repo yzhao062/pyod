@@ -1,0 +1,1261 @@
+{
+  "ECOD": {
+    "class_path": "pyod.models.ecod.ECOD",
+    "full_name": "Empirical Cumulative Distribution Functions",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n * d * log(n))", "space": "O(n * d)"},
+    "strengths": [
+      "Parameter-free and highly interpretable",
+      "Fast computation with parallelization support",
+      "Strong benchmark performance across diverse datasets",
+      "No assumption on data distribution"
+    ],
+    "weaknesses": [
+      "May struggle with strongly correlated features",
+      "Assumes outliers deviate in at least one marginal dimension"
+    ],
+    "best_for": "General-purpose outlier detection when speed and interpretability are priorities",
+    "avoid_when": "Features are heavily correlated and outliers only manifest in joint distributions",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {"ADBench_overall": 5},
+    "paper": {"id": "ecod", "short": "Li et al., TKDE 2022"},
+    "default_params": {"contamination": 0.1, "n_jobs": 1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.9.0"
+  },
+  "ABOD": {
+    "class_path": "pyod.models.abod.ABOD",
+    "full_name": "Angle-Based Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n^2 * d) for fast, O(n^3 * d) for default", "space": "O(n^2)"},
+    "strengths": [
+      "Effective in high-dimensional spaces",
+      "Not affected by distance concentration in high dimensions",
+      "Good theoretical foundation"
+    ],
+    "weaknesses": [
+      "Computationally expensive, especially in default mode",
+      "Sensitive to noise in low-dimensional data",
+      "Requires sufficient neighbors for angle variance estimation"
+    ],
+    "best_for": "High-dimensional datasets where distance-based methods suffer from curse of dimensionality",
+    "avoid_when": "Dataset is very large or low-dimensional where distance-based methods work well",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {},
+    "paper": {"id": "abod", "short": "Kriegel et al., KDD 2008"},
+    "default_params": {"contamination": 0.1, "n_neighbors": 5, "method": "fast"},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "COPOD": {
+    "class_path": "pyod.models.copod.COPOD",
+    "full_name": "Copula-Based Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n * d * log(n))", "space": "O(n * d)"},
+    "strengths": [
+      "Parameter-free and highly interpretable",
+      "Fast computation with parallelization support",
+      "Models tail probabilities via empirical copulas"
+    ],
+    "weaknesses": [
+      "Assumes feature-wise independence for tail modeling",
+      "May miss complex multivariate interactions"
+    ],
+    "best_for": "Large-scale datasets where speed and interpretability matter and features are roughly independent",
+    "avoid_when": "Outliers only appear in joint distributions with strong feature dependencies",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {"ADBench_overall": 6},
+    "paper": {"id": "copod", "short": "Li et al., ICDM 2020"},
+    "default_params": {"contamination": 0.1, "n_jobs": 1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.7.0"
+  },
+  "MAD": {
+    "class_path": "pyod.models.mad.MAD",
+    "full_name": "Median Absolute Deviation",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n * log(n))", "space": "O(n)"},
+    "strengths": [
+      "Extremely simple and fast",
+      "Robust to outliers in the training data",
+      "Well-suited for univariate data"
+    ],
+    "weaknesses": [
+      "Only works on univariate data",
+      "Cannot capture multivariate relationships"
+    ],
+    "best_for": "Univariate outlier detection with a robust central tendency measure",
+    "avoid_when": "Data is multivariate or relationships between features are important",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "mad", "short": "Iglewicz and Hoaglin, 1993"},
+    "default_params": {"threshold": 3.5, "contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.7.5"
+  },
+  "SOS": {
+    "class_path": "pyod.models.sos.SOS",
+    "full_name": "Stochastic Outlier Selection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n^2)"},
+    "strengths": [
+      "Based on affinity and binding probability concepts",
+      "Produces meaningful probability-like outlier scores",
+      "Perplexity parameter controls local vs global sensitivity"
+    ],
+    "weaknesses": [
+      "Quadratic complexity limits scalability",
+      "Sensitive to perplexity parameter choice"
+    ],
+    "best_for": "Medium-sized datasets where probability-calibrated outlier scores are valuable",
+    "avoid_when": "Dataset is very large (>10K samples) due to quadratic complexity",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "sos", "short": "Janssens et al., 2012"},
+    "default_params": {"contamination": 0.1, "perplexity": 4.5, "metric": "euclidean"},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.6.0"
+  },
+  "QMCD": {
+    "class_path": "pyod.models.qmcd.QMCD",
+    "full_name": "Quasi-Monte Carlo Discrepancy",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n * d)"},
+    "strengths": [
+      "Based on uniformity criterion from quasi-Monte Carlo theory",
+      "Parameter-free (only contamination needed)",
+      "Theoretically grounded in discrepancy measures"
+    ],
+    "weaknesses": [
+      "Quadratic time complexity",
+      "Assumes outliers deviate from uniform space-filling"
+    ],
+    "best_for": "Detecting anomalies as deviations from uniform space-filling in moderate-dimensional data",
+    "avoid_when": "Dataset is very large or high-dimensional",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "qmcd", "short": "Fang et al., 2001"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.9.0"
+  },
+  "KDE": {
+    "class_path": "pyod.models.kde.KDE",
+    "full_name": "Kernel Density Estimation",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n * d)"},
+    "strengths": [
+      "Non-parametric density estimation",
+      "Multiple kernel choices available",
+      "Scores directly reflect density"
+    ],
+    "weaknesses": [
+      "Quadratic prediction time",
+      "Sensitive to bandwidth and kernel selection",
+      "Suffers from curse of dimensionality"
+    ],
+    "best_for": "Low-to-moderate dimensional data where non-parametric density estimation is desired",
+    "avoid_when": "Data is high-dimensional or dataset is very large",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "kde", "short": "Latecki et al., SDM 2007"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.6.5"
+  },
+  "Sampling": {
+    "class_path": "pyod.models.sampling.Sampling",
+    "full_name": "Rapid Distance-Based Outlier Detection via Sampling",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n * s * d) where s is subset size", "space": "O(n * d)"},
+    "strengths": [
+      "Linear time complexity through sampling",
+      "Scalable to large datasets",
+      "Simple and effective approach"
+    ],
+    "weaknesses": [
+      "Randomness from sampling can affect reproducibility",
+      "May miss local outliers with small subset sizes"
+    ],
+    "best_for": "Large-scale datasets requiring fast distance-based outlier detection",
+    "avoid_when": "Precise and deterministic results are required or dataset is small enough for exact methods",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "sampling", "short": "Sugiyama and Borgwardt, 2013"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.7.5"
+  },
+  "GMM": {
+    "class_path": "pyod.models.gmm.GMM",
+    "full_name": "Gaussian Mixture Model",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "probabilistic",
+    "complexity": {"time": "O(n * k * d^2) per EM iteration", "space": "O(k * d^2)"},
+    "strengths": [
+      "Models complex multi-modal distributions",
+      "Soft clustering provides probabilistic scores",
+      "Flexible covariance structures"
+    ],
+    "weaknesses": [
+      "Sensitive to initialization and number of components",
+      "Assumes Gaussian component distributions",
+      "EM convergence not guaranteed to global optimum"
+    ],
+    "best_for": "Data with multi-modal distributions that can be approximated by Gaussian mixtures",
+    "avoid_when": "Data does not follow mixture-of-Gaussians assumption or is very high-dimensional",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "gmm", "short": "Aggarwal, 2017"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.9.8"
+  },
+  "PCA": {
+    "class_path": "pyod.models.pca.PCA",
+    "full_name": "Principal Component Analysis",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "linear",
+    "complexity": {"time": "O(n * d^2)", "space": "O(d^2)"},
+    "strengths": [
+      "Fast training and prediction",
+      "Well-understood linear model",
+      "Effective when anomalies lie in minor principal components"
+    ],
+    "weaknesses": [
+      "Assumes linear relationships",
+      "Sensitive to the number of components selected",
+      "Cannot capture nonlinear anomalies"
+    ],
+    "best_for": "Datasets with linear structure where outliers deviate from main variance directions",
+    "avoid_when": "Data has strong nonlinear structure or outliers align with principal components",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "pca", "short": "Shyu et al., 2003"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "KPCA": {
+    "class_path": "pyod.models.kpca.KPCA",
+    "full_name": "Kernel Principal Component Analysis",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "linear",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n^2)"},
+    "strengths": [
+      "Captures nonlinear relationships via kernel trick",
+      "Extension of PCA to nonlinear manifolds",
+      "Flexible kernel choices"
+    ],
+    "weaknesses": [
+      "Quadratic memory and time complexity",
+      "Kernel and hyperparameter selection required",
+      "Slower than linear PCA"
+    ],
+    "best_for": "Moderately sized datasets with nonlinear structure",
+    "avoid_when": "Dataset is very large due to quadratic kernel matrix or a linear model suffices",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "kpca", "short": "Hoffmann, 2007"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.8.0"
+  },
+  "MCD": {
+    "class_path": "pyod.models.mcd.MCD",
+    "full_name": "Minimum Covariance Determinant",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "linear",
+    "complexity": {"time": "O(n * d^2)", "space": "O(d^2)"},
+    "strengths": [
+      "Robust estimation of covariance matrix",
+      "Well-established statistical method",
+      "Resistant to masking effects from outliers"
+    ],
+    "weaknesses": [
+      "Assumes data follows a Gaussian distribution",
+      "May fail in high-dimensional settings (d > n)",
+      "Computationally intensive for large d"
+    ],
+    "best_for": "Multivariate Gaussian-like data requiring robust covariance estimation",
+    "avoid_when": "Data is non-Gaussian, very high-dimensional, or strongly nonlinear",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "mcd", "short": "Rousseeuw and Driessen, 1999"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "CD": {
+    "class_path": "pyod.models.cd.CD",
+    "full_name": "Cook's Distance",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "linear",
+    "complexity": {"time": "O(n * d^2)", "space": "O(n * d)"},
+    "strengths": [
+      "Based on classical influence measures from regression",
+      "Interpretable as influence on regression fit",
+      "Works well when a regression model is appropriate"
+    ],
+    "weaknesses": [
+      "Requires a target variable (semi-supervised framing)",
+      "Assumes linear regression model",
+      "Not suitable for purely unsupervised settings without a model"
+    ],
+    "best_for": "Identifying influential observations in regression settings",
+    "avoid_when": "No natural target variable exists or data is purely unsupervised",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "cd", "short": "Cook, 1977"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.8.5"
+  },
+  "OCSVM": {
+    "class_path": "pyod.models.ocsvm.OCSVM",
+    "full_name": "One-Class Support Vector Machine",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "linear",
+    "complexity": {"time": "O(n^2 * d) to O(n^3)", "space": "O(n * d)"},
+    "strengths": [
+      "Flexible boundary via kernel functions",
+      "Strong theoretical foundation from SVM literature",
+      "Effective in high-dimensional feature spaces"
+    ],
+    "weaknesses": [
+      "Cubic training time for large datasets",
+      "Sensitive to kernel and nu parameter choice",
+      "Does not scale well beyond ~10K samples"
+    ],
+    "best_for": "Medium-sized datasets where a flexible decision boundary is needed",
+    "avoid_when": "Dataset is very large or real-time training is required",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {},
+    "paper": {"id": "ocsvm", "short": "Scholkopf et al., 2001"},
+    "default_params": {"contamination": 0.1, "kernel": "rbf"},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "LMDD": {
+    "class_path": "pyod.models.lmdd.LMDD",
+    "full_name": "Linear Model Deviation-based Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "linear",
+    "complexity": {"time": "O(n_iter * n * d)", "space": "O(n * d)"},
+    "strengths": [
+      "Multiple deviation measures available (AAD, IQR, MAD)",
+      "Random subspace approach provides diversity",
+      "Interpretable linear projections"
+    ],
+    "weaknesses": [
+      "Results can vary due to random projections",
+      "Requires tuning of number of iterations and measure",
+      "May underperform with nonlinear anomaly patterns"
+    ],
+    "best_for": "Multivariate data where anomalies are detectable through linear projections",
+    "avoid_when": "Anomalies require nonlinear feature combinations to detect",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "lmdd", "short": "Arning et al., KDD 1996"},
+    "default_params": {"contamination": 0.1, "n_iter": 50, "dis_measure": "aad"},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.8.0"
+  },
+  "LOF": {
+    "class_path": "pyod.models.lof.LOF",
+    "full_name": "Local Outlier Factor",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n * d)"},
+    "strengths": [
+      "Detects local density-based outliers",
+      "Adapts to varying densities across the dataset",
+      "Well-established and widely used"
+    ],
+    "weaknesses": [
+      "Quadratic complexity limits scalability",
+      "Sensitive to n_neighbors parameter",
+      "Difficulty with uniformly dense regions"
+    ],
+    "best_for": "Datasets with clusters of varying densities where local anomalies are of interest",
+    "avoid_when": "Dataset is very large (>50K) or data is uniformly distributed",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {},
+    "paper": {"id": "lof", "short": "Breunig et al., SIGMOD 2000"},
+    "default_params": {"contamination": 0.1, "n_neighbors": 20, "algorithm": "auto"},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "COF": {
+    "class_path": "pyod.models.cof.COF",
+    "full_name": "Connectivity-Based Outlier Factor",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n^2)"},
+    "strengths": [
+      "Considers connectivity-based distances",
+      "Better than LOF for certain pattern structures",
+      "Handles low-density patterns in neighborhood chains"
+    ],
+    "weaknesses": [
+      "Quadratic time and space complexity",
+      "Slow for large datasets",
+      "Marginal improvement over LOF in many cases"
+    ],
+    "best_for": "Datasets where outliers lie along sparse connectivity paths between clusters",
+    "avoid_when": "Dataset is large or simpler methods like LOF already perform well",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "cof", "short": "Tang et al., 2002"},
+    "default_params": {"contamination": 0.1, "n_neighbors": 20, "method": "fast"},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.6.5"
+  },
+  "CBLOF": {
+    "class_path": "pyod.models.cblof.CBLOF",
+    "full_name": "Cluster-Based Local Outlier Factor",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n * k * d)", "space": "O(n * d)"},
+    "strengths": [
+      "Combines clustering with local outlier scoring",
+      "Efficient through cluster-based summarization",
+      "Effective when data has clear cluster structure"
+    ],
+    "weaknesses": [
+      "Depends on quality of underlying clustering",
+      "Sensitive to number of clusters parameter",
+      "May fail if data does not cluster well"
+    ],
+    "best_for": "Data with well-separated clusters where outliers deviate from cluster structure",
+    "avoid_when": "Data has no meaningful cluster structure or clusters are heavily overlapping",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {},
+    "paper": {"id": "cblof", "short": "He et al., 2003"},
+    "default_params": {"contamination": 0.1, "n_clusters": 8},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "LOCI": {
+    "class_path": "pyod.models.loci.LOCI",
+    "full_name": "Local Correlation Integral",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n^2)"},
+    "strengths": [
+      "Automatic determination of outlier threshold",
+      "Multi-granularity outlier detection via alpha parameter",
+      "Does not require explicit k-neighbor parameter"
+    ],
+    "weaknesses": [
+      "Quadratic complexity makes it slow",
+      "Difficult to scale to large datasets",
+      "Parameter alpha requires tuning"
+    ],
+    "best_for": "Small to medium datasets where automatic threshold selection is valued",
+    "avoid_when": "Dataset is large or faster LOF-based methods are sufficient",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "loci", "short": "Papadimitriou et al., ICDE 2003"},
+    "default_params": {"contamination": 0.1, "alpha": 0.5, "k": 3},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.6.0"
+  },
+  "HBOS": {
+    "class_path": "pyod.models.hbos.HBOS",
+    "full_name": "Histogram-Based Outlier Score",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n * d)", "space": "O(n_bins * d)"},
+    "strengths": [
+      "Extremely fast - linear time complexity",
+      "Simple histogram-based approach",
+      "Scales well to large datasets"
+    ],
+    "weaknesses": [
+      "Assumes feature independence",
+      "Cannot capture multivariate interactions",
+      "Sensitive to number of bins"
+    ],
+    "best_for": "Large-scale datasets where speed is critical and features are roughly independent",
+    "avoid_when": "Outliers only manifest through feature interactions or correlations",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {"ADBench_overall": 7},
+    "paper": {"id": "hbos", "short": "Goldstein and Dengel, KI 2012"},
+    "default_params": {"contamination": 0.1, "n_bins": 10, "alpha": 0.1, "tol": 0.5},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "HDBSCAN": {
+    "class_path": "pyod.models.hdbscan.HDBSCAN",
+    "full_name": "Hierarchical Density-Based Spatial Clustering of Applications with Noise",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n * log(n)) to O(n^2)", "space": "O(n)"},
+    "strengths": [
+      "Automatically finds clusters of varying density",
+      "Identifies noise points as potential outliers",
+      "Minimal parameter tuning required"
+    ],
+    "weaknesses": [
+      "Performance depends on min_cluster_size choice",
+      "May be slow for very large datasets",
+      "Outlier scores derived from cluster membership"
+    ],
+    "best_for": "Datasets with variable-density clusters where noise points are outliers",
+    "avoid_when": "Data does not have cluster structure or very high-dimensional",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "hdbscan", "short": "Campello et al., PAKDD 2013"},
+    "default_params": {"min_cluster_size": 5},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.9.8"
+  },
+  "KNN": {
+    "class_path": "pyod.models.knn.KNN",
+    "full_name": "K-Nearest Neighbors Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n * d)"},
+    "strengths": [
+      "Simple and intuitive distance-based method",
+      "Multiple scoring methods (largest, mean, median)",
+      "Strong benchmark performance"
+    ],
+    "weaknesses": [
+      "Quadratic complexity limits scalability",
+      "Sensitive to distance metric and k choice",
+      "Struggles with varying density clusters"
+    ],
+    "best_for": "General-purpose distance-based outlier detection on moderate-sized datasets",
+    "avoid_when": "Dataset is very large or has highly variable local densities",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {"ADBench_overall": 4},
+    "paper": {"id": "knn", "short": "Ramaswamy et al., SIGMOD 2000"},
+    "default_params": {"contamination": 0.1, "n_neighbors": 5, "method": "largest"},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "SOD": {
+    "class_path": "pyod.models.sod.SOD",
+    "full_name": "Subspace Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n^2 * d)", "space": "O(n * d)"},
+    "strengths": [
+      "Detects outliers in axis-parallel subspaces",
+      "Effective when anomalies hide in subspaces",
+      "Reference set approach captures local structure"
+    ],
+    "weaknesses": [
+      "Quadratic complexity",
+      "Requires tuning of ref_set and n_neighbors",
+      "May miss anomalies not aligned with axis-parallel subspaces"
+    ],
+    "best_for": "High-dimensional data where outliers deviate in axis-parallel subspaces",
+    "avoid_when": "Data is low-dimensional or anomalies require oblique subspaces to detect",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "sod", "short": "Kriegel et al., PAKDD 2009"},
+    "default_params": {"contamination": 0.1, "n_neighbors": 20, "ref_set": 10},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.6.0"
+  },
+  "ROD": {
+    "class_path": "pyod.models.rod.ROD",
+    "full_name": "Rotation-Based Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n * d^2)", "space": "O(n * d)"},
+    "strengths": [
+      "Considers rotations to detect outliers across projections",
+      "Parameter-free (only contamination needed)",
+      "Supports parallel execution"
+    ],
+    "weaknesses": [
+      "Designed primarily for 3D data, may not generalize well to very high dimensions",
+      "Limited theoretical analysis compared to classical methods"
+    ],
+    "best_for": "Low-dimensional data where rotation-invariant outlier detection is desired",
+    "avoid_when": "Data is high-dimensional or a well-tuned alternative is available",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "rod", "short": "Almardeny et al., 2020"},
+    "default_params": {"contamination": 0.1, "parallel_execution": false},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.8.5"
+  },
+  "IForest": {
+    "class_path": "pyod.models.iforest.IForest",
+    "full_name": "Isolation Forest",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "O(n * t * log(n)) where t is n_estimators", "space": "O(t * n)"},
+    "strengths": [
+      "Excellent overall benchmark performance",
+      "Linear time complexity with efficient implementation",
+      "Handles high-dimensional data well",
+      "Does not require distance or density computation"
+    ],
+    "weaknesses": [
+      "May struggle with local anomalies in dense regions",
+      "Axis-aligned splits can miss anomalies in correlated features"
+    ],
+    "best_for": "General-purpose anomaly detection especially on large or high-dimensional datasets",
+    "avoid_when": "Anomalies are local density deviations or features are strongly correlated",
+    "benchmark_refs": ["ADBench"],
+    "benchmark_rank": {"ADBench_overall": 3},
+    "paper": {"id": "iforest", "short": "Liu et al., ICDM 2008"},
+    "default_params": {"contamination": 0.1, "n_estimators": 100},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "INNE": {
+    "class_path": "pyod.models.inne.INNE",
+    "full_name": "Isolation-based Anomaly Detection Using Nearest-Neighbor Ensembles",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "O(n * t * s) where t is n_estimators, s is sample size", "space": "O(t * s)"},
+    "strengths": [
+      "Combines isolation and nearest-neighbor concepts",
+      "Handles local anomalies better than Isolation Forest",
+      "Efficient sampling-based approach"
+    ],
+    "weaknesses": [
+      "Requires tuning of sample size and number of estimators",
+      "Less established than Isolation Forest"
+    ],
+    "best_for": "Datasets where local density variations matter and Isolation Forest underperforms",
+    "avoid_when": "A simpler method like IForest already works well",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "inne", "short": "Bandaragoda et al., KAIS 2018"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.9.5"
+  },
+  "DIF": {
+    "class_path": "pyod.models.dif.DIF",
+    "full_name": "Deep Isolation Forest",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "O(n * t * d * log(n))", "space": "O(t * n)"},
+    "strengths": [
+      "Uses deep random representations for better isolation",
+      "Handles complex data distributions",
+      "Extends isolation forest to representation space"
+    ],
+    "weaknesses": [
+      "More computationally expensive than standard IForest",
+      "Requires tuning of representation parameters"
+    ],
+    "best_for": "Complex datasets where standard Isolation Forest misses anomalies due to axis-aligned splits",
+    "avoid_when": "Standard Isolation Forest performs well or dataset is small and simple",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "dif", "short": "Xu et al., TKDE 2023"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.9.8"
+  },
+  "FeatureBagging": {
+    "class_path": "pyod.models.feature_bagging.FeatureBagging",
+    "full_name": "Feature Bagging Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "O(n_estimators * base_detector_time)", "space": "O(n_estimators * base_detector_space)"},
+    "strengths": [
+      "Reduces variance through feature subsampling",
+      "Flexible with any base detector",
+      "Robust against irrelevant features"
+    ],
+    "weaknesses": [
+      "Performance depends on choice of base detector",
+      "Slower than single detector due to ensemble overhead",
+      "May not improve over base if features are all relevant"
+    ],
+    "best_for": "High-dimensional data with potentially irrelevant features",
+    "avoid_when": "All features are relevant or a single strong detector suffices",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "feature_bagging", "short": "Lazarevic and Kumar, KDD 2005"},
+    "default_params": {"contamination": 0.1, "n_estimators": 10},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.5.0"
+  },
+  "LSCP": {
+    "class_path": "pyod.models.lscp.LSCP",
+    "full_name": "Locally Selective Combination of Parallel Outlier Ensembles",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "O(n * n_detectors * base_cost)", "space": "O(n * n_detectors)"},
+    "strengths": [
+      "Locally selects the best detector for each region",
+      "Leverages diversity among base detectors",
+      "Adaptive combination strategy"
+    ],
+    "weaknesses": [
+      "Requires a list of pre-instantiated base detectors",
+      "Slower due to training multiple detectors",
+      "Complex internal selection mechanism"
+    ],
+    "best_for": "Scenarios where diverse base detectors are available and local performance varies",
+    "avoid_when": "Only one detector type is appropriate or computational budget is limited",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "lscp", "short": "Zhao et al., SDM 2019"},
+    "default_params": {"local_region_size": 30},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.6.5"
+  },
+  "LODA": {
+    "class_path": "pyod.models.loda.LODA",
+    "full_name": "Lightweight Online Detector of Anomalies",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "O(n * n_cuts * d)", "space": "O(n_bins * n_cuts)"},
+    "strengths": [
+      "Lightweight and fast",
+      "Supports online/streaming updates",
+      "Uses ensemble of random projections"
+    ],
+    "weaknesses": [
+      "Random projections may miss certain anomaly patterns",
+      "Histogram-based scoring can be coarse",
+      "Sensitive to number of bins and cuts"
+    ],
+    "best_for": "Streaming or online anomaly detection with limited computational resources",
+    "avoid_when": "Batch setting with enough time for more powerful methods",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "loda", "short": "Pevny, 2016"},
+    "default_params": {"contamination": 0.1, "n_bins": 10, "n_random_cuts": 100},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.6.0"
+  },
+  "SUOD": {
+    "class_path": "pyod.models.suod.SUOD",
+    "full_name": "Scalable Unsupervised Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "varies (depends on base estimators)", "space": "varies"},
+    "strengths": [
+      "Accelerates large-scale outlier detection via approximation",
+      "Supports parallel execution of base detectors",
+      "Modular framework for combining multiple detectors"
+    ],
+    "weaknesses": [
+      "Approximation may reduce accuracy",
+      "Overhead from the acceleration framework",
+      "Requires choosing and configuring base estimators"
+    ],
+    "best_for": "Large-scale datasets where running multiple detectors is desired but time is limited",
+    "avoid_when": "Exact results from a single well-chosen detector are preferred",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "suod", "short": "Zhao et al., MLSys 2021"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.8.0"
+  },
+  "XGBOD": {
+    "class_path": "pyod.models.xgbod.XGBOD",
+    "full_name": "Extreme Gradient Boosting Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "ensemble",
+    "complexity": {"time": "O(n * d * n_estimators * log(n))", "space": "O(n * d)"},
+    "strengths": [
+      "Combines unsupervised representations with supervised XGBoost",
+      "High accuracy when labels are available",
+      "Leverages powerful gradient boosting framework"
+    ],
+    "weaknesses": [
+      "Requires labeled data (semi-supervised)",
+      "Depends on XGBoost library",
+      "Training is more expensive than unsupervised methods"
+    ],
+    "best_for": "Semi-supervised settings where some labeled anomalies are available",
+    "avoid_when": "No labeled data is available or a purely unsupervised approach is needed",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "xgbod", "short": "Zhao and Hryniewicki, IJCNN 2018"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["xgboost"],
+    "version_added": "0.5.0"
+  },
+  "AutoEncoder": {
+    "class_path": "pyod.models.auto_encoder.AutoEncoder",
+    "full_name": "Fully Connected AutoEncoder",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs) where h is hidden size", "space": "O(d * h)"},
+    "strengths": [
+      "Learns nonlinear feature representations",
+      "Reconstruction error is an intuitive anomaly score",
+      "Flexible architecture"
+    ],
+    "weaknesses": [
+      "Requires tuning of architecture and hyperparameters",
+      "May overfit on small datasets",
+      "Training can be unstable"
+    ],
+    "best_for": "Datasets with complex nonlinear structure where reconstruction-based scoring is appropriate",
+    "avoid_when": "Dataset is small, tabular and simple methods suffice, or training time is limited",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "autoencoder", "short": "Aggarwal, 2017"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.6.0"
+  },
+  "VAE": {
+    "class_path": "pyod.models.vae.VAE",
+    "full_name": "Variational AutoEncoder",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs)", "space": "O(d * h)"},
+    "strengths": [
+      "Probabilistic latent space with regularization",
+      "Generates calibrated reconstruction probabilities",
+      "Learns smooth latent representations"
+    ],
+    "weaknesses": [
+      "More complex to train than standard autoencoder",
+      "KL divergence term may dominate loss",
+      "Requires careful balancing of loss components"
+    ],
+    "best_for": "Datasets where probabilistic reconstruction scoring and smooth latent spaces are beneficial",
+    "avoid_when": "Simpler autoencoder or non-deep methods work well, or dataset is very small",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "vae", "short": "Kingma and Welling, 2014"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.6.0"
+  },
+  "SO_GAAL": {
+    "class_path": "pyod.models.so_gaal.SO_GAAL",
+    "full_name": "Single-Objective Generative Adversarial Active Learning",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs)", "space": "O(d * h)"},
+    "strengths": [
+      "GAN-based approach generates informative outlier samples",
+      "Does not require labeled anomalies",
+      "Novel adversarial training framework for OD"
+    ],
+    "weaknesses": [
+      "GAN training instability",
+      "Sensitive to hyperparameters and architecture",
+      "Slow training compared to non-deep methods"
+    ],
+    "best_for": "Exploratory anomaly detection with GAN-generated reference outliers",
+    "avoid_when": "Stable and fast results are required, or dataset is small",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "so_gaal", "short": "Liu et al., 2019"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.6.0"
+  },
+  "MO_GAAL": {
+    "class_path": "pyod.models.mo_gaal.MO_GAAL",
+    "full_name": "Multiple-Objective Generative Adversarial Active Learning",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(k * n * d * h * epochs) where k is number of generators", "space": "O(k * d * h)"},
+    "strengths": [
+      "Multiple generators provide diverse outlier references",
+      "Better coverage of outlier space than SO_GAAL",
+      "Multi-objective formulation improves robustness"
+    ],
+    "weaknesses": [
+      "Even more complex training than SO_GAAL",
+      "Multiple generators increase computational cost",
+      "Difficult to tune"
+    ],
+    "best_for": "Complex datasets where diverse generated outlier references improve detection",
+    "avoid_when": "Computational resources are limited or simpler GAN approaches suffice",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "mo_gaal", "short": "Liu et al., 2019"},
+    "default_params": {"k": 10, "stop_epochs": 20, "contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.6.0"
+  },
+  "DeepSVDD": {
+    "class_path": "pyod.models.deep_svdd.DeepSVDD",
+    "full_name": "Deep Support Vector Data Description",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs)", "space": "O(d * h)"},
+    "strengths": [
+      "Learns a compact hypersphere around normal data",
+      "Combines deep learning with SVDD objective",
+      "Effective for one-class classification"
+    ],
+    "weaknesses": [
+      "Sensitive to network architecture choices",
+      "Risk of hypersphere collapse",
+      "Requires careful initialization"
+    ],
+    "best_for": "One-class anomaly detection where a compact normal data description is desired",
+    "avoid_when": "Normal data is multi-modal or simpler one-class methods are sufficient",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "deep_svdd", "short": "Ruff et al., ICML 2018"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.7.5"
+  },
+  "AnoGAN": {
+    "class_path": "pyod.models.anogan.AnoGAN",
+    "full_name": "Anomaly Detection with Generative Adversarial Networks",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs) + O(n * iterations) for inference", "space": "O(d * h)"},
+    "strengths": [
+      "GAN learns the normal data distribution",
+      "Can detect complex non-linear anomalies",
+      "Anomaly scoring via reconstruction in latent space"
+    ],
+    "weaknesses": [
+      "GAN training instability",
+      "Slow inference due to iterative latent optimization",
+      "Requires significant tuning"
+    ],
+    "best_for": "Complex data distributions where GAN-based generation quality is high",
+    "avoid_when": "Fast inference is needed or training instability is a concern",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "anogan", "short": "Schlegl et al., IPMI 2017"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.7.5"
+  },
+  "ALAD": {
+    "class_path": "pyod.models.alad.ALAD",
+    "full_name": "Adversarially Learned Anomaly Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs)", "space": "O(d * h)"},
+    "strengths": [
+      "Bi-directional GAN avoids slow iterative inference of AnoGAN",
+      "Multiple discriminators stabilize training",
+      "Fast inference after training"
+    ],
+    "weaknesses": [
+      "Complex architecture with multiple networks",
+      "Still subject to GAN training challenges",
+      "Many hyperparameters to tune"
+    ],
+    "best_for": "Scenarios where GAN-based detection is desired but fast inference is needed",
+    "avoid_when": "Simpler reconstruction-based deep methods suffice or dataset is small",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "alad", "short": "Zenati et al., ICDM 2018"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.7.5"
+  },
+  "AE1SVM": {
+    "class_path": "pyod.models.ae1svm.AE1SVM",
+    "full_name": "AutoEncoder with One-Class SVM",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs)", "space": "O(d * h + n_sv * h)"},
+    "strengths": [
+      "Jointly optimizes autoencoder and one-class SVM",
+      "Combines representation learning with boundary detection",
+      "End-to-end training"
+    ],
+    "weaknesses": [
+      "Complex joint optimization",
+      "Requires tuning of both AE and SVM hyperparameters",
+      "Training can be unstable"
+    ],
+    "best_for": "Datasets benefiting from joint representation learning and one-class classification",
+    "avoid_when": "Simpler pipeline of separate AE + SVM works well, or dataset is small",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "ae1svm", "short": "Nguyen and Vien, ECML-PKDD 2019"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.9.0"
+  },
+  "DevNet": {
+    "class_path": "pyod.models.devnet.DevNet",
+    "full_name": "Deep Anomaly Detection with Deviation Networks",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs)", "space": "O(d * h)"},
+    "strengths": [
+      "End-to-end deep anomaly scoring network",
+      "Can leverage a few labeled anomalies (semi-supervised)",
+      "Deviation loss directly optimizes anomaly scores"
+    ],
+    "weaknesses": [
+      "Requires at least a few labeled anomalies for best results",
+      "Deep network training overhead",
+      "Sensitive to architecture and loss parameters"
+    ],
+    "best_for": "Semi-supervised anomaly detection where a small number of labeled anomalies are available",
+    "avoid_when": "No labeled anomalies are available or dataset is too small for deep learning",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "devnet", "short": "Pang et al., KDD 2019"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.9.5"
+  },
+  "RGraph": {
+    "class_path": "pyod.models.rgraph.RGraph",
+    "full_name": "R-Graph Outlier Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "graph",
+    "complexity": {"time": "O(n^2 * d + transition_steps * n^2)", "space": "O(n^2)"},
+    "strengths": [
+      "Graph-based approach captures relational structure",
+      "Random walk on graph reveals connectivity anomalies",
+      "Tunable transition steps for multi-scale detection"
+    ],
+    "weaknesses": [
+      "Quadratic memory for adjacency/transition matrix",
+      "Slow for large datasets",
+      "Requires tuning of graph construction parameters"
+    ],
+    "best_for": "Datasets where graph connectivity and neighborhood structure reveal anomalies",
+    "avoid_when": "Dataset is very large or a simpler proximity method suffices",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "rgraph", "short": "You et al., AAAI 2017"},
+    "default_params": {"contamination": 0.1, "transition_steps": 10, "n_nonzero": 10, "gamma": 50.0},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "0.8.5"
+  },
+  "LUNAR": {
+    "class_path": "pyod.models.lunar.LUNAR",
+    "full_name": "Learnable Unified Neighborhood-based Anomaly Ranking",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "graph",
+    "complexity": {"time": "O(n * k * d + n * h * epochs)", "space": "O(n * k + d * h)"},
+    "strengths": [
+      "Learns to score anomalies from neighbor graphs via GNN",
+      "Combines neighborhood structure with learned representations",
+      "Supports both score and weight model types"
+    ],
+    "weaknesses": [
+      "Requires PyTorch for GNN training",
+      "More complex setup than classical methods",
+      "Training overhead from neural network"
+    ],
+    "best_for": "Datasets where learned neighborhood-based scoring outperforms handcrafted rules",
+    "avoid_when": "PyTorch is not available or simpler KNN/LOF methods work well",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "lunar", "short": "Goodge et al., AAAI 2022"},
+    "default_params": {"contamination": 0.1, "model_type": "WEIGHT", "n_neighbours": 5},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "0.9.5"
+  },
+  "EmbeddingOD": {
+    "class_path": "pyod.models.embedding.EmbeddingOD",
+    "full_name": "Embedding-Based Outlier Detection",
+    "status": "shipped",
+    "data_types": ["text", "image"],
+    "category": "embedding",
+    "complexity": {"time": "O(n * embedding_cost + detector_cost)", "space": "O(n * embedding_dim)"},
+    "strengths": [
+      "Leverages foundation model embeddings for anomaly detection",
+      "Supports text and image data natively",
+      "Flexible choice of downstream detector"
+    ],
+    "weaknesses": [
+      "Requires a pre-trained encoder model",
+      "Embedding quality depends on the foundation model",
+      "Higher memory usage for large embedding dimensions"
+    ],
+    "best_for": "Anomaly detection on unstructured data (text, images) via foundation model representations",
+    "avoid_when": "Data is already tabular or a suitable encoder is not available",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "embedding_od", "short": "Zhao et al., 2025"},
+    "default_params": {"contamination": 0.1, "detector": "LUNAR"},
+    "preprocessing_mode": "internal",
+    "requires": ["torch"],
+    "version_added": "2.0.5"
+  },
+  "MultiModalOD": {
+    "class_path": "pyod.models.embedding.MultiModalOD",
+    "full_name": "Multi-Modal Outlier Detection",
+    "status": "shipped",
+    "data_types": ["text", "image", "multimodal"],
+    "category": "embedding",
+    "complexity": {"time": "O(n * n_modalities * embedding_cost + detector_cost)", "space": "O(n * n_modalities * embedding_dim)"},
+    "strengths": [
+      "Combines multiple data modalities for anomaly detection",
+      "Supports flexible modality combination strategies",
+      "Leverages foundation model embeddings per modality"
+    ],
+    "weaknesses": [
+      "Requires encoder for each modality",
+      "Higher computational cost with multiple modalities",
+      "Combination strategy choice affects performance"
+    ],
+    "best_for": "Anomaly detection on multi-modal data combining text, image, or other modalities",
+    "avoid_when": "Only a single modality is available or data is purely tabular",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "multimodal_od", "short": "Zhao et al., 2025"},
+    "default_params": {"contamination": 0.1, "combination": "average"},
+    "preprocessing_mode": "internal",
+    "requires": ["torch"],
+    "version_added": "2.1.0"
+  },
+  "LLMAD": {
+    "class_path": "pyod.models.llmad.LLMAD",
+    "full_name": "LLM-Based Anomaly Detection",
+    "status": "planned",
+    "data_types": ["tabular", "text"],
+    "category": "embedding",
+    "complexity": {"time": "varies", "space": "varies"},
+    "strengths": [
+      "Zero-shot anomaly detection via LLM reasoning",
+      "No training data required",
+      "Handles diverse data types through natural language understanding"
+    ],
+    "weaknesses": [
+      "Not yet implemented",
+      "Requires LLM API access with associated costs",
+      "Inference latency from LLM calls"
+    ],
+    "best_for": "Zero-shot or few-shot anomaly detection leveraging LLM world knowledge",
+    "avoid_when": "Feature is needed before release or LLM API costs are prohibitive",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "llmad", "short": "TBD"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "internal",
+    "requires": [],
+    "version_added": "TBD"
+  },
+  "TimeSeriesOD": {
+    "class_path": "pyod.models.tsod.TimeSeriesOD",
+    "full_name": "Time Series Outlier Detection",
+    "status": "planned",
+    "data_types": ["tabular"],
+    "category": "bridge",
+    "complexity": {"time": "varies", "space": "varies"},
+    "strengths": [
+      "Unified interface for time-series anomaly detection",
+      "Bridges PyOD with time-series-specific methods"
+    ],
+    "weaknesses": [
+      "Not yet implemented",
+      "Scope and supported methods to be determined"
+    ],
+    "best_for": "Anomaly detection in time-series data",
+    "avoid_when": "Data is not temporal or feature is needed before release",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "tsod", "short": "TBD"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "TBD"
+  }
+}
