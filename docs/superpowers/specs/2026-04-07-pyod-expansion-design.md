@@ -1,68 +1,167 @@
-# PyOD Expansion: The Unified Intelligent Anomaly Detection Platform
+# PyOD 3.0: The Intelligent Anomaly Detection Platform
 
 **Date:** 2026-04-07
-**Status:** Brainstorm (approved direction, details under review)
-**Version:** 2
+**Status:** Design complete (4 review rounds, 18 findings resolved)
+**Version:** 5
 
 ---
 
 ## 1. Vision
 
-Make PyOD **the single go-to library for outlier detection across all data types** -- tabular, text, image (shipped in v2.1.0), time series, and graph -- with an intelligent agent layer that recommends the right pipeline automatically and speaks to any LLM.
+**The future of anomaly detection is agent interaction.**
+
+Today, anomaly detection is a manual, code-heavy process: pick a detector, tune parameters, interpret results, iterate. PyOD 3.0 changes this. Any AI agent -- Claude Code, Cursor, Copilot, AD-AGENT, custom agents -- can call PyOD's tools to handle the **entire anomaly detection lifecycle**: understand the data, plan the pipeline, execute detection, analyze results, iterate, and report. The LLM orchestrates; PyOD executes.
+
+PyOD becomes not just a library of detectors, but **the execution engine for intelligent anomaly detection** across all data types -- tabular, text, image, time series, graph, and multi-modal.
 
 **"One ring rules all for OD."**
 
-No library does this today. The closest competitors cover single modalities (sklearn for tabular, Anomalib for images, Merlion for TS). PyOD would be the first unified, intelligent anomaly detection platform.
+### What This Looks Like
 
-### Priority Order (revised)
+A user opens any agent CLI and says:
+
+> "I have server CPU metrics from the last 30 days. Find the anomalies."
+
+The agent:
+1. Calls `profile_data()` → "univariate time series, 43,200 points, 1-minute resolution"
+2. Calls `plan_detection()` → "TimeSeriesOD with IForest, window=60 (TSB-AD top performer for TS)"
+3. Calls `run_detection()` → scores, labels, runtime stats
+4. Calls `analyze_results()` → "37 anomalies found, clustered around 03:00-04:00 daily"
+5. User: "These look like normal maintenance windows. Exclude 03:00-04:00 and rerun."
+6. Calls `run_detection()` with exclusion → "8 anomalies remaining, 3 are severity-high"
+   *(Note: exclusion-window support is post-Tier B / Phase B6. In Tier B v1,
+   iteration is via `suggest_next_step()` returning a `new_plan` for a plain rerun.)*
+7. Calls `explain_findings()` → "Sample #12,847: CPU spike to 98% with no corresponding scheduled job"
+8. Calls `generate_report()` → summary with scores, timestamps, explanations
+
+No PyOD code written by the user. No detector selection. No parameter tuning. The agent handles it all through PyOD's MCP tools.
+
+### Priority Order
 
 | Track | Priority | Status | Target |
 |-------|----------|--------|--------|
-| 1. **Agent Intelligence Layer** | **Highest** (next) | Design complete | v2.2.0 |
-| 2. Time Series AD | High | Brainstorming | v2.2.0 or v2.3.0 |
-| 3. Graph AD | Medium | Idea stage | v2.3.0+ |
-
-The agent layer ships first because (a) it's low engineering effort / high impact, (b) it works with today's PyOD immediately, and (c) it becomes more powerful as TS/graph modules are added.
+| 1. **Agent Intelligence Layer** | **Highest** (next) | Design v3 | v2.2.0 |
+| 2. Time Series AD | High | Brainstorming | v2.3.0 |
+| 3. Graph AD | Medium | Idea stage | v2.4.0+ |
 
 ---
 
 ## 2. Track 1: Agent Intelligence Layer
 
-### 2.1 Architecture Overview
+### 2.1 Architecture
 
-Three layers, each builds on the previous:
+Three layers. Each layer is independently useful but they compose into the full lifecycle.
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  Layer 3: Agent Interfaces                          │
-│  MCP Server │ Claude Code Skill │ OpenAI Schema     │
-│  (any LLM can talk to PyOD)                         │
-├─────────────────────────────────────────────────────┤
-│  Layer 2: Smart Router (Python)                     │
-│  Advisor class: data sniffing, algorithm selection, │
-│  hyperparameter defaults, benchmark-backed reasons  │
-│  (works WITHOUT an LLM -- pure Python)              │
-├─────────────────────────────────────────────────────┤
-│  Layer 1: Knowledge Base (structured data)          │
-│  Algorithm registry, benchmark results,             │
-│  decision trees, paper citations                    │
-│  (single source of truth)                           │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  Layer 3: Agent Interfaces                                   │
+│  MCP Server │ Claude Code Skill │ OpenAI Function Schemas    │
+│  (any LLM can drive the full anomaly detection lifecycle)    │
+├──────────────────────────────────────────────────────────────┤
+│  Layer 2: Lifecycle Engine (Python)                          │
+│  ADEngine class: profile → plan → run → analyze → iterate   │
+│  (works WITHOUT an LLM -- pure Python, deterministic)        │
+├──────────────────────────────────────────────────────────────┤
+│  Layer 1: Knowledge Base (structured data)                   │
+│  Algorithm registry, benchmark results, routing rules,       │
+│  paper citations (single source of truth for all layers)     │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-Key design principle: **the intelligence lives in Python (Layer 2), not in prompts.** LLM interfaces (Layer 3) are thin wrappers. This means PyOD's recommendations work offline, cost nothing, and are deterministic. LLMs enhance the experience but aren't required.
+**Key principle:** The intelligence lives in Python (Layer 2), not in prompts. LLM interfaces (Layer 3) are thin wrappers. PyOD's lifecycle engine works offline, costs nothing, and is deterministic. LLMs orchestrate multi-step workflows but the execution is always PyOD.
+
+**Key difference from AD-AGENT:** AD-AGENT requires OpenAI API ($0.02-0.05/call), is CLI-only, and has a fixed 4-agent architecture. PyOD's approach is **tool-centric**: it provides MCP tools that ANY agent (any LLM, any framework) can call. The intelligence is in the tools, not in the orchestration layer.
+
+### 2.1.1 State Management Across MCP Calls
+
+A critical design challenge: the lifecycle spans multiple MCP tool calls (profile → plan → run → analyze → iterate), but MCP tools are stateless JSON-in/JSON-out. Fitted detector instances and large score arrays cannot flow through JSON payloads.
+
+**Solution: server-side session store with `run_id` handles.**
+
+```
+Agent                          MCP Server (pyod)
+  │                                │
+  │── profile_data(path) ────────►│  returns profile (small JSON, stateless)
+  │                                │
+  │── plan_detection(profile) ───►│  returns plan (small JSON, stateless)
+  │                                │
+  │── run_detection(path, plan) ─►│  fits detector, stores fitted model +
+  │                                │  scores + arrays server-side under run_id
+  │◄── {run_id, summary, ...} ───│  returns run_id + compact summary
+  │                                │
+  │── analyze_results(run_id) ───►│  reads stored state, returns analysis
+  │                                │
+  │── explain_findings(run_id) ──►│  reads stored state, returns explanations
+  │                                │
+  │── suggest_next_step(run_id,  ►│  reads stored state, returns suggestion
+  │       feedback)                │  with optional new_plan
+  │                                │
+  │── run_detection(path, plan,  ►│  new run_id, new stored state
+  │       constraints) ───────────►│  (iterate)
+```
+
+**Server-side store details:**
+
+```python
+class RunSession:
+    """Server-side state for a single detection run."""
+    run_id: str              # UUID
+    created_at: float        # time.time()
+    last_accessed: float     # updated on every tool call
+    data_path: str           # path to source data (NOT raw X_train)
+    plan: dict               # the DetectionPlan used
+    profile: dict            # data profile
+    detector: BaseDetector   # fitted detector instance
+    scores_train: np.ndarray # anomaly scores
+    scores_test: np.ndarray | None
+    labels_train: np.ndarray
+    labels_test: np.ndarray | None
+    threshold: float
+    analysis: dict | None    # cached after first analyze_results() call
+```
+
+**Lifecycle and error handling:**
+- `_sessions: dict[str, RunSession]` -- in-memory dict keyed by `run_id`
+- **TTL:** Sessions expire after 1 hour of inactivity (last_accessed). Configurable via `session_ttl_seconds`.
+- **TTL refresh:** Every tool call referencing a `run_id` updates `last_accessed`, resetting the TTL.
+- **Scavenging:** Background cleanup runs every 5 minutes, evicting expired sessions.
+- **Memory cap:** Max 10 concurrent sessions (configurable). New runs evict the oldest session if cap is reached.
+- **Missing/expired run_id:** Returns structured error: `{"error": "run_not_found", "run_id": "...", "message": "Session expired or does not exist. Re-run run_detection() to create a new session."}`.
+- **Server restart:** All sessions are lost (in-memory only). This is acceptable for the MCP use case -- agents can re-run detection if needed. Persistent session storage (disk/DB) is deferred.
+- **Source data:** `RunSession` stores `data_path` (not raw `X_train`) to avoid holding large datasets in memory. Data is re-loaded from path if needed for analysis.
+- **Analysis caching:** `analysis` is computed on first `analyze_results()` call and cached in the session. Subsequent calls return the cached result unless the analysis is invalidated by a new `suggest_next_step()` rerun.
+- For the Python API (`ADEngine` used directly), no sessions needed -- caller holds the objects directly.
+
+**What flows through MCP vs. what stays server-side:**
+
+| Data | MCP payload (JSON) | Server-side |
+|------|-------------------|-------------|
+| Profile | Full dict (small) | -- |
+| Plan | Full dict (small) | -- |
+| Fitted detector | -- | `RunSession` |
+| Score arrays | Summary stats + top-k only | Full arrays in `RunSession` |
+| Labels | Counts + top-k indices | Full arrays in `RunSession` |
+| Analysis | Full dict (narrative + stats) | Cached in `RunSession` after first call; invalidated on rerun |
+| Explanations | Full list (per-sample) | -- |
+
+This means MCP payloads stay small (< 1KB typically), the LLM context isn't flooded with raw arrays, and the server retains everything needed for iteration.
 
 ### 2.2 Layer 1: Knowledge Base
 
-A structured, machine-readable registry of every detector in PyOD, enriched with benchmark evidence.
+A structured, machine-readable registry serving as the **single source of truth** for all layers. No other layer embeds or duplicates this data.
+
+Location: `pyod/utils/knowledge/`
 
 #### 2.2.1 Algorithm Registry (`algorithms.json`)
+
+Every PyOD detector gets an entry with structured metadata.
 
 ```json
 {
   "ECOD": {
-    "class": "pyod.models.ecod.ECOD",
+    "class_path": "pyod.models.ecod.ECOD",
     "full_name": "Empirical Cumulative Distribution Based Outlier Detection",
+    "status": "shipped",
     "data_types": ["tabular"],
     "category": "probabilistic",
     "complexity": {"time": "O(n*d)", "space": "O(n*d)"},
@@ -77,18 +176,21 @@ A structured, machine-readable registry of every detector in PyOD, enriched with
     ],
     "best_for": "High-dimensional tabular data where speed matters",
     "avoid_when": "Strong feature correlations exist",
+    "benchmark_refs": ["ADBench"],
     "benchmark_rank": {
       "ADBench_overall": 5,
       "ADBench_high_dim": 2
     },
-    "paper": "Li et al., TKDE 2022",
+    "paper": {"id": "ecod", "short": "Li et al., TKDE 2022"},
     "default_params": {"contamination": 0.1},
-    "requires": []
+    "requires": [],
+    "version_added": "0.6.0"
   },
   "EmbeddingOD": {
-    "class": "pyod.models.embedding.EmbeddingOD",
+    "class_path": "pyod.models.embedding.EmbeddingOD",
     "full_name": "Embedding-based Outlier Detection",
-    "data_types": ["text", "image", "multimodal"],
+    "status": "shipped",
+    "data_types": ["text", "image"],
     "category": "embedding",
     "complexity": {"time": "encoder-dependent", "space": "encoder-dependent"},
     "strengths": [
@@ -102,91 +204,195 @@ A structured, machine-readable registry of every detector in PyOD, enriched with
     ],
     "best_for": "Text or image anomaly detection",
     "avoid_when": "Data is already tabular/numeric",
+    "presets": {
+      "for_text": "EmbeddingOD.for_text()",
+      "for_image": "EmbeddingOD.for_image()"
+    },
+    "benchmark_refs": ["NLP_ADBench"],
     "benchmark_rank": {
       "NLP_ADBench_overall": 1
     },
-    "paper": "NLP-ADBench, EMNLP 2025",
-    "default_params": {"detector": "KNN"},
-    "requires": ["sentence-transformers OR openai OR transformers+torch"]
+    "paper": {"id": "nlp_adbench", "short": "Li et al., EMNLP 2025"},
+    "default_params": {"detector": "LUNAR"},
+    "preprocessing_mode": "internal",
+    "preprocessing_note": "EmbeddingOD manages standardize and reduce_dim internally. Use presets (for_text, for_image) instead of top-level plan preprocessing steps.",
+    "requires": ["sentence-transformers OR openai OR transformers+torch"],
+    "version_added": "2.1.0"
+  },
+  "TimeSeriesOD": {
+    "class_path": "pyod.models.tsod.TimeSeriesOD",
+    "full_name": "Time Series Outlier Detection Bridge",
+    "status": "planned",
+    "data_types": ["time_series"],
+    "category": "bridge",
+    "note": "Planned for v2.3.0. Not yet available."
   }
 }
 ```
 
-Every PyOD model gets an entry. Current count: ~45 detectors + EmbeddingOD + MultiModalOD. Future: TimeSeriesOD, GraphOD.
+**Design choices (addressing Codex finding #1, #5, #6):**
+- `status` field: `"shipped"` | `"experimental"` | `"planned"`. Layer 2 filters by status -- `plan_detection()` and `build_detector()` only return shipped detectors unless caller passes `include_planned=True`. `list_detectors()` defaults to `status='shipped'` but accepts `status='all'`.
+- `default_params` match current library defaults (e.g., EmbeddingOD defaults to `detector='LUNAR'`, not `'KNN'`). The knowledge base describes reality, not aspirations.
+- `presets` field links to existing factory methods like `EmbeddingOD.for_text()`.
 
 #### 2.2.2 Benchmark Results (`benchmarks.json`)
-
-Structured summaries of major benchmarks:
 
 ```json
 {
   "ADBench": {
-    "paper": "Han et al., NeurIPS 2022",
+    "paper": {"id": "adbench", "short": "Han et al., NeurIPS 2022"},
     "scope": "tabular",
-    "datasets": 57,
-    "algorithms": 30,
-    "top_5": ["ECOD", "IForest", "KNN", "COPOD", "HBOS"],
+    "n_datasets": 57,
+    "n_algorithms": 30,
+    "rankings": {
+      "overall_top_5": ["ECOD", "IForest", "KNN", "COPOD", "HBOS"],
+      "high_dim_top_3": ["ECOD", "COPOD", "IForest"],
+      "low_dim_top_3": ["KNN", "LOF", "CBLOF"]
+    },
     "key_finding": "No single algorithm dominates; ensemble of top-5 is robust"
   },
   "NLP_ADBench": {
-    "paper": "Li et al., EMNLP 2025",
+    "paper": {"id": "nlp_adbench", "short": "Li et al., EMNLP 2025"},
     "scope": "text",
-    "datasets": 8,
-    "algorithms": 19,
-    "top_5": ["OpenAI+LUNAR", "OpenAI+LOF", "OpenAI+AE", "MiniLM+KNN", "BERT+LOF"],
+    "n_datasets": 8,
+    "n_algorithms": 19,
+    "rankings": {
+      "overall_top_5": ["OpenAI+LUNAR", "OpenAI+LOF", "OpenAI+AE", "MiniLM+KNN", "BERT+LOF"]
+    },
     "key_finding": "Embedding quality >> detector choice; two-step beats end-to-end"
   },
   "TSB_AD": {
-    "paper": "Liu & Paparrizos, NeurIPS 2024",
+    "paper": {"id": "tsb_ad", "short": "Liu & Paparrizos, NeurIPS 2024"},
     "scope": "time_series",
-    "datasets": 1070,
-    "algorithms": 40,
-    "top_5": ["IForest", "LOF", "POLY", "KNN", "KShapeAD"],
+    "n_datasets": 1070,
+    "n_algorithms": 40,
+    "rankings": {
+      "overall_top_5": ["IForest", "LOF", "POLY", "KNN", "KShapeAD"],
+      "subsequence_top_3": ["MatrixProfile", "SAND", "Series2Graph"]
+    },
     "key_finding": "Classical methods competitive with deep; MatrixProfile strong on subsequence anomalies"
   }
 }
 ```
 
-#### 2.2.3 Decision Tree (`decision_tree.json`)
+#### 2.2.3 Routing Rules (`routing_rules.json`)
 
-Machine-readable routing logic:
+**Addressing Codex finding #3:** Structured predicates, not stringly-typed.
 
 ```json
 {
+  "version": 1,
   "rules": [
     {
-      "condition": {"data_type": "tabular", "n_features": ">100", "priority": "speed"},
-      "recommend": ["ECOD", "HBOS", "IForest"],
-      "reason": "High-dim tabular + speed priority → parameter-free fast methods"
+      "id": "tabular_high_dim_fast",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_features", "op": "gte", "value": 100},
+        {"field": "priority", "op": "eq", "value": "speed"}
+      ],
+      "recommendations": [
+        {
+          "detector": "ECOD",
+          "params": {},
+          "confidence": 0.9
+        },
+        {
+          "detector": "HBOS",
+          "params": {},
+          "confidence": 0.85
+        },
+        {
+          "detector": "IForest",
+          "params": {},
+          "confidence": 0.8
+        }
+      ],
+      "reason": "High-dimensional tabular + speed priority: parameter-free fast methods",
+      "evidence": ["ADBench"]
     },
     {
-      "condition": {"data_type": "tabular", "n_features": "<20", "n_samples": "<5000"},
-      "recommend": ["KNN", "LOF", "CBLOF"],
-      "reason": "Low-dim small dataset → proximity-based methods excel"
+      "id": "tabular_low_dim_small",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_features", "op": "lt", "value": 20},
+        {"field": "n_samples", "op": "lt", "value": 5000}
+      ],
+      "recommendations": [
+        {"detector": "KNN", "params": {}, "confidence": 0.85},
+        {"detector": "LOF", "params": {}, "confidence": 0.8},
+        {"detector": "CBLOF", "params": {}, "confidence": 0.75}
+      ],
+      "reason": "Low-dim small dataset: proximity-based methods excel",
+      "evidence": ["ADBench"]
     },
     {
-      "condition": {"data_type": "text"},
-      "recommend": ["EmbeddingOD(encoder='all-MiniLM-L6-v2', detector='KNN')"],
-      "reason": "Text → EmbeddingOD with sentence-transformers (NLP-ADBench top performer)"
+      "id": "text_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "text"}
+      ],
+      "recommendations": [
+        {
+          "detector": "EmbeddingOD",
+          "params": {},
+          "preset": "for_text",
+          "confidence": 0.9
+        }
+      ],
+      "reason": "Text data: EmbeddingOD.for_text() with benchmark-informed defaults (NLP-ADBench top performer)",
+      "evidence": ["NLP_ADBench"]
     },
     {
-      "condition": {"data_type": "image"},
-      "recommend": ["EmbeddingOD(encoder='dinov2-small', detector='KNN')"],
-      "reason": "Image → EmbeddingOD with DINOv2 vision encoder"
+      "id": "image_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "image"}
+      ],
+      "recommendations": [
+        {
+          "detector": "EmbeddingOD",
+          "params": {},
+          "preset": "for_image",
+          "confidence": 0.85
+        }
+      ],
+      "reason": "Image data: EmbeddingOD.for_image() with DINOv2 vision encoder",
+      "evidence": []
     },
     {
-      "condition": {"data_type": "time_series"},
-      "recommend": ["TimeSeriesOD(detector='IForest')", "MatrixProfileOD"],
-      "reason": "TS → windowed IForest (TSB-AD top performer) or MatrixProfile for subsequence"
+      "id": "time_series_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "time_series"}
+      ],
+      "recommendations": [
+        {
+          "detector": "TimeSeriesOD",
+          "params": {"detector": "IForest"},
+          "status_required": "shipped",
+          "confidence": 0.85
+        }
+      ],
+      "reason": "Time series: windowed IForest (TSB-AD top performer)",
+      "evidence": ["TSB_AD"]
     },
     {
-      "condition": {"data_type": "multimodal"},
-      "recommend": ["MultiModalOD"],
-      "reason": "Mixed modalities → score fusion across separate detectors"
+      "id": "multimodal_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "multimodal"}
+      ],
+      "recommendations": [
+        {
+          "detector": "MultiModalOD",
+          "params": {},
+          "confidence": 0.8
+        }
+      ],
+      "reason": "Multi-modal data: score fusion across per-modality detectors",
+      "evidence": []
     }
   ]
 }
 ```
+
+Rules reference detectors by name; Layer 2 checks the `status` field in `algorithms.json` before returning any recommendation. If a recommended detector has `status: "planned"`, Layer 2 either skips it or downgrades it with a note ("TimeSeriesOD is planned for v2.3.0; for now, try windowing your data manually and using IForest").
 
 #### 2.2.4 Papers & Citations (`papers.json`)
 
@@ -196,30 +402,52 @@ Machine-readable routing logic:
     "title": "PyOD: A Python Toolbox for Scalable Outlier Detection",
     "authors": "Zhao, Nasrullah, Li",
     "venue": "JMLR 2019",
-    "bibtex": "..."
+    "url": "https://jmlr.org/papers/v20/19-011.html"
   },
-  "nlp_adbench": { ... },
-  "adbench": { ... },
-  "ad_llm": { ... }
+  "adbench": {
+    "title": "ADBench: Anomaly Detection Benchmark",
+    "authors": "Han, Hu, Huang, Jiang, Zhao",
+    "venue": "NeurIPS 2022"
+  },
+  "nlp_adbench": {
+    "title": "NLP-ADBench: NLP Anomaly Detection Benchmark",
+    "authors": "Li, Li, Xiao, Yang, Nian, Hu, Zhao",
+    "venue": "EMNLP Findings 2025"
+  },
+  "tsb_ad": {
+    "title": "TSB-AD: The Elephant in the Room",
+    "authors": "Liu, Paparrizos",
+    "venue": "NeurIPS 2024"
+  },
+  "ad_agent": {
+    "title": "AD-AGENT: A Multi-agent Framework for End-to-end Anomaly Detection",
+    "authors": "Yang et al.",
+    "venue": "arXiv 2025"
+  },
+  "ecod": {
+    "title": "ECOD: Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions",
+    "authors": "Li, Zhao, Hu, Botta",
+    "venue": "TKDE 2022"
+  }
 }
 ```
 
-### 2.3 Layer 2: Smart Router (`Advisor` class)
+### 2.3 Layer 2: Lifecycle Engine (`ADEngine`)
 
-Pure Python, no LLM dependency. Rule-based now, meta-learned later.
+The core Python class that drives the **entire anomaly detection lifecycle**. Renamed from `Advisor` to `ADEngine` to reflect that it doesn't just advise -- it executes.
 
 ```python
-# pyod/utils/advisor.py
+# pyod/utils/ad_engine.py
 
-class Advisor:
-    """Intelligent anomaly detection advisor.
+class ADEngine:
+    """Anomaly detection lifecycle engine.
 
-    Recommends detectors, encoders, and hyperparameters based on
-    dataset characteristics and benchmark evidence.
+    Handles the complete anomaly detection workflow: data profiling,
+    pipeline planning, detection execution, result analysis, and
+    iterative refinement. Works as a standalone Python API (no LLM
+    required) or as the backend for MCP/agent interfaces.
 
-    Works without an LLM -- pure Python rule-based engine backed
-    by structured knowledge (algorithm registry, benchmark results,
-    decision trees).
+    Supersedes ``AutoModelSelector`` (deprecated in v2.2.0).
 
     Parameters
     ----------
@@ -229,268 +457,595 @@ class Advisor:
 
     Examples
     --------
-    >>> from pyod.utils.advisor import Advisor
-    >>> advisor = Advisor()
+    >>> from pyod.utils.ad_engine import ADEngine
+    >>> engine = ADEngine()
 
-    # Auto-detect data type and recommend
-    >>> result = advisor.recommend(X_train)
-    >>> print(result['detector'], result['reason'])
-    'ECOD' 'Tabular, 50 features, 10k samples → ECOD (ADBench rank #2 for high-dim)'
+    # Full lifecycle in Python (no LLM needed)
+    >>> profile = engine.profile_data(X_train)
+    >>> plan = engine.plan_detection(profile)
+    >>> result = engine.run_detection(X_train, plan)
+    >>> analysis = engine.analyze_results(result)
+    >>> print(analysis['summary'])
 
-    # Explicit data type
-    >>> result = advisor.recommend(texts, data_type='text')
-    >>> print(result['pipeline'])
-    "EmbeddingOD(encoder='all-MiniLM-L6-v2', detector='KNN')"
-
-    # Get runnable detector instance
-    >>> clf = advisor.build(X_train)
-    >>> clf.fit(X_train)
-
-    # Compare options
-    >>> options = advisor.compare(X_train, top_k=3)
-    >>> for opt in options:
-    ...     print(opt['detector'], opt['reason'], opt['benchmark_rank'])
+    # One-shot shortcut
+    >>> result = engine.detect(X_train)
     """
-
-    def __init__(self, knowledge_dir=None):
-        ...
-
-    def sniff_data_type(self, X):
-        """Auto-detect data type from input.
-
-        Returns
-        -------
-        data_type : str
-            One of 'tabular', 'text', 'image', 'time_series',
-            'multimodal', 'graph'.
-        metadata : dict
-            Detected characteristics (n_samples, n_features, etc.)
-        """
-        ...
-
-    def recommend(self, X=None, data_type=None, n_samples=None,
-                  n_features=None, priority='balanced', **kwargs):
-        """Recommend a detector pipeline.
-
-        Parameters
-        ----------
-        X : array-like, list, or dict, optional
-            Input data. If provided, data_type is auto-detected.
-        data_type : str, optional
-            Explicit data type override.
-        priority : str, optional (default='balanced')
-            One of 'speed', 'accuracy', 'balanced'.
-
-        Returns
-        -------
-        recommendation : dict
-            Keys: 'detector', 'pipeline', 'params', 'reason',
-            'benchmark_evidence', 'confidence'.
-        """
-        ...
-
-    def build(self, X=None, data_type=None, **kwargs):
-        """Build and return a configured detector instance.
-
-        Same parameters as recommend(), but returns a ready-to-fit
-        detector instead of a recommendation dict.
-        """
-        ...
-
-    def compare(self, X=None, data_type=None, top_k=3, **kwargs):
-        """Compare top-k detector options with trade-offs.
-
-        Returns
-        -------
-        options : list of dict
-            Each with 'detector', 'reason', 'pros', 'cons',
-            'benchmark_rank', 'estimated_speed'.
-        """
-        ...
-
-    def explain(self, detector_name):
-        """Explain an algorithm: how it works, when to use it.
-
-        Returns
-        -------
-        explanation : dict
-            Keys: 'name', 'full_name', 'description', 'strengths',
-            'weaknesses', 'best_for', 'avoid_when', 'paper',
-            'benchmark_results'.
-        """
-        ...
-
-    def list_detectors(self, data_type=None):
-        """List available detectors, optionally filtered by data type.
-
-        Returns
-        -------
-        detectors : list of dict
-        """
-        ...
 ```
 
-#### Data Type Sniffing Logic
+#### 2.3.1 Lifecycle Methods
+
+**Phase 1: Understand**
 
 ```python
-def sniff_data_type(self, X):
-    if isinstance(X, dict):
-        return 'multimodal', {...}
-    if isinstance(X, list):
-        if all(isinstance(x, str) for x in X[:10]):
-            return 'text', {'n_samples': len(X)}
-        if _looks_like_image_paths(X[:5]):
-            return 'image', {'n_samples': len(X)}
-    X = np.asarray(X)
-    if X.ndim == 1 or (X.ndim == 2 and X.shape[1] == 1):
-        return 'time_series', {'n_timestamps': X.shape[0], 'channels': 1}
-    if X.ndim == 2 and X.shape[0] > X.shape[1] * 10:
-        # Very long relative to features → likely time series
-        return 'time_series', {'n_timestamps': X.shape[0],
-                               'channels': X.shape[1]}
-    return 'tabular', {'n_samples': X.shape[0],
-                       'n_features': X.shape[1]}
+def profile_data(self, X, data_type=None):
+    """Profile the input data.
+
+    Auto-detects data type (unless overridden) and computes
+    characteristics relevant to detector selection.
+
+    Parameters
+    ----------
+    X : array-like, list, dict, or str (file path)
+        The input data. Accepted formats:
+        - numpy array / pandas DataFrame → tabular or time_series
+        - list of str → text
+        - list of file paths (images) → image
+        - dict of {modality: data} → multimodal
+
+    data_type : str or None
+        Explicit override. One of 'tabular', 'text', 'image',
+        'time_series', 'multimodal', 'graph'.
+        If None, auto-detected with conservative defaults.
+
+    Returns
+    -------
+    profile : dict
+        Keys: 'data_type', 'n_samples', 'n_features',
+        'dtype', 'has_nan', 'sparsity', 'dimensionality_class'
+        ('low'/'medium'/'high'), 'estimated_memory',
+        and type-specific fields.
+    """
 ```
+
+**Data type sniffing (addressing Codex finding #2):**
+
+Conservative defaults. Numeric arrays are **always tabular** unless the caller explicitly says `data_type='time_series'` or provides sequence metadata. No heuristic guessing based on aspect ratios.
+
+```python
+def _sniff_data_type(self, X):
+    # Unambiguous cases only
+    if isinstance(X, dict):
+        return 'multimodal'
+    if isinstance(X, list) and len(X) > 0:
+        if all(isinstance(x, str) for x in X[:20]):
+            if _looks_like_image_paths(X[:5]):
+                return 'image'
+            return 'text'
+    # All numeric arrays → tabular (conservative default)
+    # User must explicitly pass data_type='time_series'
+    return 'tabular'
+```
+
+**Phase 2: Plan**
+
+```python
+def plan_detection(self, profile, priority='balanced',
+                   constraints=None):
+    """Plan a detection pipeline based on data profile.
+
+    Parameters
+    ----------
+    profile : dict
+        Output of profile_data().
+    priority : str
+        'speed', 'accuracy', or 'balanced'.
+    constraints : dict or None
+        Optional constraints: {'max_runtime_seconds': 60,
+        'exclude_detectors': ['DeepSVDD'],
+        'require_interpretable': True}
+
+    Returns
+    -------
+    plan : DetectionPlan (dict with closed schema)
+        Allowlisted fields only -- see Plan Schema below.
+    """
+```
+
+**Plan Schema (addressing Codex Round 2 finding #3):**
+
+Plans use a **closed, declarative schema**. Agents cannot inject arbitrary class paths or preprocessing graphs. All detector names are validated against `algorithms.json`. Unknown fields are rejected with structured validation errors.
+
+```python
+# DetectionPlan schema (validated by ADEngine)
+{
+    "detector_name": str,        # must exist in algorithms.json with status='shipped'
+    "preset": str or None,       # e.g., 'for_text', 'for_image' (validated against registry)
+    "params": dict,              # detector __init__ kwargs (validated against known params)
+    "preprocessing": [           # ordered list of allowlisted steps
+        {"step": "standardize"},           # StandardScaler
+        {"step": "reduce_dim", "n_components": 50},  # PCA
+        {"step": "clip", "floor": -10, "ceil": 10},
+        {"step": "nan_to_num"},
+    ],
+    "threshold_strategy": str,   # 'contamination' (default), 'percentile', 'manual'
+    "threshold_value": float,    # interpretation depends on strategy
+    "reason": str,               # human-readable (from routing rules)
+    "evidence": [str],           # benchmark IDs
+    "confidence": float,         # 0.0-1.0
+    "alternatives": [...]        # list of runner-up plans (same schema)
+}
+```
+
+Allowlisted preprocessing steps: `standardize`, `reduce_dim`, `clip`, `nan_to_num`, `normalize`. No arbitrary code execution.
+
+**Preprocessing ownership (addressing Codex Round 3 finding #3):** Each detector in `algorithms.json` has a `preprocessing_mode` field:
+- `"external"` (default for most detectors): preprocessing is applied by `ADEngine` before passing data to the detector. Top-level plan preprocessing steps are used.
+- `"internal"` (e.g., `EmbeddingOD`): the detector manages its own preprocessing (standardize, PCA, etc.) internally. `ADEngine` rejects overlapping external preprocessing steps and routes through presets instead.
+- `"mixed"`: some preprocessing is external, some internal. The `preprocessing_note` field documents which steps are owned by the detector.
+
+This prevents double-applying scaling/PCA and preserves existing library behavior.
+
+**Phase 3: Execute**
+
+```python
+def run_detection(self, X_train, plan, X_test=None):
+    """Execute a detection plan.
+
+    Parameters
+    ----------
+    X_train : array-like
+        Training data.
+    plan : dict (DetectionPlan)
+        Output of plan_detection(). Must conform to the closed
+        plan schema. Validated before execution -- unknown fields
+        or unregistered detectors raise ValueError.
+    X_test : array-like or None
+        Optional test data. If provided, scores are computed
+        for test data after fitting on training data.
+
+    Returns
+    -------
+    result : dict
+        Keys: 'scores_train', 'scores_test' (if X_test),
+        'labels_train', 'labels_test' (if X_test),
+        'threshold', 'detector' (fitted detector instance),
+        'runtime_seconds', 'plan' (the plan used).
+    """
+```
+
+**Phase 4: Analyze**
+
+```python
+def analyze_results(self, result, X=None):
+    """Analyze detection results.
+
+    Parameters
+    ----------
+    result : dict
+        Output of run_detection().
+    X : array-like or None
+        Original data, for computing feature-level explanations.
+
+    Returns
+    -------
+    analysis : dict
+        Keys: 'n_anomalies', 'anomaly_ratio',
+        'score_distribution' (mean, std, min, max, quartiles),
+        'top_anomalies' (indices + scores of top-k),
+        'clustering' (if anomalies cluster in feature/time space),
+        'summary' (human-readable paragraph),
+        'feature_importance' (if X is tabular, per-feature
+        contribution to anomaly scores where supported).
+    """
+```
+
+**Phase 5: Iterate**
+
+```python
+def suggest_next_step(self, result, analysis, feedback=None):
+    """Suggest what to try next based on results and user feedback.
+
+    Parameters
+    ----------
+    result : dict
+        Output of run_detection().
+    analysis : dict
+        Output of analyze_results().
+    feedback : str or None
+        User feedback, e.g., "too many false positives",
+        "missed the anomalies at index 500-510",
+        "try a different detector".
+
+    Returns
+    -------
+    suggestion : dict
+        Keys: 'action' ('adjust_threshold', 'try_alternative',
+        'adjust_params', 'ensemble', 'done'),
+        'new_plan' (if action involves rerunning),
+        'reason' (why this suggestion).
+    """
+
+def explain_findings(self, result, indices=None, top_k=5):
+    """Explain why specific samples were flagged as anomalies.
+
+    Parameters
+    ----------
+    result : dict
+        Output of run_detection().
+    indices : list of int or None
+        Specific sample indices to explain. If None, explains
+        the top-k most anomalous samples.
+
+    Returns
+    -------
+    explanations : list of dict
+        Each with 'index', 'score', 'percentile',
+        'contributing_features' (where supported),
+        'narrative' (human-readable sentence).
+    """
+```
+
+**Phase 6: Report**
+
+```python
+def generate_report(self, result, analysis, format='text'):
+    """Generate a summary report of the detection run.
+
+    Parameters
+    ----------
+    format : str
+        'text' (markdown), 'json', or 'html'.
+
+    Returns
+    -------
+    report : str
+        Complete report with: data profile, detector used,
+        parameter settings, result summary, top anomalies,
+        recommendations for next steps.
+    """
+```
+
+**Convenience shortcuts:**
+
+```python
+def detect(self, X_train, X_test=None, data_type=None,
+           priority='balanced'):
+    """One-shot anomaly detection: profile → plan → run → analyze.
+
+    Returns
+    -------
+    result : dict
+        Combined output of run_detection() and analyze_results().
+    """
+    profile = self.profile_data(X_train, data_type=data_type)
+    plan = self.plan_detection(profile, priority=priority)
+    result = self.run_detection(X_train, plan, X_test=X_test)
+    result['analysis'] = self.analyze_results(result, X=X_train)
+    return result
+```
+
+**Factory method (addressing Codex Round 2 finding #4):**
+
+```python
+def build_detector(self, plan):
+    """Build and return an UNFITTED detector instance from a plan.
+
+    For users who want detector selection but not automatic
+    execution -- they integrate the detector into their own
+    code path. This is the direct replacement for
+    AutoModelSelector.get_top_clf().
+
+    Parameters
+    ----------
+    plan : dict (DetectionPlan)
+        Output of plan_detection().
+
+    Returns
+    -------
+    detector : BaseDetector
+        Configured but unfitted detector instance.
+    """
+```
+
+**Knowledge query methods:**
+
+```python
+def list_detectors(self, data_type=None, status='shipped'):
+    """List available detectors, filtered by data type and status."""
+
+def explain_detector(self, name):
+    """Explain a detector: how it works, strengths, weaknesses."""
+
+def compare_detectors(self, names=None, data_type=None, top_k=3):
+    """Compare detectors for a given data type."""
+
+def get_benchmarks(self, benchmark='all'):
+    """Get benchmark results."""
+```
+
+#### 2.3.2 Migration from AutoModelSelector
+
+**Addressing Codex finding #6.**
+
+`AutoModelSelector` currently uses GPT-4o to tag datasets and select from 10 deep-learning models. The migration path:
+
+| `AutoModelSelector` feature | `ADEngine` equivalent |
+|---|---|
+| `model_auto_select()` (GPT-4o call) | `plan_detection()` (rule-based, no LLM, covers all 46+ detectors) |
+| `get_top_clf()` (returns unfitted detector) | `build_detector()` (returns unfitted detector from plan) |
+| `load_model_analyses_labels_only()` | `list_detectors()` (reads from `algorithms.json`) |
+| `_MODEL_REGISTRY` (10 models) | `algorithms.json` (46+ models, all categories) |
+| `model_analysis_jsons/*.json` (10 files) | `knowledge/algorithms.json` (single unified file) |
+
+**Migration plan:**
+- v2.2.0: Ship `ADEngine`. Reimplement `AutoModelSelector` as a thin compatibility shim on top of `ADEngine` (internally calls `profile_data` → `plan_detection` → `build_detector`). Add deprecation warning on import.
+- v2.2.0: Migrate `auto_model_selection_example/` notebook to use `ADEngine`.
+- v2.3.0: Remove `AutoModelSelector` shim and `model_analysis_jsons/`.
+- `model_analysis_jsons/` data (strengths/weaknesses labels) is folded into `algorithms.json` entries.
 
 ### 2.4 Layer 3: Agent Interfaces
 
-Thin wrappers around the Advisor. Multiple formats, same intelligence.
+Thin wrappers around `ADEngine`. The skill file (Layer 3b) does NOT embed knowledge -- it points agents to call `ADEngine` methods or read the JSON files. **(Addressing Codex finding #4.)**
 
 #### 2.4.1 MCP Server (`pyod/mcp_server.py`)
 
-Works with Claude Code, VS Code Copilot, Cursor, Gemini, any MCP client.
+The primary agent interface. Works with Claude Code, VS Code Copilot, Cursor, Gemini, any MCP client.
+
+**v2.2.0 scope:** MCP tools support tabular, text, and image data (shipped modalities). Multimodal dict inputs, graph data, and advanced workflows (exclusion windows, masks) are deferred to v2.3.0+ when dedicated data manifest schemas are designed. The Python API (`ADEngine`) has no such restriction -- it accepts all formats directly.
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pyod.utils.advisor import Advisor
+from pyod.utils.ad_engine import ADEngine
 
-mcp = FastMCP("pyod-advisor")
-advisor = Advisor()
+mcp = FastMCP("pyod")
+engine = ADEngine()
+
+# ============================================================
+# Tier A tools: knowledge queries + stateless planning
+# (shipped in v2.2.0)
+# ============================================================
 
 @mcp.tool()
-def recommend_detector(
-    data_type: str = "auto",
-    n_samples: int = None,
-    n_features: int = None,
-    priority: str = "balanced",
-    description: str = ""
+def profile_data(
+    data_path: str,
+    data_type: str = "auto"
 ) -> str:
-    """Recommend a PyOD anomaly detector for the given dataset.
+    """Profile a dataset for anomaly detection.
+
+    Loads data, detects the data type and characteristics,
+    returns a structured profile for use in plan_detection().
 
     Args:
-        data_type: One of 'tabular', 'text', 'image', 'time_series',
-                   'multimodal', 'graph', or 'auto'.
-        n_samples: Number of samples/data points.
-        n_features: Number of features (for tabular data).
-        priority: One of 'speed', 'accuracy', 'balanced'.
-        description: Free-text description of the dataset.
+        data_path: Path to data file (CSV, NPY, JSON, image dir).
+        data_type: Override. One of 'tabular', 'text', 'image',
+            or 'auto'. (time_series and graph support added in
+            later releases when those detectors ship.)
     """
-    result = advisor.recommend(
-        data_type=data_type, n_samples=n_samples,
-        n_features=n_features, priority=priority)
-    return format_recommendation(result)
+    ...
 
 @mcp.tool()
-def explain_algorithm(name: str) -> str:
-    """Explain how a PyOD algorithm works, with strengths and weaknesses."""
-    return format_explanation(advisor.explain(name))
+def plan_detection(
+    data_profile: str,
+    priority: str = "balanced",
+    constraints: str = ""
+) -> str:
+    """Plan an anomaly detection pipeline.
+
+    Returns a DetectionPlan (closed schema) with detector name,
+    params, preprocessing, reason, and benchmark evidence.
+
+    Args:
+        data_profile: JSON from profile_data().
+        priority: 'speed', 'accuracy', or 'balanced'.
+        constraints: Optional JSON, e.g. '{"require_interpretable": true}'.
+    """
+    ...
+
+@mcp.tool()
+def list_detectors(data_type: str = "", status: str = "shipped") -> str:
+    """List available PyOD detectors, filtered by data type and status."""
+    ...
+
+@mcp.tool()
+def explain_detector(name: str) -> str:
+    """Explain a PyOD detector: how it works, strengths, weaknesses,
+    benchmark performance, and recommended use cases."""
+    ...
 
 @mcp.tool()
 def compare_detectors(
-    names: list[str] = None,
+    names: str = "",
     data_type: str = "tabular",
     top_k: int = 3
 ) -> str:
-    """Compare detectors for a given data type."""
-    if names:
-        return format_comparison([advisor.explain(n) for n in names])
-    return format_comparison(advisor.compare(data_type=data_type, top_k=top_k))
+    """Compare detectors for a given data type. If names is empty,
+    compares the top-k detectors from benchmarks."""
+    ...
 
 @mcp.tool()
-def list_available_detectors(data_type: str = None) -> str:
-    """List all PyOD detectors, optionally filtered by data type."""
-    return format_list(advisor.list_detectors(data_type=data_type))
+def get_benchmarks(benchmark: str = "all") -> str:
+    """Get benchmark results (ADBench, NLP-ADBench, TSB-AD).
+    Returns rankings, key findings, and top performers."""
+    ...
 
 @mcp.tool()
-def get_benchmark_results(benchmark: str = "all") -> str:
-    """Get benchmark results (ADBench, NLP-ADBench, TSB-AD)."""
-    return format_benchmarks(advisor.get_benchmarks(benchmark))
+def build_detector(plan: str) -> str:
+    """Get constructor metadata for a detector from a plan.
+
+    Returns the import path, class name, and validated params
+    needed to instantiate the detector. Does NOT return a live
+    object (impossible over MCP). The agent uses this to
+    generate correct instantiation code.
+
+    Args:
+        plan: JSON from plan_detection() (closed schema).
+
+    Returns:
+        JSON with 'import_path', 'class_name', 'params',
+        'preprocessing_steps', 'code_snippet' (ready-to-run
+        Python code for instantiation).
+    """
+    ...
+
+# ============================================================
+# Tier B tools: stateful lifecycle execution
+# (shipped in v2.2.0 or v2.3.0)
+# Uses run_id handles -- fitted models + arrays stay server-side
+# ============================================================
 
 @mcp.tool()
-def generate_code(
-    data_type: str,
-    detector: str = None,
-    task: str = "fit_predict"
+def run_detection(
+    data_path: str,
+    plan: str,
+    test_data_path: str = ""
 ) -> str:
-    """Generate ready-to-run PyOD code for a given scenario."""
-    return advisor.generate_code(data_type=data_type,
-                                 detector=detector, task=task)
+    """Execute an anomaly detection plan on data.
+
+    Fits the detector, computes scores, stores state server-side.
+    Returns a run_id handle + compact summary (NOT raw arrays).
+
+    Args:
+        data_path: Path to training data.
+        plan: JSON from plan_detection() (closed schema, validated).
+        test_data_path: Optional path to test data.
+
+    Returns:
+        JSON with 'run_id', 'n_anomalies', 'anomaly_ratio',
+        'runtime_seconds', 'score_summary' (mean/std/min/max),
+        'top_anomalies' (indices + scores of top-10).
+    """
+    ...
+
+@mcp.tool()
+def analyze_results(run_id: str) -> str:
+    """Analyze detection results for a completed run.
+
+    Uses server-side stored state (no large payloads in/out).
+
+    Args:
+        run_id: From run_detection().
+
+    Returns:
+        JSON with 'n_anomalies', 'score_distribution',
+        'top_anomalies', 'clustering', 'summary' (narrative).
+    """
+    ...
+
+@mcp.tool()
+def explain_findings(
+    run_id: str,
+    indices: str = "",
+    top_k: int = 5
+) -> str:
+    """Explain why specific samples were flagged as anomalous.
+
+    Args:
+        run_id: From run_detection().
+        indices: Comma-separated sample indices. If empty, top-k.
+    """
+    ...
+
+@mcp.tool()
+def suggest_next_step(
+    run_id: str,
+    feedback: str = ""
+) -> str:
+    """Suggest what to try next based on results and user feedback.
+
+    Args:
+        run_id: From run_detection().
+        feedback: e.g. 'too many false positives', 'try LOF'.
+
+    Returns:
+        JSON with 'action', 'new_plan' (if rerun needed), 'reason'.
+    """
+    ...
+
+@mcp.tool()
+def generate_report(
+    run_id: str,
+    format: str = "text"
+) -> str:
+    """Generate a summary report of a detection run.
+
+    Args:
+        run_id: From run_detection().
+        format: 'text' (markdown), 'json', or 'html'.
+    """
+    ...
+
+@mcp.tool()
+def close_session(run_id: str) -> str:
+    """Release server-side state for a completed run.
+    Called when the agent is done with a run_id."""
+    ...
 ```
 
 #### 2.4.2 Claude Code Skill (`skills/od-expert/SKILL.md`)
 
-Loaded when users work in the PyOD repo or ask about anomaly detection:
+**Addressing Codex finding #4:** The skill is a pointer, not a copy.
 
 ```markdown
 ---
 name: od-expert
-description: Anomaly detection expert. Recommends PyOD detectors,
-  explains algorithms, and generates code for any data type.
+description: Anomaly detection expert. Drives the full PyOD lifecycle
+  through the ADEngine API -- profiling, planning, execution, analysis,
+  and iterative refinement.
 ---
 
-You are an anomaly detection expert powered by PyOD's knowledge base.
+You are an anomaly detection expert backed by PyOD's ADEngine.
 
 ## When to activate
-- User asks "which detector should I use?"
 - User has data and wants anomaly detection
-- User asks about PyOD algorithms
-- User asks to compare methods
+- User asks "which detector should I use?"
+- User asks about PyOD algorithms or benchmarks
+- User asks to compare detection methods
 
-## Decision Logic
-[embedded decision tree from decision_tree.json]
+## How to work
+Do NOT embed detection knowledge. Instead:
 
-## Algorithm Quick Reference
-[embedded from algorithms.json]
+1. Use ADEngine's MCP tools if available (profile_data, plan_detection,
+   run_detection, analyze_results, explain_findings, suggest_next_step).
+2. If MCP is not available, import and call ADEngine directly:
+   ```python
+   from pyod.utils.ad_engine import ADEngine
+   engine = ADEngine()
+   ```
+3. For knowledge queries (algorithm info, benchmarks), read from
+   `pyod/utils/knowledge/*.json` files.
 
-## Benchmark Evidence
-[embedded from benchmarks.json]
+## Lifecycle flow
+profile_data → plan_detection → run_detection → analyze_results
+→ (iterate with suggest_next_step if needed) → generate_report
 ```
 
 #### 2.4.3 OpenAI Function Schema Export
 
-For integration with AD-AGENT and other GPT-based tools:
+For integration with AD-AGENT and GPT-based tools:
 
 ```python
-# pyod/utils/advisor.py
-class Advisor:
-    ...
+class ADEngine:
     def to_openai_tools(self):
-        """Export advisor methods as OpenAI function-calling tools."""
-        return [
-            {
-                "type": "function",
-                "function": {
-                    "name": "recommend_detector",
-                    "description": "Recommend a PyOD detector...",
-                    "parameters": { ... }
-                }
-            },
-            ...
-        ]
+        """Export lifecycle methods as OpenAI function-calling tools.
+
+        Returns a list of tool dicts compatible with OpenAI's
+        chat completions API. Each lifecycle method becomes a tool.
+        """
+        return _generate_openai_schema(self)
 ```
 
-### 2.5 Evolution Toward AD-AGENT
+### 2.5 Relationship to AD-AGENT
 
-The Advisor maps to AD-AGENT's four agents:
+AD-AGENT's 4-agent architecture maps to ADEngine's lifecycle:
 
-| AD-AGENT Agent | PyOD Advisor Method | Phase |
-|----------------|-------------------|-------|
-| **Processor** (data prep) | `sniff_data_type()` + auto windowing/encoding | Phase 1 |
-| **Detection** (run AD) | `build()` → returns configured detector | Phase 1 |
-| **Explanation** (interpret) | `explain()` + benchmark context | Phase 1 |
-| **Adaptation** (iterate) | MetaOD integration, hyperparameter search | Phase 3+ |
+| AD-AGENT Agent | ADEngine Phase | Key Difference |
+|----------------|---------------|----------------|
+| **Processor** | `profile_data()` + preprocessing in `run_detection()` | ADEngine: deterministic, no LLM. AD-AGENT: LLM generates preprocessing code. |
+| **Detection** | `plan_detection()` + `run_detection()` | ADEngine: rule-based selection from 46+ detectors. AD-AGENT: LLM selects from 10. |
+| **Explanation** | `analyze_results()` + `explain_findings()` | ADEngine: structured analysis. AD-AGENT: LLM narration. |
+| **Adaptation** | `suggest_next_step()` | ADEngine: rule-based suggestions. AD-AGENT: LLM-driven iteration. |
 
-Key difference from AD-AGENT: PyOD's advisor works **without an LLM** at the core. AD-AGENT requires OpenAI API ($0.02-0.05/call). PyOD's advisor is free, offline, deterministic. LLMs enhance it through MCP/skills but aren't required.
+**The convergence path:** AD-AGENT could use ADEngine as its execution backend instead of generating PyOD code from scratch. The LLM orchestrates the conversation; ADEngine handles the detection. This would make AD-AGENT more reliable (no code generation errors), cheaper (fewer LLM calls), and broader (46+ detectors instead of 10).
 
 ### 2.6 File Structure
 
@@ -498,35 +1053,102 @@ Key difference from AD-AGENT: PyOD's advisor works **without an LLM** at the cor
 pyod/
 ├── pyod/
 │   ├── utils/
-│   │   ├── advisor.py              # Layer 2: Advisor class
-│   │   └── knowledge/              # Layer 1: Knowledge base
-│   │       ├── algorithms.json     # Algorithm registry (45+ entries)
-│   │       ├── benchmarks.json     # ADBench, NLP-ADBench, TSB-AD results
-│   │       ├── decision_tree.json  # Routing rules
-│   │       └── papers.json         # Citations
-│   └── mcp_server.py              # Layer 3a: MCP server
+│   │   ├── ad_engine.py             # Layer 2: lifecycle engine
+│   │   ├── auto_model_selector.py   # DEPRECATED in v2.2.0 (points to ADEngine)
+│   │   ├── knowledge/               # Layer 1: knowledge base
+│   │   │   ├── __init__.py
+│   │   │   ├── algorithms.json      # 46+ detector entries with status field
+│   │   │   ├── benchmarks.json      # ADBench, NLP-ADBench, TSB-AD
+│   │   │   ├── routing_rules.json   # structured predicates
+│   │   │   └── papers.json          # citations
+│   │   └── model_analysis_jsons/    # DEPRECATED (data migrated to algorithms.json)
+│   │       └── *.json
+│   └── mcp_server.py               # Layer 3a: MCP server
 ├── skills/
 │   └── od-expert/
-│       └── SKILL.md               # Layer 3b: Claude Code skill
-└── examples/
-    └── advisor_example.py         # Usage examples
+│       └── SKILL.md                 # Layer 3b: pointer skill (no embedded knowledge)
+├── examples/
+│   ├── ad_engine_example.py         # Python lifecycle demo
+│   └── mcp_usage_example.md         # Agent interaction transcript
+└── setup.py                         # Updated extras_require
 ```
 
-### 2.7 Implementation Phases
+### 2.7 Packaging
+
+**Addressing Codex finding #7.**
+
+**New `package_data`:**
+```python
+package_data={
+    'pyod.utils': ['model_analysis_jsons/*.json'],      # deprecated, keep for one release
+    'pyod.utils.knowledge': ['*.json'],                  # new knowledge base
+},
+```
+
+**New extras:**
+```python
+extras_require={
+    'embedding': ['sentence-transformers>=2.0'],
+    'openai': ['openai>=1.0'],
+    'mcp': ['mcp>=1.0'],                                # new: MCP server
+    'all': [
+        'sentence-transformers>=2.0',
+        'openai>=1.0',
+        'transformers>=4.0',
+        'torch>=2.0',
+        'Pillow',
+        'mcp>=1.0',
+    ],
+},
+```
+
+**MCP server launch:**
+```bash
+# Option 1: module entry point
+python -m pyod.mcp_server
+
+# Option 2: console script (if we add entry_points)
+pyod-mcp
+```
+
+**Python version:** MCP server uses `list[str]` (3.9+ syntax). The MCP extra requires Python >= 3.9. Core PyOD remains compatible with 3.8+. The MCP server file uses `from __future__ import annotations` for 3.8 compatibility, or we narrow support -- decision deferred to implementation.
+
+### 2.8 Implementation Phases
+
+Two scope tiers. Tier A is the minimum viable release; Tier B completes the full lifecycle vision.
+
+#### Tier A: Knowledge + Core Engine + Read-Only MCP (v2.2.0-alpha)
 
 | Phase | What | Effort | Delivers |
 |-------|------|--------|----------|
-| **Phase 1a** | Knowledge base: `algorithms.json` for all 45+ current detectors | 1-2 days | Foundation for everything |
-| **Phase 1b** | Knowledge base: `benchmarks.json`, `decision_tree.json`, `papers.json` | 1 day | Complete knowledge layer |
-| **Phase 2a** | `Advisor` class: `sniff_data_type()`, `recommend()`, `explain()` | 2-3 days | Pure Python advisor |
-| **Phase 2b** | `Advisor` class: `build()`, `compare()`, `list_detectors()` | 1-2 days | Full advisor API |
-| **Phase 3a** | MCP server | 1 day | Any LLM can talk to PyOD |
-| **Phase 3b** | Claude Code skill | 1 day | Works in PyOD dev workflow |
-| **Phase 3c** | OpenAI function schema export | 0.5 day | AD-AGENT integration |
-| **Phase 4** | Tests + examples + documentation | 1-2 days | Ship-ready |
-| **Phase 5** | MetaOD integration (data-driven model selection) | Longer term | Adaptive recommendations |
+| **A1** | Knowledge base: `algorithms.json` for all 46+ shipped detectors | 1-2 days | Foundation for everything |
+| **A2** | Knowledge base: `benchmarks.json`, `routing_rules.json`, `papers.json` | 1 day | Complete knowledge layer |
+| **A3** | `ADEngine` core: `profile_data()`, `plan_detection()`, `build_detector()`, `detect()` shortcut | 2-3 days | Core engine (stateless) |
+| **A4** | `ADEngine` knowledge queries: `list_detectors()`, `explain_detector()`, `compare_detectors()`, `get_benchmarks()` | 1 day | Knowledge access |
+| **A5** | `AutoModelSelector` compatibility shim + deprecation warning | 0.5 day | Clean migration |
+| **A6** | MCP server: knowledge tools + `profile_data` + `plan_detection` + `build_detector` (returns constructor metadata, not live objects) | 1-2 days | Agents can query + plan + get instantiation code |
+| **A7** | Claude Code skill (pointer) + OpenAI schema export | 1 day | Multi-agent support |
+| **A8** | Tests + examples + docs for Tier A | 2-3 days | Ship-ready |
 
-**Total for v1 (Phases 1-4): ~8-12 days**
+**Tier A total: ~10-13 days**
+
+#### Tier B: Full Stateful Lifecycle MCP (v2.2.0 or v2.3.0)
+
+| Phase | What | Effort | Delivers |
+|-------|------|--------|----------|
+| **B1** | `ADEngine`: `run_detection()` with full execution | 2-3 days | Server-side execution |
+| **B2** | MCP session store: `RunSession`, `run_id` handles, expiration | 1-2 days | Stateful MCP calls |
+| **B3** | `ADEngine`: `analyze_results()`, `explain_findings()`, `suggest_next_step()` | 2-3 days | Analysis + iteration |
+| **B4** | `ADEngine`: `generate_report()` | 1 day | Reporting |
+| **B5** | MCP lifecycle tools: `run_detection`, `analyze_results`, `explain_findings`, `suggest_next_step`, `generate_report` (all using `run_id`) | 1-2 days | Full lifecycle via MCP |
+| **B6** | MCP data manifest schema for multimodal/graph/exclusion inputs | 1-2 days | Advanced data types |
+| **B7** | Tests + examples + docs for Tier B | 2-3 days | Ship-ready |
+
+**Tier B total: ~10-16 days**
+
+**Combined total: ~20-29 days**
+
+Tier A is independently useful -- agents can query PyOD's knowledge, get recommendations, and receive detector constructor metadata + code snippets (via MCP) or configured detector instances (via Python API). Tier B adds the "hands-free" execution and iteration that makes the vision example work end-to-end.
 
 ---
 
@@ -536,18 +1158,18 @@ pyod/
 
 - **TODS is dead** (no updates since Sep 2023). No maintained, lightweight TS-AD library exists.
 - **Merlion** (Salesforce, 4.5k stars) is actively maintained but is a heavy full-stack ecosystem -- overkill for most users.
-- **TSB-AD** (NeurIPS 2024, 244 stars) is an excellent *benchmark* (40 algorithms, 1070 datasets) but not a user-facing library. API is functional (`run_Unsupervise_AD('IForest', data)`), not object-oriented.
-- TSB-AD already wraps PyOD for many of its statistical detectors (LOF, KNN, IForest, HBOS, COPOD, etc.).
-- **The gap**: a practitioner-friendly TS-AD tool with PyOD's API (`clf.fit(X); clf.predict(X)`).
+- **TSB-AD** (NeurIPS 2024, 244 stars) is an excellent *benchmark* (40 algorithms, 1070 datasets) but not a user-facing library.
+- TSB-AD already wraps PyOD for many of its statistical detectors.
+- **The gap**: a practitioner-friendly TS-AD tool with PyOD's API.
 
 ### 3.2 Design Decisions (confirmed)
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Target user | **Practitioner first** (practical tool now, benchmark later) | PyOD brand is "practical first, comprehensive second" |
-| Dependencies | **No external TS library dependency** (no TODS, no TSB-AD) | Both libraries are dead or benchmark-only; keep PyOD self-contained |
-| Algorithm source | Port curated algorithms natively using numpy/scipy/sklearn (+ optional PyTorch for deep methods) | Consistent with existing PyOD dependency philosophy |
-| Relationship to TSB-AD | Use their benchmark results to pick which algorithms to port; cite their paper | Complementary: "TSB-AD tells you what works, PyOD lets you deploy it" |
+| Target user | **Practitioner first** | PyOD brand is "practical first, comprehensive second" |
+| Dependencies | **No external TS library dependency** | Keep PyOD self-contained |
+| Algorithm source | Port curated algorithms natively (numpy/scipy/sklearn, optional PyTorch) | Consistent with existing PyOD dependency philosophy |
+| Relationship to TSB-AD | Use benchmark results to pick algorithms; cite paper | "TSB-AD tells you what works, PyOD lets you deploy it" |
 
 ### 3.3 Proposed API
 
@@ -565,10 +1187,8 @@ scores = clf.decision_scores_  # per-timestamp anomaly scores
 
 #### Native TS detectors
 
-For methods that don't reduce to "window + tabular OD":
-
-- **MatrixProfile** -- distance-profile based, no windowing abstraction needed
-- **Series2Graph** -- graph-of-subsequences approach
+- **MatrixProfile** -- distance-profile based
+- **Series2Graph** -- graph-of-subsequences
 - **SAND** -- online streaming detection
 
 #### Foundation model bridge for TS
@@ -577,14 +1197,23 @@ For methods that don't reduce to "window + tabular OD":
 clf = TimeSeriesOD(encoder='chronos', detector='KNN')
 ```
 
-### 3.4 Key Technical Questions (to resolve)
+### 3.4 Open Technical Questions
 
-1. **Windowing strategy**: Fixed-size sliding window for v1 (recommended)
-2. **Score aggregation**: How to map window-level scores to point-level? (max, mean, weighted?)
+1. **Windowing strategy**: Fixed sliding window for v1
+2. **Score aggregation**: Window → point mapping (max, mean, weighted?)
 3. **Univariate vs multivariate**: Same class or separate?
-4. **Streaming/online**: Batch-only for v1 (recommended)
-5. **Evaluation**: Defer TS-specific metrics to v2
-6. **Which TSB-AD algorithms to port first**: Review benchmark results for top performers
+4. **Streaming/online**: Batch-only for v1
+5. **Evaluation**: Defer TS-specific metrics
+6. **Which TSB-AD algorithms to port**: Review benchmark for top performers
+
+### 3.5 Integration with ADEngine
+
+When TimeSeriesOD ships, the agent layer gets TS support with minimal changes:
+- `algorithms.json`: flip `TimeSeriesOD` status from `"planned"` to `"shipped"`
+- `routing_rules.json`: TS rules already exist, now pass the status check
+- `ADEngine.profile_data()`: TS profiling (already handles explicit `data_type='time_series'`)
+- MCP: update `profile_data` docstring to include `'time_series'` as accepted override; no architectural changes needed
+- Skill: no changes needed (points to ADEngine, which picks up TS automatically)
 
 ---
 
@@ -592,10 +1221,10 @@ clf = TimeSeriesOD(encoder='chronos', detector='KNN')
 
 ### 4.1 Motivation
 
-- **PyGOD** (1.5k stars, same creator) has 18 algorithms but is slow-moving (last commit Nov 2024).
+- **PyGOD** (1.5k stars, same creator) has 18 algorithms but is slow-moving.
 - Most PyGOD algorithms require PyTorch Geometric -- heavy dependency.
-- Non-GNN methods (SCAN, Radar, ANOMALOUS) could work with scipy sparse matrices alone.
-- The EmbeddingOD bridge approach could work here too: graph encoder (node2vec, GNN embeddings) → PyOD detector.
+- Non-GNN methods (SCAN, Radar, ANOMALOUS) could work with scipy sparse matrices.
+- EmbeddingOD bridge approach: graph encoder (node2vec, GNN) → PyOD detector.
 
 ### 4.2 Design Decisions (confirmed)
 
@@ -606,45 +1235,93 @@ clf = TimeSeriesOD(encoder='chronos', detector='KNN')
 
 ### 4.3 Open Questions
 
-- Absorb PyGOD algorithms or build a new graph encoder bridge?
-- Which algorithms are worth porting without PyG?
+- Absorb PyGOD algorithms or build a graph encoder bridge?
+- Which algorithms worth porting without PyG?
 - Should PyGOD be deprecated in favor of PyOD's graph module?
 
 ---
 
 ## 5. Relationship to Existing Work
 
-| Project | Role | Relationship to PyOD |
-|---------|------|---------------------|
-| **PyOD** (v2.1.0) | Core library -- tabular + embedding (text/image) | This project |
+| Project | Role | Relationship |
+|---------|------|-------------|
+| **PyOD** (v2.1.0) | Core detection library | This project |
+| **AutoModelSelector** | GPT-4o model selection (10 models) | **Superseded by ADEngine** in v2.2.0 |
 | **PyGOD** (v1.1.0) | Graph AD | Same creator; may absorb later |
 | **TODS** | Time series AD | Dead; PyOD fills the gap |
-| **AD-AGENT** | Multi-agent AD framework | Same group; Advisor feeds into it |
-| **ADBench** | Tabular benchmark (57 datasets, 30 algorithms) | Knowledge base source |
-| **NLP-ADBench** | Text AD benchmark | Knowledge base source |
-| **TSB-AD** | TS benchmark (40 algorithms, 1070 datasets) | Knowledge base source (external) |
+| **AD-AGENT** | Multi-agent framework | Same group; ADEngine can serve as backend |
+| **ADBench** | Tabular benchmark | Knowledge base source |
+| **NLP-ADBench** | Text benchmark | Knowledge base source |
+| **TSB-AD** | TS benchmark | Knowledge base source (external) |
 | **AD-LLM** | LLM zero-shot AD | Future LLMAD integration |
-| **MetaOD** | Data-driven model selection | Future Advisor enhancement |
+| **MetaOD** | Data-driven model selection | Future ADEngine enhancement |
 | **Anomalib** | Image AD (Intel) | Complementary; EmbeddingOD covers this |
-| **Merlion** | Time series (Salesforce) | Competitor; too heavy for most users |
+| **Merlion** | Time series (Salesforce) | Too heavy for most users |
 
 ---
 
 ## 6. Release Roadmap
 
-| Version | Content | Effort |
-|---------|---------|--------|
-| v2.1.0 | EmbeddingOD, MultiModalOD (text/image) | **Shipped** (Apr 2026) |
-| v2.2.0 | **Agent Intelligence Layer** (Advisor + MCP + Skill) | ~8-12 days |
-| v2.3.0 | TimeSeriesOD bridge + native TS detectors | TBD |
-| v2.4.0 | Graph AD (bridge + native detectors) | TBD |
-| v3.0.0 | LLMAD, MetaOD integration, full multi-modal unified API | TBD |
+| Version | Content | Theme |
+|---------|---------|-------|
+| v2.1.0 | EmbeddingOD, MultiModalOD | **Multi-modal foundation** (shipped) |
+| v2.2.0 | ADEngine + MCP server + knowledge base | **Intelligent agent layer** |
+| v2.3.0 | TimeSeriesOD + native TS detectors | **Time series support** |
+| v2.4.0 | Graph AD (bridge + native detectors) | **Graph support** |
+| v3.0.0 | LLMAD, MetaOD integration, full platform | **PyOD 3.0: The Platform** |
+
+---
+
+## 7. Codex Review Resolution (Round 1)
+
+| # | Finding | Status | Resolution |
+|---|---------|--------|------------|
+| 1 | Agent layer recommends unshipped detectors | **Resolved** | Added `status` field to algorithm registry; Layer 2 filters by status |
+| 2 | `sniff_data_type()` misclassifies tabular as TS | **Resolved** | Conservative default: all numeric arrays → tabular unless explicit override |
+| 3 | Knowledge base schema is stringly-typed | **Resolved** | Replaced with structured `{field, op, value}` predicates in `routing_rules.json` |
+| 4 | Claude skill duplicates Layer 1 | **Resolved** | Skill is now a pointer that instructs agents to call ADEngine or read JSON files |
+| 5 | API inconsistencies + conflicts with library defaults | **Resolved** | Unified API (`ADEngine`); defaults match current library; added `get_benchmarks()` to formal API |
+| 6 | Ignores existing `AutoModelSelector` | **Resolved** | Added migration plan: deprecate in v2.2.0, remove in v2.3.0, fold data into `algorithms.json` |
+| 7 | Packaging story incomplete | **Resolved** | Added packaging section: `package_data`, `mcp` extra, launch command, Python version notes |
+
+## 8. Codex Review Resolution (Round 2)
+
+| # | Finding | Status | Resolution |
+|---|---------|--------|------------|
+| New 1 | MCP can't carry fitted detector state as JSON | **Resolved** | Added `run_id` + server-side `RunSession` store; MCP returns compact summaries, full state stays server-side |
+| New 2 | MCP input model doesn't cover multimodal/graph/exclusion | **Resolved** | Scoped MCP v2.2.0 to tabular/text/image only; multimodal/graph manifest deferred to Tier B (Phase B6) |
+| New 3 | Plan schema too open-ended for agent-authored plans | **Resolved** | Closed `DetectionPlan` schema with allowlisted fields; detector names validated against `algorithms.json`; preprocessing limited to allowlist |
+| New 4 | AutoModelSelector migration needs `build_detector()` | **Resolved** | Added `build_detector(plan)` returning unfitted instance; migration table updated; compatibility shim for one release |
+| New 5 | 12-16 day estimate optimistic | **Resolved** | Split into Tier A (10-13 days, knowledge + core + read-only MCP) and Tier B (10-16 days, stateful lifecycle); each tier independently shippable |
+| Reopened 1 | Stale `recommend()`/`build()` references from v2 | **Resolved** | Updated to v3 method names (`plan_detection()`, `build_detector()`, `list_detectors()`) |
+
+---
+
+## 9. Codex Review Resolution (Round 3)
+
+| # | Finding | Status | Resolution |
+|---|---------|--------|------------|
+| New 1 | RunSession lifecycle underspecified | **Resolved** | Formal `RunSession` schema; TTL with refresh; scavenging; memory cap (10 sessions); structured `run_not_found` error; `data_path` stored instead of raw X_train; analysis caching policy |
+| New 2 | Tier A/B boundary leaks | **Resolved** | MCP `build_detector` returns constructor metadata + code snippet (not live objects); `profile_data` docstring aligned to shipped modalities; phase A6 description updated |
+| New 3 | Preprocessing ownership ambiguity | **Resolved** | Added `preprocessing_mode` field (`external`/`internal`/`mixed`) to algorithm registry; ADEngine rejects overlapping external preprocessing for `internal` detectors; routes through presets instead |
+
+---
+
+## 10. Codex Review Resolution (Round 4)
+
+| # | Finding | Status | Resolution |
+|---|---------|--------|------------|
+| New 1 | Analysis caching contradiction in RunSession vs payload table | **Resolved** | Payload table now shows analysis as cached server-side with invalidation on rerun |
+| New 2 | Exclusion-window examples mixed into current Tier B scope | **Resolved** | Vision example annotated as post-B6 future-scope; Tier B v1 iteration is via suggest_next_step + plain rerun |
+| New 3 | Stale labels (header, Tier A summary, TS note) | **Resolved** | Header updated to v5 "Design complete"; Tier A summary distinguishes Python vs MCP build_detector; TS note says "no architectural changes" not "no changes" |
+
+**Review concluded.** 4 rounds, 18 total findings, all resolved. Spec is ready for implementation planning.
 
 ---
 
 ## Appendix A: TSB-AD Algorithm Reference
 
-40 algorithms across 3 categories (from NeurIPS 2024 paper):
+40 algorithms across 3 categories (NeurIPS 2024):
 
 **Statistical (18):** MCD, OCSVM, LOF, KNN, KMeansAD, CBLOF, POLY, IForest, HBOS, KShapeAD, MatrixProfile, PCA, RobustPCA, EIF, SR, COPOD, Series2Graph, SAND
 
@@ -663,3 +1340,13 @@ clf = TimeSeriesOD(encoder='chronos', detector='KNN')
 **Embedding/Foundation Model (2):** EmbeddingOD, MultiModalOD
 
 **Total: ~46 detectors**
+
+## Appendix C: AD-AGENT Architecture Reference
+
+Four agents (arXiv:2505.12594):
+- **Processor**: data preprocessing (LLM generates code)
+- **Detection**: model selection + execution (LLM selects from 10 models)
+- **Explanation**: result interpretation (LLM narration)
+- **Adaptation**: iterative refinement (WIP)
+
+Limitations: OpenAI-only, CLI-only, 10 models, $0.02-0.05/call.
