@@ -9,6 +9,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.utils.ad_engine import ADEngine
+from pyod.models.base import BaseDetector
 
 
 class TestProfileData(unittest.TestCase):
@@ -127,6 +128,88 @@ class TestPlanDetection(unittest.TestCase):
         for key in plan:
             assert key in allowed_keys, \
                 f"Unexpected key '{key}' in plan"
+
+
+class TestBuildDetector(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+
+    def test_build_returns_base_detector(self):
+        plan = {'detector_name': 'IForest', 'params': {}}
+        clf = self.engine.build_detector(plan)
+        assert isinstance(clf, BaseDetector)
+
+    def test_build_with_params(self):
+        plan = {'detector_name': 'KNN', 'params': {'n_neighbors': 10}}
+        clf = self.engine.build_detector(plan)
+        assert clf.n_neighbors == 10
+
+    def test_build_unknown_detector_raises(self):
+        plan = {'detector_name': 'NonExistentDetector', 'params': {}}
+        with self.assertRaises(ValueError):
+            self.engine.build_detector(plan)
+
+    def test_build_planned_detector_raises(self):
+        plan = {'detector_name': 'TimeSeriesOD', 'params': {}}
+        with self.assertRaises(ValueError):
+            self.engine.build_detector(plan)
+
+
+class TestDetectShortcut(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+        rng = np.random.RandomState(42)
+        self.X_train = rng.randn(200, 10)
+
+    def test_detect_returns_result(self):
+        result = self.engine.detect(self.X_train)
+        assert 'plan' in result
+        assert 'scores' in result
+        assert 'labels' in result
+        assert 'n_anomalies' in result
+        assert len(result['scores']) == 200
+
+    def test_detect_with_explicit_type(self):
+        result = self.engine.detect(self.X_train, data_type='tabular')
+        assert result['plan']['detector_name'] in (
+            'IForest', 'ECOD', 'KNN', 'LOF', 'CBLOF', 'HBOS',
+            'COPOD', 'INNE')
+
+
+class TestKnowledgeQueries(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+
+    def test_list_detectors(self):
+        detectors = self.engine.list_detectors()
+        assert len(detectors) >= 40
+        names = [d['name'] for d in detectors]
+        assert 'ECOD' in names
+        assert 'IForest' in names
+
+    def test_list_detectors_by_type(self):
+        text_dets = self.engine.list_detectors(data_type='text')
+        names = [d['name'] for d in text_dets]
+        assert 'EmbeddingOD' in names
+
+    def test_explain_detector(self):
+        info = self.engine.explain_detector('ECOD')
+        assert info['full_name'] is not None
+        assert 'strengths' in info
+        assert 'weaknesses' in info
+
+    def test_explain_unknown_raises(self):
+        with self.assertRaises(ValueError):
+            self.engine.explain_detector('FakeDetector')
+
+    def test_compare_detectors(self):
+        comparison = self.engine.compare_detectors(
+            names=['ECOD', 'IForest', 'KNN'])
+        assert len(comparison) == 3
+
+    def test_get_benchmarks(self):
+        benchmarks = self.engine.get_benchmarks()
+        assert 'ADBench' in benchmarks
 
 
 if __name__ == '__main__':
