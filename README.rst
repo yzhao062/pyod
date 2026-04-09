@@ -57,7 +57,7 @@ Python Outlier Detection (PyOD) V2
 Read Me First
 ^^^^^^^^^^^^^
 
-Welcome to PyOD, a well-developed and easy-to-use Python library for detecting anomalies in multivariate data. Whether you are working with a small-scale project or large datasets, PyOD provides a range of algorithms to fit your needs.
+Welcome to PyOD, a well-developed and easy-to-use Python library for detecting anomalies across **tabular, time series, text, and image data**. Whether you are working with server metrics, sensor readings, documents, or structured datasets, PyOD provides a range of algorithms to fit your needs.
 
 **PyOD Version 2 is now available** (`Paper <https://www.arxiv.org/abs/2412.12154>`_) [#Chen2024PyOD]_, featuring:
 
@@ -75,14 +75,15 @@ Welcome to PyOD, a well-developed and easy-to-use Python library for detecting a
 About PyOD
 ^^^^^^^^^^
 
-PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** in multivariate data. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
+PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** across multiple data types: tabular, time series, text, and image. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
-PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000) to the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic research projects and commercial products with more than `26 million downloads <https://pepy.tech/project/pyod>`_. It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
+PyOD includes more than 50 detection algorithms for tabular data, 7 time series detectors, and multi-modal support via foundation model embeddings, from classical LOF (SIGMOD 2000) to the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic research projects and commercial products with more than `26 million downloads <https://pepy.tech/project/pyod>`_. It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
 **PyOD is featured for**:
 
-* **Unified, User-Friendly Interface** across various algorithms.
-* **Wide Range of Models**, from classic techniques to the latest deep learning methods in **PyTorch**.
+* **Unified, User-Friendly Interface** across various algorithms and data types.
+* **Wide Range of Models**, from classic techniques to the latest deep learning methods in **PyTorch**, across tabular, time series, text, and image data.
+* **Time Series Support**: 7 dedicated detectors (KShape, SpectralResidual, LSTMAD, MatrixProfile, and more) with the same ``fit``/``predict`` API. Rankings from `TSB-AD benchmark <https://github.com/TheDatumOrg/TSB-AD>`_ (NeurIPS 2024).
 * **High Performance & Efficiency**, leveraging `numba <https://github.com/numba/numba>`_ and `joblib <https://github.com/joblib/joblib>`_ for JIT compilation and parallel processing.
 * **Fast Training & Prediction**, achieved through the SUOD framework [#Zhao2021SUOD]_.
 
@@ -114,7 +115,7 @@ PyOD includes more than 50 detection algorithms, from classical LOF (SIGMOD 2000
 Image detection requires additional packages (``pip install transformers torch``). See `EmbeddingOD example <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_ for details.
 
 
-**Selecting the Right Algorithm:** Start with `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_ or `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_ for tabular data, `EmbeddingOD <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_ for text/image, or `MetaOD <https://github.com/yzhao062/MetaOD>`_ for data-driven selection.
+**Selecting the Right Algorithm:** Start with `ECOD <https://github.com/yzhao062/pyod/blob/master/examples/ecod_example.py>`_ or `Isolation Forest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`_ for tabular data, `EmbeddingOD <https://github.com/yzhao062/pyod/blob/master/examples/embedding_od_example.py>`_ for text/image, `TimeSeriesOD <https://github.com/yzhao062/pyod/blob/master/examples/ts_od_example.py>`_ for time series, or `MetaOD <https://github.com/yzhao062/MetaOD>`_ for data-driven selection.
 
 **Citing PyOD**:
 
@@ -156,9 +157,9 @@ For a broader perspective on anomaly detection, see our NeurIPS papers on `ADBen
 
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
-* `ADBench Benchmark and Datasets <#adbench-benchmark-and-datasets>`_
+* `Benchmarks <#benchmarks>`_
+* `Implemented Algorithms <#implemented-algorithms>`_ (Tabular, Time Series, Embedding)
 * `Additional Topics <#additional-topics>`_ (Model Save/Load, SUOD, Thresholding)
-* `Implemented Algorithms <#implemented-algorithms>`_
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
 * `Inclusion Criteria <#inclusion-criteria>`_
@@ -232,27 +233,12 @@ The full API Reference is available at `PyOD Documentation <https://pyod.readthe
 ----
 
 
-ADBench Benchmark and Datasets
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Benchmarks
+^^^^^^^^^^
 
-We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_ [#Han2022ADBench]_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
-
-The organization of **ADBench** is provided below:
-
-.. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :alt: benchmark-fig
-
-
-For a simpler visualization, we make **the comparison of selected models** via
-`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\.
-
-.. image:: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
-   :target: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
-   :alt: Comparison_of_All
-
-
+* `ADBench <https://github.com/Minqi824/ADBench>`_ [#Han2022ADBench]_: 30 algorithms on 57 tabular datasets. See `comparison <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_.
+* `NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_: 19 methods on 8 text datasets. Two-step (embedding + detector) beats end-to-end.
+* `TSB-AD <https://github.com/TheDatumOrg/TSB-AD>`_: 40 algorithms on 1070 time series datasets (NeurIPS 2024).
 
 ----
 
@@ -330,6 +316,69 @@ Embedding-based      EmbeddingOD         Multi-modal anomaly detection via found
 
 
 Ensemble methods (IForest, INNE, DIF, FB, LSCP, LODA, SUOD, XGBOD) are included in the table above. Score combination functions (average, maximization, AOM, MOA, median, majority vote) are in ``pyod.models.combination``. See `API docs <https://pyod.readthedocs.io/en/latest/pyod.html>`_ for details.
+
+
+**(i-b) Time Series Anomaly Detection** :
+
+All time series detectors use the same ``fit``/``predict``/``decision_function`` API as tabular detectors, with one exception: ``MatrixProfile`` is transductive (train-only; use ``decision_scores_`` and ``labels_`` after ``fit()``, no out-of-sample ``predict``).
+
+**Input format**: numpy array of shape ``(n_timestamps,)`` for univariate or ``(n_timestamps, n_channels)`` for multivariate. Each row is one timestep; columns are channels/features. Pandas DataFrames and lists are auto-converted. **Output**: ``decision_scores_`` of shape ``(n_timestamps,)`` with one anomaly score per timestep.
+
+**Time series detection in 3 lines**:
+
+.. code-block:: python
+
+    from pyod.models.ts_kshape import KShape      # or any TS detector
+    clf = KShape(window_size=20)
+    clf.fit(X_train)                               # shape (n_timestamps,) or (n_timestamps, n_channels)
+    scores = clf.decision_scores_                  # per-timestamp anomaly scores
+
+Algorithm rankings from `TSB-AD benchmark <https://github.com/TheDatumOrg/TSB-AD>`_ (NeurIPS 2024, 1070 datasets):
+
+.. list-table::
+   :widths: 15 18 50 5 12
+   :header-rows: 1
+
+   * - Type
+     - Abbr
+     - Algorithm
+     - Year
+     - Ref
+   * - Windowed Bridge
+     - TimeSeriesOD
+     - Any PyOD detector on sliding windows (`example <https://github.com/yzhao062/pyod/blob/development/examples/ts_od_example.py>`_)
+     - 2026
+     -
+   * - Subsequence
+     - MatrixProfile
+     - Matrix Profile via STOMP, transductive (`example <https://github.com/yzhao062/pyod/blob/development/examples/ts_matrix_profile_example.py>`_)
+     - 2016
+     - [#Yeh2016Matrix]_
+   * - Frequency
+     - SpectralResidual
+     - Spectral Residual: FFT-based saliency (`example <https://github.com/yzhao062/pyod/blob/development/examples/ts_spectral_residual_example.py>`_)
+     - 2019
+     - [#Ren2019Time]_
+   * - Clustering
+     - KShape
+     - k-Shape clustering (#2 in TSB-AD) (`example <https://github.com/yzhao062/pyod/blob/development/examples/ts_kshape_example.py>`_)
+     - 2015
+     - [#Paparrizos2015KShape]_
+   * - Streaming
+     - SAND
+     - Streaming with drift adaptation, experimental (`example <https://github.com/yzhao062/pyod/blob/development/examples/ts_sand_example.py>`_)
+     - 2021
+     - [#Boniol2021SAND]_
+   * - Deep Learning
+     - LSTMAD
+     - LSTM prediction error + Mahalanobis scoring
+     - 2015
+     - [#Malhotra2015Long]_
+   * - Deep Learning
+     - AnomalyTransformer
+     - Transformer with association discrepancy (experimental)
+     - 2022
+     - [#Xu2022Anomaly]_
 
 
 **(ii) Utility Functions**:
@@ -543,3 +592,15 @@ Reference
 .. [#Zhao2019LSCP] Zhao, Y., Nasrullah, Z., Hryniewicki, M.K. and Li, Z., 2019, May. LSCP: Locally selective combination in parallel outlier ensembles. In *Proceedings of the 2019 SIAM International Conference on Data Mining (SDM)*, pp. 585-593. Society for Industrial and Applied Mathematics.
 
 .. [#Zhao2021SUOD] Zhao, Y., Hu, X., Cheng, C., Wang, C., Wan, C., Wang, W., Yang, J., Bai, H., Li, Z., Xiao, C., Wang, Y., Qiao, Z., Sun, J. and Akoglu, L. (2021). SUOD: Accelerating Large-scale Unsupervised Heterogeneous Outlier Detection. *Conference on Machine Learning and Systems (MLSys)*.
+
+.. [#Boniol2021SAND] Boniol, P., Paparrizos, J., Palpanas, T. and Franklin, M.J., 2021. SAND: Streaming Subsequence Anomaly Detection. *Proceedings of the VLDB Endowment*, 14(10), pp.1717-1729.
+
+.. [#Malhotra2015Long] Malhotra, P., Vig, L., Shroff, G. and Agarwal, P., 2015. Long Short Term Memory Networks for Anomaly Detection in Time Series. In *European Symposium on Artificial Neural Networks (ESANN)*.
+
+.. [#Paparrizos2015KShape] Paparrizos, J. and Gravano, L., 2015. k-Shape: Efficient and Accurate Clustering of Time Series. In *Proceedings of the 2015 ACM SIGMOD International Conference on Management of Data*, pp.1855-1870.
+
+.. [#Ren2019Time] Ren, H., Xu, B., Wang, Y., Yi, C., Huang, C., Kou, X., Xing, T., Yang, M., Tong, J. and Zhang, Q., 2019. Time-Series Anomaly Detection Service at Microsoft. In *Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining*, pp.3009-3017.
+
+.. [#Xu2022Anomaly] Xu, J., Wu, H., Wang, J. and Long, M., 2022. Anomaly Transformer: Time Series Anomaly Detection with Association Discrepancy. In *International Conference on Learning Representations (ICLR)*.
+
+.. [#Yeh2016Matrix] Yeh, C.C.M., Zhu, Y., Ulanova, L., Begum, N., Ding, Y., Dau, H.A., Silva, D.F., Mueen, A. and Keogh, E., 2016. Matrix Profile I: All Pairs Similarity Joins for Time Series Subsequences. In *2016 IEEE 16th International Conference on Data Mining (ICDM)*, pp.1317-1322.

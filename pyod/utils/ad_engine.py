@@ -404,8 +404,12 @@ class ADEngine:
         }
 
         if X_test is not None:
-            result['scores_test'] = clf.decision_function(X_test)
-            result['labels_test'] = clf.predict(X_test)
+            try:
+                result['scores_test'] = clf.decision_function(X_test)
+                result['labels_test'] = clf.predict(X_test)
+            except NotImplementedError:
+                result['scores_test'] = None
+                result['labels_test'] = None
 
         return result
 

@@ -77,9 +77,11 @@ class TestKnowledgeBase(unittest.TestCase):
     def test_list_by_status(self):
         shipped = self.kb.list_by_status('shipped')
         assert len(shipped) >= 45
+        shipped_names = [a['name'] for a in shipped]
+        assert 'TimeSeriesOD' in shipped_names
         planned = self.kb.list_by_status('planned')
         names = [a['name'] for a in planned]
-        assert 'TimeSeriesOD' in names
+        assert 'LLMAD' in names
 
     def test_planned_ts_detector_has_correct_data_type(self):
         algo = self.kb.get_algorithm('TimeSeriesOD')

@@ -650,3 +650,133 @@ def generate_data_categorical(n_train=1000, n_test=500, n_features=2,
                             np.array(([0] * n_inliers) + ([1] * n_outliers)),
                             test_size=n_test,
                             random_state=random_state)
+
+
+def generate_ts_data(n_train=500, n_test=200, n_channels=1,
+                     contamination=0.05, period=50, noise_std=0.3,
+                     anomaly_type='point', random_state=None):
+    """Generate synthetic time series data with injected anomalies.
+
+    Creates a sinusoidal base signal with Gaussian noise and injects
+    anomalies at random locations. Follows conventions from the TS-AD
+    literature (e.g., TSB-AD benchmark).
+
+    Parameters
+    ----------
+    n_train : int, optional (default=500)
+        Length of training time series.
+    n_test : int, optional (default=200)
+        Length of test time series.
+    n_channels : int, optional (default=1)
+        Number of channels (univariate=1, multivariate>1).
+    contamination : float, optional (default=0.05)
+        Fraction of timestamps that are anomalous (approximately).
+        For subsequence anomalies, the total labeled timestamps are
+        controlled to stay near this fraction.
+    period : int, optional (default=50)
+        Period of the sinusoidal base signal.
+    noise_std : float, optional (default=0.3)
+        Standard deviation of Gaussian noise.
+    anomaly_type : str, optional (default='point')
+        Type of anomaly: 'point' (spikes), 'subsequence' (shape change),
+        or 'both'.
+    random_state : int, RandomState instance, or None (default=None)
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    X_train : np.ndarray of shape (n_train,) or (n_train, n_channels)
+        Training time series. Univariate returned as 1D.
+    X_test : np.ndarray of shape (n_test,) or (n_test, n_channels)
+        Test time series.
+    y_train : np.ndarray of shape (n_train,)
+        Binary labels (1=anomaly, 0=normal) for training.
+    y_test : np.ndarray of shape (n_test,)
+        Binary labels for test.
+    """
+    rng = check_random_state(random_state)
+
+    # Validate parameters
+    if n_train < 20:
+        raise ValueError("n_train must be >= 20, got %d" % n_train)
+    if n_test < 20:
+        raise ValueError("n_test must be >= 20, got %d" % n_test)
+    if n_channels < 1:
+        raise ValueError("n_channels must be >= 1, got %d" % n_channels)
+    if not 0 < contamination < 0.5:
+        raise ValueError("contamination must be in (0, 0.5), got %f"
+                         % contamination)
+    if anomaly_type not in ('point', 'subsequence', 'both'):
+        raise ValueError("anomaly_type must be 'point', 'subsequence', "
+                         "or 'both', got '%s'" % anomaly_type)
+
+    def _make_series(length):
+        t = np.arange(length, dtype=np.float64)
+        if n_channels == 1:
+            base = np.sin(2 * np.pi * t / period)
+            X = base + noise_std * rng.randn(length)
+        else:
+            X = np.empty((length, n_channels))
+            for ch in range(n_channels):
+                phase = 2 * np.pi * ch / n_channels
+                freq = period * (1 + 0.2 * ch)
+                X[:, ch] = np.sin(2 * np.pi * t / freq + phase) \
+                           + noise_std * rng.randn(length)
+        return X
+
+    def _inject_anomalies(X, length):
+        target_n_anom_timestamps = max(1, int(length * contamination))
+        y = np.zeros(length, dtype=np.int32)
+
+        # Choose anomaly locations (avoid first/last 10%)
+        margin = max(5, length // 10)
+        candidates = np.arange(margin, length - margin)
+        if len(candidates) == 0:
+            candidates = np.arange(1, length - 1)
+
+        # For subsequence anomalies, compute how many events we need
+        # to approximately hit the target timestamp count
+        subseq_len = max(3, period // 5)
+        if anomaly_type == 'point':
+            n_events = target_n_anom_timestamps
+        elif anomaly_type == 'subsequence':
+            n_events = max(1, target_n_anom_timestamps // subseq_len)
+        else:  # both
+            avg_len = (1 + subseq_len) / 2
+            n_events = max(1, int(target_n_anom_timestamps / avg_len))
+
+        n_events = min(n_events, len(candidates))
+        anom_indices = rng.choice(candidates, size=n_events, replace=False)
+        anom_indices.sort()
+
+        for idx in anom_indices:
+            if anomaly_type == 'point' or \
+                    (anomaly_type == 'both' and rng.rand() > 0.5):
+                # Point anomaly: spike
+                magnitude = 4.0 + 2.0 * rng.rand()
+                sign = 1 if rng.rand() > 0.5 else -1
+                if n_channels == 1:
+                    X[idx] += sign * magnitude
+                else:
+                    ch = rng.randint(n_channels)
+                    X[idx, ch] += sign * magnitude
+                y[idx] = 1
+            else:
+                # Subsequence anomaly: shape change
+                end = min(idx + subseq_len, length)
+                if n_channels == 1:
+                    X[idx:end] = np.mean(X[idx:end]) + \
+                                 3.0 * noise_std * rng.randn(end - idx)
+                else:
+                    ch = rng.randint(n_channels)
+                    X[idx:end, ch] = 3.0 * noise_std * rng.randn(end - idx)
+                y[idx:end] = 1
+
+        return X, y
+
+    X_train = _make_series(n_train)
+    X_test = _make_series(n_test)
+    X_train, y_train = _inject_anomalies(X_train, n_train)
+    X_test, y_test = _inject_anomalies(X_test, n_test)
+
+    return X_train, X_test, y_train, y_test

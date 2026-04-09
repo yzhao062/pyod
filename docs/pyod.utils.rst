@@ -35,6 +35,22 @@ pyod.utils.encoders.huggingface module
     :undoc-members:
     :show-inheritance:
 
+pyod.utils.ad\_engine module
+-----------------------------
+
+.. automodule:: pyod.utils.ad_engine
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pyod.utils.knowledge module
+-----------------------------
+
+.. automodule:: pyod.utils.knowledge
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pyod.utils.data module
 ----------------------
 

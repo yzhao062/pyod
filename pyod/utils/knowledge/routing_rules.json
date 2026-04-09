@@ -97,16 +97,45 @@
       "evidence": []
     },
     {
+      "id": "time_series_short",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "time_series"},
+        {"field": "n_samples", "op": "lt", "value": 500}
+      ],
+      "recommendations": [
+        {"detector": "KShape", "params": {}, "confidence": 0.85},
+        {"detector": "MatrixProfile", "params": {}, "confidence": 0.8},
+        {"detector": "SpectralResidual", "params": {}, "confidence": 0.75}
+      ],
+      "reason": "Short time series: KShapeAD (#2 overall, #2 on short TS in TSB-AD), MatrixProfile (#4 on short), SpectralResidual (#8 on short). Shape-based methods excel on short series.",
+      "evidence": ["TSB_AD"]
+    },
+    {
+      "id": "time_series_long",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "time_series"},
+        {"field": "n_samples", "op": "gte", "value": 5000}
+      ],
+      "recommendations": [
+        {"detector": "LSTMAD", "params": {}, "confidence": 0.8},
+        {"detector": "TimeSeriesOD", "params": {"detector": "IForest"}, "confidence": 0.75},
+        {"detector": "SpectralResidual", "params": {}, "confidence": 0.7}
+      ],
+      "reason": "Long time series: LSTMAD (#8 on long TS in TSB-AD) is best of implemented methods. KShapeAD/SAND/MatrixProfile degrade on long series.",
+      "evidence": ["TSB_AD"]
+    },
+    {
       "id": "time_series_default",
       "conditions": [
         {"field": "data_type", "op": "eq", "value": "time_series"}
       ],
       "recommendations": [
-        {"detector": "TimeSeriesOD", "params": {"detector": "IForest"}, "confidence": 0.85}
+        {"detector": "KShape", "params": {}, "confidence": 0.85},
+        {"detector": "SpectralResidual", "params": {}, "confidence": 0.8},
+        {"detector": "TimeSeriesOD", "params": {"detector": "IForest"}, "confidence": 0.75}
       ],
-      "reason": "Time series: windowed IForest (TSB-AD top performer)",
-      "evidence": ["TSB_AD"],
-      "note": "TimeSeriesOD is status=planned; filtered until shipped"
+      "reason": "General time series: KShapeAD is #2 overall in TSB-AD benchmark. SpectralResidual is fast and strong on point anomalies (#3). Windowed IForest is a safe fallback.",
+      "evidence": ["TSB_AD"]
     },
     {
       "id": "multimodal_default",

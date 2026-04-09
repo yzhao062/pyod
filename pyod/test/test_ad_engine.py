@@ -104,11 +104,14 @@ class TestPlanDetection(unittest.TestCase):
         assert 'alternatives' in plan
         assert isinstance(plan['alternatives'], list)
 
-    def test_planned_detector_filtered_out(self):
+    def test_time_series_routes_to_shipped_detector(self):
         profile = {'data_type': 'time_series', 'n_samples': 1000,
                    'n_features': 1}
         plan = self.engine.plan_detection(profile)
-        assert plan['detector_name'] != 'TimeSeriesOD'
+        # Should route to a shipped TS detector (KShape is #2 in TSB-AD)
+        assert plan['detector_name'] in ('KShape', 'TimeSeriesOD',
+                                          'SpectralResidual', 'LSTMAD')
+        assert plan['confidence'] >= 0.7
 
     def test_constraints_exclude_detector(self):
         profile = {'data_type': 'tabular', 'n_samples': 5000,
@@ -168,7 +171,7 @@ class TestBuildDetector(unittest.TestCase):
             self.engine.build_detector(plan)
 
     def test_build_planned_detector_raises(self):
-        plan = {'detector_name': 'TimeSeriesOD', 'params': {}}
+        plan = {'detector_name': 'LLMAD', 'params': {}}
         with self.assertRaises(ValueError):
             self.engine.build_detector(plan)
 
