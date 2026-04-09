@@ -1,7 +1,7 @@
-"""ADEngine: Intelligent anomaly detection in 3 lines.
+"""ADEngine: Full anomaly detection lifecycle.
 
-Demonstrates PyOD's ADEngine for automatic detector selection
-and anomaly detection across data types.
+Demonstrates PyOD's ADEngine for automatic detector selection,
+execution, analysis, explanation, and report generation.
 """
 from pyod.utils.ad_engine import ADEngine
 from pyod.utils.data import generate_data
@@ -13,45 +13,61 @@ X_train, X_test, y_train, y_test = generate_data(
 # Initialize the engine
 engine = ADEngine()
 
-# === One-shot detection ===
-result = engine.detect(X_train)
-print("Detector chosen:", result['plan']['detector_name'])
-print("Reason:", result['plan']['reason'])
-print("Anomalies found:", result['n_anomalies'])
-print()
+# === Full lifecycle ===
+print("=" * 60)
+print("FULL ANOMALY DETECTION LIFECYCLE")
+print("=" * 60)
 
-# === Step-by-step lifecycle ===
-# 1. Profile the data
+# 1. Profile
 profile = engine.profile_data(X_train)
-print("Data profile:", profile)
+print("\n1. Data profile:", profile['data_type'],
+      "(%d samples, %d features)" % (profile['n_samples'],
+                                      profile['n_features']))
 
-# 2. Plan detection
+# 2. Plan
 plan = engine.plan_detection(profile, priority='speed')
-print("Plan:", plan['detector_name'], "-", plan['reason'])
+print("2. Plan:", plan['detector_name'], "-", plan['reason'])
 
-# 3. Build detector
-clf = engine.build_detector(plan)
-print("Detector:", clf)
+# 3. Execute
+result = engine.run_detection(X_train, plan, X_test=X_test)
+print("3. Detection: %d anomalies (%.1f%%) in %.3fs"
+      % (result['n_anomalies'], result['anomaly_ratio'] * 100,
+         result['runtime_seconds']))
 
-# 4. Fit and predict
-clf.fit(X_train)
-print("Training anomalies:", clf.labels_.sum())
-print("Test scores:", clf.decision_function(X_test)[:5])
-print()
+# 4. Analyze
+analysis = engine.analyze_results(result, X=X_train)
+print("4. Analysis:", analysis['summary'])
+
+# 5. Explain
+explanations = engine.explain_findings(result, X=X_train, top_k=3)
+print("5. Top anomalies:")
+for exp in explanations:
+    print("   Sample %d: score=%.4f (%s)"
+          % (exp['index'], exp['score'], exp['label']))
+
+# 6. Suggest next step
+suggestion = engine.suggest_next_step(result, analysis)
+print("6. Suggestion:", suggestion['action'], "-", suggestion['reason'])
+
+# 7. Report
+report = engine.generate_report(result, analysis)
+print("\n7. Report preview (first 500 chars):")
+print(report[:500])
 
 # === Knowledge queries ===
-print("=== Available text detectors ===")
+print("\n" + "=" * 60)
+print("KNOWLEDGE QUERIES")
+print("=" * 60)
+
+print("\nAvailable text detectors:")
 for d in engine.list_detectors(data_type='text'):
-    print(f"  {d['name']}: {d['full_name']}")
+    print("  %s: %s" % (d['name'], d['full_name']))
 
-print()
-print("=== ECOD explained ===")
+print("\nECOD explained:")
 info = engine.explain_detector('ECOD')
-print(f"  {info['full_name']}")
-print(f"  Best for: {info['best_for']}")
-print(f"  Strengths: {', '.join(info['strengths'][:3])}")
+print("  %s" % info['full_name'])
+print("  Best for: %s" % info['best_for'])
 
-print()
-print("=== ADBench results ===")
+print("\nADBench top 5:")
 bench = engine.get_benchmarks('ADBench')
-print(f"  Top 5: {bench['ADBench']['rankings']['overall_top_5']}")
+print("  %s" % bench['ADBench']['rankings']['overall_top_5'])

@@ -323,7 +323,7 @@ class ADEngine:
 
     def detect(self, X_train, X_test=None, data_type=None,
                priority='balanced'):
-        """One-shot anomaly detection: profile -> plan -> build -> fit.
+        """One-shot anomaly detection: profile -> plan -> run -> analyze.
 
         Parameters
         ----------
@@ -339,30 +339,472 @@ class ADEngine:
         Returns
         -------
         result : dict
-            Keys: 'plan', 'scores', 'labels', 'threshold',
-            'n_anomalies', 'detector'.
+            Output of run_detection() enriched with analysis.
+            Compatible with all Tier B methods (analyze_results,
+            explain_findings, suggest_next_step, generate_report).
         """
         profile = self.profile_data(X_train, data_type=data_type)
         plan = self.plan_detection(profile, priority=priority)
+        result = self.run_detection(X_train, plan, X_test=X_test)
+        result['analysis'] = self.analyze_results(result, X=X_train)
+        return result
+
+    # ------------------------------------------------------------------
+    # Structured detection
+    # ------------------------------------------------------------------
+
+    def run_detection(self, X_train, plan, X_test=None):
+        """Execute a detection plan.
+
+        Parameters
+        ----------
+        X_train : array-like
+            Training data.
+        plan : dict (DetectionPlan)
+            Output of plan_detection().
+        X_test : array-like or None
+            Optional test data.
+
+        Returns
+        -------
+        result : dict
+            Keys: 'plan', 'scores_train', 'labels_train', 'threshold',
+            'n_anomalies', 'anomaly_ratio', 'detector', 'runtime_seconds',
+            'score_summary'. If X_test: also 'scores_test', 'labels_test'.
+        """
+        import time
+        start = time.time()
+
         clf = self.build_detector(plan)
         clf.fit(X_train)
 
+        elapsed = time.time() - start
+
+        scores = clf.decision_scores_
+        labels = clf.labels_
+        n_anomalies = int(labels.sum())
+
         result = {
             'plan': plan,
-            'scores': clf.decision_scores_,
-            'labels': clf.labels_,
-            'threshold': clf.threshold_,
-            'n_anomalies': int(clf.labels_.sum()),
+            'scores_train': scores,
+            'labels_train': labels,
+            'threshold': float(clf.threshold_),
+            'n_anomalies': n_anomalies,
+            'anomaly_ratio': n_anomalies / len(labels),
             'detector': clf,
+            'runtime_seconds': elapsed,
+            'score_summary': {
+                'mean': float(np.mean(scores)),
+                'std': float(np.std(scores)),
+                'min': float(np.min(scores)),
+                'max': float(np.max(scores)),
+                'q25': float(np.percentile(scores, 25)),
+                'q75': float(np.percentile(scores, 75)),
+            },
         }
 
         if X_test is not None:
-            test_scores = clf.decision_function(X_test)
-            test_labels = clf.predict(X_test)
-            result['scores_test'] = test_scores
-            result['labels_test'] = test_labels
+            result['scores_test'] = clf.decision_function(X_test)
+            result['labels_test'] = clf.predict(X_test)
 
         return result
+
+    # ------------------------------------------------------------------
+    # Result analysis
+    # ------------------------------------------------------------------
+
+    def analyze_results(self, result, X=None, top_k=10):
+        """Analyze detection results.
+
+        Parameters
+        ----------
+        result : dict
+            Output of run_detection().
+        X : array-like or None
+            Original training data for feature-level analysis.
+        top_k : int
+            Number of top anomalies to return.
+
+        Returns
+        -------
+        analysis : dict
+        """
+        top_k = max(0, int(top_k))
+        scores = result['scores_train']
+        labels = result['labels_train']
+        n_anomalies = int(labels.sum())
+
+        top_indices = np.argsort(scores)[::-1][:top_k]
+        top_anomalies = [{'index': int(i), 'score': float(scores[i])}
+                         for i in top_indices]
+
+        score_dist = {
+            'mean': float(np.mean(scores)),
+            'std': float(np.std(scores)),
+            'min': float(np.min(scores)),
+            'max': float(np.max(scores)),
+            'median': float(np.median(scores)),
+            'q25': float(np.percentile(scores, 25)),
+            'q75': float(np.percentile(scores, 75)),
+        }
+
+        detector_name = result['plan'].get('detector_name', 'unknown')
+        ratio = n_anomalies / len(labels) if len(labels) > 0 else 0
+        summary = (
+            "%d anomalies detected out of %d samples (%.1f%%) "
+            "using %s. Scores range from %.4f to %.4f "
+            "(mean=%.4f, std=%.4f). Threshold: %.4f."
+            % (n_anomalies, len(labels), ratio * 100,
+               detector_name,
+               score_dist['min'], score_dist['max'],
+               score_dist['mean'], score_dist['std'],
+               result['threshold']))
+
+        analysis = {
+            'n_anomalies': n_anomalies,
+            'anomaly_ratio': ratio,
+            'score_distribution': score_dist,
+            'top_anomalies': top_anomalies,
+            'summary': summary,
+        }
+
+        if X is not None:
+            fi = self._compute_feature_importance(result, X)
+            if fi is not None:
+                analysis['feature_importance'] = fi
+
+        return analysis
+
+    @staticmethod
+    def _compute_feature_importance(result, X):
+        """Estimate per-feature contribution to anomaly scores."""
+        try:
+            X_arr = np.asarray(X, dtype=np.float64)
+            if X_arr.ndim != 2:
+                return None
+            scores = result['scores_train']
+            if len(scores) != X_arr.shape[0]:
+                return None
+
+            means = np.mean(X_arr, axis=0)
+            stds = np.std(X_arr, axis=0)
+            stds[stds == 0] = 1.0
+            z_scores = np.abs((X_arr - means) / stds)
+
+            importances = []
+            for j in range(X_arr.shape[1]):
+                corr = np.corrcoef(z_scores[:, j], scores)[0, 1]
+                importances.append(float(corr) if np.isfinite(corr) else 0.0)
+
+            return importances
+        except Exception:
+            return None
+
+    # ------------------------------------------------------------------
+    # Explanation
+    # ------------------------------------------------------------------
+
+    def explain_findings(self, result, indices=None, top_k=5, X=None):
+        """Explain why specific samples were flagged as anomalies.
+
+        Parameters
+        ----------
+        result : dict
+            Output of run_detection().
+        indices : list of int or None
+            Specific sample indices. If None, explains top-k.
+        top_k : int
+            Number of top anomalies to explain if indices is None.
+        X : array-like or None
+            Original data for feature-level explanations.
+
+        Returns
+        -------
+        explanations : list of dict
+        """
+        top_k = max(0, int(top_k))
+        scores = result['scores_train']
+
+        if indices is None:
+            indices = list(np.argsort(scores)[::-1][:top_k])
+
+        # Validate indices: must be integers (not bool) and in range
+        n_samples = len(scores)
+        validated = []
+        for idx in indices:
+            if isinstance(idx, bool):
+                continue
+            if not isinstance(idx, (int, np.integer)):
+                continue
+            if 0 <= idx < n_samples:
+                validated.append(int(idx))
+        indices = validated
+
+        explanations = []
+        for idx in indices:
+            score = float(scores[idx])
+            pctile = float(np.mean(scores <= score) * 100)
+            label = 'anomaly' if score > result['threshold'] else 'normal'
+
+            narrative = (
+                "Sample %d has anomaly score %.4f (percentile: %.1f%%), "
+                "classified as %s (threshold: %.4f)."
+                % (idx, score, pctile, label, result['threshold']))
+
+            entry = {
+                'index': int(idx),
+                'score': score,
+                'percentile': pctile,
+                'label': label,
+                'narrative': narrative,
+            }
+
+            if X is not None:
+                contribs = self._feature_contributions(X, idx, scores)
+                if contribs is not None:
+                    entry['contributing_features'] = contribs
+
+            explanations.append(entry)
+
+        return explanations
+
+    @staticmethod
+    def _feature_contributions(X, idx, scores):
+        """Compute per-feature z-score for a specific sample."""
+        try:
+            X_arr = np.asarray(X, dtype=np.float64)
+            if X_arr.ndim != 2:
+                return None
+            means = np.mean(X_arr, axis=0)
+            stds = np.std(X_arr, axis=0)
+            stds[stds == 0] = 1.0
+            z = np.abs((X_arr[idx] - means) / stds)
+            top_feat = np.argsort(z)[::-1][:5]
+            return [{'feature': int(f), 'z_score': float(z[f])}
+                    for f in top_feat]
+        except Exception:
+            return None
+
+    # ------------------------------------------------------------------
+    # Next-step suggestions
+    # ------------------------------------------------------------------
+
+    def suggest_next_step(self, result, analysis, feedback=None):
+        """Suggest what to try next.
+
+        Parameters
+        ----------
+        result : dict
+            Output of run_detection().
+        analysis : dict
+            Output of analyze_results().
+        feedback : str or None
+            User feedback like 'too many false positives'.
+
+        Returns
+        -------
+        suggestion : dict
+            Keys: 'action', 'reason', optionally 'new_plan',
+            'threshold_adjustment'.
+        """
+        feedback_lower = (feedback or '').lower()
+        ratio = analysis.get('anomaly_ratio', 0)
+
+        # Specific intents first (before generic keyword matches)
+        if 'ensemble' in feedback_lower:
+            return {
+                'action': 'try_alternative',
+                'reason': 'Consider running multiple detectors and '
+                          'combining scores.',
+                'new_plan': self._suggest_alternative(result),
+            }
+
+        # "more sensitive" intent: lower threshold / increase contamination
+        _more_sensitive = (
+            'false negative' in feedback_lower
+            or 'missed' in feedback_lower
+            or 'lower threshold' in feedback_lower
+            or 'decrease threshold' in feedback_lower
+            or 'increase contamination' in feedback_lower
+            or 'higher contamination' in feedback_lower
+        )
+        if _more_sensitive:
+            current_contam = result['plan'].get('params', {}).get(
+                'contamination', 0.1)
+            new_contam = min(current_contam * 1.5, 0.5)
+            return {
+                'action': 'adjust_threshold',
+                'reason': 'Missed anomalies reported. Try increasing '
+                          'contamination from %.2f to %.2f.'
+                          % (current_contam, new_contam),
+                'threshold_adjustment': {
+                    'current_contamination': current_contam,
+                    'suggested_contamination': new_contam,
+                    'direction': 'increase',
+                },
+            }
+
+        # "less sensitive" intent: raise threshold / decrease contamination
+        _less_sensitive = (
+            'false positive' in feedback_lower
+            or 'too many' in feedback_lower
+            or 'raise threshold' in feedback_lower
+            or 'increase threshold' in feedback_lower
+            or 'reduce contamination' in feedback_lower
+            or 'decrease contamination' in feedback_lower
+            or 'lower contamination' in feedback_lower
+        )
+        if _less_sensitive:
+            current_contam = result['plan'].get('params', {}).get(
+                'contamination', 0.1)
+            new_contam = max(current_contam * 0.5, 0.01)
+            return {
+                'action': 'adjust_threshold',
+                'reason': 'High false positive rate reported. Try reducing '
+                          'contamination from %.2f to %.2f.'
+                          % (current_contam, new_contam),
+                'threshold_adjustment': {
+                    'current_contamination': current_contam,
+                    'suggested_contamination': new_contam,
+                    'direction': 'decrease',
+                },
+            }
+
+        if ('different' in feedback_lower or 'another' in feedback_lower
+                or 'switch' in feedback_lower):
+            new_plan = self._suggest_alternative(result)
+            return {
+                'action': 'try_alternative',
+                'reason': 'Trying an alternative detector.',
+                'new_plan': new_plan,
+            }
+
+        # No feedback: heuristic based on results
+        if ratio > 0.3:
+            current_contam = result['plan'].get('params', {}).get(
+                'contamination', 0.1)
+            new_contam = max(current_contam * 0.5, 0.01)
+            return {
+                'action': 'adjust_threshold',
+                'reason': '%.0f%% flagged as anomalies, which is unusually '
+                          'high. Consider reducing contamination to %.2f.'
+                          % (ratio * 100, new_contam),
+                'threshold_adjustment': {
+                    'current_contamination': current_contam,
+                    'suggested_contamination': new_contam,
+                    'direction': 'decrease',
+                },
+            }
+        if ratio == 0:
+            new_plan = self._suggest_alternative(result)
+            return {
+                'action': 'try_alternative',
+                'reason': 'No anomalies detected. Try a different detector.',
+                'new_plan': new_plan,
+            }
+
+        return {
+            'action': 'done',
+            'reason': 'Results look reasonable (%.1f%% anomaly rate). '
+                      'Review the top anomalies to validate.'
+                      % (ratio * 100),
+        }
+
+    def _suggest_alternative(self, result):
+        """Suggest an alternative detector different from the current one."""
+        current = result['plan'].get('detector_name', '')
+
+        alternatives = result['plan'].get('alternatives', [])
+        for alt in alternatives:
+            if alt.get('detector_name') and alt['detector_name'] != current:
+                return alt
+
+        fallback_order = ['IForest', 'ECOD', 'KNN', 'LOF', 'HBOS',
+                          'COPOD', 'CBLOF']
+        for name in fallback_order:
+            if name != current:
+                algo = self.kb.get_algorithm(name)
+                if algo and algo.get('status') == 'shipped':
+                    return self._make_plan(
+                        detector_name=name, params={},
+                        reason='Alternative to %s' % current,
+                        evidence=[], confidence=0.6)
+
+        return self._make_plan(
+            detector_name='IForest', params={},
+            reason='Default fallback', evidence=[], confidence=0.5)
+
+    # ------------------------------------------------------------------
+    # Report generation
+    # ------------------------------------------------------------------
+
+    def generate_report(self, result, analysis, format='text'):
+        """Generate a summary report.
+
+        Parameters
+        ----------
+        result : dict
+            Output of run_detection().
+        analysis : dict
+            Output of analyze_results().
+        format : str
+            'text' (markdown) or 'json'.
+
+        Returns
+        -------
+        report : str
+        """
+        import json as json_mod
+
+        if format == 'json':
+            report_dict = {
+                'detector': result['plan'].get('detector_name', ''),
+                'reason': result['plan'].get('reason', ''),
+                'n_samples': len(result['scores_train']),
+                'n_anomalies': analysis['n_anomalies'],
+                'anomaly_ratio': analysis['anomaly_ratio'],
+                'threshold': result['threshold'],
+                'runtime_seconds': result.get('runtime_seconds', 0),
+                'score_distribution': analysis['score_distribution'],
+                'top_anomalies': analysis['top_anomalies'][:10],
+            }
+            return json_mod.dumps(report_dict, indent=2, default=str)
+
+        if format == 'text':
+            lines = []
+            lines.append('# Anomaly Detection Report')
+            lines.append('')
+            det = result['plan'].get('detector_name', 'unknown')
+            lines.append('## Configuration')
+            lines.append('- **Detector:** %s' % det)
+            lines.append('- **Reason:** %s' % result['plan'].get('reason', ''))
+            lines.append('- **Samples:** %d' % len(result['scores_train']))
+            lines.append('- **Runtime:** %.2fs'
+                         % result.get('runtime_seconds', 0))
+            lines.append('')
+            lines.append('## Results')
+            lines.append('- **Anomalies found:** %d (%.1f%%)'
+                         % (analysis['n_anomalies'],
+                            analysis['anomaly_ratio'] * 100))
+            lines.append('- **Threshold:** %.4f' % result['threshold'])
+            dist = analysis['score_distribution']
+            lines.append('- **Score range:** %.4f to %.4f'
+                         % (dist['min'], dist['max']))
+            lines.append('- **Score mean/std:** %.4f / %.4f'
+                         % (dist['mean'], dist['std']))
+            lines.append('')
+            lines.append('## Top Anomalies')
+            lines.append('')
+            lines.append('| Rank | Index | Score |')
+            lines.append('|------|-------|-------|')
+            for rank, entry in enumerate(analysis['top_anomalies'][:10], 1):
+                lines.append('| %d | %d | %.4f |'
+                             % (rank, entry['index'], entry['score']))
+            lines.append('')
+            return '\n'.join(lines)
+
+        raise ValueError("Unknown report format: '%s'. "
+                         "Use 'text' or 'json'." % format)
 
     # ------------------------------------------------------------------
     # Knowledge queries
