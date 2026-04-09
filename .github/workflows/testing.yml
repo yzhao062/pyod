@@ -16,6 +16,7 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
 
     strategy:
       fail-fast: false
@@ -42,7 +43,13 @@ jobs:
         pip install coverage
         pip install coveralls
 
+    - name: Test with pytest (macOS, skip torch-heavy tests due to NNPACK slowdown on ARM)
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        coverage run --source=pyod -m pytest --ignore=pyod/test/test_auto_encoder.py --ignore=pyod/test/test_vae.py --ignore=pyod/test/test_deepsvdd.py --ignore=pyod/test/test_so_gaal.py --ignore=pyod/test/test_mo_gaal.py --ignore=pyod/test/test_anogan.py --ignore=pyod/test/test_alad.py --ignore=pyod/test/test_ae1svm.py --ignore=pyod/test/test_devnet.py --ignore=pyod/test/test_ts_lstm.py --ignore=pyod/test/test_ts_anomaly_transformer.py
+
     - name: Test with pytest
+      if: ${{ !startsWith(matrix.os, 'macos') }}
       run: |
         coverage run --source=pyod -m pytest
 
