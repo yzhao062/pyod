@@ -1,8 +1,8 @@
 # PyOD 3.0: The Intelligent Anomaly Detection Platform
 
 **Date:** 2026-04-07
-**Status:** Design complete (4 review rounds, 18 findings resolved)
-**Version:** 5
+**Status:** Design complete (4 design review rounds + Python-first revision)
+**Version:** 6
 
 ---
 
@@ -10,9 +10,9 @@
 
 **The future of anomaly detection is agent interaction.**
 
-Today, anomaly detection is a manual, code-heavy process: pick a detector, tune parameters, interpret results, iterate. PyOD 3.0 changes this. Any AI agent -- Claude Code, Cursor, Copilot, AD-AGENT, custom agents -- can call PyOD's tools to handle the **entire anomaly detection lifecycle**: understand the data, plan the pipeline, execute detection, analyze results, iterate, and report. The LLM orchestrates; PyOD executes.
+Today, anomaly detection is a manual, code-heavy process: pick a detector, tune parameters, interpret results, iterate. PyOD 3.0 changes this. Any AI agent that can execute Python -- Claude Code, Cursor, Copilot, AD-AGENT, custom agents -- can use PyOD's `ADEngine` to handle the **entire anomaly detection lifecycle**: understand the data, plan the pipeline, execute detection, analyze results, iterate, and report. The agent writes Python; ADEngine does the heavy lifting.
 
-PyOD becomes not just a library of detectors, but **the execution engine for intelligent anomaly detection** across all data types -- tabular, text, image, time series, graph, and multi-modal.
+PyOD becomes not just a library of detectors, but **the execution engine for intelligent anomaly detection** across all data types -- tabular, text, image, time series, graph, and multi-modal. The primary interface is Python (`ADEngine`), with an optional MCP server for knowledge queries and planning.
 
 **"One ring rules all for OD."**
 
@@ -29,12 +29,12 @@ The agent:
 4. Calls `analyze_results()` → "37 anomalies found, clustered around 03:00-04:00 daily"
 5. User: "These look like normal maintenance windows. Exclude 03:00-04:00 and rerun."
 6. Calls `run_detection()` with exclusion → "8 anomalies remaining, 3 are severity-high"
-   *(Note: exclusion-window support is post-Tier B / Phase B6. In Tier B v1,
+   *(Note: exclusion-window support is a future enhancement. In Tier B v1,
    iteration is via `suggest_next_step()` returning a `new_plan` for a plain rerun.)*
 7. Calls `explain_findings()` → "Sample #12,847: CPU spike to 98% with no corresponding scheduled job"
 8. Calls `generate_report()` → summary with scores, timestamps, explanations
 
-No PyOD code written by the user. No detector selection. No parameter tuning. The agent handles it all through PyOD's MCP tools.
+No PyOD code written by the user. No detector selection. No parameter tuning. The agent writes Python calling `ADEngine` methods and handles it all.
 
 ### Priority Order
 
@@ -55,8 +55,8 @@ Three layers. Each layer is independently useful but they compose into the full 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  Layer 3: Agent Interfaces                                   │
-│  MCP Server │ Claude Code Skill │ OpenAI Function Schemas    │
-│  (any LLM can drive the full anomaly detection lifecycle)    │
+│  MCP Server (knowledge/planning) │ Claude Code Skill         │
+│  (Python agents: full lifecycle │ MCP-only: Tier A queries)  │
 ├──────────────────────────────────────────────────────────────┤
 │  Layer 2: Lifecycle Engine (Python)                          │
 │  ADEngine class: profile → plan → run → analyze → iterate   │
@@ -70,81 +70,39 @@ Three layers. Each layer is independently useful but they compose into the full 
 
 **Key principle:** The intelligence lives in Python (Layer 2), not in prompts. LLM interfaces (Layer 3) are thin wrappers. PyOD's lifecycle engine works offline, costs nothing, and is deterministic. LLMs orchestrate multi-step workflows but the execution is always PyOD.
 
-**Key difference from AD-AGENT:** AD-AGENT requires OpenAI API ($0.02-0.05/call), is CLI-only, and has a fixed 4-agent architecture. PyOD's approach is **tool-centric**: it provides MCP tools that ANY agent (any LLM, any framework) can call. The intelligence is in the tools, not in the orchestration layer.
+**Key difference from AD-AGENT:** AD-AGENT requires OpenAI API ($0.02-0.05/call), is CLI-only, and has a fixed 4-agent architecture. PyOD's approach is **library-centric**: any agent writes Python calling `ADEngine` methods. MCP provides optional read-only access for knowledge queries and planning, but execution always runs through Python. The intelligence is in the engine, not in the orchestration layer.
 
-### 2.1.1 State Management Across MCP Calls
+### 2.1.1 Python-First Lifecycle (revised)
 
-A critical design challenge: the lifecycle spans multiple MCP tool calls (profile → plan → run → analyze → iterate), but MCP tools are stateless JSON-in/JSON-out. Fitted detector instances and large score arrays cannot flow through JSON payloads.
+**Key decision (2026-04-08): Tier B is Python-first, not MCP-first.**
 
-**Solution: server-side session store with `run_id` handles.**
+On Windows with antivirus (e.g., Bitdefender), MCP server subprocesses are routinely blocked or require approval prompts. Since most PyOD users are on Windows, building the stateful lifecycle around MCP would create a painful default experience.
+
+**New approach:** The full lifecycle lives in `ADEngine` as Python methods. Agents (Claude Code, Copilot, Cursor) call ADEngine directly by writing and executing Python code -- no MCP subprocess needed. The agent holds state in its conversation context (variables in the Python session it's running).
 
 ```
-Agent                          MCP Server (pyod)
-  │                                │
-  │── profile_data(path) ────────►│  returns profile (small JSON, stateless)
-  │                                │
-  │── plan_detection(profile) ───►│  returns plan (small JSON, stateless)
-  │                                │
-  │── run_detection(path, plan) ─►│  fits detector, stores fitted model +
-  │                                │  scores + arrays server-side under run_id
-  │◄── {run_id, summary, ...} ───│  returns run_id + compact summary
-  │                                │
-  │── analyze_results(run_id) ───►│  reads stored state, returns analysis
-  │                                │
-  │── explain_findings(run_id) ──►│  reads stored state, returns explanations
-  │                                │
-  │── suggest_next_step(run_id,  ►│  reads stored state, returns suggestion
-  │       feedback)                │  with optional new_plan
-  │                                │
-  │── run_detection(path, plan,  ►│  new run_id, new stored state
-  │       constraints) ───────────►│  (iterate)
+Agent (any LLM)                    Python session
+  │                                     │
+  │── writes: engine = ADEngine() ────►│
+  │── writes: profile = engine.       ►│  returns profile dict
+  │     profile_data(X_train)           │
+  │── writes: plan = engine.          ►│  returns plan dict
+  │     plan_detection(profile)         │
+  │── writes: result = engine.        ►│  fits detector, returns result dict
+  │     run_detection(X_train, plan)    │  with scores, labels, fitted detector
+  │── writes: analysis = engine.      ►│  returns analysis dict
+  │     analyze_results(result)         │
+  │── writes: suggestion = engine.    ►│  returns suggestion with new_plan
+  │     suggest_next_step(result,       │
+  │       analysis, "too many FPs")     │
+  │── (agent adjusts plan, reruns) ───►│  iterate
 ```
 
-**Server-side store details:**
+**No `RunSession`, no `run_id`, no server-side state.** The Python objects (fitted detector, score arrays, result dicts) live in the Python session the agent is driving. This is simpler, faster, and works everywhere.
 
-```python
-class RunSession:
-    """Server-side state for a single detection run."""
-    run_id: str              # UUID
-    created_at: float        # time.time()
-    last_accessed: float     # updated on every tool call
-    data_path: str           # path to source data (NOT raw X_train)
-    plan: dict               # the DetectionPlan used
-    profile: dict            # data profile
-    detector: BaseDetector   # fitted detector instance
-    scores_train: np.ndarray # anomaly scores
-    scores_test: np.ndarray | None
-    labels_train: np.ndarray
-    labels_test: np.ndarray | None
-    threshold: float
-    analysis: dict | None    # cached after first analyze_results() call
-```
+**Execution model:** The lifecycle must run inside a single persistent Python session (script, notebook, or REPL). All modern AI agent CLIs (Claude Code, Cursor, Copilot) maintain a persistent Python interpreter during a session, so this is not a practical limitation. For batch or offline use, `ADEngine.detect()` is a one-shot shortcut that runs the entire lifecycle in one call. For agents that need to hand off state between separate Python invocations, `result` dicts are serializable via `joblib.dump()` / `joblib.load()` (the fitted detector and numpy arrays are all pickle-safe).
 
-**Lifecycle and error handling:**
-- `_sessions: dict[str, RunSession]` -- in-memory dict keyed by `run_id`
-- **TTL:** Sessions expire after 1 hour of inactivity (last_accessed). Configurable via `session_ttl_seconds`.
-- **TTL refresh:** Every tool call referencing a `run_id` updates `last_accessed`, resetting the TTL.
-- **Scavenging:** Background cleanup runs every 5 minutes, evicting expired sessions.
-- **Memory cap:** Max 10 concurrent sessions (configurable). New runs evict the oldest session if cap is reached.
-- **Missing/expired run_id:** Returns structured error: `{"error": "run_not_found", "run_id": "...", "message": "Session expired or does not exist. Re-run run_detection() to create a new session."}`.
-- **Server restart:** All sessions are lost (in-memory only). This is acceptable for the MCP use case -- agents can re-run detection if needed. Persistent session storage (disk/DB) is deferred.
-- **Source data:** `RunSession` stores `data_path` (not raw `X_train`) to avoid holding large datasets in memory. Data is re-loaded from path if needed for analysis.
-- **Analysis caching:** `analysis` is computed on first `analyze_results()` call and cached in the session. Subsequent calls return the cached result unless the analysis is invalidated by a new `suggest_next_step()` rerun.
-- For the Python API (`ADEngine` used directly), no sessions needed -- caller holds the objects directly.
-
-**What flows through MCP vs. what stays server-side:**
-
-| Data | MCP payload (JSON) | Server-side |
-|------|-------------------|-------------|
-| Profile | Full dict (small) | -- |
-| Plan | Full dict (small) | -- |
-| Fitted detector | -- | `RunSession` |
-| Score arrays | Summary stats + top-k only | Full arrays in `RunSession` |
-| Labels | Counts + top-k indices | Full arrays in `RunSession` |
-| Analysis | Full dict (narrative + stats) | Cached in `RunSession` after first call; invalidated on rerun |
-| Explanations | Full list (per-sample) | -- |
-
-This means MCP payloads stay small (< 1KB typically), the LLM context isn't flooded with raw arrays, and the server retains everything needed for iteration.
+**MCP stays as-is (Tier A only):** The existing MCP server provides knowledge queries and planning tools. It does NOT need stateful lifecycle tools. Agents that can run Python (which is all of them in practice) use ADEngine directly for execution.
 
 ### 2.2 Layer 1: Knowledge Base
 
@@ -789,9 +747,11 @@ Thin wrappers around `ADEngine`. The skill file (Layer 3b) does NOT embed knowle
 
 #### 2.4.1 MCP Server (`pyod/mcp_server.py`)
 
-The primary agent interface. Works with Claude Code, VS Code Copilot, Cursor, Gemini, any MCP client.
+An **optional** agent interface for knowledge queries and planning. Works with Claude Code, VS Code Copilot, Cursor, Gemini, any MCP client. **Not required** -- agents can (and should) call ADEngine directly in Python for the full lifecycle.
 
-**v2.2.0 scope:** MCP tools support tabular, text, and image data (shipped modalities). Multimodal dict inputs, graph data, and advanced workflows (exclusion windows, masks) are deferred to v2.3.0+ when dedicated data manifest schemas are designed. The Python API (`ADEngine`) has no such restriction -- it accepts all formats directly.
+**Scope:** MCP provides Tier A tools only (knowledge + planning). Tier B execution methods are Python-only. On Windows with antivirus (Bitdefender), MCP may be blocked -- agents fall back to direct Python import.
+
+**v2.2.0 data support:** tabular, text, and image (shipped modalities). The Python API (`ADEngine`) has no such restriction.
 
 ```python
 from mcp.server.fastmcp import FastMCP
@@ -888,97 +848,11 @@ def build_detector(plan: str) -> str:
     ...
 
 # ============================================================
-# Tier B tools: stateful lifecycle execution
-# (shipped in v2.2.0 or v2.3.0)
-# Uses run_id handles -- fitted models + arrays stay server-side
+# Note: Tier B lifecycle (run, analyze, iterate, report) is
+# Python-only via ADEngine. No MCP tools for execution.
+# Agents write and run Python code directly.
+# See Section 2.1.1 for rationale (Windows/Bitdefender).
 # ============================================================
-
-@mcp.tool()
-def run_detection(
-    data_path: str,
-    plan: str,
-    test_data_path: str = ""
-) -> str:
-    """Execute an anomaly detection plan on data.
-
-    Fits the detector, computes scores, stores state server-side.
-    Returns a run_id handle + compact summary (NOT raw arrays).
-
-    Args:
-        data_path: Path to training data.
-        plan: JSON from plan_detection() (closed schema, validated).
-        test_data_path: Optional path to test data.
-
-    Returns:
-        JSON with 'run_id', 'n_anomalies', 'anomaly_ratio',
-        'runtime_seconds', 'score_summary' (mean/std/min/max),
-        'top_anomalies' (indices + scores of top-10).
-    """
-    ...
-
-@mcp.tool()
-def analyze_results(run_id: str) -> str:
-    """Analyze detection results for a completed run.
-
-    Uses server-side stored state (no large payloads in/out).
-
-    Args:
-        run_id: From run_detection().
-
-    Returns:
-        JSON with 'n_anomalies', 'score_distribution',
-        'top_anomalies', 'clustering', 'summary' (narrative).
-    """
-    ...
-
-@mcp.tool()
-def explain_findings(
-    run_id: str,
-    indices: str = "",
-    top_k: int = 5
-) -> str:
-    """Explain why specific samples were flagged as anomalous.
-
-    Args:
-        run_id: From run_detection().
-        indices: Comma-separated sample indices. If empty, top-k.
-    """
-    ...
-
-@mcp.tool()
-def suggest_next_step(
-    run_id: str,
-    feedback: str = ""
-) -> str:
-    """Suggest what to try next based on results and user feedback.
-
-    Args:
-        run_id: From run_detection().
-        feedback: e.g. 'too many false positives', 'try LOF'.
-
-    Returns:
-        JSON with 'action', 'new_plan' (if rerun needed), 'reason'.
-    """
-    ...
-
-@mcp.tool()
-def generate_report(
-    run_id: str,
-    format: str = "text"
-) -> str:
-    """Generate a summary report of a detection run.
-
-    Args:
-        run_id: From run_detection().
-        format: 'text' (markdown), 'json', or 'html'.
-    """
-    ...
-
-@mcp.tool()
-def close_session(run_id: str) -> str:
-    """Release server-side state for a completed run.
-    Called when the agent is done with a run_id."""
-    ...
 ```
 
 #### 2.4.2 Claude Code Skill (`skills/od-expert/SKILL.md`)
@@ -1002,34 +876,53 @@ You are an anomaly detection expert backed by PyOD's ADEngine.
 - User asks to compare detection methods
 
 ## How to work
-Do NOT embed detection knowledge. Instead:
+Do NOT embed detection knowledge. Instead, import and call ADEngine
+directly in Python:
 
-1. Use ADEngine's MCP tools if available (profile_data, plan_detection,
-   run_detection, analyze_results, explain_findings, suggest_next_step).
-2. If MCP is not available, import and call ADEngine directly:
-   ```python
-   from pyod.utils.ad_engine import ADEngine
-   engine = ADEngine()
-   ```
-3. For knowledge queries (algorithm info, benchmarks), read from
-   `pyod/utils/knowledge/*.json` files.
+```python
+from pyod.utils.ad_engine import ADEngine
+engine = ADEngine()
+
+# Full lifecycle
+profile = engine.profile_data(X_train)
+plan = engine.plan_detection(profile)
+result = engine.run_detection(X_train, plan)
+analysis = engine.analyze_results(result)
+explanations = engine.explain_findings(result, top_k=5)
+# iterate with engine.suggest_next_step(result, analysis, feedback)
+report = engine.generate_report(result, analysis)
+```
+
+For knowledge queries and planning only (no execution), MCP tools
+are also available if the MCP server is running: profile_data,
+plan_detection, build_detector, list_detectors, explain_detector,
+compare_detectors, get_benchmarks.
 
 ## Lifecycle flow
 profile_data → plan_detection → run_detection → analyze_results
-→ (iterate with suggest_next_step if needed) → generate_report
+→ explain_findings → (iterate with suggest_next_step) → generate_report
+
+All lifecycle methods are pure Python on ADEngine. MCP is optional
+and limited to knowledge/planning queries.
 ```
 
 #### 2.4.3 OpenAI Function Schema Export
 
-For integration with AD-AGENT and GPT-based tools:
+For integration with AD-AGENT and GPT-based tools. **Limited to Tier A stateless methods only** (knowledge queries + planning). Tier B lifecycle methods are Python-only and should not be exposed as JSON tool-calling surfaces.
 
 ```python
 class ADEngine:
     def to_openai_tools(self):
-        """Export lifecycle methods as OpenAI function-calling tools.
+        """Export Tier A methods as OpenAI function-calling tools.
 
         Returns a list of tool dicts compatible with OpenAI's
-        chat completions API. Each lifecycle method becomes a tool.
+        chat completions API. Includes: profile_data, plan_detection,
+        build_detector, list_detectors, explain_detector,
+        compare_detectors, get_benchmarks.
+
+        Does NOT include Tier B execution methods (run_detection,
+        analyze_results, etc.) -- those require a persistent Python
+        session and should be called directly, not via tool-calling.
         """
         return _generate_openai_schema(self)
 ```
@@ -1132,23 +1025,27 @@ Two scope tiers. Tier A is the minimum viable release; Tier B completes the full
 
 **Tier A total: ~10-13 days**
 
-#### Tier B: Full Stateful Lifecycle MCP (v2.2.0 or v2.3.0)
+#### Tier B: Full Python Lifecycle (v2.2.0 or v2.3.0)
+
+**Revised (2026-04-08): Python-first, no MCP session state.**
+
+All Tier B methods are pure Python on `ADEngine`. Agents call them by writing Python code -- no MCP subprocess, no RunSession, no run_id. This works on all platforms including Windows with Bitdefender.
 
 | Phase | What | Effort | Delivers |
 |-------|------|--------|----------|
-| **B1** | `ADEngine`: `run_detection()` with full execution | 2-3 days | Server-side execution |
-| **B2** | MCP session store: `RunSession`, `run_id` handles, expiration | 1-2 days | Stateful MCP calls |
-| **B3** | `ADEngine`: `analyze_results()`, `explain_findings()`, `suggest_next_step()` | 2-3 days | Analysis + iteration |
-| **B4** | `ADEngine`: `generate_report()` | 1 day | Reporting |
-| **B5** | MCP lifecycle tools: `run_detection`, `analyze_results`, `explain_findings`, `suggest_next_step`, `generate_report` (all using `run_id`) | 1-2 days | Full lifecycle via MCP |
-| **B6** | MCP data manifest schema for multimodal/graph/exclusion inputs | 1-2 days | Advanced data types |
+| **B1** | `ADEngine.run_detection(X_train, plan, X_test)` -- full execution, returns result dict with scores, labels, fitted detector | 2-3 days | Core execution |
+| **B2** | `ADEngine.analyze_results(result, X)` -- score distribution, top anomalies, clustering, feature importance, narrative summary | 2-3 days | Analysis |
+| **B3** | `ADEngine.explain_findings(result, indices, top_k)` -- per-sample explanations with contributing features | 1-2 days | Explainability |
+| **B4** | `ADEngine.suggest_next_step(result, analysis, feedback)` -- rule-based iteration suggestions (adjust threshold, try alternative, ensemble) | 1-2 days | Iteration |
+| **B5** | `ADEngine.generate_report(result, analysis, format)` -- markdown/json/html summary report | 1 day | Reporting |
+| **B6** | Update `od-expert` skill to guide agents through the full Python lifecycle | 1 day | Agent experience |
 | **B7** | Tests + examples + docs for Tier B | 2-3 days | Ship-ready |
 
-**Tier B total: ~10-16 days**
+**Tier B total: ~10-15 days**
 
-**Combined total: ~20-29 days**
+**Combined total: ~20-28 days**
 
-Tier A is independently useful -- agents can query PyOD's knowledge, get recommendations, and receive detector constructor metadata + code snippets (via MCP) or configured detector instances (via Python API). Tier B adds the "hands-free" execution and iteration that makes the vision example work end-to-end.
+Tier A is independently useful -- agents can query PyOD's knowledge, get recommendations, and receive configured detector instances. Tier B adds the analysis, explanation, iteration, and reporting that makes the vision example work end-to-end. All through Python -- no MCP complexity.
 
 ---
 
@@ -1315,7 +1212,9 @@ When TimeSeriesOD ships, the agent layer gets TS support with minimal changes:
 | New 2 | Exclusion-window examples mixed into current Tier B scope | **Resolved** | Vision example annotated as post-B6 future-scope; Tier B v1 iteration is via suggest_next_step + plain rerun |
 | New 3 | Stale labels (header, Tier A summary, TS note) | **Resolved** | Header updated to v5 "Design complete"; Tier A summary distinguishes Python vs MCP build_detector; TS note says "no architectural changes" not "no changes" |
 
-**Review concluded.** 4 rounds, 18 total findings, all resolved. Spec is ready for implementation planning.
+**Note (2026-04-08):** Rounds 2-4 findings about RunSession, run_id, MCP session state, and TTL/scavenging are **superseded** by the Python-first redesign (Section 2.1.1). Those resolutions were correct for the MCP-first architecture but are no longer applicable. The underlying concerns (state management, serialization, cleanup) are now handled by Python object lifetime in a persistent interpreter session.
+
+**Review concluded.** 4 design rounds (18 findings resolved). Spec revised to Python-first Tier B on 2026-04-08 (v6) after implementation experience showed MCP friction on Windows. Implementation code review (3 rounds, 9 findings) is tracked separately in the codebase commit history.
 
 ---
 
