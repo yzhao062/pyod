@@ -185,6 +185,7 @@ def _CoLAModel(in_dim, hid_dim, num_layers):
             self.convs.append(GCNConv(in_dim, hid_dim))
             for _ in range(num_layers - 1):
                 self.convs.append(GCNConv(hid_dim, hid_dim))
+            self.drop = nn.Dropout(0.3)
             self.disc = nn.Bilinear(hid_dim, hid_dim, 1)
 
         def encode(self, x, edge_index):
@@ -193,6 +194,7 @@ def _CoLAModel(in_dim, hid_dim, num_layers):
                 z = conv(z, edge_index)
                 if i < len(self.convs) - 1:
                     z = torch.relu(z)
+                    z = self.drop(z)
             return z
 
         def discriminate(self, z, local_ctx):

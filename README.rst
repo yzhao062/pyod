@@ -408,42 +408,42 @@ Algorithm rankings from `BOND benchmark <https://arxiv.org/abs/2206.10071>`_ (Ne
      - Ref
    * - GCN Autoencoder
      - DOMINANT
-     - GCN AE, structure + attribute reconstruction (#1 BOND deep) (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_dominant_example.py>`__)
+     - GCN AE, structure + attribute reconstruction (#1 BOND deep) (`dominant example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_dominant_example.py>`_)
      - 2019
      - [#Ding2019DOMINANT]_
    * - Contrastive
      - CoLA
-     - Contrastive self-supervised, local neighbor context (#2 BOND deep) (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_cola_example.py>`__)
+     - Contrastive self-supervised, local neighbor context (#2 BOND deep) (`cola example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_cola_example.py>`_)
      - 2022
      - [#Liu2022CoLA]_
    * - Contrastive+AE
      - CONAD
-     - Contrastive with anomalous-view injection + dual reconstruction (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_conad_example.py>`__)
+     - Contrastive with anomalous-view injection + dual reconstruction (`conad example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_conad_example.py>`_)
      - 2022
      - [#Xu2022CONAD]_
    * - Attention AE
      - AnomalyDAE
-     - GAT structure encoder + MLP attribute encoder (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_anomalydae_example.py>`__)
+     - GAT structure encoder + MLP attribute encoder (`anomalydae example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_anomalydae_example.py>`_)
      - 2020
      - [#Fan2020AnomalyDAE]_
    * - Motif AE
      - GUIDE
-     - Dual GCN AE on original + triangle-motif adjacency (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_guide_example.py>`__)
+     - Dual GCN AE on original + triangle-motif adjacency (`guide example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_guide_example.py>`_)
      - 2021
      - [#Yuan2021GUIDE]_
    * - Matrix Factor.
      - Radar
-     - Residual analysis via matrix factorization (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_radar_example.py>`__)
+     - Residual analysis via matrix factorization (`radar example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_radar_example.py>`_)
      - 2017
      - [#Li2017Radar]_
    * - Matrix Factor.
      - ANOMALOUS
-     - Joint MF with Laplacian regularization (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_anomalous_example.py>`__)
+     - Joint MF with Laplacian regularization (`anomalous example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_anomalous_example.py>`_)
      - 2018
      - [#Peng2018ANOMALOUS]_
    * - Structural
      - SCAN
-     - Structural clustering, no features needed (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_scan_example.py>`__)
+     - Structural clustering, no features needed (`scan example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_scan_example.py>`_)
      - 2007
      - [#Xu2007SCAN]_
 
