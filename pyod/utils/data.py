@@ -780,3 +780,76 @@ def generate_ts_data(n_train=500, n_test=200, n_channels=1,
     X_test, y_test = _inject_anomalies(X_test, n_test)
 
     return X_train, X_test, y_train, y_test
+
+
+def generate_graph_data(n_nodes=300, n_features=16, n_edges_per_node=5,
+                        contamination=0.1, random_state=None):
+    """Generate synthetic attributed graph data with planted anomalies.
+
+    Normal nodes have features from N(0, 1). Anomaly nodes have features
+    shifted by +5 standard deviations. Edges are generated via random
+    neighbor selection (undirected, no self-loops, no duplicates).
+
+    Parameters
+    ----------
+    n_nodes : int, default=300
+        Number of nodes.
+
+    n_features : int, default=16
+        Dimensionality of node features.
+
+    n_edges_per_node : int, default=5
+        Average number of edges per node (Poisson-sampled per node).
+
+    contamination : float, default=0.1
+        Fraction of nodes that are anomalies.
+
+    random_state : int, RandomState or None, default=None
+        Seed for reproducibility.
+
+    Returns
+    -------
+    X : np.ndarray of shape (n_nodes, n_features)
+        Node feature matrix (float32).
+
+    edge_index : np.ndarray of shape (2, n_edges)
+        COO-format edge list (int64, undirected, no self-loops).
+
+    y : np.ndarray of shape (n_nodes,)
+        Binary labels: 0 = normal, 1 = anomaly.
+    """
+    rng = check_random_state(random_state)
+
+    n_anomalies = max(1, int(n_nodes * contamination))
+    n_normal = n_nodes - n_anomalies
+
+    # Features: normal from N(0,1), anomalies shifted by +5
+    X_normal = rng.randn(n_normal, n_features).astype(np.float32)
+    X_anomaly = (rng.randn(n_anomalies, n_features) + 5.0).astype(
+        np.float32)
+    X = np.vstack([X_normal, X_anomaly])
+    y = np.concatenate([np.zeros(n_normal, dtype=np.int32),
+                        np.ones(n_anomalies, dtype=np.int32)])
+
+    # Shuffle
+    perm = rng.permutation(n_nodes)
+    X, y = X[perm], y[perm]
+
+    # Generate edges via random neighbor selection
+    edges = set()
+    for i in range(n_nodes):
+        n_nbrs = max(1, rng.poisson(n_edges_per_node))
+        candidates = rng.choice(n_nodes, size=min(n_nbrs + 1, n_nodes),
+                                replace=False)
+        for j in candidates:
+            if i != j:
+                u, v = (i, j) if i < j else (j, i)
+                edges.add((u, v))
+
+    rows, cols = [], []
+    for u, v in edges:
+        rows.extend([u, v])
+        cols.extend([v, u])
+
+    edge_index = np.array([rows, cols], dtype=np.int64)
+    return X, edge_index, y
