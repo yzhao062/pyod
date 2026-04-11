@@ -147,6 +147,32 @@
       ],
       "reason": "Multi-modal data: score fusion across per-modality detectors",
       "evidence": []
+    },
+    {
+      "id": "graph_attributed",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "graph"},
+        {"field": "has_features", "op": "eq", "value": true}
+      ],
+      "recommendations": [
+        {"detector": "DOMINANT", "params": {}, "confidence": 0.85},
+        {"detector": "CoLA", "params": {}, "confidence": 0.8},
+        {"detector": "Radar", "params": {}, "confidence": 0.7}
+      ],
+      "reason": "Attributed graph: DOMINANT and CoLA are most reliable deep methods (BOND benchmark). Radar is a lightweight MF baseline.",
+      "evidence": ["BOND"]
+    },
+    {
+      "id": "graph_structure_only",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "graph"},
+        {"field": "has_features", "op": "eq", "value": false}
+      ],
+      "recommendations": [
+        {"detector": "SCAN_Graph", "params": {}, "confidence": 0.8}
+      ],
+      "reason": "Structure-only graph (no node features): SCAN is the only detector that does not require attributes.",
+      "evidence": []
     }
   ]
 }

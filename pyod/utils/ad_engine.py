@@ -59,8 +59,16 @@ class ADEngine:
             first_val = X[first_key]
             profile['n_samples'] = len(first_val)
             profile['modalities'] = list(X.keys())
+        elif detected_type == 'graph':
+            # PyG Data object (only supported graph input for ADEngine)
+            profile['n_nodes'] = X.num_nodes
+            profile['n_edges'] = X.edge_index.shape[1]
+            profile['n_features'] = (
+                X.x.shape[1] if X.x is not None else 0)
+            profile['has_features'] = X.x is not None
+            profile['n_samples'] = X.num_nodes
         else:
-            # tabular, time_series, or graph
+            # tabular or time_series
             arr = np.asarray(X, dtype=np.float64)
             if arr.ndim == 1:
                 arr = arr.reshape(-1, 1)
@@ -85,6 +93,14 @@ class ADEngine:
 
     def _sniff_data_type(self, X):
         """Conservative data type detection."""
+        # Check for PyG Data object
+        try:
+            from torch_geometric.data import Data
+            if isinstance(X, Data):
+                return 'graph'
+        except ImportError:
+            pass
+
         if isinstance(X, dict):
             return 'multimodal'
         if isinstance(X, (list, tuple)) and len(X) > 0:

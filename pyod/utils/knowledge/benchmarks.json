@@ -31,5 +31,16 @@
       "subsequence_top_3": ["MatrixProfile", "SAND", "Series2Graph"]
     },
     "key_finding": "Classical methods competitive with deep; MatrixProfile strong on subsequence anomalies"
+  },
+  "BOND": {
+    "paper": {"id": "liu2022bond", "short": "Liu et al., NeurIPS 2022"},
+    "scope": "graph",
+    "n_datasets": 14,
+    "n_algorithms": 14,
+    "rankings": {
+      "deep_top_3": ["DOMINANT", "CoLA", "CONAD"],
+      "classical_top_2": ["Radar", "ANOMALOUS"]
+    },
+    "key_finding": "DOMINANT and CoLA are most reliable deep methods; classical MF methods competitive on small graphs"
   }
 }
