@@ -168,13 +168,13 @@ class ANOMALOUS(BaseDetector):
             "ANOMALOUS is a transductive detector. Use "
             "decision_scores_ after fit().")
 
-    def predict(self, X):
+    def predict(self, X, return_confidence=False):
         """Not supported (transductive detector)."""
         raise NotImplementedError(
             "ANOMALOUS is a transductive detector. Use labels_ "
             "after fit().")
 
-    def predict_proba(self, X):
+    def predict_proba(self, X, method="linear", return_confidence=False):
         """Not supported (transductive detector)."""
         raise NotImplementedError(
             "ANOMALOUS is a transductive detector.")

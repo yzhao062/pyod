@@ -98,20 +98,20 @@ class CoLA(BaseDetector):
         x = data.x
         ei = data.edge_index
 
-        # Row-normalized adjacency for local context
+        # Sparse row-normalized adjacency for local context
         from torch_geometric.utils import degree
         row_deg = degree(ei[0], num_nodes=n_nodes)
         row_deg = row_deg.clamp(min=1)
         edge_weight = 1.0 / row_deg[ei[0]]
         adj_norm = torch.sparse_coo_tensor(
-            ei, edge_weight, (n_nodes, n_nodes)).to_dense()
+            ei, edge_weight, (n_nodes, n_nodes)).coalesce()
 
         model.train()
         for epoch in range(self.epochs):
             z = model.encode(x, ei)
 
             # Local context: mean of neighbors' embeddings
-            local_ctx = adj_norm @ z  # (n, hid)
+            local_ctx = torch.sparse.mm(adj_norm, z)  # (n, hid)
 
             # Positive: (node, local_context) pairs
             pos_scores = model.discriminate(z, local_ctx)
@@ -131,15 +131,16 @@ class CoLA(BaseDetector):
             loss.backward()
             optimizer.step()
 
-        # Multi-round scoring for robustness
-        model.eval()
+        # Multi-round scoring with dropout stochasticity
+        model.train()  # keep dropout active for stochasticity
         all_scores = []
         for _ in range(5):
             with torch.no_grad():
                 z = model.encode(x, ei)
-                local_ctx = adj_norm @ z
+                local_ctx = torch.sparse.mm(adj_norm, z)
                 s = -model.discriminate(z, local_ctx)
                 all_scores.append(s.cpu().numpy())
+        model.eval()
         scores = torch.FloatTensor(np.mean(all_scores, axis=0))
 
         self.decision_scores_ = scores.cpu().numpy()
@@ -152,12 +153,12 @@ class CoLA(BaseDetector):
             "CoLA is a transductive detector. Use decision_scores_ "
             "after fit().")
 
-    def predict(self, X):
+    def predict(self, X, return_confidence=False):
         """Not supported (transductive detector)."""
         raise NotImplementedError(
             "CoLA is a transductive detector. Use labels_ after fit().")
 
-    def predict_proba(self, X):
+    def predict_proba(self, X, method="linear", return_confidence=False):
         """Not supported (transductive detector)."""
         raise NotImplementedError("CoLA is a transductive detector.")
 

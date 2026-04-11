@@ -25,10 +25,10 @@ from ._pyg_utils import validate_graph_input, to_sparse_adj
 class GUIDE(BaseDetector):
     """GUIDE: Higher-order Structure Based Anomaly Detection.
 
-    Constructs a motif (triangle-count) adjacency and runs two
-    GCN autoencoders in parallel — one on the original graph and
-    one on the motif graph. Score = ``alpha * err_orig +
-    (1 - alpha) * err_motif``.
+    Constructs a motif adjacency from triangle participation
+    (binarized in v1: edges in at least one triangle) and runs
+    two GCN autoencoders in parallel. Score = ``alpha * err_orig
+    + (1 - alpha) * err_motif``.
 
     This detector is **transductive**.
 
@@ -180,13 +180,13 @@ class GUIDE(BaseDetector):
             "GUIDE is a transductive detector. Use decision_scores_ "
             "after fit().")
 
-    def predict(self, X):
+    def predict(self, X, return_confidence=False):
         """Not supported (transductive detector)."""
         raise NotImplementedError(
             "GUIDE is a transductive detector. Use labels_ "
             "after fit().")
 
-    def predict_proba(self, X):
+    def predict_proba(self, X, method="linear", return_confidence=False):
         """Not supported (transductive detector)."""
         raise NotImplementedError("GUIDE is a transductive detector.")
 

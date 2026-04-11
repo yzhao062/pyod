@@ -1398,8 +1398,8 @@
     "status": "shipped",
     "data_types": ["graph"],
     "category": "graph",
-    "complexity": {"time": "O(epochs * n * d_h)", "space": "O(n * d_h)"},
-    "strengths": ["Contrastive learning captures local-global discrepancy", "Strong BOND performance", "No adjacency reconstruction (memory efficient)"],
+    "complexity": {"time": "O(epochs * n * d_h)", "space": "O(n * d_h + m)"},
+    "strengths": ["Contrastive learning captures local-context discrepancy", "Strong BOND performance", "Sparse neighbor aggregation"],
     "weaknesses": ["Sensitive to graph connectivity", "Requires node features"],
     "best_for": "Attributed graphs where anomalies have unusual local neighborhoods",
     "avoid_when": "Graph is disconnected or has no node features",
@@ -1482,7 +1482,7 @@
     "benchmark_refs": ["BOND"],
     "benchmark_rank": {},
     "paper": {"id": "li2017radar", "short": "Li et al., IJCAI 2017"},
-    "default_params": {"alpha": 1.0, "gamma": 1.0, "max_iter": 100, "contamination": 0.1},
+    "default_params": {"alpha": 1.0, "gamma": 0.01, "max_iter": 100, "contamination": 0.1},
     "preprocessing_mode": "external",
     "requires": ["torch_geometric"],
     "version_added": "2.2.0"
@@ -1501,7 +1501,7 @@
     "benchmark_refs": ["BOND"],
     "benchmark_rank": {},
     "paper": {"id": "peng2018anomalous", "short": "Peng et al., IJCAI 2018"},
-    "default_params": {"alpha": 1.0, "gamma": 1.0, "max_iter": 100, "contamination": 0.1},
+    "default_params": {"alpha": 1.0, "gamma": 1.0, "lambda_r": 0.01, "max_iter": 100, "contamination": 0.1},
     "preprocessing_mode": "external",
     "requires": ["torch_geometric"],
     "version_added": "2.2.0"
