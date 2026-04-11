@@ -57,7 +57,7 @@ Python Outlier Detection (PyOD) V2
 Read Me First
 ^^^^^^^^^^^^^
 
-Welcome to PyOD, a well-developed and easy-to-use Python library for detecting anomalies across **tabular, time series, text, and image data**. Whether you are working with server metrics, sensor readings, documents, or structured datasets, PyOD provides a range of algorithms to fit your needs.
+Welcome to PyOD, a well-developed and easy-to-use Python library for detecting anomalies across **tabular, time series, graph, text, and image data**. Whether you are working with server metrics, sensor readings, documents, or structured datasets, PyOD provides a range of algorithms to fit your needs.
 
 **PyOD Version 2 is now available** (`Paper <https://www.arxiv.org/abs/2412.12154>`_) [#Chen2024PyOD]_, featuring:
 
@@ -75,7 +75,7 @@ Welcome to PyOD, a well-developed and easy-to-use Python library for detecting a
 About PyOD
 ^^^^^^^^^^
 
-PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** across multiple data types: tabular, time series, text, and image. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
+PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** across multiple data types: tabular, time series, graph, text, and image. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 50 detection algorithms for tabular data, 7 time series detectors, and multi-modal support via foundation model embeddings, from classical LOF (SIGMOD 2000) to the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic research projects and commercial products with more than `26 million downloads <https://pepy.tech/project/pyod>`_. It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
@@ -158,7 +158,7 @@ For a broader perspective on anomaly detection, see our NeurIPS papers on `ADBen
 * `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
 * `Benchmarks <#benchmarks>`_
-* `Implemented Algorithms <#implemented-algorithms>`_ (Tabular, Time Series, Embedding)
+* `Implemented Algorithms <#implemented-algorithms>`_ (Tabular, Time Series, Graph, Embedding)
 * `Additional Topics <#additional-topics>`_ (Model Save/Load, SUOD, Thresholding)
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
@@ -208,6 +208,7 @@ Alternatively, you can clone and run the setup.py file:
 * sentence-transformers (optional, required for EmbeddingOD text detection)
 * openai (optional, required for EmbeddingOD with OpenAI embeddings)
 * transformers and torch (optional, required for EmbeddingOD image detection and HuggingFace encoder)
+* torch_geometric (optional, required for graph anomaly detectors: DOMINANT, CoLA, SCAN, etc.)
 
 ----
 
@@ -379,6 +380,72 @@ Algorithm rankings from `TSB-AD benchmark <https://github.com/TheDatumOrg/TSB-AD
      - Transformer with association discrepancy (experimental)
      - 2022
      - [#Xu2022Anomaly]_
+
+
+**(i-c) Graph Anomaly Detection** (``pip install pyod[graph]``):
+
+All graph detectors are **transductive** in v1: use ``decision_scores_`` and ``labels_`` after ``fit()``. No out-of-sample ``predict``. Input: PyG ``Data`` object with ``x`` (node features) and ``edge_index`` (COO edges). SCAN works without features.
+
+**Graph detection in 3 lines** (``pip install pyod[graph]``):
+
+.. code-block:: python
+
+    from pyod.models.pyg_dominant import DOMINANT
+    clf = DOMINANT(hidden_dim=64, epochs=100)
+    clf.fit(data)                                  # PyG Data object
+    scores = clf.decision_scores_                  # per-node anomaly scores
+
+Algorithm rankings from `BOND benchmark <https://arxiv.org/abs/2206.10071>`_ (NeurIPS 2022, 14 datasets):
+
+.. list-table::
+   :widths: 18 18 45 5 14
+   :header-rows: 1
+
+   * - Type
+     - Abbr
+     - Algorithm
+     - Year
+     - Ref
+   * - GCN Autoencoder
+     - DOMINANT
+     - GCN AE, structure + attribute reconstruction (#1 BOND deep) (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_dominant_example.py>`_)
+     - 2019
+     - [#Ding2019DOMINANT]_
+   * - Contrastive
+     - CoLA
+     - Contrastive self-supervised, local neighbor context (#2 BOND deep) (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_cola_example.py>`_)
+     - 2022
+     - [#Liu2022CoLA]_
+   * - Contrastive+AE
+     - CONAD
+     - Contrastive with anomalous-view injection + dual reconstruction (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_conad_example.py>`_)
+     - 2022
+     - [#Xu2022CONAD]_
+   * - Attention AE
+     - AnomalyDAE
+     - GAT structure encoder + MLP attribute encoder (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_anomalydae_example.py>`_)
+     - 2020
+     - [#Fan2020AnomalyDAE]_
+   * - Motif AE
+     - GUIDE
+     - Dual GCN AE on original + triangle-motif adjacency (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_guide_example.py>`_)
+     - 2021
+     - [#Yuan2021GUIDE]_
+   * - Matrix Factor.
+     - Radar
+     - Residual analysis via matrix factorization (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_radar_example.py>`_)
+     - 2017
+     - [#Li2017Radar]_
+   * - Matrix Factor.
+     - ANOMALOUS
+     - Joint MF with Laplacian regularization (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_anomalous_example.py>`_)
+     - 2018
+     - [#Peng2018ANOMALOUS]_
+   * - Structural
+     - SCAN
+     - Structural clustering, no features needed (`example <https://github.com/yzhao062/pyod/blob/development/examples/pyg_scan_example.py>`_)
+     - 2007
+     - [#Xu2007SCAN]_
 
 
 **(ii) Utility Functions**:
@@ -604,3 +671,19 @@ Reference
 .. [#Xu2022Anomaly] Xu, J., Wu, H., Wang, J. and Long, M., 2022. Anomaly Transformer: Time Series Anomaly Detection with Association Discrepancy. In *International Conference on Learning Representations (ICLR)*.
 
 .. [#Yeh2016Matrix] Yeh, C.C.M., Zhu, Y., Ulanova, L., Begum, N., Ding, Y., Dau, H.A., Silva, D.F., Mueen, A. and Keogh, E., 2016. Matrix Profile I: All Pairs Similarity Joins for Time Series Subsequences. In *2016 IEEE 16th International Conference on Data Mining (ICDM)*, pp.1317-1322.
+
+.. [#Ding2019DOMINANT] Ding, K., Li, J., Bhanushali, R. and Liu, H., 2019. Deep Anomaly Detection on Attributed Networks. In *Proceedings of the 2019 SIAM International Conference on Data Mining*, pp.594-602. SIAM.
+
+.. [#Liu2022CoLA] Liu, Y., Li, Z., Pan, S., Gool, T., Xiang, T. and Gong, B., 2022. Anomaly Detection on Attributed Networks via Contrastive Self-Supervised Learning. In *Proceedings of the ACM Web Conference 2022*, pp.2137-2147.
+
+.. [#Xu2022CONAD] Xu, Z., Huang, X., Zhao, Y., Dong, Y. and Li, J., 2022. Contrastive Attributed Network Anomaly Detection with Data Augmentation. In *Pacific-Asia Conference on Knowledge Discovery and Data Mining*, pp.444-457. Springer.
+
+.. [#Fan2020AnomalyDAE] Fan, H., Zhang, F. and Li, Z., 2020. AnomalyDAE: Dual Autoencoder for Anomaly Detection on Attributed Networks. In *Proceedings of the 29th ACM International Conference on Information and Knowledge Management*, pp.747-756.
+
+.. [#Yuan2021GUIDE] Yuan, X., Zhou, N., Yu, S., Huang, H., Chen, Z. and Xia, F., 2021. Higher-Order Structure Based Anomaly Detection on Attributed Networks. In *2021 IEEE International Conference on Big Data*, pp.2691-2700. IEEE.
+
+.. [#Li2017Radar] Li, J., Dani, H., Hu, X. and Liu, H., 2017. Radar: Residual Analysis for Anomaly Detection in Attributed Networks. In *Proceedings of the Twenty-Sixth International Joint Conference on Artificial Intelligence*, pp.2152-2158.
+
+.. [#Peng2018ANOMALOUS] Peng, Z., Luo, M., Li, J., Liu, H. and Zheng, Q., 2018. ANOMALOUS: A Joint Modeling Approach for Anomaly Detection on Attributed Networks. In *Proceedings of the Twenty-Seventh International Joint Conference on Artificial Intelligence*, pp.3529-3535.
+
+.. [#Xu2007SCAN] Xu, X., Yuruk, N., Feng, Z. and Schweiger, T.A.J., 2007. SCAN: A Structural Clustering Algorithm for Networks. In *Proceedings of the 13th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, pp.824-833.

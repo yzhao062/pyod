@@ -46,11 +46,13 @@ setup(
         'embedding': ['sentence-transformers>=2.0'],
         'openai': ['openai>=1.0'],
         'mcp': ['mcp>=1.0'],
+        'graph': ['torch>=2.0', 'torch_geometric>=2.0'],
         'all': [
             'sentence-transformers>=2.0',
             'openai>=1.0',
             'transformers>=4.0',
             'torch>=2.0',
+            'torch_geometric>=2.0',
             'Pillow',
             'mcp>=1.0',
         ],

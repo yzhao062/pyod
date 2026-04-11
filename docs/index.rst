@@ -67,7 +67,7 @@ Welcome to PyOD V2 documentation!
 Read Me First
 ^^^^^^^^^^^^^
 
-Welcome to PyOD, a comprehensive but easy-to-use Python library for detecting anomalies across **tabular, time series, text, and image data**. Whether you are working with a small-scale project or large datasets, PyOD provides a range of algorithms to suit your needs.
+Welcome to PyOD, a comprehensive but easy-to-use Python library for detecting anomalies across **tabular, time series, graph, text, and image data**. Whether you are working with a small-scale project or large datasets, PyOD provides a range of algorithms to suit your needs.
 
 **PyOD Version 2 is now available** (`Paper <https://www.arxiv.org/abs/2412.12154>`_) :cite:`a-chen2024pyod`, featuring:
 
@@ -84,7 +84,7 @@ Welcome to PyOD, a comprehensive but easy-to-use Python library for detecting an
 About PyOD
 ^^^^^^^^^^
 
-PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** across multiple data types: tabular, time series, text, and image. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
+PyOD, established in 2017, has become a go-to **Python library** for **detecting anomalous/outlying objects** across multiple data types: tabular, time series, graph, text, and image. This exciting yet challenging field is commonly referred to as `Outlier Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_ or `Anomaly Detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_.
 
 PyOD includes more than 50 detection algorithms for tabular data, 7 time series detectors, and multi-modal support via foundation model embeddings, from classical LOF (SIGMOD 2000) to the cutting-edge ECOD and DIF (TKDE 2022 and 2023). Since 2017, PyOD has been successfully used in numerous academic research projects and commercial products with more than `26 million downloads <https://pepy.tech/project/pyod>`_. It is also well acknowledged by the machine learning community with various dedicated posts/tutorials, including `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`_, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`_, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`_.
 
@@ -263,6 +263,81 @@ Streaming            SAND                Streaming anomaly detection with drift 
 Deep Learning        LSTMAD              LSTM prediction error with Mahalanobis distance scoring                                                 2015   :class:`pyod.models.ts_lstm.LSTMAD`                             :cite:`a-malhotra2015long`
 Deep Learning        AnomalyTransformer  Transformer with association discrepancy (experimental)                                                                2022   :class:`pyod.models.ts_anomaly_transformer.AnomalyTransformer`  :cite:`a-xu2022anomaly`
 ===================  ==================  ======================================================================================================  =====  ==============================================================  ======================================================
+
+
+**(i-c) Graph Anomaly Detection** (``pip install pyod[graph]``):
+
+All graph detectors are **transductive** in v1: use ``decision_scores_`` and ``labels_`` after ``fit()``. No out-of-sample ``predict``. Input: PyG ``Data`` object with ``x`` (node features) and ``edge_index`` (COO edges). SCAN works without features.
+
+**Graph detection in 3 lines** (``pip install pyod[graph]``):
+
+.. code-block:: python
+
+    from pyod.models.pyg_dominant import DOMINANT
+    clf = DOMINANT(hidden_dim=64, epochs=100)
+    clf.fit(data)                                  # PyG Data object
+    scores = clf.decision_scores_                  # per-node anomaly scores
+
+Algorithm rankings from `BOND benchmark <https://arxiv.org/abs/2206.10071>`_ :cite:`a-liu2022bond` (NeurIPS 2022, 14 datasets):
+
+.. list-table::
+   :widths: 18 18 45 5 25 10
+   :header-rows: 1
+
+   * - Type
+     - Abbr
+     - Algorithm
+     - Year
+     - Class
+     - Ref
+   * - GCN Autoencoder
+     - DOMINANT
+     - GCN AE, structure + attribute reconstruction (#1 BOND deep)
+     - 2019
+     - :class:`pyod.models.pyg_dominant.DOMINANT`
+     - :cite:`a-ding2019dominant`
+   * - Contrastive
+     - CoLA
+     - Contrastive self-supervised, local neighbor context (#2 BOND deep)
+     - 2022
+     - :class:`pyod.models.pyg_cola.CoLA`
+     - :cite:`a-liu2022cola`
+   * - Contrastive+AE
+     - CONAD
+     - Contrastive with anomalous-view injection + dual reconstruction
+     - 2022
+     - :class:`pyod.models.pyg_conad.CONAD`
+     - :cite:`a-xu2022conad`
+   * - Attention AE
+     - AnomalyDAE
+     - GAT structure encoder + MLP attribute encoder
+     - 2020
+     - :class:`pyod.models.pyg_anomalydae.AnomalyDAE`
+     - :cite:`a-fan2020anomalydae`
+   * - Motif AE
+     - GUIDE
+     - Dual GCN AE on original + triangle-motif adjacency
+     - 2021
+     - :class:`pyod.models.pyg_guide.GUIDE`
+     - :cite:`a-yuan2021guide`
+   * - Matrix Factor.
+     - Radar
+     - Residual analysis via matrix factorization
+     - 2017
+     - :class:`pyod.models.pyg_radar.Radar`
+     - :cite:`a-li2017radar`
+   * - Matrix Factor.
+     - ANOMALOUS
+     - Joint MF with Laplacian regularization
+     - 2018
+     - :class:`pyod.models.pyg_anomalous.ANOMALOUS`
+     - :cite:`a-peng2018anomalous`
+   * - Structural
+     - SCAN
+     - Structural clustering, no features needed
+     - 2007
+     - :class:`pyod.models.pyg_scan.SCAN`
+     - :cite:`a-xu2007scan`
 
 
 **(ii) Utility Functions**:

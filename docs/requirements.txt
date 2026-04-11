@@ -17,6 +17,7 @@ sphinxcontrib-bibtex
 statsmodels
 suod
 torch
+torch_geometric
 tqdm
 xgboost
 docutils
