@@ -13,6 +13,25 @@ on:
       - master
       - development
 
+# Cancel any in-progress or queued Testing run on the same source
+# branch when a new push arrives. Collapses duplicate push + PR runs
+# from the same commit into a single active run, so rapid iteration
+# does not stack up stale jobs.
+#
+# The group key uses github.head_ref (populated on PRs with the
+# source branch) falling back to github.ref_name (populated on pushes
+# with the branch short name), so a push to development and a PR
+# with development as the source end up in the same group. The
+# pull_request.head.repo.full_name fallback namespaces the group by
+# fork identity, so two different forks with the same branch name
+# do not collide.
+#
+# testing-cron.yml intentionally does not use concurrency because
+# each scheduled cron trigger is an independent run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
