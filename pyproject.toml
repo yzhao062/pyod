@@ -1,0 +1,95 @@
+[build-system]
+requires = ["setuptools>=77.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyod"
+dynamic = ["version", "dependencies"]
+description = "A Python library for anomaly detection across tabular, time series, graph, text, and image data. 60+ detectors, benchmark-backed ADEngine orchestration, and an agentic workflow for AI agents."
+readme = "README.rst"
+requires-python = ">=3.9"
+license = "BSD-2-Clause"
+authors = [
+    {name = "Yue Zhao", email = "yzhao062@gmail.com"},
+]
+keywords = [
+    "anomaly detection",
+    "outlier detection",
+    "machine learning",
+    "deep learning",
+    "unsupervised learning",
+    "time series anomaly detection",
+    "graph anomaly detection",
+    "nlp anomaly detection",
+    "image anomaly detection",
+    "multimodal",
+    "agentic ai",
+    "foundation models",
+    "fraud detection",
+    "novelty detection",
+    "out-of-distribution detection",
+    "outlier ensembles",
+    "pytorch",
+    "python",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=2.0"]
+suod = ["suod"]
+xgboost = ["xgboost"]
+combo = ["combo"]
+pythresh = ["pythresh"]
+embedding = ["sentence-transformers>=5.0.0"]
+openai = ["openai>=1.0"]
+huggingface = ["transformers>=4.25.1", "torch>=2.0", "Pillow"]
+graph = ["torch>=2.0", "torch_geometric>=2.0"]
+mcp = ["mcp>=1.0"]
+all = [
+    "torch>=2.0",
+    "suod",
+    "xgboost",
+    "combo",
+    "pythresh",
+    "sentence-transformers>=5.0.0",
+    "openai>=1.0",
+    "transformers>=4.25.1",
+    "torch_geometric>=2.0",
+    "Pillow",
+    "mcp>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yzhao062/pyod"
+Documentation = "https://pyod.readthedocs.io"
+Repository = "https://github.com/yzhao062/pyod"
+Issues = "https://github.com/yzhao062/pyod/issues"
+Changelog = "https://github.com/yzhao062/pyod/blob/development/CHANGES.txt"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pyod.version.__version__"}
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ["pyod*"]
+namespaces = false
+exclude = ["test", "test.*", "pyod.test", "pyod.test.*"]
+
+[tool.setuptools.package-data]
+"pyod.utils.model_analysis_jsons" = ["*.json"]
+"pyod.utils.knowledge" = ["*.json"]

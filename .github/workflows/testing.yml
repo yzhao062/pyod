@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-        
+
     steps:
     - uses: actions/checkout@v4
     - name: Python ${{ matrix.python-version }}
@@ -34,8 +34,9 @@ jobs:
     - name: Install libomp for macOS
       if: startsWith(matrix.os, 'macos')
       run: brew install libomp
-      
-    - name: Install dependencies
+
+    - name: Install dependencies (non-macOS, full deps including torch)
+      if: ${{ !startsWith(matrix.os, 'macos') }}
       run: |
         python -m pip install --upgrade pip
         pip install -r docs/requirements.txt
@@ -43,18 +44,31 @@ jobs:
         pip install coverage
         pip install coveralls
 
-    - name: Test with pytest (macOS, skip torch-heavy tests due to NNPACK slowdown on ARM)
+    # macOS CI deliberately skips torch and torch_geometric because of
+    # the upstream PyTorch NNPACK slowdown on Apple Silicon
+    # (https://github.com/pytorch/pytorch/issues/107534). Conv-heavy
+    # torch tests run ~36x slower on Apple Silicon and exhaust any
+    # reasonable job timeout. Torch-dependent tests are auto-skipped
+    # by pyod/test/conftest.py when torch is absent.
+    # TODO: remove this macOS-specific step and the conftest shim once
+    # upstream PyTorch fixes NNPACK on ARM and a fixed wheel is released.
+    - name: Install dependencies (macOS, skip torch and torch_geometric)
       if: startsWith(matrix.os, 'macos')
       run: |
-        coverage run --source=pyod -m pytest --ignore=pyod/test/test_auto_encoder.py --ignore=pyod/test/test_vae.py --ignore=pyod/test/test_deepsvdd.py --ignore=pyod/test/test_so_gaal.py --ignore=pyod/test/test_mo_gaal.py --ignore=pyod/test/test_anogan.py --ignore=pyod/test/test_alad.py --ignore=pyod/test/test_ae1svm.py --ignore=pyod/test/test_devnet.py --ignore=pyod/test/test_ts_lstm.py --ignore=pyod/test/test_ts_anomaly_transformer.py --ignore=pyod/test/test_pyg_dominant.py --ignore=pyod/test/test_pyg_anomalydae.py --ignore=pyod/test/test_pyg_cola.py --ignore=pyod/test/test_pyg_conad.py --ignore=pyod/test/test_pyg_guide.py
+        python -m pip install --upgrade pip
+        grep -vE '^(torch|torch_geometric)$' docs/requirements.txt > /tmp/mac-reqs.txt
+        pip install -r /tmp/mac-reqs.txt
+        pip install pytest
+        pip install coverage
+        pip install coveralls
 
     - name: Test with pytest
-      if: ${{ !startsWith(matrix.os, 'macos') }}
       run: |
         coverage run --source=pyod -m pytest
 
     - name: Coverage report
       shell: bash
+      continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         COVERALLS_SERVICE_NAME: github-actions
@@ -65,4 +79,82 @@ jobs:
           coveralls --service=github || true
         fi
 
+  packaging-smoke-test:
+    name: packaging smoke test (sdist + wheel from a clean build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Inspect sdist contents
+        run: |
+          set -euo pipefail
+          sdist=$(ls dist/*.tar.gz | head -1)
+          echo "Inspecting $sdist"
+          tar tzf "$sdist" > /tmp/sdist-listing.txt
+          knowledge_count=$(grep -c 'pyod/utils/knowledge/.*\.json' /tmp/sdist-listing.txt || true)
+          analysis_count=$(grep -c 'pyod/utils/model_analysis_jsons/.*\.json' /tmp/sdist-listing.txt || true)
+          echo "knowledge JSONs in sdist: $knowledge_count"
+          echo "model_analysis JSONs in sdist: $analysis_count"
+          test "$knowledge_count" -ge 4 || { echo "ERROR: expected >=4 knowledge JSONs in sdist"; exit 1; }
+          test "$analysis_count" -ge 10 || { echo "ERROR: expected >=10 model_analysis JSONs in sdist"; exit 1; }
+
+      - name: Inspect wheel contents
+        run: |
+          set -euo pipefail
+          wheel=$(ls dist/*.whl | head -1)
+          echo "Inspecting $wheel"
+          python -m zipfile -l "$wheel" > /tmp/wheel-listing.txt
+          knowledge_count=$(grep -c 'pyod/utils/knowledge/.*\.json' /tmp/wheel-listing.txt || true)
+          analysis_count=$(grep -c 'pyod/utils/model_analysis_jsons/.*\.json' /tmp/wheel-listing.txt || true)
+          test_count=$(grep -c 'pyod/test/' /tmp/wheel-listing.txt || true)
+          docs_count=$(grep -cE '^docs/' /tmp/wheel-listing.txt || true)
+          echo "knowledge JSONs in wheel: $knowledge_count"
+          echo "model_analysis JSONs in wheel: $analysis_count"
+          echo "test files in wheel: $test_count"
+          echo "docs files in wheel: $docs_count"
+          test "$knowledge_count" -ge 4 || { echo "ERROR: expected >=4 knowledge JSONs in wheel"; exit 1; }
+          test "$analysis_count" -ge 10 || { echo "ERROR: expected >=10 model_analysis JSONs in wheel"; exit 1; }
+          test "$test_count" -eq 0 || { echo "ERROR: wheel contains $test_count pyod/test files; should be 0"; exit 1; }
+          test "$docs_count" -eq 0 || { echo "ERROR: wheel contains $docs_count docs/ files; should be 0"; exit 1; }
+
+      - name: Validate metadata with twine
+        run: twine check dist/*
+
+      - name: Fresh-venv install from sdist and import smoke test
+        run: |
+          set -euo pipefail
+          python -m venv /tmp/pyod-smoke
+          /tmp/pyod-smoke/bin/python -m pip install --upgrade pip
+          /tmp/pyod-smoke/bin/python -m pip install dist/*.tar.gz
+          /tmp/pyod-smoke/bin/python - <<'PY'
+          import pyod
+          from pyod.models.iforest import IForest
+          from pyod.utils.ad_engine import ADEngine
+
+          print("pyod version:", pyod.__version__)
+          assert pyod.__version__.startswith("3."), f"unexpected version {pyod.__version__}"
+
+          engine = ADEngine()
+          detectors = engine.list_detectors()
+          assert len(detectors) > 0, "ADEngine knowledge base loaded 0 detectors"
+          print("ADEngine detectors loaded:", len(detectors))
+
+          import numpy as np
+          rng = np.random.default_rng(42)
+          X = rng.standard_normal((50, 5))
+          clf = IForest(contamination=0.1, random_state=42)
+          clf.fit(X)
+          print("IForest fit OK; decision_scores_ shape:", clf.decision_scores_.shape)
+          PY
