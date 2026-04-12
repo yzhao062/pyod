@@ -51,9 +51,7 @@ Python Outlier Detection (PyOD) V3
 
 -----
 
-.. note::
-
-   **New in V3.** Any AI agent can now run expert-level anomaly detection on your data. Just ask.
+**New in V3.** Any AI agent can now run expert-level anomaly detection on your data. Just ask.
 
 PyOD V3 is the most comprehensive Python library for anomaly detection. Four pillars:
 
