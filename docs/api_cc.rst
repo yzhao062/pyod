@@ -1,7 +1,7 @@
 API CheatSheet
 ==============
 
-The full API Reference is available at `PyOD Documentation <https://pyod.readthedocs.io/en/latest/pyod.html>`_. Below is a quick cheatsheet for all detectors:
+The full API Reference is split by modality: :doc:`pyod.models.tabular`, :doc:`pyod.models.timeseries`, :doc:`pyod.models.graph`, :doc:`pyod.models.embedding`, :doc:`pyod.ad_engine`, and :doc:`pyod.utils`. Below is a quick cheatsheet for the shared detector API:
 
 * :func:`pyod.models.base.BaseDetector.fit`: The parameter y is ignored in unsupervised methods.
 * :func:`pyod.models.base.BaseDetector.decision_function`: Predict raw anomaly scores for X using the fitted detector.

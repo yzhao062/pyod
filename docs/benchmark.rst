@@ -1,82 +1,38 @@
 Benchmarks
 ==========
 
-Latest ADBench (2022)
----------------------
+PyOD's detector catalog is backed by three peer-reviewed benchmark suites. The :class:`~pyod.utils.ad_engine.ADEngine` routing rules pull their recommendations directly from these studies, so the suggestions users get from Layer 2 and Layer 3 are tied to reproducible evidence.
 
 
-We just released a 45-page, the most comprehensive `ADBench: Anomaly Detection Benchmark <https://arxiv.org/abs/2206.09426>`_ [#Han2022ADBench]_.
-The fully `open-sourced ADBench <https://github.com/Minqi824/ADBench>`_ compares 30 anomaly detection algorithms on 57 benchmark datasets.
+ADBench (Tabular)
+-----------------
 
-The organization of **ADBench** is provided below:
+`ADBench <https://github.com/Minqi824/ADBench>`_ :cite:`a-han2022adbench` is a 45-page study evaluating 30 anomaly detection algorithms on 57 tabular benchmark datasets (NeurIPS 2022). It is the de-facto reference for PyOD's tabular detector routing.
 
 .. image:: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
    :target: https://github.com/Minqi824/ADBench/blob/main/figs/ADBench.png?raw=true
-   :alt: benchmark-fig
+   :alt: ADBench organization
 
-
-For a simpler visualization, we make **the comparison of selected models** via
-`compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_\.
+For a simpler visualization, see the comparison driver `compare_all_models.py <https://github.com/yzhao062/pyod/blob/master/examples/compare_all_models.py>`_.
 
 .. image:: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
    :target: https://github.com/yzhao062/pyod/blob/development/examples/ALL.png?raw=true
-   :alt: Comparison_of_All
+   :alt: Comparison of all tabular detectors
 
 
-Old Results (2019)
+TSB-AD (Time Series)
+--------------------
+
+`TSB-AD <https://github.com/TheDatumOrg/TSB-AD>`_ :cite:`a-liu2024tsb` is a time-series anomaly detection benchmark of 40 algorithms across 1,070 datasets (NeurIPS 2024). PyOD ships 5 ADEngine-routed stable time-series detectors (TimeSeriesOD, MatrixProfile, SpectralResidual, KShape #2, LSTMAD), selected by ``ADEngine`` based on TSB-AD rankings, plus 2 experimental implementations (SAND, AnomalyTransformer) that are available via direct class import but not yet included in routing. See :doc:`examples/timeseries` for usage.
+
+
+BOND (Graph)
+------------
+
+`BOND <https://arxiv.org/abs/2206.10071>`_ :cite:`a-liu2022bond` benchmarks 14 graph anomaly detection algorithms on 14 datasets (NeurIPS 2022). PyOD's graph detectors (DOMINANT #1 deep, CoLA #2 deep, CONAD, AnomalyDAE, GUIDE, Radar, ANOMALOUS, SCAN) are routed by ADEngine based on BOND results. See :doc:`examples/graph` for usage.
+
+
+NLP-ADBench (Text)
 ------------------
 
-A benchmark is supplied for select algorithms to provide an overview of the implemented models.
-In total, 17 benchmark datasets are used for comparison, which
-can be downloaded at `ODDS <http://odds.cs.stonybrook.edu/#table1>`_.
-
-For each dataset, it is first split into 60% for training and 40% for testing.
-All experiments are repeated 10 times independently with random splits.
-The mean of 10 trials is regarded as the final result. Three evaluation metrics
-are provided:
-
-- The area under receiver operating characteristic (ROC) curve
-- Precision @ rank n (P@N)
-- Execution time
-
-
-You could replicate this process by running
-`benchmark.py <https://github.com/yzhao062/pyod/blob/master/notebooks/benchmark.py>`_.
-
-We also provide the hardware specification for reference.
-
-===============  =======================================
-Specification    Value
-===============  =======================================
-Platform         PC
-OS               Microsoft Windows 10 Enterprise
-CPU              Intel i7-6820HQ @ 2.70GHz
-RAM              32GB
-Software         PyCharm 2018.02
-Python           Python 3.6.2
-Core             Single core (no parallelization)
-===============  =======================================
-
-
-ROC Performance
----------------
-
-.. csv-table:: ROC Performances (average of 10 independent trials)
-   :file: tables/roc.csv
-   :header-rows: 1
-
-P@N Performance
----------------
-
-.. csv-table:: Precision @ N Performances (average of 10 independent trials)
-   :file: tables/prc.csv
-   :header-rows: 1
-
-
-Execution Time
---------------
-
-.. csv-table:: Time Elapsed in Seconds (average of 10 independent trials)
-   :file: tables/time.csv
-   :header-rows: 1
-
+`NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_ evaluates 19 methods on 8 text datasets. A key finding is that a two-step approach (foundation model embeddings + an unsupervised detector) beats end-to-end NLP anomaly detection. PyOD implements this as :class:`~pyod.models.embedding.EmbeddingOD`. See :doc:`examples/embedding` for usage.

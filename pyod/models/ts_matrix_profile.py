@@ -206,10 +206,9 @@ class MatrixProfile(BaseDetector):
 
     References
     ----------
-    .. bibliography::
-       Yeh, C.C.M., Zhu, Y., Ulanova, L., Begum, N., Ding, Y., Dau, H.A.,
-       Silva, D.F., Mueen, A. and Keogh, E., 2016. Matrix profile I:
-       All pairs similarity joins for time series. In ICDM, pp. 1317-1322.
+    Yeh, C.C.M., Zhu, Y., Ulanova, L., Begum, N., Ding, Y., Dau, H.A.,
+    Silva, D.F., Mueen, A. and Keogh, E., 2016. Matrix profile I:
+    All pairs similarity joins for time series. In ICDM, pp. 1317-1322.
 
     Examples
     --------
