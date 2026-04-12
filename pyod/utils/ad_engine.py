@@ -827,6 +827,92 @@ class ADEngine:
                          "Use 'text' or 'json'." % format)
 
     # ------------------------------------------------------------------
+    # V3 Session workflow
+    # ------------------------------------------------------------------
+
+    def start(self, X, data_type=None):
+        """Start an investigation session.
+
+        Profiles the data and returns an InvestigationState.
+
+        Parameters
+        ----------
+        X : array-like, Data, list, or dict
+            Input data (any modality).
+        data_type : str or None
+            Explicit type override.
+
+        Returns
+        -------
+        state : InvestigationState
+        """
+        from .investigation import InvestigationState, _make_history_entry
+
+        profile = self.profile_data(X, data_type=data_type)
+        state = InvestigationState(
+            phase='profiled',
+            data=X,
+            profile=profile,
+            next_action={
+                'action': 'plan',
+                'reason': 'Data profiled as %s with %d samples. '
+                          'Ready to select detectors.'
+                          % (profile['data_type'],
+                             profile.get('n_samples', 0)),
+            },
+        )
+        state.history.append(_make_history_entry(
+            'profiled', 'start', 0,
+            'Profiled %s data' % profile['data_type']))
+        return state
+
+    def plan(self, state, priority='balanced', constraints=None):
+        """Plan detection: select top-N detectors.
+
+        Wraps ``plan_detection()`` and extracts primary + alternatives
+        into ``state.plans`` (up to 3 detectors, v1 limit).
+
+        Parameters
+        ----------
+        state : InvestigationState
+        priority : str
+        constraints : dict or None
+
+        Returns
+        -------
+        state : InvestigationState
+        """
+        from .investigation import _make_history_entry
+
+        constraints = constraints or {}
+        result = self.plan_detection(
+            state.profile, priority=priority, constraints=constraints)
+
+        # Extract primary + alternatives into flat list
+        plans = []
+        if result.get('detector_name'):
+            plans.append(result)
+        for alt in result.get('alternatives', []):
+            if alt.get('detector_name'):
+                plans.append(alt)
+
+        # Honor max_detectors (v1 cap at 3)
+        max_det = max(1, min(
+            int(constraints.get('max_detectors', 3)), 3))
+        state.plans = plans[:max_det]
+        state.phase = 'planned'
+        names = [p['detector_name'] for p in state.plans]
+        state.next_action = {
+            'action': 'run',
+            'reason': 'Top %d detectors selected: %s. Ready to run.'
+                      % (len(state.plans), ', '.join(names)),
+        }
+        state.history.append(_make_history_entry(
+            'planned', 'plan', state.iteration,
+            'Selected %d detectors: %s' % (len(plans), ', '.join(names))))
+        return state
+
+    # ------------------------------------------------------------------
     # Knowledge queries
     # ------------------------------------------------------------------
 
