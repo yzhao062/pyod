@@ -1265,6 +1265,161 @@ class ADEngine:
         }
 
     # ------------------------------------------------------------------
+    # V3 Session workflow: iterate
+    # ------------------------------------------------------------------
+
+    def iterate(self, state, feedback):
+        """Iterate based on feedback.
+
+        Structured dicts execute immediately. NL strings are
+        parsed with confidence; ambiguous feedback triggers
+        ``'confirm_with_user'``.
+
+        Parameters
+        ----------
+        state : InvestigationState
+        feedback : str or dict
+
+        Returns
+        -------
+        state : InvestigationState
+        """
+        if isinstance(feedback, dict):
+            return self._iterate_structured(state, feedback)
+        return self._iterate_nl(state, str(feedback))
+
+    def _iterate_structured(self, state, feedback):
+        """Handle structured feedback dict."""
+        from .investigation import _make_history_entry
+
+        action = feedback.get('action', '')
+        state.iteration += 1
+
+        if action == 'adjust_contamination':
+            value = feedback['value']
+            for p in state.plans:
+                params = dict(p.get('params', {}))
+                params['contamination'] = value
+                p['params'] = params
+            detail = 'Adjusted contamination to %.3f' % value
+
+        elif action == 'exclude':
+            to_exclude = set(feedback.get('detectors', []))
+            state.plans = [
+                p for p in state.plans
+                if p['detector_name'] not in to_exclude]
+            if not state.plans:
+                # Re-plan without excluded detectors
+                result = self.plan_detection(
+                    state.profile,
+                    constraints={'exclude_detectors': list(to_exclude)})
+                state.plans = [result]
+                for alt in result.get('alternatives', []):
+                    if alt.get('detector_name'):
+                        state.plans.append(alt)
+            detail = 'Excluded: %s' % ', '.join(to_exclude)
+
+        elif action == 'include':
+            to_include = feedback.get('detectors', [])
+            existing = {p['detector_name'] for p in state.plans}
+            for name in to_include:
+                if name not in existing:
+                    algo = self.kb.get_algorithm(name)
+                    if algo and algo.get('status') in (
+                            'shipped', 'experimental'):
+                        state.plans.append(self._make_plan(
+                            detector_name=name, params={},
+                            reason='Added by user', confidence=0.5))
+            detail = 'Included: %s' % ', '.join(to_include)
+
+        elif action == 'rerun':
+            detail = 'Re-running same plan'
+
+        else:
+            state.next_action = {
+                'action': 'confirm_with_user',
+                'reason': 'Unknown action: %s' % action,
+            }
+            return state
+
+        state.phase = 'planned'
+        state.results = []
+        state.consensus = None
+        state.analysis = None
+        state.quality = None
+        state.next_action = {
+            'action': 'run',
+            'reason': 'Plan adjusted. ' + detail,
+            'adjustment': detail,
+        }
+        state.history.append(_make_history_entry(
+            'planned', 'iterate', state.iteration, detail))
+        return state
+
+    def _iterate_nl(self, state, feedback):
+        """Parse NL feedback into structured action."""
+        from .investigation import _make_history_entry
+
+        lower = feedback.lower()
+        proposed = None
+        confidence = 0.0
+
+        # High-confidence patterns
+        if 'without' in lower or 'exclude' in lower:
+            # Try to extract detector name
+            for r in state.results:
+                name = r.get('detector_name', '')
+                if name.lower() in lower:
+                    proposed = {'action': 'exclude',
+                                'detectors': [name]}
+                    confidence = 0.9
+                    break
+            if proposed is None and ('without' in lower
+                                     or 'exclude' in lower):
+                proposed = {'action': 'exclude', 'detectors': []}
+                confidence = 0.3
+
+        elif ('false positive' in lower or 'too many' in lower):
+            current = state.plans[0].get('params', {}).get(
+                'contamination', 0.1) if state.plans else 0.1
+            proposed = {'action': 'adjust_contamination',
+                        'value': max(current * 0.5, 0.01)}
+            confidence = 0.7
+
+        elif ('missed' in lower or 'false negative' in lower):
+            current = state.plans[0].get('params', {}).get(
+                'contamination', 0.1) if state.plans else 0.1
+            proposed = {'action': 'adjust_contamination',
+                        'value': min(current * 1.5, 0.5)}
+            confidence = 0.7
+
+        elif 'rerun' in lower or 'again' in lower:
+            proposed = {'action': 'rerun'}
+            confidence = 0.9
+
+        if proposed is None:
+            proposed = {'action': 'rerun'}
+            confidence = 0.0
+
+        if confidence >= 0.8:
+            return self._iterate_structured(state, proposed)
+
+        # Low confidence → ask for confirmation
+        state.next_action = {
+            'action': 'confirm_with_user',
+            'reason': 'Interpreted "%s" as: %s (confidence=%.1f).'
+                      % (feedback, proposed.get('action', '?'),
+                         confidence),
+            'suggestion': 'Proposed: %s. Proceed?' % str(proposed),
+            'proposed_change': proposed,
+        }
+        state.history.append(_make_history_entry(
+            state.phase, 'iterate_nl', state.iteration,
+            'NL feedback: "%s" -> confidence=%.1f'
+            % (feedback, confidence)))
+        return state
+
+    # ------------------------------------------------------------------
     # Knowledge queries
     # ------------------------------------------------------------------
 

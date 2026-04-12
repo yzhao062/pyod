@@ -173,5 +173,62 @@ class TestSessionAnalyze(unittest.TestCase):
         assert state.quality['separation'] == 0.0
 
 
+class TestSessionIterate(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+        self.X = np.random.RandomState(42).randn(200, 10)
+
+    def _run_to_analyzed(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        state = self.engine.analyze(state)
+        return state
+
+    def test_structured_adjust_contamination(self):
+        state = self._run_to_analyzed()
+        state = self.engine.iterate(
+            state, {'action': 'adjust_contamination', 'value': 0.05})
+        assert state.phase == 'planned'
+        assert state.iteration == 1
+        assert state.next_action['action'] == 'run'
+
+    def test_structured_exclude(self):
+        state = self._run_to_analyzed()
+        excluded = state.plans[0]['detector_name']
+        state = self.engine.iterate(
+            state, {'action': 'exclude', 'detectors': [excluded]})
+        names = [p['detector_name'] for p in state.plans]
+        assert excluded not in names
+
+    def test_structured_rerun(self):
+        state = self._run_to_analyzed()
+        old_plans = [p['detector_name'] for p in state.plans]
+        state = self.engine.iterate(state, {'action': 'rerun'})
+        new_plans = [p['detector_name'] for p in state.plans]
+        assert old_plans == new_plans
+        assert state.phase == 'planned'
+
+    def test_nl_high_confidence(self):
+        state = self._run_to_analyzed()
+        state = self.engine.iterate(
+            state, 'try without IForest')
+        # Should either execute or ask confirmation
+        assert state.next_action['action'] in ('run', 'confirm_with_user')
+
+    def test_nl_low_confidence(self):
+        state = self._run_to_analyzed()
+        state = self.engine.iterate(
+            state, 'hmm something seems off')
+        # Ambiguous -> confirm
+        assert state.next_action['action'] == 'confirm_with_user'
+
+    def test_iteration_counter(self):
+        state = self._run_to_analyzed()
+        assert state.iteration == 0
+        state = self.engine.iterate(state, {'action': 'rerun'})
+        assert state.iteration == 1
+
+
 if __name__ == '__main__':
     unittest.main()
