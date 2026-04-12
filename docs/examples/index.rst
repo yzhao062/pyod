@@ -4,7 +4,7 @@ Examples
 PyOD offers three ways to do anomaly detection, from simple to fully agentic. This section is organized around those three layers, plus by data type and advanced topics.
 
 .. image:: ../figs/agentic-demo.png
-   :alt: PyOD V3 agentic investigation demo
+   :alt: PyOD 3 agentic investigation demo
    :align: center
    :width: 720
 

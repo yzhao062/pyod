@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PyOD V3 documentation!
+Welcome to PyOD 3 documentation!
 =================================
 
 
@@ -66,7 +66,7 @@ Welcome to PyOD V3 documentation!
 
    **New in V3.** Any AI agent can now run expert-level anomaly detection on your data. Just ask.
 
-PyOD V3 is the most comprehensive Python library for anomaly detection. Four pillars:
+PyOD 3 is the most comprehensive Python library for anomaly detection. Four pillars:
 
 ===========================  ========================================================================================
 Pillar                       What it means
@@ -100,7 +100,7 @@ Layer      Name                   When to use                                   
 Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's intelligent orchestration core. Layer 3 adds the ``od-expert`` skill that auto-activates in Claude Code and MCP-compatible agents.
 
 .. figure:: figs/agentic-demo.png
-   :alt: PyOD V3 agentic investigation demo on cardiotocography dataset
+   :alt: PyOD 3 agentic investigation demo on cardiotocography dataset
    :align: center
    :width: 720
 
@@ -109,7 +109,7 @@ Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's in
 
 See :doc:`examples/agentic` for the full walkthrough.
 
-**How PyOD V3 gets triggered:**
+**How PyOD 3 gets triggered:**
 
 * **Claude Code / Claude Desktop**: Copy `skills/od-expert/SKILL.md <https://github.com/yzhao062/pyod/tree/development/skills/od-expert>`_ from the repo into your project ``skills/`` directory or ``~/.claude/skills/``; the skill then auto-activates when users mention anomaly detection. ``pip install pyod`` installs the Python package but does not install the skill file itself.
 * **MCP-compatible agents**: Run ``python -m pyod.mcp_server`` to expose PyOD tools. Any MCP-compatible LLM picks them based on intent.

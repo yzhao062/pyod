@@ -1,10 +1,10 @@
 Layer 3: Agentic Investigation
 ===============================
 
-PyOD V3's ``od-expert`` skill lets any AI agent drive a full anomaly detection investigation through natural conversation. The agent handles benchmark-backed detector selection, multi-detector consensus, quality assessment, and iteration on user feedback, all without OD knowledge.
+PyOD 3's ``od-expert`` skill lets any AI agent drive a full anomaly detection investigation through natural conversation. The agent handles benchmark-backed detector selection, multi-detector consensus, quality assessment, and iteration on user feedback, all without OD knowledge.
 
 .. figure:: ../figs/agentic-demo.png
-   :alt: PyOD V3 agentic investigation demo on cardiotocography dataset
+   :alt: PyOD 3 agentic investigation demo on cardiotocography dataset
    :align: center
    :width: 720
 
@@ -31,7 +31,7 @@ When a user asks about anomalies in their data, PyOD's ``od-expert`` skill auto-
 Activation Paths
 ----------------
 
-PyOD V3 reaches agents through three paths. Pick whichever matches your stack:
+PyOD 3 reaches agents through three paths. Pick whichever matches your stack:
 
 **Claude Code / Claude Desktop**
     The ``od-expert`` skill at `skills/od-expert/SKILL.md <https://github.com/yzhao062/pyod/blob/development/skills/od-expert/SKILL.md>`_ auto-activates when users mention anomaly detection. Copy the skill into your project ``skills/`` directory or ``~/.claude/skills/`` to enable it; ``pip install pyod`` installs the Python package itself but does not install the skill file.
@@ -197,14 +197,14 @@ Feedback can be structured (dict) or natural language (string):
 Why This Is Different
 ---------------------
 
-Without PyOD V3, an AI agent wrapping a library like scikit-learn would:
+Without PyOD 3, an AI agent wrapping a library like scikit-learn would:
 
 1. Pick one detector (probably the wrong one)
 2. Run it once with default parameters
 3. Return raw scores without quality assessment
 4. Rely on the LLM to interpret results from first principles
 
-With PyOD V3:
+With PyOD 3:
 
 1. Selects detectors via benchmark-backed routing (ADBench, TSB-AD, BOND)
 2. Runs top-3 in parallel and builds consensus

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example: Agent-driven anomaly detection with PyOD V3 (Layer 3).
+"""Example: Agent-driven anomaly detection with PyOD 3 (Layer 3).
 
 Demonstrates what makes PyOD distinctive in the agentic workflow:
     - 60+ detectors across 5 data modalities

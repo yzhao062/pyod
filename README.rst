@@ -1,5 +1,7 @@
-Python Outlier Detection (PyOD) V3
+Python Outlier Detection (PyOD) 3
 ==================================
+
+**PyOD 3: Agentic Anomaly Detection At Scale**
 
 |badge_pypi| |badge_anaconda| |badge_docs| |badge_stars| |badge_forks| |badge_downloads| |badge_testing| |badge_coverage| |badge_maintainability| |badge_license| |badge_benchmark|
 
@@ -51,9 +53,11 @@ Python Outlier Detection (PyOD) V3
 
 -----
 
-**New in V3.** Any AI agent can now run expert-level anomaly detection on your data. Just ask.
+    **PyOD is now agentic.** Any AI agent can drive an expert-level anomaly detection investigation on your data in plain English. The classic ``fit``/``predict`` API stays unchanged.
 
-PyOD V3 is the most comprehensive Python library for anomaly detection. Four pillars:
+-----
+
+PyOD 3 is the most comprehensive Python library for anomaly detection. Four pillars:
 
 ===========================  ========================================================================================
 Pillar                       What it means
@@ -87,7 +91,7 @@ Layer      Name                   When to use                                   
 Layers 2 and 3 are powered by ``ADEngine``, PyOD's intelligent orchestration core. Layer 3 adds two agentic activation paths: the ``od-expert`` skill for Claude Code (copy `skills/od-expert/SKILL.md <https://github.com/yzhao062/pyod/tree/development/skills/od-expert>`__ into your project ``skills/`` directory) and an MCP server (``python -m pyod.mcp_server``) that works with any MCP-compatible LLM out of the box.
 
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/development/docs/figs/agentic-demo.png
-   :alt: PyOD V3 agentic investigation demo on cardiotocography dataset
+   :alt: PyOD 3 agentic investigation demo on cardiotocography dataset
    :align: center
    :width: 720
 
