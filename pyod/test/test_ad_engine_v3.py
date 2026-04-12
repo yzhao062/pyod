@@ -230,5 +230,60 @@ class TestSessionIterate(unittest.TestCase):
         assert state.iteration == 1
 
 
+class TestSessionReport(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+        self.X = np.random.RandomState(42).randn(200, 10)
+
+    def _run_to_analyzed(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        state = self.engine.analyze(state)
+        return state
+
+    def test_report_text(self):
+        state = self._run_to_analyzed()
+        report = self.engine.report(state, format='text')
+        assert isinstance(report, str)
+        assert 'Anomaly' in report
+        assert 'consensus' in report.lower() or 'quality' in report.lower()
+
+    def test_report_json(self):
+        state = self._run_to_analyzed()
+        report = self.engine.report(state, format='json')
+        assert isinstance(report, dict)
+        assert 'session' in report
+        assert 'best_detector' in report
+
+    def test_report_no_analysis_raises(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        # No analyze() called
+        state.analysis = None
+        with self.assertRaises(ValueError):
+            self.engine.report(state)
+
+
+class TestSessionInvestigate(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+        self.X = np.random.RandomState(42).randn(200, 10)
+
+    def test_investigate_returns_analyzed_state(self):
+        state = self.engine.investigate(self.X)
+        assert isinstance(state, InvestigationState)
+        assert state.phase == 'analyzed'
+        assert state.analysis is not None
+        assert state.quality is not None
+        assert len(state.results) > 0
+
+    def test_investigate_with_data_type(self):
+        state = self.engine.investigate(
+            self.X, data_type='tabular')
+        assert state.profile['data_type'] == 'tabular'
+
+
 if __name__ == '__main__':
     unittest.main()

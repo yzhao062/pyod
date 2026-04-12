@@ -1420,6 +1420,118 @@ class ADEngine:
         return state
 
     # ------------------------------------------------------------------
+    # V3 Session workflow: report and investigate
+    # ------------------------------------------------------------------
+
+    def report(self, state, format='text'):
+        """Generate investigation report.
+
+        Text format wraps ``generate_report()`` for best detector,
+        prepending session-level context. JSON format returns a
+        native dict.
+
+        Parameters
+        ----------
+        state : InvestigationState
+        format : str
+            'text' or 'json'.
+
+        Returns
+        -------
+        report : str or dict
+        """
+        if state.analysis is None:
+            raise ValueError(
+                "No successful detectors to report on. "
+                "Use iterate() to adjust the plan.")
+
+        best_idx = state.analysis['best_detector_index']
+        best_result = state.results[best_idx]
+        best_analysis = state.analysis['per_detector_analysis'][
+            best_idx]
+
+        if format == 'json':
+            return {
+                'session': {
+                    'consensus': {
+                        'scores': state.consensus[
+                            'scores'].tolist(),
+                        'labels': state.consensus[
+                            'labels'].tolist(),
+                        'n_detectors': state.consensus[
+                            'n_detectors'],
+                        'agreement': state.consensus[
+                            'agreement'],
+                        'disagreements': state.consensus[
+                            'disagreements'],
+                    },
+                    'quality': state.quality,
+                    'comparison': {
+                        'agreement': state.consensus[
+                            'agreement'],
+                        'disagreements': state.consensus[
+                            'disagreements'],
+                    },
+                },
+                'best_detector': {
+                    'name': best_result['detector_name'],
+                    'scores': best_result[
+                        'scores_train'].tolist(),
+                    'labels': best_result[
+                        'labels_train'].tolist(),
+                    'threshold': best_result['threshold'],
+                    'analysis': best_analysis,
+                },
+            }
+
+        # Text format
+        lines = []
+        lines.append('# Investigation Report')
+        lines.append('')
+
+        # Session section
+        lines.append('## Session Summary')
+        c = state.consensus
+        q = state.quality
+        lines.append('- **Detectors run:** %d' % c['n_detectors'])
+        lines.append('- **Detector agreement:** %.2f'
+                     % c['agreement'])
+        lines.append('- **Quality verdict:** %s (%.2f)'
+                     % (q['verdict'], q['overall']))
+        lines.append('- **Iterations:** %d' % state.iteration)
+        if c['disagreements']:
+            lines.append('- **Disagreements:** %d samples'
+                         % len(c['disagreements']))
+        lines.append('')
+
+        # Best detector report (via generate_report)
+        detector_report = self.generate_report(
+            best_result, best_analysis, format='text')
+        lines.append(detector_report)
+
+        return '\n'.join(lines)
+
+    def investigate(self, X, data_type=None, priority='balanced'):
+        """One-shot investigation: start → plan → run → analyze.
+
+        Parameters
+        ----------
+        X : array-like
+            Input data.
+        data_type : str or None
+        priority : str
+
+        Returns
+        -------
+        state : InvestigationState
+        """
+        state = self.start(X, data_type=data_type)
+        state = self.plan(state, priority=priority)
+        state = self.run(state)
+        state = self.analyze(state)
+        return state
+
+    # ------------------------------------------------------------------
     # Knowledge queries
     # ------------------------------------------------------------------
 
