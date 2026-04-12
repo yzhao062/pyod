@@ -2,7 +2,6 @@ from setuptools import find_packages, setup
 
 # read the contents of README file
 from os import path
-from io import open  # for Python 2 and 3 compatibility
 
 # get __version__ from _version.py
 ver_file = path.join('pyod', 'version.py')
@@ -26,52 +25,86 @@ with open(path.join(this_directory, 'requirements.txt'),
 setup(
     name='pyod',
     version=__version__,
-    description='A Comprehensive and Scalable Python Library for Outlier Detection (Anomaly Detection)',
+    description='A Python library for anomaly detection across tabular, time series, graph, text, and image data. 60+ detectors, benchmark-backed ADEngine orchestration, and an agentic workflow for AI agents.',
     long_description=readme(),
     long_description_content_type='text/x-rst',
     author='Yue Zhao',
     author_email='yzhao062@gmail.com',
     url='https://github.com/yzhao062/pyod',
-    download_url='https://github.com/yzhao062/pyod/archive/master.zip',
-    keywords=['outlier detection', 'anomaly detection', 'outlier ensembles',
-              'data mining', 'neural networks'],
-    packages=find_packages(exclude=['test']),
+    keywords=[
+        'anomaly detection',
+        'outlier detection',
+        'machine learning',
+        'deep learning',
+        'unsupervised learning',
+        'time series anomaly detection',
+        'graph anomaly detection',
+        'nlp anomaly detection',
+        'image anomaly detection',
+        'multimodal',
+        'agentic ai',
+        'foundation models',
+        'fraud detection',
+        'novelty detection',
+        'out-of-distribution detection',
+        'outlier ensembles',
+        'pytorch',
+        'python',
+    ],
+    packages=find_packages(exclude=['test', 'test.*', 'pyod.test', 'pyod.test.*']),
     include_package_data=True,
     package_data={
-        'pyod.utils': ['model_analysis_jsons/*.json'],
+        'pyod.utils.model_analysis_jsons': ['*.json'],
         'pyod.utils.knowledge': ['*.json'],
     },
     install_requires=requirements,
     extras_require={
-        'embedding': ['sentence-transformers>=2.0'],
+        # Neural detectors (AutoEncoder, VAE, DeepSVDD, ALAD, ...)
+        'torch': ['torch>=2.0'],
+        # Acceleration
+        'suod': ['suod'],
+        # Supervised detector
+        'xgboost': ['xgboost'],
+        # Model combination utilities
+        'combo': ['combo'],
+        # Data-driven thresholding
+        'pythresh': ['pythresh'],
+        # EmbeddingOD paths
+        'embedding': ['sentence-transformers>=5.0.0'],
         'openai': ['openai>=1.0'],
-        'mcp': ['mcp>=1.0'],
+        'huggingface': ['transformers>=4.25.1', 'torch>=2.0', 'Pillow'],
+        # Graph detectors (DOMINANT, CoLA, SCAN, ...)
         'graph': ['torch>=2.0', 'torch_geometric>=2.0'],
+        # MCP server for agent integration
+        'mcp': ['mcp>=1.0'],
+        # Everything at once
         'all': [
-            'sentence-transformers>=2.0',
-            'openai>=1.0',
-            'transformers>=4.0',
             'torch>=2.0',
+            'suod',
+            'xgboost',
+            'combo',
+            'pythresh',
+            'sentence-transformers>=5.0.0',
+            'openai>=1.0',
+            'transformers>=4.25.1',
             'torch_geometric>=2.0',
             'Pillow',
             'mcp>=1.0',
         ],
     },
-    setup_requires=['setuptools>=38.6.0'],
+    python_requires='>=3.9',
+    license='BSD-2-Clause',
     classifiers=[
-        'Development Status :: 6 - Mature',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
         'Intended Audience :: Financial and Insurance Industry',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',
-        'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
 )

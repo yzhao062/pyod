@@ -28,7 +28,7 @@ Modality extras are available for heavier modalities:
 
 **Required Dependencies**:
 
-* Python 3.8 or higher
+* Python 3.9 or higher
 * ``joblib``
 * ``matplotlib``
 * ``numpy>=1.19``
