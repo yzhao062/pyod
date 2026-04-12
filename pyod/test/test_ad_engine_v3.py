@@ -115,5 +115,63 @@ class TestSessionRun(unittest.TestCase):
         assert state.consensus['agreement'] == 0.5
 
 
+class TestSessionAnalyze(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+        self.X = np.random.RandomState(42).randn(200, 10)
+
+    def _run_to_detected(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        return state
+
+    def test_analyze_returns_state(self):
+        state = self._run_to_detected()
+        state = self.engine.analyze(state)
+        assert state.phase == 'analyzed'
+        assert state.analysis is not None
+        assert state.quality is not None
+
+    def test_quality_metrics(self):
+        state = self._run_to_detected()
+        state = self.engine.analyze(state)
+        q = state.quality
+        assert 0 <= q['separation'] <= 1
+        assert 0 <= q['agreement'] <= 1
+        assert 0 <= q['stability'] <= 1
+        assert 0 <= q['overall'] <= 1
+        assert q['verdict'] in ('high', 'medium', 'low')
+        assert len(q['explanation']) > 0
+
+    def test_analysis_has_best_detector(self):
+        state = self._run_to_detected()
+        state = self.engine.analyze(state)
+        a = state.analysis
+        assert 'best_detector' in a
+        assert 'best_detector_index' in a
+        assert 'consensus_analysis' in a
+        assert 'per_detector_analysis' in a
+        assert 'summary' in a
+
+    def test_per_detector_aligned_with_results(self):
+        state = self._run_to_detected()
+        state = self.engine.analyze(state)
+        assert len(state.analysis['per_detector_analysis']) == len(state.results)
+
+    def test_next_action_after_analyze(self):
+        state = self._run_to_detected()
+        state = self.engine.analyze(state)
+        assert state.next_action['action'] in (
+            'report_to_user', 'iterate')
+
+    def test_quality_separation_edge_case(self):
+        """All same label -> separation = 0."""
+        state = self._run_to_detected()
+        state.consensus['labels'] = np.zeros(200, dtype=int)
+        state = self.engine.analyze(state)
+        assert state.quality['separation'] == 0.0
+
+
 if __name__ == '__main__':
     unittest.main()

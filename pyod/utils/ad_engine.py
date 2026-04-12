@@ -1028,6 +1028,242 @@ class ADEngine:
             % (len(successful), len(results))))
         return state
 
+    def analyze(self, state):
+        """Analyze detection results with quality assessment.
+
+        Computes per-detector analysis, consensus analysis, quality
+        metrics (separation, agreement, stability), and selects
+        the best detector.
+
+        Parameters
+        ----------
+        state : InvestigationState
+
+        Returns
+        -------
+        state : InvestigationState
+        """
+        from .investigation import _make_history_entry
+        from scipy.stats import spearmanr
+
+        state.phase = 'analyzed'
+
+        # All-error path
+        successful = [r for r in state.results
+                      if r['status'] == 'success']
+        if not successful:
+            state.analysis = None
+            state.quality = {
+                'separation': 0.0, 'agreement': 0.0,
+                'stability': 0.0, 'overall': 0.0,
+                'verdict': 'low',
+                'explanation': 'All detectors failed.',
+            }
+            state.next_action = {
+                'action': 'confirm_with_user',
+                'reason': 'All detectors failed. Check data format '
+                          'or try a different detector family.',
+            }
+            state.history.append(_make_history_entry(
+                'analyzed', 'analyze', state.iteration,
+                'All detectors failed'))
+            return state
+
+        # Per-detector analysis (aligned with state.results)
+        per_det = []
+        for r in state.results:
+            if r['status'] == 'success':
+                try:
+                    a = self.analyze_results(r, X=state.data)
+                except Exception:
+                    a = None
+                per_det.append(a)
+            else:
+                per_det.append(None)
+
+        # Consensus analysis (lightweight, not via analyze_results)
+        c = state.consensus
+        c_scores = c['scores']
+        c_labels = c['labels']
+        n_anomalies = int(c_labels.sum())
+        n_samples = len(c_labels)
+        top_k = min(10, n_samples)
+        top_indices = np.argsort(c_scores)[::-1][:top_k]
+        consensus_analysis = {
+            'n_anomalies': n_anomalies,
+            'anomaly_ratio': n_anomalies / max(n_samples, 1),
+            'score_distribution': {
+                'mean': float(np.mean(c_scores)),
+                'std': float(np.std(c_scores)),
+                'min': float(np.min(c_scores)),
+                'max': float(np.max(c_scores)),
+                'median': float(np.median(c_scores)),
+                'q25': float(np.percentile(c_scores, 25)),
+                'q75': float(np.percentile(c_scores, 75)),
+            },
+            'top_anomalies': [
+                {'index': int(i), 'score': float(c_scores[i])}
+                for i in top_indices],
+            'summary': '%d anomalies detected out of %d samples '
+                       '(%.1f%%) by consensus of %d detectors.'
+                       % (n_anomalies, n_samples,
+                          100 * n_anomalies / max(n_samples, 1),
+                          c['n_detectors']),
+        }
+
+        # Best detector selection
+        best_idx = self._select_best_detector(
+            state.results, c_scores)
+
+        state.analysis = {
+            'consensus_analysis': consensus_analysis,
+            'per_detector_analysis': per_det,
+            'best_detector': state.results[best_idx]['detector_name'],
+            'best_detector_index': best_idx,
+            'summary': consensus_analysis['summary'],
+        }
+
+        # Quality metrics
+        state.quality = self._compute_quality(
+            c_scores, c_labels, state.results, c)
+        state.analysis['summary'] += (
+            ' Quality: %s (%.2f).'
+            % (state.quality['verdict'], state.quality['overall']))
+
+        # Next action based on quality
+        if state.quality['overall'] >= 0.4:
+            state.next_action = {
+                'action': 'report_to_user',
+                'reason': 'Results ready (quality=%s, %.2f).'
+                          % (state.quality['verdict'],
+                             state.quality['overall']),
+                'summary': state.analysis['summary'],
+                'confidence': state.quality['overall'],
+            }
+        else:
+            state.next_action = {
+                'action': 'iterate',
+                'reason': 'Low result quality (%.2f). Consider '
+                          'trying different detectors.'
+                          % state.quality['overall'],
+                'suggestion': 'Exclude lowest-agreement detector '
+                              'and re-run.',
+            }
+
+        state.history.append(_make_history_entry(
+            'analyzed', 'analyze', state.iteration,
+            'Quality: %s (%.2f)' % (
+                state.quality['verdict'],
+                state.quality['overall'])))
+        return state
+
+    def _select_best_detector(self, results, consensus_scores):
+        """Select best detector via Spearman with consensus.
+
+        Fallback chain (per spec):
+        1. Highest finite Spearman correlation
+        2. If tied: highest plan confidence
+        3. If still tied: fastest runtime
+        4. If ALL correlations are NaN: first successful detector
+        """
+        from scipy.stats import spearmanr
+
+        successful = [
+            (i, r) for i, r in enumerate(results)
+            if r['status'] == 'success']
+        if len(successful) == 1:
+            return successful[0][0]
+
+        # Compute Spearman for each successful detector
+        rhos = []
+        for i, r in successful:
+            rho, _ = spearmanr(r['scores_train'], consensus_scores)
+            rhos.append(float(rho) if np.isfinite(rho) else None)
+
+        # If ALL NaN: return first successful (spec rule 4)
+        if all(rho is None for rho in rhos):
+            return successful[0][0]
+
+        # Find best by finite Spearman, then tie-break
+        best_j = 0  # index into successful list
+        best_rho = -1.0
+        for j, (i, r) in enumerate(successful):
+            rho = rhos[j]
+            if rho is None:
+                continue
+            if rho > best_rho:
+                best_rho = rho
+                best_j = j
+            elif rho == best_rho:
+                # Tie-break: plan confidence
+                curr_conf = r.get('plan', {}).get('confidence', 0)
+                prev_conf = successful[best_j][1].get(
+                    'plan', {}).get('confidence', 0)
+                if curr_conf > prev_conf:
+                    best_j = j
+                elif curr_conf == prev_conf:
+                    # Tie-break: fastest
+                    if r.get('runtime_seconds', 999) < successful[
+                            best_j][1].get('runtime_seconds', 999):
+                        best_j = j
+        return successful[best_j][0]
+
+    def _compute_quality(self, scores, labels, results, consensus):
+        """Compute quality metrics: separation, agreement, stability."""
+        # Separation
+        if labels.sum() == 0 or labels.sum() == len(labels):
+            separation = 0.0
+        else:
+            anomaly_mean = float(np.mean(scores[labels == 1]))
+            inlier_mean = float(np.mean(scores[labels == 0]))
+            separation = float(np.clip(
+                anomaly_mean / (inlier_mean + 1e-10) - 1, 0, 1))
+
+        # Agreement (from consensus)
+        agreement = float(consensus.get('agreement', 0.5))
+
+        # Stability: Jaccard of top-k under +/-20% perturbation
+        n_anomalies = int(labels.sum())
+        n_samples = len(labels)
+        if n_anomalies == 0:
+            stability = 0.0
+        else:
+            k = n_anomalies
+            k_low = max(1, int(k * 0.8))
+            k_high = min(n_samples, int(k * 1.2))
+            sorted_idx = np.argsort(scores)[::-1]
+            top_k = set(sorted_idx[:k].tolist())
+            top_low = set(sorted_idx[:k_low].tolist())
+            top_high = set(sorted_idx[:k_high].tolist())
+
+            def _jaccard(a, b):
+                if not a and not b:
+                    return 1.0
+                return len(a & b) / len(a | b)
+
+            stability = 0.5 * (
+                _jaccard(top_k, top_low)
+                + _jaccard(top_k, top_high))
+
+        overall = float(np.mean([separation, agreement, stability]))
+        if overall >= 0.7:
+            verdict = 'high'
+        elif overall >= 0.4:
+            verdict = 'medium'
+        else:
+            verdict = 'low'
+
+        return {
+            'separation': separation,
+            'agreement': agreement,
+            'stability': stability,
+            'overall': overall,
+            'verdict': verdict,
+            'explanation': 'Separation=%.2f, agreement=%.2f, '
+                           'stability=%.2f.' % (
+                               separation, agreement, stability),
+        }
+
     # ------------------------------------------------------------------
     # Knowledge queries
     # ------------------------------------------------------------------
