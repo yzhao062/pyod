@@ -884,6 +884,12 @@ class ADEngine:
         """
         from .investigation import _make_history_entry
 
+        # Clear downstream state if re-planning from later phase
+        state.results = []
+        state.consensus = None
+        state.analysis = None
+        state.quality = None
+
         constraints = constraints or {}
         result = self.plan_detection(
             state.profile, priority=priority, constraints=constraints)
@@ -912,6 +918,16 @@ class ADEngine:
             'Selected %d detectors: %s' % (len(plans), ', '.join(names))))
         return state
 
+    @staticmethod
+    def _require_phase(state, expected):
+        """Enforce workflow phase precondition."""
+        if state.phase != expected:
+            raise ValueError(
+                "Expected phase '%s', got '%s'. Call the "
+                "workflow methods in order: start -> plan -> "
+                "run -> analyze -> iterate/report."
+                % (expected, state.phase))
+
     def run(self, state):
         """Run detection with all planned detectors.
 
@@ -927,6 +943,7 @@ class ADEngine:
         -------
         state : InvestigationState
         """
+        self._require_phase(state, 'planned')
         from .investigation import _make_history_entry
         from scipy.stats import rankdata, spearmanr
 
@@ -1043,6 +1060,7 @@ class ADEngine:
         -------
         state : InvestigationState
         """
+        self._require_phase(state, 'detected')
         from .investigation import _make_history_entry
         from scipy.stats import spearmanr
 
@@ -1284,6 +1302,7 @@ class ADEngine:
         -------
         state : InvestigationState
         """
+        self._require_phase(state, 'analyzed')
         if isinstance(feedback, dict):
             return self._iterate_structured(state, feedback)
         return self._iterate_nl(state, str(feedback))
@@ -1322,15 +1341,30 @@ class ADEngine:
         elif action == 'include':
             to_include = feedback.get('detectors', [])
             existing = {p['detector_name'] for p in state.plans}
+            added, already, capped = [], [], []
             for name in to_include:
-                if name not in existing:
+                if name in existing:
+                    already.append(name)
+                elif len(state.plans) >= 3:
+                    capped.append(name)
+                else:
                     algo = self.kb.get_algorithm(name)
                     if algo and algo.get('status') in (
                             'shipped', 'experimental'):
                         state.plans.append(self._make_plan(
                             detector_name=name, params={},
                             reason='Added by user', confidence=0.5))
-            detail = 'Included: %s' % ', '.join(to_include)
+                        added.append(name)
+            parts = []
+            if added:
+                parts.append('Included: %s' % ', '.join(added))
+            if already:
+                parts.append('Already present: %s'
+                             % ', '.join(already))
+            if capped:
+                parts.append('Could not add %s (v1 cap: 3)'
+                             % ', '.join(capped))
+            detail = '. '.join(parts) if parts else 'No changes'
 
         elif action == 'rerun':
             detail = 'Re-running same plan'
@@ -1440,6 +1474,11 @@ class ADEngine:
         -------
         report : str or dict
         """
+        self._require_phase(state, 'analyzed')
+        if format not in ('text', 'json'):
+            raise ValueError(
+                "Unknown report format: '%s'. Use 'text' or 'json'."
+                % format)
         if state.analysis is None:
             raise ValueError(
                 "No successful detectors to report on. "

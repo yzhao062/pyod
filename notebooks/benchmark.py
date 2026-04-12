@@ -23,7 +23,6 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from scipy.io import loadmat
 
 from pyod.models.abod import ABOD
 from pyod.models.cblof import CBLOF
@@ -74,23 +73,23 @@ from sklearn.metrics import roc_auc_score
 # TODO: add neural networks, LOCI, SOS, COF, SOD
 
 # Define data file and read X and y
-mat_file_list = ['arrhythmia.mat',
-                 'cardio.mat',
-                 'glass.mat',
-                 'ionosphere.mat',
-                 'letter.mat',
-                 'lympho.mat',
-                 'mnist.mat',
-                 'musk.mat',
-                 'optdigits.mat',
-                 'pendigits.mat',
-                 'pima.mat',
-                 'satellite.mat',
-                 'satimage-2.mat',
-                 'shuttle.mat',
-                 'vertebral.mat',
-                 'vowels.mat',
-                 'wbc.mat'
+csv_file_list = ['arrhythmia.csv',
+                 'cardio.csv',
+                 'glass.csv',
+                 'ionosphere.csv',
+                 'letter.csv',
+                 'lympho.csv',
+                 'mnist.csv',
+                 'musk.csv',
+                 'optdigits.csv',
+                 'pendigits.csv',
+                 'pima.csv',
+                 'satellite.csv',
+                 'satimage-2.csv',
+                 'shuttle.csv',
+                 'vertebral.csv',
+                 'vowels.csv',
+                 'wbc.csv'
                  ]
 
 # define the number of iterations
@@ -109,27 +108,27 @@ roc_df = pd.DataFrame(columns=df_columns)
 prn_df = pd.DataFrame(columns=df_columns)
 time_df = pd.DataFrame(columns=df_columns)
 
-for j in range(len(mat_file_list)):
+for j in range(len(csv_file_list)):
 
-    mat_file = mat_file_list[j]
-    mat = loadmat(os.path.join('data', mat_file))
-
-    X = mat['X']
-    y = mat['y'].ravel()
+    csv_file = csv_file_list[j]
+    data = np.genfromtxt(os.path.join('data', csv_file), delimiter=',',
+                         skip_header=1)
+    X = data[:, :-1]
+    y = data[:, -1].astype(int)
     outliers_fraction = np.count_nonzero(y) / len(y)
     outliers_percentage = round(outliers_fraction * 100, ndigits=4)
 
     # construct containers for saving results
-    roc_list = [mat_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
-    prn_list = [mat_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
-    time_list = [mat_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
+    roc_list = [csv_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
+    prn_list = [csv_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
+    time_list = [csv_file[:-4], X.shape[0], X.shape[1], outliers_percentage]
 
     roc_mat = np.zeros([n_ite, n_classifiers])
     prn_mat = np.zeros([n_ite, n_classifiers])
     time_mat = np.zeros([n_ite, n_classifiers])
 
     for i in range(n_ite):
-        print("\n... Processing", mat_file, '...', 'Iteration', i + 1)
+        print("\n... Processing", csv_file, '...', 'Iteration', i + 1)
         random_state = np.random.RandomState(i)
 
         # 60% data for training and 40% for testing

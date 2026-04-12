@@ -213,12 +213,11 @@ def _load_data(path):
         data = np.load(path, allow_pickle=False)
         return data[data.files[0]]
     elif ext == '.csv':
-        import csv
-        with open(path, 'r') as f:
-            reader = csv.reader(f)
-            next(reader)  # skip header
-            rows = [row for row in reader]
-        return np.array(rows, dtype=np.float64)
+        data = np.genfromtxt(path, delimiter=',', skip_header=1)
+        # Return features only (last column is label if present)
+        if data.ndim == 2 and data.shape[1] > 1:
+            return data[:, :-1]
+        return data
     elif ext == '.json':
         with open(path, 'r') as f:
             return json.load(f)

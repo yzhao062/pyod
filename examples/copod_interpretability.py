@@ -16,7 +16,7 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from scipy.io import loadmat
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 from pyod.models.copod import COPOD
@@ -24,12 +24,11 @@ from pyod.utils.utility import standardizer
 
 if __name__ == "__main__":
     # Define data file and read X and y
-    # Generate some data if the source data is missing
-    mat_file = 'cardio.mat'
-
-    mat = loadmat(os.path.join('data', mat_file))
-    X = mat['X']
-    y = mat['y'].ravel()
+    csv_file = 'cardio.csv'
+    data = np.genfromtxt(os.path.join('data', csv_file), delimiter=',',
+                         skip_header=1)
+    X = data[:, :-1]
+    y = data[:, -1].astype(int)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4,
                                                         random_state=1)

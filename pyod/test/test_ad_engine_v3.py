@@ -285,5 +285,85 @@ class TestSessionInvestigate(unittest.TestCase):
         assert state.profile['data_type'] == 'tabular'
 
 
+class TestSessionGuardrails(unittest.TestCase):
+    """Tests for workflow enforcement and edge cases."""
+
+    def setUp(self):
+        self.engine = ADEngine()
+        self.X = np.random.RandomState(42).randn(200, 10)
+
+    def test_run_before_plan_raises(self):
+        state = self.engine.start(self.X)
+        with self.assertRaises(ValueError):
+            self.engine.run(state)
+
+    def test_analyze_before_run_raises(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        with self.assertRaises(ValueError):
+            self.engine.analyze(state)
+
+    def test_iterate_before_analyze_raises(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        with self.assertRaises(ValueError):
+            self.engine.iterate(state, {'action': 'rerun'})
+
+    def test_report_invalid_format_raises(self):
+        state = self.engine.investigate(self.X)
+        with self.assertRaises(ValueError):
+            self.engine.report(state, format='csv')
+
+    def test_report_before_analyze_raises(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        with self.assertRaises(ValueError):
+            self.engine.report(state)
+
+    def test_include_respects_v1_cap(self):
+        state = self.engine.investigate(self.X)
+        state = self.engine.iterate(
+            state, {'action': 'include',
+                    'detectors': ['LOF', 'HBOS', 'COPOD']})
+        assert len(state.plans) <= 3
+
+    def test_include_at_cap_does_not_lie(self):
+        """Include at cap: only claims detectors that were added."""
+        state = self.engine.investigate(self.X)
+        assert len(state.plans) == 3  # already at cap
+        state = self.engine.iterate(
+            state, {'action': 'include',
+                    'detectors': ['COPOD']})
+        # COPOD should not appear since we're at cap
+        names = [p['detector_name'] for p in state.plans]
+        if 'COPOD' not in names:
+            assert 'Could not add' in state.next_action.get(
+                'adjustment', state.next_action.get('reason', ''))
+
+
+    def test_include_duplicate_not_claimed(self):
+        """Including an already-present detector reports 'Already present'."""
+        state = self.engine.investigate(self.X)
+        existing = state.plans[0]['detector_name']
+        state = self.engine.iterate(
+            state, {'action': 'include', 'detectors': [existing]})
+        adj = state.next_action.get(
+            'adjustment', state.next_action.get('reason', ''))
+        assert 'Already present' in adj
+
+    def test_replan_clears_downstream(self):
+        """Re-planning after analyze clears stale results."""
+        state = self.engine.investigate(self.X)
+        assert state.analysis is not None
+        state = self.engine.plan(state)
+        assert state.phase == 'planned'
+        assert state.results == []
+        assert state.consensus is None
+        assert state.analysis is None
+        assert state.quality is None
+
+
 if __name__ == '__main__':
     unittest.main()
