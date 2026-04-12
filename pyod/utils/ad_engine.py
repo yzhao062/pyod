@@ -912,6 +912,122 @@ class ADEngine:
             'Selected %d detectors: %s' % (len(plans), ', '.join(names))))
         return state
 
+    def run(self, state):
+        """Run detection with all planned detectors.
+
+        Wraps ``run_detection()`` per plan. Computes consensus via
+        rank normalization and majority vote. Records errors per
+        detector without stopping.
+
+        Parameters
+        ----------
+        state : InvestigationState
+
+        Returns
+        -------
+        state : InvestigationState
+        """
+        from .investigation import _make_history_entry
+        from scipy.stats import rankdata, spearmanr
+
+        results = []
+        for plan in state.plans:
+            try:
+                raw = self.run_detection(state.data, plan)
+                entry = dict(raw)
+                entry['detector_name'] = plan['detector_name']
+                entry['status'] = 'success'
+                entry['error'] = None
+                results.append(entry)
+            except Exception as e:
+                results.append({
+                    'detector_name': plan['detector_name'],
+                    'status': 'error',
+                    'error': str(e),
+                    'plan': plan,
+                })
+
+        state.results = results
+        state.phase = 'detected'
+
+        # Compute consensus from successful detectors
+        successful = [r for r in results if r['status'] == 'success']
+
+        if len(successful) == 0:
+            state.consensus = None
+            state.next_action = {
+                'action': 'confirm_with_user',
+                'reason': 'All %d detectors failed. Check data format '
+                          'or try a different detector family.'
+                          % len(results),
+            }
+        elif len(successful) == 1:
+            r = successful[0]
+            state.consensus = {
+                'scores': r['scores_train'],
+                'labels': r['labels_train'],
+                'n_detectors': 1,
+                'agreement': 0.5,
+                'disagreements': [],
+            }
+            state.next_action = {
+                'action': 'analyze',
+                'reason': 'Detection complete (1 detector).',
+            }
+        else:
+            n_samples = len(successful[0]['scores_train'])
+            # Rank-normalize scores per detector
+            rank_scores = np.array([
+                rankdata(r['scores_train']) / n_samples
+                for r in successful
+            ])
+            consensus_scores = np.mean(rank_scores, axis=0)
+
+            # Majority-vote labels
+            all_labels = np.array([
+                r['labels_train'] for r in successful])
+            vote_count = np.sum(all_labels, axis=0)
+            consensus_labels = (
+                vote_count > len(successful) / 2).astype(int)
+
+            # Pairwise Spearman agreement
+            correlations = []
+            for i in range(len(successful)):
+                for j in range(i + 1, len(successful)):
+                    rho, _ = spearmanr(
+                        successful[i]['scores_train'],
+                        successful[j]['scores_train'])
+                    correlations.append(
+                        max(0.0, rho) if np.isfinite(rho) else 0.0)
+            agreement = float(np.mean(correlations)) if correlations else 0.5
+
+            # Disagreements: indices where detectors disagree
+            disagreements = []
+            for idx in range(n_samples):
+                votes = all_labels[:, idx]
+                if not (votes.all() or not votes.any()):
+                    disagreements.append(int(idx))
+
+            state.consensus = {
+                'scores': consensus_scores,
+                'labels': consensus_labels,
+                'n_detectors': len(successful),
+                'agreement': agreement,
+                'disagreements': disagreements,
+            }
+            state.next_action = {
+                'action': 'analyze',
+                'reason': 'Detection complete (%d detectors, '
+                          'agreement=%.2f).'
+                          % (len(successful), agreement),
+            }
+
+        state.history.append(_make_history_entry(
+            'detected', 'run', state.iteration,
+            '%d/%d detectors succeeded'
+            % (len(successful), len(results))))
+        return state
+
     # ------------------------------------------------------------------
     # Knowledge queries
     # ------------------------------------------------------------------

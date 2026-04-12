@@ -73,5 +73,47 @@ class TestSessionStartPlan(unittest.TestCase):
         assert state.history[1]['action'] == 'plan'
 
 
+class TestSessionRun(unittest.TestCase):
+    def setUp(self):
+        self.engine = ADEngine()
+        self.X = np.random.RandomState(42).randn(200, 10)
+
+    def test_run_returns_state(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        assert state.phase == 'detected'
+        assert len(state.results) > 0
+        assert state.consensus is not None
+        assert state.next_action['action'] == 'analyze'
+
+    def test_results_have_scores(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        for r in state.results:
+            if r['status'] == 'success':
+                assert r['scores_train'] is not None
+                assert len(r['scores_train']) == 200
+
+    def test_consensus_scores(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(state)
+        state = self.engine.run(state)
+        assert len(state.consensus['scores']) == 200
+        assert len(state.consensus['labels']) == 200
+        assert 0 <= state.consensus['agreement'] <= 1
+
+    def test_consensus_single_detector(self):
+        state = self.engine.start(self.X)
+        state = self.engine.plan(
+            state, constraints={'exclude_detectors': [
+                'ECOD', 'KNN', 'HBOS', 'LOF', 'COPOD', 'CBLOF',
+                'PCA', 'INNE'], 'max_detectors': 1})
+        state = self.engine.run(state)
+        # Single detector: agreement = 0.5
+        assert state.consensus['agreement'] == 0.5
+
+
 if __name__ == '__main__':
     unittest.main()
