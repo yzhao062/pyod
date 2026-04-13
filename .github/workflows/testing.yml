@@ -192,15 +192,27 @@ jobs:
           print("IForest fit OK; decision_scores_ shape:", clf.decision_scores_.shape)
           PY
 
-      - name: Verify pyod-install-skill CLI end-to-end
+      - name: Verify unified pyod CLI end-to-end
         run: |
           set -euo pipefail
-          /tmp/pyod-smoke/bin/pyod-install-skill --help
-          rm -rf /tmp/pyod-skill-test
-          /tmp/pyod-smoke/bin/pyod-install-skill --target /tmp/pyod-skill-test
-          # The installer maps the underscore package name od_expert to the
-          # hyphenated Claude Code canonical directory name od-expert.
-          test -f /tmp/pyod-skill-test/od-expert/SKILL.md \
-            || { echo "ERROR: pyod-install-skill did not create od-expert/SKILL.md"; exit 1; }
-          head -3 /tmp/pyod-skill-test/od-expert/SKILL.md
-          echo "pyod-install-skill CLI works end-to-end"
+          /tmp/pyod-smoke/bin/pyod --help
+          /tmp/pyod-smoke/bin/pyod info
+          /tmp/pyod-smoke/bin/pyod install skill --help
+          /tmp/pyod-smoke/bin/pyod install skill --list
+          rm -rf /tmp/pyod-cli-skill-test
+          /tmp/pyod-smoke/bin/pyod install skill --target /tmp/pyod-cli-skill-test
+          test -f /tmp/pyod-cli-skill-test/od-expert/SKILL.md \
+            || { echo "ERROR: pyod install skill did not create SKILL.md"; exit 1; }
+          # Regression guard: `import pyod.mcp_server` in a smoke venv
+          # that deliberately does NOT have pyod[mcp] must not sys.exit.
+          /tmp/pyod-smoke/bin/python -c "import importlib.util; assert importlib.util.find_spec('mcp') is None, 'smoke venv unexpectedly has mcp'"
+          /tmp/pyod-smoke/bin/python -c "import pyod.mcp_server"
+          # Canonical-name assertion: underscore input → hyphen output
+          rm -rf /tmp/pyod-cli-underscore-test
+          /tmp/pyod-smoke/bin/pyod install skill --skill od_expert \
+            --target /tmp/pyod-cli-underscore-test \
+            | tee /tmp/pyod-cli-underscore.log
+          grep -q "Installed od-expert skill" /tmp/pyod-cli-underscore.log \
+            || { echo "ERROR: canonical name not used in output"; exit 1; }
+          test -f /tmp/pyod-cli-underscore-test/od-expert/SKILL.md
+          echo "unified pyod CLI works end-to-end"
