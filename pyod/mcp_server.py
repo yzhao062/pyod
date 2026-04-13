@@ -16,6 +16,7 @@ directly in Python: ``from pyod.utils.ad_engine import ADEngine``.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import keyword
 import os
@@ -23,22 +24,38 @@ import sys
 
 
 def _check_mcp():
+    """Probe whether the optional `mcp` package is importable.
+
+    Returns the FastMCP class if available, else None. Does NOT call
+    sys.exit — callers decide how to handle the missing-dep case.
+
+    Gotcha: ``importlib.util.find_spec("mcp.server.fastmcp")`` RAISES
+    ``ModuleNotFoundError`` when the parent ``mcp`` package is not
+    installed (it does not return None in that case). Probe the parent
+    first, then the submodule only if the parent exists.
+    """
+    if importlib.util.find_spec("mcp") is None:
+        return None
     try:
-        from mcp.server.fastmcp import FastMCP
-        return FastMCP
-    except ImportError:
-        print("MCP server requires the 'mcp' package. "
-              "Install with: pip install pyod[mcp]",
-              file=sys.stderr)
-        sys.exit(1)
+        spec = importlib.util.find_spec("mcp.server.fastmcp")
+    except ModuleNotFoundError:
+        return None
+    if spec is None:
+        return None
+    from mcp.server.fastmcp import FastMCP
+    return FastMCP
 
 
-FastMCP = _check_mcp()
+_engine = None
 
-from pyod.utils.ad_engine import ADEngine
 
-mcp = FastMCP("pyod")
-engine = ADEngine()
+def _get_engine():
+    """Lazy ADEngine singleton for the tool functions."""
+    global _engine
+    if _engine is None:
+        from pyod.utils.ad_engine import ADEngine
+        _engine = ADEngine()
+    return _engine
 
 
 def _to_json(obj):
@@ -46,7 +63,6 @@ def _to_json(obj):
     return json.dumps(obj, indent=2, default=str)
 
 
-@mcp.tool()
 def profile_data(data_path: str, data_type: str = "auto") -> str:
     """Profile a dataset for anomaly detection.
 
@@ -59,10 +75,9 @@ def profile_data(data_path: str, data_type: str = "auto") -> str:
     """
     X = _load_data(data_path)
     dt = None if data_type == "auto" else data_type
-    return _to_json(engine.profile_data(X, data_type=dt))
+    return _to_json(_get_engine().profile_data(X, data_type=dt))
 
 
-@mcp.tool()
 def plan_detection(
     data_profile: str,
     priority: str = "balanced",
@@ -89,10 +104,9 @@ def plan_detection(
         return _to_json({"error": "Invalid JSON", "details": str(e)})
     if cons is not None and not isinstance(cons, dict):
         return _to_json({"error": "constraints must be a JSON object"})
-    return _to_json(engine.plan_detection(profile, priority, cons))
+    return _to_json(_get_engine().plan_detection(profile, priority, cons))
 
 
-@mcp.tool()
 def build_detector(plan: str) -> str:
     """Get constructor metadata for a detector from a plan.
 
@@ -109,6 +123,7 @@ def build_detector(plan: str) -> str:
         return _to_json({"error": "Invalid JSON", "details": str(e)})
     if not isinstance(plan_dict, dict):
         return _to_json({"error": "plan must be a JSON object"})
+    engine = _get_engine()
     name = plan_dict.get('detector_name', '')
     algo = engine.kb.get_algorithm(name)
     if algo is None:
@@ -157,7 +172,6 @@ def build_detector(plan: str) -> str:
     })
 
 
-@mcp.tool()
 def list_detectors(data_type: str = "", status: str = "shipped") -> str:
     """List available PyOD detectors.
 
@@ -165,21 +179,19 @@ def list_detectors(data_type: str = "", status: str = "shipped") -> str:
         data_type: Filter by data type (tabular, text, image, etc.).
         status: Filter by status (shipped, planned, all).
     """
-    return _to_json(engine.list_detectors(
+    return _to_json(_get_engine().list_detectors(
         data_type=data_type or None, status=status))
 
 
-@mcp.tool()
 def explain_detector(name: str) -> str:
     """Explain a PyOD detector: how it works, strengths, weaknesses,
     benchmark performance, and recommended use cases."""
     try:
-        return _to_json(engine.explain_detector(name))
+        return _to_json(_get_engine().explain_detector(name))
     except ValueError as e:
         return _to_json({"error": str(e)})
 
 
-@mcp.tool()
 def compare_detectors(
     names: str = "",
     data_type: str = "tabular",
@@ -193,13 +205,12 @@ def compare_detectors(
         top_k: Number of top detectors.
     """
     name_list = [n.strip() for n in names.split(',')] if names else None
-    return _to_json(engine.compare_detectors(name_list, data_type, top_k))
+    return _to_json(_get_engine().compare_detectors(name_list, data_type, top_k))
 
 
-@mcp.tool()
 def get_benchmarks(benchmark: str = "all") -> str:
     """Get benchmark results (ADBench, NLP-ADBench, TSB-AD)."""
-    return _to_json(engine.get_benchmarks(benchmark))
+    return _to_json(_get_engine().get_benchmarks(benchmark))
 
 
 def _load_data(path):
@@ -233,5 +244,40 @@ def _load_data(path):
         raise ValueError("Unsupported file format: %s" % ext)
 
 
-if __name__ == "__main__":
+_TOOL_FUNCTIONS = (
+    profile_data,
+    plan_detection,
+    build_detector,
+    list_detectors,
+    explain_detector,
+    compare_detectors,
+    get_benchmarks,
+)
+
+
+def main() -> int:
+    """Entry point for `python -m pyod.mcp_server` and `pyod mcp serve`.
+
+    Creates the FastMCP instance, registers every tool function, and
+    blocks on mcp.run(). If the `mcp` extra is not installed, print
+    an install hint to stderr and return exit code 1.
+    """
+    FastMCP = _check_mcp()
+    if FastMCP is None:
+        print(
+            "PyOD MCP server requires the 'mcp' package. "
+            "Install with: pip install pyod[mcp]",
+            file=sys.stderr,
+        )
+        return 1
+
+    mcp = FastMCP("pyod")
+    for fn in _TOOL_FUNCTIONS:
+        mcp.tool()(fn)
+
     mcp.run()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

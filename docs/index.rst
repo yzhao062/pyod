@@ -77,6 +77,40 @@ Agentic                      Ask in plain English, and AI agents run expert-leve
 Most Used                    `38+ million downloads <https://pepy.tech/project/pyod>`_; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
 ===========================  ========================================================================================
 
+Install
+^^^^^^^
+
+Core library (required for every activation path):
+
+.. code-block:: bash
+
+    pip install pyod
+
+Then pick the activation path that matches your agent stack:
+
+.. code-block:: bash
+
+    # 1. Claude Code / Claude Desktop / Codex — enables the od-expert skill
+    pyod install skill              # Claude Code / Desktop: user-global (~/.claude/skills/)
+    pyod install skill --project    # Codex: project-local (./skills/, Codex has no user-global dir)
+
+    # 2. Any MCP-compatible LLM — requires the optional mcp extra
+    pip install pyod[mcp]
+    pyod mcp serve                 # alias for `python -m pyod.mcp_server`
+
+    # 3. Pure Python — no extra step
+    #    from pyod.utils.ad_engine import ADEngine
+
+Run ``pyod info`` at any time to see version, detector counts, and
+the install state of each activation path. ``pyod info`` also detects
+which agent stack you have installed (``~/.claude/`` for Claude Code,
+``~/.codex/`` for Codex) and recommends the right install command.
+
+For conda, source install, dependency details, and troubleshooting,
+see the full :doc:`installation guide <install>`. The legacy
+``pyod-install-skill`` command from v3.0.0 still works as an alias
+for ``pyod install skill``.
+
 **Outlier Detection with 5 Lines of Code** (``pip install pyod``):
 
 .. code-block:: python
@@ -97,7 +131,7 @@ Layer      Name                   When to use                                   
 3          Agentic Investigation  You want an AI agent to drive OD through natural conversation           :doc:`examples/agentic`
 =========  =====================  ======================================================================  ============================
 
-Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's intelligent orchestration core. Layer 3 adds the ``od-expert`` skill that auto-activates in Claude Code and MCP-compatible agents.
+Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's intelligent orchestration core. Layer 3 adds the ``od-expert`` skill that auto-activates in Claude Code, Codex, and MCP-compatible agents.
 
 .. figure:: figs/agentic-demo.png
    :alt: PyOD 3 agentic investigation demo on cardiotocography dataset
@@ -111,9 +145,7 @@ See :doc:`examples/agentic` for the full walkthrough.
 
 **How PyOD 3 gets triggered:**
 
-* **Claude Code / Claude Desktop**: After ``pip install pyod``, run ``pyod-install-skill`` to copy the bundled ``od-expert`` skill into ``~/.claude/skills/od-expert/`` (or ``pyod-install-skill --project`` for a project-local install into ``./skills/od-expert/``). The skill then auto-activates when users mention anomaly detection. Restart your Claude Code session after install to pick it up.
-* **MCP-compatible agents**: Run ``python -m pyod.mcp_server`` to expose PyOD tools. Any MCP-compatible LLM picks them based on intent.
-* **Python apps / custom agents**: ``from pyod.utils.ad_engine import ADEngine`` and call ``engine.investigate(data)`` directly.
+See the Install block above for setup instructions for all three activation paths. The legacy ``pyod-install-skill`` command from v3.0.0 still works as an alias for ``pyod install skill``.
 
 **PyOD Ecosystem & Resources**:
 `ADBench <https://github.com/Minqi824/ADBench>`_ (tabular benchmark) :cite:`a-han2022adbench` | `TSB-AD <https://github.com/TheDatumOrg/TSB-AD>`_ (time series) :cite:`a-liu2024tsb` | `BOND <https://arxiv.org/abs/2206.10071>`_ (graph) :cite:`a-liu2022bond` | `NLP-ADBench <https://github.com/USC-FORTIS/NLP-ADBench>`_ (NLP) :cite:`a-li2024nlp` | `AD-LLM <https://arxiv.org/abs/2412.11142>`_ (LLM-based AD) :cite:`a-yang2024ad` | `Resources <https://github.com/yzhao062/anomaly-detection-resources>`_

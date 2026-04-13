@@ -68,6 +68,40 @@ Agentic                      Ask in plain English, and AI agents run expert-leve
 Most Used                    38+ million downloads; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
 ===========================  ========================================================================================
 
+Install
+^^^^^^^
+
+Core library (required for every activation path):
+
+.. code-block:: bash
+
+    pip install pyod
+
+Then pick the activation path that matches your agent stack:
+
+.. code-block:: bash
+
+    # 1. Claude Code / Claude Desktop / Codex — enables the od-expert skill
+    pyod install skill              # Claude Code / Desktop: user-global (~/.claude/skills/)
+    pyod install skill --project    # Codex: project-local (./skills/, Codex has no user-global dir)
+
+    # 2. Any MCP-compatible LLM — requires the optional mcp extra
+    pip install pyod[mcp]
+    pyod mcp serve                 # alias for `python -m pyod.mcp_server`
+
+    # 3. Pure Python — no extra step
+    #    from pyod.utils.ad_engine import ADEngine
+
+Run ``pyod info`` at any time to see version, detector counts, and
+the install state of each activation path. ``pyod info`` also detects
+which agent stack you have installed (``~/.claude/`` for Claude Code,
+``~/.codex/`` for Codex) and recommends the right install command.
+
+For conda, source install, dependency details, and troubleshooting,
+see the full `installation guide <https://pyod.readthedocs.io/en/latest/install.html>`_.
+The legacy ``pyod-install-skill`` command from v3.0.0 still works as an
+alias for ``pyod install skill``.
+
 **Outlier Detection with 5 Lines of Code** (``pip install pyod``):
 
 .. code-block:: python
@@ -88,7 +122,7 @@ Layer      Name                   When to use                                   
 3          Agentic Investigation  You want an AI agent to drive OD through natural conversation           `Layer 3 walkthrough <https://pyod.readthedocs.io/en/latest/examples/agentic.html>`__
 =========  =====================  ======================================================================  =======================================
 
-Layers 2 and 3 are powered by ``ADEngine``, PyOD's intelligent orchestration core. Layer 3 adds two agentic activation paths: the ``od-expert`` skill for Claude Code (``pip install pyod && pyod-install-skill`` installs the bundled skill into ``~/.claude/skills/od-expert/``; add ``--project`` to install into ``./skills/od-expert/`` instead) and an MCP server (``python -m pyod.mcp_server``) that works with any MCP-compatible LLM out of the box.
+Layers 2 and 3 are powered by ``ADEngine``, PyOD's intelligent orchestration core. Layer 3 adds two agentic activation paths: the ``od-expert`` skill for Claude Code and Codex, and an MCP server (``python -m pyod.mcp_server``) that works with any MCP-compatible LLM out of the box. See the Install block above for detailed setup instructions.
 
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/development/docs/figs/agentic-demo.png
    :alt: PyOD 3 agentic investigation demo on cardiotocography dataset
@@ -163,7 +197,6 @@ For a broader perspective on anomaly detection, see our NeurIPS papers on `ADBen
 
 **Table of Contents**:
 
-* `Installation <#installation>`_
 * `API Cheatsheet & Reference <#api-cheatsheet--reference>`_
 * `Benchmarks <#benchmarks>`_
 * `Implemented Algorithms <#implemented-algorithms>`_ (Tabular, Time Series, Graph, Embedding)
@@ -171,56 +204,6 @@ For a broader perspective on anomaly detection, see our NeurIPS papers on `ADBen
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`_
 * `How to Contribute <#how-to-contribute>`_
 * `Inclusion Criteria <#inclusion-criteria>`_
-
-----
-
-Installation
-^^^^^^^^^^^^
-
-PyOD is designed for easy installation using either **pip** or **conda**. We recommend using the latest version of PyOD due to frequent updates and enhancements:
-
-.. code-block:: bash
-
-   pip install pyod            # normal install
-   pip install --upgrade pyod  # or update if needed
-
-.. code-block:: bash
-
-   conda install -c conda-forge pyod
-
-Alternatively, you can clone and run the setup.py file:
-
-.. code-block:: bash
-
-   git clone https://github.com/yzhao062/pyod.git
-   cd pyod
-   pip install .
-
-**Required Dependencies**:
-
-* Python 3.9 or higher
-* joblib
-* matplotlib
-* numpy>=1.19
-* numba>=0.51
-* scipy>=1.5.1
-* scikit_learn>=0.22.0
-
-**Optional Dependencies** (install only what you need):
-
-.. list-table::
-   :widths: 33 33 34
-   :header-rows: 0
-
-   * - ``pytorch``: deep learning models (AutoEncoder, VAE, DeepSVDD)
-     - ``suod``: SUOD acceleration framework
-     - ``xgboost``: XGBOD supervised detector
-   * - ``combo``: model combination, FeatureBagging
-     - ``pythresh``: data-driven thresholding
-     - ``sentence-transformers``: EmbeddingOD text
-   * - ``openai``: EmbeddingOD with OpenAI embeddings
-     - ``transformers``, ``torch``: EmbeddingOD image, HuggingFace encoder
-     - ``torch_geometric``: graph detectors (``pip install pyod[graph]``)
 
 ----
 

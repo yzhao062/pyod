@@ -79,6 +79,7 @@ Issues = "https://github.com/yzhao062/pyod/issues"
 Changelog = "https://github.com/yzhao062/pyod/blob/development/CHANGES.txt"
 
 [project.scripts]
+pyod = "pyod.cli:main"
 pyod-install-skill = "pyod.skills:install_cli"
 
 [tool.setuptools]

@@ -39,9 +39,9 @@ Read and follow the rules in `.agent-config/AGENTS.md` as baseline defaults. Any
 When a skill is invoked, read its SKILL.md from `.agent-config/repo/skills/<skill-name>/SKILL.md`.
 If a local `skills/<skill-name>/SKILL.md` exists in the project repo, the local copy takes precedence.
 Copying `.agent-config/repo/.claude/commands/*.md` only overwrites command files with the same name as the shared repo and does not delete unrelated project-local commands.
-Merge shared Claude project defaults (e.g., `effortLevel`, `permissions`) from `.agent-config/repo/.claude/settings.json` into the project `.claude/settings.json`. Shared keys are updated on every bootstrap run; project-only keys are preserved. Merge requires Python; if unavailable the existing file is left untouched.
+Merge shared Claude project defaults (e.g., `permissions`, `attribution`) from `.agent-config/repo/.claude/settings.json` into the project `.claude/settings.json`. Shared keys are updated on every bootstrap run; project-only keys are preserved. Merge requires Python; if unavailable the existing file is left untouched.
 Add `.agent-config/` to the project's `.gitignore` so fetched files are not committed.
-Bootstrap also sets up user-level config: it copies `scripts/guard.py` to `~/.claude/hooks/` (a PreToolUse hook that guards against destructive commands) and merges `user/settings.json` into `~/.claude/settings.json` (shared permissions and hook wiring). Remove the user-level section from the bootstrap script if this is not wanted.
+Bootstrap also sets up user-level config: it copies `scripts/guard.py` to `~/.claude/hooks/` (a PreToolUse hook that guards against destructive commands) and merges `user/settings.json` into `~/.claude/settings.json` (shared permissions, hook wiring, and the `CLAUDE_CODE_EFFORT_LEVEL=max` env entry that sets the default effort level). Remove the user-level section from the bootstrap script if this is not wanted.
 ````
 
 ### What gets shared
@@ -51,7 +51,7 @@ Bootstrap also sets up user-level config: it copies `scripts/guard.py` to `~/.cl
 | User profile, writing defaults, formatting rules, environment notes | `AGENTS.md` (this file) | `curl` raw file |
 | Shared skills (`dual-pass-workflow`, `bibref-filler`, `figure-prompt-builder`, etc.) | `skills/` directory (committed only) | sparse `git clone` |
 | Claude pointer commands for shared skills | `.claude/commands/` | sparse `git clone` plus non-destructive copy into the project `.claude/commands/` |
-| Claude project defaults (`effortLevel`, `permissions`, etc.) | `.claude/settings.json` | sparse `git clone` plus key-level merge into the project `.claude/settings.json` on every run |
+| Claude project defaults (`permissions`, `attribution`, etc.) | `.claude/settings.json` | sparse `git clone` plus key-level merge into the project `.claude/settings.json` on every run |
 
 ### Override rules
 
@@ -71,7 +71,7 @@ Bootstrap also sets up user-level config: it copies `scripts/guard.py` to `~/.cl
 After bootstrap, run **all** of the following checks and report results in a short summary. No shell commands are needed — all information is available from session environment and config files. Only flag items that need attention — if everything is correct, a one-line confirmation is sufficient.
 
 1. **OS** -- Read the platform from the session environment (e.g., `win32`, `darwin`, `linux`). Note it for platform-specific behavior (e.g., terminal review path on Windows, MCP on macOS/Linux).
-2. **Claude Code model and effort** (Claude Code sessions only) -- If the live session environment exposes model name and effort level, check them. The user prefers the highest available model (currently Opus) at high effort. If the session is on a different model or effort, mention it once — this is a preference, not a misconfiguration.
+2. **Claude Code model and effort** (Claude Code sessions only) -- If the live session environment exposes model name and effort level, check them. The user prefers the highest available model (currently Opus) at max effort. If the session is on a different model or effort, mention it once — this is a preference, not a misconfiguration.
 3. **Codex config** -- Read `~/.codex/config.toml` (or `%USERPROFILE%\.codex\config.toml` on Windows). If the file exists, check these keys and report any that are missing or wrong:
    - `model` should be `"gpt-5.4"` (or the latest available)
    - `model_reasoning_effort` should be `"xhigh"`
@@ -182,18 +182,21 @@ After bootstrap, run **all** of the following checks and report results in a sho
 
 ## Environment Notes
 
-- Prefer a Miniforge-managed Python interpreter.
+- Prefer a Miniforge-managed Python interpreter. Miniforge ships both `conda` and `mamba`; prefer `mamba` for install and create operations (faster C++ solver) and fall back to `conda` only when a command is not supported by mamba (e.g., `conda rename`).
 - If a `py312` environment or launcher exists, use it first.
 - Do not conclude that Python is unavailable just because `python`, `python3`, or `py` fails in `PATH`; those may resolve to shims, store aliases, or the wrong interpreter.
 - On Windows, a common Miniforge pattern is `%USERPROFILE%\\miniforge3\\envs\\py312\\python.exe`.
 - On macOS or Linux, a common Miniforge pattern is `$HOME/miniforge3/envs/py312/bin/python`.
 - If interpreter selection is still unclear, inspect Miniforge environments and local IDE settings before reporting that Python is missing.
+- **PyCharm default interpreter:** The `py312` conda environment is configured as the default interpreter for new projects via **File > New Projects Setup > Settings for New Projects > Python Interpreter**. Existing cloned repos should also point to this environment unless they require a project-specific venv.
 - GitHub CLI (`gh`) is used for PR and issue workflows. If `gh` is not found, remind the user to install it (`winget install GitHub.cli` on Windows, `brew install gh` on macOS) and authenticate with `gh auth login`.
-- **Claude Code installation**: Always use the **native installer** so that auto-update works. npm and winget installs require manual updates and should be migrated.
+- **Claude Code installation**: Prefer the **native installer**. Migrate off npm and winget when possible.
   - macOS: `curl -fsSL https://claude.ai/install.sh | sh`
   - Windows (PowerShell, no admin): `irm https://claude.ai/install.ps1 | iex` (requires Git for Windows)
   - To migrate from npm: `npm uninstall -g @anthropic-ai/claude-code` first. From winget: `winget uninstall Anthropic.ClaudeCode` first.
-  - Update channel can be set via `/config` inside Claude Code (`stable` or `latest`).
+  - Native installs auto-update in the background by default. Use `/config` inside Claude Code to set the release channel (`latest` or `stable`). Run `claude doctor` to inspect updater status, and `claude update` to force an immediate update check.
+  - To disable auto-updates, set `DISABLE_AUTOUPDATER=1` in the environment or add `"env": {"DISABLE_AUTOUPDATER": "1"}` to `~/.claude/settings.json`. Note: a legacy top-level `autoUpdates` key in `~/.claude.json` is ignored on native installs because `autoUpdatesProtectedForNative` neutralizes it.
+- **Claude Code effort level**: The persisted `effortLevel` key in any `settings.json` only accepts `low`, `medium`, or `high`. Writing `"effortLevel": "max"` is silently discarded on read (the schema uses `.catch(undefined)`), so setting `max` that way is a no-op. To get `max` as a persistent default across every project and session, set the env var `CLAUDE_CODE_EFFORT_LEVEL=max`. The recommended place is `"env": {"CLAUDE_CODE_EFFORT_LEVEL": "max"}` inside `~/.claude/settings.json` (same mechanism used for `DISABLE_AUTOUPDATER`). The shared `user/settings.json` in this repo already sets this env entry, and bootstrap merges it into `~/.claude/settings.json`, so running bootstrap once on any consuming project lands the user-level default. Runtime precedence is managed policy > `CLAUDE_CODE_EFFORT_LEVEL` env var > persisted `effortLevel` in settings.json (resolved as local > project > user) > Claude Code's built-in default. The env var also outranks session-level controls. When `CLAUDE_CODE_EFFORT_LEVEL` is set, neither `--effort` at launch nor `/effort <level>` inside a session changes the current session, and the slash command prints a warning that the env var is overriding the live effort; `/effort low|medium|high|auto` still writes the persisted user setting, so that value takes effect once the env var is cleared, while `/effort max` has no lasting effect (`max` is not a valid persisted value). When the env var is unset, `--effort` at launch is a session-only override, `/effort low|medium|high|auto` updates the persisted user setting, and `/effort max` is session-only because `max` is not a valid persisted value.
 
 ## Submodule Workflow
 
