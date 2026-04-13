@@ -23,8 +23,6 @@ sys.path.append(
 
 import numpy as np
 from sklearn.model_selection import train_test_split
-from scipy.io import loadmat
-
 from pyod.models.knn import KNN
 from pyod.models.combination import aom, moa, average, maximization, median
 from pyod.utils.utility import standardizer
@@ -35,21 +33,18 @@ if __name__ == "__main__":
 
     # Define data file and read X and y
     # Generate some data if the source data is missing
-    mat_file = 'cardio.mat'
+    csv_file = 'cardio.csv'
     try:
-        mat = loadmat(os.path.join('data', mat_file))
+        data = np.genfromtxt(os.path.join('data', csv_file), delimiter=',',
+                             skip_header=1)
 
-    except TypeError:
-        print('{data_file} does not exist. Use generated data'.format(
-            data_file=mat_file))
-        X, y = generate_data(train_only=True)  # load data
     except IOError:
         print('{data_file} does not exist. Use generated data'.format(
-            data_file=mat_file))
+            data_file=csv_file))
         X, y = generate_data(train_only=True)  # load data
     else:
-        X = mat['X']
-        y = mat['y'].ravel()
+        X = data[:, :-1]
+        y = data[:, -1].astype(int)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
 

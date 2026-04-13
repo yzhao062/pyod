@@ -11,7 +11,6 @@ from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
-from scipy.io import loadmat
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
@@ -32,21 +31,20 @@ class TestLSCP(unittest.TestCase):
         # Define data file and read X and y
         # Generate some data if the source data is missing
         this_directory = path.abspath(path.dirname(__file__))
-        mat_file = 'cardio.mat'
+        csv_file = 'cardio.csv'
         try:
-            mat = loadmat(path.join(*[this_directory, 'data', mat_file]))
+            import numpy as np
+            data = np.genfromtxt(
+                path.join(*[this_directory, 'data', csv_file]),
+                delimiter=',', skip_header=1)
 
-        except TypeError:
-            print('{data_file} does not exist. Use generated data'.format(
-                data_file=mat_file))
-            X, y = generate_data(train_only=True)  # load data
         except IOError:
             print('{data_file} does not exist. Use generated data'.format(
-                data_file=mat_file))
+                data_file=csv_file))
             X, y = generate_data(train_only=True)  # load data
         else:
-            X = mat['X']
-            y = mat['y'].ravel()
+            X = data[:, :-1]
+            y = data[:, -1].astype(int)
             X, y = check_X_y(X, y)
 
         self.X_train, self.X_test, self.y_train, self.y_test = \

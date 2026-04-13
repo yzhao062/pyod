@@ -3,6 +3,14 @@ import importlib.resources
 import json
 import os
 import re
+import warnings
+
+warnings.warn(
+    "AutoModelSelector is deprecated and will be removed in PyOD v2.3.0. "
+    "Use pyod.utils.ad_engine.ADEngine instead.",
+    FutureWarning,
+    stacklevel=2
+)
 
 
 def _check_openai_dependency():

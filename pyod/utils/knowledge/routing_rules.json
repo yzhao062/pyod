@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "tabular_high_dim_fast",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_features", "op": "gte", "value": 100},
+        {"field": "priority", "op": "eq", "value": "speed"}
+      ],
+      "recommendations": [
+        {"detector": "ECOD", "params": {}, "confidence": 0.9},
+        {"detector": "HBOS", "params": {}, "confidence": 0.85},
+        {"detector": "IForest", "params": {}, "confidence": 0.8}
+      ],
+      "reason": "High-dimensional tabular + speed priority: parameter-free fast methods",
+      "evidence": ["ADBench"]
+    },
+    {
+      "id": "tabular_high_dim_accurate",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_features", "op": "gte", "value": 100},
+        {"field": "priority", "op": "eq", "value": "accuracy"}
+      ],
+      "recommendations": [
+        {"detector": "IForest", "params": {}, "confidence": 0.9},
+        {"detector": "ECOD", "params": {}, "confidence": 0.85},
+        {"detector": "COPOD", "params": {}, "confidence": 0.8}
+      ],
+      "reason": "High-dimensional tabular + accuracy: ensemble-friendly methods",
+      "evidence": ["ADBench"]
+    },
+    {
+      "id": "tabular_low_dim_small",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_features", "op": "lt", "value": 20},
+        {"field": "n_samples", "op": "lt", "value": 5000}
+      ],
+      "recommendations": [
+        {"detector": "KNN", "params": {}, "confidence": 0.85},
+        {"detector": "LOF", "params": {}, "confidence": 0.8},
+        {"detector": "CBLOF", "params": {}, "confidence": 0.75}
+      ],
+      "reason": "Low-dim small dataset: proximity-based methods excel",
+      "evidence": ["ADBench"]
+    },
+    {
+      "id": "tabular_low_dim_large",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_features", "op": "lt", "value": 20},
+        {"field": "n_samples", "op": "gte", "value": 5000}
+      ],
+      "recommendations": [
+        {"detector": "IForest", "params": {}, "confidence": 0.85},
+        {"detector": "ECOD", "params": {}, "confidence": 0.8},
+        {"detector": "INNE", "params": {}, "confidence": 0.75}
+      ],
+      "reason": "Low-dim large dataset: tree-based methods scale well",
+      "evidence": ["ADBench"]
+    },
+    {
+      "id": "tabular_balanced",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"}
+      ],
+      "recommendations": [
+        {"detector": "IForest", "params": {}, "confidence": 0.85},
+        {"detector": "ECOD", "params": {}, "confidence": 0.8},
+        {"detector": "KNN", "params": {}, "confidence": 0.75}
+      ],
+      "reason": "General tabular: robust all-rounders from ADBench top-5",
+      "evidence": ["ADBench"]
+    },
+    {
+      "id": "text_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "text"}
+      ],
+      "recommendations": [
+        {"detector": "EmbeddingOD", "params": {}, "preset": "for_text", "confidence": 0.9}
+      ],
+      "reason": "Text data: EmbeddingOD.for_text() with benchmark-informed defaults",
+      "evidence": ["NLP_ADBench"]
+    },
+    {
+      "id": "image_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "image"}
+      ],
+      "recommendations": [
+        {"detector": "EmbeddingOD", "params": {}, "preset": "for_image", "confidence": 0.85}
+      ],
+      "reason": "Image data: EmbeddingOD.for_image() with DINOv2 vision encoder",
+      "evidence": []
+    },
+    {
+      "id": "time_series_short",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "time_series"},
+        {"field": "n_samples", "op": "lt", "value": 500}
+      ],
+      "recommendations": [
+        {"detector": "KShape", "params": {}, "confidence": 0.85},
+        {"detector": "MatrixProfile", "params": {}, "confidence": 0.8},
+        {"detector": "SpectralResidual", "params": {}, "confidence": 0.75}
+      ],
+      "reason": "Short time series: KShapeAD (#2 overall, #2 on short TS in TSB-AD), MatrixProfile (#4 on short), SpectralResidual (#8 on short). Shape-based methods excel on short series.",
+      "evidence": ["TSB_AD"]
+    },
+    {
+      "id": "time_series_long",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "time_series"},
+        {"field": "n_samples", "op": "gte", "value": 5000}
+      ],
+      "recommendations": [
+        {"detector": "LSTMAD", "params": {}, "confidence": 0.8},
+        {"detector": "TimeSeriesOD", "params": {"detector": "IForest"}, "confidence": 0.75},
+        {"detector": "SpectralResidual", "params": {}, "confidence": 0.7}
+      ],
+      "reason": "Long time series: LSTMAD (#8 on long TS in TSB-AD) is best of implemented methods. KShapeAD/SAND/MatrixProfile degrade on long series.",
+      "evidence": ["TSB_AD"]
+    },
+    {
+      "id": "time_series_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "time_series"}
+      ],
+      "recommendations": [
+        {"detector": "KShape", "params": {}, "confidence": 0.85},
+        {"detector": "SpectralResidual", "params": {}, "confidence": 0.8},
+        {"detector": "TimeSeriesOD", "params": {"detector": "IForest"}, "confidence": 0.75}
+      ],
+      "reason": "General time series: KShapeAD is #2 overall in TSB-AD benchmark. SpectralResidual is fast and strong on point anomalies (#3). Windowed IForest is a safe fallback.",
+      "evidence": ["TSB_AD"]
+    },
+    {
+      "id": "multimodal_default",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "multimodal"}
+      ],
+      "recommendations": [
+        {"detector": "MultiModalOD", "params": {}, "confidence": 0.8}
+      ],
+      "reason": "Multi-modal data: score fusion across per-modality detectors",
+      "evidence": []
+    },
+    {
+      "id": "graph_attributed",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "graph"},
+        {"field": "has_features", "op": "eq", "value": true}
+      ],
+      "recommendations": [
+        {"detector": "DOMINANT", "params": {}, "confidence": 0.85},
+        {"detector": "CoLA", "params": {}, "confidence": 0.8},
+        {"detector": "Radar", "params": {}, "confidence": 0.7}
+      ],
+      "reason": "Attributed graph: DOMINANT and CoLA are most reliable deep methods (BOND benchmark). Radar is a lightweight MF baseline.",
+      "evidence": ["BOND"]
+    },
+    {
+      "id": "graph_structure_only",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "graph"},
+        {"field": "has_features", "op": "eq", "value": false}
+      ],
+      "recommendations": [
+        {"detector": "SCAN_Graph", "params": {}, "confidence": 0.8}
+      ],
+      "reason": "Structure-only graph (no node features): SCAN is the only detector that does not require attributes.",
+      "evidence": []
+    }
+  ]
+}

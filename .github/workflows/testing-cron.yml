@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
 
     strategy:
       fail-fast: false
@@ -28,8 +29,9 @@ jobs:
     - name: Install libomp for macOS
       if: startsWith(matrix.os, 'macos')
       run: brew install libomp
-      
-    - name: Install dependencies
+
+    - name: Install dependencies (non-macOS, full deps including torch)
+      if: ${{ !startsWith(matrix.os, 'macos') }}
       run: |
         python -m pip install --upgrade pip
         pip install -r docs/requirements.txt
@@ -37,12 +39,31 @@ jobs:
         pip install coverage
         pip install coveralls
 
+    # macOS CI deliberately skips torch and torch_geometric because of
+    # the upstream PyTorch NNPACK slowdown on Apple Silicon
+    # (https://github.com/pytorch/pytorch/issues/107534). Conv-heavy
+    # torch tests run ~36x slower on Apple Silicon and exhaust any
+    # reasonable job timeout. Torch-dependent tests are auto-skipped
+    # by pyod/test/conftest.py when torch is absent.
+    # TODO: remove this macOS-specific step and the conftest shim once
+    # upstream PyTorch fixes NNPACK on ARM and a fixed wheel is released.
+    - name: Install dependencies (macOS, skip torch and torch_geometric)
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        python -m pip install --upgrade pip
+        grep -vE '^(torch|torch_geometric)$' docs/requirements.txt > /tmp/mac-reqs.txt
+        pip install -r /tmp/mac-reqs.txt
+        pip install pytest
+        pip install coverage
+        pip install coveralls
+
     - name: Test with pytest
       run: |
         coverage run --source=pyod -m pytest
-        
+
     - name: Coverage report
       shell: bash
+      continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         COVERALLS_SERVICE_NAME: github-actions

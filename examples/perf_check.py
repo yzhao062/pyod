@@ -16,7 +16,7 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
-from scipy.io import loadmat
+import numpy as np
 
 from pyod.models.knn import KNN
 from pyod.utils.data import generate_data
@@ -24,31 +24,28 @@ from pyod.utils.data import evaluate_print
 
 if __name__ == "__main__":
 
-    file_list = ['arrhythmia.mat', 'cardio.mat', 'ionosphere.mat',
-                 'letter.mat', 'pima.mat']
+    file_list = ['arrhythmia.csv', 'cardio.csv', 'ionosphere.csv',
+                 'letter.csv', 'pima.csv']
     # Define data file and read X and y
     # Generate some data if the source data is missing
 
-    for mat_file in file_list:
+    for csv_file in file_list:
 
         try:
-            mat = loadmat(os.path.join('data', mat_file))
+            data = np.genfromtxt(os.path.join('data', csv_file),
+                                 delimiter=',', skip_header=1)
 
-        except TypeError:
-            print('{data_file} does not exist. Use generated data'.format(
-                data_file=mat_file))
-            X, y = generate_data(train_only=True)  # load data
         except IOError:
             print('{data_file} does not exist. Use generated data'.format(
-                data_file=mat_file))
+                data_file=csv_file))
             X, y = generate_data(train_only=True)  # load data
         else:
-            X = mat['X']
-            y = mat['y'].ravel()
+            X = data[:, :-1]
+            y = data[:, -1].astype(int)
 
         clf = KNN() # the algorithm you want to check
         # clf = KNN_new()
         clf.fit(X) # fit model
 
         # print performance
-        evaluate_print(mat_file, y, clf.decision_scores_)
+        evaluate_print(csv_file, y, clf.decision_scores_)

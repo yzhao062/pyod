@@ -1,40 +1,21 @@
 Known Issues & Warnings
 =======================
 
-This is the central place to track known issues.
+This is the central place to track known issues and behavioral notes.
 
 
 Installation
 ------------
 
-There are some known dependency issues/notes. Refer
-`installation <https://pyod.readthedocs.io/en/latest/install.html>`_
-for more information.
-
-
-Neural Networks
----------------
-
-SO_GAAL and MO_GAAL may only work under Python 3.5+.
+See :doc:`install` for dependency notes. Heavier modalities are optional: install ``pytorch`` for neural detectors, ``torch_geometric`` for graph detectors, and ``sentence-transformers`` / ``openai`` / ``transformers`` for text and image detection via :class:`~pyod.models.embedding.EmbeddingOD`.
 
 
 Differences between PyOD and scikit-learn
 -----------------------------------------
 
+PyOD is built on top of scikit-learn and inspired by its API design, but some conventions differ:
 
-Although PyOD is built on top of scikit-learn and inspired by its API design,
-some differences should be noted:
-
-- All models in PyOD follow the tradition that the outlying objects come with
-  higher scores while the normal objects have lower scores. scikit-learn has
-  an inverted design--lower scores stand for outlying objects.
-- PyOD uses "0" to represent inliers and "1" to represent outliers. Differently,
-  scikit-learn returns "-1" for anomalies/outliers and "1" for inliers.
-- Although Isolation Forests, One-class SVM, and Local Outlier Factor are
-  implemented in both PyOD and scikit-learn, users are not advised to mix the
-  use of them, e.g., calling one model from PyOD and another model from scikit-learn.
-  It is recommended to only use one library for consistency
-  (for three models, the PyOD implementation is indeed a set of wrapper
-  functions of scikit-learn).
-- PyOD models may not work with scikit-learn's check_estimator function. Similarly,
-  scikit-learn models would not work with PyOD's check_estimator function.
+* **Score direction.** PyOD uses the convention that outlying samples receive higher scores, while normal samples receive lower scores. scikit-learn uses the inverted convention (lower scores mean more anomalous).
+* **Label values.** PyOD uses ``0`` for inliers and ``1`` for outliers. scikit-learn returns ``1`` for inliers and ``-1`` for anomalies.
+* **Do not mix implementations.** Although Isolation Forest, One-Class SVM, and Local Outlier Factor exist in both libraries, mixing PyOD and scikit-learn instances of the same model in a single pipeline is not recommended. Use one library consistently (PyOD's versions of these three are wrappers around scikit-learn).
+* **check_estimator compatibility.** PyOD models may not pass scikit-learn's ``check_estimator``, and scikit-learn models may not pass PyOD's ``check_estimator``. The two validators enforce different contracts.

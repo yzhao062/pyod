@@ -3,7 +3,6 @@ furo
 geomstats
 joblib
 matplotlib
-nose
 numpy>=1.19
 numba>=0.51
 pyclustering
@@ -18,6 +17,7 @@ sphinxcontrib-bibtex
 statsmodels
 suod
 torch
+torch_geometric
 tqdm
 xgboost
 docutils
