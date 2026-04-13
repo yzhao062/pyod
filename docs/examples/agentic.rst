@@ -34,17 +34,29 @@ Activation Paths
 PyOD 3 reaches agents through three paths. Pick whichever matches your stack:
 
 **Claude Code / Claude Desktop**
-    The ``od-expert`` skill ships as package data inside the pyod wheel. Install it into Claude Code's skill directory with two commands:
+    The ``od-expert`` skill ships as package data inside the pyod wheel.
+    Install it into Claude Code's skill directory with two commands:
 
     .. code-block:: bash
 
         pip install pyod
-        pyod-install-skill              # installs to ~/.claude/skills/od-expert/
+        pyod install skill              # installs to ~/.claude/skills/od-expert/
 
-    For a project-local install (the skill is only active when running Claude Code inside that project), use ``pyod-install-skill --project`` (installs to ``./skills/od-expert/`` in the current working directory). After installing, the skill auto-activates when users mention anomaly detection; restart your Claude Code session to pick it up.
+    For a project-local install, use ``pyod install skill --project``
+    (installs to ``./skills/od-expert/`` in the current working
+    directory). After installing, run ``pyod info`` to confirm the
+    skill is detected. The legacy ``pyod-install-skill`` command from
+    v3.0.0 still works as an alias.
 
 **MCP-compatible agents**
-    Run ``python -m pyod.mcp_server`` to expose PyOD tools. Any MCP-compatible LLM picks them based on intent. This path is packaged with PyOD and requires only ``pip install pyod``.
+    Install the optional MCP extra, then launch the server:
+
+    .. code-block:: bash
+
+        pip install pyod[mcp]
+        pyod mcp serve              # alias for ``python -m pyod.mcp_server``
+
+    Any MCP-compatible LLM picks up the tools based on intent.
 
 **Python apps / custom agents**
     Import and call directly: ``from pyod.utils.ad_engine import ADEngine``. The agent calls ``engine.investigate(data)`` and follows ``state.next_action`` at each step.
