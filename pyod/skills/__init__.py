@@ -42,7 +42,7 @@ import shutil
 import sys
 from pathlib import Path
 
-__all__ = ["get_skill_path", "install", "install_cli"]
+__all__ = ["get_skill_path", "install", "install_cli", "_run_install"]
 
 # Python-package-name → Claude-Code-install-dirname mapping.
 # Python package names cannot contain hyphens, but Claude Code's skill
@@ -131,13 +131,71 @@ def install(target_dir: Path, skill_name: str = "od_expert") -> Path:
     return dest_file
 
 
+def _run_install(
+    *,
+    target: Path | None,
+    project: bool,
+    skill: str,
+    list_skills: bool,
+) -> int:
+    """Shared install path for both `pyod install skill` and `pyod-install-skill`.
+
+    Parameters mirror the argparse surface of both CLIs. Returns a shell
+    exit code: 0 on success, 1 on a FileNotFoundError from the installer.
+    """
+    if list_skills:
+        print("Available skills:")
+        for pkg_name, install_name in _INSTALL_DIRNAME_MAP.items():
+            source = get_skill_path(pkg_name) / "SKILL.md"
+            marker = "ok" if source.is_file() else "MISSING"
+            print(f"  {install_name} ({marker})")
+        return 0
+
+    if target is not None:
+        resolved_target = target
+        mode = "custom"
+    elif project:
+        resolved_target = Path.cwd() / "skills"
+        mode = "project"
+    else:
+        resolved_target = Path.home() / ".claude" / "skills"
+        mode = "user-global"
+
+    try:
+        dest = install(resolved_target, skill_name=skill)
+    except FileNotFoundError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+
+    canonical = _install_dirname(_normalize_to_package_name(skill))
+    print(f"Installed {canonical} skill to: {dest}")
+    if mode == "user-global":
+        print(
+            "Claude Code will auto-activate this skill on anomaly-detection "
+            "intent. Restart your Claude Code session to pick it up."
+        )
+    elif mode == "project":
+        print(
+            "The skill is now available as a project-local skill. Claude Code "
+            "and Codex running inside this project directory will pick it up "
+            "at their next session start."
+        )
+    else:
+        print(
+            "If this target is a known agent skill directory, restart the "
+            "agent's session to pick up the skill."
+        )
+    return 0
+
+
 def install_cli(argv: list[str] | None = None) -> int:
-    """Console entry point for ``pyod-install-skill``."""
+    """Console entry point for `pyod-install-skill` (legacy alias in v3.1.0+)."""
     parser = argparse.ArgumentParser(
         prog="pyod-install-skill",
         description=(
             "Install a pyod skill into Claude Code's skill directory. "
-            "Default target is ~/.claude/skills/ (user-global)."
+            "Prefer `pyod install skill` in v3.1.0+; this command is kept "
+            "as a backward-compat alias."
         ),
     )
     parser.add_argument(
@@ -166,31 +224,14 @@ def install_cli(argv: list[str] | None = None) -> int:
             "Both 'od-expert' and 'od_expert' are accepted."
         ),
     )
+    parser.add_argument("--list", action="store_true", dest="list_skills")
     args = parser.parse_args(argv)
-
-    if args.target is not None:
-        target = args.target
-    elif args.project:
-        target = Path.cwd() / "skills"
-    else:
-        target = Path.home() / ".claude" / "skills"
-
-    try:
-        dest = install(target, skill_name=args.skill)
-    except FileNotFoundError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        return 1
-
-    # Report the canonical (hyphenated) skill identifier rather than the
-    # Python package name, so the output matches what the user typed and
-    # what appears on disk.
-    canonical = _install_dirname(_normalize_to_package_name(args.skill))
-    print(f"Installed {canonical} skill to: {dest}")
-    print(
-        "Claude Code will auto-activate this skill on anomaly-detection "
-        "intent. Restart your Claude Code session to pick it up."
+    return _run_install(
+        target=args.target,
+        project=args.project,
+        skill=args.skill,
+        list_skills=args.list_skills,
     )
-    return 0
 
 
 if __name__ == "__main__":
