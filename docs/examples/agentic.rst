@@ -34,7 +34,14 @@ Activation Paths
 PyOD 3 reaches agents through three paths. Pick whichever matches your stack:
 
 **Claude Code / Claude Desktop**
-    The ``od-expert`` skill at `skills/od-expert/SKILL.md <https://github.com/yzhao062/pyod/blob/development/skills/od-expert/SKILL.md>`_ auto-activates when users mention anomaly detection. Copy the skill into your project ``skills/`` directory or ``~/.claude/skills/`` to enable it; ``pip install pyod`` installs the Python package itself but does not install the skill file.
+    The ``od-expert`` skill ships as package data inside the pyod wheel. Install it into Claude Code's skill directory with two commands:
+
+    .. code-block:: bash
+
+        pip install pyod
+        pyod-install-skill              # installs to ~/.claude/skills/od-expert/
+
+    For a project-local install (the skill is only active when running Claude Code inside that project), use ``pyod-install-skill --project`` (installs to ``./skills/od-expert/`` in the current working directory). After installing, the skill auto-activates when users mention anomaly detection; restart your Claude Code session to pick it up.
 
 **MCP-compatible agents**
     Run ``python -m pyod.mcp_server`` to expose PyOD tools. Any MCP-compatible LLM picks them based on intent. This path is packaged with PyOD and requires only ``pip install pyod``.

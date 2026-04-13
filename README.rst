@@ -88,7 +88,7 @@ Layer      Name                   When to use                                   
 3          Agentic Investigation  You want an AI agent to drive OD through natural conversation           `Layer 3 walkthrough <https://pyod.readthedocs.io/en/latest/examples/agentic.html>`__
 =========  =====================  ======================================================================  =======================================
 
-Layers 2 and 3 are powered by ``ADEngine``, PyOD's intelligent orchestration core. Layer 3 adds two agentic activation paths: the ``od-expert`` skill for Claude Code (copy `skills/od-expert/SKILL.md <https://github.com/yzhao062/pyod/tree/development/skills/od-expert>`__ into your project ``skills/`` directory) and an MCP server (``python -m pyod.mcp_server``) that works with any MCP-compatible LLM out of the box.
+Layers 2 and 3 are powered by ``ADEngine``, PyOD's intelligent orchestration core. Layer 3 adds two agentic activation paths: the ``od-expert`` skill for Claude Code (``pip install pyod && pyod-install-skill`` installs the bundled skill into ``~/.claude/skills/od-expert/``; add ``--project`` to install into ``./skills/od-expert/`` instead) and an MCP server (``python -m pyod.mcp_server``) that works with any MCP-compatible LLM out of the box.
 
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/development/docs/figs/agentic-demo.png
    :alt: PyOD 3 agentic investigation demo on cardiotocography dataset

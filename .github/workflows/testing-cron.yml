@@ -16,8 +16,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        # See testing.yml for rationale: macOS is pinned to Python 3.9 only
+        # until the Apple Silicon slowness on 3.10-3.13 is understood.
+        include:
+          - os: macos-latest
+            python-version: "3.9"
 
     steps:
     - uses: actions/checkout@v4

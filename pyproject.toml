@@ -78,6 +78,9 @@ Repository = "https://github.com/yzhao062/pyod"
 Issues = "https://github.com/yzhao062/pyod/issues"
 Changelog = "https://github.com/yzhao062/pyod/blob/development/CHANGES.txt"
 
+[project.scripts]
+pyod-install-skill = "pyod.skills:install_cli"
+
 [tool.setuptools]
 include-package-data = true
 
@@ -93,3 +96,4 @@ exclude = ["test", "test.*", "pyod.test", "pyod.test.*"]
 [tool.setuptools.package-data]
 "pyod.utils.model_analysis_jsons" = ["*.json"]
 "pyod.utils.knowledge" = ["*.json"]
+"pyod.skills.od_expert" = ["*.md"]

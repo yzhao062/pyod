@@ -111,7 +111,7 @@ See :doc:`examples/agentic` for the full walkthrough.
 
 **How PyOD 3 gets triggered:**
 
-* **Claude Code / Claude Desktop**: Copy `skills/od-expert/SKILL.md <https://github.com/yzhao062/pyod/tree/development/skills/od-expert>`_ from the repo into your project ``skills/`` directory or ``~/.claude/skills/``; the skill then auto-activates when users mention anomaly detection. ``pip install pyod`` installs the Python package but does not install the skill file itself.
+* **Claude Code / Claude Desktop**: After ``pip install pyod``, run ``pyod-install-skill`` to copy the bundled ``od-expert`` skill into ``~/.claude/skills/od-expert/`` (or ``pyod-install-skill --project`` for a project-local install into ``./skills/od-expert/``). The skill then auto-activates when users mention anomaly detection. Restart your Claude Code session after install to pick it up.
 * **MCP-compatible agents**: Run ``python -m pyod.mcp_server`` to expose PyOD tools. Any MCP-compatible LLM picks them based on intent.
 * **Python apps / custom agents**: ``from pyod.utils.ad_engine import ADEngine`` and call ``engine.investigate(data)`` directly.
 
