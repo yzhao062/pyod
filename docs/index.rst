@@ -90,8 +90,9 @@ Then pick the activation path that matches your agent stack:
 
 .. code-block:: bash
 
-    # 1. Claude Code / Claude Desktop — enables the od-expert skill
-    pyod install skill
+    # 1. Claude Code / Claude Desktop / Codex — enables the od-expert skill
+    pyod install skill              # Claude Code / Desktop: user-global (~/.claude/skills/)
+    pyod install skill --project    # Codex: project-local (./skills/, Codex has no user-global dir)
 
     # 2. Any MCP-compatible LLM — requires the optional mcp extra
     pip install pyod[mcp]
@@ -101,8 +102,9 @@ Then pick the activation path that matches your agent stack:
     #    from pyod.utils.ad_engine import ADEngine
 
 Run ``pyod info`` at any time to see version, detector counts, and
-the install state of each activation path (including whether the
-``od-expert`` skill is installed user-globally or project-locally).
+the install state of each activation path. ``pyod info`` also detects
+which agent stack you have installed (``~/.claude/`` for Claude Code,
+``~/.codex/`` for Codex) and recommends the right install command.
 
 For conda, source install, dependency details, and troubleshooting,
 see the full :doc:`installation guide <install>`. The legacy
@@ -129,7 +131,7 @@ Layer      Name                   When to use                                   
 3          Agentic Investigation  You want an AI agent to drive OD through natural conversation           :doc:`examples/agentic`
 =========  =====================  ======================================================================  ============================
 
-Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's intelligent orchestration core. Layer 3 adds the ``od-expert`` skill that auto-activates in Claude Code and MCP-compatible agents.
+Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's intelligent orchestration core. Layer 3 adds the ``od-expert`` skill that auto-activates in Claude Code, Codex, and MCP-compatible agents.
 
 .. figure:: figs/agentic-demo.png
    :alt: PyOD 3 agentic investigation demo on cardiotocography dataset

@@ -33,20 +33,25 @@ Activation Paths
 
 PyOD 3 reaches agents through three paths. Pick whichever matches your stack:
 
-**Claude Code / Claude Desktop**
+**Claude Code / Claude Desktop / Codex**
     The ``od-expert`` skill ships as package data inside the pyod wheel.
-    Install it into Claude Code's skill directory with two commands:
+    Two install modes are supported:
 
     .. code-block:: bash
 
         pip install pyod
+
+        # Claude Code / Claude Desktop: user-global install
         pyod install skill              # installs to ~/.claude/skills/od-expert/
 
-    For a project-local install, use ``pyod install skill --project``
-    (installs to ``./skills/od-expert/`` in the current working
-    directory). After installing, run ``pyod info`` to confirm the
-    skill is detected. The legacy ``pyod-install-skill`` command from
-    v3.0.0 still works as an alias.
+        # Codex: project-local install (Codex reads ./skills/, has no user-global dir)
+        pyod install skill --project    # installs to ./skills/od-expert/
+
+    After installing, run ``pyod info`` to confirm the skill is detected
+    and to see which agent stacks are present (``pyod info`` checks both
+    ``~/.claude/`` and ``~/.codex/`` and recommends the right install
+    command). The legacy ``pyod-install-skill`` command from v3.0.0 still
+    works as an alias for ``pyod install skill``.
 
 **MCP-compatible agents**
     Install the optional MCP extra, then launch the server:
