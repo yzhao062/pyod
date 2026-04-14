@@ -61,6 +61,10 @@ _BACKTICK_ALLOWLIST = {
     # Filesystem paths often wrapped in backticks
     "~/.claude", "~/.codex", "~/.claude/skills",
     "./skills/", "./skills/od-expert/",
+    # Skill file references (capital-S start, look detector-like to the heuristic)
+    "SKILL.md",
+    # Vendor / encoder backend names referenced in text/image docs
+    "HuggingFace", "OpenAI", "OPENAI_API_KEY", "PIL.Image",
 }
 
 # Backtick-wrapped token pattern. Captures the inside of a single-backtick

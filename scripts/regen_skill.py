@@ -40,6 +40,8 @@ _REQUIRES_TO_EXTRA = {
     "torch_geometric": "graph",
     "torch": "torch",
     "xgboost": "xgboost",
+    "suod": "suod",
+    "combo": "combo",
 }
 
 

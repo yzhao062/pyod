@@ -203,6 +203,26 @@ jobs:
           /tmp/pyod-smoke/bin/pyod install skill --target /tmp/pyod-cli-skill-test
           test -f /tmp/pyod-cli-skill-test/od-expert/SKILL.md \
             || { echo "ERROR: pyod install skill did not create SKILL.md"; exit 1; }
+          # v3.2.0: verify references/ subdir was copied alongside SKILL.md
+          test -d /tmp/pyod-cli-skill-test/od-expert/references \
+            || { echo "ERROR: references/ subdir not installed"; exit 1; }
+          test -f /tmp/pyod-cli-skill-test/od-expert/references/workflow.md \
+            || { echo "ERROR: references/workflow.md not installed"; exit 1; }
+          test -f /tmp/pyod-cli-skill-test/od-expert/references/pitfalls.md \
+            || { echo "ERROR: references/pitfalls.md not installed"; exit 1; }
+          test -f /tmp/pyod-cli-skill-test/od-expert/references/tabular.md \
+            || { echo "ERROR: references/tabular.md not installed"; exit 1; }
+          test -f /tmp/pyod-cli-skill-test/od-expert/references/time_series.md \
+            || { echo "ERROR: references/time_series.md not installed"; exit 1; }
+          test -f /tmp/pyod-cli-skill-test/od-expert/references/graph.md \
+            || { echo "ERROR: references/graph.md not installed"; exit 1; }
+          test -f /tmp/pyod-cli-skill-test/od-expert/references/text_image.md \
+            || { echo "ERROR: references/text_image.md not installed"; exit 1; }
+          # v3.2.0: __pycache__ and __init__.py must NOT be installed
+          test ! -e /tmp/pyod-cli-skill-test/od-expert/__pycache__ \
+            || { echo "ERROR: __pycache__ leaked into install"; exit 1; }
+          test ! -e /tmp/pyod-cli-skill-test/od-expert/__init__.py \
+            || { echo "ERROR: __init__.py leaked into install"; exit 1; }
           # Regression guard: `import pyod.mcp_server` in a smoke venv
           # that deliberately does NOT have pyod[mcp] must not sys.exit.
           /tmp/pyod-smoke/bin/python -c "import importlib.util; assert importlib.util.find_spec('mcp') is None, 'smoke venv unexpectedly has mcp'"
