@@ -423,6 +423,7 @@ Key Attributes of a fitted model:
    :caption: Getting Started
 
    install
+   skill_maintenance
    examples/index
    benchmark
 

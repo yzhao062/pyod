@@ -347,3 +347,46 @@ def test_legacy_and_unified_install_match_subprocess(tmp_path):
     assert r_legacy.stderr == r_unified.stderr
     assert (tmp_legacy / "od-expert" / "SKILL.md").is_file()
     assert (tmp_unified / "od-expert" / "SKILL.md").is_file()
+
+
+def test_pyod_install_skill_copies_references_tree(tmp_path):
+    """`pyod install skill --target <path>` must copy references/ subdir too.
+
+    Regression test for the v3.2.0 tree-aware installer. The skill ships
+    with a references/ subdirectory containing depth files; the installer
+    must copy them alongside SKILL.md.
+
+    Skipped automatically until the references/ subdir exists in the
+    package source tree (Phase 2 of the v3.2.0 plan, Tasks 6-12). Once
+    workflow.md lands, the skip evaporates and this becomes a hard
+    regression check.
+    """
+    source_refs = (
+        Path(__file__).resolve().parents[1]
+        / "skills" / "od_expert" / "references"
+    )
+    if not (source_refs / "workflow.md").is_file():
+        import pytest
+        pytest.skip(
+            "pyod/skills/od_expert/references/workflow.md not yet shipped "
+            "(v3.2.0 Phase 2 deliverable). Test auto-promotes once it exists."
+        )
+    fake_home = tmp_path / "fake_home"
+    fake_home.mkdir(exist_ok=True)
+    result = subprocess.run(
+        [sys.executable, "-m", "pyod.cli", "install", "skill",
+         "--target", str(tmp_path)],
+        capture_output=True, text=True,
+        env=_isolated_home_env(fake_home),
+    )
+    assert result.returncode == 0, f"stderr={result.stderr}"
+    skill_dir = tmp_path / "od-expert"
+    assert (skill_dir / "SKILL.md").is_file()
+    references_dir = skill_dir / "references"
+    assert references_dir.is_dir(), (
+        f"references/ subdir not copied to {references_dir}"
+    )
+    # Spot-check at least one expected reference file exists
+    assert (references_dir / "workflow.md").is_file(), (
+        "workflow.md not copied — installer is not tree-aware"
+    )
