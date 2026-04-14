@@ -62,7 +62,7 @@
     border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;
   }
 
-  .container { max-width: 820px; margin: 0 auto; padding: 24px 20px; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 24px 20px; }
 
   .header { text-align: center; padding: 28px 0 8px; }
   .header h1 {
@@ -92,7 +92,15 @@
   .layer-chip.l2 { border-color: #c4b5fd; color: var(--purple); background: var(--purple-light); }
   .layer-chip.l3 { border-color: #93c5fd; color: var(--accent); background: var(--accent-bg); }
 
-  .chat { display: flex; flex-direction: column; gap: 14px; }
+  /* The chat container is wide enough to fit a 780px chat column plus a
+     378px callout area to its right. Standalone (un-annotated) turns
+     stay constrained to the 780px chat column so the left edge is
+     consistent with the turn-groups that extend a callout. */
+  .chat {
+    max-width: 1180px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .chat > .turn { max-width: 780px; }
   .turn { display: flex; gap: 10px; align-items: flex-start; }
   .avatar {
     width: 32px; height: 32px; border-radius: 8px;
@@ -109,6 +117,12 @@
     border-radius: var(--radius); padding: 14px 16px;
     font-size: 14px; max-width: 90%;
     box-shadow: var(--shadow);
+    overflow-wrap: anywhere;  /* long inline-code tokens wrap on narrow */
+    min-width: 0;
+  }
+  .bubble code, .skill-panel code {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .turn.user .bubble { background: var(--user-bg); border: 1px solid var(--user-border); }
   .turn.agent .bubble { background: var(--surface); border: 1px solid var(--border); }
@@ -247,6 +261,7 @@
     font-family: 'SF Mono', 'Consolas', monospace;
     font-size: 12px; color: var(--text-secondary);
     line-height: 1.5;
+    overflow-x: auto;  /* long lines scroll horizontally within the block */
   }
   .code .kw { color: #cf222e; }
   .code .fn { color: #8250df; }
@@ -311,6 +326,98 @@
   .footer a { color: var(--accent); text-decoration: none; }
   .footer strong { color: var(--text-secondary); }
 
+  /* v3.2.0 skill decisions callout — shows the agent's internal reasoning
+     alongside the agent's conversational turn. The outer .turn-group grid
+     places the chat on the left and the callout on the right so the reader
+     can follow the conversation without scrolling past the machinery. */
+  .turn-group {
+    display: grid;
+    grid-template-columns: minmax(0, 780px) 360px;
+    gap: 18px;
+    align-items: start;
+    position: relative;
+  }
+  .turn-group > .turn { min-width: 0; }
+  /* Pointer arrow on the callout, pointing back at the agent bubble */
+  .turn-group > .skill-panel {
+    position: relative;
+  }
+  .turn-group > .skill-panel::before {
+    content: "";
+    position: absolute;
+    left: -9px; top: 18px;
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 9px solid #0f172a;
+  }
+  /* On narrow screens, collapse to the stacked layout. */
+  @media (max-width: 980px) {
+    .turn-group {
+      display: block;
+    }
+    .turn-group > .skill-panel {
+      margin-top: 10px;
+      margin-left: 42px;
+    }
+    .turn-group > .skill-panel::before { display: none; }
+  }
+
+  .skill-panel {
+    background: #0f172a;
+    color: #cbd5e1;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 11.5px;
+    line-height: 1.55;
+    box-shadow: var(--shadow);
+    border: 1px solid #1e293b;
+    overflow-wrap: anywhere;
+    min-width: 0;
+    /* Sticks near the top of the group on long agent bubbles so the callout
+       stays visually tied to the turn it annotates. */
+    position: sticky; top: 74px;
+  }
+  .skill-panel .sp-header {
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    font-size: 9.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: #64748b;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .skill-panel .sp-header::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 6px #38bdf8;
+  }
+  .skill-panel .sp-section {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed #1e293b;
+  }
+  .skill-panel .sp-section:first-of-type {
+    margin-top: 0; padding-top: 0; border-top: none;
+  }
+  .skill-panel .sp-title {
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 4px;
+  }
+  .skill-panel .sp-pass { color: #34d399; }    /* green check */
+  .skill-panel .sp-fire { color: #fb923c; }    /* orange flame */
+  .skill-panel .sp-skip { color: #64748b; }    /* dim skip */
+  .skill-panel .sp-kv {
+    color: #94a3b8;
+  }
+  .skill-panel .sp-kv b { color: #e2e8f0; font-weight: 700; }
+  .skill-panel a {
+    color: #38bdf8; text-decoration: none;
+  }
+
   body.capture .toolbar { display: none; }
   @media print {
     .toolbar { display: none !important; }
@@ -335,12 +442,12 @@
 <div class="container">
   <div class="header">
     <h1>Any AI Agent Becomes an <em>OD Expert</em></h1>
-    <p class="subtitle">When a user asks about anomalies in their data, PyOD's <code>od-expert</code> skill auto-activates. The agent then drives a full investigation with 60+ detectors, benchmark-backed selection, and multi-modal reach.</p>
-    <div class="dataset-badge"><span class="dot"></span> Live run on Cardiotocography (1,831 recordings, 21 features)</div>
+    <p class="subtitle">When a user asks about anomalies in their data, PyOD's <code>od-expert</code> skill auto-activates. The v3.2.0 skill encodes a master decision tree, top-10 critical pitfalls, and 11 adaptive escalation triggers. The shaded panels below the agent's turns show the skill's live decision-making.</p>
+    <div class="dataset-badge"><span class="dot"></span> Live run on Diabetes Screening dataset (768 patients, 8 clinical features)</div>
     <div class="layers">
       <span class="layer-chip l1">Layer 1: fit / predict</span>
       <span class="layer-chip l2">Layer 2: ADEngine</span>
-      <span class="layer-chip l3">Layer 3: Agentic</span>
+      <span class="layer-chip l3">Layer 3: Agentic (v3.2.0 deep skill)</span>
     </div>
   </div>
 
@@ -351,123 +458,135 @@
       <div class="avatar">U</div>
       <div class="bubble">
         <div class="label">User</div>
-        I have a cardiotocography dataset with 1,831 fetal heart rate recordings and 21 clinical features (cardio.csv). Find abnormal cases that might indicate fetal distress.
+        I have a diabetes screening dataset &mdash; 768 patients with 8 clinical features (glucose, blood pressure, BMI, insulin, age, etc.). Find unusual patient profiles that might need follow-up. This is a medical screening context.
       </div>
     </div>
 
-    <!-- Turn 1: Agent -->
-    <div class="turn agent">
-      <div class="avatar">A</div>
-      <div class="bubble">
-        <div class="label">Agent <span class="step-tag">INVESTIGATE</span> <span style="display:inline-block; background:var(--purple); color:white; font-size:9px; font-weight:700; padding:1px 7px; border-radius:4px; margin-left:4px; letter-spacing:0.5px; vertical-align:middle;">od-expert skill</span></div>
-        <em style="color:var(--text-dim); font-size:12px;">&rarr; Detected anomaly detection intent; activating <code>od-expert</code> skill from PyOD.</em>
+    <!-- Turn 1: Agent response + its skill-decisions callout (side by side) -->
+    <div class="turn-group">
 
-        <div style="margin-top:8px;">Loading data and starting an investigation session.</div>
+      <div class="turn agent">
+        <div class="avatar">A</div>
+        <div class="bubble">
+          <div class="label">Agent <span class="step-tag">INVESTIGATE</span> <span style="display:inline-block; background:var(--purple); color:white; font-size:9px; font-weight:700; padding:1px 7px; border-radius:4px; margin-left:4px; letter-spacing:0.5px; vertical-align:middle;">od-expert skill v3.2.0</span></div>
+          <em style="color:var(--text-dim); font-size:12px;">&rarr; Anomaly-detection intent on tabular medical data. Activating <code>od-expert</code>.</em>
 
-        <div class="code">
-          <span class="kw">import</span> numpy <span class="kw">as</span> np<br>
-          <span class="kw">from</span> pyod.utils.ad_engine <span class="kw">import</span> ADEngine<br>
-          np.random.<span class="fn">seed</span>(<span class="num">42</span>)  <span class="str"># reproducible</span><br>
-          X = np.<span class="fn">genfromtxt</span>(<span class="str">'examples/data/cardio.csv'</span>, delimiter=<span class="str">','</span>, skip_header=<span class="num">1</span>)[:, :-<span class="num">1</span>]<br>
-          engine = <span class="fn">ADEngine</span>()<br>
-          state = engine.<span class="fn">investigate</span>(X)
-        </div>
+          <div style="margin-top:8px;">Profiled as <strong>tabular, low-dim, n=768, 8 features</strong>. Because this is a medical screening context, I will run the full consensus and flag the scale-mismatch caveat in the final report.</div>
 
-        Profiled as <strong>tabular data</strong>. PyOD has 58+ detectors; picking the top 3 for your profile based on benchmark evidence.
-        <div class="bench-note">Routing informed by <span class="cite">ADBench (NeurIPS 2022)</span>: 30 algorithms on 57 tabular datasets.</div>
-
-        <div class="det-selection">
-          <div class="det-card">
-            <span class="rank">#1</span>
-            <span class="name">IForest</span>
-            <span class="desc">Isolation Forest, tree ensemble, ADBench top-5</span>
+          <div class="code">
+            <span class="kw">import</span> numpy <span class="kw">as</span> np<br>
+            <span class="kw">from</span> pyod.utils.ad_engine <span class="kw">import</span> ADEngine<br>
+            np.random.<span class="fn">seed</span>(<span class="num">42</span>)<br>
+            data = np.<span class="fn">genfromtxt</span>(<span class="str">'examples/data/pima.csv'</span>, delimiter=<span class="str">','</span>, skip_header=<span class="num">1</span>)<br>
+            X = data[:, :-<span class="num">1</span>]<br>
+            engine = <span class="fn">ADEngine</span>()<br>
+            state = engine.<span class="fn">investigate</span>(X)
           </div>
-          <div class="det-card">
-            <span class="rank">#2</span>
-            <span class="name">ECOD</span>
-            <span class="desc">Empirical CDF, parameter-free, interpretable</span>
+
+          <div class="bench-note">Routing informed by <span class="cite">ADBench (NeurIPS 2022)</span>: 30 algorithms on 57 tabular datasets. For n &lt; 1000 low-dim, KNN / LOF tie with IForest in ADBench top-5.</div>
+
+          <div class="det-selection">
+            <div class="det-card">
+              <span class="rank">#1</span>
+              <span class="name">KNN</span>
+              <span class="desc">K-Nearest Neighbors &mdash; proximity-based, confidence 0.85</span>
+            </div>
+            <div class="det-card">
+              <span class="rank">#2</span>
+              <span class="name">IForest</span>
+              <span class="desc">Isolation Forest, ADBench top-5, confidence 0.85</span>
+            </div>
+            <div class="det-card">
+              <span class="rank">#3</span>
+              <span class="name">LOF</span>
+              <span class="desc">Local Outlier Factor &mdash; local density, confidence 0.80</span>
+            </div>
           </div>
-          <div class="det-card">
-            <span class="rank">#3</span>
-            <span class="name">KNN</span>
-            <span class="desc">K-Nearest Neighbors, proximity-based</span>
+
+          Running all 3 in parallel&hellip;
+
+          <div class="metrics">
+            <div class="metric"><div class="val amber">62</div><div class="lbl">Flagged (8.1%)</div></div>
+            <div class="metric"><div class="val green">0.96</div><div class="lbl">Separation</div></div>
+            <div class="metric"><div class="val blue">0.59</div><div class="lbl">Agreement</div></div>
+            <div class="metric"><div class="val green">HIGH</div><div class="lbl">Quality (0.79)</div></div>
           </div>
+
+          <strong>Top case #13</strong> &mdash; all 3 detectors agree; consensus score 0.997 (100th percentile). KNN was the strongest individually:
+
+          <table class="score-table">
+            <tr>
+              <th>Detector</th><th>Raw score</th><th>Percentile</th>
+            </tr>
+            <tr>
+              <td class="det-name">KNN</td>
+              <td class="num above">304.13</td>
+              <td class="num pct">100th</td>
+            </tr>
+            <tr>
+              <td class="det-name">IForest</td>
+              <td class="num above">0.15</td>
+              <td class="num pct">99.9th</td>
+            </tr>
+            <tr>
+              <td class="det-name">LOF</td>
+              <td class="num above">3.41</td>
+              <td class="num pct">99.8th</td>
+            </tr>
+          </table>
+
         </div>
-
-        Running all 3 in parallel...
-
-        <div class="metrics">
-          <div class="metric"><div class="val amber">172</div><div class="lbl">Anomalies (9.4%)</div></div>
-          <div class="metric"><div class="val blue">0.68</div><div class="lbl">Agreement</div></div>
-          <div class="metric"><div class="val green">HIGH</div><div class="lbl">Quality (0.83)</div></div>
-          <div class="metric"><div class="val blue">3/3</div><div class="lbl">Converged</div></div>
-        </div>
-
-        <strong>Top case #1656</strong>, all three detectors agree:
-
-        <table class="score-table">
-          <tr>
-            <th>Detector</th><th>Score</th><th>Threshold</th><th>Percentile</th>
-          </tr>
-          <tr>
-            <td class="det-name">IForest</td>
-            <td class="num above">0.1696</td>
-            <td class="num">0.0000</td>
-            <td class="num pct">100th</td>
-          </tr>
-          <tr>
-            <td class="det-name">ECOD</td>
-            <td class="num above">60.5560</td>
-            <td class="num">37.4205</td>
-            <td class="num pct">100th</td>
-          </tr>
-          <tr>
-            <td class="det-name">KNN</td>
-            <td class="num above">7.5600</td>
-            <td class="num">3.1251</td>
-            <td class="num pct">100th</td>
-          </tr>
-        </table>
-
       </div>
+
+      <!-- Skill-decisions callout: what the skill walked before and after the run -->
+      <aside class="skill-panel">
+        <div class="sp-header">od-expert &middot; decisions on this turn</div>
+
+        <div class="sp-section">
+          <div class="sp-title">Modality triage</div>
+          Sequential? <span class="sp-skip">no</span>. Graph? <span class="sp-skip">no</span>.
+          Text/image? <span class="sp-skip">no</span>. &rarr; <b>tabular</b>.
+          Loaded <a href="#">references/tabular.md</a>.
+        </div>
+
+        <div class="sp-section">
+          <div class="sp-title">Top-10 pitfalls (pre-run)</div>
+          <span class="sp-fire">&#9888; #1 Unscaled features</span>: per-feature &sigma; ratio = <b style="color:#fb923c;">347x</b> (insulin &sigma;=115, pedigree &sigma;=0.33). KNN / LOF need scaled input. <span class="sp-kv">Note for report caveat.</span><br>
+          <span class="sp-pass">&check; #2</span> contamination default (will check post-run).<br>
+          <span class="sp-pass">&check; #3</span> DL &times; tiny data: n=768 &lt; 1000 floor &rarr; skip AutoEncoder / VAE / DeepSVDD.<br>
+          <span class="sp-pass">&check; #4</span> PyG not needed.<br>
+          <span class="sp-pass">&check; #5</span> all 8 features numeric.<br>
+          <span class="sp-pass">&check; #6&ndash;10</span> all pass.
+        </div>
+
+        <div class="sp-section">
+          <div class="sp-title">Escalation triggers (11 checked)</div>
+          <span class="sp-fire">&#128680; T8 High-stakes domain</span>: user said "<b>medical screening</b>" &rarr; <b>FIRES</b>. Committing to dual-detector validation and a confidence caveat in the final report.<br>
+          <span class="sp-skip">&#8855; T1&ndash;T7, T9&ndash;T11</span> &mdash; not applicable on this turn.
+        </div>
+
+        <div class="sp-section">
+          <div class="sp-title">Plan &rarr; state.plans</div>
+          <b>KNN</b> (0.85), <b>IForest</b> (0.85), <b>LOF</b> (0.80).<br>
+          Running all three in parallel.
+        </div>
+
+        <div class="sp-section">
+          <div class="sp-title">Post-run triggers (T3, T4, T10)</div>
+          <span class="sp-pass">&check; T3</span> agreement = <b>0.59</b> &gt; 0.4 floor.<br>
+          <span class="sp-pass">&check; T4</span> separation = <b>0.96</b>, stability = <b>0.81</b>, overall = <b>0.79</b> (verdict: <b>high</b>).<br>
+          <span class="sp-pass">&check; T10</span> not over-tight.<br>
+          <span class="sp-kv"><b>state.next_action['action']</b> = 'report_to_user'.</span>
+        </div>
+      </aside>
     </div>
 
-    <!-- Turn 2 -->
+    <!-- Turn 2: features -->
     <div class="turn user">
       <div class="avatar">U</div>
       <div class="bubble">
         <div class="label">User</div>
-        172 is too many for clinical review. Show only the top 3%.
-      </div>
-    </div>
-
-    <div class="turn agent">
-      <div class="avatar">A</div>
-      <div class="bubble">
-        <div class="label">Agent <span class="step-tag">ITERATE</span></div>
-        Re-running all 3 detectors with contamination=0.03. Each detector recomputes its threshold; consensus is majority vote on labels.
-
-        <div class="metrics">
-          <div class="metric"><div class="val green">52</div><div class="lbl">Flagged (2.8%)</div></div>
-          <div class="metric"><div class="val blue">0.68</div><div class="lbl">Agreement</div></div>
-          <div class="metric"><div class="val green">HIGH</div><div class="lbl">Quality (0.83)</div></div>
-          <div class="metric"><div class="val blue">1</div><div class="lbl">Iteration</div></div>
-        </div>
-
-        <div class="code">
-          state = engine.<span class="fn">iterate</span>(state, {<span class="str">"action"</span>: <span class="str">"adjust_contamination"</span>, <span class="str">"value"</span>: <span class="num">0.03</span>})<br>
-          state = engine.<span class="fn">run</span>(state)<br>
-          state = engine.<span class="fn">analyze</span>(state)
-        </div>
-      </div>
-    </div>
-
-    <!-- Turn 3: What features -->
-    <div class="turn user">
-      <div class="avatar">U</div>
-      <div class="bubble">
-        <div class="label">User</div>
-        What clinical features are driving these?
+        What clinical features are driving the flags?
       </div>
     </div>
 
@@ -475,96 +594,83 @@
       <div class="avatar">A</div>
       <div class="bubble">
         <div class="label">Agent <span class="step-tag">EXPLAIN</span></div>
-        Analyzing top case #1656 via <strong>IForest</strong> (highest Spearman correlation with consensus):
+        Analyzing the top anomaly (<strong>patient #13</strong>) via <strong>KNN</strong>. Absolute z-score magnitudes from <code>engine.explain_findings</code>:
 
         <table class="feat-table">
-          <tr><th>Feature</th><th>Z-score</th><th>Value</th></tr>
-          <tr><td class="feat">feature_19</td><td class="z">6.49</td><td class="val">6.49</td></tr>
-          <tr><td class="feat">feature_8</td><td class="z">5.62</td><td class="val">5.62</td></tr>
-          <tr><td class="feat">feature_6</td><td class="z">4.37</td><td class="val">4.37</td></tr>
-          <tr><td class="feat">feature_16</td><td class="z">3.91</td><td class="val">-3.91</td></tr>
-          <tr><td class="feat">feature_15</td><td class="z">3.87</td><td class="val">3.87</td></tr>
+          <tr><th>Feature</th><th>|z-score|</th><th>Raw value</th></tr>
+          <tr><td class="feat">insulin</td><td class="z">6.65</td><td class="val">846 &micro;U/mL</td></tr>
+          <tr><td class="feat">age</td><td class="z">2.19</td><td class="val">59 yrs</td></tr>
+          <tr><td class="feat">glucose</td><td class="z">2.13</td><td class="val">189 mg/dL</td></tr>
+          <tr><td class="feat">pregnancies</td><td class="z">0.84</td><td class="val">1</td></tr>
         </table>
 
-        <p class="note">Cardiotocography features encode fetal heart rate variability, acceleration/deceleration counts, and uterine contraction patterns. High z-scores here are consistent with fetal distress indicators per FIGO guidelines.</p>
+        <p class="note">Note: <code>engine.explain_findings</code> returns absolute z-score magnitudes; the raw values above are cross-checked manually to show direction. Extreme insulin (|z|=6.65), elevated glucose and older age &mdash; a metabolic-syndrome profile that warrants individual clinical review. Other top-flagged patients (#228, #247, #579, #177) each have their own contributing-feature ranking; insulin dominates several but is not a universal signature.</p>
 
         <div class="code">
-          engine.<span class="fn">explain_findings</span>(best_result, X=X, top_k=<span class="num">3</span>)
+          best_result = state.results[state.analysis[<span class="str">'best_detector_index'</span>]]<br>
+          explanations = engine.<span class="fn">explain_findings</span>(best_result, X=X, top_k=<span class="num">5</span>)
         </div>
       </div>
     </div>
 
-    <!-- Turn 4: Multi-modal flex -->
+    <!-- Turn 3: User reveals labels -->
     <div class="turn user">
       <div class="avatar">U</div>
       <div class="bubble">
         <div class="label">User</div>
-        What if I had continuous time-series of these metrics instead of snapshots?
+        I should mention &mdash; I actually have diabetes diagnosis labels for the full cohort.
       </div>
     </div>
 
-    <div class="turn agent">
-      <div class="avatar">A</div>
-      <div class="bubble">
-        <div class="label">Agent <span class="step-tag">MULTI-MODAL</span></div>
-        Same API, different detectors. PyOD covers 5 data modalities:
+    <!-- Turn 3: Agent escalation + Trigger 5 callout -->
+    <div class="turn-group">
 
-        <div class="modality-grid">
-          <div class="mod-card current">
-            <div class="mod-name">Tabular</div>
-            <div class="mod-count">50+ detectors</div>
-          </div>
-          <div class="mod-card">
-            <div class="mod-name">Time Series</div>
-            <div class="mod-count">5 stable + 2 experimental</div>
-          </div>
-          <div class="mod-card">
-            <div class="mod-name">Graph</div>
-            <div class="mod-count">8 detectors</div>
-          </div>
-          <div class="mod-card">
-            <div class="mod-name">Text</div>
-            <div class="mod-count">EmbeddingOD</div>
-          </div>
-          <div class="mod-card">
-            <div class="mod-name">Image</div>
-            <div class="mod-count">EmbeddingOD</div>
-          </div>
-        </div>
+      <div class="turn agent">
+        <div class="avatar">A</div>
+        <div class="bubble">
+          <div class="label">Agent <span class="step-tag">ESCALATE &middot; T5</span></div>
+          <em style="color:var(--text-dim); font-size:12px;">&rarr; Trigger 5 fired: labels mentioned but not provided.</em>
 
-        <div class="bench-note">For time series, routing uses <span class="cite">TSB-AD (NeurIPS 2024)</span>: 40 algorithms on 1,070 datasets.</div>
+          <div style="margin-top:8px;">That changes the plan. Supervised detection (with your labels as training signal) typically lifts AUC 10&ndash;20 points over unsupervised on a labelled cohort like this. The <code>ADEngine</code> session API is unsupervised in v3.2.x, so I would drop out of the session and call <code>XGBOD</code> directly on the classic fit / predict path:</div>
 
-        <div class="det-selection">
-          <div class="det-card">
-            <span class="rank">#1</span>
-            <span class="name">KShape</span>
-            <span class="desc">Shape-based clustering (TSB-AD #2 overall)</span>
+          <div class="code">
+            <span class="kw">from</span> pyod.models.xgbod <span class="kw">import</span> XGBOD<br>
+            clf = <span class="fn">XGBOD</span>()<br>
+            clf.<span class="fn">fit</span>(X, y_labels)  <span class="cm"># supervised</span><br>
+            scores = clf.<span class="fn">decision_function</span>(X)<br>
+            labels_pred = clf.<span class="fn">predict</span>(X)
           </div>
-          <div class="det-card">
-            <span class="rank">#2</span>
-            <span class="name">MatrixProfile</span>
-            <span class="desc">STOMP, subsequence anomalies</span>
-          </div>
-          <div class="det-card">
-            <span class="rank">#3</span>
-            <span class="name">SpectralResidual</span>
-            <span class="desc">FFT-based saliency, point anomalies</span>
-          </div>
-        </div>
 
-        <div class="code">
-          <span class="cm"># Same workflow, different modality</span><br>
-          state = engine.<span class="fn">investigate</span>(ts_data)
+          For now, I will finalise the unsupervised report and flag the label-availability note so you can switch to <code>XGBOD</code> later if the labels are validated.
         </div>
       </div>
+
+      <!-- Skill-decisions callout: Trigger 5 fires on new information -->
+      <aside class="skill-panel">
+        <div class="sp-header">od-expert &middot; trigger re-check</div>
+
+        <div class="sp-section">
+          <div class="sp-title">New information &rarr; re-walk triggers</div>
+          <span class="sp-fire">&#128680; T5 Labels mentioned but not provided</span>:
+          <b>FIRES</b>. User has labels but was using the unsupervised session path. Pausing to recommend a different entry point.<br>
+          <span class="sp-kv">Reasoning: supervised methods typically lift AUC 10&ndash;20 points over unsupervised on labelled datasets.</span>
+        </div>
+
+        <div class="sp-section">
+          <div class="sp-title">Recommended switch</div>
+          Drop out of <code>ADEngine</code> session (unsupervised only in v3.2.x) and call
+          <b>XGBOD</b> directly via its classic <code>fit(X, y)</code> / <code>predict(X)</code> interface.<br>
+          <span class="sp-kv">Requires <b>pyod[xgboost]</b>. Verified via <code>engine.explain_detector('XGBOD')['requires']</code> &rarr; <code>['xgboost']</code>.</span>
+        </div>
+      </aside>
     </div>
 
-    <!-- Turn 5: Report -->
+    <!-- Turn 4: Final report -->
     <div class="turn user">
       <div class="avatar">U</div>
       <div class="bubble">
         <div class="label">User</div>
-        Good. Generate the final report.
+        Just give me the report for now.
       </div>
     </div>
 
@@ -573,40 +679,51 @@
       <div class="bubble">
         <div class="label">Agent <span class="step-tag">REPORT</span></div>
 
-        <div style="font-size: 15px; font-weight: 700; margin-bottom: 10px;">Cardiotocography Investigation</div>
+        <div style="font-size: 15px; font-weight: 700; margin-bottom: 10px;">Diabetes Screening &mdash; Anomaly Report</div>
 
         <div style="font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 6px;">Quality Assessment</div>
         <div class="qbar">
           <span class="qlbl">Separation</span>
-          <div class="qtrack"><div class="qfill" style="width:100%; background: var(--green);"></div></div>
-          <span class="qval" style="color: var(--green);">1.00</span>
+          <div class="qtrack"><div class="qfill" style="width:96%; background: var(--green);"></div></div>
+          <span class="qval" style="color: var(--green);">0.96</span>
         </div>
         <div class="qbar">
           <span class="qlbl">Agreement</span>
-          <div class="qtrack"><div class="qfill" style="width:68%; background: var(--accent);"></div></div>
-          <span class="qval" style="color: var(--accent);">0.68</span>
+          <div class="qtrack"><div class="qfill" style="width:59%; background: var(--accent);"></div></div>
+          <span class="qval" style="color: var(--accent);">0.59</span>
         </div>
         <div class="qbar">
           <span class="qlbl">Stability</span>
-          <div class="qtrack"><div class="qfill" style="width:82%; background: var(--purple);"></div></div>
-          <span class="qval" style="color: var(--purple);">0.82</span>
+          <div class="qtrack"><div class="qfill" style="width:81%; background: var(--purple);"></div></div>
+          <span class="qval" style="color: var(--purple);">0.81</span>
         </div>
 
         <hr class="sep">
 
         <div style="font-size: 13px; line-height: 1.7;">
-          <strong>Dataset:</strong> Cardiotocography (1,831 × 21)<br>
-          <strong>Detectors:</strong> IForest, ECOD, KNN (3/3 converged)<br>
-          <strong>Best detector:</strong> IForest (highest correlation with consensus)<br>
-          <strong>Iterations:</strong> 1 (contamination 9.4% &rarr; 3.0%)<br>
-          <strong>Final flagged (consensus):</strong> 52 cases<br>
-          <strong>Quality:</strong> <span class="verdict high">HIGH (0.83)</span>
+          <strong>Dataset:</strong> Diabetes Screening (768 &times; 8)<br>
+          <strong>Detectors:</strong> KNN, IForest, LOF (3 / 3 converged)<br>
+          <strong>Best detector:</strong> KNN (highest correlation with consensus)<br>
+          <strong>Final flagged (consensus):</strong> 62 patients (8.1%)<br>
+          <strong>Quality:</strong> <span class="verdict high">HIGH (0.79)</span>
+        </div>
+
+        <hr class="sep">
+
+        <div style="font-size: 12px; background: var(--amber-light); border: 1px solid #fcd34d; border-radius: 6px; padding: 10px; margin: 8px 0;">
+          <strong style="color: var(--amber);">&#9888; Assumptions &amp; caveats</strong><br>
+          <span style="color: var(--text-secondary);">
+          &bull; <b>Scale mismatch</b>: per-feature std ratio = 347&times;. LOF / KNN results may be biased toward the insulin axis. For a follow-up run, apply <code>RobustScaler</code> first.<br>
+          &bull; <b>Contamination</b>: default 0.1, observed 0.081 (<code>state.analysis['consensus_analysis']['anomaly_ratio']</code>). Close enough for unsupervised screening; adjust if you have domain knowledge.<br>
+          &bull; <b>High-stakes domain</b>: medical screening context triggered dual-detector validation (Pitfall 7 &rarr; always use &#8805; 2 detectors). All 3 detectors independently flagged the top cases.<br>
+          &bull; <b>Label availability</b>: user mentioned labels exist. For labelled data, dropping out of the <code>ADEngine</code> session and calling <code>XGBOD</code> (classic fit / predict, <code>pyod[xgboost]</code> extra) typically lifts AUC 10&ndash;20 points over unsupervised.
+          </span>
         </div>
 
         <hr class="sep">
 
         <div style="font-size: 11px; color: var(--text-dim); font-style: italic;">
-          Validation against ground truth (consensus of 3 detectors): 36/52 precision (69.2%), 36/176 recall (20.5%). The agent did not see ground truth; these numbers are shown for reference.
+          Reference numbers (agent did not see ground truth): precision 33 / 62 (53.2%), recall 33 / 268 (12.3%). The low recall reflects the large contamination gap &mdash; the true positive rate is 34.9%, far above the unsupervised threshold.
         </div>
       </div>
     </div>
@@ -614,10 +731,10 @@
   </div>
 
   <div class="footer">
-    <strong>PyOD V3</strong> &middot; 60+ detectors · 5 modalities · 38M+ downloads<br>
+    <strong>PyOD V3.2.0</strong> &middot; 61 detectors &middot; 5 modalities &middot; od-expert skill (1000 lines: SKILL.md + 6 references)<br>
     <a href="https://github.com/yzhao062/pyod">github.com/yzhao062/pyod</a> &middot;
     <a href="https://pyod.readthedocs.io">pyod.readthedocs.io</a> &middot;
-    <code style="font-size: 12px;">pip install pyod</code>
+    <code style="font-size: 12px;">pip install pyod &amp;&amp; pyod install skill</code>
   </div>
 </div>
 

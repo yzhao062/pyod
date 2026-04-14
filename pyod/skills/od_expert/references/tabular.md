@@ -2,13 +2,15 @@
 
 PyOD's largest modality (44 of 61 detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
 
-## Decision table by data shape
+## Decision table by data shape (expert heuristics)
 
-| Data shape | Recommended starters (top-3) | Why |
+These are rules of thumb for reasoning about which detectors a non-expert would reach for by data shape, drawn from ADBench and general tabular OD literature. They are **not** predictions of exact `engine.plan` output. ADEngine's planner has its own routing logic and may return a different triple for the same shape; always read `state.plans` at runtime for the live selection, and use this table only to check whether the planner's choice is plausible.
+
+| Data shape | Heuristic starters | Why |
 |---|---|---|
 | n < 1k | `ECOD`, `HBOS`, `IForest` | Cheap, robust, do not overfit on small samples |
-| 1k ≤ n ≤ 100k | `IForest`, `ECOD`, `LOF` | Balanced ensemble; classic tabular triple |
-| n > 100k | `IForest`, `HBOS`, `COPOD` | Avoid distance-based methods (`LOF`) which scale poorly |
+| 1k ≤ n ≤ 100k | `IForest`, `ECOD`, `LOF` / `KNN` | Classic tabular triple; LOF for local density, KNN for proximity |
+| n > 100k | `IForest`, `HBOS`, `COPOD` | Avoid distance-based methods (`LOF`, `KNN`) which scale poorly |
 | High dimensional (D > 50) | `COPOD`, `SUOD`, `IForest` | Detector ensembles handle the curse of dimensionality |
 | Sparse | `HBOS`, `ECOD` | Histogram and ECDF methods handle sparsity gracefully |
 | Mixed (numerical + few categorical) | One-hot encode → `IForest` | After encoding, treat as standard tabular |
@@ -82,13 +84,16 @@ X = df.values
 
 engine = ADEngine()
 state = engine.start(X)
-# state.profile: {n_samples: 5000, n_features: 27, estimated_contamination: 0.04}
+# state.profile: {'data_type': 'tabular', 'n_samples': 5000, 'n_features': 27,
+#                 'dimensionality_class': 'medium', 'has_nan': False, 'dtype': 'float64'}
 # Modality: tabular ✓
-# n in [1k, 100k] → top-3 = IForest, ECOD, LOF
-# No triggers fire (contamination range tight, no DL detectors, no missing extras)
+# n in [1k, 100k] → top-3 chosen by the planner (see below)
+# No triggers fire (no DL detectors, no missing extras)
 
 state = engine.plan(state)
-# state.plan['detectors'] = ['IForest', 'ECOD', 'LOF']
+# [p['detector_name'] for p in state.plans[:3]] == ['IForest', 'ECOD', 'KNN']
+# (Captured from a live probe on 2026-04-14. The planner may return a
+# different triple as it evolves; always read state.plans at runtime.)
 
 state = engine.run(state)
 state = engine.analyze(state)
@@ -102,7 +107,7 @@ report = engine.report(state)
 
 ### What the agent reports
 
-> "Found 200 of 5,000 transactions (4%) flagged as suspicious. The three detectors I ran (`IForest`, `ECOD`, `LOF`) agreed well (consensus 0.71). `ECOD` performed best.
+> "Found 200 of 5,000 transactions (4%) flagged as suspicious. The three detectors I ran (`IForest`, `ECOD`, `KNN`) agreed well (consensus 0.71). `ECOD` performed best.
 >
 > Top-5 most suspicious: rows [42, 77, 153, 891, 1240]. The dominant features driving their flagging were transaction amount (4 of 5) and time-of-day (3 of 5).
 >
@@ -111,7 +116,7 @@ report = engine.report(state)
 > **What I assumed**:
 > - Tabular, unlabeled
 > - Contamination ~4% (estimated from the data)
-> - Detectors: `IForest`, `ECOD`, `LOF` — standard tabular triple
+> - Detectors: `IForest`, `ECOD`, `KNN` — the top-3 returned by the current planner for mid-size tabular data
 > - Best detector: `ECOD`"
 
 ## Tabular-specific pitfalls

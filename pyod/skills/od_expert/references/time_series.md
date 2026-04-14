@@ -2,11 +2,13 @@
 
 PyOD ships 7 time-series detectors plus the `TimeSeriesOD` bridge (which wraps any tabular detector for windowed time-series use). The agent loads this file when the master decision tree (in SKILL.md) routes to time series.
 
-## Decision table by sequence type
+## Decision table by sequence type (expert heuristics)
 
-| Sequence type | Recommended starters (top-3) | Why |
+These are rules of thumb drawn from TSB-AD (NeurIPS 2024) and general time-series AD literature. They are **not** predictions of exact `engine.plan` output on the live planner. On a representative probe (10k univariate points with `data_type='time_series'`), the current planner returned `['KShape', 'LSTMAD', 'SpectralResidual']`; use `state.plans` at runtime for the live selection and this table to reason about whether the plan is plausible.
+
+| Sequence type | Heuristic starters | Why |
 |---|---|---|
-| Univariate, regular sampling | `SpectralResidual`, `MatrixProfile`, `TimeSeriesOD` over `ECOD` | Simple statistical methods dominate; TSB-AD NeurIPS 2024 |
+| Univariate, regular sampling | `SpectralResidual`, `MatrixProfile`, `KShape` | Simple statistical / shape methods dominate on TSB-AD |
 | Multivariate, regular sampling | `LSTMAD`, `KShape`, `TimeSeriesOD` over `IForest` | Multivariate sequence modeling + windowed bridge |
 | Long sequences (> 100k points) | `SpectralResidual`, `SAND` | Streaming / non-stationary specialized |
 | Short sequences (< 1k points) | `MatrixProfile`, `TimeSeriesOD` over `HBOS` | Avoid deep methods on small data |
@@ -42,14 +44,19 @@ The `TimeSeriesOD` class wraps any tabular detector for windowed time-series use
 from pyod.utils.ad_engine import ADEngine
 
 engine = ADEngine()
-state = engine.start(time_series_data)  # 1D or 2D numpy array
+# Pass data_type='time_series' explicitly. The profiler's auto-detection
+# treats a 1D numpy array as tabular (n_features=1), which routes to
+# tabular detectors; this hint forces the time-series path.
+state = engine.start(time_series_data, data_type='time_series')
 # state.profile['data_type'] == 'time_series'
 # state.profile['n_samples'] == series length
+# state.profile['n_timestamps'] and 'channels' are populated here too.
 
 state = engine.plan(state)
-# For univariate regular sampling, state.plan['detectors'] typically includes
-# 'SpectralResidual', 'MatrixProfile', and a TimeSeriesOD wrapper over a
-# tabular base detector (e.g. ECOD).
+# On a representative probe (10k univariate points),
+# [p['detector_name'] for p in state.plans[:3]] == ['KShape', 'LSTMAD', 'SpectralResidual']
+# Captured from a live run on 2026-04-14; the planner may evolve, always
+# read state.plans at runtime.
 ```
 
 The bridge handles windowing, stride, and per-window scoring automatically. Do not manually slice the series and feed to a tabular detector — the bridge handles edge cases (overlap, padding) correctly.
@@ -70,19 +77,22 @@ df = pd.read_csv("sensor.csv", parse_dates=["timestamp"])
 y = df["temperature"].values  # 1D array
 
 engine = ADEngine()
-state = engine.start(y)
-# state.profile: {data_type: 'time_series', n_samples: 10080, sampling: regular}
+state = engine.start(y, data_type='time_series')
+# state.profile: {'data_type': 'time_series', 'n_samples': 10080,
+#                 'n_timestamps': 10080, 'channels': 1, ...}
 # Modality: time_series ✓
 # n in 1k-100k range
-# No timestamps as features (already collapsed) → no Trigger 1
+# No Trigger 1 (explicit hint resolves the modality)
 
 state = engine.plan(state)
-# state.plan['detectors'] = ['SpectralResidual', 'MatrixProfile', 'TimeSeriesOD']
+# [p['detector_name'] for p in state.plans[:3]]
+#   == ['KShape', 'LSTMAD', 'SpectralResidual']
+# (Captured from a live probe on 2026-04-14; planner may evolve.)
 
 state = engine.run(state)
 state = engine.analyze(state)
-# state.quality: {agreement: 0.62, separation: 0.31, stability: 0.74}
-# best_detector: SpectralResidual
+# state.quality: {'agreement': 0.62, 'separation': 0.31, 'stability': 0.74, ...}
+# state.analysis['best_detector']: SpectralResidual
 
 # No triggers fire. Proceed to report.
 report = engine.report(state)
@@ -90,15 +100,15 @@ report = engine.report(state)
 
 ### What the agent reports
 
-> "Found 47 anomalous time intervals across 10,080 minutes (0.5%). The three detectors I ran (`SpectralResidual`, `MatrixProfile`, `TimeSeriesOD`) agreed reasonably well (consensus 0.62). `SpectralResidual` performed best.
+> "Found 47 anomalous time intervals across 10,080 minutes (0.5%). The three detectors I ran (`KShape`, `LSTMAD`, `SpectralResidual`) agreed reasonably well (consensus 0.62). `SpectralResidual` performed best.
 >
 > Top-5 most anomalous intervals: minutes [842, 1503, 4221, 5917, 8330]. The dominant pattern in 4 of 5 was a sharp temperature spike followed by a slow recovery — characteristic of a sensor glitch or cooling failure.
 >
 > Confidence: medium-high. Separation is 0.31 (above the 0.2 floor), agreement is 0.62 (above the 0.4 floor), stability is 0.74.
 >
 > **What I assumed**:
-> - Time series, univariate, regular sampling
-> - Detectors: `SpectralResidual`, `MatrixProfile`, `TimeSeriesOD` — standard univariate triple
+> - Time series, univariate, regular sampling (passed `data_type='time_series'` explicitly)
+> - Detectors: `KShape`, `LSTMAD`, `SpectralResidual` — the triple the current planner returned on this shape
 > - Best detector: `SpectralResidual`"
 
 ## Time-series-specific pitfalls

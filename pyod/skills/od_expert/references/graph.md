@@ -4,11 +4,13 @@ PyOD ships 8 graph detectors. The agent loads this file when the master decision
 
 > **All detectors in this reference require `pip install pyod[graph]`.** The agent must check `importlib.util.find_spec("torch_geometric")` before recommending any of these detectors. If the extra is missing, escalate (Trigger 7) with the install command and either wait for the user to install or fall back to running a tabular detector on the node features only (which loses edge information and changes the result interpretation).
 
-## Decision table by graph type
+## Decision table by graph type (expert heuristics)
 
-| Graph type | Recommended starters (top-3) | Why |
+These are rules of thumb drawn from BOND (Liu et al. 2022) and general GAD literature. They are **not** predictions of exact `engine.plan` output. On a representative probe (10k-node attributed graph), the current planner returned `['DOMINANT', 'CoLA', 'Radar']`; use `state.plans` at runtime for the live selection and this table to check whether the plan is plausible.
+
+| Graph type | Heuristic starters | Why |
 |---|---|---|
-| Static homogeneous, with node features | `DOMINANT`, `CoLA`, `AnomalyDAE` | Reconstruction-based GAD on attributed graphs |
+| Static homogeneous, with node features | `DOMINANT`, `CoLA`, `AnomalyDAE` / `Radar` | Reconstruction-based GAD on attributed graphs |
 | Static homogeneous, no node features | `Radar`, `ANOMALOUS` | Structure-only GAD methods |
 | Heterogeneous (node types differ) | `GUIDE`, `CONAD` | Heterogeneity-aware GAD |
 | With anomaly labels (semi-supervised) | `CONAD`, `GUIDE` | Contrastive / supervised-augmented GAD |
@@ -86,7 +88,8 @@ data = Data(
 
 engine = ADEngine()
 state = engine.start(data)
-# state.profile: {data_type: 'graph', n_nodes: 10000, n_edges: 200000, n_features: 64}
+# state.profile: {'data_type': 'graph', 'n_nodes': 10000,
+#                 'n_edges': 200000, 'n_features': 64, ...}
 # Modality: graph ✓
 # Has node features → DOMINANT/CoLA/AnomalyDAE eligible
 
@@ -95,19 +98,22 @@ import importlib.util
 assert importlib.util.find_spec("torch_geometric"), "pyod[graph] missing"
 
 state = engine.plan(state)
-# state.plan['detectors'] = ['DOMINANT', 'CoLA', 'AnomalyDAE']
+# [p['detector_name'] for p in state.plans[:3]] == ['DOMINANT', 'CoLA', 'Radar']
+# (Captured from a live probe on a 10k-node attributed graph, 2026-04-14.
+# The planner may evolve; always read state.plans at runtime.)
 
 state = engine.run(state)
 state = engine.analyze(state)
-# state.quality: {agreement: 0.55, separation: 0.22, stability: 0.61}
-# best_detector: DOMINANT
+# state.quality: {'agreement': 0.55, 'separation': 0.22, 'stability': 0.61,
+#                 'overall': ..., 'verdict': 'medium'}
+# state.analysis['best_detector']: 'DOMINANT'
 ```
 
 Note: agreement is below the 0.4 floor would NOT trigger here (0.55 > 0.4). Separation 0.22 is just above the 0.1 critical floor — moderate confidence. Report with a hedge.
 
 ### What the agent reports
 
-> "Found 320 suspicious accounts of 10,000 (3.2%). The three graph detectors I ran (`DOMINANT`, `CoLA`, `AnomalyDAE`) agreed moderately (consensus 0.55). `DOMINANT` performed best.
+> "Found 320 suspicious accounts of 10,000 (3.2%). The three graph detectors I ran (`DOMINANT`, `CoLA`, `Radar`) agreed moderately (consensus 0.55). `DOMINANT` performed best.
 >
 > Top-5 most suspicious accounts: nodes [42, 891, 2103, 5566, 7891]. The dominant pattern was unusual follower-to-following ratios combined with rare account-age values.
 >
@@ -115,7 +121,7 @@ Note: agreement is below the 0.4 floor would NOT trigger here (0.55 > 0.4). Sepa
 >
 > **What I assumed**:
 > - Graph, node-attributed, homogeneous
-> - Detectors: `DOMINANT`, `CoLA`, `AnomalyDAE` — standard attributed-graph triple
+> - Detectors: `DOMINANT`, `CoLA`, `Radar` — the triple returned by the current planner on a 10k-node attributed graph
 > - Best detector: `DOMINANT`"
 
 ## Graph-specific pitfalls
