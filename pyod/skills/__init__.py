@@ -92,12 +92,12 @@ def get_skill_path(skill_name: str = "od_expert") -> Path:
 
 
 def install(target_dir: Path, skill_name: str = "od_expert") -> Path:
-    """Copy a packaged skill into a Claude Code skill directory.
+    """Copy a packaged skill (with references/) into a Claude Code skill directory.
 
-    The skill is installed at ``target_dir / <install-dirname> / SKILL.md``,
-    where ``<install-dirname>`` is the Claude Code canonical directory name
-    for the skill (hyphenated form). If the destination already exists,
-    it is overwritten.
+    The skill is installed at ``target_dir / <install-dirname>/`` as a tree
+    that includes ``SKILL.md`` and any ``references/`` subdirectory shipped
+    with the skill. If the destination already exists, files inside it are
+    overwritten in place (``dirs_exist_ok=True``).
 
     Parameters
     ----------
@@ -113,22 +113,30 @@ def install(target_dir: Path, skill_name: str = "od_expert") -> Path:
     Returns
     -------
     pathlib.Path
-        Absolute path to the installed SKILL.md.
+        Absolute path to the installed SKILL.md (the canonical entry point).
     """
     pkg_name = _normalize_to_package_name(skill_name)
     source_dir = get_skill_path(pkg_name)
-    source_file = source_dir / "SKILL.md"
-    if not source_file.is_file():
+    source_skill = source_dir / "SKILL.md"
+    if not source_skill.is_file():
         raise FileNotFoundError(
-            f"Packaged skill not found: {source_file}. "
+            f"Packaged skill not found: {source_skill}. "
             f"Reinstalling pyod may fix this."
         )
     install_name = _install_dirname(pkg_name)
     dest_dir = Path(target_dir).expanduser().resolve() / install_name
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    dest_file = dest_dir / "SKILL.md"
-    shutil.copy2(source_file, dest_file)
-    return dest_file
+    # copytree handles SKILL.md + references/ + any other files in one call.
+    # dirs_exist_ok=True so re-running the installer overwrites in place.
+    # Ignore Python package artifacts so the user's skill dir stays clean
+    # — the data-only subpackage marker (__init__.py) and the bytecode
+    # cache (__pycache__) are not skill content.
+    shutil.copytree(
+        source_dir,
+        dest_dir,
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "__init__.py"),
+        dirs_exist_ok=True,
+    )
+    return dest_dir / "SKILL.md"
 
 
 def _run_install(

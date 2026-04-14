@@ -744,7 +744,7 @@
     "paper": {"id": "feature_bagging", "short": "Lazarevic and Kumar, KDD 2005"},
     "default_params": {"contamination": 0.1, "n_estimators": 10},
     "preprocessing_mode": "external",
-    "requires": [],
+    "requires": ["combo"],
     "version_added": "0.5.0"
   },
   "LSCP": {
@@ -825,7 +825,7 @@
     "paper": {"id": "suod", "short": "Zhao et al., MLSys 2021"},
     "default_params": {"contamination": 0.1},
     "preprocessing_mode": "external",
-    "requires": [],
+    "requires": ["suod"],
     "version_added": "0.8.0"
   },
   "XGBOD": {
