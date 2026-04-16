@@ -1,9 +1,51 @@
 # This is a command list for building and releasing pyod to PyPI (Windows-friendly).
+# Each PRE-FLIGHT + POST-RELEASE step was added after lessons learned from
+# v3.1.0 / v3.2.0 / v3.2.1 releases -- skim once before every release.
+#
+# Shell assumption: Git Bash on Windows (or zsh/bash on macOS / Linux). Blocks
+# that use Bash-only features (`$(...)`, `&&`, `rm`, `cd -`, `sleep`) are the
+# norm; PowerShell equivalents are shown only for the cleanup commands
+# (steps 1 and 10) because PowerShell users commonly use `Remove-Item`
+# there. If you are running from PowerShell end-to-end, translate the Bash
+# blocks accordingly (e.g. `Start-Sleep -Seconds 60` for `sleep 60`,
+# `$SCRATCH = Join-Path ...` for `SCRATCH=$(...)`).
 
-# 0) Optional: run from a clean extracted source directory
+################################################################################
+# PRE-FLIGHT (on a feature / development branch, before merging to master)
+################################################################################
+
+# P1) Bump version
+#     Edit pyod/version.py:  __version__ = 'X.Y.Z'
+
+# P2) Add a one-line CHANGES.txt entry in chronological order, e.g.:
+#     v<X.Y.Z>, <MM/DD/YYYY> -- <short description of what changed>.
+
+# P3) Run /implement-review on the staged diff (Codex) if the release includes
+#     non-trivial code or docs changes. Address findings until Codex has no
+#     new actionable issues. See skills/implement-review/SKILL.md.
+
+# P4) Commit with a descriptive message and push to `development`.
+
+# P5) Wait for CI green on `development`, then open a PR. Draft the body in
+#     vX.Y.Z-release-notes.md (same file used for step 8) so you only write
+#     the notes once:
+#     gh pr create --base master --head development \
+#         --title "vX.Y.Z: <summary>" --body "$(cat vX.Y.Z-release-notes.md)"
+
+# P6) Wait for CI green on the PR, then merge:
+#     gh pr merge <N> --merge
+
+# P7) Switch to master and pull:
+#     git checkout master && git pull origin master
+
+################################################################################
+# BUILD + PUBLISH (on master)
+################################################################################
 
 # 1) Clean old build artifacts
-Remove-Item -Recurse -Force dist,build,pyod.egg-info -ErrorAction SilentlyContinue
+rm -rf dist build pyod.egg-info
+# PowerShell equivalent:
+# Remove-Item -Recurse -Force dist,build,pyod.egg-info -ErrorAction SilentlyContinue
 
 # 2) Build package
 python -m build
@@ -15,25 +57,46 @@ twine check dist/*
 pytest --doctest-modules pyod/
 # pytest pyod/test -q
 
-# 5) Optional smoke test in current env (after local wheel install)
-# cmd.exe:
-#   for %f in (dist\*.whl) do pip install "%f"
-# powershell:
-#   pip install dist/*.whl
+# 5) Optional smoke test in current env (imports from source tree, not wheel)
 python -c "import pyod; print(pyod.__version__)"
 python -c "from pyod.models.ecod import ECOD; from pyod.utils.data import generate_data; X_train, X_test, y_train, y_test = generate_data(n_train=200, n_test=50); clf=ECOD(); clf.fit(X_train); print('ok', len(clf.decision_scores_))"
+
+# 5b) Optional: verify wheel ships all expected files (useful when package-data changed)
+python -m zipfile -l dist/pyod-X.Y.Z-py3-none-any.whl | grep od_expert
 
 # 6) Upload to TestPyPI first
 # NOTE: repository name must match ~/.pypirc section name (here: pypitest)
 twine upload --repository pypitest dist/*
 # https://test.pypi.org/project/pyod/
 
+# 6b) TestPyPI install smoke in a clean scratch venv
+#     IMPORTANT: run the import check from the scratch directory, NOT the repo
+#     root -- otherwise `sys.path[0]` is '' (the cwd) and `import pyod`
+#     resolves to the source tree (via pyod/) instead of the installed wheel.
+#     TestPyPI's simple index can lag the JSON API after upload, so the sleep
+#     makes the propagation wait executable (not just prose).
+SCRATCH=$(python -c "import tempfile; print(tempfile.mkdtemp(prefix='pyod-test-'))")
+python -m venv "$SCRATCH/venv"
+sleep 60
+cd "$SCRATCH"
+"$SCRATCH/venv/Scripts/python.exe" -m pip install --quiet \
+    --index-url https://test.pypi.org/simple/ \
+    --extra-index-url https://pypi.org/simple/ pyod==X.Y.Z
+"$SCRATCH/venv/Scripts/python.exe" -c "import pyod; assert pyod.__version__ == 'X.Y.Z', pyod.__version__; print(pyod.__version__)"
+cd -
+
 # 7) Upload to official PyPI
 twine upload dist/*
 # https://pypi.org/project/pyod/
 
 # 8) Create GitHub release
-gh release create v<VERSION> --target master --title "v<VERSION>" --notes "<release notes>"
+# Draft release notes in vX.Y.Z-release-notes.md (reuse the file from P5).
+# Add a wildcard to .git/info/exclude once so any future vX.Y.Z-release-notes.md
+# stays out of `git add -A` without editing .gitignore:
+#     echo "v*-release-notes.md" >> .git/info/exclude
+# Then create the release:
+gh release create vX.Y.Z --target master --title "vX.Y.Z" \
+    --notes-file vX.Y.Z-release-notes.md
 # https://github.com/yzhao062/pyod/releases
 
 # 9) conda-forge (automatic)
@@ -43,7 +106,26 @@ gh release create v<VERSION> --target master --title "v<VERSION>" --notes "<rele
 # unless new dependencies were added (edit recipe/meta.yaml if so).
 
 # 10) Clean up build artifacts
-Remove-Item -Recurse -Force dist,build,pyod.egg-info -ErrorAction SilentlyContinue
+rm -rf dist build pyod.egg-info
+# PowerShell equivalent:
+# Remove-Item -Recurse -Force dist,build,pyod.egg-info -ErrorAction SilentlyContinue
+
+################################################################################
+# POST-RELEASE HOUSEKEEPING
+################################################################################
+
+# H1) Fast-forward development to master so the two branches do not drift:
+#     git checkout development
+#     git merge --ff-only master
+#     git push origin development
+
+# H2) Delete the release-notes scratch file:
+#     rm vX.Y.Z-release-notes.md
+
+# H3) Delete scratch dirs from smoke-testing / Sphinx builds done during review:
+#     rm -rf docs/_build* ~/AppData/Local/Temp/pyod-*
+
+# H4) Watch for the conda-forge auto-PR to land (a few hours), then merge it.
 
 
 #######################################################
@@ -58,5 +140,5 @@ Remove-Item -Recurse -Force dist,build,pyod.egg-info -ErrorAction SilentlyContin
 7. add algorithm to pyod.models.rst
 8. add algorithm to index.rst and README.rst
 9. add to benchmark.py and compare_all_models.py; when applicable, change notebooks as well
-10. update CHANGES.txt with the new version entry
-11. bump version in pyod/version.py
+10. update CHANGES.txt with the new version entry  (redundant with PRE-FLIGHT P2, kept here as a reminder)
+11. bump version in pyod/version.py                 (redundant with PRE-FLIGHT P1, kept here as a reminder)
