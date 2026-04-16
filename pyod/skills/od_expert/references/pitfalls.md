@@ -84,7 +84,7 @@ On n < 200, stability is naturally low because resampling has high variance. Mit
 
 ### A3. Separation interpretation depends on detector type (MEDIUM)
 
-Distance-based detectors (`LOF`, `KNN`) and density-based (`HBOS`, `COPOD`) produce score distributions with different shapes. Comparing separation across detector families is misleading. Mitigation: only compare separation within the same family, or use the rank-normalized version from `state.consensus_scores`.
+Distance-based detectors (`LOF`, `KNN`) and density-based (`HBOS`, `COPOD`) produce score distributions with different shapes. Comparing separation across detector families is misleading. Mitigation: only compare separation within the same family, or use the rank-normalized consensus from `state.consensus['scores']`.
 
 ### A4. Detector disagreement is the norm (MEDIUM)
 

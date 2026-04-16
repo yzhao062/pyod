@@ -28,10 +28,14 @@ texts = ["product description 1", "product description 2", ...]
 engine = ADEngine()
 state = engine.start(texts)
 # state.profile['data_type'] == 'text'
-# state.profile['encoder'] proposed automatically (sentence-transformers default)
+# Encoder choice is made by the planner and is visible later on the
+# fit detector (state.results[i]['plan']['params']), not in state.profile.
 
 state = engine.plan(state)
-# state.plan['detectors'] = ['EmbeddingOD-LOF', 'EmbeddingOD-KNN', 'EmbeddingOD-IForest']
+# On a live probe: [p['detector_name'] for p in state.plans] == ['EmbeddingOD']
+# In v3.2.x the text/image planner returns a single EmbeddingOD entry rather
+# than separate base-detector variants; the wrapper picks its base detector
+# internally from its own parameters.
 
 state = engine.run(state)
 state = engine.analyze(state)
@@ -58,13 +62,12 @@ state = engine.start(images)
 
 **When to switch from default**: if the user mentions privacy / no external API, force `sentence-transformers`. If the user wants top quality and is willing to pay, use `OpenAI`. For image, `HuggingFace` is the only practical default; sentence-transformers is text-only.
 
-## Top-3 wrapper combinations
+## What the planner returns on text / image
 
-The default `engine.plan` for text/image returns three `EmbeddingOD` variants wrapping different base detectors:
+In v3.2.x, `engine.plan` on text or image data returns a single `EmbeddingOD` plan entry, not a spread across multiple base detectors. The wrapper then picks its own base detector internally. If you want to compare base detectors on the embeddings (LOF vs KNN vs IForest), do it outside the session:
 
-1. **`EmbeddingOD` + `LOF`** — local-density OD on embeddings; good when anomalies cluster differently from normals
-2. **`EmbeddingOD` + `KNN`** — nearest-neighbor OD on embeddings; good for outliers that are far from any cluster
-3. **`EmbeddingOD` + `IForest`** — tree-based OD on embeddings; good for high-dimensional embedding spaces (768+)
+- Call `engine.start` / `engine.plan` / `engine.run` / `engine.analyze` to get the embedding-based anomaly scores via `EmbeddingOD`.
+- To ensemble across different base detectors on the embeddings, embed once, then fit `LOF` / `KNN` / `IForest` on the embedding matrix via the classic fit / predict path. Future versions of the planner may return a multi-detector spread natively.
 
 ## Worked example: novel-product detection from descriptions
 
@@ -83,23 +86,27 @@ texts = df["description"].tolist()
 
 engine = ADEngine()
 state = engine.start(texts)
-# state.profile: {data_type: 'text', n_samples: 50000, encoder: 'sentence-transformers'}
+# state.profile: {'data_type': 'text', 'n_samples': 50000, ...}
 # Modality: text ✓
+# Encoder (sentence-transformers default) is selected in plan(), not profile.
 
 state = engine.plan(state)
-# state.plan['detectors'] = ['EmbeddingOD+LOF', 'EmbeddingOD+KNN', 'EmbeddingOD+IForest']
+# [p['detector_name'] for p in state.plans] == ['EmbeddingOD']
+# (Live probe, 2026-04-14. The planner returns a single EmbeddingOD entry;
+# base-detector selection happens inside the wrapper.)
 
 state = engine.run(state)
 state = engine.analyze(state)
-# state.quality: {agreement: 0.65, separation: 0.24, stability: 0.71}
-# best_detector: EmbeddingOD+IForest
+# state.quality: {'agreement': None, 'separation': 0.24, 'stability': 0.71, ...}
+# (Agreement is None when only one detector ran.)
+# state.analysis['best_detector']: 'EmbeddingOD'
 
 report = engine.report(state)
 ```
 
 ### What the agent reports
 
-> "Found 1,200 product descriptions of 50,000 (2.4%) flagged as unusual. The three `EmbeddingOD` variants I ran (with `LOF`, `KNN`, and `IForest` base detectors) agreed reasonably (consensus 0.65). `IForest` over the embeddings performed best.
+> "Found 1,200 product descriptions of 50,000 (2.4%) flagged as unusual via `EmbeddingOD` over sentence-transformer embeddings. Only one detector ran (the current planner returns `EmbeddingOD` as a single entry on text data), so agreement is undefined; separation is 0.24 and stability is 0.71.
 >
 > Top-5 most unusual descriptions: rows [42, 815, 2200, 14501, 31200]. The dominant pattern was descriptions in non-English languages mixed into the catalog, plus descriptions consisting only of model numbers without prose.
 >
@@ -108,8 +115,7 @@ report = engine.report(state)
 > **What I assumed**:
 > - Text data, English (auto-detected from sample)
 > - Encoder: sentence-transformers (default, no API key required)
-> - Detectors: `EmbeddingOD` over `LOF`, `KNN`, `IForest`
-> - Best detector: `EmbeddingOD` + `IForest`"
+> - Detector: `EmbeddingOD` (single-entry plan; the wrapper picks its base detector internally)"
 
 ## Lightweight pitfalls
 
