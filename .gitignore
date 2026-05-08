@@ -11,3 +11,15 @@ build/
 .DS_Store
 
 .agent-config/
+
+# anywhere-agents infrastructure (not part of PyOD source)
+/AGENTS.md
+/AGENTS.local.md
+/CLAUDE.md
+/CLAUDE.local.md
+/agent-config.yaml
+/agent-config.local.yaml
+/.agents/
+/.claude/
+/agents/
+/skills/
