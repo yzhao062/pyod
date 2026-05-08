@@ -8,7 +8,11 @@ required) or as the backend for MCP/agent interfaces.
 # Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
 
+from __future__ import annotations
+
+import logging
 import os
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -29,9 +33,16 @@ from pyod.utils._detector_factory import (
     build_detector_from_plan,
 )
 from pyod.utils._nl_feedback import (
+    adjust_contamination_down,
+    adjust_contamination_up,
     apply_nl_feedback,
     apply_structured_feedback,
 )
+
+if TYPE_CHECKING:
+    from pyod.utils.investigation import InvestigationState
+
+logger = logging.getLogger(__name__)
 
 
 class ADEngine:
@@ -43,10 +54,10 @@ class ADEngine:
         Path to knowledge base directory. If None, uses bundled.
     """
 
-    def __init__(self, knowledge_dir=None):
+    def __init__(self, knowledge_dir: str | None = None) -> None:
         self.kb = KnowledgeBase(knowledge_dir=knowledge_dir)
 
-    def profile_data(self, X, data_type=None):
+    def profile_data(self, X: Any, data_type: str | None = None) -> dict:
         """Profile the input data.
 
         Parameters
@@ -109,7 +120,7 @@ class ADEngine:
 
         return profile
 
-    def _sniff_data_type(self, X):
+    def _sniff_data_type(self, X: Any) -> str:
         """Conservative data type detection."""
         # Check for PyG Data object
         try:
@@ -130,7 +141,7 @@ class ADEngine:
         return 'tabular'
 
     @staticmethod
-    def _looks_like_image_paths(samples):
+    def _looks_like_image_paths(samples: list[str]) -> bool:
         """Check if string samples look like image file paths."""
         image_exts = {'.jpg', '.jpeg', '.png', '.bmp', '.gif',
                       '.tiff', '.webp'}
@@ -140,8 +151,8 @@ class ADEngine:
                 return False
         return True
 
-    def plan_detection(self, profile, priority='balanced',
-                       constraints=None):
+    def plan_detection(self, profile: dict, priority: str = 'balanced',
+                       constraints: dict | None = None) -> dict:
         """Plan a detection pipeline.
 
         Parameters
@@ -226,7 +237,7 @@ class ADEngine:
     # Detector construction
     # ------------------------------------------------------------------
 
-    def build_detector(self, plan):
+    def build_detector(self, plan: dict) -> Any:
         """Build and return an unfitted detector from a plan.
 
         Parameters
@@ -244,8 +255,9 @@ class ADEngine:
     # One-shot detection
     # ------------------------------------------------------------------
 
-    def detect(self, X_train, X_test=None, data_type=None,
-               priority='balanced'):
+    def detect(self, X_train: Any, X_test: Any = None,
+               data_type: str | None = None,
+               priority: str = 'balanced') -> dict:
         """One-shot anomaly detection: profile -> plan -> run -> analyze.
 
         Parameters
@@ -276,7 +288,8 @@ class ADEngine:
     # Structured detection
     # ------------------------------------------------------------------
 
-    def run_detection(self, X_train, plan, X_test=None):
+    def run_detection(self, X_train: Any, plan: dict,
+                      X_test: Any = None) -> dict:
         """Execute a detection plan.
 
         Parameters
@@ -340,7 +353,8 @@ class ADEngine:
     # Result analysis
     # ------------------------------------------------------------------
 
-    def analyze_results(self, result, X=None, top_k=10):
+    def analyze_results(self, result: dict, X: Any = None,
+                        top_k: int = 10) -> dict:
         """Analyze detection results.
 
         Parameters
@@ -406,7 +420,9 @@ class ADEngine:
     # Explanation
     # ------------------------------------------------------------------
 
-    def explain_findings(self, result, indices=None, top_k=5, X=None):
+    def explain_findings(self, result: dict,
+                         indices: list[int] | None = None,
+                         top_k: int = 5, X: Any = None) -> list[dict]:
         """Explain why specific samples were flagged as anomalies.
 
         Parameters
@@ -474,7 +490,8 @@ class ADEngine:
     # Next-step suggestions
     # ------------------------------------------------------------------
 
-    def suggest_next_step(self, result, analysis, feedback=None):
+    def suggest_next_step(self, result: dict, analysis: dict,
+                          feedback: str | None = None) -> dict:
         """Suggest what to try next.
 
         Parameters
@@ -516,7 +533,7 @@ class ADEngine:
         if _more_sensitive:
             current_contam = result['plan'].get('params', {}).get(
                 'contamination', 0.1)
-            new_contam = min(current_contam * 1.5, 0.5)
+            new_contam = adjust_contamination_up(current_contam)
             return {
                 'action': 'adjust_threshold',
                 'reason': 'Missed anomalies reported. Try increasing '
@@ -542,7 +559,7 @@ class ADEngine:
         if _less_sensitive:
             current_contam = result['plan'].get('params', {}).get(
                 'contamination', 0.1)
-            new_contam = max(current_contam * 0.5, 0.01)
+            new_contam = adjust_contamination_down(current_contam)
             return {
                 'action': 'adjust_threshold',
                 'reason': 'High false positive rate reported. Try reducing '
@@ -568,7 +585,7 @@ class ADEngine:
         if ratio > 0.3:
             current_contam = result['plan'].get('params', {}).get(
                 'contamination', 0.1)
-            new_contam = max(current_contam * 0.5, 0.01)
+            new_contam = adjust_contamination_down(current_contam)
             return {
                 'action': 'adjust_threshold',
                 'reason': '%.0f%% flagged as anomalies, which is unusually '
@@ -599,7 +616,8 @@ class ADEngine:
     # Report generation
     # ------------------------------------------------------------------
 
-    def generate_report(self, result, analysis, format='text'):
+    def generate_report(self, result: dict, analysis: dict,
+                        format: str = 'text') -> str:
         """Generate a summary report.
 
         Parameters
@@ -671,7 +689,8 @@ class ADEngine:
     # V3 Session workflow
     # ------------------------------------------------------------------
 
-    def start(self, X, data_type=None):
+    def start(self, X: Any,
+              data_type: str | None = None) -> InvestigationState:
         """Start an investigation session.
 
         Profiles the data and returns an InvestigationState.
@@ -707,7 +726,9 @@ class ADEngine:
             'Profiled %s data' % profile['data_type']))
         return state
 
-    def plan(self, state, priority='balanced', constraints=None):
+    def plan(self, state: InvestigationState,
+             priority: str = 'balanced',
+             constraints: dict | None = None) -> InvestigationState:
         """Plan detection: select top-N detectors.
 
         Wraps ``plan_detection()`` and extracts primary + alternatives
@@ -760,7 +781,7 @@ class ADEngine:
         return state
 
     @staticmethod
-    def _require_phase(state, expected):
+    def _require_phase(state: InvestigationState, expected: str) -> None:
         """Enforce workflow phase precondition."""
         if state.phase != expected:
             raise ValueError(
@@ -769,7 +790,7 @@ class ADEngine:
                 "run -> analyze -> iterate/report."
                 % (expected, state.phase))
 
-    def run(self, state):
+    def run(self, state: InvestigationState) -> InvestigationState:
         """Run detection with all planned detectors.
 
         Wraps ``run_detection()`` per plan. Computes consensus via
@@ -796,11 +817,14 @@ class ADEngine:
                 entry['status'] = 'success'
                 entry['error'] = None
                 results.append(entry)
-            except Exception as e:
+            except Exception as exc:
+                logger.warning(
+                    'Detector %s raised %s during run(): %s',
+                    plan['detector_name'], type(exc).__name__, exc)
                 results.append({
                     'detector_name': plan['detector_name'],
                     'status': 'error',
-                    'error': str(e),
+                    'error': str(exc),
                     'plan': plan,
                 })
 
@@ -837,7 +861,7 @@ class ADEngine:
             % (len(successful), len(results))))
         return state
 
-    def analyze(self, state):
+    def analyze(self, state: InvestigationState) -> InvestigationState:
         """Analyze detection results with quality assessment.
 
         Computes per-detector analysis, consensus analysis, quality
@@ -884,7 +908,11 @@ class ADEngine:
             if r['status'] == 'success':
                 try:
                     a = self.analyze_results(r, X=state.data)
-                except Exception:
+                except Exception as exc:
+                    logger.warning(
+                        'analyze_results failed for %s with %s: %s',
+                        r.get('detector_name', '<unknown>'),
+                        type(exc).__name__, exc)
                     a = None
                 per_det.append(a)
             else:
@@ -970,7 +998,8 @@ class ADEngine:
     # V3 Session workflow: iterate
     # ------------------------------------------------------------------
 
-    def iterate(self, state, feedback):
+    def iterate(self, state: InvestigationState,
+                feedback: str | dict) -> InvestigationState:
         """Iterate based on feedback.
 
         Structured dicts execute immediately. NL strings are
@@ -997,7 +1026,8 @@ class ADEngine:
     # V3 Session workflow: report and investigate
     # ------------------------------------------------------------------
 
-    def report(self, state, format='text'):
+    def report(self, state: InvestigationState,
+               format: str = 'text') -> str | dict:
         """Generate investigation report.
 
         Text format wraps ``generate_report()`` for best detector,
@@ -1090,7 +1120,8 @@ class ADEngine:
 
         return '\n'.join(lines)
 
-    def investigate(self, X, data_type=None, priority='balanced'):
+    def investigate(self, X: Any, data_type: str | None = None,
+                    priority: str = 'balanced') -> InvestigationState:
         """One-shot investigation: start → plan → run → analyze.
 
         Parameters
@@ -1114,7 +1145,8 @@ class ADEngine:
     # Knowledge queries
     # ------------------------------------------------------------------
 
-    def list_detectors(self, data_type=None, status='shipped'):
+    def list_detectors(self, data_type: str | None = None,
+                       status: str = 'shipped') -> list[dict]:
         """List available detectors.
 
         Parameters
@@ -1135,7 +1167,7 @@ class ADEngine:
                     for k, v in self.kb.algorithms.items()]
         return self.kb.list_by_status(status)
 
-    def explain_detector(self, name):
+    def explain_detector(self, name: str) -> dict:
         """Explain a detector.
 
         Parameters
@@ -1152,7 +1184,9 @@ class ADEngine:
             raise ValueError("Unknown detector '%s'" % name)
         return {'name': name, **algo}
 
-    def compare_detectors(self, names=None, data_type=None, top_k=3):
+    def compare_detectors(self, names: list[str] | None = None,
+                          data_type: str | None = None,
+                          top_k: int = 3) -> list[dict]:
         """Compare detectors.
 
         Parameters
@@ -1173,7 +1207,7 @@ class ADEngine:
         detectors = self.list_detectors(data_type=data_type)
         return detectors[:top_k]
 
-    def get_benchmarks(self, benchmark='all'):
+    def get_benchmarks(self, benchmark: str = 'all') -> dict:
         """Get benchmark results.
 
         Parameters

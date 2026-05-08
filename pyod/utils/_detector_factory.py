@@ -6,10 +6,19 @@ Not part of the public API.
 # Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
 
+from __future__ import annotations
+
 import importlib
+import logging
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pyod.utils.knowledge import KnowledgeBase
+
+logger = logging.getLogger(__name__)
 
 
-def build_detector_from_plan(plan, kb):
+def build_detector_from_plan(plan: dict, kb: 'KnowledgeBase') -> object:
     """Build and return an unfitted detector from a plan.
 
     Parameters
@@ -45,7 +54,8 @@ def build_detector_from_plan(plan, kb):
     return cls(**params)
 
 
-def build_from_preset(detector_name, preset, extra_params):
+def build_from_preset(detector_name: str, preset: str,
+                      extra_params: dict) -> object:
     """Build a detector using a factory preset.
 
     Presets are class-method factories that wire common defaults for

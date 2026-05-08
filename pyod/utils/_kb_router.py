@@ -5,8 +5,19 @@ chain plus `_make_plan` and `_suggest_alternative` from
 `pyod.utils.ad_engine.ADEngine` in 2026-05. Not part of the public API.
 """
 
+from __future__ import annotations
 
-def evaluate_rules(profile, priority, kb):
+import logging
+from typing import Any, Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .knowledge import KnowledgeBase
+
+logger = logging.getLogger(__name__)
+
+
+def evaluate_rules(profile: dict, priority: str,
+                   kb: KnowledgeBase) -> list[dict]:
     """Evaluate routing rules against a data profile.
 
     Walks every rule in the KB's routing-rules table; for each rule
@@ -61,7 +72,7 @@ def evaluate_rules(profile, priority, kb):
                   reverse=True)
 
 
-def rule_matches(rule, profile, priority):
+def rule_matches(rule: dict, profile: dict, priority: str) -> bool:
     """Check if all conditions in a rule match the profile.
 
     Each rule's ``conditions`` list is treated as a logical AND. A
@@ -102,7 +113,7 @@ def rule_matches(rule, profile, priority):
     return True
 
 
-def eval_condition(actual, op, value):
+def eval_condition(actual: Any, op: str, value: Any) -> bool:
     """Evaluate a single condition predicate.
 
     Supported operators: ``'eq'`` (equality), ``'lt'``, ``'lte'``,
@@ -142,9 +153,14 @@ def eval_condition(actual, op, value):
     return False
 
 
-def make_plan(detector_name, params=None, preset=None,
-              reason='', evidence=None, confidence=0.5,
-              alternatives=None, note=None):
+def make_plan(detector_name: str,
+              params: dict | None = None,
+              preset: str | None = None,
+              reason: str = '',
+              evidence: list | None = None,
+              confidence: float = 0.5,
+              alternatives: list | None = None,
+              note: str | None = None) -> dict:
     """Construct a closed-schema DetectionPlan dict.
 
     The closed schema means downstream code can rely on the keys
@@ -199,7 +215,8 @@ def make_plan(detector_name, params=None, preset=None,
     return plan
 
 
-def suggest_alternative(result, kb, make_plan_fn):
+def suggest_alternative(result: dict, kb: KnowledgeBase,
+                        make_plan_fn: Callable[..., dict]) -> dict:
     """Suggest an alternative detector different from the current one.
 
     Resolution order:

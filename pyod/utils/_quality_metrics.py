@@ -5,11 +5,42 @@ Pure helper functions extracted from `pyod.utils.ad_engine.ADEngine` in
 leading underscore on the module name is the contract.
 """
 
+from __future__ import annotations
+
+import logging
+from typing import TypedDict
+
 import numpy as np
 from scipy.stats import rankdata, spearmanr
 
+logger = logging.getLogger(__name__)
 
-def compute_quality(scores, labels, results, consensus):
+
+_VERDICT_HIGH_THRESHOLD: float = 0.7
+"""Overall quality at or above this is reported as 'high'."""
+
+_VERDICT_MEDIUM_THRESHOLD: float = 0.4
+"""Overall quality at or above this (but below high) is 'medium'."""
+
+_SINGLE_DETECTOR_AGREEMENT_FALLBACK: float = 0.5
+"""Agreement returned when only one detector ran (no basis for agreement)."""
+
+
+class QualityDict(TypedDict):
+    separation: float
+    agreement: float
+    stability: float
+    overall: float
+    verdict: str
+    explanation: str
+
+
+def compute_quality(
+    scores: np.ndarray,
+    labels: np.ndarray,
+    results: list[dict],
+    consensus: dict,
+) -> QualityDict:
     """Compute three diagnostic quality metrics for a detection run.
 
     Each metric diagnoses one independent failure mode and drives
@@ -93,9 +124,9 @@ def compute_quality(scores, labels, results, consensus):
             stability = float(np.clip(gap / std, 0.0, 1.0))
 
     overall = float(np.mean([separation, agreement, stability]))
-    if overall >= 0.7:
+    if overall >= _VERDICT_HIGH_THRESHOLD:
         verdict = 'high'
-    elif overall >= 0.4:
+    elif overall >= _VERDICT_MEDIUM_THRESHOLD:
         verdict = 'medium'
     else:
         verdict = 'low'
@@ -112,7 +143,10 @@ def compute_quality(scores, labels, results, consensus):
     }
 
 
-def select_best_detector(results, consensus_scores):
+def select_best_detector(
+    results: list[dict],
+    consensus_scores: np.ndarray,
+) -> int:
     """Select best detector via Spearman with consensus.
 
     Fallback chain (per spec):
@@ -181,7 +215,10 @@ def select_best_detector(results, consensus_scores):
     return successful[best_j][0]
 
 
-def compute_feature_importance(result, X):
+def compute_feature_importance(
+    result: dict,
+    X: np.ndarray | None,
+) -> list | None:
     """Estimate per-feature contribution to anomaly scores.
 
     For each feature column, computes the Pearson correlation between
@@ -225,11 +262,16 @@ def compute_feature_importance(result, X):
             importances.append(float(corr) if np.isfinite(corr) else 0.0)
 
         return importances
-    except Exception:
+    except (AttributeError, ValueError, TypeError) as exc:
+        logger.debug('compute_feature_importance: %s', exc)
         return None
 
 
-def feature_contributions(X, idx, scores):
+def feature_contributions(
+    X: np.ndarray,
+    idx: int,
+    scores: np.ndarray,
+) -> list | None:
     """Compute per-feature z-score for a specific sample.
 
     Returns the top-5 features by absolute z-score for the row at
@@ -265,11 +307,14 @@ def feature_contributions(X, idx, scores):
         top_feat = np.argsort(z)[::-1][:5]
         return [{'feature': int(f), 'z_score': float(z[f])}
                 for f in top_feat]
-    except Exception:
+    except (AttributeError, ValueError, TypeError) as exc:
+        logger.debug('feature_contributions: %s', exc)
         return None
 
 
-def compute_consensus(successful_results):
+def compute_consensus(
+    successful_results: list[dict],
+) -> dict | None:
     """Compute consensus from successful detector results.
 
     Rank-normalizes scores per detector via ``rankdata``, averages to
@@ -303,7 +348,7 @@ def compute_consensus(successful_results):
             'scores': r['scores_train'],
             'labels': r['labels_train'],
             'n_detectors': 1,
-            'agreement': 0.5,
+            'agreement': _SINGLE_DETECTOR_AGREEMENT_FALLBACK,
             'disagreements': [],
         }
 
@@ -331,7 +376,10 @@ def compute_consensus(successful_results):
                 successful[j]['scores_train'])
             correlations.append(
                 max(0.0, rho) if np.isfinite(rho) else 0.0)
-    agreement = float(np.mean(correlations)) if correlations else 0.5
+    agreement = (
+        float(np.mean(correlations)) if correlations
+        else _SINGLE_DETECTOR_AGREEMENT_FALLBACK
+    )
 
     # Disagreements: indices where detectors disagree
     disagreements = []

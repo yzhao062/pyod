@@ -495,5 +495,133 @@ class TestStabilityMetric:
             assert 0.0 <= q['stability'] <= 1.0
 
 
+class TestValidateStructuredFeedback:
+    """Tests for the structured-feedback schema validator (PR 3)."""
+
+    def test_missing_action_raises(self):
+        from pyod.utils._nl_feedback import validate_structured_feedback
+        import pytest
+        with pytest.raises(ValueError, match="missing 'action'"):
+            validate_structured_feedback({})
+
+    def test_unknown_action_raises(self):
+        from pyod.utils._nl_feedback import validate_structured_feedback
+        import pytest
+        with pytest.raises(ValueError, match='unknown action'):
+            validate_structured_feedback({'action': 'frobnicate'})
+
+    def test_missing_required_field_raises(self):
+        from pyod.utils._nl_feedback import validate_structured_feedback
+        import pytest
+        with pytest.raises(ValueError, match='requires fields'):
+            validate_structured_feedback({'action': 'adjust_contamination'})
+
+    def test_wrong_type_raises(self):
+        from pyod.utils._nl_feedback import validate_structured_feedback
+        import pytest
+        with pytest.raises(ValueError, match='must be a dict'):
+            validate_structured_feedback('rerun')
+
+    def test_valid_inputs_do_not_raise(self):
+        from pyod.utils._nl_feedback import validate_structured_feedback
+        validate_structured_feedback({'action': 'rerun'})
+        validate_structured_feedback({'action': 'adjust_contamination',
+                                       'value': 0.1})
+        validate_structured_feedback({'action': 'exclude',
+                                       'detectors': ['IForest']})
+        validate_structured_feedback({'action': 'include',
+                                       'detectors': ['ECOD', 'KNN']})
+
+
+class TestNLPatternTable:
+    """Tests for the declarative NL pattern table (PR 3)."""
+
+    def _state_with_results(self, detector_names):
+        """Build a minimal state-like object for the parser."""
+        state = InvestigationState(phase='detected',
+                                   data=np.zeros((10, 3)),
+                                   profile={'data_type': 'tabular'})
+        state.plans = [{'params': {'contamination': 0.1}}]
+        state.results = [{'detector_name': name} for name in detector_names]
+        return state
+
+    def test_exclude_pattern_with_known_detector(self):
+        from pyod.utils._nl_feedback import parse_nl_to_structured
+        state = self._state_with_results(['IForest', 'KNN'])
+        proposed, conf = parse_nl_to_structured(state, 'exclude IForest')
+        assert proposed == {'action': 'exclude', 'detectors': ['IForest']}
+        assert conf == 0.9
+
+    def test_exclude_pattern_without_named_detector(self):
+        from pyod.utils._nl_feedback import parse_nl_to_structured
+        state = self._state_with_results([])
+        proposed, conf = parse_nl_to_structured(state, 'exclude something')
+        assert proposed == {'action': 'exclude', 'detectors': []}
+        assert conf == 0.3
+
+    def test_too_many_decreases_contamination(self):
+        from pyod.utils._nl_feedback import parse_nl_to_structured
+        state = self._state_with_results([])
+        proposed, conf = parse_nl_to_structured(state, 'too many false positives')
+        assert proposed['action'] == 'adjust_contamination'
+        assert proposed['value'] == 0.05
+        assert conf == 0.7
+
+    def test_missed_increases_contamination(self):
+        from pyod.utils._nl_feedback import parse_nl_to_structured
+        state = self._state_with_results([])
+        proposed, conf = parse_nl_to_structured(state, 'we missed several')
+        assert proposed['action'] == 'adjust_contamination'
+        assert abs(proposed['value'] - 0.15) < 1e-9
+        assert conf == 0.7
+
+    def test_rerun_pattern(self):
+        from pyod.utils._nl_feedback import parse_nl_to_structured
+        state = self._state_with_results([])
+        proposed, conf = parse_nl_to_structured(state, 'rerun please')
+        assert proposed == {'action': 'rerun'}
+        assert conf == 0.9
+
+    def test_word_boundary_no_match(self):
+        """Words containing 'without' as substring should NOT match."""
+        from pyod.utils._nl_feedback import parse_nl_to_structured
+        state = self._state_with_results([])
+        proposed, conf = parse_nl_to_structured(state, 'withoutdoubt this is wrong')
+        # Should fall through to default rerun with confidence 0.0
+        assert proposed == {'action': 'rerun'}
+        assert conf == 0.0
+
+    def test_no_match_returns_low_confidence(self):
+        from pyod.utils._nl_feedback import parse_nl_to_structured
+        state = self._state_with_results([])
+        proposed, conf = parse_nl_to_structured(state, 'completely unrelated text')
+        assert proposed == {'action': 'rerun'}
+        assert conf == 0.0
+
+
+class TestExceptionLogging:
+    """Tests for WARNING logs on caught detector exceptions (PR 3)."""
+
+    def test_run_logs_warning_on_detector_error(self, caplog):
+        """ADEngine.run() emits a WARNING log when a detector raises."""
+        import logging
+        engine = ADEngine()
+        rng = np.random.RandomState(0)
+        state = engine.start(rng.rand(50, 3))
+        state = engine.plan(state)
+        # Inject a bogus plan that will fail at run_detection
+        state.plans = [{
+            'detector_name': '__bogus_nonexistent__',
+            'params': {},
+            'priority': 'balanced',
+        }]
+        with caplog.at_level(logging.WARNING, logger='pyod.utils.ad_engine'):
+            state = engine.run(state)
+        assert any('__bogus_nonexistent__' in r.message
+                   for r in caplog.records), \
+            ('expected WARNING with bogus detector name, got: %r'
+             % [r.message for r in caplog.records])
+
+
 if __name__ == '__main__':
     unittest.main()

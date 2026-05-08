@@ -4,11 +4,96 @@ Extracts `_iterate_structured` and `_iterate_nl` from
 `pyod.utils.ad_engine.ADEngine` in 2026-05.
 """
 
+from __future__ import annotations
+
+import logging
+import re
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Callable
+
 from .investigation import _make_history_entry
+
+if TYPE_CHECKING:
+    from pyod.utils.investigation import InvestigationState
+    from pyod.utils.knowledge import KnowledgeBase
+
+logger = logging.getLogger(__name__)
+
+
+_CONTAMINATION_INCREASE_FACTOR: float = 1.5
+_CONTAMINATION_DECREASE_FACTOR: float = 0.5
+_CONTAMINATION_MAX: float = 0.5
+_CONTAMINATION_MIN: float = 0.01
+_NL_HIGH_CONFIDENCE_THRESHOLD: float = 0.8
+"""NL feedback parsed with confidence above this is auto-applied."""
+
+
+_VALID_ACTIONS: frozenset[str] = frozenset({
+    'adjust_contamination', 'exclude', 'include', 'rerun',
+})
+
+_REQUIRED_FIELDS: dict[str, frozenset[str]] = {
+    'adjust_contamination': frozenset({'value'}),
+    'exclude': frozenset({'detectors'}),
+    'include': frozenset({'detectors'}),
+    'rerun': frozenset(),
+}
+
+
+def validate_structured_feedback(feedback: dict) -> None:
+    """Raise ValueError if feedback dict is malformed.
+
+    Validates only structure and required fields. Does not validate
+    semantic content (e.g., whether a detector name actually exists in
+    the KB; that is the responsibility of `apply_structured_feedback`).
+
+    Parameters
+    ----------
+    feedback : dict
+        Structured feedback per design spec section 4.3 of
+        `docs/superpowers/specs/2026-04-12-v3-agentic-design.md`.
+
+    Raises
+    ------
+    ValueError
+        If 'action' is missing, action is not in `_VALID_ACTIONS`, or
+        required fields for the chosen action are missing.
+    """
+    if not isinstance(feedback, dict):
+        raise ValueError(
+            f'feedback must be a dict, got {type(feedback).__name__}')
+    action = feedback.get('action')
+    if action is None:
+        raise ValueError(
+            "feedback dict missing 'action' key; "
+            f"valid actions: {sorted(_VALID_ACTIONS)}")
+    if action not in _VALID_ACTIONS:
+        raise ValueError(
+            f"unknown action {action!r}; "
+            f"valid actions: {sorted(_VALID_ACTIONS)}")
+    missing = _REQUIRED_FIELDS[action] - feedback.keys()
+    if missing:
+        raise ValueError(
+            f"action {action!r} requires fields {sorted(missing)}, "
+            f"got fields {sorted(feedback.keys())}")
+
+
+def adjust_contamination_up(current: float) -> float:
+    """Increase contamination by `_CONTAMINATION_INCREASE_FACTOR`, capped at `_CONTAMINATION_MAX`."""
+    return min(current * _CONTAMINATION_INCREASE_FACTOR, _CONTAMINATION_MAX)
+
+
+def adjust_contamination_down(current: float) -> float:
+    """Decrease contamination by `_CONTAMINATION_DECREASE_FACTOR`, floored at `_CONTAMINATION_MIN`."""
+    return max(current * _CONTAMINATION_DECREASE_FACTOR, _CONTAMINATION_MIN)
 
 
 def apply_structured_feedback(
-        state, feedback, kb, plan_detection_fn, make_plan_fn):
+        state: 'InvestigationState',
+        feedback: dict,
+        kb: 'KnowledgeBase',
+        plan_detection_fn: Callable,
+        make_plan_fn: Callable) -> 'InvestigationState':
     """Handle structured feedback dict.
 
     Mutates `state` in place to apply the feedback action, then
@@ -28,8 +113,8 @@ def apply_structured_feedback(
     - ``'rerun'``: keep plans unchanged; signals the agent to run
       the same plan again.
 
-    Unknown actions set ``next_action`` to ``confirm_with_user`` and
-    return early without resetting detection state.
+    Unknown actions raise ``ValueError`` via
+    `validate_structured_feedback` (called as the first step).
 
     Parameters
     ----------
@@ -53,6 +138,7 @@ def apply_structured_feedback(
     InvestigationState
         The same `state` object, mutated.
     """
+    validate_structured_feedback(feedback)
     action = feedback.get('action', '')
     state.iteration += 1
 
@@ -111,13 +197,6 @@ def apply_structured_feedback(
     elif action == 'rerun':
         detail = 'Re-running same plan'
 
-    else:
-        state.next_action = {
-            'action': 'confirm_with_user',
-            'reason': 'Unknown action: %s' % action,
-        }
-        return state
-
     state.phase = 'planned'
     state.results = []
     state.consensus = None
@@ -133,8 +212,84 @@ def apply_structured_feedback(
     return state
 
 
+@dataclass(frozen=True)
+class _NLPattern:
+    """A pattern that matches user feedback and produces a structured action."""
+    pattern: re.Pattern[str]
+    confidence: float
+    builder: Callable[[object, str], dict]
+
+
+def _build_exclude_action(state: 'InvestigationState', feedback_lower: str) -> dict:
+    for r in state.results:
+        name = r.get('detector_name', '')
+        if name and name.lower() in feedback_lower:
+            return {'action': 'exclude', 'detectors': [name]}
+    return {'action': 'exclude', 'detectors': []}
+
+
+def _build_decrease_contamination(state: 'InvestigationState', _feedback_lower: str) -> dict:
+    current = (state.plans[0].get('params', {}).get('contamination', 0.1)
+               if state.plans else 0.1)
+    return {
+        'action': 'adjust_contamination',
+        'value': adjust_contamination_down(current),
+    }
+
+
+def _build_increase_contamination(state: 'InvestigationState', _feedback_lower: str) -> dict:
+    current = (state.plans[0].get('params', {}).get('contamination', 0.1)
+               if state.plans else 0.1)
+    return {
+        'action': 'adjust_contamination',
+        'value': adjust_contamination_up(current),
+    }
+
+
+def _build_rerun(_state: 'InvestigationState', _feedback_lower: str) -> dict:
+    return {'action': 'rerun'}
+
+
+_NL_PATTERNS: list[_NLPattern] = [
+    _NLPattern(re.compile(r'\b(without|exclude)\b'), 0.9, _build_exclude_action),
+    _NLPattern(re.compile(r'\b(false positive|too many)\b'), 0.7, _build_decrease_contamination),
+    _NLPattern(re.compile(r'\b(missed|false negative)\b'), 0.7, _build_increase_contamination),
+    _NLPattern(re.compile(r'\b(rerun|again)\b'), 0.9, _build_rerun),
+]
+
+
+def parse_nl_to_structured(state: 'InvestigationState', feedback: str) -> tuple[dict, float]:
+    """Match feedback against the pattern table; return (proposed, confidence).
+
+    Parameters
+    ----------
+    state : InvestigationState
+    feedback : str
+
+    Returns
+    -------
+    tuple of (dict, float)
+        The proposed structured-feedback dict (action + fields) and the
+        confidence score in [0, 1]. A confidence at or above
+        `_NL_HIGH_CONFIDENCE_THRESHOLD` triggers auto-apply.
+    """
+    feedback_lower = feedback.lower()
+    for entry in _NL_PATTERNS:
+        if entry.pattern.search(feedback_lower):
+            proposed = entry.builder(state, feedback_lower)
+            if (entry.builder is _build_exclude_action
+                    and not proposed['detectors']):
+                return proposed, 0.3
+            return proposed, entry.confidence
+    return {'action': 'rerun'}, 0.0
+
+
 def apply_nl_feedback(
-        state, feedback, kb, plan_detection_fn, make_plan_fn):
+        state: 'InvestigationState',
+        feedback: str,
+        kb: 'KnowledgeBase',
+        plan_detection_fn: Callable,
+        make_plan_fn: Callable) -> 'InvestigationState':
     """Parse natural-language feedback into a structured action.
 
     Maps a free-text string to a structured-feedback dict using a
@@ -176,62 +331,19 @@ def apply_nl_feedback(
     InvestigationState
         The same `state` object, mutated.
     """
-    lower = feedback.lower()
-    proposed = None
-    confidence = 0.0
-
-    # High-confidence patterns
-    if 'without' in lower or 'exclude' in lower:
-        # Try to extract detector name
-        for r in state.results:
-            name = r.get('detector_name', '')
-            if name.lower() in lower:
-                proposed = {'action': 'exclude',
-                            'detectors': [name]}
-                confidence = 0.9
-                break
-        if proposed is None and ('without' in lower
-                                 or 'exclude' in lower):
-            proposed = {'action': 'exclude', 'detectors': []}
-            confidence = 0.3
-
-    elif ('false positive' in lower or 'too many' in lower):
-        current = state.plans[0].get('params', {}).get(
-            'contamination', 0.1) if state.plans else 0.1
-        proposed = {'action': 'adjust_contamination',
-                    'value': max(current * 0.5, 0.01)}
-        confidence = 0.7
-
-    elif ('missed' in lower or 'false negative' in lower):
-        current = state.plans[0].get('params', {}).get(
-            'contamination', 0.1) if state.plans else 0.1
-        proposed = {'action': 'adjust_contamination',
-                    'value': min(current * 1.5, 0.5)}
-        confidence = 0.7
-
-    elif 'rerun' in lower or 'again' in lower:
-        proposed = {'action': 'rerun'}
-        confidence = 0.9
-
-    if proposed is None:
-        proposed = {'action': 'rerun'}
-        confidence = 0.0
-
-    if confidence >= 0.8:
+    proposed, confidence = parse_nl_to_structured(state, feedback)
+    if confidence >= _NL_HIGH_CONFIDENCE_THRESHOLD:
         return apply_structured_feedback(
             state, proposed, kb, plan_detection_fn, make_plan_fn)
 
-    # Low confidence → ask for confirmation
     state.next_action = {
         'action': 'confirm_with_user',
-        'reason': 'Interpreted "%s" as: %s (confidence=%.1f).'
-                  % (feedback, proposed.get('action', '?'),
-                     confidence),
-        'suggestion': 'Proposed: %s. Proceed?' % str(proposed),
+        'reason': f'Interpreted "{feedback}" as: {proposed.get("action", "?")} '
+                  f'(confidence={confidence:.1f}).',
+        'suggestion': f'Proposed: {proposed}. Proceed?',
         'proposed_change': proposed,
     }
     state.history.append(_make_history_entry(
         state.phase, 'iterate_nl', state.iteration,
-        'NL feedback: "%s" -> confidence=%.1f'
-        % (feedback, confidence)))
+        f'NL feedback: "{feedback}" -> confidence={confidence:.1f}'))
     return state
