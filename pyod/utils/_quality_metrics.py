@@ -224,8 +224,11 @@ def compute_feature_importance(
     For each feature column, computes the Pearson correlation between
     the column's absolute z-scores and the detector's anomaly scores.
     Higher absolute correlation indicates the feature drives the
-    detector's ranking. Failures (non-2D `X`, length mismatch, or any
-    exception during computation) return ``None`` rather than raise.
+    detector's ranking. Failures (non-2D `X` or length mismatch)
+    return ``None``. Validation/conversion errors caught from the
+    numerical pipeline (``AttributeError``, ``ValueError``,
+    ``TypeError``) are logged at DEBUG level and also return
+    ``None``; other unexpected exceptions propagate.
 
     Parameters
     ----------
@@ -241,7 +244,9 @@ def compute_feature_importance(
         One importance per feature, in column order. Each value is in
         [-1, 1]; non-finite correlations are coerced to 0.0. Returns
         ``None`` if `X` is not 2D, if length of scores does not match
-        `X.shape[0]`, or if any error occurs during computation.
+        `X.shape[0]`, or if a caught
+        ``(AttributeError, ValueError, TypeError)`` is raised during
+        computation.
     """
     try:
         X_arr = np.asarray(X, dtype=np.float64)
@@ -279,6 +284,11 @@ def feature_contributions(
     `scores` argument is part of the call signature for API symmetry
     with `compute_feature_importance` but is not currently read.
 
+    Validation/conversion errors caught from the numerical pipeline
+    (``AttributeError``, ``ValueError``, ``TypeError``) are logged
+    at DEBUG level and return ``None``; other unexpected exceptions
+    (for example ``IndexError`` when `idx` is out of range) propagate.
+
     Parameters
     ----------
     X : array-like, shape (n_samples, n_features)
@@ -293,8 +303,9 @@ def feature_contributions(
     list of dict or None
         Up to five entries, each with keys ``'feature'`` (int column
         index) and ``'z_score'`` (float, absolute z-score), sorted by
-        descending z-score. Returns ``None`` if `X` is not 2D or any
-        error occurs during computation.
+        descending z-score. Returns ``None`` if `X` is not 2D or if a
+        caught ``(AttributeError, ValueError, TypeError)`` is raised
+        during computation.
     """
     try:
         X_arr = np.asarray(X, dtype=np.float64)
