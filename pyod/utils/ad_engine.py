@@ -8,12 +8,30 @@ required) or as the backend for MCP/agent interfaces.
 # Author: Yue Zhao <yzhao062@gmail.com>
 # License: BSD 2 clause
 
-import importlib
 import os
 
 import numpy as np
 
 from .knowledge import KnowledgeBase
+from pyod.utils._quality_metrics import (
+    compute_consensus,
+    compute_feature_importance,
+    compute_quality,
+    feature_contributions,
+    select_best_detector,
+)
+from pyod.utils._kb_router import (
+    evaluate_rules,
+    make_plan,
+    suggest_alternative,
+)
+from pyod.utils._detector_factory import (
+    build_detector_from_plan,
+)
+from pyod.utils._nl_feedback import (
+    apply_nl_feedback,
+    apply_structured_feedback,
+)
 
 
 class ADEngine:
@@ -142,7 +160,7 @@ class ADEngine:
         constraints = constraints or {}
         exclude = set(constraints.get('exclude_detectors', []))
 
-        matched = self._evaluate_rules(profile, priority)
+        matched = evaluate_rules(profile, priority, self.kb)
 
         valid = []
         for rec in matched:
@@ -168,7 +186,7 @@ class ADEngine:
                         fallback_name = fb
                         break
             if fallback_name is None:
-                return self._make_plan(
+                return make_plan(
                     detector_name='',
                     params={},
                     reason='No valid detector available: all candidates '
@@ -178,7 +196,7 @@ class ADEngine:
                     alternatives=[],
                     note='no_valid_plan')
 
-            return self._make_plan(
+            return make_plan(
                 detector_name=fallback_name, params={},
                 reason='Fallback: no routing rule matched or all '
                        'candidates excluded',
@@ -186,7 +204,7 @@ class ADEngine:
                 alternatives=[], note='No specific rule matched')
 
         best = valid[0]
-        alternatives = [self._make_plan(
+        alternatives = [make_plan(
             detector_name=r['detector'],
             params=r.get('params', {}),
             preset=r.get('preset'),
@@ -195,7 +213,7 @@ class ADEngine:
             confidence=r.get('confidence', 0.5),
             alternatives=[]) for r in valid[1:3]]
 
-        return self._make_plan(
+        return make_plan(
             detector_name=best['detector'],
             params=best.get('params', {}),
             preset=best.get('preset'),
@@ -203,86 +221,6 @@ class ADEngine:
             evidence=best.get('_evidence', []),
             confidence=best.get('confidence', 0.7),
             alternatives=alternatives)
-
-    def _evaluate_rules(self, profile, priority):
-        """Evaluate routing rules against profile. Returns matched
-        recommendations with their rule context."""
-        rules = self.kb.routing_rules.get('rules', [])
-        all_recs = []
-
-        for rule in rules:
-            if self._rule_matches(rule, profile, priority):
-                reason = rule.get('reason', '')
-                evidence = rule.get('evidence', [])
-                for rec in rule.get('recommendations', []):
-                    enriched = dict(rec)
-                    enriched['_reason'] = reason
-                    enriched['_evidence'] = evidence
-                    all_recs.append(enriched)
-
-        seen = {}
-        for rec in all_recs:
-            name = rec['detector']
-            if name not in seen or \
-                    rec.get('confidence', 0) > seen[name].get('confidence', 0):
-                seen[name] = rec
-        return sorted(seen.values(),
-                      key=lambda r: r.get('confidence', 0),
-                      reverse=True)
-
-    def _rule_matches(self, rule, profile, priority):
-        """Check if all conditions in a rule match the profile."""
-        for cond in rule.get('conditions', []):
-            field = cond['field']
-            op = cond['op']
-            value = cond['value']
-
-            if field == 'priority':
-                actual = priority
-            else:
-                actual = profile.get(field)
-
-            if actual is None:
-                return False
-            if not self._eval_condition(actual, op, value):
-                return False
-        return True
-
-    @staticmethod
-    def _eval_condition(actual, op, value):
-        """Evaluate a single condition predicate."""
-        if op == 'eq':
-            return actual == value
-        if op == 'lt':
-            return float(actual) < float(value)
-        if op == 'lte':
-            return float(actual) <= float(value)
-        if op == 'gt':
-            return float(actual) > float(value)
-        if op == 'gte':
-            return float(actual) >= float(value)
-        if op == 'in':
-            return actual in value
-        return False
-
-    @staticmethod
-    def _make_plan(detector_name, params=None, preset=None,
-                   reason='', evidence=None, confidence=0.5,
-                   alternatives=None, note=None):
-        """Construct a closed-schema DetectionPlan dict."""
-        plan = {
-            'detector_name': detector_name,
-            'params': params or {},
-            'reason': reason,
-            'evidence': evidence or [],
-            'confidence': confidence,
-            'alternatives': alternatives or [],
-        }
-        if preset:
-            plan['preset'] = preset
-        if note:
-            plan['note'] = note
-        return plan
 
     # ------------------------------------------------------------------
     # Detector construction
@@ -300,38 +238,7 @@ class ADEngine:
         -------
         detector : BaseDetector
         """
-        name = plan['detector_name']
-        algo = self.kb.get_algorithm(name)
-        if algo is None:
-            raise ValueError("Unknown detector '%s'" % name)
-        if algo.get('status') not in ('shipped', 'experimental'):
-            raise ValueError(
-                "Detector '%s' has status '%s' and cannot be built"
-                % (name, algo.get('status', 'unknown')))
-
-        preset = plan.get('preset')
-        if preset:
-            return self._build_from_preset(name, preset,
-                                           plan.get('params', {}))
-
-        class_path = algo['class_path']
-        module_path, class_name = class_path.rsplit('.', 1)
-        mod = importlib.import_module(module_path)
-        cls = getattr(mod, class_name)
-        params = plan.get('params', {})
-        return cls(**params)
-
-    @staticmethod
-    def _build_from_preset(detector_name, preset, extra_params):
-        """Build a detector using a factory preset."""
-        if detector_name == 'EmbeddingOD':
-            from pyod.models.embedding import EmbeddingOD
-            if preset == 'for_text':
-                return EmbeddingOD.for_text(**extra_params)
-            elif preset == 'for_image':
-                return EmbeddingOD.for_image(**extra_params)
-        raise ValueError("Unknown preset '%s' for '%s'"
-                         % (preset, detector_name))
+        return build_detector_from_plan(plan, self.kb)
 
     # ------------------------------------------------------------------
     # One-shot detection
@@ -489,36 +396,11 @@ class ADEngine:
         }
 
         if X is not None:
-            fi = self._compute_feature_importance(result, X)
+            fi = compute_feature_importance(result, X)
             if fi is not None:
                 analysis['feature_importance'] = fi
 
         return analysis
-
-    @staticmethod
-    def _compute_feature_importance(result, X):
-        """Estimate per-feature contribution to anomaly scores."""
-        try:
-            X_arr = np.asarray(X, dtype=np.float64)
-            if X_arr.ndim != 2:
-                return None
-            scores = result['scores_train']
-            if len(scores) != X_arr.shape[0]:
-                return None
-
-            means = np.mean(X_arr, axis=0)
-            stds = np.std(X_arr, axis=0)
-            stds[stds == 0] = 1.0
-            z_scores = np.abs((X_arr - means) / stds)
-
-            importances = []
-            for j in range(X_arr.shape[1]):
-                corr = np.corrcoef(z_scores[:, j], scores)[0, 1]
-                importances.append(float(corr) if np.isfinite(corr) else 0.0)
-
-            return importances
-        except Exception:
-            return None
 
     # ------------------------------------------------------------------
     # Explanation
@@ -580,30 +462,13 @@ class ADEngine:
             }
 
             if X is not None:
-                contribs = self._feature_contributions(X, idx, scores)
+                contribs = feature_contributions(X, idx, scores)
                 if contribs is not None:
                     entry['contributing_features'] = contribs
 
             explanations.append(entry)
 
         return explanations
-
-    @staticmethod
-    def _feature_contributions(X, idx, scores):
-        """Compute per-feature z-score for a specific sample."""
-        try:
-            X_arr = np.asarray(X, dtype=np.float64)
-            if X_arr.ndim != 2:
-                return None
-            means = np.mean(X_arr, axis=0)
-            stds = np.std(X_arr, axis=0)
-            stds[stds == 0] = 1.0
-            z = np.abs((X_arr[idx] - means) / stds)
-            top_feat = np.argsort(z)[::-1][:5]
-            return [{'feature': int(f), 'z_score': float(z[f])}
-                    for f in top_feat]
-        except Exception:
-            return None
 
     # ------------------------------------------------------------------
     # Next-step suggestions
@@ -636,7 +501,7 @@ class ADEngine:
                 'action': 'try_alternative',
                 'reason': 'Consider running multiple detectors and '
                           'combining scores.',
-                'new_plan': self._suggest_alternative(result),
+                'new_plan': suggest_alternative(result, self.kb, make_plan),
             }
 
         # "more sensitive" intent: lower threshold / increase contamination
@@ -692,7 +557,7 @@ class ADEngine:
 
         if ('different' in feedback_lower or 'another' in feedback_lower
                 or 'switch' in feedback_lower):
-            new_plan = self._suggest_alternative(result)
+            new_plan = suggest_alternative(result, self.kb, make_plan)
             return {
                 'action': 'try_alternative',
                 'reason': 'Trying an alternative detector.',
@@ -716,7 +581,7 @@ class ADEngine:
                 },
             }
         if ratio == 0:
-            new_plan = self._suggest_alternative(result)
+            new_plan = suggest_alternative(result, self.kb, make_plan)
             return {
                 'action': 'try_alternative',
                 'reason': 'No anomalies detected. Try a different detector.',
@@ -729,30 +594,6 @@ class ADEngine:
                       'Review the top anomalies to validate.'
                       % (ratio * 100),
         }
-
-    def _suggest_alternative(self, result):
-        """Suggest an alternative detector different from the current one."""
-        current = result['plan'].get('detector_name', '')
-
-        alternatives = result['plan'].get('alternatives', [])
-        for alt in alternatives:
-            if alt.get('detector_name') and alt['detector_name'] != current:
-                return alt
-
-        fallback_order = ['IForest', 'ECOD', 'KNN', 'LOF', 'HBOS',
-                          'COPOD', 'CBLOF']
-        for name in fallback_order:
-            if name != current:
-                algo = self.kb.get_algorithm(name)
-                if algo and algo.get('status') == 'shipped':
-                    return self._make_plan(
-                        detector_name=name, params={},
-                        reason='Alternative to %s' % current,
-                        evidence=[], confidence=0.6)
-
-        return self._make_plan(
-            detector_name='IForest', params={},
-            reason='Default fallback', evidence=[], confidence=0.5)
 
     # ------------------------------------------------------------------
     # Report generation
@@ -945,7 +786,6 @@ class ADEngine:
         """
         self._require_phase(state, 'planned')
         from .investigation import _make_history_entry
-        from scipy.stats import rankdata, spearmanr
 
         results = []
         for plan in state.plans:
@@ -969,74 +809,26 @@ class ADEngine:
 
         # Compute consensus from successful detectors
         successful = [r for r in results if r['status'] == 'success']
+        state.consensus = compute_consensus(successful)
 
-        if len(successful) == 0:
-            state.consensus = None
+        if state.consensus is None:
             state.next_action = {
                 'action': 'confirm_with_user',
                 'reason': 'All %d detectors failed. Check data format '
                           'or try a different detector family.'
                           % len(results),
             }
-        elif len(successful) == 1:
-            r = successful[0]
-            state.consensus = {
-                'scores': r['scores_train'],
-                'labels': r['labels_train'],
-                'n_detectors': 1,
-                'agreement': 0.5,
-                'disagreements': [],
-            }
+        elif state.consensus['n_detectors'] == 1:
             state.next_action = {
                 'action': 'analyze',
                 'reason': 'Detection complete (1 detector).',
             }
         else:
-            n_samples = len(successful[0]['scores_train'])
-            # Rank-normalize scores per detector
-            rank_scores = np.array([
-                rankdata(r['scores_train']) / n_samples
-                for r in successful
-            ])
-            consensus_scores = np.mean(rank_scores, axis=0)
-
-            # Majority-vote labels
-            all_labels = np.array([
-                r['labels_train'] for r in successful])
-            vote_count = np.sum(all_labels, axis=0)
-            consensus_labels = (
-                vote_count > len(successful) / 2).astype(int)
-
-            # Pairwise Spearman agreement
-            correlations = []
-            for i in range(len(successful)):
-                for j in range(i + 1, len(successful)):
-                    rho, _ = spearmanr(
-                        successful[i]['scores_train'],
-                        successful[j]['scores_train'])
-                    correlations.append(
-                        max(0.0, rho) if np.isfinite(rho) else 0.0)
-            agreement = float(np.mean(correlations)) if correlations else 0.5
-
-            # Disagreements: indices where detectors disagree
-            disagreements = []
-            for idx in range(n_samples):
-                votes = all_labels[:, idx]
-                if not (votes.all() or not votes.any()):
-                    disagreements.append(int(idx))
-
-            state.consensus = {
-                'scores': consensus_scores,
-                'labels': consensus_labels,
-                'n_detectors': len(successful),
-                'agreement': agreement,
-                'disagreements': disagreements,
-            }
             state.next_action = {
                 'action': 'analyze',
                 'reason': 'Detection complete (%d detectors, '
-                          'agreement=%.2f).'
-                          % (len(successful), agreement),
+                          'agreement=%.2f).' % (state.consensus['n_detectors'],
+                                                state.consensus['agreement']),
             }
 
         state.history.append(_make_history_entry(
@@ -1062,7 +854,6 @@ class ADEngine:
         """
         self._require_phase(state, 'detected')
         from .investigation import _make_history_entry
-        from scipy.stats import spearmanr
 
         state.phase = 'analyzed'
 
@@ -1130,7 +921,7 @@ class ADEngine:
         }
 
         # Best detector selection
-        best_idx = self._select_best_detector(
+        best_idx = select_best_detector(
             state.results, c_scores)
 
         state.analysis = {
@@ -1142,7 +933,7 @@ class ADEngine:
         }
 
         # Quality metrics
-        state.quality = self._compute_quality(
+        state.quality = compute_quality(
             c_scores, c_labels, state.results, c)
         state.analysis['summary'] += (
             ' Quality: %s (%.2f).'
@@ -1175,159 +966,6 @@ class ADEngine:
                 state.quality['overall'])))
         return state
 
-    def _select_best_detector(self, results, consensus_scores):
-        """Select best detector via Spearman with consensus.
-
-        Fallback chain (per spec):
-        1. Highest finite Spearman correlation
-        2. If tied: highest plan confidence
-        3. If still tied: fastest runtime
-        4. If ALL correlations are NaN: first successful detector
-        """
-        from scipy.stats import spearmanr
-
-        successful = [
-            (i, r) for i, r in enumerate(results)
-            if r['status'] == 'success']
-        if len(successful) == 1:
-            return successful[0][0]
-
-        # Compute Spearman for each successful detector
-        rhos = []
-        for i, r in successful:
-            rho, _ = spearmanr(r['scores_train'], consensus_scores)
-            rhos.append(float(rho) if np.isfinite(rho) else None)
-
-        # If ALL NaN: return first successful (spec rule 4)
-        if all(rho is None for rho in rhos):
-            return successful[0][0]
-
-        # Find best by finite Spearman, then tie-break
-        best_j = 0  # index into successful list
-        best_rho = -1.0
-        for j, (i, r) in enumerate(successful):
-            rho = rhos[j]
-            if rho is None:
-                continue
-            if rho > best_rho:
-                best_rho = rho
-                best_j = j
-            elif rho == best_rho:
-                # Tie-break: plan confidence
-                curr_conf = r.get('plan', {}).get('confidence', 0)
-                prev_conf = successful[best_j][1].get(
-                    'plan', {}).get('confidence', 0)
-                if curr_conf > prev_conf:
-                    best_j = j
-                elif curr_conf == prev_conf:
-                    # Tie-break: fastest
-                    if r.get('runtime_seconds', 999) < successful[
-                            best_j][1].get('runtime_seconds', 999):
-                        best_j = j
-        return successful[best_j][0]
-
-    def _compute_quality(self, scores, labels, results, consensus):
-        """Compute three diagnostic quality metrics for a detection run.
-
-        Each metric diagnoses one independent failure mode and drives
-        one branch of `ADEngine.iterate()`:
-
-        - ``separation``: anomaly-vs-inlier mean score gap (global).
-          Low value indicates the detector did not produce a usable signal.
-        - ``agreement``: pairwise Spearman rank correlation across base
-          detectors (cross-detector). Low value indicates detectors
-          disagree on which samples are anomalous.
-        - ``stability``: standardized score gap at the rank-k cutoff
-          (local). Computed as
-          ``(score[rank_k] - score[rank_k+1]) / scores.std()``, clipped
-          to ``[0, 1]``. Low value indicates many tied scores near the
-          threshold; the anomaly set is sensitive to the contamination
-          value, and ``adjust_contamination`` is the suggested action.
-
-        The ``stability`` key was historically defined (and
-        mis-implemented) as the Jaccard index of nested top-k slices,
-        which collapses to a constant. The formula was revised in pyod
-        v3.3 (closes #667). The key name is retained for backwards
-        compatibility with v3.2.x callers.
-
-        Parameters
-        ----------
-        scores : np.ndarray, shape (n_samples,)
-            Consensus or per-detector anomaly scores. Higher means more
-            anomalous.
-        labels : np.ndarray, shape (n_samples,)
-            Binary labels (0 inlier, 1 anomaly).
-        results : list of dict
-            Per-detector results from `ADEngine.run()`. Reserved for
-            callers that thread per-detector data through quality
-            computation. Not directly read by this method.
-        consensus : dict
-            Consensus dict from `ADEngine.run()`. Provides the
-            ``agreement`` field.
-
-        Returns
-        -------
-        dict
-            Keys: ``separation`` (float in [0, 1]), ``agreement`` (float
-            in [0, 1]), ``stability`` (float in [0, 1]), ``overall``
-            (float in [0, 1], mean of the three), ``verdict`` (one of
-            ``'high'``, ``'medium'``, ``'low'``), ``explanation``
-            (human-readable summary).
-        """
-        n_anomalies = int(labels.sum())
-        n_samples = len(labels)
-        # Non-finite scores poison both separation (mean) and stability
-        # (sort + std). Short-circuit both to refuse to emit NaN.
-        nonfinite_scores = not np.all(np.isfinite(scores))
-
-        # Separation
-        if (nonfinite_scores or n_anomalies == 0
-                or n_anomalies == n_samples):
-            separation = 0.0
-        else:
-            anomaly_mean = float(np.mean(scores[labels == 1]))
-            inlier_mean = float(np.mean(scores[labels == 0]))
-            separation = float(np.clip(
-                anomaly_mean / (inlier_mean + 1e-10) - 1, 0, 1))
-
-        # Agreement (from consensus)
-        agreement = float(consensus.get('agreement', 0.5))
-
-        # Stability: standardized score gap at the rank-k cutoff.
-        # Replaces the v1 Jaccard-of-nested-top-k formula which was
-        # mathematically constant (issue #667).
-        if (n_anomalies == 0 or n_anomalies >= n_samples
-                or nonfinite_scores):
-            stability = 0.0
-        else:
-            sorted_scores = np.sort(scores)[::-1]
-            gap = float(sorted_scores[n_anomalies - 1]
-                        - sorted_scores[n_anomalies])
-            std = float(scores.std())
-            if std == 0.0:
-                stability = 0.0
-            else:
-                stability = float(np.clip(gap / std, 0.0, 1.0))
-
-        overall = float(np.mean([separation, agreement, stability]))
-        if overall >= 0.7:
-            verdict = 'high'
-        elif overall >= 0.4:
-            verdict = 'medium'
-        else:
-            verdict = 'low'
-
-        return {
-            'separation': separation,
-            'agreement': agreement,
-            'stability': stability,
-            'overall': overall,
-            'verdict': verdict,
-            'explanation': 'separation={:.2f}, agreement={:.2f}, '
-                           'stability={:.2f} (cutoff gap)'.format(
-                               separation, agreement, stability),
-        }
-
     # ------------------------------------------------------------------
     # V3 Session workflow: iterate
     # ------------------------------------------------------------------
@@ -1350,154 +988,10 @@ class ADEngine:
         """
         self._require_phase(state, 'analyzed')
         if isinstance(feedback, dict):
-            return self._iterate_structured(state, feedback)
-        return self._iterate_nl(state, str(feedback))
-
-    def _iterate_structured(self, state, feedback):
-        """Handle structured feedback dict."""
-        from .investigation import _make_history_entry
-
-        action = feedback.get('action', '')
-        state.iteration += 1
-
-        if action == 'adjust_contamination':
-            value = feedback['value']
-            for p in state.plans:
-                params = dict(p.get('params', {}))
-                params['contamination'] = value
-                p['params'] = params
-            detail = 'Adjusted contamination to %.3f' % value
-
-        elif action == 'exclude':
-            to_exclude = set(feedback.get('detectors', []))
-            state.plans = [
-                p for p in state.plans
-                if p['detector_name'] not in to_exclude]
-            if not state.plans:
-                # Re-plan without excluded detectors
-                result = self.plan_detection(
-                    state.profile,
-                    constraints={'exclude_detectors': list(to_exclude)})
-                state.plans = [result]
-                for alt in result.get('alternatives', []):
-                    if alt.get('detector_name'):
-                        state.plans.append(alt)
-            detail = 'Excluded: %s' % ', '.join(to_exclude)
-
-        elif action == 'include':
-            to_include = feedback.get('detectors', [])
-            existing = {p['detector_name'] for p in state.plans}
-            added, already, capped = [], [], []
-            for name in to_include:
-                if name in existing:
-                    already.append(name)
-                elif len(state.plans) >= 3:
-                    capped.append(name)
-                else:
-                    algo = self.kb.get_algorithm(name)
-                    if algo and algo.get('status') in (
-                            'shipped', 'experimental'):
-                        state.plans.append(self._make_plan(
-                            detector_name=name, params={},
-                            reason='Added by user', confidence=0.5))
-                        added.append(name)
-            parts = []
-            if added:
-                parts.append('Included: %s' % ', '.join(added))
-            if already:
-                parts.append('Already present: %s'
-                             % ', '.join(already))
-            if capped:
-                parts.append('Could not add %s (v1 cap: 3)'
-                             % ', '.join(capped))
-            detail = '. '.join(parts) if parts else 'No changes'
-
-        elif action == 'rerun':
-            detail = 'Re-running same plan'
-
-        else:
-            state.next_action = {
-                'action': 'confirm_with_user',
-                'reason': 'Unknown action: %s' % action,
-            }
-            return state
-
-        state.phase = 'planned'
-        state.results = []
-        state.consensus = None
-        state.analysis = None
-        state.quality = None
-        state.next_action = {
-            'action': 'run',
-            'reason': 'Plan adjusted. ' + detail,
-            'adjustment': detail,
-        }
-        state.history.append(_make_history_entry(
-            'planned', 'iterate', state.iteration, detail))
-        return state
-
-    def _iterate_nl(self, state, feedback):
-        """Parse NL feedback into structured action."""
-        from .investigation import _make_history_entry
-
-        lower = feedback.lower()
-        proposed = None
-        confidence = 0.0
-
-        # High-confidence patterns
-        if 'without' in lower or 'exclude' in lower:
-            # Try to extract detector name
-            for r in state.results:
-                name = r.get('detector_name', '')
-                if name.lower() in lower:
-                    proposed = {'action': 'exclude',
-                                'detectors': [name]}
-                    confidence = 0.9
-                    break
-            if proposed is None and ('without' in lower
-                                     or 'exclude' in lower):
-                proposed = {'action': 'exclude', 'detectors': []}
-                confidence = 0.3
-
-        elif ('false positive' in lower or 'too many' in lower):
-            current = state.plans[0].get('params', {}).get(
-                'contamination', 0.1) if state.plans else 0.1
-            proposed = {'action': 'adjust_contamination',
-                        'value': max(current * 0.5, 0.01)}
-            confidence = 0.7
-
-        elif ('missed' in lower or 'false negative' in lower):
-            current = state.plans[0].get('params', {}).get(
-                'contamination', 0.1) if state.plans else 0.1
-            proposed = {'action': 'adjust_contamination',
-                        'value': min(current * 1.5, 0.5)}
-            confidence = 0.7
-
-        elif 'rerun' in lower or 'again' in lower:
-            proposed = {'action': 'rerun'}
-            confidence = 0.9
-
-        if proposed is None:
-            proposed = {'action': 'rerun'}
-            confidence = 0.0
-
-        if confidence >= 0.8:
-            return self._iterate_structured(state, proposed)
-
-        # Low confidence → ask for confirmation
-        state.next_action = {
-            'action': 'confirm_with_user',
-            'reason': 'Interpreted "%s" as: %s (confidence=%.1f).'
-                      % (feedback, proposed.get('action', '?'),
-                         confidence),
-            'suggestion': 'Proposed: %s. Proceed?' % str(proposed),
-            'proposed_change': proposed,
-        }
-        state.history.append(_make_history_entry(
-            state.phase, 'iterate_nl', state.iteration,
-            'NL feedback: "%s" -> confidence=%.1f'
-            % (feedback, confidence)))
-        return state
+            return apply_structured_feedback(
+                state, feedback, self.kb, self.plan_detection, make_plan)
+        return apply_nl_feedback(
+            state, str(feedback), self.kb, self.plan_detection, make_plan)
 
     # ------------------------------------------------------------------
     # V3 Session workflow: report and investigate
