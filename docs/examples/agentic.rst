@@ -146,7 +146,7 @@ Behind the scenes:
     # state.analysis['consensus_analysis']['anomaly_ratio']  == 0.081
     # state.quality['separation']              == 0.956
     # state.quality['agreement']               == 0.592
-    # state.quality['stability']               == 0.814
+    # state.quality['stability']               (cutoff-gap value, data-dependent)
     # state.quality['overall']                 == 0.787
     # state.quality['verdict']                 == 'high'
 

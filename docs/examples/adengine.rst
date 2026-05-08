@@ -72,7 +72,7 @@ ADEngine quantifies how trustworthy the results are through three metrics:
     q = state.quality
     print("Separation:", q['separation'])      # 1.00
     print("Agreement:",  q['agreement'])       # 0.68
-    print("Stability:",  q['stability'])       # 0.82
+    print("Stability:",  q['stability'])       # cutoff-gap value (data-dependent)
     print("Overall:",    q['overall'])         # 0.83
     print("Verdict:",    q['verdict'])         # 'high'
 

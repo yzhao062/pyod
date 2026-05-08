@@ -104,8 +104,9 @@ state = engine.plan(state)
 
 state = engine.run(state)
 state = engine.analyze(state)
-# state.quality: {'agreement': 0.55, 'separation': 0.22, 'stability': 0.61,
+# state.quality: {'agreement': 0.55, 'separation': 0.22, 'stability': 0.X,
 #                 'overall': ..., 'verdict': 'medium'}
+# (values are data-dependent; stability is cutoff-gap-based since v3.3)
 # state.analysis['best_detector']: 'DOMINANT'
 ```
 

@@ -91,7 +91,8 @@ state = engine.plan(state)
 
 state = engine.run(state)
 state = engine.analyze(state)
-# state.quality: {'agreement': 0.62, 'separation': 0.31, 'stability': 0.74, ...}
+# state.quality: {'agreement': 0.62, 'separation': 0.31, 'stability': 0.X, ...}
+# (values are data-dependent; stability is cutoff-gap-based since v3.3)
 # state.analysis['best_detector']: SpectralResidual
 
 # No triggers fire. Proceed to report.
@@ -104,7 +105,7 @@ report = engine.report(state)
 >
 > Top-5 most anomalous intervals: minutes [842, 1503, 4221, 5917, 8330]. The dominant pattern in 4 of 5 was a sharp temperature spike followed by a slow recovery — characteristic of a sensor glitch or cooling failure.
 >
-> Confidence: medium-high. Separation is 0.31 (above the 0.2 floor), agreement is 0.62 (above the 0.4 floor), stability is 0.74.
+> Confidence: medium-high. Separation is 0.31 (above the 0.2 floor), agreement is 0.62 (above the 0.4 floor), stability is around 0.X (cutoff-gap-based).
 >
 > **What I assumed**:
 > - Time series, univariate, regular sampling (passed `data_type='time_series'` explicitly)

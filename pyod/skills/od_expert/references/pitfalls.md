@@ -80,7 +80,7 @@ Recent benchmarks show foundation-model time-series detectors (the published one
 
 ### A2. Stability low on small datasets (LOW false alarm)
 
-On n < 200, stability is naturally low because resampling has high variance. Mitigation: relax the trigger 4 threshold to 0.3 for small data.
+On small n (< 200), stability is naturally low because the score distribution at the rank-k cutoff has high variance from one sample to the next, so the gap-to-std ratio is fragile. Mitigation: relax the trigger 4 threshold to 0.3 for small data.
 
 ### A3. Separation interpretation depends on detector type (MEDIUM)
 

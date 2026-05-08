@@ -97,7 +97,8 @@ state = engine.plan(state)
 
 state = engine.run(state)
 state = engine.analyze(state)
-# state.quality: {'agreement': None, 'separation': 0.24, 'stability': 0.71, ...}
+# state.quality: {'agreement': None, 'separation': 0.24, 'stability': 0.X, ...}
+# (values are data-dependent; stability is cutoff-gap-based since v3.3)
 # (Agreement is None when only one detector ran.)
 # state.analysis['best_detector']: 'EmbeddingOD'
 
@@ -106,7 +107,7 @@ report = engine.report(state)
 
 ### What the agent reports
 
-> "Found 1,200 product descriptions of 50,000 (2.4%) flagged as unusual via `EmbeddingOD` over sentence-transformer embeddings. Only one detector ran (the current planner returns `EmbeddingOD` as a single entry on text data), so agreement is undefined; separation is 0.24 and stability is 0.71.
+> "Found 1,200 product descriptions of 50,000 (2.4%) flagged as unusual via `EmbeddingOD` over sentence-transformer embeddings. Only one detector ran (the current planner returns `EmbeddingOD` as a single entry on text data), so agreement is undefined; separation is 0.24 and stability is around 0.X (cutoff-gap-based).
 >
 > Top-5 most unusual descriptions: rows [42, 815, 2200, 14501, 31200]. The dominant pattern was descriptions in non-English languages mixed into the catalog, plus descriptions consisting only of model numbers without prose.
 >

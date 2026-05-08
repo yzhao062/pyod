@@ -97,7 +97,8 @@ state = engine.plan(state)
 
 state = engine.run(state)
 state = engine.analyze(state)
-# state.quality: {agreement: 0.71, separation: 0.28, stability: 0.66}
+# state.quality: {agreement: 0.71, separation: 0.28, stability: 0.X}
+# (values are data-dependent; stability is cutoff-gap-based since v3.3)
 # best_detector: ECOD
 
 # No triggers fire. Proceed to report.

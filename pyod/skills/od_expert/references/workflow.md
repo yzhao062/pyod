@@ -149,7 +149,7 @@ state = engine.analyze(state)
 Agent inspects `state.quality`:
 
 - `state.quality['agreement']`: 0.68 ✓ (no Trigger 3 — above the 0.4 floor)
-- `state.quality['stability']`: 0.82 ✓ (no Trigger 4)
+- `state.quality['stability']`: 0.X ✓ (no Trigger 4)
 - `state.quality['overall']`: 0.83 (`state.quality['verdict']` = 'high')
 - `state.analysis['best_detector']`: IForest (highest Spearman correlation with consensus)
 
@@ -157,7 +157,7 @@ No triggers fire. Move toward report.
 
 Agent reports to user:
 
-> "Detection complete. The three detectors converged 3/3 with agreement 0.68 and stability 0.82 — overall quality 0.83 (HIGH). `IForest` had the highest correlation with the consensus. Found 172 cases flagged out of 1,831 at the default contamination rate of 0.1."
+> "Detection complete. The three detectors converged 3/3 with agreement 0.68 and a clean cutoff (stability around 0.X on this synthetic example), overall quality high. `IForest` had the highest correlation with the consensus. Found 172 cases flagged out of 1,831 at the default contamination rate of 0.1."
 
 ### Turn 3: Report
 
@@ -171,7 +171,7 @@ Agent translates the report into user-facing language using the result interpret
 >
 > - **172 of 1,831 recordings (9.4%) flagged as unusual.** The agent ran a consensus of 3 detectors (`IForest`, `ECOD`, `KNN`) using ADEngine's default contamination of 0.1. If that rate looks wrong for the clinical context, re-run via `engine.iterate(state, {"action": "adjust_contamination", "value": <rate>})`.
 > - **Top case**: row #1656 (analyzed via `IForest`, the detector with the highest Spearman correlation with the consensus). Drill into `state.analysis['consensus_analysis']['top_anomalies']` for the ranked index list, then call `engine.explain_findings(state.results[best_idx])` for per-feature z-scores.
-> - **Confidence**: high. Overall quality 0.83 (HIGH). Agreement across detectors is 0.68 and stability is 0.82. For reference only (not seen by the agent during detection): validation against the cardio ground truth gave precision 49.4% (85/172) at recall 48.3% (85/176).
+> - **Confidence**: high. Overall quality is high. Agreement across detectors is 0.68 and stability is around 0.X (cutoff-gap-based). For reference only (not seen by the agent during detection): validation against the cardio ground truth gave precision 49.4% (85/172) at recall 48.3% (85/176).
 >
 > **What I assumed**:
 > - Data is tabular and unlabeled

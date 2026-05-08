@@ -1227,9 +1227,62 @@ class ADEngine:
         return successful[best_j][0]
 
     def _compute_quality(self, scores, labels, results, consensus):
-        """Compute quality metrics: separation, agreement, stability."""
+        """Compute three diagnostic quality metrics for a detection run.
+
+        Each metric diagnoses one independent failure mode and drives
+        one branch of `ADEngine.iterate()`:
+
+        - ``separation``: anomaly-vs-inlier mean score gap (global).
+          Low value indicates the detector did not produce a usable signal.
+        - ``agreement``: pairwise Spearman rank correlation across base
+          detectors (cross-detector). Low value indicates detectors
+          disagree on which samples are anomalous.
+        - ``stability``: standardized score gap at the rank-k cutoff
+          (local). Computed as
+          ``(score[rank_k] - score[rank_k+1]) / scores.std()``, clipped
+          to ``[0, 1]``. Low value indicates many tied scores near the
+          threshold; the anomaly set is sensitive to the contamination
+          value, and ``adjust_contamination`` is the suggested action.
+
+        The ``stability`` key was historically defined (and
+        mis-implemented) as the Jaccard index of nested top-k slices,
+        which collapses to a constant. The formula was revised in pyod
+        v3.3 (closes #667). The key name is retained for backwards
+        compatibility with v3.2.x callers.
+
+        Parameters
+        ----------
+        scores : np.ndarray, shape (n_samples,)
+            Consensus or per-detector anomaly scores. Higher means more
+            anomalous.
+        labels : np.ndarray, shape (n_samples,)
+            Binary labels (0 inlier, 1 anomaly).
+        results : list of dict
+            Per-detector results from `ADEngine.run()`. Reserved for
+            callers that thread per-detector data through quality
+            computation. Not directly read by this method.
+        consensus : dict
+            Consensus dict from `ADEngine.run()`. Provides the
+            ``agreement`` field.
+
+        Returns
+        -------
+        dict
+            Keys: ``separation`` (float in [0, 1]), ``agreement`` (float
+            in [0, 1]), ``stability`` (float in [0, 1]), ``overall``
+            (float in [0, 1], mean of the three), ``verdict`` (one of
+            ``'high'``, ``'medium'``, ``'low'``), ``explanation``
+            (human-readable summary).
+        """
+        n_anomalies = int(labels.sum())
+        n_samples = len(labels)
+        # Non-finite scores poison both separation (mean) and stability
+        # (sort + std). Short-circuit both to refuse to emit NaN.
+        nonfinite_scores = not np.all(np.isfinite(scores))
+
         # Separation
-        if labels.sum() == 0 or labels.sum() == len(labels):
+        if (nonfinite_scores or n_anomalies == 0
+                or n_anomalies == n_samples):
             separation = 0.0
         else:
             anomaly_mean = float(np.mean(scores[labels == 1]))
@@ -1240,28 +1293,21 @@ class ADEngine:
         # Agreement (from consensus)
         agreement = float(consensus.get('agreement', 0.5))
 
-        # Stability: Jaccard of top-k under +/-20% perturbation
-        n_anomalies = int(labels.sum())
-        n_samples = len(labels)
-        if n_anomalies == 0:
+        # Stability: standardized score gap at the rank-k cutoff.
+        # Replaces the v1 Jaccard-of-nested-top-k formula which was
+        # mathematically constant (issue #667).
+        if (n_anomalies == 0 or n_anomalies >= n_samples
+                or nonfinite_scores):
             stability = 0.0
         else:
-            k = n_anomalies
-            k_low = max(1, int(k * 0.8))
-            k_high = min(n_samples, int(k * 1.2))
-            sorted_idx = np.argsort(scores)[::-1]
-            top_k = set(sorted_idx[:k].tolist())
-            top_low = set(sorted_idx[:k_low].tolist())
-            top_high = set(sorted_idx[:k_high].tolist())
-
-            def _jaccard(a, b):
-                if not a and not b:
-                    return 1.0
-                return len(a & b) / len(a | b)
-
-            stability = 0.5 * (
-                _jaccard(top_k, top_low)
-                + _jaccard(top_k, top_high))
+            sorted_scores = np.sort(scores)[::-1]
+            gap = float(sorted_scores[n_anomalies - 1]
+                        - sorted_scores[n_anomalies])
+            std = float(scores.std())
+            if std == 0.0:
+                stability = 0.0
+            else:
+                stability = float(np.clip(gap / std, 0.0, 1.0))
 
         overall = float(np.mean([separation, agreement, stability]))
         if overall >= 0.7:
@@ -1277,8 +1323,8 @@ class ADEngine:
             'stability': stability,
             'overall': overall,
             'verdict': verdict,
-            'explanation': 'Separation=%.2f, agreement=%.2f, '
-                           'stability=%.2f.' % (
+            'explanation': 'separation={:.2f}, agreement={:.2f}, '
+                           'stability={:.2f} (cutoff gap)'.format(
                                separation, agreement, stability),
         }
 

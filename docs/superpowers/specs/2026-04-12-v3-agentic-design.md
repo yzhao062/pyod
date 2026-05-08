@@ -521,6 +521,8 @@ Three metrics, each normalized to [0, 1]. No new dependencies beyond numpy and s
    ```
    For single-detector runs: agreement = 0.5 (neutral, neither high nor low confidence).
 
+> **Footnote (2026-05-07):** The Jaccard-of-nested-top-k formula in this section was revised after issue #667 (Quentin Grimonprez, 2026-04-30) showed it is mathematically constant. The current source of truth is `docs/superpowers/specs/2026-05-07-adengine-refactor-design.md`. The text below is preserved as design history.
+
 3. **Label stability** (`quality.stability`): Jaccard index of top-k anomaly sets when k varies by +/-20%.
    ```
    k = n_anomalies  # from contamination
