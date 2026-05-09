@@ -25,9 +25,14 @@ def _get_perplexity(D, beta):
         The dissimilarity matrix of the training samples.
     """
 
+    # `A` is the direct ndarray output of `np.exp`, so call the ndarray
+    # method instead of `np.sum`. The method bypasses numpy's
+    # __array_function__ dispatch and is measurably faster on the small
+    # rows this function is called on (one row of the affinity matrix per
+    # sample); the same applies to `(D * A).sum()` below. See issue #635.
     A = np.exp(-D * beta)
-    sumA = np.sum(A)
-    H = np.log(sumA) + beta * np.sum(D * A) / sumA
+    sumA = A.sum()
+    H = np.log(sumA) + beta * (D * A).sum() / sumA
     return H, A
 
 

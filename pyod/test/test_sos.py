@@ -148,6 +148,28 @@ class TestSOS(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_get_perplexity_numerical_equivalence(self):
+        # Equivalence test for issue #635: switching `np.sum(A)` to
+        # `A.sum()` (and likewise for the inner `np.sum(D * A)`) must
+        # not change the numerical output of _get_perplexity. Verify
+        # against an explicit closed-form computation on a fixed input.
+        import numpy as np
+        from pyod.models.sos import _get_perplexity
+
+        rng = np.random.default_rng(0)
+        D = rng.uniform(0.1, 5.0, size=64)
+        beta = 0.7
+        H, A = _get_perplexity(D, beta)
+
+        # Reference computation, written without using the optimized
+        # ndarray method, so a future regression that "improves" the
+        # function in a way that changes its semantics would be caught.
+        A_ref = np.exp(-D * beta)
+        sumA_ref = float(np.sum(A_ref))
+        H_ref = float(np.log(sumA_ref) + beta * np.sum(D * A_ref) / sumA_ref)
+        assert_allclose(np.asarray(A), A_ref, rtol=1e-12, atol=1e-15)
+        assert_allclose(float(H), H_ref, rtol=1e-12, atol=1e-15)
+
     def tearDown(self):
         pass
 
