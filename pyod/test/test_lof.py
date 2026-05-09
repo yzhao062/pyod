@@ -153,6 +153,18 @@ class TestLOF(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_novelty_default_matches_docstring(self):
+        # Regression for issue #638: the class docstring used to claim
+        # `novelty (default=False)` while __init__ actually defaults to True
+        # (PyOD's BaseDetector contract — fit-then-predict-on-new-data —
+        # requires sklearn's novelty mode). Lock both in sync so they cannot
+        # drift again silently.
+        import inspect
+        sig_default = inspect.signature(LOF.__init__).parameters["novelty"].default
+        self.assertEqual(sig_default, True)
+        # The docstring must declare the same default that __init__ uses.
+        self.assertIn("novelty : bool (default=True)", LOF.__doc__)
+
     def tearDown(self):
         pass
 

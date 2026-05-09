@@ -105,12 +105,16 @@ class LOF(BaseDetector):
         If ``-1``, then the number of jobs is set to the number of CPU cores.
         Affects only kneighbors and kneighbors_graph methods.
 
-    novelty : bool (default=False)
-        By default, LocalOutlierFactor is only meant to be used for outlier
-        detection (novelty=False). Set novelty to True if you want to use
-        LocalOutlierFactor for novelty detection. In this case be aware that
-        that you should only use predict, decision_function and score_samples
-        on new unseen data and not on the training set.
+    novelty : bool (default=True)
+        Forwarded to scikit-learn's ``LocalOutlierFactor``. PyOD defaults to
+        ``True`` (the opposite of scikit-learn's default of ``False``)
+        because the PyOD ``BaseDetector`` contract is fit-on-train then
+        ``predict``/``decision_function`` on unseen data, which scikit-learn
+        only permits in novelty mode. Set ``novelty=False`` only if you want
+        to read training-time scores from
+        ``self.detector_.negative_outlier_factor_`` and never call
+        ``predict`` or ``decision_function`` on new data — see scikit-learn's
+        :class:`sklearn.neighbors.LocalOutlierFactor` for details.
 
     Attributes
     ----------
