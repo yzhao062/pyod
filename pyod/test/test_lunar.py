@@ -5,6 +5,7 @@ import os
 import sys
 import unittest
 
+import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
@@ -174,6 +175,55 @@ class TestLUNARNearestNeighborsConfig(unittest.TestCase):
         clf.fit(self.X_train)
         scores = clf.decision_function(self.X_test)
         assert_equal(scores.shape[0], self.X_test.shape[0])
+
+
+class TestLUNARScalerIsolation(unittest.TestCase):
+    """Regression tests for #502 — mutable-default scaler argument.
+
+    Before the fix, ``LUNAR(scaler=MinMaxScaler())`` was the constructor
+    default, which Python evaluates exactly once at import time. Two
+    LUNAR instances therefore shared the same scaler object; the second
+    ``fit`` would re-fit it under the second feature dimensionality and
+    invalidate the first instance's ``predict``.
+    """
+
+    def test_default_scalers_are_independent(self):
+        # Two instances with different feature dimensions must not share
+        # a scaler. Before the fix, m1.predict(X1) raised because the
+        # shared scaler had been re-fit on X2's 2-D data.
+        X1 = np.zeros((10, 1))
+        X2 = np.zeros((10, 2))
+        m1 = LUNAR(n_epochs=2)
+        m1.fit(X1)
+        m2 = LUNAR(n_epochs=2)
+        m2.fit(X2)
+        # Each fitted instance owns a distinct scaler object.
+        assert m1.scaler_ is not m2.scaler_
+        # The constructor argument itself is left untouched (None) so that
+        # sklearn.base.clone() round-trips correctly.
+        assert m1.scaler is None and m2.scaler is None
+        # m1 must still be able to predict on its own data after m2 was fit.
+        out1 = m1.predict(X1)
+        assert_equal(out1.shape, (10,))
+
+    def test_user_supplied_scaler_is_copied(self):
+        # Passing one MinMaxScaler instance to two LUNAR instances must
+        # not let the second .fit clobber the first.
+        from sklearn.preprocessing import MinMaxScaler
+        shared = MinMaxScaler()
+        X1 = np.zeros((10, 1))
+        X2 = np.zeros((10, 2))
+        m1 = LUNAR(n_epochs=2, scaler=shared)
+        m1.fit(X1)
+        m2 = LUNAR(n_epochs=2, scaler=shared)
+        m2.fit(X2)
+        # Constructor arg is preserved verbatim (clone-friendly).
+        assert m1.scaler is shared and m2.scaler is shared
+        # The fitted, instance-private scalers are independent copies.
+        assert m1.scaler_ is not shared
+        assert m1.scaler_ is not m2.scaler_
+        out1 = m1.predict(X1)
+        assert_equal(out1.shape, (10,))
 
 
 if __name__ == '__main__':

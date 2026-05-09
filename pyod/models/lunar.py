@@ -137,8 +137,13 @@ class LUNAR(BaseDetector):
     val_size: float in [0,1], optional (default = 0.1)
         Proportion of samples to be used for model validation
 
-    scaler: object in {StandardScaler(), MinMaxScaler(), optional (default = MinMaxScaler())
-        Method of data normalization
+    scaler: scikit-learn-style scaler instance, optional (default=None)
+        Method of data normalization. If ``None``, a fresh
+        ``MinMaxScaler()`` is created per ``fit`` call. Pass a configured
+        scaler (e.g. ``StandardScaler()``) to override; the supplied
+        instance is deep-copied internally so each LUNAR instance has its
+        own state and detectors created with the default never share a
+        scaler. Pass ``False`` to disable scaling entirely.
 
     epsilon: float, optional (default = 0.1)
         Hyper-parameter for the generation of negative samples. 
@@ -187,7 +192,7 @@ class LUNAR(BaseDetector):
 
     def __init__(self, model_type="WEIGHT", n_neighbours=5,
                  negative_sampling="MIXED",
-                 val_size=0.1, scaler=MinMaxScaler(), epsilon=0.1,
+                 val_size=0.1, scaler=None, epsilon=0.1,
                  proportion=1.0,
                  n_epochs=200, lr=0.001, wd=0.1, verbose=0, contamination=0.1,
                  algorithm='auto', leaf_size=30, metric='minkowski', p=2,
@@ -200,6 +205,11 @@ class LUNAR(BaseDetector):
         self.epsilon = epsilon
         self.proportion = proportion
         self.n_epochs = n_epochs
+        # Issue #502: store the user-supplied scaler verbatim so that
+        # sklearn.base.clone() round-trips correctly (clone re-checks that
+        # __init__ does not mutate its params). Materialisation/deep-copy
+        # is deferred to fit() — see _resolve_scaler — which guarantees
+        # each detector instance owns an independent scaler object.
         self.scaler = scaler
         self.lr = lr
         self.wd = wd
@@ -219,6 +229,22 @@ class LUNAR(BaseDetector):
             self.network = SCORE_MODEL(n_neighbours).to(self.device)
         elif model_type == "WEIGHT":
             self.network = WEIGHT_MODEL(n_neighbours).to(self.device)
+
+    def _resolve_scaler(self):
+        """Materialise the runtime scaler for this fit call.
+
+        - ``self.scaler is None`` (the new default) -> a fresh
+          ``MinMaxScaler()`` so each fit owns its own state.
+        - ``self.scaler is False`` -> disable scaling entirely.
+        - any other instance -> deep-copy so two LUNAR instances that
+          were configured with the same scaler object don't end up
+          sharing parameters after their respective ``fit`` calls.
+        """
+        if self.scaler is None:
+            return MinMaxScaler()
+        if self.scaler is False:
+            return None
+        return deepcopy(self.scaler)
 
     def fit(self, X, y=None):
         """Fit detector. y is assumed to be 0 for all training samples.
@@ -243,18 +269,25 @@ class LUNAR(BaseDetector):
         train_x, val_x, train_y, val_y = train_test_split(X, y,
                                                           test_size=self.val_size)
 
+        # Materialise a fresh, instance-private scaler before fitting it.
+        # ``self.scaler`` (the constructor argument) is left untouched so
+        # that sklearn.base.clone() can read it back unchanged. The fitted
+        # scaler lives on ``self.scaler_`` (sklearn convention for fitted
+        # attributes). See issue #502.
+        self.scaler_ = self._resolve_scaler()
+
         # fit data scaler to the training set if scaler has been passed
-        if (self.scaler == None):
+        if self.scaler_ is None:
             pass
         else:
-            self.scaler.fit(train_x)
+            self.scaler_.fit(train_x)
 
         # scale data if scaler has been passed
-        if (self.scaler == None):
+        if self.scaler_ is None:
             pass
         else:
-            train_x = self.scaler.transform(train_x)
-            val_x = self.scaler.transform(val_x)
+            train_x = self.scaler_.transform(train_x)
+            val_x = self.scaler_.transform(val_x)
 
         # generate negative samples for training and validation set seperately 
         neg_train_x, neg_train_y = generate_negative_samples(train_x,
@@ -352,11 +385,11 @@ class LUNAR(BaseDetector):
         self.network.load_state_dict(best_dict['model_state_dict'])
 
         # Determine outlier scores for train set
-        # scale data if scaler has been passed
-        if (self.scaler == None):
+        # scale data if scaler has been passed (use the fitted scaler_)
+        if self.scaler_ is None:
             X_norm = np.copy(X)
         else:
-            X_norm = self.scaler.transform(X)
+            X_norm = self.scaler_.transform(X)
 
         # nearest neighbour search
         dist, _ = self.neigh.kneighbors(X_norm, self.n_neighbours)
@@ -388,11 +421,11 @@ class LUNAR(BaseDetector):
         # X = check_array(X)
         X = X.astype('float32')
 
-        # scale data
-        if (self.scaler == None):
+        # scale data (use the fitted scaler_)
+        if self.scaler_ is None:
             pass
         else:
-            X = self.scaler.transform(X)
+            X = self.scaler_.transform(X)
 
         # nearest neighbour search
         dist, _ = self.neigh.kneighbors(X, self.n_neighbours)
