@@ -136,6 +136,18 @@ class TestDIF(unittest.TestCase):
 
     # clone_clf = clone(self.clf)
 
+    def test_train_scores_match_decision_function(self):
+        # Regression for issue #546: DIF.fit used to double-normalize — it
+        # min-max-scaled X then called self.decision_function(X) on the
+        # already-scaled X, and decision_function transforms again. As a
+        # result self.decision_scores_ disagreed with
+        # self.decision_function(X_train). Lock them in sync.
+        from numpy.testing import assert_allclose
+        scores_via_attr = self.clf.decision_scores_
+        scores_via_call = self.clf.decision_function(self.X_train)
+        assert_allclose(scores_via_attr, scores_via_call, rtol=1e-5,
+                        atol=1e-7)
+
     def tearDown(self):
         pass
 

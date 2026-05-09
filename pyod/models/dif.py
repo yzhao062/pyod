@@ -174,9 +174,13 @@ class DIF(BaseDetector):
 
         n_samples, n_features = X.shape[0], X.shape[1]
 
-        # conduct min-max normalization before feeding into neural networks
+        # conduct min-max normalization before feeding into neural networks.
+        # Keep the raw X around: ``decision_function`` re-applies the scaler,
+        # so we must not call ``self.decision_function(X_scaled)`` later or
+        # we would normalize twice (issue #546).
         self.minmax_scaler = MinMaxScaler()
         self.minmax_scaler.fit(X)
+        X_raw = X
         X = self.minmax_scaler.transform(X)
 
         # prepare neural network parameters
@@ -217,7 +221,10 @@ class DIF(BaseDetector):
             )
             self.iForest_lst[i].fit(x_reduced)
 
-        self.decision_scores_ = self.decision_function(X)
+        # Pass the unscaled X — decision_function applies the fitted scaler
+        # itself. Passing ``X`` (already scaled) here was the root cause of
+        # issue #546 (decision_scores_ disagreed with decision_function(X)).
+        self.decision_scores_ = self.decision_function(X_raw)
         self._process_decision_scores()
         return self
 
