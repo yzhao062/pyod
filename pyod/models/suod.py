@@ -9,11 +9,16 @@ import numpy as np
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
+# `suod` is an optional dependency. Make the failure mode loud and useful
+# instead of silently `print`-ing then crashing on the next line with a
+# bare ImportError that doesn't tell the user how to fix it (issue #640).
 try:
-    import suod
-except ImportError:
-    print('please install suod first for SUOD by `pip install suod`')
-from suod.models.base import SUOD as SUOD_model
+    from suod.models.base import SUOD as SUOD_model
+except ImportError as _suod_import_error:  # pragma: no cover - import guard
+    SUOD_model = None
+    _SUOD_IMPORT_ERROR = _suod_import_error
+else:
+    _SUOD_IMPORT_ERROR = None
 
 from .base import BaseDetector
 from .lof import LOF
@@ -133,6 +138,17 @@ class SUOD(BaseDetector):
                  approx_clf_list=None, approx_ng_clf_list=None,
                  approx_flag_global=True, approx_clf=None,
                  verbose=False):
+        # Issue #640: defer the optional `suod` dependency check until
+        # the user actually constructs SUOD, with an actionable message
+        # pointing at `pip install suod`. Importing pyod.models.suod
+        # without the package installed must remain side-effect-free
+        # (the symbol is exposed for type hints / introspection).
+        if SUOD_model is None:
+            raise ImportError(
+                "pyod.models.suod requires the optional `suod` package. "
+                "Install it with `pip install suod` and retry. "
+                "Original error: {}".format(_SUOD_IMPORT_ERROR)
+            )
         super(SUOD, self).__init__(contamination=contamination)
         self.base_estimators = base_estimators
         self.contamination = contamination

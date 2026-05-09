@@ -204,5 +204,35 @@ class TestSUOD(unittest.TestCase):
         pass
 
 
+class TestSUODOptionalImport(unittest.TestCase):
+    """Regression for issue #640.
+
+    When the optional `suod` package is not installed, importing
+    `pyod.models.suod` used to print a friendly hint and then crash on
+    the unconditional `from suod.models.base import SUOD as SUOD_model`.
+    The fix tolerates the failure at module load and raises an
+    actionable ImportError only when the user constructs `SUOD()`.
+    """
+
+    def test_constructor_raises_actionable_error_when_suod_missing(self):
+        from pyod.models import suod as suod_module
+        original = suod_module.SUOD_model
+        original_err = suod_module._SUOD_IMPORT_ERROR
+        try:
+            # Simulate suod-not-installed without uninstalling it (which
+            # would break the rest of the suite).
+            suod_module.SUOD_model = None
+            suod_module._SUOD_IMPORT_ERROR = ImportError(
+                "No module named 'suod'")
+            with self.assertRaises(ImportError) as ctx:
+                suod_module.SUOD()
+            msg = str(ctx.exception)
+            self.assertIn("pip install suod", msg)
+            self.assertIn("suod", msg)
+        finally:
+            suod_module.SUOD_model = original
+            suod_module._SUOD_IMPORT_ERROR = original_err
+
+
 if __name__ == '__main__':
     unittest.main()
