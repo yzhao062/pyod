@@ -70,3 +70,15 @@ pyod.utils.utility module
     :undoc-members:
     :show-inheritance:
     :inherited-members:
+
+pyod.utils.persistence module
+-----------------------------
+
+See :doc:`model_persistence` for the user-facing guide on saving and
+loading PyOD detectors, including cross-sklearn-version compatibility
+and strict mode.
+
+.. automodule:: pyod.utils.persistence
+    :members: save, load, compat_load
+    :undoc-members:
+    :show-inheritance:

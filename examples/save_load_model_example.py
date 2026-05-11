@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
-"""Example of saving and loading PyOD models
+"""Example of saving and loading PyOD models.
+
+The recommended flow uses :func:`pyod.utils.persistence.save` and
+:func:`pyod.utils.persistence.load`, which wrap ``joblib`` with a
+versioned envelope that records the dependency versions in effect at
+save time. ``load`` reads that envelope and warns when sklearn, joblib,
+numpy, or scipy drift between save and load environments; it also
+falls through to ``compat_load`` automatically when sklearn's Tree
+node dtype evolves and an older artifact would otherwise fail to load.
+
+The raw ``joblib.dump`` / ``joblib.load`` flow still works and is
+included as a secondary alternative for users who want full control
+over the file format.
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
@@ -19,8 +31,8 @@ from pyod.models.lof import LOF
 from pyod.utils.data import generate_data
 from pyod.utils.data import evaluate_print
 from pyod.utils.example import visualize
+from pyod.utils.persistence import save, load
 
-from joblib import dump, load
 
 if __name__ == "__main__":
     contamination = 0.1  # percentage of outliers
@@ -44,10 +56,30 @@ if __name__ == "__main__":
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
     y_train_scores = clf.decision_scores_  # raw outlier scores
 
-    # save the model
-    dump(clf, 'clf.joblib')
-    # load the model
-    clf = load('clf.joblib')
+    # ---- Recommended: save / load with a versioned envelope ----
+    artifact_path = 'clf.pyod.joblib'
+    save(clf, artifact_path, metadata={'dataset': 'demo', 'note': 'LOF baseline'})
+
+    # The matching load() reads the envelope and warns on dependency
+    # drift; pass strict=True for version-pinned production deployments.
+    clf = load(artifact_path)
+
+    # To inspect the envelope without separately re-reading the file:
+    clf, env = load(artifact_path, return_metadata=True)
+    print(
+        f"Loaded {env['model_class']} "
+        f"(pyod={env['pyod_version']}, sklearn={env['sklearn_version']}, "
+        f"saved_at={env['saved_at']})")
+
+    # ---- Alternative: raw joblib.dump / joblib.load ----
+    # The legacy raw-joblib path still works. It does not record
+    # dependency versions, and cross-sklearn-version compatibility is
+    # the user's responsibility. Prefer save() / load() above for new
+    # code.
+    #
+    #     from joblib import dump as _dump, load as _load
+    #     _dump(clf, 'clf.joblib')
+    #     clf = _load('clf.joblib')
 
     # get the prediction on the test data
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)

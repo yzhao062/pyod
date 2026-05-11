@@ -1,0 +1,18 @@
+{
+  "estimator": "sklearn.ensemble.IsolationForest",
+  "estimator_params": {
+    "n_estimators": 1,
+    "random_state": 0
+  },
+  "joblib_version": "1.5.3",
+  "n_features": 5,
+  "n_samples": 16,
+  "numpy_version": "1.24.4",
+  "output": "decision_function(X)",
+  "output_shape": [
+    16
+  ],
+  "python_version": "3.10.20",
+  "rng_seed": 0,
+  "sklearn_version": "1.2.2"
+}
