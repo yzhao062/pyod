@@ -324,7 +324,8 @@ class ADEngine:
     # ------------------------------------------------------------------
 
     def get_kb_for_routing(self, profile: dict, top_k: int = 3,
-                           constraints: dict | None = None) -> dict:
+                           constraints: dict | None = None,
+                           scoring_view: str = "legacy") -> dict:
         """Return a structured KB snapshot for caller-driven detector
         selection.
 
@@ -365,6 +366,9 @@ class ADEngine:
         """
         if not isinstance(profile, dict):
             raise ValueError("profile must be a dict from profile_data()")
+        if scoring_view not in ("legacy", "soft_kb"):
+            raise ValueError(
+                "scoring_view must be 'legacy' (default) or 'soft_kb'")
         top_k = max(1, int(top_k))
         constraints = constraints or {}
         exclude = set(constraints.get('exclude_detectors') or [])
@@ -442,10 +446,17 @@ class ADEngine:
 
         available.sort(key=lambda d: (_rank(d), d['name']))
 
+        # Soft-KB view (opt-in): attach calibrated within-modality scores and
+        # re-sort by them. The legacy default path above is left byte-identical
+        # because the published section 5.4 evidence depends on it (see the
+        # golden test pyod/test/test_kb_routing_golden.py).
+        if scoring_view == "soft_kb":
+            self._attach_soft_kb(available, target_modality)
+
         # Strip non-JSON-safe fields from the profile copy
         profile_safe = {k: v for k, v in profile.items() if k != 'data'}
 
-        return {
+        result = {
             'task_profile': profile_safe,
             'available_detectors': available,
             'top_k_requested': top_k,
@@ -458,6 +469,67 @@ class ADEngine:
             ),
             'n_available': len(available),
         }
+        if scoring_view == "soft_kb":
+            meta = self.kb.kb_scores_meta or {}
+            result['kb_version'] = meta.get('kb_version', 'unknown')
+            result['kb_scoring_method'] = meta.get('kb_scoring_method', 'unknown')
+        return result
+
+    # Modality name as used in the soft-KB scores artifact (kb_scores.json).
+    _KB_MODALITY = {
+        'tabular': 'tabular', 'time_series': 'timeseries',
+        'timeseries': 'timeseries', 'graph': 'graph', 'text': 'text',
+        'image': 'image', 'synthetic': 'synthetic',
+    }
+
+    def _attach_soft_kb(self, available: list, target_modality) -> None:
+        """Attach soft-KB within-modality scores in place and re-sort
+        ``available`` by ``kb_score`` (descending; unscored detectors last).
+
+        Scores come from the redesigned KB (``_raw/kb_scores.json``, v3.6).
+        Strictly within modality: a detector with no score for this modality
+        gets ``kb_score=None`` rather than a cross-modality fallback.
+        """
+        kb_mod = self._KB_MODALITY.get(
+            str(target_modality).lower(), str(target_modality).lower())
+        for d in available:
+            roll = self.kb.get_kb_scores(d['name'], kb_mod)
+            if roll:
+                d['kb_score'] = roll.get('kb_score')
+                d['kb_interval'] = [roll.get('ci_low'), roll.get('ci_high')]
+                d['kb_coverage_n'] = roll.get('coverage_n')
+                d['kb_eligible_n'] = roll.get('eligible_n')
+                d['kb_failure_n'] = roll.get('failure_n')
+                d['kb_missing_n'] = roll.get('missing_n')
+                d['kb_effective_n'] = roll.get('effective_n')
+                d['kb_metric_scope'] = roll.get('metric_scopes')
+                d['kb_source_benchmark'] = roll.get('source_benchmark')
+                d['kb_fallback_level'] = 'modality'
+            else:
+                d['kb_score'] = None
+                d['kb_interval'] = None
+                d['kb_coverage_n'] = 0
+                d['kb_eligible_n'] = 0
+                d['kb_failure_n'] = 0
+                d['kb_missing_n'] = 0
+                d['kb_effective_n'] = 0
+                d['kb_metric_scope'] = None
+                d['kb_source_benchmark'] = None
+                d['kb_fallback_level'] = None
+        available.sort(key=lambda d: (
+            0 if d.get('kb_score') is not None else 1,
+            -(d.get('kb_score') or 0.0),
+            d['name']))
+        # Stamp a 1-based rank among scored detectors in this (post-sort)
+        # order; unscored detectors get None. Lets downstream consumers cite
+        # the within-modality rank without re-sorting.
+        rank = 0
+        for d in available:
+            if d.get('kb_score') is not None:
+                rank += 1
+                d['kb_score_rank'] = rank
+            else:
+                d['kb_score_rank'] = None
 
     def make_plan(self, detector_choices: list,
                   justifications: list | None = None,

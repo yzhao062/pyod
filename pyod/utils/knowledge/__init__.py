@@ -32,6 +32,7 @@ class KnowledgeBase:
         self._benchmarks = None
         self._routing_rules = None
         self._papers = None
+        self._kb_scores = None
 
     def _load_json(self, filename):
         path = os.path.join(self._dir, filename)
@@ -61,6 +62,30 @@ class KnowledgeBase:
         if self._papers is None:
             self._papers = self._load_json('papers.json')
         return self._papers
+
+    @property
+    def kb_scores(self):
+        """Soft-KB calibrated scores (v3.6). Empty dict if not shipped."""
+        if self._kb_scores is None:
+            try:
+                self._kb_scores = self._load_json(
+                    os.path.join('_raw', 'kb_scores.json'))
+            except (FileNotFoundError, OSError):
+                self._kb_scores = {}
+        return self._kb_scores
+
+    @property
+    def kb_scores_meta(self):
+        """`_meta` block from the soft-KB scores (kb_version, kb_scoring_method, ...)."""
+        return self.kb_scores.get('_meta', {})
+
+    def get_kb_scores(self, name, modality):
+        """Within-modality rollup score for a detector, or None if absent.
+
+        Strictly within modality; never returns a cross-modality score.
+        """
+        node = self.kb_scores.get('scores', {}).get(name, {}).get(modality)
+        return node.get('rollup') if node else None
 
     def get_algorithm(self, name):
         """Get algorithm metadata by name. Returns None if not found."""

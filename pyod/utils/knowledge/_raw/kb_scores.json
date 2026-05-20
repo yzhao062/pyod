@@ -1,6 +1,8 @@
 {
   "_meta": {
     "generated_by": "regenerate_kb.py (Phase A step 2)",
+    "kb_version": "kb_scores-v1",
+    "kb_scoring_method": "within-modality tie-aware percentile; pooled rollup; nonparametric bootstrap CI (B=2000, per-key seed 42)",
     "bootstrap_b": 2000,
     "seed": 42,
     "empty_means": {

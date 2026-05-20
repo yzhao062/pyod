@@ -96,5 +96,5 @@ exclude = ["test", "test.*", "pyod.test", "pyod.test.*"]
 
 [tool.setuptools.package-data]
 "pyod.utils.model_analysis_jsons" = ["*.json"]
-"pyod.utils.knowledge" = ["*.json"]
+"pyod.utils.knowledge" = ["*.json", "_raw/*.json"]
 "pyod.skills.od_expert" = ["*.md", "references/*.md"]

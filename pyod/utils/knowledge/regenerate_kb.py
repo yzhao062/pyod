@@ -324,6 +324,8 @@ def main() -> int:
     out = {
         "_meta": {
             "generated_by": "regenerate_kb.py (Phase A step 2)",
+            "kb_version": "kb_scores-v1",
+            "kb_scoring_method": f"within-modality tie-aware percentile; pooled rollup; nonparametric bootstrap CI (B={BOOTSTRAP_B}, per-key seed {RNG_SEED})",
             "bootstrap_b": BOOTSTRAP_B,
             "seed": RNG_SEED,
             "empty_means": {**{b: "missing" for b in benchmarks}, **EMPTY_MEANS},
