@@ -1,0 +1,191 @@
+{
+  "_meta": {
+    "purpose": "Per-benchmark raw detector name -> canonical pyod detector key (from algorithms.json) or an external/paper_only marker. Consumed by regenerate_kb.py (Phase A step 2) to attribute each benchmark matrix cell to a canonical detector within its modality.",
+    "canonical_source": "pyod/utils/knowledge/algorithms.json (64 shipped detector keys)",
+    "status_values": {
+      "shipped": "pyod-shipped; runnable_by_make_plan=true; canonical key exists in algorithms.json",
+      "external": "implemented in another maintained package (e.g. pygod) or as a benchmark-specific wrapper; runnable_by_make_plan=false; class_path=null in the KB",
+      "paper_only": "method from a paper/benchmark with no maintained pyod/pygod class; runnable_by_make_plan=false",
+      "planned": "scored from benchmark evidence and slated for pyod integration (committed plan / code in hand); runnable_by_make_plan=false until the class lands, then flips to shipped"
+    },
+    "text_keying": "Text entries decompose into (embedding, detector). The detector maps to a pyod canonical key; the full embed-then-detect pipeline is pyod.models.embedding.EmbeddingOD.",
+    "unbenchmarked_policy": "pyod detectors absent from every source benchmark keep kb_score:null and coverage_n:0 in the regenerated KB, plus their existing qualitative fields (strengths/best_for/avoid_when). They are NEVER spliced from self-reported original-paper numbers, which are incomparable across datasets/protocols and systematically optimistic, and would corrupt within-dataset rank-normalization.",
+    "subsequence_policy": "TSB-AD Sub-X entries are distinct subsequence-windowed TS methods, not the plain pyod detector; status=external with canonical pointing at the base detector for reference only (their TS performance is scored separately from the plain detector).",
+    "ts_plain_policy": "Plain IForest/LOF/PCA/etc. in TSB-AD are the same pyod detector class applied to time series via windowing; they map to the same canonical key but are scored under the timeseries modality, separately from the tabular entry."
+  },
+
+  "ADBench": {
+    "modality": "tabular",
+    "native_metrics": ["AUC-ROC", "AUC-PR"],
+    "files": ["adbench_aucroc_unsup.csv", "adbench_aucpr_unsup.csv"],
+    "source": "Han et al., NeurIPS 2022 (arXiv 2206.09426); AUCROC_unsup / AUCPR_unsup tables (14 unsupervised algorithms)",
+    "detectors": {
+      "PCA": {"canonical": "PCA", "status": "shipped"},
+      "OCSVM": {"canonical": "OCSVM", "status": "shipped"},
+      "LOF": {"canonical": "LOF", "status": "shipped"},
+      "CBLOF": {"canonical": "CBLOF", "status": "shipped"},
+      "COF": {"canonical": "COF", "status": "shipped"},
+      "HBOS": {"canonical": "HBOS", "status": "shipped"},
+      "KNN": {"canonical": "KNN", "status": "shipped"},
+      "SOD": {"canonical": "SOD", "status": "shipped"},
+      "COPOD": {"canonical": "COPOD", "status": "shipped"},
+      "ECOD": {"canonical": "ECOD", "status": "shipped"},
+      "DeepSVDD": {"canonical": "DeepSVDD", "status": "shipped"},
+      "DAGMM": {"canonical": "DAGMM", "status": "external", "package": null, "note": "ADBench implementation; not pyod-shipped"},
+      "LODA": {"canonical": "LODA", "status": "shipped"},
+      "IForest": {"canonical": "IForest", "status": "shipped"}
+    }
+  },
+
+  "NLP-ADBench": {
+    "modality": "text",
+    "native_metrics": ["AUROC", "AUPRC"],
+    "files": ["nlp_adbench_auroc.csv", "nlp_adbench_auprc.csv"],
+    "source": "Li et al., EMNLP Findings 2025 (arXiv 2412.04784); 8 datasets x 19 methods",
+    "pipeline_canonical": "EmbeddingOD",
+    "detectors": {
+      "CVDD": {"canonical": "CVDD", "status": "planned", "kind": "end_to_end", "note": "pyod integration planned (student code in hand)"},
+      "DATE": {"canonical": "DATE", "status": "planned", "kind": "end_to_end", "note": "pyod integration planned (student code in hand)"},
+      "FATE*": {"canonical": "FATE", "status": "planned", "kind": "end_to_end", "note": "pyod integration planned (student code in hand); FATE* is the NLP-ADBench variant label"},
+      "BERT+LOF": {"embedding": "BERT", "canonical": "LOF", "status": "shipped", "kind": "embedding_detector"},
+      "BERT+DeepSVDD": {"embedding": "BERT", "canonical": "DeepSVDD", "status": "shipped", "kind": "embedding_detector"},
+      "BERT+ECOD": {"embedding": "BERT", "canonical": "ECOD", "status": "shipped", "kind": "embedding_detector"},
+      "BERT+iForest": {"embedding": "BERT", "canonical": "IForest", "status": "shipped", "kind": "embedding_detector"},
+      "BERT+SO-GAAL": {"embedding": "BERT", "canonical": "SO_GAAL", "status": "shipped", "kind": "embedding_detector"},
+      "BERT+AE": {"embedding": "BERT", "canonical": "AutoEncoder", "status": "shipped", "kind": "embedding_detector"},
+      "BERT+VAE": {"embedding": "BERT", "canonical": "VAE", "status": "shipped", "kind": "embedding_detector"},
+      "BERT+LUNAR": {"embedding": "BERT", "canonical": "LUNAR", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+LOF": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "LOF", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+DeepSVDD": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "DeepSVDD", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+ECOD": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "ECOD", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+iForest": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "IForest", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+SO-GAAL": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "SO_GAAL", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+AE": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "AutoEncoder", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+VAE": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "VAE", "status": "shipped", "kind": "embedding_detector"},
+      "OpenAI+LUNAR": {"embedding": "OpenAI-text-embedding-3-large", "canonical": "LUNAR", "status": "shipped", "kind": "embedding_detector"}
+    }
+  },
+
+  "BOND": {
+    "modality": "graph",
+    "native_metrics": ["AP"],
+    "files": ["bond_ap.csv"],
+    "source": "Liu et al., NeurIPS 2022 (arXiv 2206.10071); 9 datasets x 14 detectors",
+    "detectors": {
+      "LOF": {"canonical": "LOF", "status": "shipped", "note": "pyod LOF on node attributes (graph baseline)"},
+      "IF": {"canonical": "IForest", "status": "shipped", "note": "pyod IForest on node attributes (graph baseline)"},
+      "MLPAE": {"canonical": "MLPAE", "status": "external", "package": "pygod"},
+      "SCAN": {"canonical": "SCAN_Graph", "status": "shipped"},
+      "Radar": {"canonical": "Radar", "status": "shipped"},
+      "ANOMALOUS": {"canonical": "ANOMALOUS", "status": "shipped"},
+      "GCNAE": {"canonical": "GCNAE", "status": "external", "package": "pygod"},
+      "DOMINANT": {"canonical": "DOMINANT", "status": "shipped"},
+      "DONE": {"canonical": "DONE", "status": "external", "package": "pygod"},
+      "AdONE": {"canonical": "AdONE", "status": "external", "package": "pygod"},
+      "AnomalyDAE": {"canonical": "AnomalyDAE", "status": "shipped"},
+      "GAAN": {"canonical": "GAAN", "status": "external", "package": "pygod"},
+      "GUIDE": {"canonical": "GUIDE", "status": "shipped"},
+      "CONAD": {"canonical": "CONAD", "status": "shipped"}
+    }
+  },
+
+  "TSB-AD-uni": {
+    "modality": "timeseries",
+    "subtype": "univariate",
+    "native_metrics": ["VUS-PR"],
+    "files": ["tsb_ad_uni_mergedTable_VUS-PR.csv"],
+    "source": "Liu & Paparrizos, NeurIPS 2024; TheDatumOrg/TSB-AD repo; 350 series x 32 detectors",
+    "detectors": {
+      "Sub-IForest": {"canonical": "IForest", "status": "external", "kind": "subsequence_variant"},
+      "IForest": {"canonical": "IForest", "status": "shipped"},
+      "Sub-LOF": {"canonical": "LOF", "status": "external", "kind": "subsequence_variant"},
+      "LOF": {"canonical": "LOF", "status": "shipped"},
+      "POLY": {"canonical": "POLY", "status": "paper_only"},
+      "MatrixProfile": {"canonical": "MatrixProfile", "status": "shipped"},
+      "KShapeAD": {"canonical": "KShape", "status": "shipped"},
+      "SAND": {"canonical": "SAND", "status": "shipped"},
+      "Series2Graph": {"canonical": "Series2Graph", "status": "paper_only"},
+      "SR": {"canonical": "SpectralResidual", "status": "shipped"},
+      "Sub-PCA": {"canonical": "PCA", "status": "external", "kind": "subsequence_variant"},
+      "Sub-HBOS": {"canonical": "HBOS", "status": "external", "kind": "subsequence_variant"},
+      "Sub-OCSVM": {"canonical": "OCSVM", "status": "external", "kind": "subsequence_variant"},
+      "Sub-MCD": {"canonical": "MCD", "status": "external", "kind": "subsequence_variant"},
+      "Sub-KNN": {"canonical": "KNN", "status": "external", "kind": "subsequence_variant"},
+      "KMeansAD": {"canonical": "KMeansAD", "status": "paper_only"},
+      "AutoEncoder": {"canonical": "AutoEncoder", "status": "shipped"},
+      "CNN": {"canonical": "CNN", "status": "paper_only"},
+      "LSTMAD": {"canonical": "LSTMAD", "status": "shipped"},
+      "TranAD": {"canonical": "TranAD", "status": "paper_only"},
+      "AnomalyTransformer": {"canonical": "AnomalyTransformer", "status": "shipped"},
+      "OmniAnomaly": {"canonical": "OmniAnomaly", "status": "paper_only"},
+      "USAD": {"canonical": "USAD", "status": "paper_only"},
+      "Donut": {"canonical": "Donut", "status": "paper_only"},
+      "TimesNet": {"canonical": "TimesNet", "status": "paper_only"},
+      "FITS": {"canonical": "FITS", "status": "paper_only"},
+      "OFA": {"canonical": "OFA", "status": "paper_only"},
+      "Lag-Llama": {"canonical": "Lag-Llama", "status": "paper_only", "kind": "foundation_model"},
+      "Chronos": {"canonical": "Chronos", "status": "paper_only", "kind": "foundation_model"},
+      "TimesFM": {"canonical": "TimesFM", "status": "paper_only", "kind": "foundation_model"},
+      "MOMENT (ZS)": {"canonical": "MOMENT-ZS", "status": "paper_only", "kind": "foundation_model"},
+      "MOMENT (FT)": {"canonical": "MOMENT-FT", "status": "paper_only", "kind": "foundation_model"}
+    }
+  },
+
+  "TSB-AD-multi": {
+    "modality": "timeseries",
+    "subtype": "multivariate",
+    "native_metrics": ["VUS-PR"],
+    "files": ["tsb_ad_multi_mergedTable_VUS-PR.csv"],
+    "source": "Liu & Paparrizos, NeurIPS 2024; TheDatumOrg/TSB-AD repo; 180 series x 23 detectors",
+    "detectors": {
+      "IForest": {"canonical": "IForest", "status": "shipped"},
+      "LOF": {"canonical": "LOF", "status": "shipped"},
+      "PCA": {"canonical": "PCA", "status": "shipped"},
+      "HBOS": {"canonical": "HBOS", "status": "shipped"},
+      "OCSVM": {"canonical": "OCSVM", "status": "shipped"},
+      "MCD": {"canonical": "MCD", "status": "shipped"},
+      "KNN": {"canonical": "KNN", "status": "shipped"},
+      "KMeansAD": {"canonical": "KMeansAD", "status": "paper_only"},
+      "COPOD": {"canonical": "COPOD", "status": "shipped"},
+      "CBLOF": {"canonical": "CBLOF", "status": "shipped"},
+      "EIF": {"canonical": "EIF", "status": "paper_only", "note": "Extended Isolation Forest; not pyod-shipped"},
+      "RobustPCA": {"canonical": "RobustPCA", "status": "paper_only"},
+      "AutoEncoder": {"canonical": "AutoEncoder", "status": "shipped"},
+      "CNN": {"canonical": "CNN", "status": "paper_only"},
+      "LSTMAD": {"canonical": "LSTMAD", "status": "shipped"},
+      "TranAD": {"canonical": "TranAD", "status": "paper_only"},
+      "AnomalyTransformer": {"canonical": "AnomalyTransformer", "status": "shipped"},
+      "OmniAnomaly": {"canonical": "OmniAnomaly", "status": "paper_only"},
+      "USAD": {"canonical": "USAD", "status": "paper_only"},
+      "Donut": {"canonical": "Donut", "status": "paper_only"},
+      "TimesNet": {"canonical": "TimesNet", "status": "paper_only"},
+      "FITS": {"canonical": "FITS", "status": "paper_only"},
+      "OFA": {"canonical": "OFA", "status": "paper_only"}
+    }
+  },
+
+  "Text-ADBench": {
+    "modality": "text",
+    "native_metrics": ["AUROC", "AUPRC"],
+    "files": ["text_adbench_auroc.csv", "text_adbench_auprc.csv"],
+    "source": "Xiao & Fan 2025 (arXiv 2507.12295); repo github.com/jicongfan/Text-Anomaly-Detection-Benchmark; 14 datasets x 12 detectors x multiple embeddings",
+    "pipeline_canonical": "EmbeddingOD",
+    "pending_extraction": true,
+    "leakage_gate": "Before scoring, diff Text-ADBench datasets against TAD-Bench (Phase B held-out, arXiv 2501.11960) and drop any overlap so the KB never sees a Phase B text test task.",
+    "embeddings": ["GloVe", "BERT", "LLaMA-2", "LLaMA-3", "Mistral", "OpenAI-text-embedding-3-small", "OpenAI-text-embedding-ada-002", "OpenAI-text-embedding-3-large", "mntp", "mntp-unsup-simcse", "mntp-supervised"],
+    "detectors": {
+      "OCSVM": {"canonical": "OCSVM", "status": "shipped"},
+      "IForest": {"canonical": "IForest", "status": "shipped"},
+      "LOF": {"canonical": "LOF", "status": "shipped"},
+      "PCA": {"canonical": "PCA", "status": "shipped"},
+      "KNN": {"canonical": "KNN", "status": "shipped"},
+      "KDE": {"canonical": "KDE", "status": "shipped"},
+      "ECOD": {"canonical": "ECOD", "status": "shipped"},
+      "AutoEncoder": {"canonical": "AutoEncoder", "status": "shipped"},
+      "DeepSVDD": {"canonical": "DeepSVDD", "status": "shipped"},
+      "DPAD": {"canonical": "DPAD", "status": "paper_only"},
+      "CVDD": {"canonical": "CVDD", "status": "planned", "kind": "end_to_end", "note": "pyod integration planned (student code in hand)"},
+      "DATE": {"canonical": "DATE", "status": "planned", "kind": "end_to_end", "note": "pyod integration planned (student code in hand)"}
+    }
+  }
+}

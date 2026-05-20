@@ -1,0 +1,3619 @@
+{
+  "tabular_k3": {
+    "task_profile": {
+      "data_type": "tabular",
+      "n_samples": 1000,
+      "n_features": 20
+    },
+    "available_detectors": [
+      {
+        "name": "IForest",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * log(n)) where t is n_estimators",
+        "complexity_space": "O(t * n)",
+        "strengths": [
+          "Excellent overall benchmark performance",
+          "Linear time complexity with efficient implementation",
+          "Handles high-dimensional data well",
+          "Does not require distance or density computation"
+        ],
+        "weaknesses": [
+          "May struggle with local anomalies in dense regions",
+          "Axis-aligned splits can miss anomalies in correlated features"
+        ],
+        "best_for": "General-purpose anomaly detection especially on large or high-dimensional datasets",
+        "avoid_when": "Anomalies are local density deviations or features are strongly correlated",
+        "benchmark_rank": {
+          "ADBench_overall": 3
+        },
+        "modality_match": true,
+        "resolved_rank": 3,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "KNN",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Simple and intuitive distance-based method",
+          "Multiple scoring methods (largest, mean, median)",
+          "Strong benchmark performance"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to distance metric and k choice",
+          "Struggles with varying density clusters"
+        ],
+        "best_for": "General-purpose distance-based outlier detection on moderate-sized datasets",
+        "avoid_when": "Dataset is very large or has highly variable local densities",
+        "benchmark_rank": {
+          "ADBench_overall": 4
+        },
+        "modality_match": true,
+        "resolved_rank": 4,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "ECOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * d * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Parameter-free and highly interpretable",
+          "Fast computation with parallelization support",
+          "Strong benchmark performance across diverse datasets",
+          "No assumption on data distribution"
+        ],
+        "weaknesses": [
+          "May struggle with strongly correlated features",
+          "Assumes outliers deviate in at least one marginal dimension"
+        ],
+        "best_for": "General-purpose outlier detection when speed and interpretability are priorities",
+        "avoid_when": "Features are heavily correlated and outliers only manifest in joint distributions",
+        "benchmark_rank": {
+          "ADBench_overall": 5
+        },
+        "modality_match": true,
+        "resolved_rank": 5,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "COPOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * d * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Parameter-free and highly interpretable",
+          "Fast computation with parallelization support",
+          "Models tail probabilities via empirical copulas"
+        ],
+        "weaknesses": [
+          "Assumes feature-wise independence for tail modeling",
+          "May miss complex multivariate interactions"
+        ],
+        "best_for": "Large-scale datasets where speed and interpretability matter and features are roughly independent",
+        "avoid_when": "Outliers only appear in joint distributions with strong feature dependencies",
+        "benchmark_rank": {
+          "ADBench_overall": 6
+        },
+        "modality_match": true,
+        "resolved_rank": 6,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "HBOS",
+        "category": "proximity",
+        "complexity_time": "O(n * d)",
+        "complexity_space": "O(n_bins * d)",
+        "strengths": [
+          "Extremely fast - linear time complexity",
+          "Simple histogram-based approach",
+          "Scales well to large datasets"
+        ],
+        "weaknesses": [
+          "Assumes feature independence",
+          "Cannot capture multivariate interactions",
+          "Sensitive to number of bins"
+        ],
+        "best_for": "Large-scale datasets where speed is critical and features are roughly independent",
+        "avoid_when": "Outliers only manifest through feature interactions or correlations",
+        "benchmark_rank": {
+          "ADBench_overall": 7
+        },
+        "modality_match": true,
+        "resolved_rank": 7,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "ABOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d) for fast, O(n^3 * d) for default",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Effective in high-dimensional spaces",
+          "Not affected by distance concentration in high dimensions",
+          "Good theoretical foundation"
+        ],
+        "weaknesses": [
+          "Computationally expensive, especially in default mode",
+          "Sensitive to noise in low-dimensional data",
+          "Requires sufficient neighbors for angle variance estimation"
+        ],
+        "best_for": "High-dimensional datasets where distance-based methods suffer from curse of dimensionality",
+        "avoid_when": "Dataset is very large or low-dimensional where distance-based methods work well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AE1SVM",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h + n_sv * h)",
+        "strengths": [
+          "Jointly optimizes autoencoder and one-class SVM",
+          "Combines representation learning with boundary detection",
+          "End-to-end training"
+        ],
+        "weaknesses": [
+          "Complex joint optimization",
+          "Requires tuning of both AE and SVM hyperparameters",
+          "Training can be unstable"
+        ],
+        "best_for": "Datasets benefiting from joint representation learning and one-class classification",
+        "avoid_when": "Simpler pipeline of separate AE + SVM works well, or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "ALAD",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Bi-directional GAN avoids slow iterative inference of AnoGAN",
+          "Multiple discriminators stabilize training",
+          "Fast inference after training"
+        ],
+        "weaknesses": [
+          "Complex architecture with multiple networks",
+          "Still subject to GAN training challenges",
+          "Many hyperparameters to tune"
+        ],
+        "best_for": "Scenarios where GAN-based detection is desired but fast inference is needed",
+        "avoid_when": "Simpler reconstruction-based deep methods suffice or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AnoGAN",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs) + O(n * iterations) for inference",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "GAN learns the normal data distribution",
+          "Can detect complex non-linear anomalies",
+          "Anomaly scoring via reconstruction in latent space"
+        ],
+        "weaknesses": [
+          "GAN training instability",
+          "Slow inference due to iterative latent optimization",
+          "Requires significant tuning"
+        ],
+        "best_for": "Complex data distributions where GAN-based generation quality is high",
+        "avoid_when": "Fast inference is needed or training instability is a concern",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AutoEncoder",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs) where h is hidden size",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Learns nonlinear feature representations",
+          "Reconstruction error is an intuitive anomaly score",
+          "Flexible architecture"
+        ],
+        "weaknesses": [
+          "Requires tuning of architecture and hyperparameters",
+          "May overfit on small datasets",
+          "Training can be unstable"
+        ],
+        "best_for": "Datasets with complex nonlinear structure where reconstruction-based scoring is appropriate",
+        "avoid_when": "Dataset is small, tabular and simple methods suffice, or training time is limited",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CBLOF",
+        "category": "proximity",
+        "complexity_time": "O(n * k * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Combines clustering with local outlier scoring",
+          "Efficient through cluster-based summarization",
+          "Effective when data has clear cluster structure"
+        ],
+        "weaknesses": [
+          "Depends on quality of underlying clustering",
+          "Sensitive to number of clusters parameter",
+          "May fail if data does not cluster well"
+        ],
+        "best_for": "Data with well-separated clusters where outliers deviate from cluster structure",
+        "avoid_when": "Data has no meaningful cluster structure or clusters are heavily overlapping",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CD",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Based on classical influence measures from regression",
+          "Interpretable as influence on regression fit",
+          "Works well when a regression model is appropriate"
+        ],
+        "weaknesses": [
+          "Requires a target variable (semi-supervised framing)",
+          "Assumes linear regression model",
+          "Not suitable for purely unsupervised settings without a model"
+        ],
+        "best_for": "Identifying influential observations in regression settings",
+        "avoid_when": "No natural target variable exists or data is purely unsupervised",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "COF",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Considers connectivity-based distances",
+          "Better than LOF for certain pattern structures",
+          "Handles low-density patterns in neighborhood chains"
+        ],
+        "weaknesses": [
+          "Quadratic time and space complexity",
+          "Slow for large datasets",
+          "Marginal improvement over LOF in many cases"
+        ],
+        "best_for": "Datasets where outliers lie along sparse connectivity paths between clusters",
+        "avoid_when": "Dataset is large or simpler methods like LOF already perform well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DIF",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * d * log(n))",
+        "complexity_space": "O(t * n)",
+        "strengths": [
+          "Uses deep random representations for better isolation",
+          "Handles complex data distributions",
+          "Extends isolation forest to representation space"
+        ],
+        "weaknesses": [
+          "More computationally expensive than standard IForest",
+          "Requires tuning of representation parameters"
+        ],
+        "best_for": "Complex datasets where standard Isolation Forest misses anomalies due to axis-aligned splits",
+        "avoid_when": "Standard Isolation Forest performs well or dataset is small and simple",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DeepSVDD",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Learns a compact hypersphere around normal data",
+          "Combines deep learning with SVDD objective",
+          "Effective for one-class classification"
+        ],
+        "weaknesses": [
+          "Sensitive to network architecture choices",
+          "Risk of hypersphere collapse",
+          "Requires careful initialization"
+        ],
+        "best_for": "One-class anomaly detection where a compact normal data description is desired",
+        "avoid_when": "Normal data is multi-modal or simpler one-class methods are sufficient",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DevNet",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "End-to-end deep anomaly scoring network",
+          "Can leverage a few labeled anomalies (semi-supervised)",
+          "Deviation loss directly optimizes anomaly scores"
+        ],
+        "weaknesses": [
+          "Requires at least a few labeled anomalies for best results",
+          "Deep network training overhead",
+          "Sensitive to architecture and loss parameters"
+        ],
+        "best_for": "Semi-supervised anomaly detection where a small number of labeled anomalies are available",
+        "avoid_when": "No labeled anomalies are available or dataset is too small for deep learning",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "FeatureBagging",
+        "category": "ensemble",
+        "complexity_time": "O(n_estimators * base_detector_time)",
+        "complexity_space": "O(n_estimators * base_detector_space)",
+        "strengths": [
+          "Reduces variance through feature subsampling",
+          "Flexible with any base detector",
+          "Robust against irrelevant features"
+        ],
+        "weaknesses": [
+          "Performance depends on choice of base detector",
+          "Slower than single detector due to ensemble overhead",
+          "May not improve over base if features are all relevant"
+        ],
+        "best_for": "High-dimensional data with potentially irrelevant features",
+        "avoid_when": "All features are relevant or a single strong detector suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "GMM",
+        "category": "probabilistic",
+        "complexity_time": "O(n * k * d^2) per EM iteration",
+        "complexity_space": "O(k * d^2)",
+        "strengths": [
+          "Models complex multi-modal distributions",
+          "Soft clustering provides probabilistic scores",
+          "Flexible covariance structures"
+        ],
+        "weaknesses": [
+          "Sensitive to initialization and number of components",
+          "Assumes Gaussian component distributions",
+          "EM convergence not guaranteed to global optimum"
+        ],
+        "best_for": "Data with multi-modal distributions that can be approximated by Gaussian mixtures",
+        "avoid_when": "Data does not follow mixture-of-Gaussians assumption or is very high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "HDBSCAN",
+        "category": "proximity",
+        "complexity_time": "O(n * log(n)) to O(n^2)",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Automatically finds clusters of varying density",
+          "Identifies noise points as potential outliers",
+          "Minimal parameter tuning required"
+        ],
+        "weaknesses": [
+          "Performance depends on min_cluster_size choice",
+          "May be slow for very large datasets",
+          "Outlier scores derived from cluster membership"
+        ],
+        "best_for": "Datasets with variable-density clusters where noise points are outliers",
+        "avoid_when": "Data does not have cluster structure or very high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "INNE",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * s) where t is n_estimators, s is sample size",
+        "complexity_space": "O(t * s)",
+        "strengths": [
+          "Combines isolation and nearest-neighbor concepts",
+          "Handles local anomalies better than Isolation Forest",
+          "Efficient sampling-based approach"
+        ],
+        "weaknesses": [
+          "Requires tuning of sample size and number of estimators",
+          "Less established than Isolation Forest"
+        ],
+        "best_for": "Datasets where local density variations matter and Isolation Forest underperforms",
+        "avoid_when": "A simpler method like IForest already works well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "KDE",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Non-parametric density estimation",
+          "Multiple kernel choices available",
+          "Scores directly reflect density"
+        ],
+        "weaknesses": [
+          "Quadratic prediction time",
+          "Sensitive to bandwidth and kernel selection",
+          "Suffers from curse of dimensionality"
+        ],
+        "best_for": "Low-to-moderate dimensional data where non-parametric density estimation is desired",
+        "avoid_when": "Data is high-dimensional or dataset is very large",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "KPCA",
+        "category": "linear",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Captures nonlinear relationships via kernel trick",
+          "Extension of PCA to nonlinear manifolds",
+          "Flexible kernel choices"
+        ],
+        "weaknesses": [
+          "Quadratic memory and time complexity",
+          "Kernel and hyperparameter selection required",
+          "Slower than linear PCA"
+        ],
+        "best_for": "Moderately sized datasets with nonlinear structure",
+        "avoid_when": "Dataset is very large due to quadratic kernel matrix or a linear model suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LMDD",
+        "category": "linear",
+        "complexity_time": "O(n_iter * n * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Multiple deviation measures available (AAD, IQR, MAD)",
+          "Random subspace approach provides diversity",
+          "Interpretable linear projections"
+        ],
+        "weaknesses": [
+          "Results can vary due to random projections",
+          "Requires tuning of number of iterations and measure",
+          "May underperform with nonlinear anomaly patterns"
+        ],
+        "best_for": "Multivariate data where anomalies are detectable through linear projections",
+        "avoid_when": "Anomalies require nonlinear feature combinations to detect",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LOCI",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Automatic determination of outlier threshold",
+          "Multi-granularity outlier detection via alpha parameter",
+          "Does not require explicit k-neighbor parameter"
+        ],
+        "weaknesses": [
+          "Quadratic complexity makes it slow",
+          "Difficult to scale to large datasets",
+          "Parameter alpha requires tuning"
+        ],
+        "best_for": "Small to medium datasets where automatic threshold selection is valued",
+        "avoid_when": "Dataset is large or faster LOF-based methods are sufficient",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LODA",
+        "category": "ensemble",
+        "complexity_time": "O(n * n_cuts * d)",
+        "complexity_space": "O(n_bins * n_cuts)",
+        "strengths": [
+          "Lightweight and fast",
+          "Supports online/streaming updates",
+          "Uses ensemble of random projections"
+        ],
+        "weaknesses": [
+          "Random projections may miss certain anomaly patterns",
+          "Histogram-based scoring can be coarse",
+          "Sensitive to number of bins and cuts"
+        ],
+        "best_for": "Streaming or online anomaly detection with limited computational resources",
+        "avoid_when": "Batch setting with enough time for more powerful methods",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LOF",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Detects local density-based outliers",
+          "Adapts to varying densities across the dataset",
+          "Well-established and widely used"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to n_neighbors parameter",
+          "Difficulty with uniformly dense regions"
+        ],
+        "best_for": "Datasets with clusters of varying densities where local anomalies are of interest",
+        "avoid_when": "Dataset is very large (>50K) or data is uniformly distributed",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LSCP",
+        "category": "ensemble",
+        "complexity_time": "O(n * n_detectors * base_cost)",
+        "complexity_space": "O(n * n_detectors)",
+        "strengths": [
+          "Locally selects the best detector for each region",
+          "Leverages diversity among base detectors",
+          "Adaptive combination strategy"
+        ],
+        "weaknesses": [
+          "Requires a list of pre-instantiated base detectors",
+          "Slower due to training multiple detectors",
+          "Complex internal selection mechanism"
+        ],
+        "best_for": "Scenarios where diverse base detectors are available and local performance varies",
+        "avoid_when": "Only one detector type is appropriate or computational budget is limited",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LUNAR",
+        "category": "graph",
+        "complexity_time": "O(n * k * d + n * h * epochs)",
+        "complexity_space": "O(n * k + d * h)",
+        "strengths": [
+          "Learns to score anomalies from neighbor graphs via GNN",
+          "Combines neighborhood structure with learned representations",
+          "Supports both score and weight model types"
+        ],
+        "weaknesses": [
+          "Requires PyTorch for GNN training",
+          "More complex setup than classical methods",
+          "Training overhead from neural network"
+        ],
+        "best_for": "Datasets where learned neighborhood-based scoring outperforms handcrafted rules",
+        "avoid_when": "PyTorch is not available or simpler KNN/LOF methods work well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MAD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * log(n))",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Extremely simple and fast",
+          "Robust to outliers in the training data",
+          "Well-suited for univariate data"
+        ],
+        "weaknesses": [
+          "Only works on univariate data",
+          "Cannot capture multivariate relationships"
+        ],
+        "best_for": "Univariate outlier detection with a robust central tendency measure",
+        "avoid_when": "Data is multivariate or relationships between features are important",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MCD",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(d^2)",
+        "strengths": [
+          "Robust estimation of covariance matrix",
+          "Well-established statistical method",
+          "Resistant to masking effects from outliers"
+        ],
+        "weaknesses": [
+          "Assumes data follows a Gaussian distribution",
+          "May fail in high-dimensional settings (d > n)",
+          "Computationally intensive for large d"
+        ],
+        "best_for": "Multivariate Gaussian-like data requiring robust covariance estimation",
+        "avoid_when": "Data is non-Gaussian, very high-dimensional, or strongly nonlinear",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MO_GAAL",
+        "category": "deep_learning",
+        "complexity_time": "O(k * n * d * h * epochs) where k is number of generators",
+        "complexity_space": "O(k * d * h)",
+        "strengths": [
+          "Multiple generators provide diverse outlier references",
+          "Better coverage of outlier space than SO_GAAL",
+          "Multi-objective formulation improves robustness"
+        ],
+        "weaknesses": [
+          "Even more complex training than SO_GAAL",
+          "Multiple generators increase computational cost",
+          "Difficult to tune"
+        ],
+        "best_for": "Complex datasets where diverse generated outlier references improve detection",
+        "avoid_when": "Computational resources are limited or simpler GAN approaches suffice",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "OCSVM",
+        "category": "linear",
+        "complexity_time": "O(n^2 * d) to O(n^3)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Flexible boundary via kernel functions",
+          "Strong theoretical foundation from SVM literature",
+          "Effective in high-dimensional feature spaces"
+        ],
+        "weaknesses": [
+          "Cubic training time for large datasets",
+          "Sensitive to kernel and nu parameter choice",
+          "Does not scale well beyond ~10K samples"
+        ],
+        "best_for": "Medium-sized datasets where a flexible decision boundary is needed",
+        "avoid_when": "Dataset is very large or real-time training is required",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "PCA",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(d^2)",
+        "strengths": [
+          "Fast training and prediction",
+          "Well-understood linear model",
+          "Effective when anomalies lie in minor principal components"
+        ],
+        "weaknesses": [
+          "Assumes linear relationships",
+          "Sensitive to the number of components selected",
+          "Cannot capture nonlinear anomalies"
+        ],
+        "best_for": "Datasets with linear structure where outliers deviate from main variance directions",
+        "avoid_when": "Data has strong nonlinear structure or outliers align with principal components",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "QMCD",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Based on uniformity criterion from quasi-Monte Carlo theory",
+          "Parameter-free (only contamination needed)",
+          "Theoretically grounded in discrepancy measures"
+        ],
+        "weaknesses": [
+          "Quadratic time complexity",
+          "Assumes outliers deviate from uniform space-filling"
+        ],
+        "best_for": "Detecting anomalies as deviations from uniform space-filling in moderate-dimensional data",
+        "avoid_when": "Dataset is very large or high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "RGraph",
+        "category": "graph",
+        "complexity_time": "O(n^2 * d + transition_steps * n^2)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Graph-based approach captures relational structure",
+          "Random walk on graph reveals connectivity anomalies",
+          "Tunable transition steps for multi-scale detection"
+        ],
+        "weaknesses": [
+          "Quadratic memory for adjacency/transition matrix",
+          "Slow for large datasets",
+          "Requires tuning of graph construction parameters"
+        ],
+        "best_for": "Datasets where graph connectivity and neighborhood structure reveal anomalies",
+        "avoid_when": "Dataset is very large or a simpler proximity method suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "ROD",
+        "category": "proximity",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Considers rotations to detect outliers across projections",
+          "Parameter-free (only contamination needed)",
+          "Supports parallel execution"
+        ],
+        "weaknesses": [
+          "Designed primarily for 3D data, may not generalize well to very high dimensions",
+          "Limited theoretical analysis compared to classical methods"
+        ],
+        "best_for": "Low-dimensional data where rotation-invariant outlier detection is desired",
+        "avoid_when": "Data is high-dimensional or a well-tuned alternative is available",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SOD",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Detects outliers in axis-parallel subspaces",
+          "Effective when anomalies hide in subspaces",
+          "Reference set approach captures local structure"
+        ],
+        "weaknesses": [
+          "Quadratic complexity",
+          "Requires tuning of ref_set and n_neighbors",
+          "May miss anomalies not aligned with axis-parallel subspaces"
+        ],
+        "best_for": "High-dimensional data where outliers deviate in axis-parallel subspaces",
+        "avoid_when": "Data is low-dimensional or anomalies require oblique subspaces to detect",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SOS",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Based on affinity and binding probability concepts",
+          "Produces meaningful probability-like outlier scores",
+          "Perplexity parameter controls local vs global sensitivity"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to perplexity parameter choice"
+        ],
+        "best_for": "Medium-sized datasets where probability-calibrated outlier scores are valuable",
+        "avoid_when": "Dataset is very large (>10K samples) due to quadratic complexity",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SO_GAAL",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "GAN-based approach generates informative outlier samples",
+          "Does not require labeled anomalies",
+          "Novel adversarial training framework for OD"
+        ],
+        "weaknesses": [
+          "GAN training instability",
+          "Sensitive to hyperparameters and architecture",
+          "Slow training compared to non-deep methods"
+        ],
+        "best_for": "Exploratory anomaly detection with GAN-generated reference outliers",
+        "avoid_when": "Stable and fast results are required, or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SUOD",
+        "category": "ensemble",
+        "complexity_time": "varies (depends on base estimators)",
+        "complexity_space": "varies",
+        "strengths": [
+          "Accelerates large-scale outlier detection via approximation",
+          "Supports parallel execution of base detectors",
+          "Modular framework for combining multiple detectors"
+        ],
+        "weaknesses": [
+          "Approximation may reduce accuracy",
+          "Overhead from the acceleration framework",
+          "Requires choosing and configuring base estimators"
+        ],
+        "best_for": "Large-scale datasets where running multiple detectors is desired but time is limited",
+        "avoid_when": "Exact results from a single well-chosen detector are preferred",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "Sampling",
+        "category": "probabilistic",
+        "complexity_time": "O(n * s * d) where s is subset size",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Linear time complexity through sampling",
+          "Scalable to large datasets",
+          "Simple and effective approach"
+        ],
+        "weaknesses": [
+          "Randomness from sampling can affect reproducibility",
+          "May miss local outliers with small subset sizes"
+        ],
+        "best_for": "Large-scale datasets requiring fast distance-based outlier detection",
+        "avoid_when": "Precise and deterministic results are required or dataset is small enough for exact methods",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "VAE",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Probabilistic latent space with regularization",
+          "Generates calibrated reconstruction probabilities",
+          "Learns smooth latent representations"
+        ],
+        "weaknesses": [
+          "More complex to train than standard autoencoder",
+          "KL divergence term may dominate loss",
+          "Requires careful balancing of loss components"
+        ],
+        "best_for": "Datasets where probabilistic reconstruction scoring and smooth latent spaces are beneficial",
+        "avoid_when": "Simpler autoencoder or non-deep methods work well, or dataset is very small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "XGBOD",
+        "category": "ensemble",
+        "complexity_time": "O(n * d * n_estimators * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Combines unsupervised representations with supervised XGBoost",
+          "High accuracy when labels are available",
+          "Leverages powerful gradient boosting framework"
+        ],
+        "weaknesses": [
+          "Requires labeled data (semi-supervised)",
+          "Depends on XGBoost library",
+          "Training is more expensive than unsupervised methods"
+        ],
+        "best_for": "Semi-supervised settings where some labeled anomalies are available",
+        "avoid_when": "No labeled data is available or a purely unsupervised approach is needed",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      }
+    ],
+    "top_k_requested": 3,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-3 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 43
+  },
+  "tabular_k5_exclude": {
+    "task_profile": {
+      "data_type": "tabular",
+      "n_samples": 5000,
+      "n_features": 50
+    },
+    "available_detectors": [
+      {
+        "name": "KNN",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Simple and intuitive distance-based method",
+          "Multiple scoring methods (largest, mean, median)",
+          "Strong benchmark performance"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to distance metric and k choice",
+          "Struggles with varying density clusters"
+        ],
+        "best_for": "General-purpose distance-based outlier detection on moderate-sized datasets",
+        "avoid_when": "Dataset is very large or has highly variable local densities",
+        "benchmark_rank": {
+          "ADBench_overall": 4
+        },
+        "modality_match": true,
+        "resolved_rank": 4,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "ECOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * d * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Parameter-free and highly interpretable",
+          "Fast computation with parallelization support",
+          "Strong benchmark performance across diverse datasets",
+          "No assumption on data distribution"
+        ],
+        "weaknesses": [
+          "May struggle with strongly correlated features",
+          "Assumes outliers deviate in at least one marginal dimension"
+        ],
+        "best_for": "General-purpose outlier detection when speed and interpretability are priorities",
+        "avoid_when": "Features are heavily correlated and outliers only manifest in joint distributions",
+        "benchmark_rank": {
+          "ADBench_overall": 5
+        },
+        "modality_match": true,
+        "resolved_rank": 5,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "COPOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * d * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Parameter-free and highly interpretable",
+          "Fast computation with parallelization support",
+          "Models tail probabilities via empirical copulas"
+        ],
+        "weaknesses": [
+          "Assumes feature-wise independence for tail modeling",
+          "May miss complex multivariate interactions"
+        ],
+        "best_for": "Large-scale datasets where speed and interpretability matter and features are roughly independent",
+        "avoid_when": "Outliers only appear in joint distributions with strong feature dependencies",
+        "benchmark_rank": {
+          "ADBench_overall": 6
+        },
+        "modality_match": true,
+        "resolved_rank": 6,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "HBOS",
+        "category": "proximity",
+        "complexity_time": "O(n * d)",
+        "complexity_space": "O(n_bins * d)",
+        "strengths": [
+          "Extremely fast - linear time complexity",
+          "Simple histogram-based approach",
+          "Scales well to large datasets"
+        ],
+        "weaknesses": [
+          "Assumes feature independence",
+          "Cannot capture multivariate interactions",
+          "Sensitive to number of bins"
+        ],
+        "best_for": "Large-scale datasets where speed is critical and features are roughly independent",
+        "avoid_when": "Outliers only manifest through feature interactions or correlations",
+        "benchmark_rank": {
+          "ADBench_overall": 7
+        },
+        "modality_match": true,
+        "resolved_rank": 7,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "ABOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d) for fast, O(n^3 * d) for default",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Effective in high-dimensional spaces",
+          "Not affected by distance concentration in high dimensions",
+          "Good theoretical foundation"
+        ],
+        "weaknesses": [
+          "Computationally expensive, especially in default mode",
+          "Sensitive to noise in low-dimensional data",
+          "Requires sufficient neighbors for angle variance estimation"
+        ],
+        "best_for": "High-dimensional datasets where distance-based methods suffer from curse of dimensionality",
+        "avoid_when": "Dataset is very large or low-dimensional where distance-based methods work well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AE1SVM",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h + n_sv * h)",
+        "strengths": [
+          "Jointly optimizes autoencoder and one-class SVM",
+          "Combines representation learning with boundary detection",
+          "End-to-end training"
+        ],
+        "weaknesses": [
+          "Complex joint optimization",
+          "Requires tuning of both AE and SVM hyperparameters",
+          "Training can be unstable"
+        ],
+        "best_for": "Datasets benefiting from joint representation learning and one-class classification",
+        "avoid_when": "Simpler pipeline of separate AE + SVM works well, or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "ALAD",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Bi-directional GAN avoids slow iterative inference of AnoGAN",
+          "Multiple discriminators stabilize training",
+          "Fast inference after training"
+        ],
+        "weaknesses": [
+          "Complex architecture with multiple networks",
+          "Still subject to GAN training challenges",
+          "Many hyperparameters to tune"
+        ],
+        "best_for": "Scenarios where GAN-based detection is desired but fast inference is needed",
+        "avoid_when": "Simpler reconstruction-based deep methods suffice or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AnoGAN",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs) + O(n * iterations) for inference",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "GAN learns the normal data distribution",
+          "Can detect complex non-linear anomalies",
+          "Anomaly scoring via reconstruction in latent space"
+        ],
+        "weaknesses": [
+          "GAN training instability",
+          "Slow inference due to iterative latent optimization",
+          "Requires significant tuning"
+        ],
+        "best_for": "Complex data distributions where GAN-based generation quality is high",
+        "avoid_when": "Fast inference is needed or training instability is a concern",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AutoEncoder",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs) where h is hidden size",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Learns nonlinear feature representations",
+          "Reconstruction error is an intuitive anomaly score",
+          "Flexible architecture"
+        ],
+        "weaknesses": [
+          "Requires tuning of architecture and hyperparameters",
+          "May overfit on small datasets",
+          "Training can be unstable"
+        ],
+        "best_for": "Datasets with complex nonlinear structure where reconstruction-based scoring is appropriate",
+        "avoid_when": "Dataset is small, tabular and simple methods suffice, or training time is limited",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CBLOF",
+        "category": "proximity",
+        "complexity_time": "O(n * k * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Combines clustering with local outlier scoring",
+          "Efficient through cluster-based summarization",
+          "Effective when data has clear cluster structure"
+        ],
+        "weaknesses": [
+          "Depends on quality of underlying clustering",
+          "Sensitive to number of clusters parameter",
+          "May fail if data does not cluster well"
+        ],
+        "best_for": "Data with well-separated clusters where outliers deviate from cluster structure",
+        "avoid_when": "Data has no meaningful cluster structure or clusters are heavily overlapping",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CD",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Based on classical influence measures from regression",
+          "Interpretable as influence on regression fit",
+          "Works well when a regression model is appropriate"
+        ],
+        "weaknesses": [
+          "Requires a target variable (semi-supervised framing)",
+          "Assumes linear regression model",
+          "Not suitable for purely unsupervised settings without a model"
+        ],
+        "best_for": "Identifying influential observations in regression settings",
+        "avoid_when": "No natural target variable exists or data is purely unsupervised",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "COF",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Considers connectivity-based distances",
+          "Better than LOF for certain pattern structures",
+          "Handles low-density patterns in neighborhood chains"
+        ],
+        "weaknesses": [
+          "Quadratic time and space complexity",
+          "Slow for large datasets",
+          "Marginal improvement over LOF in many cases"
+        ],
+        "best_for": "Datasets where outliers lie along sparse connectivity paths between clusters",
+        "avoid_when": "Dataset is large or simpler methods like LOF already perform well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DIF",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * d * log(n))",
+        "complexity_space": "O(t * n)",
+        "strengths": [
+          "Uses deep random representations for better isolation",
+          "Handles complex data distributions",
+          "Extends isolation forest to representation space"
+        ],
+        "weaknesses": [
+          "More computationally expensive than standard IForest",
+          "Requires tuning of representation parameters"
+        ],
+        "best_for": "Complex datasets where standard Isolation Forest misses anomalies due to axis-aligned splits",
+        "avoid_when": "Standard Isolation Forest performs well or dataset is small and simple",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DeepSVDD",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Learns a compact hypersphere around normal data",
+          "Combines deep learning with SVDD objective",
+          "Effective for one-class classification"
+        ],
+        "weaknesses": [
+          "Sensitive to network architecture choices",
+          "Risk of hypersphere collapse",
+          "Requires careful initialization"
+        ],
+        "best_for": "One-class anomaly detection where a compact normal data description is desired",
+        "avoid_when": "Normal data is multi-modal or simpler one-class methods are sufficient",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DevNet",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "End-to-end deep anomaly scoring network",
+          "Can leverage a few labeled anomalies (semi-supervised)",
+          "Deviation loss directly optimizes anomaly scores"
+        ],
+        "weaknesses": [
+          "Requires at least a few labeled anomalies for best results",
+          "Deep network training overhead",
+          "Sensitive to architecture and loss parameters"
+        ],
+        "best_for": "Semi-supervised anomaly detection where a small number of labeled anomalies are available",
+        "avoid_when": "No labeled anomalies are available or dataset is too small for deep learning",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "FeatureBagging",
+        "category": "ensemble",
+        "complexity_time": "O(n_estimators * base_detector_time)",
+        "complexity_space": "O(n_estimators * base_detector_space)",
+        "strengths": [
+          "Reduces variance through feature subsampling",
+          "Flexible with any base detector",
+          "Robust against irrelevant features"
+        ],
+        "weaknesses": [
+          "Performance depends on choice of base detector",
+          "Slower than single detector due to ensemble overhead",
+          "May not improve over base if features are all relevant"
+        ],
+        "best_for": "High-dimensional data with potentially irrelevant features",
+        "avoid_when": "All features are relevant or a single strong detector suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "GMM",
+        "category": "probabilistic",
+        "complexity_time": "O(n * k * d^2) per EM iteration",
+        "complexity_space": "O(k * d^2)",
+        "strengths": [
+          "Models complex multi-modal distributions",
+          "Soft clustering provides probabilistic scores",
+          "Flexible covariance structures"
+        ],
+        "weaknesses": [
+          "Sensitive to initialization and number of components",
+          "Assumes Gaussian component distributions",
+          "EM convergence not guaranteed to global optimum"
+        ],
+        "best_for": "Data with multi-modal distributions that can be approximated by Gaussian mixtures",
+        "avoid_when": "Data does not follow mixture-of-Gaussians assumption or is very high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "HDBSCAN",
+        "category": "proximity",
+        "complexity_time": "O(n * log(n)) to O(n^2)",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Automatically finds clusters of varying density",
+          "Identifies noise points as potential outliers",
+          "Minimal parameter tuning required"
+        ],
+        "weaknesses": [
+          "Performance depends on min_cluster_size choice",
+          "May be slow for very large datasets",
+          "Outlier scores derived from cluster membership"
+        ],
+        "best_for": "Datasets with variable-density clusters where noise points are outliers",
+        "avoid_when": "Data does not have cluster structure or very high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "INNE",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * s) where t is n_estimators, s is sample size",
+        "complexity_space": "O(t * s)",
+        "strengths": [
+          "Combines isolation and nearest-neighbor concepts",
+          "Handles local anomalies better than Isolation Forest",
+          "Efficient sampling-based approach"
+        ],
+        "weaknesses": [
+          "Requires tuning of sample size and number of estimators",
+          "Less established than Isolation Forest"
+        ],
+        "best_for": "Datasets where local density variations matter and Isolation Forest underperforms",
+        "avoid_when": "A simpler method like IForest already works well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "KDE",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Non-parametric density estimation",
+          "Multiple kernel choices available",
+          "Scores directly reflect density"
+        ],
+        "weaknesses": [
+          "Quadratic prediction time",
+          "Sensitive to bandwidth and kernel selection",
+          "Suffers from curse of dimensionality"
+        ],
+        "best_for": "Low-to-moderate dimensional data where non-parametric density estimation is desired",
+        "avoid_when": "Data is high-dimensional or dataset is very large",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "KPCA",
+        "category": "linear",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Captures nonlinear relationships via kernel trick",
+          "Extension of PCA to nonlinear manifolds",
+          "Flexible kernel choices"
+        ],
+        "weaknesses": [
+          "Quadratic memory and time complexity",
+          "Kernel and hyperparameter selection required",
+          "Slower than linear PCA"
+        ],
+        "best_for": "Moderately sized datasets with nonlinear structure",
+        "avoid_when": "Dataset is very large due to quadratic kernel matrix or a linear model suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LMDD",
+        "category": "linear",
+        "complexity_time": "O(n_iter * n * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Multiple deviation measures available (AAD, IQR, MAD)",
+          "Random subspace approach provides diversity",
+          "Interpretable linear projections"
+        ],
+        "weaknesses": [
+          "Results can vary due to random projections",
+          "Requires tuning of number of iterations and measure",
+          "May underperform with nonlinear anomaly patterns"
+        ],
+        "best_for": "Multivariate data where anomalies are detectable through linear projections",
+        "avoid_when": "Anomalies require nonlinear feature combinations to detect",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LOCI",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Automatic determination of outlier threshold",
+          "Multi-granularity outlier detection via alpha parameter",
+          "Does not require explicit k-neighbor parameter"
+        ],
+        "weaknesses": [
+          "Quadratic complexity makes it slow",
+          "Difficult to scale to large datasets",
+          "Parameter alpha requires tuning"
+        ],
+        "best_for": "Small to medium datasets where automatic threshold selection is valued",
+        "avoid_when": "Dataset is large or faster LOF-based methods are sufficient",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LODA",
+        "category": "ensemble",
+        "complexity_time": "O(n * n_cuts * d)",
+        "complexity_space": "O(n_bins * n_cuts)",
+        "strengths": [
+          "Lightweight and fast",
+          "Supports online/streaming updates",
+          "Uses ensemble of random projections"
+        ],
+        "weaknesses": [
+          "Random projections may miss certain anomaly patterns",
+          "Histogram-based scoring can be coarse",
+          "Sensitive to number of bins and cuts"
+        ],
+        "best_for": "Streaming or online anomaly detection with limited computational resources",
+        "avoid_when": "Batch setting with enough time for more powerful methods",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LSCP",
+        "category": "ensemble",
+        "complexity_time": "O(n * n_detectors * base_cost)",
+        "complexity_space": "O(n * n_detectors)",
+        "strengths": [
+          "Locally selects the best detector for each region",
+          "Leverages diversity among base detectors",
+          "Adaptive combination strategy"
+        ],
+        "weaknesses": [
+          "Requires a list of pre-instantiated base detectors",
+          "Slower due to training multiple detectors",
+          "Complex internal selection mechanism"
+        ],
+        "best_for": "Scenarios where diverse base detectors are available and local performance varies",
+        "avoid_when": "Only one detector type is appropriate or computational budget is limited",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LUNAR",
+        "category": "graph",
+        "complexity_time": "O(n * k * d + n * h * epochs)",
+        "complexity_space": "O(n * k + d * h)",
+        "strengths": [
+          "Learns to score anomalies from neighbor graphs via GNN",
+          "Combines neighborhood structure with learned representations",
+          "Supports both score and weight model types"
+        ],
+        "weaknesses": [
+          "Requires PyTorch for GNN training",
+          "More complex setup than classical methods",
+          "Training overhead from neural network"
+        ],
+        "best_for": "Datasets where learned neighborhood-based scoring outperforms handcrafted rules",
+        "avoid_when": "PyTorch is not available or simpler KNN/LOF methods work well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MAD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * log(n))",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Extremely simple and fast",
+          "Robust to outliers in the training data",
+          "Well-suited for univariate data"
+        ],
+        "weaknesses": [
+          "Only works on univariate data",
+          "Cannot capture multivariate relationships"
+        ],
+        "best_for": "Univariate outlier detection with a robust central tendency measure",
+        "avoid_when": "Data is multivariate or relationships between features are important",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MCD",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(d^2)",
+        "strengths": [
+          "Robust estimation of covariance matrix",
+          "Well-established statistical method",
+          "Resistant to masking effects from outliers"
+        ],
+        "weaknesses": [
+          "Assumes data follows a Gaussian distribution",
+          "May fail in high-dimensional settings (d > n)",
+          "Computationally intensive for large d"
+        ],
+        "best_for": "Multivariate Gaussian-like data requiring robust covariance estimation",
+        "avoid_when": "Data is non-Gaussian, very high-dimensional, or strongly nonlinear",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MO_GAAL",
+        "category": "deep_learning",
+        "complexity_time": "O(k * n * d * h * epochs) where k is number of generators",
+        "complexity_space": "O(k * d * h)",
+        "strengths": [
+          "Multiple generators provide diverse outlier references",
+          "Better coverage of outlier space than SO_GAAL",
+          "Multi-objective formulation improves robustness"
+        ],
+        "weaknesses": [
+          "Even more complex training than SO_GAAL",
+          "Multiple generators increase computational cost",
+          "Difficult to tune"
+        ],
+        "best_for": "Complex datasets where diverse generated outlier references improve detection",
+        "avoid_when": "Computational resources are limited or simpler GAN approaches suffice",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "OCSVM",
+        "category": "linear",
+        "complexity_time": "O(n^2 * d) to O(n^3)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Flexible boundary via kernel functions",
+          "Strong theoretical foundation from SVM literature",
+          "Effective in high-dimensional feature spaces"
+        ],
+        "weaknesses": [
+          "Cubic training time for large datasets",
+          "Sensitive to kernel and nu parameter choice",
+          "Does not scale well beyond ~10K samples"
+        ],
+        "best_for": "Medium-sized datasets where a flexible decision boundary is needed",
+        "avoid_when": "Dataset is very large or real-time training is required",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "PCA",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(d^2)",
+        "strengths": [
+          "Fast training and prediction",
+          "Well-understood linear model",
+          "Effective when anomalies lie in minor principal components"
+        ],
+        "weaknesses": [
+          "Assumes linear relationships",
+          "Sensitive to the number of components selected",
+          "Cannot capture nonlinear anomalies"
+        ],
+        "best_for": "Datasets with linear structure where outliers deviate from main variance directions",
+        "avoid_when": "Data has strong nonlinear structure or outliers align with principal components",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "QMCD",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Based on uniformity criterion from quasi-Monte Carlo theory",
+          "Parameter-free (only contamination needed)",
+          "Theoretically grounded in discrepancy measures"
+        ],
+        "weaknesses": [
+          "Quadratic time complexity",
+          "Assumes outliers deviate from uniform space-filling"
+        ],
+        "best_for": "Detecting anomalies as deviations from uniform space-filling in moderate-dimensional data",
+        "avoid_when": "Dataset is very large or high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "RGraph",
+        "category": "graph",
+        "complexity_time": "O(n^2 * d + transition_steps * n^2)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Graph-based approach captures relational structure",
+          "Random walk on graph reveals connectivity anomalies",
+          "Tunable transition steps for multi-scale detection"
+        ],
+        "weaknesses": [
+          "Quadratic memory for adjacency/transition matrix",
+          "Slow for large datasets",
+          "Requires tuning of graph construction parameters"
+        ],
+        "best_for": "Datasets where graph connectivity and neighborhood structure reveal anomalies",
+        "avoid_when": "Dataset is very large or a simpler proximity method suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "ROD",
+        "category": "proximity",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Considers rotations to detect outliers across projections",
+          "Parameter-free (only contamination needed)",
+          "Supports parallel execution"
+        ],
+        "weaknesses": [
+          "Designed primarily for 3D data, may not generalize well to very high dimensions",
+          "Limited theoretical analysis compared to classical methods"
+        ],
+        "best_for": "Low-dimensional data where rotation-invariant outlier detection is desired",
+        "avoid_when": "Data is high-dimensional or a well-tuned alternative is available",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SOD",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Detects outliers in axis-parallel subspaces",
+          "Effective when anomalies hide in subspaces",
+          "Reference set approach captures local structure"
+        ],
+        "weaknesses": [
+          "Quadratic complexity",
+          "Requires tuning of ref_set and n_neighbors",
+          "May miss anomalies not aligned with axis-parallel subspaces"
+        ],
+        "best_for": "High-dimensional data where outliers deviate in axis-parallel subspaces",
+        "avoid_when": "Data is low-dimensional or anomalies require oblique subspaces to detect",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SOS",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Based on affinity and binding probability concepts",
+          "Produces meaningful probability-like outlier scores",
+          "Perplexity parameter controls local vs global sensitivity"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to perplexity parameter choice"
+        ],
+        "best_for": "Medium-sized datasets where probability-calibrated outlier scores are valuable",
+        "avoid_when": "Dataset is very large (>10K samples) due to quadratic complexity",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SO_GAAL",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "GAN-based approach generates informative outlier samples",
+          "Does not require labeled anomalies",
+          "Novel adversarial training framework for OD"
+        ],
+        "weaknesses": [
+          "GAN training instability",
+          "Sensitive to hyperparameters and architecture",
+          "Slow training compared to non-deep methods"
+        ],
+        "best_for": "Exploratory anomaly detection with GAN-generated reference outliers",
+        "avoid_when": "Stable and fast results are required, or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SUOD",
+        "category": "ensemble",
+        "complexity_time": "varies (depends on base estimators)",
+        "complexity_space": "varies",
+        "strengths": [
+          "Accelerates large-scale outlier detection via approximation",
+          "Supports parallel execution of base detectors",
+          "Modular framework for combining multiple detectors"
+        ],
+        "weaknesses": [
+          "Approximation may reduce accuracy",
+          "Overhead from the acceleration framework",
+          "Requires choosing and configuring base estimators"
+        ],
+        "best_for": "Large-scale datasets where running multiple detectors is desired but time is limited",
+        "avoid_when": "Exact results from a single well-chosen detector are preferred",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "Sampling",
+        "category": "probabilistic",
+        "complexity_time": "O(n * s * d) where s is subset size",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Linear time complexity through sampling",
+          "Scalable to large datasets",
+          "Simple and effective approach"
+        ],
+        "weaknesses": [
+          "Randomness from sampling can affect reproducibility",
+          "May miss local outliers with small subset sizes"
+        ],
+        "best_for": "Large-scale datasets requiring fast distance-based outlier detection",
+        "avoid_when": "Precise and deterministic results are required or dataset is small enough for exact methods",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "VAE",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Probabilistic latent space with regularization",
+          "Generates calibrated reconstruction probabilities",
+          "Learns smooth latent representations"
+        ],
+        "weaknesses": [
+          "More complex to train than standard autoencoder",
+          "KL divergence term may dominate loss",
+          "Requires careful balancing of loss components"
+        ],
+        "best_for": "Datasets where probabilistic reconstruction scoring and smooth latent spaces are beneficial",
+        "avoid_when": "Simpler autoencoder or non-deep methods work well, or dataset is very small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "XGBOD",
+        "category": "ensemble",
+        "complexity_time": "O(n * d * n_estimators * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Combines unsupervised representations with supervised XGBoost",
+          "High accuracy when labels are available",
+          "Leverages powerful gradient boosting framework"
+        ],
+        "weaknesses": [
+          "Requires labeled data (semi-supervised)",
+          "Depends on XGBoost library",
+          "Training is more expensive than unsupervised methods"
+        ],
+        "best_for": "Semi-supervised settings where some labeled anomalies are available",
+        "avoid_when": "No labeled data is available or a purely unsupervised approach is needed",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      }
+    ],
+    "top_k_requested": 5,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-5 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 41
+  },
+  "tabular_strict_false": {
+    "task_profile": {
+      "data_type": "tabular",
+      "n_samples": 800,
+      "n_features": 10
+    },
+    "available_detectors": [
+      {
+        "name": "IForest",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * log(n)) where t is n_estimators",
+        "complexity_space": "O(t * n)",
+        "strengths": [
+          "Excellent overall benchmark performance",
+          "Linear time complexity with efficient implementation",
+          "Handles high-dimensional data well",
+          "Does not require distance or density computation"
+        ],
+        "weaknesses": [
+          "May struggle with local anomalies in dense regions",
+          "Axis-aligned splits can miss anomalies in correlated features"
+        ],
+        "best_for": "General-purpose anomaly detection especially on large or high-dimensional datasets",
+        "avoid_when": "Anomalies are local density deviations or features are strongly correlated",
+        "benchmark_rank": {
+          "ADBench_overall": 3
+        },
+        "modality_match": true,
+        "resolved_rank": 3,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "KNN",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Simple and intuitive distance-based method",
+          "Multiple scoring methods (largest, mean, median)",
+          "Strong benchmark performance"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to distance metric and k choice",
+          "Struggles with varying density clusters"
+        ],
+        "best_for": "General-purpose distance-based outlier detection on moderate-sized datasets",
+        "avoid_when": "Dataset is very large or has highly variable local densities",
+        "benchmark_rank": {
+          "ADBench_overall": 4
+        },
+        "modality_match": true,
+        "resolved_rank": 4,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "ECOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * d * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Parameter-free and highly interpretable",
+          "Fast computation with parallelization support",
+          "Strong benchmark performance across diverse datasets",
+          "No assumption on data distribution"
+        ],
+        "weaknesses": [
+          "May struggle with strongly correlated features",
+          "Assumes outliers deviate in at least one marginal dimension"
+        ],
+        "best_for": "General-purpose outlier detection when speed and interpretability are priorities",
+        "avoid_when": "Features are heavily correlated and outliers only manifest in joint distributions",
+        "benchmark_rank": {
+          "ADBench_overall": 5
+        },
+        "modality_match": true,
+        "resolved_rank": 5,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "COPOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * d * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Parameter-free and highly interpretable",
+          "Fast computation with parallelization support",
+          "Models tail probabilities via empirical copulas"
+        ],
+        "weaknesses": [
+          "Assumes feature-wise independence for tail modeling",
+          "May miss complex multivariate interactions"
+        ],
+        "best_for": "Large-scale datasets where speed and interpretability matter and features are roughly independent",
+        "avoid_when": "Outliers only appear in joint distributions with strong feature dependencies",
+        "benchmark_rank": {
+          "ADBench_overall": 6
+        },
+        "modality_match": true,
+        "resolved_rank": 6,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "HBOS",
+        "category": "proximity",
+        "complexity_time": "O(n * d)",
+        "complexity_space": "O(n_bins * d)",
+        "strengths": [
+          "Extremely fast - linear time complexity",
+          "Simple histogram-based approach",
+          "Scales well to large datasets"
+        ],
+        "weaknesses": [
+          "Assumes feature independence",
+          "Cannot capture multivariate interactions",
+          "Sensitive to number of bins"
+        ],
+        "best_for": "Large-scale datasets where speed is critical and features are roughly independent",
+        "avoid_when": "Outliers only manifest through feature interactions or correlations",
+        "benchmark_rank": {
+          "ADBench_overall": 7
+        },
+        "modality_match": true,
+        "resolved_rank": 7,
+        "resolved_rank_key": "ADBench_overall"
+      },
+      {
+        "name": "ABOD",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d) for fast, O(n^3 * d) for default",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Effective in high-dimensional spaces",
+          "Not affected by distance concentration in high dimensions",
+          "Good theoretical foundation"
+        ],
+        "weaknesses": [
+          "Computationally expensive, especially in default mode",
+          "Sensitive to noise in low-dimensional data",
+          "Requires sufficient neighbors for angle variance estimation"
+        ],
+        "best_for": "High-dimensional datasets where distance-based methods suffer from curse of dimensionality",
+        "avoid_when": "Dataset is very large or low-dimensional where distance-based methods work well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AE1SVM",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h + n_sv * h)",
+        "strengths": [
+          "Jointly optimizes autoencoder and one-class SVM",
+          "Combines representation learning with boundary detection",
+          "End-to-end training"
+        ],
+        "weaknesses": [
+          "Complex joint optimization",
+          "Requires tuning of both AE and SVM hyperparameters",
+          "Training can be unstable"
+        ],
+        "best_for": "Datasets benefiting from joint representation learning and one-class classification",
+        "avoid_when": "Simpler pipeline of separate AE + SVM works well, or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "ALAD",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Bi-directional GAN avoids slow iterative inference of AnoGAN",
+          "Multiple discriminators stabilize training",
+          "Fast inference after training"
+        ],
+        "weaknesses": [
+          "Complex architecture with multiple networks",
+          "Still subject to GAN training challenges",
+          "Many hyperparameters to tune"
+        ],
+        "best_for": "Scenarios where GAN-based detection is desired but fast inference is needed",
+        "avoid_when": "Simpler reconstruction-based deep methods suffice or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "ANOMALOUS",
+        "category": "graph",
+        "complexity_time": "O(max_iter * n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Laplacian regularization for smooth predictions",
+          "No neural network training",
+          "Extends Radar with graph structure"
+        ],
+        "weaknesses": [
+          "O(n^2) dense matrix operations",
+          "Linear model"
+        ],
+        "best_for": "Small-to-medium attributed graphs where smoothness matters",
+        "avoid_when": "Graph is very large or anomalies are purely structural",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AnoGAN",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs) + O(n * iterations) for inference",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "GAN learns the normal data distribution",
+          "Can detect complex non-linear anomalies",
+          "Anomaly scoring via reconstruction in latent space"
+        ],
+        "weaknesses": [
+          "GAN training instability",
+          "Slow inference due to iterative latent optimization",
+          "Requires significant tuning"
+        ],
+        "best_for": "Complex data distributions where GAN-based generation quality is high",
+        "avoid_when": "Fast inference is needed or training instability is a concern",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AnomalyDAE",
+        "category": "graph",
+        "complexity_time": "O(epochs * (n * d_h + n^2))",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Attention-based structure encoding (GAT)",
+          "Separate structure and attribute autoencoders"
+        ],
+        "weaknesses": [
+          "O(n^2) memory for adjacency reconstruction",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where attention over neighbors reveals anomaly patterns",
+        "avoid_when": "Graph is very large or structure is unimportant",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AutoEncoder",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs) where h is hidden size",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Learns nonlinear feature representations",
+          "Reconstruction error is an intuitive anomaly score",
+          "Flexible architecture"
+        ],
+        "weaknesses": [
+          "Requires tuning of architecture and hyperparameters",
+          "May overfit on small datasets",
+          "Training can be unstable"
+        ],
+        "best_for": "Datasets with complex nonlinear structure where reconstruction-based scoring is appropriate",
+        "avoid_when": "Dataset is small, tabular and simple methods suffice, or training time is limited",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CBLOF",
+        "category": "proximity",
+        "complexity_time": "O(n * k * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Combines clustering with local outlier scoring",
+          "Efficient through cluster-based summarization",
+          "Effective when data has clear cluster structure"
+        ],
+        "weaknesses": [
+          "Depends on quality of underlying clustering",
+          "Sensitive to number of clusters parameter",
+          "May fail if data does not cluster well"
+        ],
+        "best_for": "Data with well-separated clusters where outliers deviate from cluster structure",
+        "avoid_when": "Data has no meaningful cluster structure or clusters are heavily overlapping",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CD",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Based on classical influence measures from regression",
+          "Interpretable as influence on regression fit",
+          "Works well when a regression model is appropriate"
+        ],
+        "weaknesses": [
+          "Requires a target variable (semi-supervised framing)",
+          "Assumes linear regression model",
+          "Not suitable for purely unsupervised settings without a model"
+        ],
+        "best_for": "Identifying influential observations in regression settings",
+        "avoid_when": "No natural target variable exists or data is purely unsupervised",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "COF",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Considers connectivity-based distances",
+          "Better than LOF for certain pattern structures",
+          "Handles low-density patterns in neighborhood chains"
+        ],
+        "weaknesses": [
+          "Quadratic time and space complexity",
+          "Slow for large datasets",
+          "Marginal improvement over LOF in many cases"
+        ],
+        "best_for": "Datasets where outliers lie along sparse connectivity paths between clusters",
+        "avoid_when": "Dataset is large or simpler methods like LOF already perform well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CONAD",
+        "category": "graph",
+        "complexity_time": "O(epochs * n * d_h)",
+        "complexity_space": "O(n * d_h)",
+        "strengths": [
+          "Data augmentation improves robustness",
+          "Dual objective (contrastive + reconstruction)"
+        ],
+        "weaknesses": [
+          "Augmentation ratio is a sensitive hyperparameter",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where robustness to noise is important",
+        "avoid_when": "Graph structure is too sparse for meaningful augmentation",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CoLA",
+        "category": "graph",
+        "complexity_time": "O(epochs * n * d_h)",
+        "complexity_space": "O(n * d_h + m)",
+        "strengths": [
+          "Contrastive learning captures local-context discrepancy",
+          "Strong BOND performance",
+          "Sparse neighbor aggregation"
+        ],
+        "weaknesses": [
+          "Sensitive to graph connectivity",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where anomalies have unusual local neighborhoods",
+        "avoid_when": "Graph is disconnected or has no node features",
+        "benchmark_rank": {
+          "BOND_deep": 2
+        },
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DIF",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * d * log(n))",
+        "complexity_space": "O(t * n)",
+        "strengths": [
+          "Uses deep random representations for better isolation",
+          "Handles complex data distributions",
+          "Extends isolation forest to representation space"
+        ],
+        "weaknesses": [
+          "More computationally expensive than standard IForest",
+          "Requires tuning of representation parameters"
+        ],
+        "best_for": "Complex datasets where standard Isolation Forest misses anomalies due to axis-aligned splits",
+        "avoid_when": "Standard Isolation Forest performs well or dataset is small and simple",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DOMINANT",
+        "category": "graph",
+        "complexity_time": "O(epochs * (n * d_h + n^2))",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Joint structure+attribute reconstruction",
+          "Strong BOND benchmark performance",
+          "Standard GCN architecture"
+        ],
+        "weaknesses": [
+          "O(n^2) memory for adjacency reconstruction",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where anomalies manifest in both structure and attributes",
+        "avoid_when": "Graph is very large (>10k nodes) or has no node features",
+        "benchmark_rank": {
+          "BOND_deep": 1
+        },
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DeepSVDD",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Learns a compact hypersphere around normal data",
+          "Combines deep learning with SVDD objective",
+          "Effective for one-class classification"
+        ],
+        "weaknesses": [
+          "Sensitive to network architecture choices",
+          "Risk of hypersphere collapse",
+          "Requires careful initialization"
+        ],
+        "best_for": "One-class anomaly detection where a compact normal data description is desired",
+        "avoid_when": "Normal data is multi-modal or simpler one-class methods are sufficient",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "DevNet",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "End-to-end deep anomaly scoring network",
+          "Can leverage a few labeled anomalies (semi-supervised)",
+          "Deviation loss directly optimizes anomaly scores"
+        ],
+        "weaknesses": [
+          "Requires at least a few labeled anomalies for best results",
+          "Deep network training overhead",
+          "Sensitive to architecture and loss parameters"
+        ],
+        "best_for": "Semi-supervised anomaly detection where a small number of labeled anomalies are available",
+        "avoid_when": "No labeled anomalies are available or dataset is too small for deep learning",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "EmbeddingOD",
+        "category": "embedding",
+        "complexity_time": "O(n * embedding_cost + detector_cost)",
+        "complexity_space": "O(n * embedding_dim)",
+        "strengths": [
+          "Leverages foundation model embeddings for anomaly detection",
+          "Supports text and image data natively",
+          "Flexible choice of downstream detector"
+        ],
+        "weaknesses": [
+          "Requires a pre-trained encoder model",
+          "Embedding quality depends on the foundation model",
+          "Higher memory usage for large embedding dimensions"
+        ],
+        "best_for": "Anomaly detection on unstructured data (text, images) via foundation model representations",
+        "avoid_when": "Data is already tabular or a suitable encoder is not available",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "FeatureBagging",
+        "category": "ensemble",
+        "complexity_time": "O(n_estimators * base_detector_time)",
+        "complexity_space": "O(n_estimators * base_detector_space)",
+        "strengths": [
+          "Reduces variance through feature subsampling",
+          "Flexible with any base detector",
+          "Robust against irrelevant features"
+        ],
+        "weaknesses": [
+          "Performance depends on choice of base detector",
+          "Slower than single detector due to ensemble overhead",
+          "May not improve over base if features are all relevant"
+        ],
+        "best_for": "High-dimensional data with potentially irrelevant features",
+        "avoid_when": "All features are relevant or a single strong detector suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "GMM",
+        "category": "probabilistic",
+        "complexity_time": "O(n * k * d^2) per EM iteration",
+        "complexity_space": "O(k * d^2)",
+        "strengths": [
+          "Models complex multi-modal distributions",
+          "Soft clustering provides probabilistic scores",
+          "Flexible covariance structures"
+        ],
+        "weaknesses": [
+          "Sensitive to initialization and number of components",
+          "Assumes Gaussian component distributions",
+          "EM convergence not guaranteed to global optimum"
+        ],
+        "best_for": "Data with multi-modal distributions that can be approximated by Gaussian mixtures",
+        "avoid_when": "Data does not follow mixture-of-Gaussians assumption or is very high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "GUIDE",
+        "category": "graph",
+        "complexity_time": "O(epochs * n * d_h + m * d_avg)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Exploits higher-order motifs (triangles)",
+          "Dual-view captures different structural signals"
+        ],
+        "weaknesses": [
+          "Motif construction adds overhead",
+          "Sparse graphs may have few triangles"
+        ],
+        "best_for": "Dense attributed graphs with meaningful higher-order structures",
+        "avoid_when": "Graph is tree-like (no triangles) or very large",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "HDBSCAN",
+        "category": "proximity",
+        "complexity_time": "O(n * log(n)) to O(n^2)",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Automatically finds clusters of varying density",
+          "Identifies noise points as potential outliers",
+          "Minimal parameter tuning required"
+        ],
+        "weaknesses": [
+          "Performance depends on min_cluster_size choice",
+          "May be slow for very large datasets",
+          "Outlier scores derived from cluster membership"
+        ],
+        "best_for": "Datasets with variable-density clusters where noise points are outliers",
+        "avoid_when": "Data does not have cluster structure or very high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "INNE",
+        "category": "ensemble",
+        "complexity_time": "O(n * t * s) where t is n_estimators, s is sample size",
+        "complexity_space": "O(t * s)",
+        "strengths": [
+          "Combines isolation and nearest-neighbor concepts",
+          "Handles local anomalies better than Isolation Forest",
+          "Efficient sampling-based approach"
+        ],
+        "weaknesses": [
+          "Requires tuning of sample size and number of estimators",
+          "Less established than Isolation Forest"
+        ],
+        "best_for": "Datasets where local density variations matter and Isolation Forest underperforms",
+        "avoid_when": "A simpler method like IForest already works well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "KDE",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Non-parametric density estimation",
+          "Multiple kernel choices available",
+          "Scores directly reflect density"
+        ],
+        "weaknesses": [
+          "Quadratic prediction time",
+          "Sensitive to bandwidth and kernel selection",
+          "Suffers from curse of dimensionality"
+        ],
+        "best_for": "Low-to-moderate dimensional data where non-parametric density estimation is desired",
+        "avoid_when": "Data is high-dimensional or dataset is very large",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "KPCA",
+        "category": "linear",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Captures nonlinear relationships via kernel trick",
+          "Extension of PCA to nonlinear manifolds",
+          "Flexible kernel choices"
+        ],
+        "weaknesses": [
+          "Quadratic memory and time complexity",
+          "Kernel and hyperparameter selection required",
+          "Slower than linear PCA"
+        ],
+        "best_for": "Moderately sized datasets with nonlinear structure",
+        "avoid_when": "Dataset is very large due to quadratic kernel matrix or a linear model suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "KShape",
+        "category": "time_series",
+        "complexity_time": "O(n * k * max_iter)",
+        "complexity_space": "O(n * m)",
+        "strengths": [
+          "Shape-aware clustering",
+          "Handles shifted patterns",
+          "Top-2 overall in TSB-AD benchmark"
+        ],
+        "weaknesses": [
+          "Sensitive to n_clusters choice",
+          "Degrades on long time series"
+        ],
+        "best_for": "Detecting shape-based anomalies in short-to-medium time series subsequences",
+        "avoid_when": "Time series is very long (performance degrades)",
+        "benchmark_rank": {
+          "TSB_AD_overall": 2,
+          "TSB_AD_short": 2,
+          "TSB_AD_point": 6,
+          "TSB_AD_long": 9
+        },
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LMDD",
+        "category": "linear",
+        "complexity_time": "O(n_iter * n * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Multiple deviation measures available (AAD, IQR, MAD)",
+          "Random subspace approach provides diversity",
+          "Interpretable linear projections"
+        ],
+        "weaknesses": [
+          "Results can vary due to random projections",
+          "Requires tuning of number of iterations and measure",
+          "May underperform with nonlinear anomaly patterns"
+        ],
+        "best_for": "Multivariate data where anomalies are detectable through linear projections",
+        "avoid_when": "Anomalies require nonlinear feature combinations to detect",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LOCI",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Automatic determination of outlier threshold",
+          "Multi-granularity outlier detection via alpha parameter",
+          "Does not require explicit k-neighbor parameter"
+        ],
+        "weaknesses": [
+          "Quadratic complexity makes it slow",
+          "Difficult to scale to large datasets",
+          "Parameter alpha requires tuning"
+        ],
+        "best_for": "Small to medium datasets where automatic threshold selection is valued",
+        "avoid_when": "Dataset is large or faster LOF-based methods are sufficient",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LODA",
+        "category": "ensemble",
+        "complexity_time": "O(n * n_cuts * d)",
+        "complexity_space": "O(n_bins * n_cuts)",
+        "strengths": [
+          "Lightweight and fast",
+          "Supports online/streaming updates",
+          "Uses ensemble of random projections"
+        ],
+        "weaknesses": [
+          "Random projections may miss certain anomaly patterns",
+          "Histogram-based scoring can be coarse",
+          "Sensitive to number of bins and cuts"
+        ],
+        "best_for": "Streaming or online anomaly detection with limited computational resources",
+        "avoid_when": "Batch setting with enough time for more powerful methods",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LOF",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Detects local density-based outliers",
+          "Adapts to varying densities across the dataset",
+          "Well-established and widely used"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to n_neighbors parameter",
+          "Difficulty with uniformly dense regions"
+        ],
+        "best_for": "Datasets with clusters of varying densities where local anomalies are of interest",
+        "avoid_when": "Dataset is very large (>50K) or data is uniformly distributed",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LSCP",
+        "category": "ensemble",
+        "complexity_time": "O(n * n_detectors * base_cost)",
+        "complexity_space": "O(n * n_detectors)",
+        "strengths": [
+          "Locally selects the best detector for each region",
+          "Leverages diversity among base detectors",
+          "Adaptive combination strategy"
+        ],
+        "weaknesses": [
+          "Requires a list of pre-instantiated base detectors",
+          "Slower due to training multiple detectors",
+          "Complex internal selection mechanism"
+        ],
+        "best_for": "Scenarios where diverse base detectors are available and local performance varies",
+        "avoid_when": "Only one detector type is appropriate or computational budget is limited",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LSTMAD",
+        "category": "time_series",
+        "complexity_time": "O(n * epochs)",
+        "complexity_space": "O(model_params)",
+        "strengths": [
+          "Captures temporal dependencies",
+          "Native multivariate support",
+          "Mahalanobis distance scoring"
+        ],
+        "weaknesses": [
+          "Requires PyTorch",
+          "Slower training than classical methods",
+          "Needs sufficient data"
+        ],
+        "best_for": "Multivariate and long time series with complex temporal patterns",
+        "avoid_when": "Fast inference is critical or data is very short",
+        "benchmark_rank": {
+          "TSB_AD_overall": 13,
+          "TSB_AD_multivariate": 4,
+          "TSB_AD_long": 8
+        },
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "LUNAR",
+        "category": "graph",
+        "complexity_time": "O(n * k * d + n * h * epochs)",
+        "complexity_space": "O(n * k + d * h)",
+        "strengths": [
+          "Learns to score anomalies from neighbor graphs via GNN",
+          "Combines neighborhood structure with learned representations",
+          "Supports both score and weight model types"
+        ],
+        "weaknesses": [
+          "Requires PyTorch for GNN training",
+          "More complex setup than classical methods",
+          "Training overhead from neural network"
+        ],
+        "best_for": "Datasets where learned neighborhood-based scoring outperforms handcrafted rules",
+        "avoid_when": "PyTorch is not available or simpler KNN/LOF methods work well",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MAD",
+        "category": "probabilistic",
+        "complexity_time": "O(n * log(n))",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Extremely simple and fast",
+          "Robust to outliers in the training data",
+          "Well-suited for univariate data"
+        ],
+        "weaknesses": [
+          "Only works on univariate data",
+          "Cannot capture multivariate relationships"
+        ],
+        "best_for": "Univariate outlier detection with a robust central tendency measure",
+        "avoid_when": "Data is multivariate or relationships between features are important",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MCD",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(d^2)",
+        "strengths": [
+          "Robust estimation of covariance matrix",
+          "Well-established statistical method",
+          "Resistant to masking effects from outliers"
+        ],
+        "weaknesses": [
+          "Assumes data follows a Gaussian distribution",
+          "May fail in high-dimensional settings (d > n)",
+          "Computationally intensive for large d"
+        ],
+        "best_for": "Multivariate Gaussian-like data requiring robust covariance estimation",
+        "avoid_when": "Data is non-Gaussian, very high-dimensional, or strongly nonlinear",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MO_GAAL",
+        "category": "deep_learning",
+        "complexity_time": "O(k * n * d * h * epochs) where k is number of generators",
+        "complexity_space": "O(k * d * h)",
+        "strengths": [
+          "Multiple generators provide diverse outlier references",
+          "Better coverage of outlier space than SO_GAAL",
+          "Multi-objective formulation improves robustness"
+        ],
+        "weaknesses": [
+          "Even more complex training than SO_GAAL",
+          "Multiple generators increase computational cost",
+          "Difficult to tune"
+        ],
+        "best_for": "Complex datasets where diverse generated outlier references improve detection",
+        "avoid_when": "Computational resources are limited or simpler GAN approaches suffice",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MatrixProfile",
+        "category": "time_series",
+        "complexity_time": "O(n^2)",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "No parameters beyond window size",
+          "Exact nearest-neighbor distances",
+          "Well-studied theoretically"
+        ],
+        "weaknesses": [
+          "Transductive only (no out-of-sample prediction)",
+          "O(n^2) may be slow on long series",
+          "Single-threaded in v1"
+        ],
+        "best_for": "Subsequence anomaly detection where exact distances matter",
+        "avoid_when": "Out-of-sample prediction is needed",
+        "benchmark_rank": {
+          "TSB_AD_overall": 10,
+          "TSB_AD_short": 4
+        },
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MultiModalOD",
+        "category": "embedding",
+        "complexity_time": "O(n * n_modalities * embedding_cost + detector_cost)",
+        "complexity_space": "O(n * n_modalities * embedding_dim)",
+        "strengths": [
+          "Combines multiple data modalities for anomaly detection",
+          "Supports flexible modality combination strategies",
+          "Leverages foundation model embeddings per modality"
+        ],
+        "weaknesses": [
+          "Requires encoder for each modality",
+          "Higher computational cost with multiple modalities",
+          "Combination strategy choice affects performance"
+        ],
+        "best_for": "Anomaly detection on multi-modal data combining text, image, or other modalities",
+        "avoid_when": "Only a single modality is available or data is purely tabular",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "OCSVM",
+        "category": "linear",
+        "complexity_time": "O(n^2 * d) to O(n^3)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Flexible boundary via kernel functions",
+          "Strong theoretical foundation from SVM literature",
+          "Effective in high-dimensional feature spaces"
+        ],
+        "weaknesses": [
+          "Cubic training time for large datasets",
+          "Sensitive to kernel and nu parameter choice",
+          "Does not scale well beyond ~10K samples"
+        ],
+        "best_for": "Medium-sized datasets where a flexible decision boundary is needed",
+        "avoid_when": "Dataset is very large or real-time training is required",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "PCA",
+        "category": "linear",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(d^2)",
+        "strengths": [
+          "Fast training and prediction",
+          "Well-understood linear model",
+          "Effective when anomalies lie in minor principal components"
+        ],
+        "weaknesses": [
+          "Assumes linear relationships",
+          "Sensitive to the number of components selected",
+          "Cannot capture nonlinear anomalies"
+        ],
+        "best_for": "Datasets with linear structure where outliers deviate from main variance directions",
+        "avoid_when": "Data has strong nonlinear structure or outliers align with principal components",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "QMCD",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Based on uniformity criterion from quasi-Monte Carlo theory",
+          "Parameter-free (only contamination needed)",
+          "Theoretically grounded in discrepancy measures"
+        ],
+        "weaknesses": [
+          "Quadratic time complexity",
+          "Assumes outliers deviate from uniform space-filling"
+        ],
+        "best_for": "Detecting anomalies as deviations from uniform space-filling in moderate-dimensional data",
+        "avoid_when": "Dataset is very large or high-dimensional",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "RGraph",
+        "category": "graph",
+        "complexity_time": "O(n^2 * d + transition_steps * n^2)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Graph-based approach captures relational structure",
+          "Random walk on graph reveals connectivity anomalies",
+          "Tunable transition steps for multi-scale detection"
+        ],
+        "weaknesses": [
+          "Quadratic memory for adjacency/transition matrix",
+          "Slow for large datasets",
+          "Requires tuning of graph construction parameters"
+        ],
+        "best_for": "Datasets where graph connectivity and neighborhood structure reveal anomalies",
+        "avoid_when": "Dataset is very large or a simpler proximity method suffices",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "ROD",
+        "category": "proximity",
+        "complexity_time": "O(n * d^2)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Considers rotations to detect outliers across projections",
+          "Parameter-free (only contamination needed)",
+          "Supports parallel execution"
+        ],
+        "weaknesses": [
+          "Designed primarily for 3D data, may not generalize well to very high dimensions",
+          "Limited theoretical analysis compared to classical methods"
+        ],
+        "best_for": "Low-dimensional data where rotation-invariant outlier detection is desired",
+        "avoid_when": "Data is high-dimensional or a well-tuned alternative is available",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "Radar",
+        "category": "graph",
+        "complexity_time": "O(max_iter * n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "No neural network training",
+          "Interpretable residuals",
+          "Lightweight baseline"
+        ],
+        "weaknesses": [
+          "O(n^2) dense matrix operations",
+          "Linear model may miss complex patterns"
+        ],
+        "best_for": "Small-to-medium attributed graphs as a fast baseline",
+        "avoid_when": "Graph is very large or anomalies are structural-only",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SCAN_Graph",
+        "category": "graph",
+        "complexity_time": "O(m * d_avg)",
+        "complexity_space": "O(n + m)",
+        "strengths": [
+          "Structure-only (no features needed)",
+          "No training or hyperparameter tuning",
+          "Fast and lightweight"
+        ],
+        "weaknesses": [
+          "Ignores node attributes",
+          "Only detects structural anomalies"
+        ],
+        "best_for": "Structure-only graphs or as a fast structural baseline",
+        "avoid_when": "Node attributes are available and important for anomaly detection",
+        "benchmark_rank": {},
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SOD",
+        "category": "proximity",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Detects outliers in axis-parallel subspaces",
+          "Effective when anomalies hide in subspaces",
+          "Reference set approach captures local structure"
+        ],
+        "weaknesses": [
+          "Quadratic complexity",
+          "Requires tuning of ref_set and n_neighbors",
+          "May miss anomalies not aligned with axis-parallel subspaces"
+        ],
+        "best_for": "High-dimensional data where outliers deviate in axis-parallel subspaces",
+        "avoid_when": "Data is low-dimensional or anomalies require oblique subspaces to detect",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SOS",
+        "category": "probabilistic",
+        "complexity_time": "O(n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Based on affinity and binding probability concepts",
+          "Produces meaningful probability-like outlier scores",
+          "Perplexity parameter controls local vs global sensitivity"
+        ],
+        "weaknesses": [
+          "Quadratic complexity limits scalability",
+          "Sensitive to perplexity parameter choice"
+        ],
+        "best_for": "Medium-sized datasets where probability-calibrated outlier scores are valuable",
+        "avoid_when": "Dataset is very large (>10K samples) due to quadratic complexity",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SO_GAAL",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "GAN-based approach generates informative outlier samples",
+          "Does not require labeled anomalies",
+          "Novel adversarial training framework for OD"
+        ],
+        "weaknesses": [
+          "GAN training instability",
+          "Sensitive to hyperparameters and architecture",
+          "Slow training compared to non-deep methods"
+        ],
+        "best_for": "Exploratory anomaly detection with GAN-generated reference outliers",
+        "avoid_when": "Stable and fast results are required, or dataset is small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SUOD",
+        "category": "ensemble",
+        "complexity_time": "varies (depends on base estimators)",
+        "complexity_space": "varies",
+        "strengths": [
+          "Accelerates large-scale outlier detection via approximation",
+          "Supports parallel execution of base detectors",
+          "Modular framework for combining multiple detectors"
+        ],
+        "weaknesses": [
+          "Approximation may reduce accuracy",
+          "Overhead from the acceleration framework",
+          "Requires choosing and configuring base estimators"
+        ],
+        "best_for": "Large-scale datasets where running multiple detectors is desired but time is limited",
+        "avoid_when": "Exact results from a single well-chosen detector are preferred",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "Sampling",
+        "category": "probabilistic",
+        "complexity_time": "O(n * s * d) where s is subset size",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Linear time complexity through sampling",
+          "Scalable to large datasets",
+          "Simple and effective approach"
+        ],
+        "weaknesses": [
+          "Randomness from sampling can affect reproducibility",
+          "May miss local outliers with small subset sizes"
+        ],
+        "best_for": "Large-scale datasets requiring fast distance-based outlier detection",
+        "avoid_when": "Precise and deterministic results are required or dataset is small enough for exact methods",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SpectralResidual",
+        "category": "time_series",
+        "complexity_time": "O(n log n)",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Very fast (FFT-based)",
+          "No training needed",
+          "Works well on periodic data",
+          "#3 for point anomalies in TSB-AD"
+        ],
+        "weaknesses": [
+          "Assumes frequency-domain structure",
+          "Less effective on non-periodic data"
+        ],
+        "best_for": "Fast detection of point/spike anomalies in periodic or seasonal time series",
+        "avoid_when": "Data has no frequency structure",
+        "benchmark_rank": {
+          "TSB_AD_overall": 14,
+          "TSB_AD_point": 3,
+          "TSB_AD_short": 8
+        },
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "TimeSeriesOD",
+        "category": "time_series",
+        "complexity_time": "varies by detector",
+        "complexity_space": "varies by detector",
+        "strengths": [
+          "Unified interface for time-series anomaly detection",
+          "Bridges PyOD detectors with sliding-window preprocessing",
+          "Supports any PyOD base detector"
+        ],
+        "weaknesses": [
+          "Inherits limitations of chosen base detector",
+          "Window size must be tuned per dataset"
+        ],
+        "best_for": "General-purpose time series anomaly detection with any PyOD detector",
+        "avoid_when": "Specialized temporal methods (LSTM, Transformer) are more appropriate",
+        "benchmark_rank": {
+          "TSB_AD_overall_iforest": 16,
+          "TSB_AD_point_iforest": 8
+        },
+        "modality_match": false,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "VAE",
+        "category": "deep_learning",
+        "complexity_time": "O(n * d * h * epochs)",
+        "complexity_space": "O(d * h)",
+        "strengths": [
+          "Probabilistic latent space with regularization",
+          "Generates calibrated reconstruction probabilities",
+          "Learns smooth latent representations"
+        ],
+        "weaknesses": [
+          "More complex to train than standard autoencoder",
+          "KL divergence term may dominate loss",
+          "Requires careful balancing of loss components"
+        ],
+        "best_for": "Datasets where probabilistic reconstruction scoring and smooth latent spaces are beneficial",
+        "avoid_when": "Simpler autoencoder or non-deep methods work well, or dataset is very small",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "XGBOD",
+        "category": "ensemble",
+        "complexity_time": "O(n * d * n_estimators * log(n))",
+        "complexity_space": "O(n * d)",
+        "strengths": [
+          "Combines unsupervised representations with supervised XGBoost",
+          "High accuracy when labels are available",
+          "Leverages powerful gradient boosting framework"
+        ],
+        "weaknesses": [
+          "Requires labeled data (semi-supervised)",
+          "Depends on XGBoost library",
+          "Training is more expensive than unsupervised methods"
+        ],
+        "best_for": "Semi-supervised settings where some labeled anomalies are available",
+        "avoid_when": "No labeled data is available or a purely unsupervised approach is needed",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      }
+    ],
+    "top_k_requested": 3,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-3 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 58
+  },
+  "time_series_k3": {
+    "task_profile": {
+      "data_type": "time_series",
+      "n_samples": 10000,
+      "n_features": 1
+    },
+    "available_detectors": [
+      {
+        "name": "KShape",
+        "category": "time_series",
+        "complexity_time": "O(n * k * max_iter)",
+        "complexity_space": "O(n * m)",
+        "strengths": [
+          "Shape-aware clustering",
+          "Handles shifted patterns",
+          "Top-2 overall in TSB-AD benchmark"
+        ],
+        "weaknesses": [
+          "Sensitive to n_clusters choice",
+          "Degrades on long time series"
+        ],
+        "best_for": "Detecting shape-based anomalies in short-to-medium time series subsequences",
+        "avoid_when": "Time series is very long (performance degrades)",
+        "benchmark_rank": {
+          "TSB_AD_overall": 2,
+          "TSB_AD_short": 2,
+          "TSB_AD_point": 6,
+          "TSB_AD_long": 9
+        },
+        "modality_match": true,
+        "resolved_rank": 2,
+        "resolved_rank_key": "TSB_AD_overall"
+      },
+      {
+        "name": "MatrixProfile",
+        "category": "time_series",
+        "complexity_time": "O(n^2)",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "No parameters beyond window size",
+          "Exact nearest-neighbor distances",
+          "Well-studied theoretically"
+        ],
+        "weaknesses": [
+          "Transductive only (no out-of-sample prediction)",
+          "O(n^2) may be slow on long series",
+          "Single-threaded in v1"
+        ],
+        "best_for": "Subsequence anomaly detection where exact distances matter",
+        "avoid_when": "Out-of-sample prediction is needed",
+        "benchmark_rank": {
+          "TSB_AD_overall": 10,
+          "TSB_AD_short": 4
+        },
+        "modality_match": true,
+        "resolved_rank": 10,
+        "resolved_rank_key": "TSB_AD_overall"
+      },
+      {
+        "name": "LSTMAD",
+        "category": "time_series",
+        "complexity_time": "O(n * epochs)",
+        "complexity_space": "O(model_params)",
+        "strengths": [
+          "Captures temporal dependencies",
+          "Native multivariate support",
+          "Mahalanobis distance scoring"
+        ],
+        "weaknesses": [
+          "Requires PyTorch",
+          "Slower training than classical methods",
+          "Needs sufficient data"
+        ],
+        "best_for": "Multivariate and long time series with complex temporal patterns",
+        "avoid_when": "Fast inference is critical or data is very short",
+        "benchmark_rank": {
+          "TSB_AD_overall": 13,
+          "TSB_AD_multivariate": 4,
+          "TSB_AD_long": 8
+        },
+        "modality_match": true,
+        "resolved_rank": 13,
+        "resolved_rank_key": "TSB_AD_overall"
+      },
+      {
+        "name": "SpectralResidual",
+        "category": "time_series",
+        "complexity_time": "O(n log n)",
+        "complexity_space": "O(n)",
+        "strengths": [
+          "Very fast (FFT-based)",
+          "No training needed",
+          "Works well on periodic data",
+          "#3 for point anomalies in TSB-AD"
+        ],
+        "weaknesses": [
+          "Assumes frequency-domain structure",
+          "Less effective on non-periodic data"
+        ],
+        "best_for": "Fast detection of point/spike anomalies in periodic or seasonal time series",
+        "avoid_when": "Data has no frequency structure",
+        "benchmark_rank": {
+          "TSB_AD_overall": 14,
+          "TSB_AD_point": 3,
+          "TSB_AD_short": 8
+        },
+        "modality_match": true,
+        "resolved_rank": 14,
+        "resolved_rank_key": "TSB_AD_overall"
+      },
+      {
+        "name": "TimeSeriesOD",
+        "category": "time_series",
+        "complexity_time": "varies by detector",
+        "complexity_space": "varies by detector",
+        "strengths": [
+          "Unified interface for time-series anomaly detection",
+          "Bridges PyOD detectors with sliding-window preprocessing",
+          "Supports any PyOD base detector"
+        ],
+        "weaknesses": [
+          "Inherits limitations of chosen base detector",
+          "Window size must be tuned per dataset"
+        ],
+        "best_for": "General-purpose time series anomaly detection with any PyOD detector",
+        "avoid_when": "Specialized temporal methods (LSTM, Transformer) are more appropriate",
+        "benchmark_rank": {
+          "TSB_AD_overall_iforest": 16,
+          "TSB_AD_point_iforest": 8
+        },
+        "modality_match": true,
+        "resolved_rank": 16,
+        "resolved_rank_key": "TSB_AD_overall_iforest"
+      }
+    ],
+    "top_k_requested": 3,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-3 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 5
+  },
+  "graph_k3": {
+    "task_profile": {
+      "data_type": "graph",
+      "n_samples": 2000,
+      "n_features": 100
+    },
+    "available_detectors": [
+      {
+        "name": "DOMINANT",
+        "category": "graph",
+        "complexity_time": "O(epochs * (n * d_h + n^2))",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Joint structure+attribute reconstruction",
+          "Strong BOND benchmark performance",
+          "Standard GCN architecture"
+        ],
+        "weaknesses": [
+          "O(n^2) memory for adjacency reconstruction",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where anomalies manifest in both structure and attributes",
+        "avoid_when": "Graph is very large (>10k nodes) or has no node features",
+        "benchmark_rank": {
+          "BOND_deep": 1
+        },
+        "modality_match": true,
+        "resolved_rank": 1,
+        "resolved_rank_key": "BOND_deep"
+      },
+      {
+        "name": "CoLA",
+        "category": "graph",
+        "complexity_time": "O(epochs * n * d_h)",
+        "complexity_space": "O(n * d_h + m)",
+        "strengths": [
+          "Contrastive learning captures local-context discrepancy",
+          "Strong BOND performance",
+          "Sparse neighbor aggregation"
+        ],
+        "weaknesses": [
+          "Sensitive to graph connectivity",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where anomalies have unusual local neighborhoods",
+        "avoid_when": "Graph is disconnected or has no node features",
+        "benchmark_rank": {
+          "BOND_deep": 2
+        },
+        "modality_match": true,
+        "resolved_rank": 2,
+        "resolved_rank_key": "BOND_deep"
+      },
+      {
+        "name": "ANOMALOUS",
+        "category": "graph",
+        "complexity_time": "O(max_iter * n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Laplacian regularization for smooth predictions",
+          "No neural network training",
+          "Extends Radar with graph structure"
+        ],
+        "weaknesses": [
+          "O(n^2) dense matrix operations",
+          "Linear model"
+        ],
+        "best_for": "Small-to-medium attributed graphs where smoothness matters",
+        "avoid_when": "Graph is very large or anomalies are purely structural",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "AnomalyDAE",
+        "category": "graph",
+        "complexity_time": "O(epochs * (n * d_h + n^2))",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Attention-based structure encoding (GAT)",
+          "Separate structure and attribute autoencoders"
+        ],
+        "weaknesses": [
+          "O(n^2) memory for adjacency reconstruction",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where attention over neighbors reveals anomaly patterns",
+        "avoid_when": "Graph is very large or structure is unimportant",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "CONAD",
+        "category": "graph",
+        "complexity_time": "O(epochs * n * d_h)",
+        "complexity_space": "O(n * d_h)",
+        "strengths": [
+          "Data augmentation improves robustness",
+          "Dual objective (contrastive + reconstruction)"
+        ],
+        "weaknesses": [
+          "Augmentation ratio is a sensitive hyperparameter",
+          "Requires node features"
+        ],
+        "best_for": "Attributed graphs where robustness to noise is important",
+        "avoid_when": "Graph structure is too sparse for meaningful augmentation",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "GUIDE",
+        "category": "graph",
+        "complexity_time": "O(epochs * n * d_h + m * d_avg)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "Exploits higher-order motifs (triangles)",
+          "Dual-view captures different structural signals"
+        ],
+        "weaknesses": [
+          "Motif construction adds overhead",
+          "Sparse graphs may have few triangles"
+        ],
+        "best_for": "Dense attributed graphs with meaningful higher-order structures",
+        "avoid_when": "Graph is tree-like (no triangles) or very large",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "Radar",
+        "category": "graph",
+        "complexity_time": "O(max_iter * n^2 * d)",
+        "complexity_space": "O(n^2)",
+        "strengths": [
+          "No neural network training",
+          "Interpretable residuals",
+          "Lightweight baseline"
+        ],
+        "weaknesses": [
+          "O(n^2) dense matrix operations",
+          "Linear model may miss complex patterns"
+        ],
+        "best_for": "Small-to-medium attributed graphs as a fast baseline",
+        "avoid_when": "Graph is very large or anomalies are structural-only",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "SCAN_Graph",
+        "category": "graph",
+        "complexity_time": "O(m * d_avg)",
+        "complexity_space": "O(n + m)",
+        "strengths": [
+          "Structure-only (no features needed)",
+          "No training or hyperparameter tuning",
+          "Fast and lightweight"
+        ],
+        "weaknesses": [
+          "Ignores node attributes",
+          "Only detects structural anomalies"
+        ],
+        "best_for": "Structure-only graphs or as a fast structural baseline",
+        "avoid_when": "Node attributes are available and important for anomaly detection",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      }
+    ],
+    "top_k_requested": 3,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-3 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 8
+  },
+  "text_k3": {
+    "task_profile": {
+      "data_type": "text",
+      "n_samples": 3000,
+      "n_features": 768
+    },
+    "available_detectors": [
+      {
+        "name": "EmbeddingOD",
+        "category": "embedding",
+        "complexity_time": "O(n * embedding_cost + detector_cost)",
+        "complexity_space": "O(n * embedding_dim)",
+        "strengths": [
+          "Leverages foundation model embeddings for anomaly detection",
+          "Supports text and image data natively",
+          "Flexible choice of downstream detector"
+        ],
+        "weaknesses": [
+          "Requires a pre-trained encoder model",
+          "Embedding quality depends on the foundation model",
+          "Higher memory usage for large embedding dimensions"
+        ],
+        "best_for": "Anomaly detection on unstructured data (text, images) via foundation model representations",
+        "avoid_when": "Data is already tabular or a suitable encoder is not available",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MultiModalOD",
+        "category": "embedding",
+        "complexity_time": "O(n * n_modalities * embedding_cost + detector_cost)",
+        "complexity_space": "O(n * n_modalities * embedding_dim)",
+        "strengths": [
+          "Combines multiple data modalities for anomaly detection",
+          "Supports flexible modality combination strategies",
+          "Leverages foundation model embeddings per modality"
+        ],
+        "weaknesses": [
+          "Requires encoder for each modality",
+          "Higher computational cost with multiple modalities",
+          "Combination strategy choice affects performance"
+        ],
+        "best_for": "Anomaly detection on multi-modal data combining text, image, or other modalities",
+        "avoid_when": "Only a single modality is available or data is purely tabular",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      }
+    ],
+    "top_k_requested": 3,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-3 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 2
+  },
+  "image_k3": {
+    "task_profile": {
+      "data_type": "image",
+      "n_samples": 500,
+      "n_features": 1024
+    },
+    "available_detectors": [
+      {
+        "name": "EmbeddingOD",
+        "category": "embedding",
+        "complexity_time": "O(n * embedding_cost + detector_cost)",
+        "complexity_space": "O(n * embedding_dim)",
+        "strengths": [
+          "Leverages foundation model embeddings for anomaly detection",
+          "Supports text and image data natively",
+          "Flexible choice of downstream detector"
+        ],
+        "weaknesses": [
+          "Requires a pre-trained encoder model",
+          "Embedding quality depends on the foundation model",
+          "Higher memory usage for large embedding dimensions"
+        ],
+        "best_for": "Anomaly detection on unstructured data (text, images) via foundation model representations",
+        "avoid_when": "Data is already tabular or a suitable encoder is not available",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      },
+      {
+        "name": "MultiModalOD",
+        "category": "embedding",
+        "complexity_time": "O(n * n_modalities * embedding_cost + detector_cost)",
+        "complexity_space": "O(n * n_modalities * embedding_dim)",
+        "strengths": [
+          "Combines multiple data modalities for anomaly detection",
+          "Supports flexible modality combination strategies",
+          "Leverages foundation model embeddings per modality"
+        ],
+        "weaknesses": [
+          "Requires encoder for each modality",
+          "Higher computational cost with multiple modalities",
+          "Combination strategy choice affects performance"
+        ],
+        "best_for": "Anomaly detection on multi-modal data combining text, image, or other modalities",
+        "avoid_when": "Only a single modality is available or data is purely tabular",
+        "benchmark_rank": {},
+        "modality_match": true,
+        "resolved_rank": null,
+        "resolved_rank_key": null
+      }
+    ],
+    "top_k_requested": 3,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-3 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 2
+  },
+  "synthetic_k2": {
+    "task_profile": {
+      "data_type": "synthetic",
+      "n_samples": 1000,
+      "n_features": 15
+    },
+    "available_detectors": [],
+    "top_k_requested": 2,
+    "response_format_hint": "To commit your selection, call ADEngine.make_plan with detector_choices=['detName1', ...] (ordered list of top-2 names from available_detectors[*].name; case-sensitive) and justifications=['why1', ...] (parallel list, one short sentence each).",
+    "n_available": 0
+  }
+}

@@ -1,0 +1,3358 @@
+{
+  "_meta": {
+    "generated_by": "regenerate_kb.py (Phase A step 2)",
+    "bootstrap_b": 2000,
+    "seed": 42,
+    "empty_means": {
+      "ADBench": "missing",
+      "NLP-ADBench": "missing",
+      "BOND": "failure",
+      "TSB-AD-uni": "missing",
+      "TSB-AD-multi": "missing",
+      "Text-ADBench": "missing"
+    },
+    "metric_note": "kb_score is the mean within-dataset tie-aware percentile (1=best), strictly within modality; never compare across modalities.",
+    "rollup_note": "A modality rollup pools every per-dataset percentile across metrics; its kb_score is that pooled-sample mean (CI drawn from the same distribution), not a mean of per-metric kb_scores.",
+    "pending_sources": [
+      "Text-ADBench"
+    ],
+    "n_scored_canonical": 65,
+    "n_unbenchmarked": 30
+  },
+  "scores": {
+    "ANOMALOUS": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.5,
+            "ci_low": 0.235,
+            "ci_high": 0.7693,
+            "coverage_n": 7,
+            "eligible_n": 9,
+            "failure_n": 2,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5,
+          "ci_low": 0.2265,
+          "ci_high": 0.7779,
+          "coverage_n": 7,
+          "eligible_n": 9,
+          "failure_n": 2,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "AdONE": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.5556,
+            "ci_low": 0.3589,
+            "ci_high": 0.7094,
+            "coverage_n": 8,
+            "eligible_n": 9,
+            "failure_n": 1,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5556,
+          "ci_low": 0.3675,
+          "ci_high": 0.7138,
+          "coverage_n": 8,
+          "eligible_n": 9,
+          "failure_n": 1,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "AnomalyDAE": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.5726,
+            "ci_low": 0.4017,
+            "ci_high": 0.735,
+            "coverage_n": 8,
+            "eligible_n": 9,
+            "failure_n": 1,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5726,
+          "ci_low": 0.3932,
+          "ci_high": 0.735,
+          "coverage_n": 8,
+          "eligible_n": 9,
+          "failure_n": 1,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "AnomalyTransformer": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.3337,
+            "ci_low": 0.2932,
+            "ci_high": 0.375,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.2694,
+            "ci_low": 0.2488,
+            "ci_high": 0.2887,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.2912,
+          "ci_low": 0.2722,
+          "ci_high": 0.3105,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "AutoEncoder": {
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.6285,
+            "ci_low": 0.5208,
+            "ci_high": 0.7362,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.4931,
+                "ci_low": 0.375,
+                "ci_high": 0.6389,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.7639,
+                "ci_low": 0.625,
+                "ci_high": 0.8819,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.6128,
+            "ci_low": 0.5035,
+            "ci_high": 0.7066,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.4931,
+                "ci_low": 0.3681,
+                "ci_high": 0.6076,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.7326,
+                "ci_low": 0.6041,
+                "ci_high": 0.8403,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6207,
+          "ci_low": 0.5451,
+          "ci_high": 0.6979,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.5683,
+            "ci_low": 0.5206,
+            "ci_high": 0.6128,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.4616,
+            "ci_low": 0.4305,
+            "ci_high": 0.4919,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4978,
+          "ci_low": 0.4717,
+          "ci_high": 0.5218,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "CBLOF": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.6368,
+            "ci_low": 0.5677,
+            "ci_high": 0.7097,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.6711,
+            "ci_low": 0.6059,
+            "ci_high": 0.7383,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6539,
+          "ci_low": 0.6033,
+          "ci_high": 0.7034,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.5457,
+            "ci_low": 0.505,
+            "ci_high": 0.5855,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5457,
+          "ci_low": 0.5032,
+          "ci_high": 0.5857,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "CNN": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.7174,
+            "ci_low": 0.6841,
+            "ci_high": 0.7508,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.6102,
+            "ci_low": 0.5855,
+            "ci_high": 0.6338,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6466,
+          "ci_low": 0.6259,
+          "ci_high": 0.6656,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "COF": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.4151,
+            "ci_low": 0.3326,
+            "ci_high": 0.5024,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.4091,
+            "ci_low": 0.3316,
+            "ci_high": 0.4945,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4121,
+          "ci_low": 0.3517,
+          "ci_high": 0.4715,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "CONAD": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.5726,
+            "ci_low": 0.4316,
+            "ci_high": 0.6966,
+            "coverage_n": 9,
+            "eligible_n": 9,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5726,
+          "ci_low": 0.4359,
+          "ci_high": 0.6923,
+          "coverage_n": 9,
+          "eligible_n": 9,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "COPOD": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.5258,
+            "ci_low": 0.4508,
+            "ci_high": 0.6071,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.5842,
+            "ci_low": 0.5164,
+            "ci_high": 0.6555,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.555,
+          "ci_low": 0.5013,
+          "ci_high": 0.6057,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.4417,
+            "ci_low": 0.4054,
+            "ci_high": 0.4771,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4417,
+          "ci_low": 0.408,
+          "ci_high": 0.4753,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "CVDD": {
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.3403,
+            "ci_low": 0.1319,
+            "ci_high": 0.5696,
+            "coverage_n": 8,
+            "eligible_n": 8,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 8,
+            "source_benchmark": "NLP-ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.4028,
+            "ci_low": 0.2153,
+            "ci_high": 0.6111,
+            "coverage_n": 8,
+            "eligible_n": 8,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 8,
+            "source_benchmark": "NLP-ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.3715,
+          "ci_low": 0.2222,
+          "ci_high": 0.5278,
+          "coverage_n": 16,
+          "eligible_n": 16,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 16,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "Chronos": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.4688,
+            "ci_low": 0.44,
+            "ci_high": 0.4988,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4688,
+          "ci_low": 0.4411,
+          "ci_high": 0.4951,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "DAGMM": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.3569,
+            "ci_low": 0.2784,
+            "ci_high": 0.4447,
+            "coverage_n": 50,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 7,
+            "effective_n": 50,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.3092,
+            "ci_low": 0.2446,
+            "ci_high": 0.3754,
+            "coverage_n": 50,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 7,
+            "effective_n": 50,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.3331,
+          "ci_low": 0.28,
+          "ci_high": 0.3892,
+          "coverage_n": 100,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 14,
+          "effective_n": 100,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "DATE": {
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.7292,
+            "ci_low": 0.5278,
+            "ci_high": 0.8889,
+            "coverage_n": 8,
+            "eligible_n": 8,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 8,
+            "source_benchmark": "NLP-ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.7639,
+            "ci_low": 0.6528,
+            "ci_high": 0.875,
+            "coverage_n": 8,
+            "eligible_n": 8,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 8,
+            "source_benchmark": "NLP-ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.7465,
+          "ci_low": 0.6319,
+          "ci_high": 0.8472,
+          "coverage_n": 16,
+          "eligible_n": 16,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 16,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "DOMINANT": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.6239,
+            "ci_low": 0.4188,
+            "ci_high": 0.8034,
+            "coverage_n": 8,
+            "eligible_n": 9,
+            "failure_n": 1,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6239,
+          "ci_low": 0.4274,
+          "ci_high": 0.8034,
+          "coverage_n": 8,
+          "eligible_n": 9,
+          "failure_n": 1,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "DONE": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.5214,
+            "ci_low": 0.3034,
+            "ci_high": 0.7179,
+            "coverage_n": 8,
+            "eligible_n": 9,
+            "failure_n": 1,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5214,
+          "ci_low": 0.3077,
+          "ci_high": 0.7266,
+          "coverage_n": 8,
+          "eligible_n": 9,
+          "failure_n": 1,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "DeepSVDD": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.2727,
+            "ci_low": 0.1981,
+            "ci_high": 0.3556,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.1967,
+            "ci_low": 0.1268,
+            "ci_high": 0.2736,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.2347,
+          "ci_low": 0.1806,
+          "ci_high": 0.2928,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.25,
+            "ci_low": 0.1493,
+            "ci_high": 0.3819,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.2153,
+                "ci_low": 0.0972,
+                "ci_high": 0.3333,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.2847,
+                "ci_low": 0.1248,
+                "ci_high": 0.5,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.25,
+            "ci_low": 0.1337,
+            "ci_high": 0.3768,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.2708,
+                "ci_low": 0.1527,
+                "ci_high": 0.3924,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.2292,
+                "ci_low": 0.0556,
+                "ci_high": 0.4653,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.25,
+          "ci_low": 0.1693,
+          "ci_high": 0.3455,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "Donut": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.572,
+            "ci_low": 0.5305,
+            "ci_high": 0.6139,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.3638,
+            "ci_low": 0.3404,
+            "ci_high": 0.3872,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4345,
+          "ci_low": 0.4107,
+          "ci_high": 0.4566,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "ECOD": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.5893,
+            "ci_low": 0.5204,
+            "ci_high": 0.6596,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.609,
+            "ci_low": 0.5381,
+            "ci_high": 0.6833,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5992,
+          "ci_low": 0.548,
+          "ci_high": 0.6475,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.4844,
+            "ci_low": 0.3438,
+            "ci_high": 0.6337,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.25,
+                "ci_low": 0.1667,
+                "ci_high": 0.3264,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.7188,
+                "ci_low": 0.5417,
+                "ci_high": 0.8819,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.5035,
+            "ci_low": 0.3871,
+            "ci_high": 0.6128,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.3924,
+                "ci_low": 0.25,
+                "ci_high": 0.5208,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.6146,
+                "ci_low": 0.4583,
+                "ci_high": 0.7674,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4939,
+          "ci_low": 0.4036,
+          "ci_high": 0.5877,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "EIF": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.5001,
+            "ci_low": 0.4634,
+            "ci_high": 0.5374,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5001,
+          "ci_low": 0.4653,
+          "ci_high": 0.5379,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "FATE": {
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.5694,
+            "ci_low": 0.3819,
+            "ci_high": 0.7153,
+            "coverage_n": 8,
+            "eligible_n": 8,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 8,
+            "source_benchmark": "NLP-ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.6389,
+            "ci_low": 0.4861,
+            "ci_high": 0.7778,
+            "coverage_n": 8,
+            "eligible_n": 8,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 8,
+            "source_benchmark": "NLP-ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6042,
+          "ci_low": 0.4931,
+          "ci_high": 0.7083,
+          "coverage_n": 16,
+          "eligible_n": 16,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 16,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "FITS": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.3917,
+            "ci_low": 0.3535,
+            "ci_high": 0.4318,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.4522,
+            "ci_low": 0.4263,
+            "ci_high": 0.478,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4316,
+          "ci_low": 0.4108,
+          "ci_high": 0.4525,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "GAAN": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.6154,
+            "ci_low": 0.4274,
+            "ci_high": 0.7692,
+            "coverage_n": 8,
+            "eligible_n": 9,
+            "failure_n": 1,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6154,
+          "ci_low": 0.4103,
+          "ci_high": 0.7692,
+          "coverage_n": 8,
+          "eligible_n": 9,
+          "failure_n": 1,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "GCNAE": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.5556,
+            "ci_low": 0.3802,
+            "ci_high": 0.735,
+            "coverage_n": 9,
+            "eligible_n": 9,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5556,
+          "ci_low": 0.3846,
+          "ci_high": 0.735,
+          "coverage_n": 9,
+          "eligible_n": 9,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "GUIDE": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.094,
+            "ci_low": 0.0043,
+            "ci_high": 0.2137,
+            "coverage_n": 3,
+            "eligible_n": 9,
+            "failure_n": 6,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.094,
+          "ci_low": 0.0043,
+          "ci_high": 0.2179,
+          "coverage_n": 3,
+          "eligible_n": 9,
+          "failure_n": 6,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "HBOS": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.5695,
+            "ci_low": 0.4885,
+            "ci_high": 0.6452,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.5558,
+            "ci_low": 0.4829,
+            "ci_high": 0.6297,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5626,
+          "ci_low": 0.5092,
+          "ci_high": 0.6175,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.4282,
+            "ci_low": 0.3952,
+            "ci_high": 0.4633,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4282,
+          "ci_low": 0.3956,
+          "ci_high": 0.4615,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "IForest": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.3974,
+            "ci_low": 0.1838,
+            "ci_high": 0.6453,
+            "coverage_n": 9,
+            "eligible_n": 9,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.3974,
+          "ci_low": 0.1923,
+          "ci_high": 0.6325,
+          "coverage_n": 9,
+          "eligible_n": 9,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      },
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.6094,
+            "ci_low": 0.539,
+            "ci_high": 0.6721,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.6715,
+            "ci_low": 0.6181,
+            "ci_high": 0.7214,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6405,
+          "ci_low": 0.5968,
+          "ci_high": 0.6837,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.3021,
+            "ci_low": 0.2188,
+            "ci_high": 0.3993,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.2292,
+                "ci_low": 0.1667,
+                "ci_high": 0.2917,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.375,
+                "ci_low": 0.2292,
+                "ci_high": 0.5208,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.2795,
+            "ci_low": 0.2049,
+            "ci_high": 0.3576,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.25,
+                "ci_low": 0.1806,
+                "ci_high": 0.3194,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.309,
+                "ci_low": 0.1806,
+                "ci_high": 0.4444,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.2908,
+          "ci_low": 0.2326,
+          "ci_high": 0.3472,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.4376,
+            "ci_low": 0.4029,
+            "ci_high": 0.4712,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.5198,
+            "ci_low": 0.4919,
+            "ci_high": 0.5479,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4919,
+          "ci_low": 0.4693,
+          "ci_high": 0.5128,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "KMeansAD": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.675,
+            "ci_low": 0.6263,
+            "ci_high": 0.7205,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.5694,
+            "ci_low": 0.5361,
+            "ci_high": 0.601,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6053,
+          "ci_low": 0.5782,
+          "ci_high": 0.6317,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "KNN": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.6085,
+            "ci_low": 0.5392,
+            "ci_high": 0.6862,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.6122,
+            "ci_low": 0.5338,
+            "ci_high": 0.6886,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6104,
+          "ci_low": 0.5546,
+          "ci_high": 0.6634,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.3641,
+            "ci_low": 0.3263,
+            "ci_high": 0.4029,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.3641,
+          "ci_low": 0.3292,
+          "ci_high": 0.4035,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "KShape": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.5701,
+            "ci_low": 0.5323,
+            "ci_high": 0.6071,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5701,
+          "ci_low": 0.5341,
+          "ci_high": 0.61,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "LODA": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.4431,
+            "ci_low": 0.3697,
+            "ci_high": 0.5181,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.349,
+            "ci_low": 0.2846,
+            "ci_high": 0.4148,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.396,
+          "ci_low": 0.346,
+          "ci_high": 0.4441,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "LOF": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.2521,
+            "ci_low": 0.094,
+            "ci_high": 0.4574,
+            "coverage_n": 8,
+            "eligible_n": 9,
+            "failure_n": 1,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.2521,
+          "ci_low": 0.1026,
+          "ci_high": 0.453,
+          "coverage_n": 8,
+          "eligible_n": 9,
+          "failure_n": 1,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      },
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.43,
+            "ci_low": 0.3386,
+            "ci_high": 0.5235,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.4336,
+            "ci_low": 0.3424,
+            "ci_high": 0.5216,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4318,
+          "ci_low": 0.3692,
+          "ci_high": 0.4944,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.7361,
+            "ci_low": 0.6527,
+            "ci_high": 0.8194,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.6111,
+                "ci_low": 0.5069,
+                "ci_high": 0.7153,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.8611,
+                "ci_low": 0.7986,
+                "ci_high": 0.9167,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.7726,
+            "ci_low": 0.6788,
+            "ci_high": 0.8542,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.6458,
+                "ci_low": 0.5347,
+                "ci_high": 0.7571,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.8993,
+                "ci_low": 0.8506,
+                "ci_high": 0.9375,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.7543,
+          "ci_low": 0.6936,
+          "ci_high": 0.8134,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.3404,
+            "ci_low": 0.3093,
+            "ci_high": 0.3748,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.3711,
+            "ci_low": 0.346,
+            "ci_high": 0.3967,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.3607,
+          "ci_low": 0.3408,
+          "ci_high": 0.3805,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "LSTMAD": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.6694,
+            "ci_low": 0.6336,
+            "ci_high": 0.703,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.5411,
+            "ci_low": 0.5118,
+            "ci_high": 0.5695,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5847,
+          "ci_low": 0.5616,
+          "ci_high": 0.6077,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "LUNAR": {
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.7361,
+            "ci_low": 0.6424,
+            "ci_high": 0.8264,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.5903,
+                "ci_low": 0.5069,
+                "ci_high": 0.6806,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.8819,
+                "ci_low": 0.8194,
+                "ci_high": 0.9514,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.7847,
+            "ci_low": 0.6735,
+            "ci_high": 0.875,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.6111,
+                "ci_low": 0.5069,
+                "ci_high": 0.7083,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.9583,
+                "ci_low": 0.9167,
+                "ci_high": 0.9931,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.7604,
+          "ci_low": 0.691,
+          "ci_high": 0.8281,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "Lag-Llama": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.4762,
+            "ci_low": 0.4506,
+            "ci_high": 0.5021,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4762,
+          "ci_low": 0.4494,
+          "ci_high": 0.5017,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "MCD": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.5333,
+            "ci_low": 0.4875,
+            "ci_high": 0.5753,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5333,
+          "ci_low": 0.4894,
+          "ci_high": 0.5773,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "MLPAE": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.5598,
+            "ci_low": 0.4017,
+            "ci_high": 0.7094,
+            "coverage_n": 9,
+            "eligible_n": 9,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5598,
+          "ci_low": 0.406,
+          "ci_high": 0.7222,
+          "coverage_n": 9,
+          "eligible_n": 9,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "MOMENT-FT": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.6035,
+            "ci_low": 0.5688,
+            "ci_high": 0.6365,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6035,
+          "ci_low": 0.5697,
+          "ci_high": 0.6355,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "MOMENT-ZS": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.5815,
+            "ci_low": 0.5476,
+            "ci_high": 0.6152,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5815,
+          "ci_low": 0.5475,
+          "ci_high": 0.6171,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "MatrixProfile": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.5655,
+            "ci_low": 0.5325,
+            "ci_high": 0.5971,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5655,
+          "ci_low": 0.5327,
+          "ci_high": 0.5975,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "OCSVM": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.4669,
+            "ci_low": 0.3964,
+            "ci_high": 0.5349,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.4669,
+            "ci_low": 0.3964,
+            "ci_high": 0.5362,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4669,
+          "ci_low": 0.4182,
+          "ci_high": 0.5142,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.46,
+            "ci_low": 0.4181,
+            "ci_high": 0.5004,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.46,
+          "ci_low": 0.4164,
+          "ci_high": 0.5034,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "OFA": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.4154,
+            "ci_low": 0.3765,
+            "ci_high": 0.4543,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.437,
+            "ci_low": 0.4132,
+            "ci_high": 0.4629,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4296,
+          "ci_low": 0.4086,
+          "ci_high": 0.4504,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "OmniAnomaly": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.5981,
+            "ci_low": 0.542,
+            "ci_high": 0.6506,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.4568,
+            "ci_low": 0.4253,
+            "ci_high": 0.4877,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5048,
+          "ci_low": 0.4768,
+          "ci_high": 0.533,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "PCA": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.5678,
+            "ci_low": 0.4943,
+            "ci_high": 0.639,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.5852,
+            "ci_low": 0.513,
+            "ci_high": 0.6563,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5765,
+          "ci_low": 0.5267,
+          "ci_high": 0.626,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      },
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.6203,
+            "ci_low": 0.5785,
+            "ci_high": 0.6594,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6203,
+          "ci_low": 0.5822,
+          "ci_high": 0.6619,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "POLY": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.6467,
+            "ci_low": 0.6202,
+            "ci_high": 0.6726,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6467,
+          "ci_low": 0.6215,
+          "ci_high": 0.6739,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Radar": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.4658,
+            "ci_low": 0.2222,
+            "ci_high": 0.7094,
+            "coverage_n": 7,
+            "eligible_n": 9,
+            "failure_n": 2,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4658,
+          "ci_low": 0.2308,
+          "ci_high": 0.7094,
+          "coverage_n": 7,
+          "eligible_n": 9,
+          "failure_n": 2,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "RobustPCA": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.4386,
+            "ci_low": 0.3915,
+            "ci_high": 0.4852,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4386,
+          "ci_low": 0.3924,
+          "ci_high": 0.4864,
+          "coverage_n": 180,
+          "eligible_n": 180,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 180,
+          "source_benchmark": "TSB-AD-multi",
+          "metric_scopes": [
+            "VUS-PR/multivariate"
+          ]
+        }
+      }
+    },
+    "SAND": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.5434,
+            "ci_low": 0.511,
+            "ci_high": 0.5769,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5434,
+          "ci_low": 0.5082,
+          "ci_high": 0.5783,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "SCAN_Graph": {
+      "graph": {
+        "metrics": {
+          "AP": {
+            "kb_score": 0.3034,
+            "ci_low": 0.1624,
+            "ci_high": 0.4829,
+            "coverage_n": 8,
+            "eligible_n": 9,
+            "failure_n": 1,
+            "missing_n": 0,
+            "effective_n": 9,
+            "source_benchmark": "BOND"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.3034,
+          "ci_low": 0.1624,
+          "ci_high": 0.4744,
+          "coverage_n": 8,
+          "eligible_n": 9,
+          "failure_n": 1,
+          "missing_n": 0,
+          "effective_n": 9,
+          "source_benchmark": "BOND",
+          "metric_scopes": [
+            "AP"
+          ]
+        }
+      }
+    },
+    "SOD": {
+      "tabular": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.4903,
+            "ci_low": 0.4185,
+            "ci_high": 0.5653,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          },
+          "ROC": {
+            "kb_score": 0.5229,
+            "ci_low": 0.4476,
+            "ci_high": 0.5928,
+            "coverage_n": 57,
+            "eligible_n": 57,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 57,
+            "source_benchmark": "ADBench"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5066,
+          "ci_low": 0.455,
+          "ci_high": 0.5603,
+          "coverage_n": 114,
+          "eligible_n": 114,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 114,
+          "source_benchmark": "ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "SO_GAAL": {
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.2899,
+            "ci_low": 0.1597,
+            "ci_high": 0.4375,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.1632,
+                "ci_low": 0.059,
+                "ci_high": 0.2778,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.4167,
+                "ci_low": 0.2083,
+                "ci_high": 0.625,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.1771,
+            "ci_low": 0.0764,
+            "ci_high": 0.3003,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.0833,
+                "ci_low": 0.0174,
+                "ci_high": 0.1701,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.2708,
+                "ci_low": 0.111,
+                "ci_high": 0.4619,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.2335,
+          "ci_low": 0.1458,
+          "ci_high": 0.329,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    },
+    "Series2Graph": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.6133,
+            "ci_low": 0.5828,
+            "ci_high": 0.6429,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6133,
+          "ci_low": 0.5854,
+          "ci_high": 0.643,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "SpectralResidual": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.6074,
+            "ci_low": 0.5841,
+            "ci_high": 0.6303,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6074,
+          "ci_low": 0.5836,
+          "ci_high": 0.6318,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Sub_HBOS": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.3955,
+            "ci_low": 0.3669,
+            "ci_high": 0.4254,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.3955,
+          "ci_low": 0.3658,
+          "ci_high": 0.4242,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Sub_IForest": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.4103,
+            "ci_low": 0.3815,
+            "ci_high": 0.438,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4103,
+          "ci_low": 0.3827,
+          "ci_high": 0.441,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Sub_KNN": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.5728,
+            "ci_low": 0.5404,
+            "ci_high": 0.6048,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.5728,
+          "ci_low": 0.54,
+          "ci_high": 0.6049,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Sub_LOF": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.4949,
+            "ci_low": 0.4617,
+            "ci_high": 0.5267,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4949,
+          "ci_low": 0.4612,
+          "ci_high": 0.5262,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Sub_MCD": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.4456,
+            "ci_low": 0.4121,
+            "ci_high": 0.4803,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4456,
+          "ci_low": 0.4121,
+          "ci_high": 0.4775,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Sub_OCSVM": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.4357,
+            "ci_low": 0.4085,
+            "ci_high": 0.4639,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4357,
+          "ci_low": 0.4075,
+          "ci_high": 0.4628,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "Sub_PCA": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.6061,
+            "ci_low": 0.5688,
+            "ci_high": 0.6426,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.6061,
+          "ci_low": 0.5704,
+          "ci_high": 0.6446,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "TimesFM": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/univariate": {
+            "kb_score": 0.503,
+            "ci_low": 0.474,
+            "ci_high": 0.5318,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.503,
+          "ci_low": 0.4735,
+          "ci_high": 0.531,
+          "coverage_n": 350,
+          "eligible_n": 350,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 350,
+          "source_benchmark": "TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "TimesNet": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.372,
+            "ci_low": 0.3331,
+            "ci_high": 0.4093,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.4638,
+            "ci_low": 0.4389,
+            "ci_high": 0.4886,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4326,
+          "ci_low": 0.4112,
+          "ci_high": 0.4542,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "TranAD": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.4909,
+            "ci_low": 0.447,
+            "ci_high": 0.5369,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.415,
+            "ci_low": 0.3856,
+            "ci_high": 0.4446,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4408,
+          "ci_low": 0.416,
+          "ci_high": 0.465,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "USAD": {
+      "timeseries": {
+        "metrics": {
+          "VUS-PR/multivariate": {
+            "kb_score": 0.586,
+            "ci_low": 0.5337,
+            "ci_high": 0.6379,
+            "coverage_n": 180,
+            "eligible_n": 180,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 180,
+            "source_benchmark": "TSB-AD-multi"
+          },
+          "VUS-PR/univariate": {
+            "kb_score": 0.5285,
+            "ci_low": 0.4897,
+            "ci_high": 0.5649,
+            "coverage_n": 350,
+            "eligible_n": 350,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 350,
+            "source_benchmark": "TSB-AD-uni"
+          }
+        },
+        "rollup": {
+          "kb_score": 0.548,
+          "ci_low": 0.5163,
+          "ci_high": 0.5768,
+          "coverage_n": 530,
+          "eligible_n": 530,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 530,
+          "source_benchmark": "TSB-AD-multi+TSB-AD-uni",
+          "metric_scopes": [
+            "VUS-PR/multivariate",
+            "VUS-PR/univariate"
+          ]
+        }
+      }
+    },
+    "VAE": {
+      "text": {
+        "metrics": {
+          "PR": {
+            "kb_score": 0.5035,
+            "ci_low": 0.3715,
+            "ci_high": 0.6406,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.3542,
+                "ci_low": 0.2431,
+                "ci_high": 0.4792,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.6528,
+                "ci_low": 0.4618,
+                "ci_high": 0.8229,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          },
+          "ROC": {
+            "kb_score": 0.467,
+            "ci_low": 0.3542,
+            "ci_high": 0.5764,
+            "coverage_n": 16,
+            "eligible_n": 16,
+            "failure_n": 0,
+            "missing_n": 0,
+            "effective_n": 16,
+            "source_benchmark": "NLP-ADBench",
+            "by_embedding": {
+              "BERT": {
+                "kb_score": 0.4167,
+                "ci_low": 0.2708,
+                "ci_high": 0.5625,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              },
+              "OpenAI-text-embedding-3-large": {
+                "kb_score": 0.5174,
+                "ci_low": 0.3367,
+                "ci_high": 0.6875,
+                "coverage_n": 8,
+                "eligible_n": 8,
+                "failure_n": 0,
+                "missing_n": 0,
+                "effective_n": 8,
+                "source_benchmark": "NLP-ADBench"
+              }
+            }
+          }
+        },
+        "rollup": {
+          "kb_score": 0.4852,
+          "ci_low": 0.3941,
+          "ci_high": 0.5712,
+          "coverage_n": 32,
+          "eligible_n": 32,
+          "failure_n": 0,
+          "missing_n": 0,
+          "effective_n": 32,
+          "source_benchmark": "NLP-ADBench",
+          "metric_scopes": [
+            "PR",
+            "ROC"
+          ]
+        }
+      }
+    }
+  },
+  "unbenchmarked": [
+    "ABOD",
+    "AE1SVM",
+    "ALAD",
+    "AnoGAN",
+    "CD",
+    "CoLA",
+    "DIF",
+    "DevNet",
+    "EmbeddingOD",
+    "FeatureBagging",
+    "GMM",
+    "HDBSCAN",
+    "INNE",
+    "KDE",
+    "KPCA",
+    "LLMAD",
+    "LMDD",
+    "LOCI",
+    "LSCP",
+    "MAD",
+    "MO_GAAL",
+    "MultiModalOD",
+    "QMCD",
+    "RGraph",
+    "ROD",
+    "SOS",
+    "SUOD",
+    "Sampling",
+    "TimeSeriesOD",
+    "XGBOD"
+  ]
+}
