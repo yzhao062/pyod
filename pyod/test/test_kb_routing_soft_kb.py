@@ -6,9 +6,12 @@ score-ordered sorting, within-modality semantics, top-level metadata,
 graceful degradation when the score artifact is absent, and that the
 default view is unperturbed at the field level.
 """
+import re
+
 import pytest
 
 from pyod.utils.ad_engine import ADEngine
+from pyod.utils._llm import build_routing_prompt
 
 PROFILE_TAB = {"data_type": "tabular", "n_samples": 1000, "n_features": 20}
 PROFILE_TS = {"data_type": "time_series", "n_samples": 10000, "n_features": 1}
@@ -134,3 +137,55 @@ def test_soft_kb_degrades_when_scores_file_absent(monkeypatch):
 def test_invalid_scoring_view_raises():
     with pytest.raises(ValueError):
         _eng().get_kb_for_routing(PROFILE_TAB, scoring_view="bogus")
+
+
+# --- step 6: soft-KB rendering in build_routing_prompt --------------------
+
+def test_soft_kb_prompt_renders_scores_and_uncertainty_guidance():
+    kb = _eng().get_kb_for_routing(PROFILE_TAB, top_k=3, scoring_view="soft_kb")
+    prompt = build_routing_prompt(kb, top_k=3)
+    assert "kb_score=" in prompt, "soft-KB scores not rendered into the prompt"
+    assert "ci=[" in prompt, "uncertainty interval not rendered"
+    assert "rank=1/" in prompt, "modality rank not rendered (top = rank 1)"
+    # lock the exact scored-row format so future edits cannot silently drop a
+    # field: kb_score=<f.3> ci=[lo,hi] rank=<r>/<n> n=<int> scope=<...> <fb>-level
+    assert re.search(
+        r"kb_score=\d\.\d{3} ci=\[[\d.]+,[\d.]+\] rank=\d+/\d+ "
+        r"n=\d+ scope=\S+ modality-level", prompt), "soft-KB row format drifted"
+    # actionable-uncertainty guidance (build step 3) must be present
+    assert "within-modality percentile" in prompt
+    assert "prefer a small set" in prompt
+    # the soft view drops the legacy citation-rank framing
+    assert "and benchmark rank, choose" not in prompt
+
+
+def test_legacy_prompt_has_no_soft_kb_fields():
+    kb = _eng().get_kb_for_routing(PROFILE_TAB, top_k=3)  # legacy default view
+    prompt = build_routing_prompt(kb, top_k=3)
+    assert "kb_score=" not in prompt, "legacy prompt leaked soft-KB scores"
+    assert "within-modality percentile" not in prompt
+    # lock the exact legacy intro framing (KB-content-independent) so an
+    # accidental edit to the untouched legacy path is caught here
+    assert ("annotated with strengths, weaknesses, best_for, avoid_when, and "
+            "benchmark rank, choose the ordered top-K detectors") in prompt
+
+
+def test_soft_kb_prompt_marks_unscored_detectors():
+    # Image detectors have no scores in kb_scores.json: the prompt must say so
+    # explicitly rather than imply a zero score.
+    kb = _eng().get_kb_for_routing(PROFILE_IMG, top_k=3, scoring_view="soft_kb")
+    prompt = build_routing_prompt(kb, top_k=3)
+    assert "no KB score" in prompt, "unscored detectors not marked in prompt"
+    assert "within-modality percentile" in prompt  # guidance still present
+
+
+def test_soft_kb_prompt_caps_requested_count_to_available():
+    # Image/text expose fewer detectors than the default top_k; the prompt must
+    # not ask the agent for more detectors than exist (an impossible count
+    # would push the LLM toward duplicate or invented names in Phase B).
+    kb = _eng().get_kb_for_routing(PROFILE_IMG, top_k=3, scoring_view="soft_kb")
+    n = len(kb["available_detectors"])
+    prompt = build_routing_prompt(kb, top_k=3)
+    assert f"Return exactly {min(3, n)} detectors" in prompt
+    if n < 3:
+        assert "Return exactly 3 detectors" not in prompt

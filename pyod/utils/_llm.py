@@ -86,6 +86,13 @@ def build_routing_prompt(kb_context: dict, top_k: int = 3) -> str:
     """
     profile = kb_context.get("task_profile", {})
     detectors = kb_context.get("available_detectors", [])
+    # Soft-KB view (opt-in): get_kb_for_routing(scoring_view="soft_kb") stamps
+    # a top-level kb_version plus per-detector kb_* fields. When present, render
+    # the calibrated within-modality score + uncertainty so the agent reasons
+    # over benchmark evidence rather than the legacy citation rank. The legacy
+    # view (no kb_version) falls through to the byte-identical path below.
+    if "kb_version" in kb_context:
+        return _build_soft_kb_prompt(kb_context, profile, detectors, top_k)
     # Compress each detector entry to a single line: name + 1-line
     # best_for + 1-line avoid_when + benchmark_rank (resolved per-modality).
     # Prefer `resolved_rank` / `resolved_rank_key` that get_kb_for_routing
@@ -130,6 +137,94 @@ def build_routing_prompt(kb_context: dict, top_k: int = 3) -> str:
         f"AVAILABLE DETECTORS ({len(detectors)}):\n"
         + "\n".join(lines) + "\n\n"
         f"Return exactly {top_k} detectors as a JSON array of objects, "
+        'each shaped {"detector": "<name>", "justification": "<one '
+        'sentence>"}. Detector names are case-sensitive and must come '
+        "from the list above. Return ONLY the JSON array (no prose, "
+        "no markdown fences).\n"
+    )
+
+
+# Routing guidance for the soft-KB view: turns the calibrated scores into
+# behavior (build step 3, "uncertainty must be actionable") rather than
+# leaving them as decorative numbers.
+_SOFT_KB_GUIDE = (
+    "KB SCORES: kb_score is a calibrated within-modality percentile in "
+    "[0,1] (1 = best) over the listed metric scope; it is NOT comparable "
+    "across modalities. ci=[low,high] is a bootstrap uncertainty interval "
+    "and n is the number of supporting datasets. Use the scores as "
+    "evidence, not a hard ranking: when the top candidates' intervals "
+    "overlap, do not over-commit to one detector -- prefer a small set to "
+    "evaluate. Treat low n or a 'modality'-level fallback as weaker "
+    "evidence and weigh task fit (best_for / avoid_when) more heavily. "
+    "Detectors marked 'no KB score' are unbenchmarked for this modality, "
+    "not necessarily weak."
+)
+
+
+def _build_soft_kb_prompt(kb_context: dict, profile: dict,
+                          detectors: list, top_k: int) -> str:
+    """Render the routing prompt for the opt-in soft-KB view.
+
+    Surfaces each detector's calibrated within-modality ``kb_score`` with its
+    bootstrap interval, modality rank, support count, metric scope, and
+    fallback level, plus the actionable-uncertainty guidance in
+    :data:`_SOFT_KB_GUIDE`. Detectors with no score for this modality are
+    rendered as ``no KB score`` (unbenchmarked, never a silent zero).
+    """
+    n_scored = sum(1 for d in detectors if d.get("kb_score") is not None)
+    lines = []
+    for d in detectors:
+        score = d.get("kb_score")
+        if score is None:
+            annot = ", no KB score"
+        else:
+            interval = d.get("kb_interval") or [None, None]
+            lo, hi = interval[0], interval[1]
+            ci = (f" ci=[{lo:.3f},{hi:.3f}]"
+                  if lo is not None and hi is not None else "")
+            rank = d.get("kb_score_rank")
+            rank_str = f" rank={rank}/{n_scored}" if rank is not None else ""
+            n = d.get("kb_coverage_n")
+            n_str = f" n={n}" if n is not None else ""
+            scope = d.get("kb_metric_scope")
+            scope_str = (f" scope={'+'.join(scope)}"
+                         if isinstance(scope, list) and scope else "")
+            fb = d.get("kb_fallback_level")
+            fb_str = f" {fb}-level" if fb else ""
+            annot = (f", kb_score={score:.3f}{ci}{rank_str}{n_str}"
+                     f"{scope_str}{fb_str}")
+        strengths = "; ".join((d.get("strengths") or [])[:2])
+        weaknesses = "; ".join((d.get("weaknesses") or [])[:2])
+        best_for = d.get("best_for") or ""
+        avoid_when = d.get("avoid_when") or ""
+        lines.append(
+            f"- {d['name']} ({d.get('category', 'unknown')}{annot}): "
+            f"best_for={best_for!r}; avoid_when={avoid_when!r}; "
+            f"strengths=[{strengths}]; weaknesses=[{weaknesses}]")
+
+    profile_str = (
+        f"data_type={profile.get('data_type', 'tabular')}, "
+        f"n_samples={profile.get('n_samples', '?')}, "
+        f"n_features={profile.get('n_features', '?')}, "
+        f"contamination_estimate={profile.get('contamination_estimate', '?')}"
+    )
+
+    # Never ask the agent for more detectors than the candidate set holds:
+    # the image and text modalities expose fewer than the default top_k, and
+    # an impossible exact count pushes the LLM toward duplicate or invented
+    # names (which would add noise to the Phase B soft-KB condition).
+    n_to_return = min(top_k, len(detectors))
+    return (
+        "You are an anomaly-detection routing expert. Given the task "
+        "profile and a list of available detectors annotated with "
+        "strengths, weaknesses, best_for, avoid_when, and a calibrated "
+        "within-modality KB score with an uncertainty interval, choose the "
+        "ordered top-K detectors most likely to succeed on this task.\n\n"
+        f"{_SOFT_KB_GUIDE}\n\n"
+        f"TASK PROFILE: {profile_str}\n\n"
+        f"AVAILABLE DETECTORS ({len(detectors)}):\n"
+        + "\n".join(lines) + "\n\n"
+        f"Return exactly {n_to_return} detectors as a JSON array of objects, "
         'each shaped {"detector": "<name>", "justification": "<one '
         'sentence>"}. Detector names are case-sensitive and must come '
         "from the list above. Return ONLY the JSON array (no prose, "
