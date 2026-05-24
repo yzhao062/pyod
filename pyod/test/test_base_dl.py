@@ -98,6 +98,24 @@ class DummyDetector2(DummyDetector):
         return loss.item(), loss.item()
 
 
+class TrackingDummyDetector(DummyDetector):
+    def __init__(self, contamination=0.1, epoch_num=1, optimizer_name='adam',
+                 loss_func=None, criterion=None, criterion_name='mse',
+                 verbose=1, preprocessing=True, use_compile=False):
+        super(TrackingDummyDetector, self).__init__(
+            contamination=contamination, epoch_num=epoch_num,
+            optimizer_name=optimizer_name, loss_func=loss_func,
+            criterion=criterion, criterion_name=criterion_name,
+            verbose=verbose, preprocessing=preprocessing,
+            use_compile=use_compile)
+        self.batch_size_calls = []
+
+    def decision_function(self, X, batch_size=None):
+        self.batch_size_calls.append(batch_size)
+        return super(TrackingDummyDetector, self).decision_function(
+            X, batch_size=batch_size)
+
+
 class TestBaseDL(unittest.TestCase):
     def assertHasAttr(self, obj, intended_attr):
         self.assertTrue(hasattr(obj, intended_attr))
@@ -193,6 +211,57 @@ class TestBaseDL(unittest.TestCase):
             zero_scores.all())
 
         os.remove('dummy_clf.txt')
+
+    def test_predict_batch_size_forwarding(self):
+        dummy_clf = TrackingDummyDetector()
+        dummy_clf.fit(self.X_train)
+
+        dummy_clf.batch_size_calls = []
+        pred_labels = dummy_clf.predict(self.X_test, batch_size=7)
+        self.assertEqual(pred_labels.shape[0], self.X_test.shape[0])
+        self.assertEqual(dummy_clf.batch_size_calls, [7])
+
+        dummy_clf.batch_size_calls = []
+        pred_labels, confidence = dummy_clf.predict(
+            self.X_test, return_confidence=True, batch_size=8)
+        self.assertEqual(pred_labels.shape[0], self.X_test.shape[0])
+        self.assertEqual(confidence.shape[0], self.X_test.shape[0])
+        self.assertEqual(dummy_clf.batch_size_calls, [8, 8])
+
+    def test_predict_proba_batch_size_forwarding(self):
+        dummy_clf = TrackingDummyDetector()
+        dummy_clf.fit(self.X_train)
+
+        dummy_clf.batch_size_calls = []
+        pred_proba = dummy_clf.predict_proba(self.X_test, batch_size=9)
+        self.assertEqual(pred_proba.shape[0], self.X_test.shape[0])
+        self.assertEqual(dummy_clf.batch_size_calls, [9])
+
+        dummy_clf.batch_size_calls = []
+        pred_proba, confidence = dummy_clf.predict_proba(
+            self.X_test, return_confidence=True, batch_size=10)
+        self.assertEqual(pred_proba.shape[0], self.X_test.shape[0])
+        self.assertEqual(confidence.shape[0], self.X_test.shape[0])
+        self.assertEqual(dummy_clf.batch_size_calls, [10, 10])
+
+    def test_predict_confidence_batch_size_forwarding(self):
+        dummy_clf = TrackingDummyDetector()
+        dummy_clf.fit(self.X_train)
+
+        dummy_clf.batch_size_calls = []
+        confidence = dummy_clf.predict_confidence(self.X_test, batch_size=11)
+        self.assertEqual(confidence.shape[0], self.X_test.shape[0])
+        self.assertEqual(dummy_clf.batch_size_calls, [11])
+
+    def test_predict_with_rejection_batch_size_forwarding(self):
+        dummy_clf = TrackingDummyDetector()
+        dummy_clf.fit(self.X_train)
+
+        dummy_clf.batch_size_calls = []
+        pred_labels = dummy_clf.predict_with_rejection(
+            self.X_test, return_stats=False, batch_size=12)
+        self.assertEqual(pred_labels.shape[0], self.X_test.shape[0])
+        self.assertEqual(dummy_clf.batch_size_calls, [12, 12])
 
     def tearDown(self):
         pass

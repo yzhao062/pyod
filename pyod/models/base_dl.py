@@ -9,10 +9,15 @@ import os
 import pickle
 import random
 import time
+import warnings
 from abc import abstractmethod
 from inspect import isfunction
 
 import numpy as np
+from scipy.special import erf
+from scipy.stats import binom
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.utils.validation import check_is_fitted
 
 try:
     import torch
@@ -290,6 +295,223 @@ class BaseDeepLearningDetector(BaseDetector):
         anomaly_scores = self.evaluate(data_loader)
         anomaly_scores = self.decision_function_update(anomaly_scores)
         return anomaly_scores
+
+    def predict(self, X, return_confidence=False, batch_size=None):
+        """Predict if a particular sample is an outlier or not.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        return_confidence : boolean, optional(default=False)
+            If True, also return the confidence of prediction.
+
+        batch_size : int, optional (default=None)
+            The batch size for processing the input samples.
+            If not specified, the default batch size is used.
+
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+            For each observation, tells whether
+            it should be considered as an outlier according to the
+            fitted model. 0 stands for inliers and 1 for outliers.
+        confidence : numpy array of shape (n_samples,).
+            Only if return_confidence is set to True.
+        """
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        pred_score = self.decision_function(X, batch_size=batch_size)
+
+        if isinstance(self.contamination, (float, int)):
+            prediction = (pred_score > self.threshold_).astype('int').ravel()
+        else:
+            prediction = self.contamination.eval(pred_score)
+
+        if return_confidence:
+            confidence = self.predict_confidence(X, batch_size=batch_size)
+            return prediction, confidence
+
+        return prediction
+
+    def predict_proba(self, X, method='linear', return_confidence=False,
+                      batch_size=None):
+        """Predict the probability of a sample being outlier.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        method : str, optional (default='linear')
+            Probability conversion method. It must be one of
+            'linear' or 'unify'.
+
+        return_confidence : boolean, optional(default=False)
+            If True, also return the confidence of prediction.
+
+        batch_size : int, optional (default=None)
+            The batch size for processing the input samples.
+            If not specified, the default batch size is used.
+
+        Returns
+        -------
+        outlier_probability : numpy array of shape (n_samples, n_classes)
+            For each observation, tells whether or not
+            it should be considered as an outlier according to the
+            fitted model. Return the outlier probability, ranging
+            in [0,1]. Note it depends on the number of classes, which is by
+            default 2 classes ([proba of normal, proba of outliers]).
+        """
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        train_scores = self.decision_scores_
+        test_scores = self.decision_function(X, batch_size=batch_size)
+
+        probs = np.zeros([X.shape[0], int(self._classes)])
+        if method == 'linear':
+            scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
+            probs[:, 1] = scaler.transform(
+                test_scores.reshape(-1, 1)).ravel().clip(0, 1)
+            probs[:, 0] = 1 - probs[:, 1]
+
+            if return_confidence:
+                confidence = self.predict_confidence(X, batch_size=batch_size)
+                return probs, confidence
+
+            return probs
+
+        elif method == 'unify':
+            pre_erf_score = (test_scores - self._mu) / (
+                    self._sigma * np.sqrt(2))
+            erf_score = erf(pre_erf_score)
+            probs[:, 1] = erf_score.clip(0, 1).ravel()
+            probs[:, 0] = 1 - probs[:, 1]
+
+            if return_confidence:
+                confidence = self.predict_confidence(X, batch_size=batch_size)
+                return probs, confidence
+
+            return probs
+        else:
+            raise ValueError(method,
+                             'is not a valid probability conversion method')
+
+    def predict_confidence(self, X, batch_size=None):
+        """Predict the model's confidence in making the same prediction.
+
+        Parameters
+        -------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        batch_size : int, optional (default=None)
+            The batch size for processing the input samples.
+            If not specified, the default batch size is used.
+
+        Returns
+        -------
+        confidence : numpy array of shape (n_samples,)
+            For each observation, tells how consistently the model would
+            make the same prediction if the training set was perturbed.
+            Return a probability, ranging in [0,1].
+        """
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+
+        n = len(self.decision_scores_)
+
+        test_scores = self.decision_function(X, batch_size=batch_size)
+
+        count_instances = np.vectorize(
+            lambda x: np.count_nonzero(self.decision_scores_ <= x))
+        n_instances = count_instances(test_scores)
+
+        posterior_prob = np.vectorize(lambda x: (1 + x) / (2 + n))(n_instances)
+
+        if not isinstance(self.contamination, (float, int)):
+            contam = np.sum(self.labels_) / n
+        else:
+            contam = self.contamination
+
+        confidence = np.vectorize(
+            lambda p: 1 - binom.cdf(n - int(n * contam), n, p))(
+            posterior_prob)
+
+        if isinstance(self.contamination, (float, int)):
+            prediction = (test_scores > self.threshold_).astype('int').ravel()
+        else:
+            prediction = self.contamination.eval(test_scores)
+        np.place(confidence, prediction == 0, 1 - confidence[prediction == 0])
+
+        return confidence
+
+    def predict_with_rejection(self, X, T=32, return_stats=False,
+                               delta=0.1, c_fp=1, c_fn=1, c_r=-1,
+                               batch_size=None):
+        """Predict if a particular sample is an outlier or not.
+
+        Parameters
+        ----------
+        X : numpy array of shape (n_samples, n_features)
+            The input samples.
+
+        T : int, optional(default=32)
+            It allows to set the rejection threshold to 1-2exp(-T).
+            The higher the value of T, the more rejections are made.
+
+        return_stats: bool, optional (default = False)
+                      If true, it returns also three additional float values:
+                      the estimated rejection rate, the upper bound rejection
+                      rate, and the upper bound of the cost.
+
+        delta: float, optional (default = 0.1)
+               The upper bound rejection rate holds with probability 1-delta.
+
+        c_fp, c_fn, c_r: floats (positive), optional (default = [1,1, contamination])
+                         costs for false positive predictions (c_fp), false
+                         negative predictions (c_fn) and rejections (c_r).
+
+        batch_size : int, optional (default=None)
+            The batch size for processing the input samples.
+            If not specified, the default batch size is used.
+
+        Returns
+        -------
+        outlier_labels : numpy array of shape (n_samples,)
+                         For each observation, it tells whether it should be
+                         considered as an outlier according to the fitted
+                         model. 0 stands for inliers, 1 for outliers and
+                         -2 for rejection.
+
+        expected_rejection_rate:   float, if return_stats is True;
+        upperbound_rejection_rate: float, if return_stats is True;
+        upperbound_cost:           float, if return_stats is True;
+        """
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        if c_r < 0:
+            warnings.warn(
+                "The cost of rejection must be positive. "
+                "It has been set to the contamination rate.")
+            c_r = self.contamination
+
+        if delta <= 0 or delta >= 1:
+            warnings.warn(
+                "delta must belong to (0,1). It's value has been set to 0.1")
+            delta = 0.1
+
+        self.rejection_threshold_ = 1 - 2 * np.exp(-T)
+        prediction = self.predict(X, batch_size=batch_size)
+        confidence = self.predict_confidence(X, batch_size=batch_size)
+        np.place(confidence, prediction == 0, 1 - confidence[prediction == 0])
+        confidence = 2 * abs(confidence - .5)
+        prediction[np.where(confidence <= self.rejection_threshold_)[0]] = -2
+
+        if return_stats:
+            expected_rejrate, ub_rejrate, ub_cost = self.compute_rejection_stats(
+                T=T, delta=delta,
+                c_fp=c_fp, c_fn=c_fn, c_r=c_r)
+            return prediction, [expected_rejrate, ub_rejrate, ub_cost]
+
+        return prediction
 
     def evaluating_prepare(self):
         self.model.eval()

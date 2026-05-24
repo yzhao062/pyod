@@ -45,6 +45,10 @@ if __name__ == "__main__":
     y_test_pred = clf.predict(X_test)  # outlier labels (0 or 1)
     y_test_scores = clf.decision_function(X_test)  # outlier scores
 
+    # deep detectors also support overriding the inference batch size per call
+    y_test_pred_fast = clf.predict(X_test, batch_size=256)
+    y_test_scores_fast = clf.decision_function(X_test, batch_size=256)
+
     # evaluate and print the results
     print("\nOn Training Data:")
     evaluate_print(clf_name, y_train, y_train_scores)

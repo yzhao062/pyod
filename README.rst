@@ -704,6 +704,10 @@ More detailed instructions for running examples can be found in `examples direct
        # it is possible to get the prediction confidence as well
        y_test_pred, y_test_pred_confidence = clf.predict(X_test, return_confidence=True)  # outlier labels (0 or 1) and confidence in the range of [0,1]
 
+       # deep learning detectors also allow per-call inference batching
+       y_test_pred = clf.predict(X_test, batch_size=256)
+       y_test_scores = clf.decision_function(X_test, batch_size=256)
+
 #. Evaluate the prediction by ROC and Precision @ Rank n (p@n).
 
    .. code-block:: python

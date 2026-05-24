@@ -68,6 +68,12 @@ class TestAutoEncoder(unittest.TestCase):
         pred_labels = self.clf.predict(self.X_test)
         self.assertEqual(pred_labels.shape, self.y_test.shape)
 
+    def test_prediction_batch_size_override(self):
+        pred_scores = self.clf.decision_function(self.X_test, batch_size=64)
+        pred_labels = self.clf.predict(self.X_test, batch_size=64)
+        self.assertEqual(pred_scores.shape[0], self.X_test.shape[0])
+        self.assertEqual(pred_labels.shape, self.y_test.shape)
+
     def test_prediction_proba(self):
         pred_proba = self.clf.predict_proba(self.X_test)
         self.assertInRange(pred_proba, 0, 1)
