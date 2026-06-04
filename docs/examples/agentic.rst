@@ -1,7 +1,7 @@
 Layer 3: Agentic Investigation
 ===============================
 
-PyOD 3's ``od-expert`` skill lets any AI agent drive a full anomaly detection investigation through natural conversation. The agent handles benchmark-backed detector selection, multi-detector consensus, quality assessment, adaptive escalation, and iteration on user feedback, all without requiring the user to be an OD expert.
+PyOD 3's ``od-expert`` skill lets any AI agent drive a full anomaly detection investigation through natural conversation. The agent handles benchmark-backed detector selection, multi-detector consensus, quality diagnostics, adaptive escalation, and iteration on user feedback, all without requiring the user to be an OD expert.
 
 .. figure:: ../figs/agentic-demo.png
    :alt: PyOD 3 agentic investigation demo on a diabetes screening dataset
@@ -43,9 +43,9 @@ When a user asks about anomalies in their data, PyOD's ``od-expert`` skill auto-
 1. **Walks the master decision tree** -- timestamps, graph structure, text/image, or tabular? Load the matching ``references/<modality>.md``.
 2. **Walks the top-10 pitfall checklist** -- is any pitfall active for this data? Example: feature scale ratio > 100 triggers Pitfall 1 (unscaled features for distance-based detectors) and the agent recommends a pre-scaling step or flags it in the report.
 3. **Walks the 11 escalation triggers** -- does anything about the request call for a pause? Example: "medical screening" fires Trigger 8 (high-stakes domain) and the agent commits to dual-detector validation and a confidence caveat.
-4. **Selects detectors** -- calls ``engine.plan(state)`` to pick the top-3 from PyOD's 61-detector catalog based on benchmark evidence (ADBench, TSB-AD, BOND). Each plan entry in ``state.plans`` has ``detector_name``, ``confidence``, ``reason``, ``evidence``.
+4. **Selects detectors** -- calls ``engine.plan(state)`` to pick the top-3 from PyOD's 60-detector catalog based on benchmark evidence (ADBench, TSB-AD, BOND). The benchmark ranks seed the plan; the agent may override them from its own judgment or the user's constraints. Each plan entry in ``state.plans`` has ``detector_name``, ``confidence``, ``reason``, ``evidence``.
 5. **Runs in parallel** -- executes all selected detectors and builds a rank-normalized consensus in ``state.consensus``.
-6. **Re-walks a subset of triggers post-run** -- detector disagreement (T3), weak quality (T4), suspiciously clean results (T10). If any fire, the agent hedges the report or iterates.
+6. **Re-walks a subset of triggers post-run** -- detector disagreement (T3), cutoff instability (T4), suspiciously clean results (T10). If any fire, the agent hedges the report or iterates.
 7. **Generates a report** -- Markdown or JSON, always including a "what I assumed and why" block that lists the contamination rate, the detectors used, the best detector, and any caveats the trigger/pitfall walk surfaced.
 
 The agent's decisions at each of these steps are visible in the interactive demo's dark "od-expert" panels.
@@ -122,9 +122,10 @@ Why this dataset? It exercises the skill's machinery: the feature scale ratio is
            low-dim small datasets. Scale mismatch noted for
            the final report.
 
-           Results: 62 flagged (8.1%), separation 0.96,
-           agreement 0.59, quality HIGH (0.79). Top case:
-           patient #13. KNN strongest individually.
+           Results: 62 flagged (8.1%), agreement 0.59
+           (label-free; separation and the quality verdict
+           are descriptive only). Top case: patient #13.
+           KNN strongest individually.
 
 Behind the scenes:
 
@@ -281,4 +282,4 @@ With PyOD 3 and the v3.2.0 ``od-expert`` skill:
 6. Re-checks quality-related triggers post-run and hedges the report accordingly.
 7. Always reports the assumptions and caveats, including the scale mismatch, contamination, and any triggered escalations.
 
-The agent becomes an OD expert through the library, not despite it.
+The agent follows an OD expert's workflow through the library, not despite it.

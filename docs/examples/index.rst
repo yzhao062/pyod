@@ -54,7 +54,7 @@ following ``state.next_action`` at each step. See :doc:`agentic` for the full wa
 Examples by Data Type
 ---------------------
 
-* :doc:`tabular`: 50+ detectors for tabular data (ECOD, IForest, KNN, LOF, ...)
+* :doc:`tabular`: 43 detectors for tabular data (ECOD, IForest, KNN, LOF, ...)
 * :doc:`timeseries`: 5 shipped + 2 experimental time series detectors (KShape, MatrixProfile, SpectralResidual, ...)
 * :doc:`graph`: 8 graph detectors (DOMINANT, CoLA, CONAD, ...)
 * :doc:`embedding`: Text and image detection via foundation model embeddings

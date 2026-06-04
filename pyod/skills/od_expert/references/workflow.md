@@ -72,9 +72,9 @@ When a trigger fires, the agent pauses and asks the user. These phrasings are in
 
 > "The top-3 detectors I ran ([A], [B], [C]) disagree on which points are anomalies (consensus = [X], where 1.0 is full agreement). I can iterate with a different set of detectors, or report what I have with a clear caveat. **Recommended: iterate** — say 'report' to skip iteration."
 
-### Trigger 4: Quality assessment weak
+### Trigger 4: Cutoff instability
 
-> "Quality diagnostics fired: separation = [X], stability = [Y]. These measure two different things and have different remedies. Low separation (< 0.1) means the detectors did not produce a usable ranking; recommended action is to iterate with a different detector mix. Low stability (< 0.5) means the cutoff is fragile (many scores tied near the threshold) but the ranking itself may still be useful; recommended action is `engine.iterate(state, {'action': 'adjust_contamination', 'value': <rate>})`. If both metrics are low, treat as the separation case first because adjusting the cutoff cannot fix a noisy ranking. I'll iterate accordingly unless you say 'report'."
+> "Cutoff diagnostic fired: stability = [Y]. Many scores are tied near the threshold, so the flagged set is sensitive to the contamination value. This describes threshold sensitivity, not whether the labels are correct; the remedy is `engine.iterate(state, {'action': 'adjust_contamination', 'value': <rate>})`, or report with a threshold-sensitivity caveat. Note that `separation` is computed from the run's own predicted labels and is near-always high, so it is descriptive only and not a quality gate. If the detectors disagree (low `agreement`), handle Trigger 3 first, because adjusting the cutoff cannot fix a ranking the detectors do not agree on. I will iterate accordingly unless you say 'report'."
 
 ### Trigger 5: Labels mentioned but not provided
 
@@ -102,7 +102,7 @@ When a trigger fires, the agent pauses and asks the user. These phrasings are in
 
 ### Trigger 11: Iteration loop deadlock
 
-> "I've iterated twice with no quality improvement. The result is still [X separation, Y stability]. I can keep going with a fresh detector mix, or settle on what we have and report. Recommended: report. Say 'iterate' to keep going."
+> "I have iterated twice without improving agreement or cutoff stability. I can keep going with a fresh detector mix, or settle on what we have and report with the remaining caveats. Recommended: report. Say 'iterate' to keep going."
 
 ## The cardio canonical worked example
 
@@ -174,7 +174,7 @@ No triggers fire. Move toward report.
 
 Agent reports to user:
 
-> "Detection complete. The three detectors converged 3/3 with agreement 0.68 and a clean cutoff (stability around 0.X on this synthetic example), overall quality high. `IForest` had the highest correlation with the consensus. Found 172 cases flagged out of 1,831 at the default contamination rate of 0.1."
+> "Detection complete. The three detectors converged 3/3 with agreement 0.68 and a clean cutoff (stability around 0.X on this synthetic example); this is label-free internal consistency, not a correctness guarantee. `IForest` had the highest correlation with the consensus. Found 172 cases flagged out of 1,831 at the default contamination rate of 0.1."
 
 ### Turn 3: Report
 
@@ -188,7 +188,7 @@ Agent translates the report into user-facing language using the result interpret
 >
 > - **172 of 1,831 recordings (9.4%) flagged as unusual.** The agent ran a consensus of 3 detectors (`IForest`, `ECOD`, `KNN`) using ADEngine's default contamination of 0.1. If that rate looks wrong for the clinical context, re-run via `engine.iterate(state, {"action": "adjust_contamination", "value": <rate>})`.
 > - **Top case**: row #1656 (analyzed via `IForest`, the detector with the highest Spearman correlation with the consensus). Drill into `state.analysis['consensus_analysis']['top_anomalies']` for the ranked index list, then call `engine.explain_findings(state.results[best_idx])` for per-feature z-scores.
-> - **Confidence**: high. Overall quality is high. Agreement across detectors is 0.68 and stability is around 0.X (cutoff-gap-based). For reference only (not seen by the agent during detection): validation against the cardio ground truth gave precision 49.4% (85/172) at recall 48.3% (85/176).
+> - **Confidence**: label-free. Agreement across detectors is 0.68 and stability is around 0.X (cutoff-gap-based). For reference only (not seen by the agent during detection): validation against the cardio ground truth gave precision 49.4% (85/172) at recall 48.3% (85/176).
 >
 > **What I assumed**:
 > - Data is tabular and unlabeled
@@ -202,21 +202,21 @@ Agent translates the report into user-facing language using the result interpret
 
 When translating `state.consensus['scores']`, `state.consensus['labels']`, and `state.quality` into user-facing language:
 
-### High agreement + high separation → confident report
+### High agreement → internally consistent report
 
-Phrasing: "Found N anomalies. The detectors agreed well (consensus X) and the separation is strong (Y). Confidence: high."
+Phrasing: "Found N anomalies. The detectors agreed well (agreement X). The result is internally consistent; confidence is still label-free, so validate the top cases against held-out labels or domain review."
 
-### High agreement + low separation → calibration warning
+### Low agreement → hedged report or iterate
 
-Phrasing: "The detectors agree on the flagged points, but the gap between flagged and normal is small (separation Y < 0.2). The result is internally consistent but may reflect a dataset with no strong outliers. Confidence: medium-low."
+Phrasing: "The detectors disagree (agreement X < 0.4), which can indicate an input with no shared structure (near-noise). Iterating with a different mix is recommended. If reporting now: confidence is low."
 
-### Low agreement + any separation → hedged report or iterate
+### Fragile cutoff (low stability) → threshold-sensitivity note
 
-Phrasing: "The detectors disagree (consensus X < 0.4). Iterating with a different mix is recommended. If reporting now: confidence is low."
+Phrasing: "The flagged set has a fragile cutoff (stability Y): many scores are tied near the threshold, so the exact count is sensitive to the contamination value. This describes threshold sensitivity, not correctness."
 
-### Single-detector consensus (one detector clearly best)
+### Single strong detector (one detector clearly preferred by the plan)
 
-Phrasing: "`ECOD` performed substantially better than `IForest` and `LOF` on this dataset (separation 0.34 vs 0.12 and 0.18). Reporting `ECOD`'s flagged points as the primary result."
+Phrasing: "`ECOD` is the strongest planned detector for this setting. Reporting its flagged points is acceptable when the plan clearly prefers it or the user requested it; otherwise prefer consensus for robustness." Do not rank detectors by `separation`: it is computed from each detector's own predicted labels and is not a cross-detector quality measure.
 
 ### Result with labels (supervised mode via XGBOD)
 

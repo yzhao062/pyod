@@ -31,6 +31,37 @@ def test_pyod_info_runs():
     assert "detectors" in result.stdout.lower() or "Detectors" in result.stdout
 
 
+def test_pyod_info_excludes_planned_detectors():
+    """`pyod info` counts only buildable detectors (status != planned).
+
+    A planned entry (e.g., LLMAD) has no backing module and must not inflate
+    the reported total. Expected counts are computed from the live KB so the
+    test does not hardcode a number that legitimate detector additions change;
+    it only locks the invariant that planned entries are excluded.
+    """
+    from pyod.utils.ad_engine import ADEngine
+
+    kb = ADEngine().kb.algorithms
+    buildable = {n: a for n, a in kb.items() if a.get("status") != "planned"}
+    expected_total = len(buildable)
+    expected_tabular = sum(
+        1 for a in buildable.values() if "tabular" in a.get("data_types", []))
+    assert expected_total < len(kb), (
+        "test precondition: KB should have at least one planned entry to "
+        "exercise the exclusion; if none remain, drop this assertion")
+
+    result = subprocess.run(
+        [sys.executable, "-m", "pyod.cli", "info"],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 0, f"stderr={result.stderr}"
+    assert f"{expected_total} total" in result.stdout, (
+        f"expected '{expected_total} total' (buildable count) in: "
+        f"{result.stdout}")
+    assert f"{expected_tabular} tabular" in result.stdout, (
+        f"expected '{expected_tabular} tabular' in: {result.stdout}")
+
+
 def test_pyod_info_does_not_exit_without_mcp():
     """`pyod info` must not crash in a core install without the mcp extra.
 

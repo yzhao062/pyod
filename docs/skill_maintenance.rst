@@ -6,7 +6,7 @@ PyOD ships agent skills (currently ``od-expert``) as packaged Markdown that Clau
 What makes a skill "real"
 -------------------------
 
-A "real" skill encodes domain expertise so a non-expert user gets expert-quality results without driving every decision. The four criteria:
+A "real" skill encodes domain expertise so a non-expert user can run a complete, auditable workflow without driving every decision. The four criteria:
 
 1. **Drives the agent autonomously through a complete workflow.** From data to profile to detector selection to run to analyze to iterate to report, the agent makes informed decisions on the user's behalf and only pauses when uncertain (adaptive escalation).
 2. **Encodes domain knowledge a non-expert lacks.** Decision rules, pitfalls, result interpretation patterns, and worked examples, all distilled from real literature and practice.

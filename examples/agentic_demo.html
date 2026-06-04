@@ -574,7 +574,7 @@
         <div class="sp-section">
           <div class="sp-title">Post-run triggers (T3, T4, T10)</div>
           <span class="sp-pass">&check; T3</span> agreement = <b>0.59</b> &gt; 0.4 floor.<br>
-          <span class="sp-pass">&check; T4</span> separation = <b>0.96</b>, stability = <b>0.81</b>, overall = <b>0.79</b> (verdict: <b>high</b>).<br>
+          <span class="sp-pass">&check; T4</span> stability = <b>0.81</b> (cutoff stable); separation = <b>0.96</b> is descriptive only; overall quality is a diagnostic summary, not correctness evidence.<br>
           <span class="sp-pass">&check; T10</span> not over-tight.<br>
           <span class="sp-kv"><b>state.next_action['action']</b> = 'report_to_user'.</span>
         </div>
@@ -705,7 +705,7 @@
           <strong>Detectors:</strong> KNN, IForest, LOF (3 / 3 converged)<br>
           <strong>Best detector:</strong> KNN (highest correlation with consensus)<br>
           <strong>Final flagged (consensus):</strong> 62 patients (8.1%)<br>
-          <strong>Quality:</strong> <span class="verdict high">HIGH (0.79)</span>
+          <strong>Diagnostics:</strong> <span class="verdict high">internally consistent; validate clinically</span>
         </div>
 
         <hr class="sep">
@@ -731,7 +731,7 @@
   </div>
 
   <div class="footer">
-    <strong>PyOD V3.2.0</strong> &middot; 61 detectors &middot; 5 modalities &middot; od-expert skill (1000 lines: SKILL.md + 6 references)<br>
+    <strong>PyOD V3.2.0</strong> &middot; 60 detectors &middot; 5 modalities &middot; od-expert skill (1000 lines: SKILL.md + 6 references)<br>
     <a href="https://github.com/yzhao062/pyod">github.com/yzhao062/pyod</a> &middot;
     <a href="https://pyod.readthedocs.io">pyod.readthedocs.io</a> &middot;
     <code style="font-size: 12px;">pip install pyod &amp;&amp; pyod install skill</code>

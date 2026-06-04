@@ -1,7 +1,7 @@
 ADEngine
 ========
 
-:class:`pyod.utils.ad_engine.ADEngine` is PyOD's intelligent anomaly detection engine. It provides three layers of capability:
+:class:`pyod.utils.ad_engine.ADEngine` is PyOD's anomaly detection lifecycle engine. It provides three layers of capability:
 
 * **Knowledge queries** -- list detectors, explain detectors, get benchmarks
 * **Detection lifecycle** -- profile, plan, run, analyze, explain, iterate, report

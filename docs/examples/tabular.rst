@@ -1,7 +1,7 @@
 Layer 1: Tabular Anomaly Detection
 ====================================
 
-PyOD has 50+ tabular detectors covering probabilistic, linear, proximity, ensemble, and deep learning approaches. All use the same ``fit``/``predict``/``decision_function`` API.
+PyOD has 43 tabular detectors covering probabilistic, linear, proximity, ensemble, and deep learning approaches. All use the same ``fit``/``predict``/``decision_function`` API.
 
 .. code-block:: python
 

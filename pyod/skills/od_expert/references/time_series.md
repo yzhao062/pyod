@@ -105,7 +105,7 @@ report = engine.report(state)
 >
 > Top-5 most anomalous intervals: minutes [842, 1503, 4221, 5917, 8330]. The dominant pattern in 4 of 5 was a sharp temperature spike followed by a slow recovery — characteristic of a sensor glitch or cooling failure.
 >
-> Confidence: medium-high. Separation is 0.31 (above the 0.2 floor), agreement is 0.62 (above the 0.4 floor), stability is around 0.X (cutoff-gap-based).
+> Confidence: label-free. Agreement is 0.62 (above the 0.4 floor), so the detectors are consistent; stability is around 0.X (cutoff-gap-based, a threshold-sensitivity signal), and `separation` (0.31) is descriptive only. Validate the top intervals against domain knowledge or held-out labels.
 >
 > **What I assumed**:
 > - Time series, univariate, regular sampling (passed `data_type='time_series'` explicitly)

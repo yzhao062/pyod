@@ -123,15 +123,16 @@ def skill_postrun_triggers(state):
     """Return od-expert adaptive triggers fired after analysis."""
     triggers = []
     agreement = state.quality['agreement']
-    separation = state.quality['separation']
     stability = state.quality['stability']
+    # `separation` is computed from the run's own predicted labels and is
+    # near-always high, so it is descriptive only and is NOT used as a gate.
     if agreement < 0.4:
         triggers.append('Trigger 3: detector disagreement '
                         '(agreement %.2f < 0.40).' % agreement)
-    if separation < 0.1 or stability < 0.5:
-        triggers.append('Trigger 4: weak cutoff diagnostics '
-                        '(separation %.2f, stability %.2f).'
-                        % (separation, stability))
+    if stability < 0.5:
+        triggers.append('Trigger 4: cutoff instability '
+                        '(stability %.2f < 0.50; flagged set is '
+                        'contamination-sensitive).' % stability)
     if agreement > 0.9:
         triggers.append('Trigger 10: very high agreement %.2f; '
                         'sanity-check top flagged points.' % agreement)
@@ -196,7 +197,7 @@ def print_state(label, state, y):
                   % (result['detector_name'], result.get('error')))
 
     print("Agent analysis: %s" % state.analysis['summary'])
-    print("Quality: %s (%.2f); %s"
+    print("Diagnostics (label-free): %s (%.2f); %s"
           % (state.quality['verdict'], state.quality['overall'],
              state.quality['explanation']))
     triggers = skill_postrun_triggers(state)

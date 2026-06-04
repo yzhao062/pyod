@@ -46,10 +46,16 @@ def _cmd_info(args: argparse.Namespace) -> int:
         from pyod.utils.ad_engine import ADEngine
         engine = ADEngine()
         counts: Counter = Counter()
-        for algo in engine.kb.algorithms.values():
+        # Count only buildable detectors: a `planned` entry (e.g., LLMAD) has
+        # no backing module, so it must not inflate the reported total.
+        buildable = {
+            name: algo for name, algo in engine.kb.algorithms.items()
+            if algo.get("status") != "planned"
+        }
+        for algo in buildable.values():
             for dt in algo.get("data_types", []):
                 counts[dt] += 1
-        total = len(engine.kb.algorithms)
+        total = len(buildable)
         ad_ok = True
     except Exception:
         counts = Counter()

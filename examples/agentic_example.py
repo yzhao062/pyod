@@ -2,7 +2,7 @@
 """Example: Agent-driven anomaly detection with PyOD 3 (Layer 3).
 
 Demonstrates what makes PyOD distinctive in the agentic workflow:
-    - 60+ detectors across 5 data modalities
+    - 60 detectors across 5 data modalities
     - Benchmark-backed detector selection (ADBench, TSB-AD, BOND)
     - Multi-detector consensus with per-detector scores
     - Result quality assessment
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     print("       Running all 3 in parallel...")
     print("       Consensus: %d anomalies (%.1f%%), agreement %.2f."
           % (n_anom, 100.0 * n_anom / X.shape[0], agreement))
-    print("       Result quality: %s (%.2f)."
+    print("       Diagnostics: %s (%.2f), label-free."
           % (state.quality['verdict'], state.quality['overall']))
     print()
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     print("       Each detector recomputes its threshold; consensus")
     print("       is majority vote on labels.")
     print()
-    print("       %d cases flagged (%.1f%%). Quality: %s (%.2f)."
+    print("       %d cases flagged (%.1f%%). Diagnostics: %s (%.2f), label-free."
           % (n_anom2, 100.0 * n_anom2 / X.shape[0],
              state.quality['verdict'], state.quality['overall']))
     print()

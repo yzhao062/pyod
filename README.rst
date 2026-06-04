@@ -62,7 +62,7 @@ PyOD 3 is the most comprehensive Python library for anomaly detection. Four pill
 ===========================  ========================================================================================
 Pillar                       What it means
 ===========================  ========================================================================================
-Multi-Modal                  60+ detectors across **tabular, time series, graph, text, and image** data, one API
+Multi-Modal                  60 detectors across **tabular, time series, graph, text, and image** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      ``od-expert`` turns natural-language requests into ADEngine workflows; MCP exposes structured tools for other agents
 Most Used                    38+ million downloads; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
@@ -122,7 +122,7 @@ Layer      Name                   When to use                                   
 3          Agentic Investigation  You want an AI agent to drive OD through natural conversation           `Layer 3 walkthrough <https://pyod.readthedocs.io/en/latest/examples/agentic.html>`__
 =========  =====================  ======================================================================  =======================================
 
-Layers 2 and 3 are powered by ``ADEngine``, PyOD's intelligent orchestration core. The full multi-turn Layer 3 investigation flow is available through the ``od-expert`` skill for Claude Code and Codex. The MCP server (``python -m pyod.mcp_server``) exposes ten stateless tools for MCP-compatible LLMs, spanning knowledge queries (``list_detectors``, ``explain_detector``, ``compare_detectors``, ``get_benchmarks``), planning (``profile_data``, ``plan_detection``, ``build_detector``), and detection (``run_detection``, ``analyze_results``, ``explain_findings``); stateful ``investigate`` / ``iterate`` MCP tools are deferred.
+Layers 2 and 3 are powered by ``ADEngine``, PyOD's lifecycle orchestration core. The full multi-turn Layer 3 investigation flow is available through the ``od-expert`` skill for Claude Code and Codex. The MCP server (``python -m pyod.mcp_server``) exposes ten stateless tools for MCP-compatible LLMs, spanning knowledge queries (``list_detectors``, ``explain_detector``, ``compare_detectors``, ``get_benchmarks``), planning (``profile_data``, ``plan_detection``, ``build_detector``), and detection (``run_detection``, ``analyze_results``, ``explain_findings``); stateful ``investigate`` / ``iterate`` MCP tools are deferred.
 
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/development/docs/figs/agentic-demo.png
    :alt: PyOD 3 agentic investigation demo on cardiotocography dataset
@@ -142,7 +142,7 @@ About PyOD
 
 PyOD, established in 2017, is the longest-running and most widely used Python library for anomaly detection. With `38+ million downloads <https://pepy.tech/project/pyod>`__, it serves both academic research (featured in `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`__, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`__, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`__) and commercial products.
 
-V3 extends the library with ``ADEngine`` (intelligent orchestration) and the ``od-expert`` skill (agentic workflow), while keeping the classic ``fit``/``predict`` API fully backward-compatible. V3 is built on SUOD [#Zhao2021SUOD]_ for fast parallel training and numba JIT for per-model speedups.
+V3 extends the library with ``ADEngine`` (lifecycle orchestration) and the ``od-expert`` skill (agentic workflow), while keeping the classic ``fit``/``predict`` API fully backward-compatible. V3 is built on SUOD [#Zhao2021SUOD]_ for fast parallel training and numba JIT for per-model speedups.
 
 **Impact & Recognition**:
 
@@ -253,7 +253,7 @@ Additional Topics
 Implemented Algorithms
 ^^^^^^^^^^^^^^^^^^^^^^
 
-PyOD is organized into two functional groups: **(i) Detection Algorithms**, with dedicated subsections for tabular, time series, and graph data (EmbeddingOD inside the tabular table adds multi-modal support for text and image via foundation model encoders); and **(ii) Utility Functions** for data generation, evaluation, and intelligent orchestration.
+PyOD is organized into two functional groups: **(i) Detection Algorithms**, with dedicated subsections for tabular, time series, and graph data (EmbeddingOD inside the tabular table adds multi-modal support for text and image via foundation model encoders); and **(ii) Utility Functions** for data generation, evaluation, and lifecycle orchestration.
 
 **(i-a) Tabular & Multi-Modal Detection Algorithms** :
 

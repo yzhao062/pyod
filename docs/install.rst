@@ -114,7 +114,7 @@ Example output:
 .. code-block:: text
 
     PyOD version:          3.1.0
-    Detectors (ADEngine):  61 total (44 tabular, 7 time-series, 8 graph, 3 text, 2 image, 1 multimodal)
+    Detectors (ADEngine):  60 total (43 tabular, 7 time-series, 8 graph, 2 text, 2 image, 1 multimodal)
     Classic API:           OK
     ADEngine (Layer 2):    OK
     MCP extra:             OK (run: pyod mcp serve)

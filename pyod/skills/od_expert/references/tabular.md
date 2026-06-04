@@ -1,6 +1,6 @@
 # Tabular anomaly detection reference
 
-PyOD's largest modality (44 of 61 detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
+PyOD's largest modality (43 of 60 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
 
 ## Decision table by data shape (expert heuristics)
 
@@ -41,7 +41,6 @@ These are rules of thumb for reasoning about which detectors a non-expert would 
 - **KDE** (Kernel Density Estimation) — complexity: time O(n^2 * d), space O(n * d); best for: Low-to-moderate dimensional data where non-parametric density estimation is desired; avoid when: Data is high-dimensional or dataset is very large; paper: Latecki et al., SDM 2007
 - **KNN** (K-Nearest Neighbors Outlier Detection) — complexity: time O(n^2 * d), space O(n * d); best for: General-purpose distance-based outlier detection on moderate-sized datasets; avoid when: Dataset is very large or has highly variable local densities; paper: Ramaswamy et al., SIGMOD 2000
 - **KPCA** (Kernel Principal Component Analysis) — complexity: time O(n^2 * d), space O(n^2); best for: Moderately sized datasets with nonlinear structure; avoid when: Dataset is very large due to quadratic kernel matrix or a linear model suffices; paper: Hoffmann, 2007
-- **LLMAD** (LLM-Based Anomaly Detection) — complexity: time varies, space varies; best for: Zero-shot or few-shot anomaly detection leveraging LLM world knowledge; avoid when: Feature is needed before release or LLM API costs are prohibitive; paper: TBD
 - **LMDD** (Linear Model Deviation-based Detection) — complexity: time O(n_iter * n * d), space O(n * d); best for: Multivariate data where anomalies are detectable through linear projections; avoid when: Anomalies require nonlinear feature combinations to detect; paper: Arning et al., KDD 1996
 - **LOCI** (Local Correlation Integral) — complexity: time O(n^2 * d), space O(n^2); best for: Small to medium datasets where automatic threshold selection is valued; avoid when: Dataset is large or faster LOF-based methods are sufficient; paper: Papadimitriou et al., ICDE 2003
 - **LODA** (Lightweight Online Detector of Anomalies) — complexity: time O(n * n_cuts * d), space O(n_bins * n_cuts); best for: Streaming or online anomaly detection with limited computational resources; avoid when: Batch setting with enough time for more powerful methods; paper: Pevny, 2016
@@ -112,7 +111,7 @@ report = engine.report(state)
 >
 > Top-5 most suspicious: rows [42, 77, 153, 891, 1240]. The dominant features driving their flagging were transaction amount (4 of 5) and time-of-day (3 of 5).
 >
-> Confidence: medium. Separation is moderate (0.28), so I recommend manually checking the top-5 against your fraud database.
+> Confidence: label-free. The detectors agreed (agreement 0.71), so the result is internally consistent, but I recommend manually checking the top-5 against your fraud database to confirm.
 >
 > **What I assumed**:
 > - Tabular, unlabeled
@@ -136,7 +135,7 @@ Some datasets have outliers concentrated in 1-2 columns (e.g., latency monitorin
 
 ### T4. Ensemble combination defaults
 
-The default consensus combination is `mean`. For very imbalanced detector quality, `weighted_mean` (weighted by separation) can be better. Mitigation: ADEngine handles this if you use `engine.run` directly. Do not bypass.
+The default consensus combination is `mean`. Do not weight detectors by `separation`; it is computed from each detector's own predicted labels and is not a cross-detector quality measure. Use the rank-normalized consensus from `state.consensus['scores']`, and inspect low `agreement` when detector rankings conflict.
 
 ### T5. ID-only embeddings without numerics
 

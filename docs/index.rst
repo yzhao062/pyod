@@ -64,16 +64,16 @@ Welcome to PyOD 3 documentation!
 
 .. note::
 
-   **New in V3.** Any AI agent can now run expert-level anomaly detection on your data. Just ask.
+   **New in V3.** Any AI agent can now run a complete anomaly detection workflow on your data. Just ask.
 
 PyOD 3 is the most comprehensive Python library for anomaly detection. Four pillars:
 
 ===========================  ========================================================================================
 Pillar                       What it means
 ===========================  ========================================================================================
-Multi-Modal                  60+ detectors across **tabular, time series, graph, text, and image** data, one API
+Multi-Modal                  60 detectors across **tabular, time series, graph, text, and image** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
-Agentic                      Ask in plain English, and AI agents run expert-level detection without OD expertise
+Agentic                      Ask in plain English, and AI agents run the full detection workflow without OD expertise
 Most Used                    `38+ million downloads <https://pepy.tech/project/pyod>`_; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
 ===========================  ========================================================================================
 
@@ -131,7 +131,7 @@ Layer      Name                   When to use                                   
 3          Agentic Investigation  You want an AI agent to drive OD through natural conversation           :doc:`examples/agentic`
 =========  =====================  ======================================================================  ============================
 
-Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's intelligent orchestration core. Layer 3 adds the ``od-expert`` skill that auto-activates in Claude Code, Codex, and MCP-compatible agents.
+Layers 2 and 3 are powered by :class:`~pyod.utils.ad_engine.ADEngine`, PyOD's lifecycle orchestration core. Layer 3 adds the ``od-expert`` skill that auto-activates in Claude Code, Codex, and MCP-compatible agents.
 
 .. figure:: figs/agentic-demo.png
    :alt: PyOD 3 agentic investigation demo on cardiotocography dataset
@@ -157,7 +157,7 @@ About PyOD
 
 PyOD, established in 2017, is the longest-running and most widely used Python library for `anomaly detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_. With `38+ million downloads <https://pepy.tech/project/pyod>`_, it serves both academic research and commercial products worldwide.
 
-V3 extends the library with :class:`~pyod.utils.ad_engine.ADEngine` (intelligent orchestration) and the ``od-expert`` skill (agentic workflow), while keeping the classic ``fit``/``predict`` API fully backward-compatible. V3 is built on SUOD :cite:`a-zhao2021suod` for fast parallel training and numba JIT for per-model speedups.
+V3 extends the library with :class:`~pyod.utils.ad_engine.ADEngine` (lifecycle orchestration) and the ``od-expert`` skill (agentic workflow), while keeping the classic ``fit``/``predict`` API fully backward-compatible. V3 is built on SUOD :cite:`a-zhao2021suod` for fast parallel training and numba JIT for per-model speedups.
 
 **Citing PyOD**:
 
@@ -208,7 +208,7 @@ Benchmarks
 Implemented Algorithms
 ======================
 
-PyOD is organized into two functional groups: **(i) Detection Algorithms**, with dedicated subsections for tabular, time series, and graph data (EmbeddingOD inside the tabular table adds multi-modal support for text and image via foundation model encoders); and **(ii) Utility Functions** for data generation, evaluation, and intelligent orchestration.
+PyOD is organized into two functional groups: **(i) Detection Algorithms**, with dedicated subsections for tabular, time series, and graph data (EmbeddingOD inside the tabular table adds multi-modal support for text and image via foundation model encoders); and **(ii) Utility Functions** for data generation, evaluation, and lifecycle orchestration.
 
 **(i-a) Tabular & Multi-Modal Detection Algorithms** :
 
@@ -390,7 +390,7 @@ Encoding             :func:`~pyod.utils.encoders.resolve_encoder`     Resolve an
 Encoding             SentenceTransformerEncoder                       Encode text via sentence-transformers models (see :doc:`pyod.utils <pyod.utils>`)
 Encoding             OpenAIEncoder                                    Encode text via OpenAI Embeddings API (see :doc:`pyod.utils <pyod.utils>`)
 Encoding             HuggingFaceEncoder                               Encode text or images via HuggingFace transformers (see :doc:`pyod.utils <pyod.utils>`)
-Intelligence         :class:`~pyod.utils.ad_engine.ADEngine`          Intelligent anomaly detection lifecycle engine: profiling, planning, execution, analysis, and reporting
+Orchestration        :class:`~pyod.utils.ad_engine.ADEngine`          Anomaly detection lifecycle engine: profiling, planning, execution, analysis, and reporting
 ===================  ===============================================  =====================================================================================================================================================
 
 

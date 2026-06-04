@@ -319,6 +319,57 @@ def test_kb_loads_cleanly():
     )
 
 
+def test_skill_count_prose_matches_kb():
+    """Hand-written detector-count claims in skill prose must match the KB.
+
+    These counts live OUTSIDE KB-DERIVED blocks (the ``KB-snapshot`` marker in
+    SKILL.md and the modality header in references/tabular.md), so the
+    byte-identical regen check does not cover them. A ``planned`` entry (e.g.
+    LLMAD) has no backing module, so the buildable count excludes
+    ``status == 'planned'``. This locks the counts against the stale-inflation
+    regression fixed in the claim audit (they had read 61 / "44 of 61").
+    """
+    import re
+
+    kb = _load_kb()
+    buildable = {n: a for n, a in kb.items() if a.get("status") != "planned"}
+    total = len(buildable)
+    tabular = sum(
+        1 for a in buildable.values() if "tabular" in a.get("data_types", []))
+
+    skill_md = (SKILLS_DIR / "od_expert" / "SKILL.md").read_text(encoding="utf-8")
+    m = re.search(r"<!-- KB-snapshot count -->(\d+)<!-- /KB-snapshot -->", skill_md)
+    assert m, "KB-snapshot count marker not found in od_expert/SKILL.md"
+    assert int(m.group(1)) == total, (
+        f"SKILL.md KB-snapshot count {m.group(1)} != buildable total {total} "
+        f"(planned detectors are excluded); update the count line."
+    )
+
+    tab_ref = (SKILLS_DIR / "od_expert" / "references" / "tabular.md").read_text(
+        encoding="utf-8")
+    m2 = re.search(r"(\d+) of (\d+) buildable detectors", tab_ref)
+    assert m2, "'<N> of <M> buildable detectors' phrase not found in tabular.md"
+    assert (int(m2.group(1)), int(m2.group(2))) == (tabular, total), (
+        f"tabular.md says {m2.group(1)} of {m2.group(2)} buildable detectors; "
+        f"KB has {tabular} tabular of {total} buildable."
+    )
+
+    # No skill file may reassert a stale, inflated count.
+    stale = re.compile(
+        r"\b61 detectors\b|60\+\s*detectors|\b44 of 61\b|50\+\s*tabular")
+    offenders = []
+    for f in _all_skill_files():
+        for lineno, line in enumerate(
+                f.read_text(encoding="utf-8").splitlines(), 1):
+            if stale.search(line):
+                offenders.append(
+                    f"{f.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}")
+    assert not offenders, (
+        "Stale detector-count claims in skill files:\n  "
+        + "\n  ".join(offenders)
+    )
+
+
 def test_allowlist_does_not_shadow_kb_keys():
     """The backtick allowlist must not contain any live KB detector name.
 

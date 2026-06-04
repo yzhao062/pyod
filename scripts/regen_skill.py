@@ -46,9 +46,18 @@ _REQUIRES_TO_EXTRA = {
 
 
 def _load_kb():
-    """Load pyod.utils.knowledge.algorithms once."""
+    """Load pyod.utils.knowledge.algorithms once.
+
+    Planned (not-yet-implemented) detectors are excluded so the skill's
+    detector counts and lists reflect only buildable detectors. A planned
+    entry such as ``LLMAD`` has no backing module, so the agent must not
+    count it or recommend it; it stays in the raw KB as a roadmap entry.
+    """
     from pyod.utils.ad_engine import ADEngine
-    return ADEngine().kb.algorithms
+    algos = ADEngine().kb.algorithms
+    return {name: meta for name, meta in algos.items()
+            if not (isinstance(meta, dict)
+                    and meta.get("status") == "planned")}
 
 
 def _format_complexity(complexity):

@@ -46,8 +46,13 @@ def compute_quality(
     Each metric diagnoses one independent failure mode and drives
     one branch of `ADEngine.iterate()`:
 
-    - ``separation``: anomaly-vs-inlier mean score gap (global).
-      Low value indicates the detector did not produce a usable signal.
+    - ``separation``: relative mean score gap between the samples
+      flagged by the run and the rest, computed from the run's OWN
+      predicted labels. In ADEngine consensus, labels come from
+      detector votes while scores are rank-averaged, so this stays
+      descriptive and circular: it is not independent correctness
+      evidence. Treat it as descriptive, not as a label-free quality
+      signal.
     - ``agreement``: pairwise Spearman rank correlation across base
       detectors (cross-detector). Low value indicates detectors
       disagree on which samples are anomalous.

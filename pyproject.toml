@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pyod"
 dynamic = ["version", "dependencies"]
-description = "A Python library for anomaly detection across tabular, time series, graph, text, and image data. 60+ detectors, benchmark-backed ADEngine orchestration, and an agentic workflow for AI agents."
+description = "A Python library for anomaly detection across tabular, time series, graph, text, and image data. 60 detectors, benchmark-backed ADEngine orchestration, and an agentic workflow for AI agents."
 readme = "README.rst"
 requires-python = ">=3.9"
 license = "BSD-2-Clause"

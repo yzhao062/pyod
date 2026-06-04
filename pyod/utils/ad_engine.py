@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""ADEngine: Intelligent anomaly detection lifecycle engine.
+"""ADEngine: anomaly detection lifecycle engine.
 
 Handles data profiling, detection planning, detector construction,
 and knowledge queries. Works as a standalone Python API (no LLM
@@ -57,10 +57,15 @@ class ADEngine:
         Random seed forwarded to every detector that declares an
         explicit ``random_state`` parameter when the engine instantiates
         it from a plan. Detectors without ``random_state`` in their
-        signature (e.g., ABOD, KNN, LOF, SOD) are unaffected and remain
-        deterministic-up-to-numpy-module-state. Set this to a fixed
-        integer for reproducible flagged sets across re-runs on the
-        same input.
+        signature (e.g., ABOD, KNN, LOF, SOD) are deterministic by
+        construction (distance, angle, or density based, with no internal
+        sampling) and need no seed. With this set, the shallow-detector
+        pipeline is reproducible: a run-to-run audit of the shipped
+        shallow detectors found every one either honors the seed or is
+        deterministic by construction, with no nondeterministic cases.
+        Deep detectors additionally depend on framework-level seeding
+        (e.g., ``torch.manual_seed``). Set this to a fixed integer for
+        byte-identical flagged sets across re-runs on the same input.
     """
 
     def __init__(self, knowledge_dir: str | None = None,

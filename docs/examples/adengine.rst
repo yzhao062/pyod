@@ -1,7 +1,7 @@
-Layer 2: ADEngine Intelligent Orchestration
+Layer 2: ADEngine Lifecycle Orchestration
 ============================================
 
-ADEngine is PyOD's intelligent anomaly detection engine. It profiles your data, selects benchmark-backed detectors from PyOD's 60+ catalog, runs multiple detectors in parallel, computes consensus scores, and assesses result quality, all in one call.
+ADEngine is PyOD's anomaly detection lifecycle engine. It profiles your data, selects benchmark-backed detectors from PyOD's 60-detector catalog, runs multiple detectors in parallel, computes consensus scores, and reports descriptive diagnostics, all in one call.
 
 Use Layer 2 when you are not sure which detector to pick.
 
@@ -61,11 +61,13 @@ ADEngine runs the top-3 detectors from PyOD's knowledge base and computes a cons
 Quality Assessment
 ------------------
 
-ADEngine quantifies how trustworthy the results are through three metrics:
+ADEngine reports three descriptive diagnostics of a run. They summarize the
+score distribution and cross-detector behavior. They are not a label-free
+guarantee that the results are correct (see the note below):
 
-* **Separation** -- ratio of anomaly scores to inlier scores ([0, 1])
-* **Agreement** -- mean pairwise Spearman correlation between detectors ([0, 1])
-* **Stability** -- Jaccard index of top-k sets under +/- 20% contamination ([0, 1])
+* **Separation** -- relative mean score gap between the run's flagged set and the rest ([0, 1]). It is computed from the run's own predicted labels, so it is descriptive only; it does not show that the cutoff or the vote is correct.
+* **Agreement** -- mean pairwise Spearman correlation between detectors ([0, 1]). The most useful of the three: low agreement flags inputs with no shared structure (near-noise), where the detectors rank points differently.
+* **Stability** -- standardized score gap at the rank-k cutoff ([0, 1]). Low values mean many tied scores near the threshold, so the flagged set is sensitive to the contamination value.
 
 .. code-block:: python
 
@@ -77,6 +79,15 @@ ADEngine quantifies how trustworthy the results are through three metrics:
     print("Verdict:",    q['verdict'])         # 'high'
 
 Verdicts are ``'high'`` (>=0.7), ``'medium'`` (>=0.4), or ``'low'`` (<0.4).
+
+.. note::
+
+   The verdict is a heuristic summary of the score distribution and
+   cross-detector behavior, not a guarantee that the results are correct. Use
+   it as a rough signal, not as a basis for trusting results without labels:
+   low ``agreement`` is the most reliable component and flags near-noise
+   inputs, while ``separation`` is descriptive only. To judge correctness,
+   validate against held-out labels or a domain review.
 
 ----
 

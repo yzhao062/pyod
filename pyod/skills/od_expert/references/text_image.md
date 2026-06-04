@@ -14,7 +14,6 @@ The two-step pattern (embed first, then run a classical detector) won the NLP-AD
 
 <!-- BEGIN KB-DERIVED: text-image-detector-list -->
 - **EmbeddingOD** (Embedding-Based Outlier Detection) — complexity: time O(n * embedding_cost + detector_cost), space O(n * embedding_dim); best for: Anomaly detection on unstructured data (text, images) via foundation model representations; avoid when: Data is already tabular or a suitable encoder is not available; requires: pyod[torch]; paper: Zhao et al., 2025
-- **LLMAD** (LLM-Based Anomaly Detection) — complexity: time varies, space varies; best for: Zero-shot or few-shot anomaly detection leveraging LLM world knowledge; avoid when: Feature is needed before release or LLM API costs are prohibitive; paper: TBD
 - **MultiModalOD** (Multi-Modal Outlier Detection) — complexity: time O(n * n_modalities * embedding_cost + detector_cost), space O(n * n_modalities * embedding_dim); best for: Anomaly detection on multi-modal data combining text, image, or other modalities; avoid when: Only a single modality is available or data is purely tabular; requires: pyod[torch]; paper: Zhao et al., 2025
 <!-- END KB-DERIVED: text-image-detector-list -->
 
@@ -111,7 +110,7 @@ report = engine.report(state)
 >
 > Top-5 most unusual descriptions: rows [42, 815, 2200, 14501, 31200]. The dominant pattern was descriptions in non-English languages mixed into the catalog, plus descriptions consisting only of model numbers without prose.
 >
-> Confidence: medium. Separation is 0.24 (above the 0.1 floor, but moderate), so I recommend manually reviewing the top-50 to validate the categories of anomaly.
+> Confidence: label-free, and only one detector ran, so there is no cross-detector agreement to lean on and `separation` (0.24) is descriptive only. I recommend manually reviewing the top-50 to validate the categories of anomaly.
 >
 > **What I assumed**:
 > - Text data, English (auto-detected from sample)

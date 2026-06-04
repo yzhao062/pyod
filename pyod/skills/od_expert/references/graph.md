@@ -110,7 +110,7 @@ state = engine.analyze(state)
 # state.analysis['best_detector']: 'DOMINANT'
 ```
 
-Note: agreement is below the 0.4 floor would NOT trigger here (0.55 > 0.4). Separation 0.22 is just above the 0.1 critical floor — moderate confidence. Report with a hedge.
+Note: agreement is above the 0.4 floor (0.55), so the detector rankings are moderately consistent. Separation 0.22 is descriptive only and is not a confidence floor. Report with a label-free caveat and recommend domain review.
 
 ### What the agent reports
 
@@ -118,7 +118,7 @@ Note: agreement is below the 0.4 floor would NOT trigger here (0.55 > 0.4). Sepa
 >
 > Top-5 most suspicious accounts: nodes [42, 891, 2103, 5566, 7891]. The dominant pattern was unusual follower-to-following ratios combined with rare account-age values.
 >
-> Confidence: medium. Separation is 0.22 (above the 0.1 floor, but not strong), so I recommend manually reviewing the top-20 against your trust-and-safety database before acting on these flags.
+> Confidence: label-free. The detectors agreed moderately (agreement 0.55), so the result is internally consistent; I recommend manually reviewing the top-20 against your trust-and-safety database before acting on these flags.
 >
 > **What I assumed**:
 > - Graph, node-attributed, homogeneous
