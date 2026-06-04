@@ -81,6 +81,28 @@ def test_pyod_info_does_not_exit_without_mcp():
     )
 
 
+def test_pyod_mcp_serve_missing_dep():
+    """`pyod mcp serve` exits 1 with a helpful stderr hint when mcp is absent.
+
+    Regression guard for CLI observability: the command must not crash or
+    emit a raw traceback; it should return exit code 1 with an actionable
+    install message.
+    """
+    result = subprocess.run(
+        [sys.executable, "-c",
+         "import sys; sys.modules['mcp'] = None; "
+         "from pyod.cli import main; sys.exit(main(['mcp', 'serve']))"],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 1, (
+        f"expected exit 1 when mcp missing, got {result.returncode}: "
+        f"stdout={result.stdout!r} stderr={result.stderr!r}"
+    )
+    assert "pip install pyod[mcp]" in result.stderr, (
+        f"expected install hint in stderr, got: {result.stderr!r}"
+    )
+
+
 _REPO_ROOT = str(Path(__file__).resolve().parents[2])
 
 
