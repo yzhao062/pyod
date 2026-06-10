@@ -19,13 +19,16 @@ It wraps `joblib` with two capabilities the raw `joblib.dump` /
    sklearn `Tree` state is realigned to the running dtype before
    `sklearn.tree._tree.Tree.__setstate__` sees it.
 
-`load()` automatically falls through to `compat_load()` when the
-underlying `joblib.load` raises the specific sklearn dtype `ValueError`,
-so users who only call `load()` get the rescue path transparently.
+When called with `trusted=True`, `load()` automatically falls through to
+`compat_load()` when the underlying `joblib.load` raises the specific
+sklearn dtype `ValueError`, so users who only call `load()` get the
+rescue path transparently.
 
 WARNING: pickle and joblib load arbitrary Python code. Load only from
-trusted sources. The compat_load helper does not change this security
-model.
+trusted sources. `load()` refuses to deserialize unless callers pass
+`trusted=True`; `strict=True` and envelope validation are dependency
+checks, not a sandbox. The compat_load helper does not change this
+security model.
 
 See `docs/model_persistence.rst` for the user-facing guide.
 """
@@ -166,8 +169,17 @@ def save(model: Any, path: Any, metadata: dict | None = None) -> None:
 def load(
         path: Any,
         strict: bool = False,
-        return_metadata: bool = False) -> Any:
+        return_metadata: bool = False,
+        *,
+        trusted: bool = False) -> Any:
     """Load a PyOD detector saved by `save()` or by raw joblib.dump.
+
+    This function uses pickle/joblib under the hood. Because those
+    formats can execute arbitrary Python code during deserialization,
+    callers must explicitly acknowledge that the artifact source is
+    trusted by passing ``trusted=True``. Metadata, schema, dependency,
+    and strict-mode checks are not a sandbox and cannot make an
+    untrusted pickle safe to load.
 
     `load()` understands three input shapes:
 
@@ -197,6 +209,12 @@ def load(
         When True, return ``(model, envelope_without_model_field)``
         instead of just the model. For legacy artifacts the second
         element is ``None``.
+    trusted : bool, default False
+        Required acknowledgement that the artifact comes from a trusted
+        source. When False, ``load()`` raises before invoking
+        ``joblib.load`` so a malicious pickle cannot execute code before
+        validation. Set to True only for artifacts produced by a trusted
+        training pipeline, model registry, or other trusted source.
 
     Returns
     -------
@@ -208,9 +226,15 @@ def load(
     ------
     ValueError
         On schema-version mismatch, strict-mode drift, strict-mode
-        legacy artifacts, or after a successful compat repair under
-        strict mode.
+        legacy artifacts, untrusted artifact sources, or after a
+        successful compat repair under strict mode.
     """
+    if not trusted:
+        raise ValueError(
+            "load(): refusing to deserialize an untrusted pickle/joblib "
+            "artifact. Pass trusted=True only for artifacts from a "
+            "trusted source; strict=True and envelope validation cannot "
+            "make an untrusted pickle safe.")
     try:
         obj = joblib.load(path)
     except ValueError as exc:

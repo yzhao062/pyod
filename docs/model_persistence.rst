@@ -20,11 +20,14 @@ Quick Start
     # Save with a versioned envelope.
     save(clf, "clf.pyod.joblib", metadata={"dataset": "demo"})
 
-    # Later, in a possibly different environment:
-    clf = load("clf.pyod.joblib")
+    # Later, in a possibly different environment. ``trusted=True`` is
+    # required because joblib/pickle artifacts can execute code while
+    # they are being deserialized.
+    clf = load("clf.pyod.joblib", trusted=True)
 
     # Or get the envelope back alongside the model:
-    clf, env = load("clf.pyod.joblib", return_metadata=True)
+    clf, env = load(
+        "clf.pyod.joblib", return_metadata=True, trusted=True)
     print(env["sklearn_version"], env["saved_at"])
 
 The complete example in
@@ -38,8 +41,15 @@ Trust Boundary
 ``pickle`` and ``joblib`` deserialize arbitrary Python code. Load only
 from sources you trust. This applies equally to raw ``joblib.load``,
 raw ``pickle.load``, :func:`~pyod.utils.persistence.load`, and
-:func:`~pyod.utils.persistence.compat_load`. The new wrapper does not
-change this security model; it does not sandbox the unpickling step.
+:func:`~pyod.utils.persistence.compat_load`. The wrapper does not
+sandbox the unpickling step, and ``strict=True`` is only a dependency
+version policy.
+
+For that reason, :func:`~pyod.utils.persistence.load` refuses to
+deserialize unless callers pass ``trusted=True``. This flag is an
+explicit acknowledgement that the artifact came from a trusted training
+pipeline, model registry, or other trusted source. It is not a security
+scan of the file.
 
 Why a Versioned Wrapper
 -----------------------
@@ -92,7 +102,7 @@ legacy handler:
 
     from pyod.utils.persistence import load
 
-    clf = load("legacy.joblib")   # transparently recovers from dtype drift
+    clf = load("legacy.joblib", trusted=True)  # recovers from dtype drift
 
 The fall-through emits a ``UserWarning`` so the recovery does not
 go unnoticed. Re-save with :func:`~pyod.utils.persistence.save` (or
@@ -107,13 +117,13 @@ Decision Tree
     Saving a new model?
         -> use save(clf, path)
 
-    Loading a model and load(path) works without warnings?
+    Loading a trusted model and load(path, trusted=True) works without warnings?
         -> done
 
-    Loading a model and load(path) succeeds with a "recovered" warning?
+    Loading a trusted model and load(path, trusted=True) succeeds with a "recovered" warning?
         -> the artifact was repaired via compat_load; re-save with save()
 
-    Loading a model and load(path) raises?
+    Loading a trusted model and load(path, trusted=True) raises?
         -> if the error is about Tree-node dtype, try compat_load directly
            and check whether the warning recommends re-fit. If it cannot
            recover, re-fit on the current sklearn.
@@ -172,7 +182,7 @@ For version-pinned production environments, pass ``strict=True`` to
 
     from pyod.utils.persistence import load
 
-    clf = load("prod.pyod.joblib", strict=True)
+    clf = load("prod.pyod.joblib", strict=True, trusted=True)
 
 Under strict mode, any drift in sklearn, joblib, numpy, or scipy
 raises ``ValueError`` rather than emitting a warning. Drift in the
@@ -180,30 +190,30 @@ Python version does not raise because it is informational only.
 Strict mode also rejects raw legacy artifacts (no envelope to
 compare against) and refuses to return a model that required a
 ``compat_load`` repair: strict callers must either re-save under the
-current environment or re-fit.
+current environment or re-fit. Strict mode does not make untrusted
+pickle/joblib files safe to load; ``trusted=True`` is still required.
 
 Reading Envelope Metadata
 -------------------------
 
-``load(path, return_metadata=True)`` returns a ``(model, envelope)``
-tuple where ``envelope`` is the full envelope dict minus the
-``model`` field:
+``load(path, return_metadata=True, trusted=True)`` returns a
+``(model, envelope)`` tuple where ``envelope`` is the full envelope
+dict minus the ``model`` field:
 
 .. code-block:: python
 
     from pyod.utils.persistence import load
 
-    clf, env = load("clf.pyod.joblib", return_metadata=True)
+    clf, env = load(
+        "clf.pyod.joblib", return_metadata=True, trusted=True)
     print(env["pyod_version"], env["sklearn_version"])
     print(env["saved_at"], env["model_class"])
     print(env["metadata"])   # whatever you passed to save(... metadata=...)
 
-A future PyOD release plans a true header-only ``inspect_artifact``
-(reading metadata without unpickling the model), paired with a
-``.pyod`` zip container that separates metadata from the model
-payload. Until that ships, ``load(..., return_metadata=True)`` is
-the supported way to introspect a saved artifact, and it does
-unpickle the model.
+``load(..., return_metadata=True, trusted=True)`` still unpickles the
+model. It should only be used for trusted artifacts. A future PyOD
+release may add a true header-only ``inspect_artifact`` API for reading
+metadata without unpickling the model payload.
 
 Neural Network Models
 ---------------------
