@@ -15,7 +15,7 @@ Examples are structured as follows:
 - Examples are named as XXX_example.py, in which XXX is the model name.
 - For all examples, you can find corresponding models at pyod/models/
 
-For instance: 
+For instance:
 - kNN: knn_example.py
 - HBOS: hbos_example.py
 - ABOD: abod_example.py
@@ -32,7 +32,7 @@ Some examples have a Jupyter Notebook version at [Jupyter Notebooks](https://git
 **First check pyod is installed with pip.**
 
 If you have not but simply download the github repository, please make
-sure the following codes are presented at the top of the code. The examples 
+sure the following codes are presented at the top of the code. The examples
 import the models by relying the code below if pyod is not installed:
 
 ```python

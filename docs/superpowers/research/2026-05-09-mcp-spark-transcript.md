@@ -1,8 +1,8 @@
 # pyod MCP server stdio transcript
 
-**Captured:** 2026-05-09T19:55:05.343749+00:00  
-**Server cmd:** `python -m pyod.mcp_server`  
-**Client:** mcp Python SDK stdio client  
+**Captured:** 2026-05-09T19:55:05.343749+00:00
+**Server cmd:** `python -m pyod.mcp_server`
+**Client:** mcp Python SDK stdio client
 **Host:** Spark (DGX OS, Linux aarch64), py312 conda env
 
 

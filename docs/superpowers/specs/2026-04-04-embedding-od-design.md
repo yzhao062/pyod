@@ -107,7 +107,7 @@ EmbeddingOD(BaseDetector)
     |
     |-- encoder: BaseEncoder (or str/callable resolved to BaseEncoder)
     |     |-- SentenceTransformerEncoder
-    |     |-- HuggingFaceEncoder  
+    |     |-- HuggingFaceEncoder
     |     |-- OpenAIEncoder
     |     |-- CallableEncoder
     |
@@ -122,10 +122,10 @@ EmbeddingOD(BaseDetector)
 ```python
 class BaseEncoder:
     """Abstract base for embedding encoders."""
-    
+
     def encode(self, X, batch_size=32, show_progress=True) -> np.ndarray:
         """Convert raw input to 2D numpy array (n_samples, n_features).
-        
+
         Parameters
         ----------
         X : list or array-like
@@ -134,13 +134,13 @@ class BaseEncoder:
             Batch size for encoding.
         show_progress : bool
             Show progress bar during encoding.
-            
+
         Returns
         -------
         embeddings : np.ndarray of shape (n_samples, n_features)
         """
         raise NotImplementedError
-    
+
     def _validate_output(self, embeddings):
         """Ensure output is 2D float64 numpy array."""
         embeddings = np.asarray(embeddings, dtype=np.float64)
@@ -158,13 +158,13 @@ Wraps `sentence_transformers.SentenceTransformer`. This is the most common text 
 
 ```python
 class SentenceTransformerEncoder(BaseEncoder):
-    def __init__(self, model_name='all-MiniLM-L6-v2', device=None, 
+    def __init__(self, model_name='all-MiniLM-L6-v2', device=None,
                  normalize=False, truncate_dim=None):
         self.model_name = model_name
         self.device = device
         self.normalize = normalize
         self.truncate_dim = truncate_dim
-    
+
     def encode(self, X, batch_size=32, show_progress=True):
         if SentenceTransformer is None:
             raise ImportError(
@@ -195,7 +195,7 @@ For models not compatible with sentence-transformers (vision models, custom arch
 
 ```python
 class HuggingFaceEncoder(BaseEncoder):
-    def __init__(self, model_name, device=None, 
+    def __init__(self, model_name, device=None,
                  pooling='cls', modality='auto'):
         self.model_name = model_name
         self.device = device
@@ -220,7 +220,7 @@ For OpenAI API-based embeddings. These dominated in NLP-ADBench and TAD-Bench.
 
 ```python
 class OpenAIEncoder(BaseEncoder):
-    def __init__(self, model_name='text-embedding-3-small', 
+    def __init__(self, model_name='text-embedding-3-small',
                  dimensions=None, api_key=None):
         self.model_name = model_name
         self.dimensions = dimensions   # Matryoshka truncation
@@ -244,7 +244,7 @@ Escape hatch for any custom embedding function.
 class CallableEncoder(BaseEncoder):
     def __init__(self, fn):
         self.fn = fn
-    
+
     def encode(self, X, batch_size=32, show_progress=True):
         embeddings = self.fn(X)
         return self._validate_output(embeddings)
@@ -257,27 +257,27 @@ Use cases: user's own fine-tuned model, Anthropic API embeddings, local Ollama m
 ```python
 _ENCODER_REGISTRY = {
     # Sentence Transformers
-    'all-MiniLM-L6-v2': ('sentence_transformer', 
+    'all-MiniLM-L6-v2': ('sentence_transformer',
         {'model_name': 'all-MiniLM-L6-v2'}),
-    'all-mpnet-base-v2': ('sentence_transformer', 
+    'all-mpnet-base-v2': ('sentence_transformer',
         {'model_name': 'all-mpnet-base-v2'}),
-    
+
     # OpenAI
-    'text-embedding-3-small': ('openai', 
+    'text-embedding-3-small': ('openai',
         {'model_name': 'text-embedding-3-small'}),
-    'text-embedding-3-large': ('openai', 
+    'text-embedding-3-large': ('openai',
         {'model_name': 'text-embedding-3-large'}),
-    
+
     # HuggingFace Vision
-    'dinov2-small': ('huggingface', 
+    'dinov2-small': ('huggingface',
         {'model_name': 'facebook/dinov2-small', 'modality': 'image'}),
-    'dinov2-base': ('huggingface', 
+    'dinov2-base': ('huggingface',
         {'model_name': 'facebook/dinov2-base', 'modality': 'image'}),
-    'clip-vit-base': ('huggingface', 
+    'clip-vit-base': ('huggingface',
         {'model_name': 'openai/clip-vit-base-patch32', 'modality': 'image'}),
-    
+
     # HuggingFace Text (non-sentence-transformers)
-    'bert-base-uncased': ('huggingface', 
+    'bert-base-uncased': ('huggingface',
         {'model_name': 'bert-base-uncased', 'modality': 'text'}),
 }
 ```
@@ -298,27 +298,27 @@ _DETECTOR_SHORTCUTS = {
     # Distance-based
     'KNN': ('pyod.models.knn', 'KNN', {}),
     'LOF': ('pyod.models.lof', 'LOF', {}),
-    
+
     # Density-based
     'ECOD': ('pyod.models.ecod', 'ECOD', {}),
     'COPOD': ('pyod.models.copod', 'COPOD', {}),
     'HBOS': ('pyod.models.hbos', 'HBOS', {}),
-    
+
     # Linear model
     'PCA': ('pyod.models.pca', 'PCA', {}),
     'OCSVM': ('pyod.models.ocsvm', 'OCSVM', {}),
     'MCD': ('pyod.models.mcd', 'MCD', {}),
-    
+
     # Ensemble
     'IForest': ('pyod.models.iforest', 'IForest', {}),
     'INNE': ('pyod.models.inne', 'INNE', {}),
-    
+
     # Deep learning
     'AutoEncoder': ('pyod.models.auto_encoder', 'AutoEncoder', {}),
     'VAE': ('pyod.models.vae', 'VAE', {}),
     'DeepSVDD': ('pyod.models.deep_svdd', 'DeepSVDD', {}),
     'LUNAR': ('pyod.models.lunar', 'LUNAR', {}),
-    
+
     # ... all other PyOD detectors
 }
 
@@ -342,15 +342,15 @@ def resolve_detector(detector, contamination=0.1):
 ```python
 class EmbeddingOD(BaseDetector):
     """Anomaly detection on raw data via embedding + detector pipeline.
-    
+
     Chains any embedding encoder with any PyOD detector. Encode raw data
     (text, images, or other modalities) into numeric embeddings, then
     apply outlier detection in the embedding space.
-    
+
     This implements the two-step approach shown to outperform end-to-end
-    methods in NLP-ADBench (Li et al., EMNLP 2025) and TAD-Bench 
+    methods in NLP-ADBench (Li et al., EMNLP 2025) and TAD-Bench
     (Cao et al., 2025).
-    
+
     Parameters
     ----------
     encoder : str, BaseEncoder, or callable
@@ -360,29 +360,29 @@ class EmbeddingOD(BaseDetector):
         - HuggingFace model ID: 'sentence-transformers/all-MiniLM-L6-v2'
         - BaseEncoder instance
         - Callable: fn(X) -> np.ndarray of shape (n_samples, n_features)
-    
+
     detector : str or BaseDetector, default='LUNAR'
         Any PyOD detector. String resolves to default-configured instance.
         Default is LUNAR (best performer in NLP-ADBench).
-    
+
     contamination : float, default=0.1
         Expected proportion of outliers in the dataset.
-    
+
     batch_size : int, default=32
         Batch size for encoding.
-    
+
     cache_embeddings : bool, default=False
         Cache training embeddings. Recommended for API-based encoders.
-    
+
     reduce_dim : int or None, default=None
         If set, apply PCA to reduce embedding dimensionality before
-        detection. Recommended for embeddings >1000 dims with 
+        detection. Recommended for embeddings >1000 dims with
         distance-based detectors (KNN, LOF).
-    
+
     standardize : bool, default=True
         Apply StandardScaler to embeddings before detection.
         Matches NLP-ADBench preprocessing pipeline.
-    
+
     Attributes
     ----------
     decision_scores_ : numpy array of shape (n_samples,)
@@ -395,7 +395,7 @@ class EmbeddingOD(BaseDetector):
         The resolved encoder instance.
     detector_ : BaseDetector
         The resolved detector instance.
-    
+
     Examples
     --------
     >>> from pyod.models.embedding import EmbeddingOD
@@ -404,9 +404,9 @@ class EmbeddingOD(BaseDetector):
     >>> scores = clf.decision_function(test_texts)
     >>> labels = clf.predict(test_texts)
     """
-    
+
     def __init__(self, encoder, detector='LUNAR', contamination=0.1,
-                 batch_size=32, cache_embeddings=False, 
+                 batch_size=32, cache_embeddings=False,
                  reduce_dim=None, standardize=True):
         super(EmbeddingOD, self).__init__(contamination=contamination)
         self.encoder = encoder
@@ -415,58 +415,58 @@ class EmbeddingOD(BaseDetector):
         self.cache_embeddings = cache_embeddings
         self.reduce_dim = reduce_dim
         self.standardize = standardize
-    
+
     def fit(self, X, y=None):
         # Resolve encoder and detector
         self.encoder_ = resolve_encoder(self.encoder)
         self.detector_ = resolve_detector(self.detector, self.contamination)
-        
+
         # Encode raw data to embeddings
         X_emb = self.encoder_.encode(
             X, batch_size=self.batch_size, show_progress=True)
-        
+
         # Clean embeddings (matches NLP-ADBench pipeline)
         X_emb = np.nan_to_num(X_emb)
-        X_emb = np.clip(X_emb, np.finfo(np.float32).min, 
+        X_emb = np.clip(X_emb, np.finfo(np.float32).min,
                         np.finfo(np.float32).max)
-        
+
         # Standardize
         if self.standardize:
             self.scaler_ = StandardScaler()
             X_emb = self.scaler_.fit_transform(X_emb)
-        
+
         # Dimensionality reduction
         if self.reduce_dim is not None:
             self.pca_ = PCA(n_components=self.reduce_dim)
             X_emb = self.pca_.fit_transform(X_emb)
-        
+
         X_emb = X_emb.astype(np.float32)
-        
+
         # Cache if requested
         if self.cache_embeddings:
             self.train_embeddings_ = X_emb
-        
+
         # Fit detector
         self._set_n_classes(y)
         self.detector_.fit(X_emb, y)
         self.decision_scores_ = self.detector_.decision_scores_
         self._process_decision_scores()
         return self
-    
+
     def decision_function(self, X):
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
-        
+
         X_emb = self.encoder_.encode(
             X, batch_size=self.batch_size, show_progress=False)
         X_emb = np.nan_to_num(X_emb)
-        X_emb = np.clip(X_emb, np.finfo(np.float32).min, 
+        X_emb = np.clip(X_emb, np.finfo(np.float32).min,
                         np.finfo(np.float32).max)
-        
+
         if self.standardize:
             X_emb = self.scaler_.transform(X_emb)
         if self.reduce_dim is not None:
             X_emb = self.pca_.transform(X_emb)
-        
+
         X_emb = X_emb.astype(np.float32)
         return self.detector_.decision_function(X_emb)
 ```
@@ -502,10 +502,10 @@ Class methods on EmbeddingOD that return pre-configured instances based on bench
 @classmethod
 def for_text(cls, quality='balanced', **kwargs):
     """Create an EmbeddingOD optimized for text anomaly detection.
-    
+
     Configurations informed by NLP-ADBench (EMNLP 2025)
     and TAD-Bench (2025).
-    
+
     Parameters
     ----------
     quality : str, default='balanced'
@@ -539,9 +539,9 @@ def for_text(cls, quality='balanced', **kwargs):
 @classmethod
 def for_image(cls, quality='balanced', **kwargs):
     """Create an EmbeddingOD optimized for image anomaly detection.
-    
+
     Configurations informed by AnomalyDINO (WACV 2025).
-    
+
     Parameters
     ----------
     quality : str, default='balanced'
@@ -610,30 +610,30 @@ This is a different mechanism from EmbeddingOD: instead of embedding data and ru
 ```python
 class LLMAD(BaseDetector):
     """LLM-based zero-shot anomaly detection.
-    
+
     Uses an LLM to directly score samples as anomalous or normal.
     Implements the zero-shot detection approach from AD-LLM
     (Yang et al., ACL 2025).
-    
+
     Parameters
     ----------
     model : str, default='gpt-4o-mini'
         LLM model name. Supports OpenAI models.
-    
+
     normal_categories : list of str or None
-        Names of normal categories. If None, inferred from 
+        Names of normal categories. If None, inferred from
         training data during fit().
-    
+
     anomaly_categories : list of str or None
         Names of anomaly categories. If provided, uses the
         "Normal + Anomaly" setting from AD-LLM (higher accuracy).
-    
+
     n_examples : int, default=5
         Number of training examples to include in prompt context.
-    
+
     api_key : str or None
         OpenAI API key. Falls back to OPENAI_API_KEY env var.
-    
+
     contamination : float, default=0.1
         Expected proportion of outliers.
     """
@@ -644,7 +644,7 @@ class LLMAD(BaseDetector):
 ```python
 def fit(self, X, y=None):
     """Build prompt context from training data.
-    
+
     Unlike EmbeddingOD, this does not train a model.
     It constructs the system prompt with category descriptions
     and example samples for in-context learning.
@@ -680,7 +680,7 @@ Anomaly categories: [list, if provided]
 
 Rules:
 1. Read the text carefully
-2. Compare to category descriptions  
+2. Compare to category descriptions
 3. Determine closest category alignment
 4. Assign anomaly confidence score 0-1
 
@@ -792,53 +792,53 @@ class TestEmbeddingOD(unittest.TestCase):
         self.n_train, self.n_test = 200, 100
         self.X_train = [f"sample_{i}" for i in range(self.n_train)]
         self.X_test = [f"test_{i}" for i in range(self.n_test)]
-        
+
         # Mock encoder: maps string to random but deterministic embedding
         def mock_encode(X):
             rng = np.random.RandomState(42)
             return rng.randn(len(X), 50)
-        
+
         self.clf = EmbeddingOD(
             encoder=mock_encode, detector='KNN', contamination=0.1)
-    
+
     def test_fit_sets_attributes(self):
         self.clf.fit(self.X_train)
         assert hasattr(self.clf, 'decision_scores_')
         assert hasattr(self.clf, 'labels_')
         assert hasattr(self.clf, 'threshold_')
         assert len(self.clf.decision_scores_) == self.n_train
-    
+
     def test_decision_function_shape(self):
         self.clf.fit(self.X_train)
         scores = self.clf.decision_function(self.X_test)
         assert scores.shape == (self.n_test,)
-    
+
     def test_predict_labels(self):
         self.clf.fit(self.X_train)
         labels = self.clf.predict(self.X_test)
         assert set(labels) <= {0, 1}
-    
+
     def test_predict_proba_range(self):
         self.clf.fit(self.X_train)
         proba = self.clf.predict_proba(self.X_test)
         assert proba.min() >= 0 and proba.max() <= 1
-    
+
     def test_detector_string_resolution(self):
         for name in ['KNN', 'LOF', 'ECOD', 'IForest']:
             clf = EmbeddingOD(encoder=lambda X: np.random.randn(len(X), 10),
                              detector=name)
             clf.fit(self.X_train)
-    
+
     def test_standardize(self):
         self.clf.standardize = True
         self.clf.fit(self.X_train)
         assert hasattr(self.clf, 'scaler_')
-    
+
     def test_reduce_dim(self):
         self.clf.reduce_dim = 10
         self.clf.fit(self.X_train)
         assert hasattr(self.clf, 'pca_')
-    
+
     def test_cache_embeddings(self):
         self.clf.cache_embeddings = True
         self.clf.fit(self.X_train)
@@ -856,7 +856,7 @@ class TestEmbeddingODSentenceTransformers(unittest.TestCase):
         normal = ["The stock market rose today"] * 50
         anomaly = ["alien spacecraft landed in park"] * 5
         train = normal + anomaly
-        
+
         clf = EmbeddingOD(encoder='all-MiniLM-L6-v2', detector='KNN')
         clf.fit(train)
         scores = clf.decision_function(train)
@@ -871,7 +871,7 @@ class TestLLMAD(unittest.TestCase):
     def test_fit_and_predict(self, mock_openai):
         # Mock API response
         mock_openai.return_value.chat.completions.create.return_value = ...
-        
+
         clf = LLMAD(model='gpt-4o-mini')
         clf.fit(train_texts)
         labels = clf.predict(test_texts)
