@@ -61,11 +61,13 @@ if __name__ == "__main__":
     save(clf, artifact_path, metadata={'dataset': 'demo', 'note': 'LOF baseline'})
 
     # The matching load() reads the envelope and warns on dependency
-    # drift; pass strict=True for version-pinned production deployments.
-    clf = load(artifact_path)
+    # drift. joblib/pickle artifacts can execute code while loading, so
+    # load() requires trusted=True to acknowledge the artifact source.
+    # Pass strict=True as well for version-pinned production deployments.
+    clf = load(artifact_path, trusted=True)
 
     # To inspect the envelope without separately re-reading the file:
-    clf, env = load(artifact_path, return_metadata=True)
+    clf, env = load(artifact_path, return_metadata=True, trusted=True)
     print(
         f"Loaded {env['model_class']} "
         f"(pyod={env['pyod_version']}, sklearn={env['sklearn_version']}, "
