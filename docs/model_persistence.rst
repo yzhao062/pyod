@@ -45,11 +45,12 @@ raw ``pickle.load``, :func:`~pyod.utils.persistence.load`, and
 sandbox the unpickling step, and ``strict=True`` is only a dependency
 version policy.
 
-For that reason, :func:`~pyod.utils.persistence.load` refuses to
-deserialize unless callers pass ``trusted=True``. This flag is an
-explicit acknowledgement that the artifact came from a trusted training
-pipeline, model registry, or other trusted source. It is not a security
-scan of the file.
+For that reason, both :func:`~pyod.utils.persistence.load` and
+:func:`~pyod.utils.persistence.compat_load` refuse to deserialize
+unless callers pass ``trusted=True``. This flag is an explicit
+acknowledgement that the artifact came from a trusted training
+pipeline, model registry, or other trusted source. It is not a
+security scan of the file.
 
 Why a Versioned Wrapper
 -----------------------
@@ -87,7 +88,7 @@ running sklearn's dtype before sklearn's own ``__setstate__`` raises.
 
     from pyod.utils.persistence import compat_load
 
-    clf = compat_load("legacy.joblib")
+    clf = compat_load("legacy.joblib", trusted=True)
     # Re-save under the new envelope to avoid repeating the dance:
     from pyod.utils.persistence import save
     save(clf, "legacy_resaved.pyod.joblib")
@@ -124,9 +125,10 @@ Decision Tree
         -> the artifact was repaired via compat_load; re-save with save()
 
     Loading a trusted model and load(path, trusted=True) raises?
-        -> if the error is about Tree-node dtype, try compat_load directly
-           and check whether the warning recommends re-fit. If it cannot
-           recover, re-fit on the current sklearn.
+        -> if the error is about Tree-node dtype, try
+           compat_load(path, trusted=True) directly and check whether the
+           warning recommends re-fit. If it cannot recover, re-fit on the
+           current sklearn.
 
 Cross-Sklearn-Version Compatibility
 -----------------------------------
@@ -167,7 +169,7 @@ Troubleshooting
 ==================================================================  ==================================================================
 Error text starts with                                              Recommended action
 ==================================================================  ==================================================================
-``node array from the pickle has an incompatible dtype``            Try :func:`~pyod.utils.persistence.compat_load`. If it succeeds, re-save with :func:`~pyod.utils.persistence.save`. If it raises, re-fit.
+``node array from the pickle has an incompatible dtype``            Try :func:`~pyod.utils.persistence.compat_load` with ``trusted=True``. If it succeeds, re-save with :func:`~pyod.utils.persistence.save`. If it raises, re-fit.
 ``InconsistentVersionWarning`` (only a warning, not an error)       Safe to ignore; sklearn is reminding you the save and run versions differ. Re-save or re-fit when convenient.
 Other sklearn unpickling errors                                     The artifact is incompatible beyond what ``compat_load`` repairs. Re-fit on the current sklearn.
 ==================================================================  ==================================================================

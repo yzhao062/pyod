@@ -25,10 +25,9 @@ sklearn dtype `ValueError`, so users who only call `load()` get the
 rescue path transparently.
 
 WARNING: pickle and joblib load arbitrary Python code. Load only from
-trusted sources. `load()` refuses to deserialize unless callers pass
-`trusted=True`; `strict=True` and envelope validation are dependency
-checks, not a sandbox. The compat_load helper does not change this
-security model.
+trusted sources. `load()` and `compat_load()` refuse to deserialize
+unless callers pass `trusted=True`; `strict=True` and envelope
+validation are dependency checks, not a sandbox.
 
 See `docs/model_persistence.rst` for the user-facing guide.
 """
@@ -193,8 +192,10 @@ def load(
        envelope to verify.
     3. A file that fails the initial `joblib.load` with the
        sklearn `Tree` node dtype error. `load()` falls through to
-       `compat_load(path)` and routes the recovered object through
-       the same envelope/legacy handler. See module docstring.
+       `compat_load(path, trusted=True)` and routes the recovered
+       object through the same envelope/legacy handler (the trust
+       acknowledgement is carried forward from this call). See module
+       docstring.
 
     Parameters
     ----------
@@ -328,7 +329,7 @@ def _handle_compat_fallthrough(
         strict: bool,
         return_metadata: bool) -> Any:
     try:
-        obj = compat_load(path)
+        obj = compat_load(path, trusted=True)
     except Exception as compat_exc:
         raise compat_exc from original_exc
     return _handle_loaded_object(
@@ -408,7 +409,11 @@ def _format_strict_compat_drift_msg(
 # compat_load
 # ----------------------------------------------------------------------
 
-def compat_load(path: Any, mmap_mode: str | None = None) -> Any:
+def compat_load(
+        path: Any,
+        mmap_mode: str | None = None,
+        *,
+        trusted: bool = False) -> Any:
     """Load an artifact whose sklearn Tree node dtype no longer matches.
 
     Mirrors `joblib.load` but plugs a dispatch-table override into
@@ -431,6 +436,13 @@ def compat_load(path: Any, mmap_mode: str | None = None) -> Any:
     mmap_mode : str or None, default None
         Forwarded to joblib's underlying load path. Supported values
         mirror joblib's: None, 'r', 'r+', 'w+', 'c'.
+    trusted : bool, default False
+        Required acknowledgement that the artifact comes from a trusted
+        source. When False, ``compat_load()`` raises before opening or
+        deserializing the file, mirroring ``load()``. The Tree-dtype
+        realignment is a compatibility shim, not a security sandbox, so
+        it cannot make an untrusted pickle safe. Set True only for
+        artifacts from a trusted source.
 
     Returns
     -------
@@ -439,6 +451,13 @@ def compat_load(path: Any, mmap_mode: str | None = None) -> Any:
         legacy raw saves; an envelope dict for Phase 2 saves). Callers
         that need envelope unwrapping should use `load()`.
     """
+    if not trusted:
+        raise ValueError(
+            "compat_load(): refusing to deserialize an untrusted "
+            "pickle/joblib artifact. Pass trusted=True only for "
+            "artifacts from a trusted source; the sklearn Tree-dtype "
+            "realignment is a compatibility shim, not a security "
+            "sandbox.")
     trees_realigned = [0]
 
     class _CompatNumpyUnpickler(NumpyUnpickler):
