@@ -49,12 +49,22 @@ from pyod.utils.persistence import (
     _DTYPE_MISMATCH_PREFIX,
     _TREE_NODE_FIELD_DEFAULTS,
     compat_load,
-    load,
+    load as _load,
     save,
 )
 
 
 FIXTURES_DIR = Path(__file__).resolve().parent / 'fixtures'
+
+
+def load(*args, **kwargs):
+    """Test helper for the trusted artifact path exercised historically."""
+    kwargs.setdefault('trusted', True)
+    return _load(*args, **kwargs)
+
+
+def _write_marker(path, text):
+    Path(path).write_text(text)
 
 
 # ---------------------------------------------------------------------
@@ -552,6 +562,38 @@ class TestSaveLoadRoundtrip(unittest.TestCase):
         model, env = load(path, return_metadata=True)
         self.assertIsInstance(model, IForest)
         self.assertEqual(env['metadata'], meta)
+
+
+class TestLoadTrustBoundary(unittest.TestCase):
+
+    def setUp(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmpdir.cleanup)
+
+    def _tmp(self, name='artifact.joblib'):
+        return os.path.join(self._tmpdir.name, name)
+
+    def test_load_rejects_untrusted_artifact_before_unpickling(self):
+        marker = self._tmp('marker.txt')
+
+        class Payload:
+            def __reduce__(self):
+                return (_write_marker, (marker, 'executed'))
+
+        path = self._tmp()
+        joblib.dump({
+            '_pyod_persistence_version': _CURRENT_PERSISTENCE_VERSION,
+            'model': Payload(),
+        }, path)
+        self.assertFalse(os.path.exists(marker))
+
+        with self.assertRaises(ValueError) as cm:
+            _load(path)
+
+        self.assertIn('trusted', str(cm.exception).lower())
+        self.assertFalse(
+            os.path.exists(marker),
+            'untrusted load must fail before pickle reducers execute')
 
 
 class TestLoadLegacy(unittest.TestCase):
