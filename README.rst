@@ -1,9 +1,18 @@
+.. image:: brand/pyod-icon.svg
+   :target: https://pyod.dev
+   :alt: PyOD Ecosystem
+   :width: 84px
+
 Python Outlier Detection (PyOD) 3
 ==================================
 
 **PyOD 3: Agentic Anomaly Detection At Scale**
 
-|badge_pypi| |badge_anaconda| |badge_docs| |badge_stars| |badge_forks| |badge_downloads| |badge_testing| |badge_coverage| |badge_maintainability| |badge_license| |badge_benchmark|
+|badge_website| |badge_pypi| |badge_anaconda| |badge_docs| |badge_stars| |badge_forks| |badge_downloads| |badge_testing| |badge_coverage| |badge_maintainability| |badge_license| |badge_benchmark|
+
+.. |badge_website| image:: https://img.shields.io/badge/website-pyod.dev-990000
+   :target: https://pyod.dev
+   :alt: Website
 
 .. |badge_pypi| image:: https://img.shields.io/pypi/v/pyod.svg?color=brightgreen
    :target: https://pypi.org/project/pyod/
