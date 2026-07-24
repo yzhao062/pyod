@@ -6,6 +6,8 @@
 # License: BSD 2 clause
 
 
+import copy
+
 import numpy as np
 
 try:
@@ -361,7 +363,11 @@ class DeepSVDD(BaseDetector):
             # the batch loop, not inside it)
             if epoch_loss < best_loss:
                 best_loss = epoch_loss
-                best_model_dict = self.model_.state_dict()
+                # state_dict() returns references to the live parameters, so
+                # a later optimizer.step() would mutate this snapshot in
+                # place and leave the final weights here instead of the best
+                # ones. Copy it.
+                best_model_dict = copy.deepcopy(self.model_.state_dict())
             print(f"Epoch {epoch + 1}/{self.epochs}, Loss: {epoch_loss}")
         self.best_model_dict = best_model_dict
 
