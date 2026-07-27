@@ -84,6 +84,23 @@ class TestData(unittest.TestCase):
         assert_allclose(y_train, y_train2)
         assert_allclose(y_test, y_test2)
 
+    def test_data_generate_outliers_have_spread(self):
+        # Regression test for GH #141: for certain seeds the internal offset
+        # was drawn as 0, which collapsed every outlier onto the origin
+        # (uniform(-0, 0) == 0) and produced zero-variance outliers. Sweep a
+        # range of seeds (incl. 41 and 48, which previously triggered the
+        # collapse) and confirm outliers always keep a non-zero spread.
+        for seed in list(range(50)) + [41, 48]:
+            X, y = generate_data(
+                n_features=2,
+                contamination=0.05,
+                train_only=True,
+                random_state=seed,
+            )
+            outliers = X[y == 1]
+            assert outliers.var() > 0, \
+                "outliers collapsed to zero variance for random_state=%d" % seed
+
     def test_data_generate_cluster(self):
         X_train, X_test, y_train, y_test = \
             generate_data_clusters(n_train=self.n_train,
