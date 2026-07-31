@@ -6,6 +6,8 @@
 # License: BSD 2 clause
 
 
+import copy
+
 import numpy as np
 
 try:
@@ -336,9 +338,6 @@ class DeepSVDD(BaseDetector):
 
         optimizer = optimizer_dict[self.optimizer](self.model_.parameters(),
                                                    weight_decay=self.l2_regularizer)
-        w_d = 1e-6 * sum(
-            [torch.linalg.norm(w) for w in self.model_.parameters()])
-
         for epoch in range(self.epochs):
             self.model_.train()
             epoch_loss = 0
@@ -346,18 +345,29 @@ class DeepSVDD(BaseDetector):
                 optimizer.zero_grad()
                 outputs = self.model_(batch_x)
                 dist = torch.sum((outputs - self.c) ** 2, dim=-1)
+                # L2 regularization term, recomputed every step so that it
+                # is part of the current batch's computation graph
+                w_d = 1e-6 * sum(
+                    [torch.linalg.norm(w) for w in self.model_.parameters()])
                 if self.use_ae:
                     loss = torch.mean(dist) + w_d + torch.mean(
                         torch.square(outputs - batch_x))
                 else:
                     loss = torch.mean(dist) + w_d
 
-                # loss.backward()
+                loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
-                if epoch_loss < best_loss:
-                    best_loss = epoch_loss
-                    best_model_dict = self.model_.state_dict()
+            # keep the best performing model across epochs (epoch_loss is the
+            # accumulated loss over the whole epoch, so this must run after
+            # the batch loop, not inside it)
+            if epoch_loss < best_loss:
+                best_loss = epoch_loss
+                # state_dict() returns references to the live parameters, so
+                # a later optimizer.step() would mutate this snapshot in
+                # place and leave the final weights here instead of the best
+                # ones. Copy it.
+                best_model_dict = copy.deepcopy(self.model_.state_dict())
             print(f"Epoch {epoch + 1}/{self.epochs}, Loss: {epoch_loss}")
         self.best_model_dict = best_model_dict
 
