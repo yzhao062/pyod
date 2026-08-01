@@ -552,5 +552,124 @@ class TestAirGappedAndPreinstantiated(unittest.TestCase):
         self.assertNotIsInstance(enc, CallableEncoder)
 
 
+class TestLocalPathEncoderFallback(unittest.TestCase):
+
+    def test_local_path_falls_back_to_huggingface(self):
+        """A local path falls back to the HuggingFace backend when
+        sentence-transformers is unavailable, instead of raising."""
+        import tempfile
+        from unittest.mock import patch
+        import pyod.utils.encoders as enc
+
+        sentinel = object()
+
+        def fake_create(backend, **kwargs):
+            if backend == 'sentence_transformer':
+                raise ImportError("sentence-transformers not installed")
+            if backend == 'huggingface':
+                return sentinel
+            raise AssertionError("unexpected backend: %s" % backend)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch.object(enc, '_create_encoder',
+                              side_effect=fake_create):
+                resolved = enc.resolve_encoder(tmpdir)
+
+        self.assertIs(resolved, sentinel)
+
+    def test_local_path_uses_sentence_transformer_when_available(self):
+        """Local path uses the SentenceTransformer backend when available."""
+        import tempfile
+        from unittest.mock import patch
+        import pyod.utils.encoders as enc
+
+        sentinel = object()
+        seen = []
+
+        def fake_create(backend, **kwargs):
+            seen.append(backend)
+            if backend == 'sentence_transformer':
+                return sentinel
+            raise AssertionError("should not reach: %s" % backend)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch.object(enc, '_create_encoder', side_effect=fake_create):
+                resolved = enc.resolve_encoder(tmpdir)
+
+        self.assertIs(resolved, sentinel)
+        self.assertEqual(seen, ['sentence_transformer'])
+
+    def test_local_path_no_backend_raises_importerror(self):
+        """Local path with neither backend installed raises ImportError."""
+        import tempfile
+        from unittest.mock import patch
+        import pyod.utils.encoders as enc
+
+        def fake_create(backend, **kwargs):
+            raise ImportError("backend not installed")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch.object(enc, '_create_encoder', side_effect=fake_create):
+                with self.assertRaises(ImportError):
+                    enc.resolve_encoder(tmpdir)
+
+
+class _FakeST:
+    """Stand-in for SentenceTransformer; no torch/ST install required."""
+
+    def __init__(self, model_name=None, device=None, **kwargs):
+        self.kwargs = kwargs
+
+    def encode(self, X, **kw):
+        import numpy as np
+        return np.zeros((len(X), 4), dtype=float)
+
+
+class TestSentenceTransformerEncoderLoading(unittest.TestCase):
+
+    def test_local_path_loads_with_local_files_only(self):
+        import tempfile
+        from unittest.mock import patch
+        import pyod.utils.encoders.sentence_transformer as st_mod
+        from pyod.utils.encoders.sentence_transformer import (
+            SentenceTransformerEncoder)
+        with patch.object(st_mod, 'SentenceTransformer', _FakeST):
+            with tempfile.TemporaryDirectory() as d:
+                enc = SentenceTransformerEncoder(d)
+                enc.encode(["a", "b"])
+                self.assertTrue(enc.model_.kwargs.get('local_files_only'))
+
+    def test_remote_name_loads_without_local_flag(self):
+        from unittest.mock import patch
+        import pyod.utils.encoders.sentence_transformer as st_mod
+        from pyod.utils.encoders.sentence_transformer import (
+            SentenceTransformerEncoder)
+        with patch.object(st_mod, 'SentenceTransformer', _FakeST):
+            enc = SentenceTransformerEncoder("some-remote-model")
+            enc.encode(["a"])
+            self.assertNotIn('local_files_only', enc.model_.kwargs)
+
+    def test_preinstantiated_object_is_reused(self):
+        from unittest.mock import patch
+        import pyod.utils.encoders.sentence_transformer as st_mod
+        from pyod.utils.encoders.sentence_transformer import (
+            SentenceTransformerEncoder)
+        with patch.object(st_mod, 'SentenceTransformer', _FakeST):
+            model = _FakeST()
+            enc = SentenceTransformerEncoder(model)
+            enc.encode(["a"])
+            self.assertIs(enc.model_, model)
+
+    def test_invalid_model_name_type_raises(self):
+        from unittest.mock import patch
+        import pyod.utils.encoders.sentence_transformer as st_mod
+        from pyod.utils.encoders.sentence_transformer import (
+            SentenceTransformerEncoder)
+        with patch.object(st_mod, 'SentenceTransformer', _FakeST):
+            enc = SentenceTransformerEncoder(42)
+            with self.assertRaises(TypeError):
+                enc.encode(["a"])
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -382,8 +382,27 @@ def resolve_encoder(encoder):
         # with local_files_only=True rather than resolved as a Hub ID.
         import os
         if os.path.exists(encoder):
-            return _create_encoder('sentence_transformer',
-                                   model_name=encoder)
+            # Local path: prefer the SentenceTransformer backend, but fall
+            # back to HuggingFace when sentence-transformers isn't installed
+            # (e.g. a pyod[huggingface]-only environment). Both backends load
+            # from a local directory without any network/Hub call.
+            try:
+                return _create_encoder('sentence_transformer',
+                                       model_name=encoder)
+            except ImportError:
+                pass
+
+            try:
+                return _create_encoder('huggingface',
+                                       model_name=encoder,
+                                       modality='text')
+            except ImportError:
+                pass
+
+            raise ImportError(
+                "Loading a local encoder path requires sentence-transformers "
+                "or transformers. Install with: pip install pyod[embedding] "
+                "or pip install pyod[huggingface].")
 
         # Check registry
         if encoder in _ENCODER_REGISTRY:
