@@ -379,6 +379,7 @@ class LUNAR(BaseDetector):
                                weight_decay=self.wd)
         # for early stopping
         best_val_score = 0
+        self.history_ = {'loss': []}
         # model training
         for epoch in range(self.n_epochs):
 
@@ -418,6 +419,7 @@ class LUNAR(BaseDetector):
             loss = criterion(out, train_y).sum()
             loss.backward()
             optimizer.step()
+            self.history_['loss'].append(loss.item())
 
         # print best model after training
         if self.verbose == 1:

@@ -155,8 +155,10 @@ class LSTMAD(BaseDetector):
         dataset = TensorDataset(X_tensor, y_tensor)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
+        self.history_ = {'loss': []}
         model.train()
         for _ in range(self.epochs):
+            overall_loss = []
             for batch_x, batch_y in loader:
                 batch_x = batch_x.to(device)
                 batch_y = batch_y.to(device)
@@ -165,6 +167,8 @@ class LSTMAD(BaseDetector):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                overall_loss.append(loss.item())
+            self.history_['loss'].append(float(np.mean(overall_loss)))
 
         model.eval()
         return model

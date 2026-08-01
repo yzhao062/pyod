@@ -521,6 +521,7 @@ class AnomalyTransformer(BaseDetector):
         self._set_n_classes(y)
 
         device = self._resolve_device()
+        self.history_ = {'loss': []}
 
         # Create overlapping windows: (n_windows, window_size, n_channels)
         windows = _create_windows_3d(X, self.window_size, self.step)
@@ -584,6 +585,7 @@ class AnomalyTransformer(BaseDetector):
         optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)
 
         for epoch in range(self.epochs):
+            epoch_loss = []
             for (batch,) in loader:
                 batch = batch.to(device)
 
@@ -599,6 +601,7 @@ class AnomalyTransformer(BaseDetector):
                 loss_min = recon_loss - self.lambda_ * ass_dis_min.mean()
                 loss_min.backward()
                 optimizer.step()
+                epoch_loss.append(loss_min.item())
 
                 # ---- Maximize phase ----
                 # Maximize AssDis only. Detach series (stop gradient on S).
@@ -610,6 +613,7 @@ class AnomalyTransformer(BaseDetector):
                 loss_max = -ass_dis_max.mean()
                 loss_max.backward()
                 optimizer.step()
+            self.history_['loss'].append(float(np.mean(epoch_loss)))
 
     def decision_function(self, X):
         """Predict raw anomaly scores for time series X.

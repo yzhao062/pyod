@@ -275,6 +275,7 @@ class AE1SVM(BaseDetector):
         """
         X = check_array(X)
         self._set_n_classes(y)
+        self.history_ = {'loss': []}
 
         n_samples, n_features = X.shape
         if self.preprocessing:
@@ -338,12 +339,14 @@ class AE1SVM(BaseDetector):
                 loss.backward()
                 optimizer.step()
                 overall_loss.append(loss.item())
+            epoch_loss = float(np.mean(overall_loss))
+            self.history_['loss'].append(epoch_loss)
             if (epoch + 1) % 10 == 0:
                 print(
-                    f'Epoch {epoch + 1}/{self.epochs}, Loss: {np.mean(overall_loss)}')
+                    f'Epoch {epoch + 1}/{self.epochs}, Loss: {epoch_loss}')
 
-            if np.mean(overall_loss) < self.best_loss:
-                self.best_loss = np.mean(overall_loss)
+            if epoch_loss < self.best_loss:
+                self.best_loss = epoch_loss
                 self.best_model_dict = self.model.state_dict()
 
     def decision_function(self, X):

@@ -56,6 +56,13 @@ class TestALAD(unittest.TestCase):
     def test_parameters(self):
         assert (hasattr(self.clf, 'decision_scores_') and
                 self.clf.decision_scores_ is not None)
+        assert (hasattr(self.clf, 'history_') and
+                self.clf.history_ is not None)
+
+    def test_history(self):
+        self.assertIn('discriminator_loss', self.clf.history_)
+        self.assertIn('generator_loss', self.clf.history_)
+        self.assertGreater(len(self.clf.history_['generator_loss']), 0)
         assert (hasattr(self.clf, 'labels_') and
                 self.clf.labels_ is not None)
         assert (hasattr(self.clf, 'threshold_') and
