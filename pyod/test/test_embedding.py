@@ -538,15 +538,23 @@ class TestAirGappedAndPreinstantiated(unittest.TestCase):
 
         A SentenceTransformer instance must resolve to
         SentenceTransformerEncoder and never to CallableEncoder (the
-        instance is callable, so resolution order matters). ``modules=[]``
-        builds an empty model, so this test needs no network or model
-        download, unlike the integration tests above.
+        instance is callable, so resolution order matters).
+
+        The model is built from a single trivial ``torch`` module, so the
+        test needs no network or model download, unlike the integration
+        tests above. ``nn.Identity`` is used rather than ``modules=[]``
+        (rejected since sentence-transformers 5.6) or a
+        ``sentence_transformers.models`` helper (whose keyword arguments
+        have been renamed across 5.x); any ``nn.Module`` is accepted, and
+        the model is never asked to encode anything here.
         """
+        import torch.nn as nn
+
         from pyod.utils.encoders import CallableEncoder, resolve_encoder
         from pyod.utils.encoders.sentence_transformer import (
             SentenceTransformerEncoder)
 
-        model = SentenceTransformer(modules=[])
+        model = SentenceTransformer(modules=[nn.Identity()])
         enc = resolve_encoder(model)
         self.assertIsInstance(enc, SentenceTransformerEncoder)
         self.assertNotIsInstance(enc, CallableEncoder)
