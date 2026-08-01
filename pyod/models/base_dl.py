@@ -135,7 +135,6 @@ class BaseDeepLearningDetector(BaseDetector):
         self.X_std = None
         self.data_num = None
         self.feature_size = None
-        self.history_ = {'loss': []}
 
         if (isinstance(contamination, (float, int))):
             if not (0. < contamination <= 0.5):
@@ -243,9 +242,9 @@ class BaseDeepLearningDetector(BaseDetector):
                 overall_loss.append(loss)
             # loss could be a tuple or a single value
             if isinstance(loss, (tuple, list)):
-                overall_loss = np.mean([l for l in overall_loss])
+                overall_loss = float(np.mean([l for l in overall_loss]))
             else:
-                overall_loss = np.mean(overall_loss)
+                overall_loss = float(np.mean(overall_loss))
 
             self.history_['loss'].append(overall_loss)
 

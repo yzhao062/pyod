@@ -220,8 +220,6 @@ class AnoGAN(BaseDetector):
 
         self.hist_loss_generator = []
         self.hist_loss_discriminator = []
-        self.history_ = {'generator_loss': self.hist_loss_generator,
-                         'discriminator_loss': self.hist_loss_discriminator}
 
         self.device = device
 

@@ -260,8 +260,6 @@ class ALAD(BaseDetector):
 
         self.hist_loss_disc = []
         self.hist_loss_gen = []
-        self.history_ = {'discriminator_loss': self.hist_loss_disc,
-                         'generator_loss': self.hist_loss_gen}
 
     def train_step(self, data):
         x_real, z_real = data
