@@ -199,6 +199,9 @@ class VAE(BaseDeepLearningDetector):
     criterion : python function
         The loss function used to train the model.
 
+    history_ : dict
+        Training history containing 'loss' (list of loss values per epoch).
+
     decision_scores_ : numpy array of shape (n_samples,)
         The outlier scores of the training data.
         The higher, the more abnormal. Outliers tend to have higher

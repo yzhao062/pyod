@@ -234,6 +234,9 @@ class DeepSVDD(BaseDetector):
 
         Attributes
         ----------
+        history_ : dict
+            Training history containing 'loss' (list of loss values per epoch).
+
         decision_scores_ : numpy array of shape (n_samples,)
             The outlier scores of the training data.
             The higher, the more abnormal. Outliers tend to have higher
@@ -312,6 +315,7 @@ class DeepSVDD(BaseDetector):
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
+        self.history_ = {'loss': []}
 
         # Verify and construct the hidden units
         self.n_samples_, self.n_features_ = X.shape[0], X.shape[1]
@@ -413,6 +417,7 @@ class DeepSVDD(BaseDetector):
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
+            self.history_['loss'].append(epoch_loss)
             # keep the best performing model across epochs (epoch_loss is the
             # accumulated loss over the whole epoch, so this must run after
             # the batch loop, not inside it)

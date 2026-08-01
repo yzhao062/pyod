@@ -234,6 +234,7 @@ class DevNet(BaseDetector):
                 "cuda:0" if torch.cuda.is_available() else "cpu")
 
     def fit(self, X, y):
+        self.history_ = {'loss': []}
         outlier_indices = np.where(y == 1)[0]
         inlier_indices = np.where(y == 0)[0]
         n_outliers = len(outlier_indices)
@@ -257,6 +258,7 @@ class DevNet(BaseDetector):
         def train_model(model, data_loader, epochs):
             model.train()
             for epoch in range(epochs):
+                overall_loss = []
                 for data, labels in data_loader:
                     data, labels = data.to(torch.float32), labels.to(
                         torch.float32)  # Ensure data types
@@ -265,7 +267,10 @@ class DevNet(BaseDetector):
                     loss = deviation_loss(outputs, labels)
                     loss.backward()
                     optimizer.step()
-                print(f'Epoch {epoch + 1}, Loss: {loss.item()}')
+                    overall_loss.append(loss.item())
+                epoch_loss = float(np.mean(overall_loss))
+                self.history_['loss'].append(epoch_loss)
+                print(f'Epoch {epoch + 1}, Loss: {epoch_loss}')
 
         # Training the model
         train_model(self.model, train_loader, epochs=self.epochs)

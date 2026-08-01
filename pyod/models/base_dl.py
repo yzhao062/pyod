@@ -99,6 +99,11 @@ class BaseDeepLearningDetector(BaseDetector):
     criterion_params : dict, optional (default=None)
         Additional parameters for the criterion.
         For example, `criterion_params={'reduction': 'sum'}`.
+
+    Attributes
+    ----------
+    history_ : dict
+        Training history containing 'loss' (list of loss values per epoch).
     """
 
     def __init__(self,
@@ -178,6 +183,7 @@ class BaseDeepLearningDetector(BaseDetector):
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
+        self.history_ = {'loss': []}
 
         self.data_num, self.feature_size = X.shape
         self.build_model()
@@ -236,9 +242,11 @@ class BaseDeepLearningDetector(BaseDetector):
                 overall_loss.append(loss)
             # loss could be a tuple or a single value
             if isinstance(loss, (tuple, list)):
-                overall_loss = np.mean([l for l in overall_loss])
+                overall_loss = float(np.mean([l for l in overall_loss]))
             else:
-                overall_loss = np.mean(overall_loss)
+                overall_loss = float(np.mean(overall_loss))
+
+            self.history_['loss'].append(overall_loss)
 
             # loss could be a tuple or a single value
             if self.verbose == 2:

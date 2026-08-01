@@ -74,6 +74,12 @@ class TestVAE(unittest.TestCase):
         self.assertIsNotNone(self.clf._sigma)
         self.assertTrue(hasattr(self.clf, 'model'))
         self.assertIsNotNone(self.clf.model)
+        self.assertTrue(hasattr(self.clf, 'history_'))
+        self.assertIsNotNone(self.clf.history_)
+
+    def test_history(self):
+        self.assertIn('loss', self.clf.history_)
+        self.assertEqual(len(self.clf.history_['loss']), self.clf.epoch_num)
 
     def test_train_scores(self):
         self.assertEqual(len(self.clf.decision_scores_), self.X_train.shape[0])
