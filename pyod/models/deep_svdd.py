@@ -67,9 +67,11 @@ class InnerDeepSVDD(nn.Module):
     dropout_rate : float in (0., 1), optional (default=0.2)
         The dropout to be used across all layers.
 
-    l2_regularizer : float in (0., 1), optional (default=0.1)
-        The regularization strength of activity_regularizer
-        applied on each layer. By default, l2 regularizer is used. See
+    l2_regularizer : float in (0., 1), optional (default=0.5e-6)
+        Weight decay passed to the optimizer (L2 regularization on the
+        network weights). The default matches the reference Deep SVDD
+        implementation; larger values push the weights toward zero and can
+        collapse the hypersphere.
     """
 
     def __init__(self, n_features, use_ae,
@@ -87,20 +89,14 @@ class InnerDeepSVDD(nn.Module):
         self.model = self._build_model()
 
     def _init_c(self, X_norm, eps=0.1):
-        intermediate_output = {}
-        hook_handle = self.model._modules.get(
-            'net_output').register_forward_hook(
-            lambda module, input, output: intermediate_output.update(
-                {'net_output': output})
-        )
-        output = self.model(X_norm)
-
-        out = intermediate_output['net_output']
-        hook_handle.remove()
-
-        self.c = torch.mean(out, dim=0)
+        # The center must live in the same representation space used by the
+        # loss. In particular, include the activation after ``net_output``.
+        self.eval()
+        with torch.no_grad():
+            self.c = torch.mean(self.model(X_norm), dim=0)
         self.c[(torch.abs(self.c) < eps) & (self.c < 0)] = -eps
         self.c[(torch.abs(self.c) < eps) & (self.c > 0)] = eps
+        return self.c
 
     def _build_model(self):
         layers = nn.Sequential()
@@ -155,15 +151,29 @@ class DeepSVDD(BaseDetector):
         data by calculating the distance from center
         See :cite:`ruff2018deepsvdd` for details.
 
+        This one-class objective works best when the fitting samples are
+        predominantly normal; PyOD fits it unsupervised on contaminated data,
+        so accuracy can trail a clean one-class setup. With ``use_ae=True``
+        the hypersphere distance and the anomaly scores are computed from the
+        decoder reconstructions; the encoder's latent layer remains an
+        intermediate activation.
+
         Parameters
         ----------
         n_features: int, 
             Number of features in the input data.
 
-        c: float, optional (default='forwad_nn_pass')
-            Deep SVDD center, the default will be calculated based on network
-            initialization first forward pass. To get repeated results set
-            random_state if c is set to None.
+        c: float, numpy array, or torch tensor, optional (default=None)
+            Hypersphere center, kept as configuration and never overwritten by
+            ``fit``. When None (the default) the center is initialized from the
+            first forward pass of the freshly built network; set
+            ``random_state`` for repeatable results. A scalar is expanded to
+            the network output width; a vector must match that width, which is
+            ``hidden_neurons[-1]`` normally and ``n_features`` when
+            ``use_ae=True``. The value must be finite and not all zeros: an
+            all-zero center is the trivial solution of the Deep SVDD objective
+            for a bias-free network and collapses the hypersphere. The fitted
+            center is exposed as ``c_``.
 
         use_ae: bool, optional (default=False)
             The AutoEncoder type of DeepSVDD it reverse neurons from hidden_neurons
@@ -186,6 +196,9 @@ class DeepSVDD(BaseDetector):
             String (name of optimizer) or optimizer instance.
             See https://keras.io/optimizers/
 
+        learning_rate : float, optional (default=1e-4)
+            Learning rate used by the optimizer.
+
         epochs : int, optional (default=100)
             Number of epochs to train the model.
 
@@ -195,10 +208,11 @@ class DeepSVDD(BaseDetector):
         dropout_rate : float in (0., 1), optional (default=0.2)
             The dropout to be used across all layers.
 
-        l2_regularizer : float in (0., 1), optional (default=0.1)
-            The regularization strength of activity_regularizer
-            applied on each layer. By default, l2 regularizer is used. See
-            https://keras.io/regularizers/
+        l2_regularizer : float in (0., 1), optional (default=0.5e-6)
+            Weight decay passed to the optimizer (L2 regularization on the
+            network weights). The default matches the reference Deep SVDD
+            implementation; larger values push the weights toward zero and
+            can collapse the hypersphere.
 
         validation_size : float in (0., 1), optional (default=0.1)
             The percentage of data to be used for validation.
@@ -236,15 +250,23 @@ class DeepSVDD(BaseDetector):
             The binary labels of the training data. 0 stands for inliers
             and 1 for outliers/anomalies. It is generated by applying
             ``threshold_`` on ``decision_scores_``.
+
+        c_ : torch tensor of shape (output_width,)
+            The fitted hypersphere center actually used by the training
+            objective and by ``decision_function``. Either the center
+            initialized from the data (when ``c`` is None) or a validated
+            copy of the user-supplied ``c``.
         """
 
     def __init__(self, n_features, c=None, use_ae=False, hidden_neurons=None,
                  hidden_activation='relu',
                  output_activation='sigmoid', optimizer='adam', epochs=100,
                  batch_size=32,
-                 dropout_rate=0.2, l2_regularizer=0.1, validation_size=0.1,
+                 dropout_rate=0.2, l2_regularizer=0.5e-6,
+                 validation_size=0.1,
                  preprocessing=True,
-                 verbose=1, random_state=None, contamination=0.1):
+                 verbose=1, random_state=None, contamination=0.1,
+                 learning_rate=1e-4):
         super(DeepSVDD, self).__init__(contamination=contamination)
 
         self.n_features = n_features
@@ -254,6 +276,7 @@ class DeepSVDD(BaseDetector):
         self.hidden_activation = hidden_activation
         self.output_activation = output_activation
         self.optimizer = optimizer
+        self.learning_rate = learning_rate
         self.epochs = epochs
         self.batch_size = batch_size
         self.dropout_rate = dropout_rate
@@ -317,9 +340,40 @@ class DeepSVDD(BaseDetector):
                                     dropout_rate=self.dropout_rate,
                                     l2_regularizer=self.l2_regularizer)
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
+        # ``c`` is a constructor parameter and must stay untouched so that
+        # get_params/clone round-trip and a refit re-initializes the center
+        # for the freshly built network. The fitted center lives in ``c_``.
         if self.c is None:
-            self.c = 0.0
-            self.model_._init_c(X_norm)
+            center = self.model_._init_c(X_norm)
+        else:
+            center = torch.as_tensor(self.c, dtype=X_norm.dtype,
+                                     device=X_norm.device)
+
+        # The center must match the width of whatever ``forward()`` returns:
+        # the decoder reconstruction under use_ae, else the final embedding.
+        output_width = (self.n_features if self.use_ae
+                        else self.hidden_neurons[-1])
+        if center.ndim == 0:
+            center = center.repeat(output_width)
+        elif center.ndim != 1 or center.numel() != output_width:
+            raise ValueError(
+                f'DeepSVDD: c must be a scalar or a vector of length '
+                f'{output_width}, got shape {tuple(center.shape)}.')
+        if not torch.isfinite(center).all():
+            raise ValueError('DeepSVDD: c must contain only finite values.')
+        if not torch.any(center != 0):
+            # An all-zero center is the trivial solution of the Deep SVDD
+            # objective for a bias-free network (Ruff et al., ICML 2018,
+            # Proposition 1): all-zero weights map every input to it, so
+            # training would converge to a collapsed hypersphere.
+            raise ValueError(
+                'DeepSVDD: the hypersphere center is all zeros, which makes '
+                'the trivial all-zero-weights solution optimal and collapses '
+                'the hypersphere. Pass c=None to initialize the center from '
+                'the data, or supply a non-zero center.')
+        # clone() so a mutable user-supplied array/tensor cannot alias (and
+        # later mutate) the fitted center.
+        self.c_ = center.detach().clone()
 
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
@@ -336,15 +390,16 @@ class DeepSVDD(BaseDetector):
         best_loss = float('inf')
         best_model_dict = None
 
-        optimizer = optimizer_dict[self.optimizer](self.model_.parameters(),
-                                                   weight_decay=self.l2_regularizer)
+        optimizer = optimizer_dict[self.optimizer](
+            self.model_.parameters(), lr=self.learning_rate,
+            weight_decay=self.l2_regularizer)
         for epoch in range(self.epochs):
             self.model_.train()
             epoch_loss = 0
             for batch_x, _ in dataloader:
                 optimizer.zero_grad()
                 outputs = self.model_(batch_x)
-                dist = torch.sum((outputs - self.c) ** 2, dim=-1)
+                dist = torch.sum((outputs - self.c_) ** 2, dim=-1)
                 # L2 regularization term, recomputed every step so that it
                 # is part of the current batch's computation graph
                 w_d = 1e-6 * sum(
@@ -370,6 +425,8 @@ class DeepSVDD(BaseDetector):
                 best_model_dict = copy.deepcopy(self.model_.state_dict())
             print(f"Epoch {epoch + 1}/{self.epochs}, Loss: {epoch_loss}")
         self.best_model_dict = best_model_dict
+        if self.best_model_dict is not None:
+            self.model_.load_state_dict(self.best_model_dict)
 
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
@@ -404,6 +461,6 @@ class DeepSVDD(BaseDetector):
         self.model_.eval()
         with torch.no_grad():
             outputs = self.model_(X_norm)
-            dist = torch.sum((outputs - self.c) ** 2, dim=-1)
+            dist = torch.sum((outputs - self.c_) ** 2, dim=-1)
         anomaly_scores = dist.numpy()
         return anomaly_scores

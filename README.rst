@@ -1,4 +1,4 @@
-.. image:: brand/pyod-icon.svg
+.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/brand/pyod-icon.svg
    :target: https://pyod.dev
    :alt: PyOD Ecosystem
    :width: 84px
