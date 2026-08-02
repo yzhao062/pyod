@@ -309,12 +309,9 @@ class DeepSAD(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        # Validate and complete the number of hidden neurons
-        if np.min(self.hidden_neurons) > self.n_features_:
-            raise ValueError("The number of neurons should not exceed "
-                             "the number of features")
-
-        # Build Deep SAD model & fit with X
+        # Build Deep SAD model & fit with X. Unlike Deep SVDD (which
+        # reverses the encoder in an optional autoencoder), Deep SAD uses
+        # only the encoder, so hidden layers may be wider than the input.
         self.model_ = InnerDeepSAD(self.n_features,
                                    hidden_neurons=self.hidden_neurons,
                                    hidden_activation=self.hidden_activation,
@@ -324,13 +321,26 @@ class DeepSAD(BaseDetector):
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
         semi_targets = torch.tensor(semi_targets, dtype=torch.float32)
 
-        # Initialize the hypersphere center from a first forward pass
+        # Initialize the hypersphere center from a first forward pass, or
+        # validate the user-supplied center against the representation
+        # space.
+        rep_dim = self.hidden_neurons[-1]
         if self.c is None:
             self.c_ = self.model_._init_c(X_norm)
-        elif not torch.is_tensor(self.c):
-            self.c_ = torch.tensor(self.c, dtype=torch.float32)
         else:
-            self.c_ = self.c
+            if torch.is_tensor(self.c):
+                c_ = self.c.to(torch.float32)
+            else:
+                c_ = torch.tensor(self.c, dtype=torch.float32)
+            c_ = c_.flatten()
+            if c_.shape[0] != rep_dim:
+                raise ValueError(
+                    "c must match the representation dimension "
+                    "(hidden_neurons[-1] = {}), got {}".format(
+                        rep_dim, c_.shape[0]))
+            if not torch.isfinite(c_).all():
+                raise ValueError("c must be finite.")
+            self.c_ = c_
 
         dataset = TensorDataset(X_norm, semi_targets)
         dataloader = DataLoader(dataset, batch_size=self.batch_size,

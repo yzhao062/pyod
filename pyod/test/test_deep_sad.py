@@ -154,6 +154,34 @@ class TestDeepSAD(unittest.TestCase):
         clone(self.clf)
         clone(self.clf_unsup)
 
+    def test_hidden_neurons_wider_than_input(self):
+        # Deep SAD uses only an encoder, so hidden layers may be wider
+        # than the input dimension; fitting must not raise.
+        X = self.X_train[:, :8]
+        clf = DeepSAD(n_features=8, epochs=2, hidden_neurons=[64, 32],
+                      contamination=self.contamination)
+        clf.fit(X)
+        assert clf.decision_scores_ is not None
+
+    def test_invalid_center_raises(self):
+        # A center that does not match the representation dimension is
+        # rejected rather than silently broadcasting.
+        with assert_raises(ValueError):
+            DeepSAD(n_features=self.n_features, c=0.0, epochs=1,
+                    hidden_neurons=[64, 32]).fit(self.X_train)
+        with assert_raises(ValueError):
+            DeepSAD(n_features=self.n_features, c=[1.0, 2.0], epochs=1,
+                    hidden_neurons=[64, 32]).fit(self.X_train)
+
+    def test_valid_center_accepted(self):
+        # A correctly sized, finite center is accepted.
+        c = np.ones(32)
+        clf = DeepSAD(n_features=self.n_features, c=c, epochs=2,
+                      hidden_neurons=[64, 32],
+                      contamination=self.contamination)
+        clf.fit(self.X_train)
+        assert clf.decision_scores_ is not None
+
     def tearDown(self):
         pass
 
