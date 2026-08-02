@@ -92,11 +92,11 @@ class BaseDeepLearningDetector(BaseDetector):
         - 1 = progress bar
         - 2 = one line per epoch.
 
-    optimizer_params : dict, optional (default=None)
+    optimizer_params : dict, optional (default={})
         Additional parameters for the optimizer.
         For example, `optimizer_params={'weight_decay': 1e-4}`.
 
-    criterion_params : dict, optional (default=None)
+    criterion_params : dict, optional (default={})
         Additional parameters for the criterion.
         For example, `criterion_params={'reduction': 'sum'}`.
     """

@@ -70,8 +70,11 @@ sp.io.savemat('seismic.mat', seismic)
 
 # %%##########################################################################
 
-from __future__ import division
-from __future__ import print_function
+# NOTE: this file concatenates two conversion scripts. The second one used to
+# carry its own ``from __future__`` imports here, which is a SyntaxError --
+# ``__future__`` imports must precede all other code in a module. They were
+# no-ops on Python 3 (``division`` and ``print_function`` are the default), so
+# they are simply dropped.
 
 import os
 import sys

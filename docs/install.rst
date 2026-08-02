@@ -16,8 +16,9 @@ Then pick the activation path that matches your agent stack:
 
 .. code-block:: bash
 
-    # 1. Claude Code / Claude Desktop — enables the od-expert skill
-    pyod install skill
+    # 1. Claude Code / Codex — enables the od-expert skill
+    pyod install skill             # Claude Code: installs to ~/.claude/skills/
+    pyod install skill --project   # Codex: installs to ./skills/ in the project
 
     # 2. Any MCP-compatible LLM — requires the optional mcp extra
     pip install pyod[mcp]
@@ -57,7 +58,7 @@ Agentic activation paths
 
 PyOD 3 supports three activation paths for AI agents. Pick the one that matches your agent stack; you can enable more than one in the same environment.
 
-**Claude Code / Claude Desktop**
+**Claude Code**
     The ``od-expert`` skill ships as package data inside the pyod wheel and is copied into Claude Code's skill directory via the ``pyod install skill`` command:
 
     .. code-block:: bash
@@ -87,7 +88,9 @@ PyOD 3 supports three activation paths for AI agents. Pick the one that matches 
         pip install pyod[mcp]
         pyod mcp serve              # alias for ``python -m pyod.mcp_server``
 
-    The server registers seven tools: ``profile_data``, ``plan_detection``, ``build_detector``, ``list_detectors``, ``explain_detector``, ``compare_detectors``, and ``get_benchmarks``.
+    The server registers ten stateless tools: ``profile_data``, ``plan_detection``, ``build_detector``, ``list_detectors``, ``explain_detector``, ``compare_detectors``, ``get_benchmarks``, ``run_detection``, ``analyze_results``, and ``explain_findings``.
+
+    Claude Desktop connects through this path: it reads MCP servers and has no skill directory, so ``pyod install skill`` does not reach it.
 
 **Python apps / custom agents**
     Import and call PyOD's orchestration layer directly:
@@ -136,22 +139,60 @@ Required dependencies
 Optional dependencies
 ---------------------
 
-Install only what you need:
+Every optional feature ships as a pip extra. Install only what you need, or take the whole stack at once:
+
+.. code-block:: bash
+
+    pip install pyod[torch]        # one extra
+    pip install pyod[torch,graph]  # several at once
+    pip install pyod[all]          # every optional dependency
+
+The extra names in the first column below are the only valid ones, and they are matched exactly. pip treats an unrecognized extra as a warning rather than an error, so ``pip install pyod[pytorch]`` exits successfully having installed PyOD itself but none of the PyTorch stack the name suggests, and the mistake only surfaces later as an ``ImportError``. The extra that carries PyTorch is ``torch``. On zsh, quote the argument (``pip install 'pyod[all]'``) so the shell does not expand the brackets.
 
 .. list-table::
-   :widths: 33 33 34
-   :header-rows: 0
+   :widths: 16 34 50
+   :header-rows: 1
 
-   * - ``pytorch``: deep learning models (AutoEncoder, VAE, DeepSVDD)
-     - ``suod``: SUOD acceleration framework
-     - ``xgboost``: XGBOD supervised detector
-   * - ``combo``: model combination, FeatureBagging
-     - ``pythresh``: data-driven thresholding
-     - ``sentence-transformers``: EmbeddingOD text
-   * - ``openai``: EmbeddingOD with OpenAI embeddings
-     - ``transformers``, ``torch``: EmbeddingOD image, HuggingFace encoder
-     - ``torch_geometric``: graph detectors (``pip install pyod[graph]``)
+   * - Extra
+     - Installs
+     - Enables
+   * - ``torch``
+     - ``torch>=2.0``
+     - Neural detectors: AutoEncoder, VAE, DeepSVDD
+   * - ``suod``
+     - ``suod``
+     - SUOD acceleration framework
+   * - ``xgboost``
+     - ``xgboost``
+     - XGBOD supervised detector
+   * - ``combo``
+     - ``combo``
+     - Model combination, FeatureBagging
+   * - ``pythresh``
+     - ``pythresh``
+     - Data-driven thresholding
+   * - ``embedding``
+     - ``sentence-transformers>=5.0.0``
+     - EmbeddingOD text detection
+   * - ``openai``
+     - ``openai>=1.0``
+     - EmbeddingOD with OpenAI embeddings
+   * - ``huggingface``
+     - ``transformers>=4.25.1``, ``torch>=2.0``, ``Pillow``
+     - EmbeddingOD image, HuggingFace encoder
+   * - ``graph``
+     - ``torch>=2.0``, ``torch_geometric>=2.0``
+     - Graph detectors (DOMINANT, CoLA, and the rest)
+   * - ``mcp``
+     - ``mcp>=1.0``
+     - MCP server for MCP-compatible agents
+   * - ``audio``
+     - ``librosa>=0.10``, ``soundfile``
+     - ``EmbeddingOD.for_audio()``; ``AudioAE`` also needs ``torch``
+   * - ``all``
+     - Every package listed above
+     - The full stack in one command
 
 .. warning::
 
-    PyOD includes several neural-network-based models, including AutoEncoders, VAE, DeepSVDD, and the graph detectors (DOMINANT, CoLA, etc.), all implemented in PyTorch. These deep learning libraries are not automatically installed by PyOD to avoid conflicts with existing installations. If you plan to use neural-net-based or graph detectors, install PyTorch (and ``torch_geometric`` for graph models) separately. Similarly, ``xgboost`` is not installed by default but is required for XGBOD.
+    PyOD includes several neural-network-based models, including AutoEncoders, VAE, DeepSVDD, and the graph detectors (DOMINANT, CoLA, etc.), all implemented in PyTorch. These deep learning libraries are not installed with the core package, so installing PyOD without an extra leaves an existing PyTorch installation untouched. For most users the extras are the shortest path: ``pip install pyod[torch]`` for the neural detectors and ``pip install pyod[graph]`` for the graph models, both of which pull a default PyTorch build from PyPI. Installing PyTorch separately still matters when you need a build other than the PyPI default, such as a CPU-only wheel or a particular CUDA or ROCm version. Those variants come from PyTorch's own package index, whose URL the selector at `pytorch.org <https://pytorch.org/get-started/locally/>`__ generates for you. In that case install PyTorch first; a later ``pip install pyod[torch]`` leaves an already-satisfied ``torch>=2.0`` untouched. Similarly, ``xgboost`` is not installed by default but is required for XGBOD (``pip install pyod[xgboost]``).
