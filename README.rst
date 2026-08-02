@@ -421,6 +421,11 @@ PyOD is organized into two functional groups: **(i) Detection Algorithms**, with
      - 2008
      - [#Liu2008Isolation]_
    * - Outlier Ensembles
+     - EIF
+     - Extended Isolation Forest (`example <https://github.com/yzhao062/pyod/blob/development/examples/eif_example.py>`__)
+     - 2021
+     - [#Hariri2021Extended]_
+   * - Outlier Ensembles
      - INNE
      - Isolation-based Anomaly Detection via Nearest-Neighbor Ensembles (`example <https://github.com/yzhao062/pyod/blob/development/examples/inne_example.py>`__)
      - 2018
@@ -863,6 +868,8 @@ Reference
 .. [#Li2021ECOD] Li, Z., Zhao, Y., Hu, X., Botta, N., Ionescu, C. and Chen, H. G. ECOD: Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions. *IEEE Transactions on Knowledge and Data Engineering (TKDE)*, 2022.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
+
+.. [#Hariri2021Extended] Hariri, S., Carrasco Kind, M. and Brunner, R.J., 2021. Extended isolation forest. *IEEE Transactions on Knowledge and Data Engineering*\ , 33(4), pp. 1479-1489.
 
 .. [#Liu2019Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2019. Generative adversarial active learning for unsupervised outlier detection. *IEEE Transactions on Knowledge and Data Engineering*.
 
