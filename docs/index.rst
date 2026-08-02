@@ -90,8 +90,8 @@ Then pick the activation path that matches your agent stack:
 
 .. code-block:: bash
 
-    # 1. Claude Code / Claude Desktop / Codex — enables the od-expert skill
-    pyod install skill              # Claude Code / Desktop: user-global (~/.claude/skills/)
+    # 1. Claude Code / Codex — enables the od-expert skill
+    pyod install skill              # Claude Code: user-global (~/.claude/skills/)
     pyod install skill --project    # Codex: project-local (./skills/, Codex has no user-global dir)
 
     # 2. Any MCP-compatible LLM — requires the optional mcp extra

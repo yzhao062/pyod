@@ -90,8 +90,8 @@ Then pick the activation path that matches your agent stack:
 
 .. code-block:: bash
 
-    # 1. Claude Code / Claude Desktop / Codex — enables the od-expert skill
-    pyod install skill              # Claude Code / Desktop: user-global (~/.claude/skills/)
+    # 1. Claude Code / Codex — enables the od-expert skill
+    pyod install skill              # Claude Code: user-global (~/.claude/skills/)
     pyod install skill --project    # Codex: project-local (./skills/, Codex has no user-global dir)
 
     # 2. Any MCP-compatible LLM — requires the optional mcp extra
@@ -730,6 +730,16 @@ More detailed instructions for running examples can be found in `examples direct
 
 
        from pyod.models.knn import KNN   # kNN detector
+       from pyod.utils.data import generate_data
+
+       contamination = 0.1  # percentage of outliers
+       n_train = 200  # number of training points
+       n_test = 100  # number of testing points
+
+       # generate sample data
+       X_train, X_test, y_train, y_test = generate_data(
+           n_train=n_train, n_test=n_test, n_features=2,
+           contamination=contamination, random_state=42)
 
        # train kNN detector
        clf_name = 'KNN'
@@ -767,13 +777,15 @@ More detailed instructions for running examples can be found in `examples direct
 
 
        On Training Data:
-       KNN ROC:1.0, precision @ rank n:1.0
+       KNN ROC:0.9992, precision @ rank n:0.95
 
        On Test Data:
-       KNN ROC:0.9989, precision @ rank n:0.9
+       KNN ROC:1.0, precision @ rank n:1.0
 
    .. code-block:: python
 
+
+       from pyod.utils.example import visualize
 
        visualize(clf_name, X_train, y_train, X_test, y_test, y_train_pred,
            y_test_pred, show_figure=True, save_figure=False)
