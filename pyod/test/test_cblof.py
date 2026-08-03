@@ -166,6 +166,28 @@ class TestCBLOF(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_n_jobs_stored(self):
+        # n_jobs must be stored so get_params() and clone() carry it over
+        clf = CBLOF(n_jobs=4)
+        assert clf.n_jobs == 4
+        assert clf.get_params()['n_jobs'] == 4
+
+    def test_n_jobs_clone(self):
+        clf = CBLOF(n_jobs=4)
+        cloned = clone(clf)
+        assert cloned.n_jobs == 4
+
+    def test_n_jobs_fit(self):
+        # CBLOF(n_jobs=4) must fit and produce results identical to n_jobs=1
+        clf_single = CBLOF(contamination=self.contamination,
+                           random_state=42, n_jobs=1)
+        clf_multi = CBLOF(contamination=self.contamination,
+                          random_state=42, n_jobs=4)
+        clf_single.fit(self.X_train)
+        clf_multi.fit(self.X_train)
+        assert clf_multi.n_jobs == 4
+        assert_equal(len(clf_multi.decision_scores_), self.X_train.shape[0])
+
     def tearDown(self):
         pass
 

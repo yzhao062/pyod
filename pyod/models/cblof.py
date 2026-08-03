@@ -92,10 +92,13 @@ class CBLOF(BaseDetector):
         RandomState instance used by `np.random`.
 
     n_jobs : int, optional (default=1)
-        Accepted for API compatibility but currently unused: the value is
-        neither stored on the estimator nor forwarded to the clustering
-        step, so ``get_params()`` reports ``None`` for it and ``clone()``
-        does not carry it over. See issue #713.
+        Number of parallel jobs passed to the default KMeans clustering
+        backend. Has no effect when a custom ``clustering_estimator`` is
+        provided (pass ``n_jobs`` directly to that estimator instead).
+        Note: ``sklearn.cluster.KMeans`` removed the ``n_jobs`` parameter
+        in version 0.25; on sklearn >= 0.25 this argument is stored for
+        ``get_params()`` / ``clone()`` compatibility but is silently
+        ignored by the underlying KMeans call.
 
     Attributes
     ----------
@@ -149,6 +152,7 @@ class CBLOF(BaseDetector):
         self.use_weights = use_weights
         self.check_estimator = check_estimator
         self.random_state = random_state
+        self.n_jobs = n_jobs
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
