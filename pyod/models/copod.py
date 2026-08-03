@@ -231,8 +231,9 @@ class COPOD(BaseDetector):
 
         Returns
         -------
-        Plot : matplotlib plot
-            The dimensional outlier graph for data point with index ind.
+        Data: tuple of pandas.Series
+            All data from the dimensional outlier graph for
+            the point with index ind.
         """
         if columns is None:
             columns = list(range(self.O.shape[1]))
