@@ -6,7 +6,6 @@
 
 
 import numpy as np
-from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA as sklearn_PCA
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -54,10 +53,13 @@ class PCA(BaseDetector):
         n_components cannot be equal to n_features for svd_solver == 'arpack'.
 
     n_selected_components : int, optional (default=None)
-        Number of selected principal components
-        for calculating the outlier scores. It is not necessarily equal to
-        the total number of the principal components. If not set, use
-        all principal components.
+        Number of selected principal components for calculating the outlier
+        scores. We will remove the (n_components - n_selected_components)
+        largest eigenvectors in a "hard" way and compute a weighted sum of
+        these squared distances along the remaining n_selected_components
+        distances as the outlier score. It is not necessarily equal to the
+        total number of the principal components. If not set, use all principal
+        components in a "soft" way.
 
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
@@ -198,7 +200,6 @@ class PCA(BaseDetector):
         self.random_state = random_state
         self.weighted = weighted
         self.standardization = standardization
-
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -263,10 +264,9 @@ class PCA(BaseDetector):
         self.selected_w_components_ = self.w_components_[
                                       -1 * self.n_selected_components_:]
 
-        self.decision_scores_ = np.sum(
-            cdist(X, self.selected_components_) / self.selected_w_components_,
+        self.decision_scores_ = np.sum((np.dot(X - self.detector_.mean_,
+                    np.transpose(self.selected_components_))) ** 2 / self.selected_w_components_,
             axis=1).ravel()
-
         self._process_decision_scores()
         return self
 
@@ -294,9 +294,11 @@ class PCA(BaseDetector):
         if self.standardization:
             X = self.scaler_.transform(X)
 
-        return np.sum(
-            cdist(X, self.selected_components_) / self.selected_w_components_,
-            axis=1).ravel()
+        return np.sum((np.dot(X - self.detector_.mean_,
+                                np.transpose(self.selected_components_))) ** 2 / self.selected_w_components_,
+                                axis=1).ravel()
+
+
 
     @property
     def explained_variance_(self):
