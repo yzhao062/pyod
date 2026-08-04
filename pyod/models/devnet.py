@@ -10,6 +10,7 @@ https://github.com/GuansongPang/deviation-network
 
 # Import necessary libraries
 import random
+import warnings
 
 import numpy as np
 import torch
@@ -191,7 +192,7 @@ def load_model_weight_predict(model, x_test, data_format=0):
         for i in range(0, data_size, batch_size):
             end = min(i + batch_size, data_size)
             subset = x_test[i:end]
-            scores[i:end] = model(subset)
+            scores[i:end] = model(subset).flatten()
 
     # Make sure the output is flattened before returning
     scores = scores.flatten()  # Flatten the tensor to ensure it's one-dimensional
@@ -233,9 +234,10 @@ class DevNet(BaseDetector):
         forward pass; ``1`` → iterate in chunks of 512, which is useful
         when the test set is very large.
 
-    random_seed : int, optional (default=42)
+    random_seed : int or None, optional (default=42)
         Seed for ``random``, ``numpy.random``, and ``torch`` so that
         training is reproducible across calls to :meth:`fit`.
+        Pass ``None`` to skip deterministic seeding.
 
     device : str or torch.device, optional (default=None)
         Torch device.  When ``None`` the first available CUDA device is
@@ -270,7 +272,9 @@ class DevNet(BaseDetector):
                  data_format=0,
                  random_seed=42,
                  device=None,
-                 contamination=0.1):
+                 contamination=0.1,
+                 nb_batch=None,
+                 cont_rate=None):
         super(DevNet, self).__init__(contamination=contamination)
         self._classes = 2
         self.network_depth = network_depth
@@ -280,14 +284,25 @@ class DevNet(BaseDetector):
         self.data_format = data_format
         self.random_seed = random_seed
         self.device = device
+        if nb_batch is not None:
+            warnings.warn(
+                "nb_batch is not used by DevNet and will be removed in a "
+                "future release.", DeprecationWarning, stacklevel=2)
+        self.nb_batch = nb_batch
+        if cont_rate is not None:
+            warnings.warn(
+                "cont_rate is not used by DevNet and will be removed in a "
+                "future release.", DeprecationWarning, stacklevel=2)
+        self.cont_rate = cont_rate
         if self.device is None:
             self.device = torch.device(
                 "cuda:0" if torch.cuda.is_available() else "cpu")
 
     def fit(self, X, y):
-        random.seed(self.random_seed)
-        np.random.seed(self.random_seed)
-        torch.manual_seed(self.random_seed)
+        if self.random_seed is not None:
+            random.seed(self.random_seed)
+            np.random.seed(self.random_seed)
+            torch.manual_seed(self.random_seed)
 
         rng = np.random.RandomState(self.random_seed)
 

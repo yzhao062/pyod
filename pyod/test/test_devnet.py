@@ -182,6 +182,38 @@ class TestDevNet(unittest.TestCase):
         assert cloned.known_outliers == self.clf.known_outliers
         assert cloned.data_format == self.clf.data_format
 
+    def test_data_format_1_inference(self):
+        X_small, _, y_small, _ = generate_data(
+            n_train=200, n_test=50, n_features=5,
+            contamination=0.1, random_state=0)
+        clf = DevNet(epochs=1, data_format=1, contamination=0.1)
+        clf.fit(X_small, y_small)
+        scores = clf.decision_function(X_small)
+        assert_equal(scores.shape[0], X_small.shape[0])
+
+    def test_random_seed_none_does_not_crash(self):
+        X_small, _, y_small, _ = generate_data(
+            n_train=200, n_test=50, n_features=5,
+            contamination=0.1, random_state=0)
+        clf = DevNet(epochs=1, random_seed=None, contamination=0.1)
+        clf.fit(X_small, y_small)
+        assert_equal(len(clf.decision_scores_), X_small.shape[0])
+
+    def test_deprecated_nb_batch_warns(self):
+        with assert_raises(DeprecationWarning):
+            # warnings are normally ignored; force them to raise
+            import warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", DeprecationWarning)
+                DevNet(nb_batch=20)
+
+    def test_deprecated_cont_rate_warns(self):
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", DeprecationWarning)
+            with assert_raises(DeprecationWarning):
+                DevNet(cont_rate=0.02)
+
     def tearDown(self):
         pass
 
