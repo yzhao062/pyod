@@ -9,6 +9,8 @@ https://github.com/GuansongPang/deviation-network
 
 
 # Import necessary libraries
+import random
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -20,11 +22,6 @@ from .base import BaseDetector
 from ..utils.torch_utility import TorchDataset
 
 MAX_INT = np.iinfo(np.int32).max
-data_format = 0
-
-# Set random seed for reproducibility
-np.random.seed(42)
-torch.manual_seed(42)
 
 
 # Define the network architectures
@@ -134,8 +131,7 @@ class SupDataset(Dataset):
         self.x = x
         self.outlier_indices = outlier_indices
         self.inlier_indices = inlier_indices
-        self.rng = np.random.RandomState(
-            42)  # Ensure rng is seeded outside or fixed
+        self.rng = rng
 
     def __len__(self):
         return len(self.outlier_indices) + len(
@@ -182,12 +178,9 @@ def input_batch_generation_sup_sparse(x_train, outlier_indices, inlier_indices,
     return training_data, training_labels
 
 
-def load_model_weight_predict(model, x_test):
+def load_model_weight_predict(model, x_test, data_format=0):
     # Ensure x_test is a PyTorch tensor and also ensure it's on the same device as the model
     x_test = torch.tensor(x_test, dtype=torch.float32)
-
-    # Assuming data_format variable should be defined somewhere in the context or as a parameter
-    data_format = 0  # Assuming it's set correctly according to your use-case
 
     if data_format == 0:
         scores = model(x_test)
@@ -207,14 +200,74 @@ def load_model_weight_predict(model, x_test):
 
 
 class DevNet(BaseDetector):
+    """Deep anomaly detection with deviation networks (DevNet).
+
+    DevNet is a weakly-supervised anomaly detector that trains a deep neural
+    network using a small set of labeled anomalies alongside a larger body of
+    unlabeled data.  A Z-score-based deviation loss encourages anomaly scores
+    for the labeled outliers to deviate significantly above those of the
+    reference (inlier) distribution.
+
+    See :cite:`pang2019deep` for details.
+
+    Parameters
+    ----------
+    network_depth : int, optional (default=2)
+        Architecture selector.  ``1`` → linear model, ``2`` → one hidden
+        layer (DevNetS), ``4`` → three hidden layers (DevNetD).
+
+    batch_size : int, optional (default=512)
+        Mini-batch size used for both training and inference.
+
+    epochs : int, optional (default=50)
+        Number of full passes over the training batches.
+
+    known_outliers : int, optional (default=30)
+        Maximum number of labeled anomalies to retain when building the
+        training set.  When the dataset contains more labeled anomalies, a
+        random subset of this size is drawn (seeded by ``random_seed``).
+        This mirrors the weakly-supervised setting described in the paper.
+
+    data_format : int, optional (default=0)
+        Inference batching strategy.  ``0`` → score all samples in one
+        forward pass; ``1`` → iterate in chunks of 512, which is useful
+        when the test set is very large.
+
+    random_seed : int, optional (default=42)
+        Seed for ``random``, ``numpy.random``, and ``torch`` so that
+        training is reproducible across calls to :meth:`fit`.
+
+    device : str or torch.device, optional (default=None)
+        Torch device.  When ``None`` the first available CUDA device is
+        used, falling back to CPU.
+
+    contamination : float in (0., 0.5), optional (default=0.1)
+        Proportion of outliers in the dataset, used to set the decision
+        threshold after fitting.
+
+    Attributes
+    ----------
+    model : torch.nn.Module
+        Fitted PyTorch network.
+
+    decision_scores_ : numpy array of shape (n_samples,)
+        Outlier scores computed on the training data.  Higher values are
+        more anomalous.
+
+    threshold_ : float
+        Cut-off score that separates inliers from outliers.
+
+    labels_ : numpy array of shape (n_samples,)
+        Binary labels assigned to the training data after fitting
+        (``0`` = inlier, ``1`` = outlier).
+    """
+
     def __init__(self,
                  network_depth=2,
                  batch_size=512,
                  epochs=50,
-                 nb_batch=20,
                  known_outliers=30,
-                 cont_rate=0.02,
-                 data_format=0,  # Assuming '0' for CSV
+                 data_format=0,
                  random_seed=42,
                  device=None,
                  contamination=0.1):
@@ -223,9 +276,7 @@ class DevNet(BaseDetector):
         self.network_depth = network_depth
         self.batch_size = batch_size
         self.epochs = epochs
-        self.nb_batch = nb_batch
         self.known_outliers = known_outliers
-        self.cont_rate = cont_rate
         self.data_format = data_format
         self.random_seed = random_seed
         self.device = device
@@ -234,22 +285,27 @@ class DevNet(BaseDetector):
                 "cuda:0" if torch.cuda.is_available() else "cpu")
 
     def fit(self, X, y):
+        random.seed(self.random_seed)
+        np.random.seed(self.random_seed)
+        torch.manual_seed(self.random_seed)
+
+        rng = np.random.RandomState(self.random_seed)
+
         outlier_indices = np.where(y == 1)[0]
         inlier_indices = np.where(y == 0)[0]
         n_outliers = len(outlier_indices)
         print("Original training size: %d, No. outliers: %d" % (
             X.shape[0], n_outliers))
-        n_noise = len(np.where(y == 0)[0]) * self.contamination / (
-                1. - self.contamination)
-        n_noise = int(n_noise)
-        outlier_indices = np.where(y == 1)[0]
-        inlier_indices = np.where(y == 0)[0]
-        print(y.shape[0], outlier_indices.shape[0], inlier_indices.shape[0],
-              n_noise)
-        # Data manipulation part can be adjusted as needed.
+
+        # Cap the labeled-anomaly set to self.known_outliers, as in the paper.
+        if n_outliers > self.known_outliers:
+            outlier_indices = rng.choice(
+                outlier_indices, self.known_outliers, replace=False)
+
+        print(y.shape[0], outlier_indices.shape[0], inlier_indices.shape[0])
+
         self.model, optimizer = deviation_network(X.shape[1],
                                                   self.network_depth)
-        rng = np.random.RandomState(42)
         train_dataset = SupDataset(X, outlier_indices, inlier_indices, rng)
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size,
                                   shuffle=True)
@@ -291,7 +347,7 @@ class DevNet(BaseDetector):
                 data_cuda = data.to(self.device).float()
                 # this is the outlier score
                 outlier_scores[data_idx] = load_model_weight_predict(
-                    self.model, data)
+                    self.model, data, self.data_format)
         return outlier_scores
 
     def fit_predict_score(self, X, y, scoring='roc_auc_score'):

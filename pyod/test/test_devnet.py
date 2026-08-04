@@ -18,6 +18,9 @@ from sklearn.metrics import roc_auc_score
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from sklearn.base import clone
+from numpy.testing import assert_array_equal
+
 from pyod.models.devnet import DevNet
 from pyod.utils.data import generate_data
 
@@ -134,9 +137,50 @@ class TestDevNet(unittest.TestCase):
             self.clf.fit_predict_score(self.X_test, self.y_test,
                                        scoring='something')
 
+    def test_random_seed_stored(self):
+        clf = DevNet(random_seed=7)
+        assert clf.random_seed == 7
+        assert clf.get_params()['random_seed'] == 7
+
+    def test_known_outliers_stored(self):
+        clf = DevNet(known_outliers=10)
+        assert clf.known_outliers == 10
+        assert clf.get_params()['known_outliers'] == 10
+
+    def test_data_format_stored(self):
+        clf = DevNet(data_format=1)
+        assert clf.data_format == 1
+        assert clf.get_params()['data_format'] == 1
+
+    def test_random_seed_clone(self):
+        clf = DevNet(random_seed=99)
+        cloned = clone(clf)
+        assert cloned.random_seed == 99
+
+    def test_random_seed_reproducibility(self):
+        X_small, _, y_small, _ = generate_data(
+            n_train=200, n_test=50, n_features=5,
+            contamination=0.1, random_state=0)
+        clf1 = DevNet(epochs=2, random_seed=0, contamination=0.1)
+        clf2 = DevNet(epochs=2, random_seed=0, contamination=0.1)
+        clf1.fit(X_small, y_small)
+        clf2.fit(X_small, y_small)
+        assert_array_equal(clf1.decision_scores_, clf2.decision_scores_)
+
+    def test_known_outliers_cap(self):
+        X_small, _, y_small, _ = generate_data(
+            n_train=200, n_test=50, n_features=5,
+            contamination=0.2, random_state=0)
+        # 40 outliers in training set; cap to 5
+        clf = DevNet(epochs=1, known_outliers=5, contamination=0.2)
+        clf.fit(X_small, y_small)
+        assert_equal(len(clf.decision_scores_), X_small.shape[0])
+
     def test_model_clone(self):
-        pass
-        # clone_clf = clone(self.clf)
+        cloned = clone(self.clf)
+        assert cloned.random_seed == self.clf.random_seed
+        assert cloned.known_outliers == self.clf.known_outliers
+        assert cloned.data_format == self.clf.data_format
 
     def tearDown(self):
         pass
