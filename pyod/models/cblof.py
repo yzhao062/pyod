@@ -187,7 +187,8 @@ class CBLOF(BaseDetector):
         # deprecated and emits FutureWarning for any concrete value, including
         # the default 1.  Only forward when the user explicitly requested more
         # than one job so that plain CBLOF().fit(X) stays warning-free.
-        if (self.n_jobs != 1
+        if (self.clustering_estimator is None
+                and self.n_jobs != 1
                 and "n_jobs" in inspect.signature(KMeans.__init__).parameters):
             _kmeans_kwargs["n_jobs"] = self.n_jobs
         self._validate_estimator(default=KMeans(**_kmeans_kwargs))
