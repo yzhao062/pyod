@@ -211,14 +211,31 @@ class TestBaseDL(unittest.TestCase):
 
         os.remove('dummy_clf_cpu.pt')
 
-    def test_save_load_compiled_model(self):
-        # Compiled modules prefix state-dict keys with '_orig_mod.'; the
-        # unwrapping in save() must strip that so load_state_dict succeeds.
+    def test_save_load_compiled_model_unwrap(self):
+        # torch.compile wraps state-dict keys as '_orig_mod.<name>'.
+        # save() must unwrap via _orig_mod before calling state_dict() so that
+        # load_state_dict() succeeds on the uncompiled model built by build_model().
+        # We simulate the wrapper directly to avoid torch.compile limitations on
+        # some platforms (e.g. Windows Inductor).
         zero_scores = np.zeros(self.n_train)
 
-        dummy_clf = DummyDetector(verbose=0, use_compile=True)
+        dummy_clf = DummyDetector(verbose=0)
         dummy_clf.fit(self.X_train)
+        orig_model = dummy_clf.model
+
+        class FakeCompiledModule:
+            """Mimics OptimizedModule returned by torch.compile."""
+            def __init__(self, mod):
+                self._orig_mod = mod
+
+            def state_dict(self):
+                # compiled modules prefix every key with '_orig_mod.'
+                return {'_orig_mod.' + k: v
+                        for k, v in self._orig_mod.state_dict().items()}
+
+        dummy_clf.model = FakeCompiledModule(orig_model)
         dummy_clf.save('dummy_clf_compiled.pt')
+        dummy_clf.model = orig_model  # restore so teardown is clean
 
         loaded = DummyDetector.load('dummy_clf_compiled.pt')
         self.assertEqual(
