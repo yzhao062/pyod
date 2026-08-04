@@ -318,33 +318,68 @@ class BaseDeepLearningDetector(BaseDetector):
         return anamoly_scores
 
     def save(self, path):
-        """Save the model to the specified path.
+        """Save the detector to the specified path.
+
+        Model weights are stored as a ``state_dict`` so that
+        :meth:`load` can remap them to a different device via its
+        ``map_location`` parameter.  All other detector attributes are
+        preserved alongside the weights in a single file.
 
         Parameters
         ----------
         path : str
-            The path to save the model.
+            The path to save the detector.
         """
-        # save the class
-        with open(path, 'wb') as file:
-            pickle.dump(self, file)
+        payload = {
+            '_pyod_save_version': 1,
+            'model_state_dict': self.model.state_dict(),
+            'detector_attrs': {k: v for k, v in self.__dict__.items()
+                               if k not in ('model', 'optimizer')},
+        }
+        torch.save(payload, path)
 
     @classmethod
-    def load(cls, path):
-        """Load the model from the specified path.
+    def load(cls, path, map_location=None):
+        """Load a detector from the specified path.
 
         Parameters
         ----------
         path : str
-            The path to load the model.
+            The path to load the detector from.
+
+        map_location : str or torch.device, optional (default=None)
+            Passed to :func:`torch.load` to remap tensor storage locations.
+            Use ``'cpu'`` when loading a model that was trained on a GPU
+            onto a machine without one.
 
         Returns
         -------
-        model : BaseDeepLearningDetector
-            The loaded model.
+        detector : BaseDeepLearningDetector subclass
+            The loaded detector, ready for inference.
         """
-        with open(path, 'rb') as file:
-            detector = pickle.load(file)
+        try:
+            payload = torch.load(path, map_location=map_location,
+                                 weights_only=False)
+        except Exception:
+            # Backward compatibility: models saved with the old pickle-only API
+            with open(path, 'rb') as f:
+                return pickle.load(f)
+
+        # Backward compatibility: raw pickled detector (no structured envelope)
+        if not isinstance(payload, dict) or '_pyod_save_version' not in payload:
+            return payload
+
+        detector = object.__new__(cls)
+        detector.__dict__.update(payload['detector_attrs'])
+
+        if map_location is not None:
+            detector.device = torch.device(map_location)
+
+        # Rebuild the model architecture then load the saved weights
+        detector.build_model()
+        detector.model.load_state_dict(payload['model_state_dict'])
+        detector.model.to(detector.device)
+        detector.model.eval()
         return detector
 
     @staticmethod

@@ -194,6 +194,24 @@ class TestBaseDL(unittest.TestCase):
 
         os.remove('dummy_clf.txt')
 
+    def test_save_load_map_location(self):
+        # Verify that map_location='cpu' works even when the default device
+        # is already CPU — exercising the code path that remaps device tensors
+        # and updates detector.device, which matters most on CUDA-trained models.
+        zero_scores = np.zeros(self.n_train)
+
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        dummy_clf.save('dummy_clf_cpu.pt')
+
+        loaded = DummyDetector.load('dummy_clf_cpu.pt', map_location='cpu')
+        self.assertEqual(loaded.device, torch.device('cpu'))
+        self.assertEqual(
+            loaded.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        os.remove('dummy_clf_cpu.pt')
+
     def tearDown(self):
         pass
 
