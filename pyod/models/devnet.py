@@ -223,11 +223,19 @@ class DevNet(BaseDetector):
     epochs : int, optional (default=50)
         Number of full passes over the training batches.
 
+    nb_batch : ignored
+        Deprecated and unused.  Accepted for backwards compatibility only;
+        passing a non-None value emits a ``DeprecationWarning``.
+
     known_outliers : int, optional (default=30)
         Maximum number of labeled anomalies to retain when building the
         training set.  When the dataset contains more labeled anomalies, a
         random subset of this size is drawn (seeded by ``random_seed``).
         This mirrors the weakly-supervised setting described in the paper.
+
+    cont_rate : ignored
+        Deprecated and unused.  Accepted for backwards compatibility only;
+        passing a non-None value emits a ``DeprecationWarning``.
 
     data_format : int, optional (default=0)
         Inference batching strategy.  ``0`` → score all samples in one
@@ -268,13 +276,13 @@ class DevNet(BaseDetector):
                  network_depth=2,
                  batch_size=512,
                  epochs=50,
+                 nb_batch=None,
                  known_outliers=30,
+                 cont_rate=None,
                  data_format=0,
                  random_seed=42,
                  device=None,
-                 contamination=0.1,
-                 nb_batch=None,
-                 cont_rate=None):
+                 contamination=0.1):
         super(DevNet, self).__init__(contamination=contamination)
         self._classes = 2
         self.network_depth = network_depth
