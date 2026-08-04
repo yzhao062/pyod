@@ -94,10 +94,11 @@ class CBLOF(BaseDetector):
 
     n_jobs : int, optional (default=1)
         Number of parallel jobs for the default KMeans backend.
-        Forwarded to ``KMeans`` on scikit-learn versions that support it
-        (the parameter was removed in sklearn 0.25).  On sklearn >= 0.25
-        this value is stored for ``get_params()`` / ``clone()``
-        compatibility only and has no effect on the clustering step.
+        Only forwarded to ``KMeans`` when set to a value other than 1
+        *and* the installed scikit-learn version supports it (the
+        parameter was deprecated in 0.23 and removed in 0.25).
+        On sklearn >= 0.25, or when left at the default of 1, this value
+        is stored for ``get_params()`` / ``clone()`` compatibility only.
         Has no effect when a custom ``clustering_estimator`` is provided;
         set ``n_jobs`` on that estimator directly.
 
@@ -182,7 +183,12 @@ class CBLOF(BaseDetector):
         # number of clusters are default to 8
         _kmeans_kwargs = dict(
             n_clusters=self.n_clusters, random_state=self.random_state)
-        if "n_jobs" in inspect.signature(KMeans.__init__).parameters:
+        # n_jobs was removed from KMeans in sklearn 0.25; on 0.23/0.24 it is
+        # deprecated and emits FutureWarning for any concrete value, including
+        # the default 1.  Only forward when the user explicitly requested more
+        # than one job so that plain CBLOF().fit(X) stays warning-free.
+        if (self.n_jobs != 1
+                and "n_jobs" in inspect.signature(KMeans.__init__).parameters):
             _kmeans_kwargs["n_jobs"] = self.n_jobs
         self._validate_estimator(default=KMeans(**_kmeans_kwargs))
 
