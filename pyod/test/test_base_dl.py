@@ -195,9 +195,8 @@ class TestBaseDL(unittest.TestCase):
         os.remove('dummy_clf.txt')
 
     def test_save_load_map_location(self):
-        # Verify that map_location='cpu' works even when the default device
-        # is already CPU — exercising the code path that remaps device tensors
-        # and updates detector.device, which matters most on CUDA-trained models.
+        # Verify map_location='cpu' updates detector.device and allows
+        # inference — exercises the cross-device loading path.
         zero_scores = np.zeros(self.n_train)
 
         dummy_clf = DummyDetector(verbose=0)
@@ -211,6 +210,39 @@ class TestBaseDL(unittest.TestCase):
             zero_scores.all())
 
         os.remove('dummy_clf_cpu.pt')
+
+    def test_save_load_compiled_model(self):
+        # Compiled modules prefix state-dict keys with '_orig_mod.'; the
+        # unwrapping in save() must strip that so load_state_dict succeeds.
+        zero_scores = np.zeros(self.n_train)
+
+        dummy_clf = DummyDetector(verbose=0, use_compile=True)
+        dummy_clf.fit(self.X_train)
+        dummy_clf.save('dummy_clf_compiled.pt')
+
+        loaded = DummyDetector.load('dummy_clf_compiled.pt')
+        self.assertEqual(
+            loaded.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        os.remove('dummy_clf_compiled.pt')
+
+    def test_save_load_base_class_call(self):
+        # BaseDeepLearningDetector.load() must return the saved subclass,
+        # not try to instantiate the abstract base class directly.
+        zero_scores = np.zeros(self.n_train)
+
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        dummy_clf.save('dummy_clf_base.pt')
+
+        loaded = BaseDeepLearningDetector.load('dummy_clf_base.pt')
+        self.assertIsInstance(loaded, DummyDetector)
+        self.assertEqual(
+            loaded.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        os.remove('dummy_clf_base.pt')
 
     def tearDown(self):
         pass
