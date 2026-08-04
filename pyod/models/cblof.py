@@ -6,6 +6,7 @@
 # License: BSD 2 clause
 
 
+import inspect
 import warnings
 
 import numpy as np
@@ -92,13 +93,13 @@ class CBLOF(BaseDetector):
         RandomState instance used by `np.random`.
 
     n_jobs : int, optional (default=1)
-        Number of parallel jobs passed to the default KMeans clustering
-        backend. Has no effect when a custom ``clustering_estimator`` is
-        provided (pass ``n_jobs`` directly to that estimator instead).
-        Note: ``sklearn.cluster.KMeans`` removed the ``n_jobs`` parameter
-        in version 0.25; on sklearn >= 0.25 this argument is stored for
-        ``get_params()`` / ``clone()`` compatibility but is silently
-        ignored by the underlying KMeans call.
+        Number of parallel jobs for the default KMeans backend.
+        Forwarded to ``KMeans`` on scikit-learn versions that support it
+        (the parameter was removed in sklearn 0.25).  On sklearn >= 0.25
+        this value is stored for ``get_params()`` / ``clone()``
+        compatibility only and has no effect on the clustering step.
+        Has no effect when a custom ``clustering_estimator`` is provided;
+        set ``n_jobs`` on that estimator directly.
 
     Attributes
     ----------
@@ -179,9 +180,11 @@ class CBLOF(BaseDetector):
 
         # check parameters
         # number of clusters are default to 8
-        self._validate_estimator(default=KMeans(
-            n_clusters=self.n_clusters,
-            random_state=self.random_state))
+        _kmeans_kwargs = dict(
+            n_clusters=self.n_clusters, random_state=self.random_state)
+        if "n_jobs" in inspect.signature(KMeans.__init__).parameters:
+            _kmeans_kwargs["n_jobs"] = self.n_jobs
+        self._validate_estimator(default=KMeans(**_kmeans_kwargs))
 
         self.clustering_estimator_.fit(X=X, y=y)
         # Get the labels of the clustering results
