@@ -360,12 +360,12 @@ class BaseDeepLearningDetector(BaseDetector):
         path : str
             The path to load the detector from.
 
-        map_location : str or torch.device, optional (default=None)
+        map_location : str, torch.device, dict, or callable, optional (default=None)
             Passed to :func:`torch.load` to remap tensor storage locations.
             Use ``'cpu'`` when loading a model that was trained on a GPU
-            onto a machine without one.  Dict and callable forms supported
-            by :func:`torch.load` are forwarded as-is but do *not* update
-            ``detector.device`` (only string / ``torch.device`` values do).
+            onto a machine without one.  All forms accepted by
+            :func:`torch.load` are supported; ``detector.device`` is
+            inferred from the remapped weights after loading.
 
         Returns
         -------
@@ -416,6 +416,14 @@ class BaseDeepLearningDetector(BaseDetector):
             # are restored from detector_attrs above) then load saved weights.
             detector.build_model()
             detector.model.load_state_dict(payload['model_state_dict'])
+            # Infer the actual device from the remapped weight tensors so that
+            # dict/callable map_location forms (e.g. {'cuda:0': 'cpu'}) also
+            # update detector.device correctly — _apply_map_location only
+            # handles str/torch.device forms.
+            state_tensors = [v for v in payload['model_state_dict'].values()
+                             if isinstance(v, torch.Tensor)]
+            if state_tensors:
+                detector.device = state_tensors[0].device
             detector.model.to(detector.device)
             detector.model.eval()
 

@@ -195,8 +195,8 @@ class TestBaseDL(unittest.TestCase):
         os.remove('dummy_clf.txt')
 
     def test_save_load_map_location(self):
-        # Verify map_location='cpu' updates detector.device and allows
-        # inference — exercises the cross-device loading path.
+        # Verify map_location string/device and dict forms all update
+        # detector.device to match the remapped weights.
         zero_scores = np.zeros(self.n_train)
 
         dummy_clf = DummyDetector(verbose=0)
@@ -207,6 +207,16 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(loaded.device, torch.device('cpu'))
         self.assertEqual(
             loaded.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        # Dict map_location: tensors are remapped by torch.load, but the old
+        # code never updated detector.device for non-str/device forms.
+        # Verify detector.device is inferred from the loaded weight tensors.
+        loaded_dict = DummyDetector.load(
+            'dummy_clf_cpu.pt', map_location={'cpu': 'cpu'})
+        self.assertEqual(loaded_dict.device, torch.device('cpu'))
+        self.assertEqual(
+            loaded_dict.decision_function(self.X_train).all(),
             zero_scores.all())
 
         os.remove('dummy_clf_cpu.pt')
