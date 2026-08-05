@@ -161,11 +161,15 @@ class TestROD(unittest.TestCase):
         assert_equal(0.5, sigmoid(np.array([0.0])))
 
     def test_process_sub(self):
-        subspace = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
-        assert_equal([0.5, 0.5, 0.5],
-                     process_sub(subspace, self.gm, self.median,
-                                 self.angles_scalers1, self.angles_scalers2)[
-                         0])
+        subspace = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]], dtype=float)
+        result = process_sub(subspace, self.gm, self.median,
+                             self.angles_scalers1, self.angles_scalers2)[0]
+        # Middle point coincides with the geometric median (v_norm=0).
+        # Before the issue-#523 fix, the NaN it produced infected the MAD
+        # computation and collapsed all three scores to sigmoid(0)=0.5.
+        # The corrected output treats the zero-norm point as angle=pi/2
+        # (rotation cost=0) and computes the outer points' scores properly.
+        assert_allclose(result, [1.0, 0.5, 0.6625], atol=1e-3)
 
     def test_parallel_vs_non_parallel(self):
         assert_equal(rod_nD(self.X_train, False, self.gm, self.data_scaler,
@@ -176,6 +180,31 @@ class TestROD(unittest.TestCase):
     def test_mad(self):
         gm, _ = mad(np.array([1, 2, 3]))
         assert_equal([0.6745, 0.0, 0.6745], gm)
+
+    def test_rod_3D_no_nan_when_point_at_geometric_median(self):
+        # Regression test for issue #523: rod_3D emitted
+        # "RuntimeWarning: invalid value encountered in divide" when a data
+        # point coincided exactly with the geometric median (v_norm = 0).
+        # Symmetric data centred on a non-zero point has its geometric median
+        # at that centre, so the first row triggers v_norm = 0 while
+        # norm_ = ||gm|| > 0 (the two conditions in the original bug).
+        import warnings
+        center = np.array([2.0, 3.0, 1.0])
+        X = np.vstack([
+            center,                  # coincides with geometric median
+            center + [1, 0, 0],
+            center + [-1, 0, 0],
+            center + [0, 1, 0],
+            center + [0, -1, 0],
+            center + [0, 0, 1],
+            center + [0, 0, -1],
+        ])
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            scores, _, _, _, _ = rod_3D(X)
+        self.assertFalse(np.any(np.isnan(scores)),
+                         "rod_3D must not produce NaN when a data point "
+                         "coincides with the geometric median (issue #523)")
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
