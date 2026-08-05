@@ -187,7 +187,7 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.save('dummy_clf.txt')
         self.assertTrue(os.path.exists('dummy_clf.txt'))
 
-        loaded_dummy_clf = DummyDetector.load('dummy_clf.txt')
+        loaded_dummy_clf = DummyDetector.load('dummy_clf.txt', trusted=True)
         self.assertEqual(
             loaded_dummy_clf.decision_function(self.X_train).all(),
             zero_scores.all())
@@ -203,7 +203,7 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.fit(self.X_train)
         dummy_clf.save('dummy_clf_cpu.pt')
 
-        loaded = DummyDetector.load('dummy_clf_cpu.pt', map_location='cpu')
+        loaded = DummyDetector.load('dummy_clf_cpu.pt', map_location='cpu', trusted=True)
         self.assertEqual(loaded.device, torch.device('cpu'))
         self.assertEqual(
             loaded.decision_function(self.X_train).all(),
@@ -213,7 +213,7 @@ class TestBaseDL(unittest.TestCase):
         # code never updated detector.device for non-str/device forms.
         # Verify detector.device is inferred from the loaded weight tensors.
         loaded_dict = DummyDetector.load(
-            'dummy_clf_cpu.pt', map_location={'cpu': 'cpu'})
+            'dummy_clf_cpu.pt', map_location={'cpu': 'cpu'}, trusted=True)
         self.assertEqual(loaded_dict.device, torch.device('cpu'))
         self.assertEqual(
             loaded_dict.decision_function(self.X_train).all(),
@@ -247,7 +247,7 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.save('dummy_clf_compiled.pt')
         dummy_clf.model = orig_model  # restore so teardown is clean
 
-        loaded = DummyDetector.load('dummy_clf_compiled.pt')
+        loaded = DummyDetector.load('dummy_clf_compiled.pt', trusted=True)
         self.assertEqual(
             loaded.decision_function(self.X_train).all(),
             zero_scores.all())
@@ -263,13 +263,27 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.fit(self.X_train)
         dummy_clf.save('dummy_clf_base.pt')
 
-        loaded = BaseDeepLearningDetector.load('dummy_clf_base.pt')
+        loaded = BaseDeepLearningDetector.load('dummy_clf_base.pt', trusted=True)
         self.assertIsInstance(loaded, DummyDetector)
         self.assertEqual(
             loaded.decision_function(self.X_train).all(),
             zero_scores.all())
 
         os.remove('dummy_clf_base.pt')
+
+    def test_load_rejects_without_trusted(self):
+        # load() must refuse to deserialize before torch.load is called
+        # when trusted=False (the default), so a malicious pickle cannot
+        # execute code before any validation.
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        dummy_clf.save('dummy_clf_untrusted.pt')
+
+        with self.assertRaises(ValueError) as ctx:
+            DummyDetector.load('dummy_clf_untrusted.pt')
+        self.assertIn('trusted=True', str(ctx.exception))
+
+        os.remove('dummy_clf_untrusted.pt')
 
     def tearDown(self):
         pass

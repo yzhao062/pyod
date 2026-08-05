@@ -352,8 +352,16 @@ class BaseDeepLearningDetector(BaseDetector):
         torch.save(payload, path)
 
     @classmethod
-    def load(cls, path, map_location=None):
+    def load(cls, path, map_location=None, trusted: bool = False):
         """Load a detector from the specified path.
+
+        .. warning::
+            ``torch.load`` (with ``weights_only=False``) and the pickle
+            fallback both execute arbitrary Python code during
+            deserialization.  Set ``trusted=True`` only for artifacts
+            produced by a trusted training pipeline, model registry, or
+            other trusted source.  ``trusted=False`` (the default) raises
+            before any deserialization begins.
 
         Parameters
         ----------
@@ -367,11 +375,24 @@ class BaseDeepLearningDetector(BaseDetector):
             :func:`torch.load` are supported; ``detector.device`` is
             inferred from the remapped weights after loading.
 
+        trusted : bool, default False
+            Required acknowledgement that the artifact comes from a trusted
+            source.  When ``False``, ``load()`` raises before invoking
+            ``torch.load`` so a malicious pickle cannot execute code before
+            any validation.  Set to ``True`` only for artifacts you control.
+
         Returns
         -------
         detector : BaseDeepLearningDetector subclass
             The loaded detector, ready for inference.
         """
+        if not trusted:
+            raise ValueError(
+                "load(): refusing to deserialize an untrusted artifact. "
+                "Pass trusted=True only for artifacts from a trusted source; "
+                "torch.load with weights_only=False can execute arbitrary "
+                "Python code during deserialization.")
+
         def _apply_map_location(detector, map_location):
             """Update detector.device and move the model when map_location
             is a concrete device string or torch.device object."""
