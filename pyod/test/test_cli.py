@@ -175,7 +175,8 @@ def test_pyod_info_codex_and_claude_both_detected(tmp_path):
     user knows which option fits their workflow.
     """
     fake_home = tmp_path / "fake_home"
-    (fake_home / ".claude").mkdir(parents=True)
+    fake_home.mkdir(parents=True, exist_ok=True)
+    (fake_home / ".claude.json").touch()
     (fake_home / ".codex").mkdir(parents=True)
 
     work = tmp_path / "work"
