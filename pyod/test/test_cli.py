@@ -168,12 +168,13 @@ def test_pyod_info_codex_detected_no_skill(tmp_path):
     assert "no agent stacks detected" not in result.stdout
 
 
-def test_pyod_info_codex_and_claude_both_detected(tmp_path):
+def test_pyod_info_codex_and_claude_both_detected(tmp_path,monkeypatch):
     """Both ~/.claude/ and ~/.codex/ present, neither skill installed.
 
     Output must list both agents and show both install commands so the
     user knows which option fits their workflow.
     """
+    monkeypatch.setattr("shutil.which", lambda cmd: None)
     fake_home = tmp_path / "fake_home"
     fake_home.mkdir(parents=True, exist_ok=True)
     (fake_home / ".claude.json").touch()
