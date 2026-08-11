@@ -58,5 +58,26 @@ class TestSmallN(unittest.TestCase):
         assert not np.isnan(probs).any()
 
 
+class TestSmallNRouting(unittest.TestCase):
+    """Covers ADEngine routing behavior specific to SmallN, not just the
+    detector class in isolation.
+    """
+
+    def test_tiny_low_dim_routes_to_small_n(self):
+        from pyod.utils.ad_engine import ADEngine
+        X = np.array([[1.0, 2.1], [1.1, 1.9], [0.9, 2.0]])
+        result = ADEngine().detect(X)
+        self.assertEqual(result['plan']['detector_name'], 'SmallN')
+        alt_names = [a['detector_name']
+                     for a in result['plan']['alternatives']]
+        self.assertNotIn('KNN', alt_names)
+
+    def test_tiny_high_dim_does_not_route_to_small_n(self):
+        from pyod.utils.ad_engine import ADEngine
+        X = np.random.RandomState(0).randn(4, 2000)
+        result = ADEngine().detect(X)
+        self.assertNotEqual(result['plan']['detector_name'], 'SmallN')
+
+
 if __name__ == '__main__':
     unittest.main()
