@@ -62,6 +62,18 @@
       "evidence": ["ADBench"]
     },
     {
+      "id": "tabular_tiny_n",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_samples", "op": "lt", "value": 10}
+      ],
+      "recommendations": [
+        {"detector": "SmallN", "params": {}, "confidence": 0.92}
+      ],
+      "reason": "Tiny reference set (n<10): Ledoit-Wolf shrinkage covariance estimation",
+      "evidence": ["Ledoit and Wolf, 2004"]
+    },
+    {
       "id": "tabular_balanced",
       "conditions": [
         {"field": "data_type", "op": "eq", "value": "tabular"}

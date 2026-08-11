@@ -38,10 +38,6 @@ class SmallN(BaseDetector):
         else:
             cov = np.eye(self.n_features_)
 
-        # A degenerate (all-zero) covariance happens when every reference
-        # row is identical, its pseudo-inverse is also zero, which would
-        # silently score every future point as 0 regardless of how far
-        # it is from the centroid. A small ridge keeps the metric usable.
         cov = cov + _RIDGE * np.eye(self.n_features_)
         self.inv_cov_ = np.linalg.pinv(cov)
 
@@ -64,19 +60,23 @@ class SmallN(BaseDetector):
             'ij,jk,ik->i', diffs, self.inv_cov_, diffs)
         return np.sqrt(np.maximum(mahalanobis_sq, 0))
 
+    def predict_proba(self, X, method='linear', return_confidence=False):
+        """
+        Overrides BaseDetector.predict_proba to guard the 'unify'
+        method against zero training-score variance.
+        """
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
+        if method == 'unify' and self._sigma == 0:
+            return super(SmallN, self).predict_proba(
+                X, method='linear', return_confidence=return_confidence)
+        return super(SmallN, self).predict_proba(
+            X, method=method, return_confidence=return_confidence)
+
     def compute_rejection_stats(self, T=32, delta=0.1, c_fp=1, c_fn=1,
                                 c_r=-1, verbose=False):
-        """Overrides BaseDetector.compute_rejection_stats to fail with a
+        """
+        Overrides BaseDetector.compute_rejection_stats to fail with a
         clear message instead of an opaque scipy error.
-
-        The inherited implementation computes
-        int(n * contamination) - 1, which goes negative for small n and
-        typical contamination values (e.g. n=3, contamination=0.1 gives
-        -1), and then hands that negative value to a binomial CDF root
-        solver with no valid bracket, raising an unrelated-looking
-        ValueError from inside scipy. This detector is specifically for
-        small n, so that combination is expected to come up, and it
-        deserves a message that actually explains what to change.
         """
         check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_'])
         n = len(self.decision_scores_)

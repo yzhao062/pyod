@@ -49,6 +49,14 @@ class TestSmallN(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.clf.compute_rejection_stats()
 
+    def test_unify_proba_no_nan_on_degenerate_reference(self):
+        X_degenerate = np.array([[1.0, 2.0], [1.0, 2.0], [1.0, 2.0]])
+        clf = SmallN(contamination=0.3)
+        clf.fit(X_degenerate)
+        probs = clf.predict_proba(
+            np.array([[1.0, 2.0], [100.0, 100.0]]), method='unify')
+        assert not np.isnan(probs).any()
+
 
 if __name__ == '__main__':
     unittest.main()

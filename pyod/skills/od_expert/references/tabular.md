@@ -1,6 +1,6 @@
 # Tabular anomaly detection reference
 
-PyOD's largest modality (43 of 61 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
+PyOD's largest modality (44 of 62 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
 
 ## Decision table by data shape (expert heuristics)
 
@@ -60,6 +60,7 @@ These are rules of thumb for reasoning about which detectors a non-expert would 
 - **SO_GAAL** (Single-Objective Generative Adversarial Active Learning) — complexity: time O(n * d * h * epochs), space O(d * h); best for: Exploratory anomaly detection with GAN-generated reference outliers; avoid when: Stable and fast results are required, or dataset is small; requires: pyod[torch]; paper: Liu et al., 2019
 - **SUOD** (Scalable Unsupervised Outlier Detection) — complexity: time varies (depends on base estimators), space varies; best for: Large-scale datasets where running multiple detectors is desired but time is limited; avoid when: Exact results from a single well-chosen detector are preferred; requires: pyod[suod]; paper: Zhao et al., MLSys 2021
 - **Sampling** (Rapid Distance-Based Outlier Detection via Sampling) — complexity: time O(n * s * d) where s is subset size, space O(n * d); best for: Large-scale datasets requiring fast distance-based outlier detection; avoid when: Precise and deterministic results are required or dataset is small enough for exact methods; paper: Sugiyama and Borgwardt, 2013
+- **SmallN** (Small-N Mahalanobis Distance (Ledoit-Wolf Shrinkage)) — complexity: time O(n * d^2), space O(d^2); best for: Small trusted reference sets, calibration runs, per-unit baselines, or pilot batches with only a handful of known-good observations; avoid when: Large reference sets are available, standard MCD or covariance-based detectors are more appropriate; paper: Ledoit and Wolf, 2004
 - **VAE** (Variational AutoEncoder) — complexity: time O(n * d * h * epochs), space O(d * h); best for: Datasets where probabilistic reconstruction scoring and smooth latent spaces are beneficial; avoid when: Simpler autoencoder or non-deep methods work well, or dataset is very small; requires: pyod[torch]; paper: Kingma and Welling, 2014
 - **XGBOD** (Extreme Gradient Boosting Outlier Detection) — complexity: time O(n * d * n_estimators * log(n)), space O(n * d); best for: Semi-supervised settings where some labeled anomalies are available; avoid when: No labeled data is available or a purely unsupervised approach is needed; requires: pyod[xgboost]; paper: Zhao and Hryniewicki, IJCNN 2018
 <!-- END KB-DERIVED: tabular-detector-list -->
