@@ -1,4 +1,5 @@
-"""Tests for pyod.models.small_n.SmallN.
+"""Tests for pyod.models.small_n.SmallN, matching the structure of
+pyod/test/test_mcd.py.
 """
 
 import unittest
@@ -32,6 +33,21 @@ class TestSmallN(unittest.TestCase):
         labels = self.clf.predict(self.X_test)
         assert_equal(len(labels), len(self.X_test))
         assert set(labels.tolist()).issubset({0, 1})
+
+    def test_wrong_feature_count_raises(self):
+        with self.assertRaises(ValueError):
+            self.clf.decision_function(np.array([[1.0], [2.0]]))
+
+    def test_degenerate_reference_set_still_flags_outliers(self):
+        X_degenerate = np.array([[1.0, 2.0], [1.0, 2.0], [1.0, 2.0]])
+        clf = SmallN(contamination=0.3)
+        clf.fit(X_degenerate)
+        score = clf.decision_function(np.array([[100.0, 100.0]]))
+        assert score[0] > 0
+
+    def test_rejection_stats_raises_clear_error_for_small_n(self):
+        with self.assertRaises(ValueError):
+            self.clf.compute_rejection_stats()
 
 
 if __name__ == '__main__':
