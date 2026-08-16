@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+import hashlib
 import os
 import sys
 import unittest
@@ -10,6 +11,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
+from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -98,8 +100,70 @@ class TestData(unittest.TestCase):
                 random_state=seed,
             )
             outliers = X[y == 1]
-            assert outliers.var() > 0, \
+            assert outliers.var(axis=0).min() > 0, \
                 "outliers collapsed to zero variance for random_state=%d" % seed
+
+    def test_data_generate_float_offset(self):
+        # A float offset in (1, 2) used to raise ValueError, because randint
+        # truncates its bounds and the redraw got low == high. It is now drawn
+        # continuously with a floor of 1.0. Assert separation, not merely a
+        # non-zero variance: a spread test alone would pass on data whose
+        # labelled outliers sit inside the inlier cloud.
+        for offset in (1.1, 1.5, np.nextafter(2.0, 1.0)):
+            with self.subTest(offset=offset):
+                for seed in range(5):
+                    X, y = generate_data(
+                        n_features=2,
+                        contamination=0.05,
+                        train_only=True,
+                        offset=offset,
+                        random_state=seed,
+                    )
+                    outliers = X[y == 1]
+                    assert outliers.var(axis=0).min() > 0
+                    centrality = np.linalg.norm(X - X.mean(axis=0), axis=1)
+                    assert roc_auc_score(y, centrality) > 0.7, \
+                        "outliers are not separated for offset=%r seed=%d" % (
+                            offset, seed)
+
+    def test_data_generate_redraw_branches_bit_identical(self):
+        # The existing golden test pins three default-offset seeds whose first
+        # draw is non-zero, so it exercises neither branch this patch actually
+        # touches. Both seeds below take the zero-then-redraw path (the first
+        # randint returns 0): offset=1 hits the fixed offset_=1 branch, and
+        # offset=2 hits the integer redraw. Hash the whole array rather than
+        # comparing first and last rows with a tolerance, because the claim is
+        # bit identity, and an inserted RNG draw would otherwise slip through.
+        golden = {
+            (1, 0): '674149faa5f4c205',
+            (2, 0): 'd6fb10e1aba45e19',
+        }
+        for (offset, seed), digest in golden.items():
+            with self.subTest(offset=offset, seed=seed):
+                X, _ = generate_data(n_features=2, contamination=0.05,
+                                     train_only=True, offset=offset,
+                                     random_state=seed)[:2]
+                # '<f8' is the canonical encoding for this pin: little-endian
+                # float64. ascontiguousarray alone normalizes layout but keeps
+                # native byte order, which would make the digest differ on a
+                # big-endian host and reject a correct build.
+                canonical = np.ascontiguousarray(X, dtype='<f8')
+                actual = hashlib.sha256(
+                    canonical.tobytes(order='C')).hexdigest()[:16]
+                assert actual == digest, (
+                    'generate_data(offset=%r, random_state=%r) changed: %s '
+                    '!= %s' % (offset, seed, actual, digest))
+
+    def test_data_generate_offset_below_one_rejected(self):
+        # An offset below 1 must keep raising. coef_, the inlier spread, is
+        # drawn from [0.001, 1.001) independently of offset, so an outlier box
+        # of half-width < 1 lands inside an O(1) inlier cloud and the labelled
+        # outliers become the densest points in the sample.
+        for offset in (0.01, 0.5, np.nextafter(1.0, 0.0)):
+            with self.subTest(offset=offset):
+                with self.assertRaises(ValueError):
+                    generate_data(train_only=True, offset=offset,
+                                  random_state=0)
 
     def test_data_generate_reproducibility(self):
         # Golden values pinned from the pre-fix implementation for seeds whose

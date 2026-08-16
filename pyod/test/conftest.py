@@ -1,7 +1,10 @@
 """Pytest configuration for PyOD tests.
 
 Conditional collection skip for torch-dependent test modules when
-torch is not installed.
+torch is absent, or when it is installed but fails to import in a
+local run. Under CI a broken install re-raises instead, so a job that
+promised full torch coverage cannot pass green while silently
+skipping all of it.
 
 Rationale: on macOS CI we deliberately do NOT install PyTorch because
 of the upstream NNPACK slowdown on Apple Silicon
@@ -25,11 +28,37 @@ https://github.com/pytorch/pytorch/issues/107534 is resolved and a
 fixed PyTorch wheel is released.
 """
 
+import os
+import warnings
+
 collect_ignore_glob = []
 
 try:
     import torch  # noqa: F401
-except ImportError:
+except (ImportError, OSError) as _torch_exc:
+    # Absence and breakage are different states and must not be conflated.
+    # Only a top-level ModuleNotFoundError for "torch" proves the package is
+    # not installed; a broken install raises OSError (on Windows a partially
+    # installed wheel fails with "[WinError 127] ... shm.dll") or a plain
+    # ImportError from inside torch._C. Catching only ImportError used to abort
+    # collection of the entire suite rather than skipping the torch-dependent
+    # modules this guard exists to skip.
+    #
+    # Locally, a broken install degrades to a skip plus a loud warning. Under
+    # CI it re-raises: testing.yml and testing-cron.yml install the full
+    # dependency set on Linux and Windows and then run pytest with no torch
+    # preflight, so a silent skip there would let a job that promised full
+    # torch coverage pass green while running none of it.
+    _torch_absent = (isinstance(_torch_exc, ModuleNotFoundError)
+                     and _torch_exc.name == "torch")
+    if not _torch_absent:
+        if os.environ.get("CI") == "true":
+            raise
+        warnings.warn(
+            "torch is installed but failed to import ({!r}); skipping the "
+            "torch-dependent test modules.".format(_torch_exc),
+            RuntimeWarning,
+        )
     # Test modules that import torch (or torch_geometric) at module
     # load time. Keep this list in sync with torch-dependent tests.
     collect_ignore_glob = [
