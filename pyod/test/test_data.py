@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-import hashlib
 import os
 import sys
 import unittest
@@ -126,33 +125,36 @@ class TestData(unittest.TestCase):
                         "outliers are not separated for offset=%r seed=%d" % (
                             offset, seed)
 
-    def test_data_generate_redraw_branches_bit_identical(self):
-        # The existing golden test pins three default-offset seeds whose first
-        # draw is non-zero, so it exercises neither branch this patch actually
-        # touches. Both seeds below take the zero-then-redraw path (the first
-        # randint returns 0): offset=1 hits the fixed offset_=1 branch, and
-        # offset=2 hits the integer redraw. Hash the whole array rather than
-        # comparing first and last rows with a tolerance, because the claim is
-        # bit identity, and an inserted RNG draw would otherwise slip through.
+    def test_data_generate_redraw_branches_stable(self):
+        # The other golden test pins three default-offset seeds whose first
+        # draw is non-zero, so it exercises neither branch the GH #141 fix
+        # actually touches. Both seeds below take the zero-then-redraw path
+        # (the first randint returns 0): offset=1 hits the fixed offset_=1
+        # branch, and offset=2 hits the integer redraw.
+        #
+        # Pin an array-wide sum alongside the first and last rows, with a
+        # tolerance, rather than hashing the raw bytes. A byte-exact pin is
+        # not portable: randn draws Gaussians by the polar method, whose log
+        # is not required to be correctly rounded, so libm implementations
+        # disagree in the last ulp and the same seed yields different low bits
+        # on macOS than on Linux or Windows. The sum still covers every element,
+        # so an inserted or reordered RNG draw, which moves values by O(1),
+        # cannot hide inside this tolerance.
         golden = {
-            (1, 0): '674149faa5f4c205',
-            (2, 0): 'd6fb10e1aba45e19',
+            (1, 0): (1888.646949950,
+                     [1.407737153, 1.853812935], [0.716955137, -0.505085628]),
+            (2, 0): (1907.119693504,
+                     [1.070368485, 1.067679162], [-0.467865797, 0.251365755]),
         }
-        for (offset, seed), digest in golden.items():
+        for (offset, seed), (total, first, last) in golden.items():
             with self.subTest(offset=offset, seed=seed):
                 X, _ = generate_data(n_features=2, contamination=0.05,
                                      train_only=True, offset=offset,
                                      random_state=seed)[:2]
-                # '<f8' is the canonical encoding for this pin: little-endian
-                # float64. ascontiguousarray alone normalizes layout but keeps
-                # native byte order, which would make the digest differ on a
-                # big-endian host and reject a correct build.
-                canonical = np.ascontiguousarray(X, dtype='<f8')
-                actual = hashlib.sha256(
-                    canonical.tobytes(order='C')).hexdigest()[:16]
-                assert actual == digest, (
-                    'generate_data(offset=%r, random_state=%r) changed: %s '
-                    '!= %s' % (offset, seed, actual, digest))
+                assert_equal(X.shape, (1000, 2))
+                assert_allclose(X.sum(), total, rtol=0, atol=1e-6)
+                assert_allclose(X[0], first, rtol=0, atol=1e-9)
+                assert_allclose(X[-1], last, rtol=0, atol=1e-9)
 
     def test_data_generate_offset_below_one_rejected(self):
         # An offset below 1 must keep raising. coef_, the inlier spread, is
