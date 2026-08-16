@@ -140,13 +140,13 @@ class LOCI(BaseDetector):
     ...     contamination=contamination, random_state=42)
     >>> clf = LOCI()
     >>> clf.fit(X_train)
-    LOCI(alpha=0.5, contamination=0.1, k=None)
+    LOCI(alpha=0.5, contamination=0.1, k=3)
     """
 
     def __init__(self, contamination=0.1, alpha=0.5, k=3):
         super(LOCI, self).__init__(contamination=contamination)
         self.alpha = alpha
-        self.threshold_ = k
+        self.k = k
 
     def _get_alpha_n(self, dist_matrix, indices, r):
         """Computes the alpha neighbourhood points.
@@ -208,7 +208,7 @@ class LOCI(BaseDetector):
                 sigma_mdef = np.std(n_values) / n_hat
                 if n_hat >= 20:
                     outlier_scores[p_ix] = mdef / sigma_mdef
-                    if mdef > (self.threshold_ * sigma_mdef):
+                    if mdef > (self.k * sigma_mdef):
                         break
         return np.asarray(outlier_scores)
 
@@ -231,13 +231,8 @@ class LOCI(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
         self.decision_scores_ = self._calculate_decision_score(X)
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype(
-            'int').ravel()
+        self._process_decision_scores()
 
-        # calculate for predict_proba()
-
-        self._mu = np.mean(self.decision_scores_)
-        self._sigma = np.std(self.decision_scores_)
         return self
 
     def decision_function(self, X):
