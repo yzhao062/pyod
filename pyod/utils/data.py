@@ -176,7 +176,15 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
 
     # initialize a random state and seeds for the instance
     random_state = check_random_state(random_state)
+    # randint(low=offset) samples from [0, offset), so it can return 0. A zero
+    # offset collapses every outlier onto the origin (uniform(-0, 0) == 0) and
+    # yields zero-variance outliers for those seeds (see GH #141). Only redraw
+    # when that happens, so seeds that already produced a valid offset keep
+    # their existing output.
     offset_ = random_state.randint(low=offset)
+    if offset_ == 0:
+        offset_ = (1 if offset == 1
+                   else random_state.randint(low=1, high=offset))
     coef_ = random_state.random_sample() + 0.001  # in case of underflow
 
     if isinstance(contamination, (float, int)):
