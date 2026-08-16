@@ -199,8 +199,16 @@ def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
     _x = x - gm
     # calculate the scaled angles between the geometric median and each data point vector
     v_norm = np.linalg.norm(_x, axis=1)
+    # Avoid divide-by-zero when a point coincides with the geometric median
+    # (v_norm == 0) or the median is at the origin (norm_ == 0).
+    # In both cases the angle is undefined; treat it as π/2 so the rotation
+    # cost (v_norm³ · cos · sin²) collapses to 0 and does not contaminate MAD.
+    safe_denom = v_norm * norm_
+    cos_vals = np.where(safe_denom > 0,
+                        np.dot(_x, gm) / np.where(safe_denom > 0, safe_denom, 1.0),
+                        0.0)
     gammas, scaler1, scaler2 = scale_angles(
-        np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)),
+        np.arccos(np.clip(cos_vals, -1, 1)),
         scaler1=scaler1, scaler2=scaler2)
     # apply the ROD main equation to find the rotation costs
     costs = np.power(v_norm, 3) * np.cos(gammas) * np.square(np.sin(gammas))
