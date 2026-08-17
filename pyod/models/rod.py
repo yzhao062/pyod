@@ -6,6 +6,7 @@
 
 
 import multiprocessing
+import warnings
 from itertools import combinations as com
 from multiprocessing import Pool
 
@@ -182,7 +183,8 @@ def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
 
     Parameters
     ----------
-    x : array-like, 3D data points.
+    x : array-like of shape (n_samples, 3), n_samples >= 1
+        3D data points. A zero-row input raises from ``geometric_median``.
     gm: list (default=None), the geometric median
     median: float (default=None), MAD median
     scaler1: obj (default=None), MinMaxScaler of Angles group 1
@@ -190,7 +192,15 @@ def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
 
     Returns
     -------
-    decision_scores, gm, scaler1, scaler2
+    decision_scores, gm, median, scaler1, scaler2
+
+    Warns
+    -----
+    RuntimeWarning
+        When the geometric median falls on the coordinate origin, no rotation
+        angle is defined for any row. The subspace then uses one constant
+        angle, so its costs are driven only by the distance from the geometric
+        median.
     """
     # find the geometric median if it is not already fit
     gm = geometric_median(x) if gm is None else gm
@@ -199,11 +209,48 @@ def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
     _x = x - gm
     # calculate the scaled angles between the geometric median and each data point vector
     v_norm = np.linalg.norm(_x, axis=1)
-    gammas, scaler1, scaler2 = scale_angles(
-        np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)),
-        scaler1=scaler1, scaler2=scaler2)
-    # apply the ROD main equation to find the rotation costs
-    costs = np.power(v_norm, 3) * np.cos(gammas) * np.square(np.sin(gammas))
+    if norm_ == 0:
+        warnings.warn(
+            "The geometric median is at the coordinate origin "
+            "(norm_ == 0), so no rotation angle is defined for this ROD "
+            "subspace. Its scores fall back to being driven only by the "
+            "distance from the geometric median.",
+            RuntimeWarning, stacklevel=2)
+        # There is no reference direction, so use one constant angle for the
+        # whole subspace. Its trigonometric factor is then constant, reducing
+        # the rotation cost to a constant times v_norm**3. Note that MAD still
+        # scores each row by how far its cost sits from the median cost, so
+        # the result is not a plain ordering by distance.
+        # Size from v_norm, not x: this helper documents x as array-like and a
+        # plain list works on the ordinary path, because x - gm broadcasts
+        # through gm. Reading x.shape here would break list callers on exactly
+        # the degenerate inputs these branches exist to serve.
+        gammas, scaler1, scaler2 = scale_angles(
+            np.full(v_norm.shape[0], np.pi / 2.),
+            scaler1=scaler1, scaler2=scaler2)
+        costs = (np.power(v_norm, 3) * np.cos(gammas) *
+                 np.square(np.sin(gammas)))
+    else:
+        denominator = v_norm * norm_
+        valid = denominator > 0
+        if np.all(valid):
+            # Preserve the original array-wide operations for ordinary data.
+            gammas, scaler1, scaler2 = scale_angles(
+                np.arccos(np.clip(np.dot(_x, gm) / denominator, -1, 1)),
+                scaler1=scaler1, scaler2=scaler2)
+            costs = (np.power(v_norm, 3) * np.cos(gammas) *
+                     np.square(np.sin(gammas)))
+        else:
+            gammas, scaler1, scaler2 = scale_angles(
+                np.arccos(np.clip(
+                    np.dot(_x[valid], gm) / denominator[valid], -1, 1)),
+                scaler1=scaler1, scaler2=scaler2)
+            # A zero-radius row has no displacement direction. Exclude its
+            # undefined angle from scaler fitting and assign its limiting
+            # cost 0.
+            costs = np.zeros(v_norm.shape[0])
+            costs[valid] = (np.power(v_norm[valid], 3) * np.cos(gammas) *
+                            np.square(np.sin(gammas)))
     # apply MAD to calculate the decision scores
     decision_scores, median = mad(costs, median=median)
     return decision_scores, list(gm), median, scaler1, scaler2

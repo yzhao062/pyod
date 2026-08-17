@@ -43,8 +43,8 @@ def _generate_data(n_inliers, n_outliers, n_features, coef, offset,
     coef : float in range [0,1)+0.001
         The coefficient of data generation.
 
-    offset : int
-        Adjust the value range of Gaussian and Uniform.
+    offset : int or float
+        Adjust the value range of Gaussian and Uniform. Must be at least 1.
 
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
@@ -137,8 +137,12 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
     train_only : bool, optional (default=False)
         If true, generate train data only.
 
-    offset : int, optional (default=10)
-        Adjust the value range of Gaussian and Uniform.
+    offset : int or float, optional (default=10)
+        Adjust the value range of Gaussian and Uniform. Must be at least 1;
+        smaller values would place the outlier box inside the inlier cloud.
+        Integer offsets retain their historical output unless the initial
+        draw is zero and must be resampled; a float in the open interval
+        (1, 2) is drawn continuously.
 
     behaviour : str, default='new'
         Behaviour of the returned datasets which can be either 'old' or
@@ -176,7 +180,47 @@ def generate_data(n_train=1000, n_test=500, n_features=2, contamination=0.1,
 
     # initialize a random state and seeds for the instance
     random_state = check_random_state(random_state)
-    offset_ = random_state.randint(low=offset)
+    # randint(low=offset) samples from [0, offset), so it can return 0. A zero
+    # offset collapses every outlier onto the origin (uniform(-0, 0) == 0) and
+    # yields zero-variance outliers for those seeds (see GH #141). Only redraw
+    # when that happens, so seeds that already produced a valid offset keep
+    # their existing output.
+    #
+    # ``randint`` truncates its bounds, so a float offset in (1, 2) leaves the
+    # redraw with low == high and used to raise ValueError. That one range gets
+    # a continuous redraw, floored at 1.0 to avoid the known severely
+    # anti-correlated regime. The floor is not a separability guarantee: the
+    # uniform box reaches the Gaussian mean and the inlier spread can approach
+    # 1.001, so some overlap near offset=1 is expected.
+    # Every offset ``randint`` can already serve keeps its exact
+    # previous draw sequence, so its generated data is unchanged.
+    #
+    # ``offset`` below 1 is rejected explicitly rather than left to raise from
+    # ``randint``, so the contract belongs to PyOD instead of to a NumPy
+    # implementation detail. Accepting it would be worse than rejecting it:
+    # ``coef_`` below is drawn from [0.001, 1.001) independently of ``offset``,
+    # so an outlier box of half-width < 1 sits *inside* an O(1) inlier cloud
+    # and the labelled outliers become the densest points in the sample.
+    #
+    # ``randint`` bounds are coerced with ``int()`` because NumPy documents low
+    # and high as integers; relying on its float truncation would put a public
+    # PyOD promise on undocumented behavior. The coercion reproduces that
+    # truncation exactly, so the draw sequence is unchanged.
+    if offset < 1:
+        raise ValueError(
+            "offset must be at least 1, got {!r}. A smaller offset places the "
+            "outlier box inside the inlier cloud, whose spread does not scale "
+            "with offset, leaving the labels anti-correlated with "
+            "outlierness.".format(offset))
+    offset_bound = int(offset)
+    offset_ = random_state.randint(low=offset_bound)
+    if offset_ == 0:
+        if offset == 1:
+            offset_ = 1
+        elif offset >= 2:
+            offset_ = random_state.randint(low=1, high=offset_bound)
+        else:
+            offset_ = random_state.uniform(low=1.0, high=offset)
     coef_ = random_state.random_sample() + 0.001  # in case of underflow
 
     if isinstance(contamination, (float, int)):

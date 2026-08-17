@@ -92,10 +92,15 @@ class CBLOF(BaseDetector):
         RandomState instance used by `np.random`.
 
     n_jobs : int, optional (default=1)
-        Accepted for API compatibility but currently unused: the value is
-        neither stored on the estimator nor forwarded to the clustering
-        step, so ``get_params()`` reports ``None`` for it and ``clone()``
-        does not carry it over. See issue #713.
+        Deprecated compatibility parameter. ``KMeans.n_jobs`` was deprecated
+        in scikit-learn 0.23 and removed in 1.0, so this value is stored for
+        ``get_params()`` / ``clone()`` compatibility but is not forwarded.
+        Values other than 1 emit a ``FutureWarning`` during ``fit()`` and
+        support will be removed in PyOD v4.0.0. Control the default KMeans
+        parallelism with the
+        ``OMP_NUM_THREADS`` environment variable or ``threadpoolctl``. For a
+        custom ``clustering_estimator``, configure parallelism on that
+        estimator directly.
 
     Attributes
     ----------
@@ -149,6 +154,7 @@ class CBLOF(BaseDetector):
         self.use_weights = use_weights
         self.check_estimator = check_estimator
         self.random_state = random_state
+        self.n_jobs = n_jobs
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
@@ -168,6 +174,16 @@ class CBLOF(BaseDetector):
             Fitted estimator.
         """
 
+        if self.n_jobs != 1:
+            warnings.warn(
+                "The 'n_jobs' parameter is deprecated and will be removed "
+                "in PyOD v4.0.0. It has no effect on the default KMeans "
+                "estimator. Control KMeans parallelism with the "
+                "OMP_NUM_THREADS environment variable or threadpoolctl, or "
+                "configure parallelism on a custom clustering_estimator.",
+                FutureWarning,
+                stacklevel=2)
+
         # validate inputs X and y (optional)
         X = check_array(X)
         self._set_n_classes(y)
@@ -176,8 +192,7 @@ class CBLOF(BaseDetector):
         # check parameters
         # number of clusters are default to 8
         self._validate_estimator(default=KMeans(
-            n_clusters=self.n_clusters,
-            random_state=self.random_state))
+            n_clusters=self.n_clusters, random_state=self.random_state))
 
         self.clustering_estimator_.fit(X=X, y=y)
         # Get the labels of the clustering results
