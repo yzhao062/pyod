@@ -187,12 +187,103 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.save('dummy_clf.txt')
         self.assertTrue(os.path.exists('dummy_clf.txt'))
 
-        loaded_dummy_clf = DummyDetector.load('dummy_clf.txt')
+        loaded_dummy_clf = DummyDetector.load('dummy_clf.txt', trusted=True)
         self.assertEqual(
             loaded_dummy_clf.decision_function(self.X_train).all(),
             zero_scores.all())
 
         os.remove('dummy_clf.txt')
+
+    def test_save_load_map_location(self):
+        # Verify map_location string/device and dict forms all update
+        # detector.device to match the remapped weights.
+        zero_scores = np.zeros(self.n_train)
+
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        dummy_clf.save('dummy_clf_cpu.pt')
+
+        loaded = DummyDetector.load('dummy_clf_cpu.pt', map_location='cpu', trusted=True)
+        self.assertEqual(loaded.device, torch.device('cpu'))
+        self.assertEqual(
+            loaded.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        # Dict map_location: tensors are remapped by torch.load, but the old
+        # code never updated detector.device for non-str/device forms.
+        # Verify detector.device is inferred from the loaded weight tensors.
+        loaded_dict = DummyDetector.load(
+            'dummy_clf_cpu.pt', map_location={'cpu': 'cpu'}, trusted=True)
+        self.assertEqual(loaded_dict.device, torch.device('cpu'))
+        self.assertEqual(
+            loaded_dict.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        os.remove('dummy_clf_cpu.pt')
+
+    def test_save_load_compiled_model_unwrap(self):
+        # torch.compile wraps state-dict keys as '_orig_mod.<name>'.
+        # save() must unwrap via _orig_mod before calling state_dict() so that
+        # load_state_dict() succeeds on the uncompiled model built by build_model().
+        # We simulate the wrapper directly to avoid torch.compile limitations on
+        # some platforms (e.g. Windows Inductor).
+        zero_scores = np.zeros(self.n_train)
+
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        orig_model = dummy_clf.model
+
+        class FakeCompiledModule:
+            """Mimics OptimizedModule returned by torch.compile."""
+            def __init__(self, mod):
+                self._orig_mod = mod
+
+            def state_dict(self):
+                # compiled modules prefix every key with '_orig_mod.'
+                return {'_orig_mod.' + k: v
+                        for k, v in self._orig_mod.state_dict().items()}
+
+        dummy_clf.model = FakeCompiledModule(orig_model)
+        dummy_clf.save('dummy_clf_compiled.pt')
+        dummy_clf.model = orig_model  # restore so teardown is clean
+
+        loaded = DummyDetector.load('dummy_clf_compiled.pt', trusted=True)
+        self.assertEqual(
+            loaded.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        os.remove('dummy_clf_compiled.pt')
+
+    def test_save_load_base_class_call(self):
+        # BaseDeepLearningDetector.load() must return the saved subclass,
+        # not try to instantiate the abstract base class directly.
+        zero_scores = np.zeros(self.n_train)
+
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        dummy_clf.save('dummy_clf_base.pt')
+
+        loaded = BaseDeepLearningDetector.load('dummy_clf_base.pt', trusted=True)
+        self.assertIsInstance(loaded, DummyDetector)
+        self.assertEqual(
+            loaded.decision_function(self.X_train).all(),
+            zero_scores.all())
+
+        os.remove('dummy_clf_base.pt')
+
+    def test_load_rejects_without_trusted(self):
+        # load() must refuse to deserialize before torch.load is called
+        # when trusted=False (the default), so a malicious pickle cannot
+        # execute code before any validation.
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        dummy_clf.save('dummy_clf_untrusted.pt')
+
+        with self.assertRaises(ValueError) as ctx:
+            DummyDetector.load('dummy_clf_untrusted.pt')
+        self.assertIn('trusted=True', str(ctx.exception))
+
+        os.remove('dummy_clf_untrusted.pt')
 
     def tearDown(self):
         pass

@@ -318,33 +318,136 @@ class BaseDeepLearningDetector(BaseDetector):
         return anamoly_scores
 
     def save(self, path):
-        """Save the model to the specified path.
+        """Save the detector to the specified path.
+
+        Model weights are stored as a ``state_dict`` so that
+        :meth:`load` can remap them to a different device via its
+        ``map_location`` parameter.  All other detector attributes are
+        preserved alongside the weights in a single file.
+
+        Subclasses that store their network in an attribute other than
+        ``self.model`` (e.g. ``self.generator`` / ``self.discriminator``)
+        will have those modules persisted through ``detector_attrs`` as
+        ordinary pickle-serialised objects; their weights are not stored
+        as a separate state dict.
 
         Parameters
         ----------
         path : str
-            The path to save the model.
+            The path to save the detector.
         """
-        # save the class
-        with open(path, 'wb') as file:
-            pickle.dump(self, file)
+        model = getattr(self, 'model', None)
+        payload = {
+            '_pyod_save_version': 1,
+            'cls': type(self),
+            'detector_attrs': {k: v for k, v in self.__dict__.items()
+                               if k not in ('model', 'optimizer')},
+        }
+        if model is not None:
+            # Unwrap torch.compile wrapper before saving: compiled modules
+            # prefix every key with '_orig_mod.' which prevents loading into
+            # an uncompiled model built by build_model().
+            orig_mod = getattr(model, '_orig_mod', model)
+            payload['model_state_dict'] = orig_mod.state_dict()
+        torch.save(payload, path)
 
     @classmethod
-    def load(cls, path):
-        """Load the model from the specified path.
+    def load(cls, path, map_location=None, trusted: bool = False):
+        """Load a detector from the specified path.
+
+        .. warning::
+            ``torch.load`` (with ``weights_only=False``) and the pickle
+            fallback both execute arbitrary Python code during
+            deserialization.  Set ``trusted=True`` only for artifacts
+            produced by a trusted training pipeline, model registry, or
+            other trusted source.  ``trusted=False`` (the default) raises
+            before any deserialization begins.
 
         Parameters
         ----------
         path : str
-            The path to load the model.
+            The path to load the detector from.
+
+        map_location : str, torch.device, dict, or callable, optional (default=None)
+            Passed to :func:`torch.load` to remap tensor storage locations.
+            Use ``'cpu'`` when loading a model that was trained on a GPU
+            onto a machine without one.  All forms accepted by
+            :func:`torch.load` are supported; ``detector.device`` is
+            inferred from the remapped weights after loading.
+
+        trusted : bool, default False
+            Required acknowledgement that the artifact comes from a trusted
+            source.  When ``False``, ``load()`` raises before invoking
+            ``torch.load`` so a malicious pickle cannot execute code before
+            any validation.  Set to ``True`` only for artifacts you control.
 
         Returns
         -------
-        model : BaseDeepLearningDetector
-            The loaded model.
+        detector : BaseDeepLearningDetector subclass
+            The loaded detector, ready for inference.
         """
-        with open(path, 'rb') as file:
-            detector = pickle.load(file)
+        if not trusted:
+            raise ValueError(
+                "load(): refusing to deserialize an untrusted artifact. "
+                "Pass trusted=True only for artifacts from a trusted source; "
+                "torch.load with weights_only=False can execute arbitrary "
+                "Python code during deserialization.")
+
+        def _apply_map_location(detector, map_location):
+            """Update detector.device and move the model when map_location
+            is a concrete device string or torch.device object."""
+            if not isinstance(map_location, (str, torch.device)):
+                return
+            detector.device = torch.device(map_location)
+            model = getattr(detector, 'model', None)
+            if model is not None:
+                model.to(detector.device)
+
+        try:
+            payload = torch.load(path, map_location=map_location,
+                                 weights_only=False)
+        except Exception:
+            # Backward compatibility: models saved with the old pickle-only API
+            with open(path, 'rb') as f:
+                detector = pickle.load(f)
+            _apply_map_location(detector, map_location)
+            return detector
+
+        # Backward compatibility: raw pickled detector (no structured envelope)
+        if not isinstance(payload, dict) or '_pyod_save_version' not in payload:
+            _apply_map_location(payload, map_location)
+            return payload
+
+        # Restore the exact subclass that was saved so that callers using the
+        # base class directly (BaseDeepLearningDetector.load(...)) still get
+        # back the correct concrete type with a working build_model().
+        saved_cls = payload.get('cls')
+        if (isinstance(saved_cls, type)
+                and issubclass(saved_cls, BaseDeepLearningDetector)):
+            target_cls = saved_cls
+        else:
+            target_cls = cls
+
+        detector = object.__new__(target_cls)
+        detector.__dict__.update(payload['detector_attrs'])
+        _apply_map_location(detector, map_location)
+
+        if 'model_state_dict' in payload:
+            # Rebuild model architecture (uses self.feature_size etc. which
+            # are restored from detector_attrs above) then load saved weights.
+            detector.build_model()
+            detector.model.load_state_dict(payload['model_state_dict'])
+            # Infer the actual device from the remapped weight tensors so that
+            # dict/callable map_location forms (e.g. {'cuda:0': 'cpu'}) also
+            # update detector.device correctly — _apply_map_location only
+            # handles str/torch.device forms.
+            state_tensors = [v for v in payload['model_state_dict'].values()
+                             if isinstance(v, torch.Tensor)]
+            if state_tensors:
+                detector.device = state_tensors[0].device
+            detector.model.to(detector.device)
+            detector.model.eval()
+
         return detector
 
     @staticmethod
