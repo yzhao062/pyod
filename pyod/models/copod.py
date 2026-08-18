@@ -122,82 +122,68 @@ class COPOD(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
+
+        # merge training and test data
+        if hasattr(self, 'X_train'):
+            original_size = X.shape[0]
+            X = np.concatenate((self.X_train, X), axis=0)
+
         # use multi-thread execution
         if self.n_jobs != 1:
-            return self._decision_function_parallel(X)
-        if hasattr(self, 'X_train'):
-            original_size = X.shape[0]
-            X = np.concatenate((self.X_train, X), axis=0)
-        self.U_l = -1 * np.log(column_ecdf(X))
-        self.U_r = -1 * np.log(column_ecdf(-X))
+            n_samples, n_features = X.shape[0], X.shape[1]
 
-        skewness = np.sign(skew(X, axis=0))
-        self.U_skew = self.U_l * -1 * np.sign(
-            skewness - 1) + self.U_r * np.sign(skewness + 1)
-        self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
+            if n_features < 2:
+                raise ValueError(
+                    'n_jobs should not be used on one dimensional dataset')
+
+            if n_features <= self.n_jobs:
+                self.n_jobs = n_features
+                warnings.warn("n_features <= n_jobs; setting them equal instead.")
+
+            n_jobs, n_dims_list, starts = _partition_estimators(n_features,
+                                                                self.n_jobs)
+
+            all_results = Parallel(n_jobs=n_jobs, max_nbytes=None,
+                                   verbose=True)(
+                delayed(_parallel_ecdf)(
+                    n_dims_list[i],
+                    X[:, starts[i]:starts[i + 1]],
+                )
+                for i in range(n_jobs))
+
+            # recover the results
+            self.U_l = np.zeros([n_samples, n_features])
+            self.U_r = np.zeros([n_samples, n_features])
+
+            for i in range(n_jobs):
+                self.U_l[:, starts[i]:starts[i + 1]] = all_results[i][0]
+                self.U_r[:, starts[i]:starts[i + 1]] = all_results[i][1]
+
+            self.U_l = -1 * np.log(self.U_l)
+            self.U_r = -1 * np.log(self.U_r)
+
+        else:  # no parallel jobs
+            self.U_l = -1 * np.log(column_ecdf(X))
+            self.U_r = -1 * np.log(column_ecdf(-X))
+
+        # compute the skewness corrected tail probability
+        skewness_weight = np.sign(skew(X, axis=0)) < 0
+        self.U_skew = self.U_l * skewness_weight + self.U_r * (~skewness_weight)
+
+        # compute left, right and skewness log tail probabilitity
+        O_left = self.U_l.sum(axis=1)
+        O_right = self.U_r.sum(axis=1)
+        O_skew = self.U_skew.sum(axis=1)
+
+        # get the maximum for each of the three probabilities as outlier probability for each sample
+        self.O = np.max(np.concatenate((O_left.reshape(-1, 1), O_right.reshape(-1, 1), O_skew.reshape(-1, 1)), axis=1),
+                        axis=1)
+
+        # trim the decision scores
         if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1)[-original_size:]
+            decision_scores_ = self.O[-original_size:]
         else:
-            decision_scores_ = self.O.sum(axis=1)
-        return decision_scores_.ravel()
-
-    def _decision_function_parallel(self, X):
-        """Predict raw anomaly score of X using the fitted detector.
-         For consistency, outliers are assigned with larger anomaly scores.
-        Parameters
-        ----------
-        X : numpy array of shape (n_samples, n_features)
-            The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
-        Returns
-        -------
-        anomaly_scores : numpy array of shape (n_samples,)
-            The anomaly score of the input samples.
-        """
-        if hasattr(self, 'X_train'):
-            original_size = X.shape[0]
-            X = np.concatenate((self.X_train, X), axis=0)
-
-        n_samples, n_features = X.shape[0], X.shape[1]
-
-        if n_features < 2:
-            raise ValueError(
-                'n_jobs should not be used on one dimensional dataset')
-
-        if n_features <= self.n_jobs:
-            self.n_jobs = n_features
-            warnings.warn("n_features <= n_jobs; setting them equal instead.")
-
-        n_jobs, n_dims_list, starts = _partition_estimators(n_features,
-                                                            self.n_jobs)
-
-        all_results = Parallel(n_jobs=n_jobs, max_nbytes=None,
-                               verbose=True)(
-            delayed(_parallel_ecdf)(
-                n_dims_list[i],
-                X[:, starts[i]:starts[i + 1]],
-            )
-            for i in range(n_jobs))
-
-        # recover the results
-        self.U_l = np.zeros([n_samples, n_features])
-        self.U_r = np.zeros([n_samples, n_features])
-
-        for i in range(n_jobs):
-            self.U_l[:, starts[i]:starts[i + 1]] = all_results[i][0]
-            self.U_r[:, starts[i]:starts[i + 1]] = all_results[i][1]
-
-        self.U_l = -1 * np.log(self.U_l)
-        self.U_r = -1 * np.log(self.U_r)
-
-        skewness = np.sign(skew(X, axis=0))
-        self.U_skew = self.U_l * -1 * np.sign(
-            skewness - 1) + self.U_r * np.sign(skewness + 1)
-        self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
-        if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1)[-original_size:]
-        else:
-            decision_scores_ = self.O.sum(axis=1)
+            decision_scores_ = self.O
         return decision_scores_.ravel()
 
     def explain_outlier(self, ind, columns=None, cutoffs=None,
