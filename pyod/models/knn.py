@@ -8,7 +8,6 @@
 from warnings import warn
 
 import numpy as np
-from sklearn.neighbors import BallTree
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -189,20 +188,13 @@ class KNN(BaseDetector):
 
         self.neigh_.fit(X)
 
-        # In certain cases, _tree does not exist for NearestNeighbors
-        # See Issue #158 (https://github.com/yzhao062/pyod/issues/158)
-        # n_neighbors = 100
+        # Brute-force backends do not expose an internal tree. Reuse the
+        # fitted estimator in that case instead of rebuilding a BallTree,
+        # which rejects otherwise supported metrics such as cosine.
         if self.neigh_._tree is not None:
             self.tree_ = self.neigh_._tree
-
         else:
-            if self.metric_params is not None:
-                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                      metric=self.metric,
-                                      **self.metric_params)
-            else:
-                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                      metric=self.metric)
+            self.tree_ = self.neigh_
 
         dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                              return_distance=True)
