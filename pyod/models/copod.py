@@ -50,10 +50,18 @@ def _parallel_ecdf(n_dims, X):
 
 
 class COPOD(BaseDetector):
-    """COPOD class for Copula Based Outlier Detector.
-    COPOD is a parameter-free, highly interpretable outlier detection algorithm
+    """COPOD is a parameter-free, highly interpretable outlier detection algorithm
     based on empirical copula models.
     See :cite:`li2020copod` for details.
+
+    .. note::
+        COPOD and :class:`~pyod.models.ecod.ECOD` are closely related: ECOD is
+        an extended, renamed formulation of COPOD, developed by the same
+        authors with a more refined mathematical presentation (see the
+        discussion in `GitHub issue #655
+        <https://github.com/yzhao062/pyod/issues/655>`_). We generally
+        recommend using ECOD, which is better documented and explained.
+        COPOD is retained for backward compatibility and availability.
 
     Parameters
     ----------
