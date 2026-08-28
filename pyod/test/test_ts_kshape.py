@@ -67,6 +67,16 @@ class TestKShape(unittest.TestCase):
         dist, _ = _sbd(x, centroid)
         assert dist < 0.1, f"Centroid SBD too high: {dist}"
 
+    def test_kshape_shift_align_matches_sbd_lag(self):
+        """Aligning a member with the _sbd lag must move it onto the target."""
+        from pyod.models.ts_kshape import _sbd, _shift_align
+        m = 5
+        x = np.array([1.0, 0, 0, 0, 0])
+        y = np.array([0, 0, 1.0, 0, 0])  # x delayed to the right by 2
+        _, shift = _sbd(x, y)
+        aligned = _shift_align(x, -shift, m)
+        assert np.allclose(aligned, y), f"Alignment did not match: {aligned}"
+
     def test_kshape_too_few_subsequences_raises(self):
         with self.assertRaises(ValueError):
             clf = KShape(n_clusters=10, window_size=20)
