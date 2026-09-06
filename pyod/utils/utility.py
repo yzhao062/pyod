@@ -226,7 +226,41 @@ def precision_n_scores(y, y_pred, n=None):
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
 
-    return precision_score(y, y_pred)
+    return precision_score(y, y_pred, zero_division=0)
+
+
+def detection_lift(y, y_pred, n=None):
+    """Calculate precision at rank n relative to random selection.
+
+    Parameters
+    ----------
+    y : list or numpy array of shape (n_samples,)
+        The ground truth. Binary (0: inliers, 1: outliers).
+
+    y_pred : list or numpy array of shape (n_samples,)
+        The raw outlier scores as returned by a fitted model.
+
+    n : int, optional (default=None)
+        The number of outliers. If not defined, infer using ground truth.
+
+    Returns
+    -------
+    lift : float
+        Precision at rank n divided by the outlier prevalence. Return zero
+        when the ground truth contains no outliers.
+    """
+    y = column_or_1d(y)
+    y_pred = column_or_1d(y_pred)
+    check_consistent_length(y, y_pred)
+
+    if len(y) == 0:
+        raise ValueError('y must contain at least one sample')
+
+    chance_level = np.count_nonzero(y) / len(y)
+    if chance_level == 0:
+        return 0.0
+
+    return precision_n_scores(y, y_pred, n=n) / chance_level
 
 
 def get_label_n(y, y_pred, n=None):

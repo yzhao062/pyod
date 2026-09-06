@@ -20,6 +20,7 @@ from sklearn.utils import check_random_state
 from sklearn.utils import column_or_1d
 
 from .utility import check_parameter
+from .utility import detection_lift
 from .utility import precision_n_scores
 
 MAX_INT = np.iinfo(np.int32).max
@@ -340,10 +341,14 @@ def evaluate_print(clf_name, y, y_pred):
     y_pred = column_or_1d(y_pred)
     check_consistent_length(y, y_pred)
 
-    print('{clf_name} ROC:{roc}, precision @ rank n:{prn}'.format(
+    chance_level = np.count_nonzero(y) / len(y)
+    print('{clf_name} ROC:{roc}, precision @ rank n:{prn}, '
+          'chance level:{chance}, detection lift:{lift}'.format(
         clf_name=clf_name,
         roc=np.round(roc_auc_score(y, y_pred), decimals=4),
-        prn=np.round(precision_n_scores(y, y_pred), decimals=4)))
+        prn=np.round(precision_n_scores(y, y_pred), decimals=4),
+        chance=np.round(chance_level, decimals=4),
+        lift=np.round(detection_lift(y, y_pred), decimals=4)))
 
 
 def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,

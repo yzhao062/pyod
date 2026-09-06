@@ -12,6 +12,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.ts_sand import SAND
+from pyod.test._time_series_assertions import assert_scores_separate_labels
 from pyod.utils.data import generate_ts_data
 
 
@@ -25,6 +26,7 @@ class TestSAND(unittest.TestCase):
         clf = SAND(n_clusters=3, window_size=20, contamination=0.1)
         clf.fit(self.X_train)
         assert len(clf.decision_scores_) == 500
+        assert_scores_separate_labels(self.y_train, clf.decision_scores_)
 
     def test_decision_function(self):
         clf = SAND(n_clusters=3, window_size=20)

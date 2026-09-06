@@ -18,6 +18,7 @@ from sklearn.utils import check_random_state
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.utils.utility import check_parameter
+from pyod.utils.utility import detection_lift
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import get_label_n
 from pyod.utils.utility import precision_n_scores
@@ -181,6 +182,16 @@ class TestMetrics(unittest.TestCase):
     def test_precision_n_scores(self):
         assert_equal(precision_score(self.y, self.manual_labels),
                      precision_n_scores(self.y, self.labels_))
+
+    def test_detection_lift(self):
+        assert_equal(detection_lift(self.y, self.labels_), 1.25)
+
+    def test_detection_lift_without_outliers(self):
+        assert_equal(detection_lift([0, 0], [0.2, 0.1]), 0)
+
+    def test_detection_lift_rejects_empty_input(self):
+        with assert_raises(ValueError):
+            detection_lift([], [])
 
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,

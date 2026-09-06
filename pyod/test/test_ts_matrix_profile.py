@@ -12,6 +12,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.ts_matrix_profile import MatrixProfile
+from pyod.test._time_series_assertions import assert_scores_separate_labels
 from pyod.utils.data import generate_ts_data
 
 
@@ -27,6 +28,7 @@ class TestMatrixProfile(unittest.TestCase):
         assert len(clf.decision_scores_) == 300
         assert hasattr(clf, 'labels_')
         assert hasattr(clf, 'threshold_')
+        assert_scores_separate_labels(self.y_train, clf.decision_scores_)
 
     def test_multivariate(self):
         X_multi = generate_ts_data(

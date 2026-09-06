@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+import contextlib
+import io
 import os
 import sys
 import unittest
@@ -468,11 +470,13 @@ class TestData(unittest.TestCase):
                                       random_state=self.random_state)
 
     def test_evaluate_print(self):
-        X_train, X_test, y_train, y_test = generate_data(
-            n_train=self.n_train,
-            n_test=self.n_test,
-            contamination=self.contamination)
-        evaluate_print('dummy', y_train, y_train * 0.1)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            evaluate_print('dummy', [0, 0, 0, 1], [0.1, 0.2, 0.3, 0.4])
+        assert_equal(
+            output.getvalue(),
+            'dummy ROC:1.0, precision @ rank n:1.0, chance level:0.25, '
+            'detection lift:4.0\n')
 
     def test_get_outliers_inliers(self):
         X_train, y_train = generate_data(

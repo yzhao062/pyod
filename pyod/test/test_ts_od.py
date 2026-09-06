@@ -12,6 +12,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.ts_od import TimeSeriesOD
+from pyod.test._time_series_assertions import assert_scores_separate_labels
 from pyod.utils.data import generate_ts_data
 
 
@@ -33,6 +34,7 @@ class TestTimeSeriesOD(unittest.TestCase):
         assert hasattr(clf, 'decision_scores_')
         assert len(clf.decision_scores_) == 500
         assert hasattr(clf, 'labels_')
+        assert_scores_separate_labels(self.y_train, clf.decision_scores_)
 
     def test_fit_multivariate(self):
         clf = TimeSeriesOD(window_size=20)
