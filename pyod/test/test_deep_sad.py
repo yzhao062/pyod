@@ -4,8 +4,10 @@
 import os
 import sys
 import unittest
+from unittest import mock
 
 import numpy as np
+import torch
 # noinspection PyProtectedMember
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
@@ -16,7 +18,7 @@ from sklearn.metrics import roc_auc_score
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.deep_sad import DeepSAD
+from pyod.models.deep_sad import DeepSAD, optimizer_dict
 from pyod.utils.data import generate_data
 
 
@@ -166,21 +168,95 @@ class TestDeepSAD(unittest.TestCase):
     def test_invalid_center_raises(self):
         # A center that does not match the representation dimension is
         # rejected rather than silently broadcasting.
-        with assert_raises(ValueError):
-            DeepSAD(n_features=self.n_features, c=0.0, epochs=1,
-                    hidden_neurons=[64, 32]).fit(self.X_train)
-        with assert_raises(ValueError):
-            DeepSAD(n_features=self.n_features, c=[1.0, 2.0], epochs=1,
-                    hidden_neurons=[64, 32]).fit(self.X_train)
+        for bad_c in ([1.0, 2.0], np.ones(33), float('nan'),
+                      np.array([float('inf')] * 32)):
+            clf = DeepSAD(n_features=self.n_features, c=bad_c, epochs=1,
+                          hidden_neurons=[64, 32], verbose=0)
+            with assert_raises(ValueError):
+                clf.fit(self.X_train)
+
+    def test_all_zero_center_is_rejected(self):
+        for bad_c in (0.0, np.zeros(32, dtype=np.float32)):
+            clf = DeepSAD(n_features=self.n_features, c=bad_c, epochs=1,
+                          hidden_neurons=[64, 32], verbose=0)
+            with assert_raises(ValueError):
+                clf.fit(self.X_train)
+
+    def test_scalar_center_is_expanded(self):
+        clf = DeepSAD(n_features=self.n_features, c=1.0, epochs=2,
+                      hidden_neurons=[64, 32], verbose=0,
+                      contamination=self.contamination)
+        clf.fit(self.X_train)
+        assert_equal(tuple(clf.c_.shape), (32,))
+        assert torch.equal(clf.c_, torch.ones(32))
+        assert clf.decision_scores_ is not None
 
     def test_valid_center_accepted(self):
         # A correctly sized, finite center is accepted.
-        c = np.ones(32)
+        c = torch.ones(32)
         clf = DeepSAD(n_features=self.n_features, c=c, epochs=2,
-                      hidden_neurons=[64, 32],
+                      hidden_neurons=[64, 32], verbose=0,
                       contamination=self.contamination)
         clf.fit(self.X_train)
         assert clf.decision_scores_ is not None
+        before = clf.c_.clone()
+        c[:] = 99.0
+        assert torch.equal(before, clf.c_)
+
+    def test_random_state_instance_is_accepted(self):
+        X = self.X_train[:600, :8]
+        scores = []
+        for _ in range(2):
+            clf = DeepSAD(n_features=8, epochs=2, hidden_neurons=[16, 8],
+                          verbose=0,
+                          random_state=np.random.RandomState(0))
+            clf.fit(X)
+            scores.append(clf.decision_scores_)
+        assert np.array_equal(scores[0], scores[1])
+        clone(clf)
+
+    def test_all_listed_optimizers_train(self):
+        assert 'lbfgs' not in optimizer_dict
+        assert 'sparseadam' not in optimizer_dict
+        X = self.X_train[:600, :8]
+        for name in optimizer_dict:
+            clf = DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                          optimizer=name, verbose=0)
+            clf.fit(X)
+            assert np.all(np.isfinite(clf.decision_scores_)), name
+
+    def test_best_epoch_weights_are_restored(self):
+        X = self.X_train[:600, :8]
+        batch_size = 100
+        steps_per_epoch = int(np.ceil(X.shape[0] / batch_size))
+
+        class DivergeAfterFirstEpoch(torch.optim.SGD):
+            def __init__(self, params, **kwargs):
+                super().__init__(params, **kwargs)
+                self.n_steps = 0
+
+            def step(self, closure=None):
+                self.n_steps += 1
+                if self.n_steps <= steps_per_epoch:
+                    return super().step(closure)
+                with torch.no_grad():
+                    for group in self.param_groups:
+                        for p in group['params']:
+                            p.fill_(100.0)
+
+        with mock.patch.dict(optimizer_dict,
+                             {'sgd': DivergeAfterFirstEpoch}):
+            clf = DeepSAD(n_features=8, epochs=3, hidden_neurons=[16, 8],
+                          optimizer='sgd', batch_size=batch_size,
+                          verbose=0, random_state=2021)
+            clf.fit(X)
+
+        live = clf.model_.state_dict()
+        for key, snapshot in clf.best_model_dict.items():
+            assert snapshot.data_ptr() != live[key].data_ptr(), key
+            assert torch.equal(snapshot, live[key]), key
+            assert not torch.any(snapshot == 100.0), key
+        assert np.all(np.isfinite(clf.decision_scores_))
 
     def tearDown(self):
         pass
