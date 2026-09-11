@@ -66,8 +66,10 @@ class InnerDeepSAD(nn.Module):
         Activation function to use for hidden layers.
         All hidden layers are forced to use the same type of activation.
 
-    dropout_rate : float in (0., 1), optional (default=0.2)
-        The dropout to be used across all layers.
+    dropout_rate : float in [0., 1), optional (default=0.2)
+        The dropout applied after the activation of every hidden layer
+        (``hidden_neurons[:-1]``). The final representation layer
+        ``hidden_neurons[-1]`` has no activation and no dropout.
 
     l2_regularizer : float in (0., 1), optional (default=0.1)
         The regularization strength of activity_regularizer
@@ -105,6 +107,7 @@ class InnerDeepSAD(nn.Module):
                                     bias=False))
         layers.add_module('hidden_activation_e0',
                           get_activation_by_name(self.hidden_activation))
+        layers.add_module('hidden_dropout_e0', nn.Dropout(self.dropout_rate))
         for i in range(1, len(self.hidden_neurons) - 1):
             layers.add_module(f'hidden_layer_e{i}',
                               nn.Linear(self.hidden_neurons[i - 1],
@@ -150,9 +153,10 @@ class DeepSAD(BaseDetector):
         The fitted center is exposed as ``c_``.
 
     eta : float, optional (default=1.0)
-        Weight of the labeled term in the Deep SAD loss. Higher values
-        place more emphasis on the (few) labeled anomalies relative to the
-        unlabeled samples.
+        Weight of the labeled term in the Deep SAD loss. Must be positive:
+        a non-positive weight would reward moving labeled anomalies toward
+        the center. Higher values place more emphasis on the (few) labeled
+        anomalies relative to the unlabeled samples.
 
     hidden_neurons : list, optional (default=[64, 32])
         The number of neurons per hidden layers. The last entry is the
@@ -173,16 +177,24 @@ class DeepSAD(BaseDetector):
     batch_size : int, optional (default=32)
         Number of samples per gradient update.
 
-    dropout_rate : float in (0., 1), optional (default=0.2)
-        The dropout to be used across all layers.
+    dropout_rate : float in [0., 1), optional (default=0.2)
+        The dropout applied after the activation of every hidden layer
+        (``hidden_neurons[:-1]``). The final representation layer
+        ``hidden_neurons[-1]`` has no activation and no dropout.
 
     l2_regularizer : float in (0., 1), optional (default=0.1)
         The regularization strength of activity_regularizer
         applied on each layer. By default, l2 regularizer is used. See
         https://keras.io/regularizers/
 
-    validation_size : float in (0., 1), optional (default=0.1)
-        The percentage of data to be used for validation.
+    validation_size : float in [0., 1), optional (default=0.1)
+        The fraction of the training samples (and their labels) held out
+        as a validation set, drawn with ``random_state``. The center is
+        initialized from and the network is trained on the remaining
+        samples; after every epoch the Deep SAD loss is computed on the
+        held-out samples and the weights of the epoch with the lowest
+        validation loss are restored at the end of training. Set to 0 to
+        train on every sample and select the best epoch by training loss.
 
     preprocessing : bool, optional (default=True)
         If True, apply standardization on the data.
@@ -270,6 +282,9 @@ class DeepSAD(BaseDetector):
             torch.manual_seed(torch_seed)
         check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
                         include_left=True)
+        check_parameter(eta, 0, np.inf, param_name='eta')
+        check_parameter(validation_size, 0, 1, param_name='validation_size',
+                        include_left=True)
 
     def _process_semi_targets(self, y, n_samples):
         """Turn the optional labels ``y`` into Deep SAD semi-supervised
@@ -290,6 +305,17 @@ class DeepSAD(BaseDetector):
             y = np.asarray(y).ravel()
             semi_targets[y == 1] = -1
         return semi_targets
+
+    def _deep_sad_loss(self, outputs, semi_targets):
+        """Deep SAD loss: unlabeled/normal points (target ``0``) minimize
+        the squared distance to the center; labeled anomalies (target
+        ``-1``) minimize the inverse distance, pushing them away from
+        ``c``.
+        """
+        dist = torch.sum((outputs - self.c_) ** 2, dim=-1)
+        losses = torch.where(semi_targets == 0, dist,
+                             self.eta * ((dist + self.eps) ** semi_targets))
+        return torch.mean(losses)
 
     def fit(self, X, y=None):
         """Fit detector. Deep SAD is semi-supervised: ``y`` is optional
@@ -339,12 +365,24 @@ class DeepSAD(BaseDetector):
         X_norm = torch.tensor(X_norm, dtype=torch.float32)
         semi_targets = torch.tensor(semi_targets, dtype=torch.float32)
 
+        # Hold out the validation split used for best-epoch selection; the
+        # center and the training batches only see the remaining samples.
+        n_val = int(self.n_samples_ * self.validation_size)
+        if n_val > 0:
+            perm = check_random_state(self.random_state).permutation(
+                self.n_samples_)
+            X_val, semi_val = X_norm[perm[:n_val]], semi_targets[perm[:n_val]]
+            X_fit, semi_fit = X_norm[perm[n_val:]], semi_targets[perm[n_val:]]
+        else:
+            X_val, semi_val = None, None
+            X_fit, semi_fit = X_norm, semi_targets
+
         # Initialize the hypersphere center from a first forward pass, or
         # validate the user-supplied center against the representation
         # space.
         rep_dim = self.hidden_neurons[-1]
         if self.c is None:
-            center = self.model_._init_c(X_norm)
+            center = self.model_._init_c(X_fit)
         else:
             center = torch.as_tensor(self.c, dtype=X_norm.dtype,
                                      device=X_norm.device)
@@ -365,7 +403,7 @@ class DeepSAD(BaseDetector):
                 "supply a non-zero center.")
         self.c_ = center.detach().clone()
 
-        dataset = TensorDataset(X_norm, semi_targets)
+        dataset = TensorDataset(X_fit, semi_fit)
         dataloader = DataLoader(dataset, batch_size=self.batch_size,
                                 shuffle=True)
 
@@ -380,24 +418,26 @@ class DeepSAD(BaseDetector):
             epoch_loss = 0
             for batch_x, batch_semi in dataloader:
                 optimizer.zero_grad()
-                outputs = self.model_(batch_x)
-                dist = torch.sum((outputs - self.c_) ** 2, dim=-1)
-                # Deep SAD loss: unlabeled/normal points (semi == 0)
-                # minimize the distance; labeled anomalies (semi == -1)
-                # minimize the inverse distance, pushing them away from c.
-                losses = torch.where(
-                    batch_semi == 0, dist,
-                    self.eta * ((dist + self.eps) ** batch_semi))
-                loss = torch.mean(losses)
+                loss = self._deep_sad_loss(self.model_(batch_x), batch_semi)
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
-            if epoch_loss < best_loss:
-                best_loss = epoch_loss
+            if X_val is not None:
+                self.model_.eval()
+                with torch.no_grad():
+                    selection_loss = self._deep_sad_loss(
+                        self.model_(X_val), semi_val).item()
+            else:
+                selection_loss = epoch_loss
+            if selection_loss < best_loss:
+                best_loss = selection_loss
                 best_model_dict = copy.deepcopy(self.model_.state_dict())
             if self.verbose:
-                print(f"Epoch {epoch + 1}/{self.epochs}, "
-                      f"Loss: {epoch_loss}")
+                message = (f"Epoch {epoch + 1}/{self.epochs}, "
+                           f"Loss: {epoch_loss}")
+                if X_val is not None:
+                    message += f", Validation loss: {selection_loss}"
+                print(message)
         self.best_model_dict = best_model_dict
         if self.best_model_dict is not None:
             self.model_.load_state_dict(self.best_model_dict)

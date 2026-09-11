@@ -8,6 +8,7 @@ from unittest import mock
 
 import numpy as np
 import torch
+import torch.nn as nn
 # noinspection PyProtectedMember
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
@@ -18,42 +19,45 @@ from sklearn.metrics import roc_auc_score
 # if pyod is installed, no need to use the following line
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pyod.models.deep_sad import DeepSAD, optimizer_dict
+from pyod.models.deep_sad import DeepSAD, InnerDeepSAD, optimizer_dict
 from pyod.utils.data import generate_data
 
 
 class TestDeepSAD(unittest.TestCase):
-    def setUp(self):
-        self.n_train = 6000
-        self.n_test = 1000
-        self.n_features = 300
-        self.contamination = 0.1
-        self.roc_floor = 0.5
-        self.X_train, self.X_test, self.y_train, self.y_test = generate_data(
-            n_train=self.n_train, n_test=self.n_test,
-            n_features=self.n_features, contamination=self.contamination,
+    @classmethod
+    def setUpClass(cls):
+        cls.n_train = 6000
+        cls.n_test = 1000
+        cls.n_features = 300
+        cls.contamination = 0.1
+        cls.roc_floor = 0.5
+        cls.X_train, cls.X_test, cls.y_train, cls.y_test = generate_data(
+            n_train=cls.n_train, n_test=cls.n_test,
+            n_features=cls.n_features, contamination=cls.contamination,
             random_state=42)
 
         # Deep SAD is semi-supervised: reveal a subset of the training
         # anomalies as labeled (1) and leave everything else unlabeled (0).
-        self.semi_y = np.zeros(self.n_train, dtype=int)
-        anomaly_idx = np.where(self.y_train == 1)[0]
+        cls.semi_y = np.zeros(cls.n_train, dtype=int)
+        anomaly_idx = np.where(cls.y_train == 1)[0]
         revealed = anomaly_idx[:len(anomaly_idx) // 2]
-        self.semi_y[revealed] = 1
+        cls.semi_y[revealed] = 1
 
-        self.clf = DeepSAD(n_features=self.n_features, epochs=10,
-                           hidden_neurons=[64, 32],
-                           contamination=self.contamination,
-                           random_state=2021)
-        self.clf.fit(self.X_train, self.semi_y)
+        # The two fitted detectors are trained once and shared read-only
+        # by the tests; tests that refit build their own small instance.
+        cls.clf = DeepSAD(n_features=cls.n_features, epochs=10,
+                          hidden_neurons=[64, 32],
+                          contamination=cls.contamination,
+                          random_state=2021)
+        cls.clf.fit(cls.X_train, cls.semi_y)
 
         # a second detector trained fully unsupervised (y=None) exercises
         # the Deep SVDD fallback path.
-        self.clf_unsup = DeepSAD(n_features=self.n_features, epochs=5,
-                                 hidden_neurons=[32, 16],
-                                 contamination=self.contamination,
-                                 preprocessing=False)
-        self.clf_unsup.fit(self.X_train)
+        cls.clf_unsup = DeepSAD(n_features=cls.n_features, epochs=5,
+                                hidden_neurons=[32, 16],
+                                contamination=cls.contamination,
+                                preprocessing=False)
+        cls.clf_unsup.fit(cls.X_train)
 
     def test_parameters(self):
         assert (hasattr(self.clf, 'decision_scores_') and
@@ -139,18 +143,21 @@ class TestDeepSAD(unittest.TestCase):
         assert (ub_cost >= 0)
 
     def test_fit_predict(self):
-        pred_labels = self.clf.fit_predict(self.X_train)
-        assert_equal(pred_labels.shape, self.y_train.shape)
+        X, y = self.X_train[:600, :8], self.y_train[:600]
+        clf = DeepSAD(n_features=8, epochs=2, hidden_neurons=[16, 8],
+                      verbose=0, contamination=self.contamination)
+        pred_labels = clf.fit_predict(X)
+        assert_equal(pred_labels.shape, y.shape)
 
     def test_fit_predict_score(self):
-        self.clf.fit_predict_score(self.X_test, self.y_test)
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='roc_auc_score')
-        self.clf.fit_predict_score(self.X_test, self.y_test,
-                                   scoring='prc_n_score')
+        X, y = self.X_test[:, :8], self.y_test
+        clf = DeepSAD(n_features=8, epochs=2, hidden_neurons=[16, 8],
+                      verbose=0, contamination=self.contamination)
+        clf.fit_predict_score(X, y)
+        clf.fit_predict_score(X, y, scoring='roc_auc_score')
+        clf.fit_predict_score(X, y, scoring='prc_n_score')
         with assert_raises(NotImplementedError):
-            self.clf.fit_predict_score(self.X_test, self.y_test,
-                                       scoring='something')
+            clf.fit_predict_score(X, y, scoring='something')
 
     def test_model_clone(self):
         clone(self.clf)
@@ -203,6 +210,52 @@ class TestDeepSAD(unittest.TestCase):
         c[:] = 99.0
         assert torch.equal(before, clf.c_)
 
+    def test_eta_must_be_positive(self):
+        for bad_eta in (-1, 0):
+            with assert_raises(ValueError):
+                DeepSAD(n_features=self.n_features, eta=bad_eta)
+
+    def test_validation_size(self):
+        X, y = self.X_train[:600, :8], self.semi_y[:600]
+        original_init_c = InnerDeepSAD._init_c
+        n_center = []
+
+        def spy_init_c(model, X_norm, eps=0.1):
+            n_center.append(X_norm.shape[0])
+            return original_init_c(model, X_norm, eps)
+
+        # 0.2 keeps 120 of the 600 samples out of the center initialization
+        # and the training batches; 0 uses every sample.
+        for validation_size in (0.2, 0):
+            clf = DeepSAD(n_features=8, epochs=2, hidden_neurons=[16, 8],
+                          validation_size=validation_size, verbose=0,
+                          random_state=2021)
+            with mock.patch.object(InnerDeepSAD, '_init_c', spy_init_c):
+                clf.fit(X, y)
+            assert_equal(len(clf.decision_scores_), X.shape[0])
+            assert np.all(np.isfinite(clf.decision_scores_))
+        assert_equal(n_center, [480, 600])
+        for bad_size in (-0.1, 1.0):
+            with assert_raises(ValueError):
+                DeepSAD(n_features=8, validation_size=bad_size)
+
+    def test_dropout_follows_hidden_activations(self):
+        X = self.X_train[:600, :8]
+        # (hidden_neurons, dropout_rate); None is the default [64, 32]
+        for hidden_neurons, dropout_rate in ((None, 0.2),
+                                             ([64, 32, 16], 0.5),
+                                             (None, 0)):
+            clf = DeepSAD(n_features=8, epochs=1,
+                          hidden_neurons=hidden_neurons,
+                          dropout_rate=dropout_rate, verbose=0)
+            clf.fit(X)
+            modules = list(clf.model_.model)
+            dropouts = [m for m in modules if isinstance(m, nn.Dropout)]
+            assert_equal(len(dropouts), len(clf.hidden_neurons) - 1)
+            assert all(m.p == dropout_rate for m in dropouts)
+            assert isinstance(modules[-1], nn.Linear)
+            assert_equal(modules[-1].out_features, clf.hidden_neurons[-1])
+
     def test_random_state_instance_is_accepted(self):
         X = self.X_train[:600, :8]
         scores = []
@@ -228,35 +281,43 @@ class TestDeepSAD(unittest.TestCase):
     def test_best_epoch_weights_are_restored(self):
         X = self.X_train[:600, :8]
         batch_size = 100
-        steps_per_epoch = int(np.ceil(X.shape[0] / batch_size))
 
         class DivergeAfterFirstEpoch(torch.optim.SGD):
+            steps_per_epoch = None
+
             def __init__(self, params, **kwargs):
                 super().__init__(params, **kwargs)
                 self.n_steps = 0
 
             def step(self, closure=None):
                 self.n_steps += 1
-                if self.n_steps <= steps_per_epoch:
+                if self.n_steps <= self.steps_per_epoch:
                     return super().step(closure)
                 with torch.no_grad():
                     for group in self.param_groups:
                         for p in group['params']:
                             p.fill_(100.0)
 
-        with mock.patch.dict(optimizer_dict,
-                             {'sgd': DivergeAfterFirstEpoch}):
-            clf = DeepSAD(n_features=8, epochs=3, hidden_neurons=[16, 8],
-                          optimizer='sgd', batch_size=batch_size,
-                          verbose=0, random_state=2021)
-            clf.fit(X)
+        # validation_size=0 selects the epoch by training loss, 0.5 by the
+        # loss on the held-out half; both must restore the first epoch.
+        for validation_size in (0, 0.5):
+            n_fit = X.shape[0] - int(X.shape[0] * validation_size)
+            DivergeAfterFirstEpoch.steps_per_epoch = int(
+                np.ceil(n_fit / batch_size))
+            with mock.patch.dict(optimizer_dict,
+                                 {'sgd': DivergeAfterFirstEpoch}):
+                clf = DeepSAD(n_features=8, epochs=3, hidden_neurons=[16, 8],
+                              optimizer='sgd', batch_size=batch_size,
+                              validation_size=validation_size, verbose=0,
+                              random_state=2021)
+                clf.fit(X)
 
-        live = clf.model_.state_dict()
-        for key, snapshot in clf.best_model_dict.items():
-            assert snapshot.data_ptr() != live[key].data_ptr(), key
-            assert torch.equal(snapshot, live[key]), key
-            assert not torch.any(snapshot == 100.0), key
-        assert np.all(np.isfinite(clf.decision_scores_))
+            live = clf.model_.state_dict()
+            for key, snapshot in clf.best_model_dict.items():
+                assert snapshot.data_ptr() != live[key].data_ptr(), key
+                assert torch.equal(snapshot, live[key]), key
+                assert not torch.any(snapshot == 100.0), key
+            assert np.all(np.isfinite(clf.decision_scores_))
 
     def tearDown(self):
         pass
