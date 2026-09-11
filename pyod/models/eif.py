@@ -11,7 +11,11 @@
 # the authors' reference implementation (https://github.com/sahandha/eif). The
 # code below is a clean, numpy-only reimplementation that follows PyOD
 # conventions and mirrors ``pyod/models/iforest.py``; it adds no new
-# dependency.
+# dependency. One deliberate departure from the reference implementation: a
+# hyperplane that sends every point of a node to the same side is redrawn
+# up to ``MAX_SPLIT_ATTEMPTS`` times, and the node becomes a leaf if no
+# split is found, so constant features and duplicate rows do not inflate
+# path lengths.
 
 from __future__ import division
 from __future__ import print_function
@@ -29,6 +33,7 @@ __all__ = ["EIF"]
 
 MAX_INT = np.iinfo(np.int32).max
 EULER_GAMMA = 0.5772156649015329
+MAX_SPLIT_ATTEMPTS = 10
 
 
 def _c_factor(n):
@@ -181,6 +186,10 @@ class EIF(BaseDetector):
                     '"auto", int or float' % self.max_samples
                 )
         elif isinstance(self.max_samples, numbers.Integral):
+            if self.max_samples < 1:
+                raise ValueError(
+                    "max_samples must be at least 1, got %r" % self.max_samples
+                )
             if self.max_samples > n_samples:
                 warn(
                     "max_samples (%s) is greater than the total number of "
@@ -195,8 +204,7 @@ class EIF(BaseDetector):
                 raise ValueError(
                     "max_samples must be in (0, 1], got %r" % self.max_samples
                 )
-            max_samples = int(self.max_samples * n_samples)
-        max_samples = max(1, max_samples)
+            max_samples = max(1, int(self.max_samples * n_samples))
         self.max_samples_ = max_samples
 
         # Resolve and validate the extension level.
@@ -217,6 +225,15 @@ class EIF(BaseDetector):
 
         # Height limit for each tree, as in the Isolation Forest.
         self._height_limit = int(np.ceil(np.log2(max(2, max_samples))))
+
+        if (
+            not isinstance(self.n_estimators, numbers.Integral)
+            or self.n_estimators < 1
+        ):
+            raise ValueError(
+                "n_estimators must be a positive integer, got %r"
+                % self.n_estimators
+            )
 
         rng = check_random_state(self.random_state)
         seeds = rng.randint(MAX_INT, size=self.n_estimators)
@@ -245,32 +262,41 @@ class EIF(BaseDetector):
 
         mins = X.min(axis=0)
         maxs = X.max(axis=0)
-
-        # Random intercept point inside the bounding box of the node.
-        intercept = rng.uniform(mins, maxs)
-        # Random normal vector; zero out coordinates not used at this
-        # extension level (extension_level == n_features - 1 keeps all).
-        normal = rng.normal(0.0, 1.0, size=n_features)
         n_zero = n_features - extension_level - 1
-        if n_zero > 0:
-            zero_idx = rng.choice(n_features, n_zero, replace=False)
-            normal[zero_idx] = 0.0
 
-        projection = (X - intercept) @ normal
-        left_mask = projection <= 0
-        X_left = X[left_mask]
-        X_right = X[~left_mask]
+        for _ in range(MAX_SPLIT_ATTEMPTS):
+            # Random intercept point inside the bounding box of the node.
+            intercept = rng.uniform(mins, maxs)
+            # Random normal vector; zero out coordinates not used at this
+            # extension level (extension_level == n_features - 1 keeps all).
+            normal = rng.normal(0.0, 1.0, size=n_features)
+            if n_zero > 0:
+                zero_idx = rng.choice(n_features, n_zero, replace=False)
+                normal[zero_idx] = 0.0
 
-        return _InNode(
-            self._build_tree(
-                X_left, current_height + 1, extension_level, n_features, rng
-            ),
-            self._build_tree(
-                X_right, current_height + 1, extension_level, n_features, rng
-            ),
-            normal,
-            intercept,
-        )
+            left_mask = (X - intercept) @ normal <= 0
+            n_left = np.count_nonzero(left_mask)
+            if 0 < n_left < n:
+                return _InNode(
+                    self._build_tree(
+                        X[left_mask],
+                        current_height + 1,
+                        extension_level,
+                        n_features,
+                        rng,
+                    ),
+                    self._build_tree(
+                        X[~left_mask],
+                        current_height + 1,
+                        extension_level,
+                        n_features,
+                        rng,
+                    ),
+                    normal,
+                    intercept,
+                )
+
+        return _ExNode(n)
 
     @staticmethod
     def _path_length(x, node, current_height):

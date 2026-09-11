@@ -5,6 +5,8 @@ import os
 import sys
 import unittest
 
+import numpy as np
+
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
@@ -19,7 +21,15 @@ from sklearn.metrics import roc_auc_score
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from pyod.models.eif import EIF
+from pyod.models.eif import _ExNode
+from pyod.models.eif import _InNode
 from pyod.utils.data import generate_data
+
+
+def _leaf_sizes(node):
+    if isinstance(node, _ExNode):
+        return [node.size]
+    return _leaf_sizes(node.left) + _leaf_sizes(node.right)
 
 
 class TestEIF(unittest.TestCase):
@@ -166,6 +176,42 @@ class TestEIF(unittest.TestCase):
             EIF(extension_level=self.X_train.shape[1]).fit(self.X_train)
         with assert_raises(ValueError):
             EIF(extension_level=-1).fit(self.X_train)
+
+    def test_max_samples_invalid(self):
+        for max_samples in (0, -5, 0.0, -0.5, 1.5, "bogus"):
+            with assert_raises(ValueError):
+                EIF(max_samples=max_samples).fit(self.X_train)
+
+    def test_max_samples_float_min_one(self):
+        clf = EIF(max_samples=0.001, n_estimators=2, random_state=42)
+        clf.fit(self.X_train)
+        assert_equal(clf.max_samples_, 1)
+
+    def test_n_estimators_invalid(self):
+        for n_estimators in (0, -1, 1.5, "10"):
+            with assert_raises(ValueError):
+                EIF(n_estimators=n_estimators).fit(self.X_train)
+
+    def test_identical_rows_are_leaves(self):
+        X = np.ones((64, 3))
+        clf = EIF(n_estimators=5, max_samples=64, random_state=42)
+        clf.fit(X)
+        for tree in clf._trees:
+            assert isinstance(tree, _ExNode)
+            assert_equal(tree.size, 64)
+        assert_allclose(clf.decision_scores_, 0.5)
+
+    def test_no_empty_splits_on_constant_features(self):
+        rng = np.random.RandomState(0)
+        X = np.hstack([rng.normal(size=(128, 2)), np.zeros((128, 1))])
+        X[::2] = X[1::2]
+        clf = EIF(
+            n_estimators=20, max_samples=128, extension_level=0, random_state=42
+        )
+        clf.fit(X)
+        assert any(isinstance(tree, _InNode) for tree in clf._trees)
+        for tree in clf._trees:
+            assert min(_leaf_sizes(tree)) >= 1
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
