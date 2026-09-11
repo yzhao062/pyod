@@ -11,11 +11,14 @@
 # the authors' reference implementation (https://github.com/sahandha/eif). The
 # code below is a clean, numpy-only reimplementation that follows PyOD
 # conventions and mirrors ``pyod/models/iforest.py``; it adds no new
-# dependency. One deliberate departure from the reference implementation: a
-# hyperplane that sends every point of a node to the same side is redrawn
-# up to ``MAX_SPLIT_ATTEMPTS`` times, and the node becomes a leaf if no
-# split is found, so constant features and duplicate rows do not inflate
-# path lengths.
+# dependency. One deliberate departure from the reference implementation: the
+# coordinates zeroed out of the normal vector at a node are taken from the
+# coordinates that are constant within that node first, so the active
+# coordinates always include one that varies; a node whose coordinates are all
+# constant becomes a leaf at once, and a hyperplane that still sends every
+# point of a node to the same side is redrawn up to ``MAX_SPLIT_ATTEMPTS``
+# times before the node becomes a leaf, so constant features and duplicate
+# rows do not inflate path lengths.
 
 from __future__ import division
 from __future__ import print_function
@@ -262,16 +265,30 @@ class EIF(BaseDetector):
 
         mins = X.min(axis=0)
         maxs = X.max(axis=0)
+        varying = maxs > mins
+        if not varying.any():
+            return _ExNode(n)
+        varying_idx = np.flatnonzero(varying)
+        const_idx = np.flatnonzero(~varying)
+        n_const = const_idx.shape[0]
         n_zero = n_features - extension_level - 1
 
         for _ in range(MAX_SPLIT_ATTEMPTS):
             # Random intercept point inside the bounding box of the node.
             intercept = rng.uniform(mins, maxs)
             # Random normal vector; zero out coordinates not used at this
-            # extension level (extension_level == n_features - 1 keeps all).
+            # extension level (extension_level == n_features - 1 keeps all),
+            # taking the coordinates that are constant within the node first
+            # so that the active coordinates always include one that varies.
             normal = rng.normal(0.0, 1.0, size=n_features)
             if n_zero > 0:
-                zero_idx = rng.choice(n_features, n_zero, replace=False)
+                if n_const > n_zero:
+                    zero_idx = rng.choice(const_idx, n_zero, replace=False)
+                elif n_const < n_zero:
+                    extra_idx = rng.choice(varying_idx, n_zero - n_const, replace=False)
+                    zero_idx = np.concatenate((const_idx, extra_idx))
+                else:
+                    zero_idx = const_idx
                 normal[zero_idx] = 0.0
 
             left_mask = (X - intercept) @ normal <= 0

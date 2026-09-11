@@ -21,6 +21,7 @@ from sklearn.metrics import roc_auc_score
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from pyod.models.eif import EIF
+from pyod.models.eif import MAX_INT
 from pyod.models.eif import _ExNode
 from pyod.models.eif import _InNode
 from pyod.utils.data import generate_data
@@ -212,6 +213,62 @@ class TestEIF(unittest.TestCase):
         assert any(isinstance(tree, _InNode) for tree in clf._trees)
         for tree in clf._trees:
             assert min(_leaf_sizes(tree)) >= 1
+
+    def test_split_uses_varying_coordinates(self):
+        # With one varying coordinate among many constant ones, the zeroed
+        # coordinates are taken from the constant ones, so every tree splits
+        # at the root instead of turning into a leaf after unlucky draws.
+        rng = np.random.RandomState(0)
+        X = np.zeros((64, 1000))
+        X[:, 500] = rng.normal(size=64)
+        X[0, 500] = 50.0
+        for extension_level in (0, 500):
+            clf = EIF(
+                n_estimators=20, extension_level=extension_level, random_state=42
+            )
+            clf.fit(X)
+            for tree in clf._trees:
+                assert isinstance(tree, _InNode)
+                assert tree.normal[500] != 0
+                assert_equal(np.count_nonzero(tree.normal), extension_level + 1)
+            assert clf.decision_scores_.max() > clf.decision_scores_.min()
+            assert_equal(np.argmax(clf.decision_scores_), 0)
+
+    def test_all_constant_features_are_leaves(self):
+        X = np.full((32, 5), 3.0)
+        clf = EIF(n_estimators=5, extension_level=0, random_state=42)
+        clf.fit(X)
+        for tree in clf._trees:
+            assert isinstance(tree, _ExNode)
+        assert np.isfinite(clf.decision_scores_).all()
+        assert_allclose(clf.decision_scores_, clf.decision_scores_[0])
+        pred_scores = clf.decision_function(X + 1.0)
+        assert np.isfinite(pred_scores).all()
+        assert_allclose(pred_scores, pred_scores[0])
+
+    def test_split_draws_match_plain_sequence(self):
+        # When every coordinate varies, the root hyperplane of each tree is
+        # drawn exactly as intercept, normal, zeroed coordinates from the
+        # tree's own random state, so seeded results stay unchanged.
+        X = self.X_train
+        n_features = X.shape[1]
+        n_estimators = 5
+        clf = EIF(
+            n_estimators=n_estimators,
+            max_samples=X.shape[0],
+            extension_level=0,
+            random_state=42,
+        )
+        clf.fit(X)
+        seeds = np.random.RandomState(42).randint(MAX_INT, size=n_estimators)
+        for seed, tree in zip(seeds, clf._trees):
+            rng = np.random.RandomState(seed)
+            intercept = rng.uniform(X.min(axis=0), X.max(axis=0))
+            normal = rng.normal(0.0, 1.0, size=n_features)
+            normal[rng.choice(n_features, n_features - 1, replace=False)] = 0.0
+            assert isinstance(tree, _InNode)
+            assert_equal(tree.intercept, intercept)
+            assert_equal(tree.normal, normal)
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
