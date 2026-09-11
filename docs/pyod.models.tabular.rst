@@ -371,6 +371,15 @@ pyod.models.sampling module
     :show-inheritance:
 
 
+pyod.models.small\_n module
+----------------------------
+
+.. automodule:: pyod.models.small_n
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+    
 pyod.models.so\_gaal module
 ---------------------------
 

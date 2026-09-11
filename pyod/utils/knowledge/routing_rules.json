@@ -36,7 +36,8 @@
       "conditions": [
         {"field": "data_type", "op": "eq", "value": "tabular"},
         {"field": "n_features", "op": "lt", "value": 20},
-        {"field": "n_samples", "op": "lt", "value": 5000}
+        {"field": "n_samples", "op": "lt", "value": 5000},
+        {"field": "n_samples", "op": "gte", "value": 10}
       ],
       "recommendations": [
         {"detector": "KNN", "params": {}, "confidence": 0.85},
@@ -62,9 +63,23 @@
       "evidence": ["ADBench"]
     },
     {
+      "id": "tabular_tiny_n",
+      "conditions": [
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_samples", "op": "lt", "value": 10},
+        {"field": "n_features", "op": "lt", "value": 20}
+      ],
+      "recommendations": [
+        {"detector": "SmallN", "params": {}, "confidence": 0.92}
+      ],
+      "reason": "Tiny reference set (n<10, d<20): Ledoit-Wolf shrinkage covariance estimation",
+      "evidence": ["Ledoit and Wolf, 2004"]
+    },
+    {
       "id": "tabular_balanced",
       "conditions": [
-        {"field": "data_type", "op": "eq", "value": "tabular"}
+        {"field": "data_type", "op": "eq", "value": "tabular"},
+        {"field": "n_samples", "op": "gte", "value": 10}
       ],
       "recommendations": [
         {"detector": "IForest", "params": {}, "confidence": 0.85},
