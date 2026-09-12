@@ -188,10 +188,34 @@ class TestEIF(unittest.TestCase):
         clf.fit(self.X_train)
         assert_equal(clf.max_samples_, 1)
 
+    def test_max_samples_one_gives_neutral_scores(self):
+        # A one-sample subsample grows single-leaf trees with no split, so
+        # every sample gets the same neutral score as an unsplittable root,
+        # whether max_samples is 1 or a fraction that rounds down to 1.
+        for max_samples, X in ((1, self.X_train), (0.1, self.X_train[:5])):
+            clf = EIF(max_samples=max_samples, n_estimators=5, random_state=42)
+            clf.fit(X)
+            assert_equal(clf.max_samples_, 1)
+            for tree in clf._trees:
+                assert isinstance(tree, _ExNode)
+            assert_allclose(clf.decision_scores_, 0.5)
+            assert_allclose(clf.decision_function(self.X_test), 0.5)
+
     def test_n_estimators_invalid(self):
         for n_estimators in (0, -1, 1.5, "10"):
             with assert_raises(ValueError):
                 EIF(n_estimators=n_estimators).fit(self.X_train)
+
+    def test_n_features_mismatch(self):
+        rng = np.random.RandomState(0)
+        X = rng.normal(size=(64, 5))
+        clf = EIF(n_estimators=5, random_state=42)
+        clf.fit(X)
+        assert_equal(clf.n_features_, 5)
+        assert_equal(clf.decision_function(rng.normal(size=(8, 5))).shape, (8,))
+        for n_features in (1, 6):
+            with self.assertRaisesRegex(ValueError, "fitted with 5 features"):
+                clf.decision_function(rng.normal(size=(8, n_features)))
 
     def test_identical_rows_are_leaves(self):
         X = np.ones((64, 3))

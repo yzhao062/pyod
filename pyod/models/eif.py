@@ -129,6 +129,9 @@ class EIF(BaseDetector):
     extension_level_ : int
         The actual extension level used for the hyperplanes.
 
+    n_features_ : int
+        The number of features seen during the fit.
+
     decision_scores_ : numpy array of shape (n_samples,)
         The outlier scores of the training data. The higher, the more
         abnormal. Outliers tend to have higher scores.
@@ -178,6 +181,7 @@ class EIF(BaseDetector):
         self._set_n_classes(y)
 
         n_samples, n_features = X.shape
+        self.n_features_ = n_features
 
         # Resolve max_samples following the Isolation Forest convention.
         if isinstance(self.max_samples, str):
@@ -343,17 +347,22 @@ class EIF(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        check_is_fitted(self, ["_trees", "max_samples_"])
+        check_is_fitted(self, ["_trees", "max_samples_", "n_features_"])
         X = check_array(X, accept_sparse=False)
+        if X.shape[1] != self.n_features_:
+            raise ValueError(
+                "X has %d features, but EIF was fitted with %d features"
+                % (X.shape[1], self.n_features_)
+            )
 
         c_norm = _c_factor(self.max_samples_)
+        if c_norm <= 0:
+            # A single-sample subsample grows trees without a split, which
+            # carry no anomaly information: give every sample the neutral
+            # score of an unsplittable root.
+            return np.full(X.shape[0], 0.5)
         scores = np.zeros(X.shape[0])
         for i in range(X.shape[0]):
             path_lengths = [self._path_length(X[i], tree, 0) for tree in self._trees]
-            mean_path = np.mean(path_lengths)
-            if c_norm > 0:
-                scores[i] = 2 ** (-mean_path / c_norm)
-            else:
-                # A single-sample subsample cannot isolate anything.
-                scores[i] = 2 ** (-mean_path)
+            scores[i] = 2 ** (-np.mean(path_lengths) / c_norm)
         return scores
