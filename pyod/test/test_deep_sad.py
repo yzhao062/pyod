@@ -9,6 +9,7 @@ from unittest import mock
 import numpy as np
 import torch
 import torch.nn as nn
+from torch.utils.data import TensorDataset
 # noinspection PyProtectedMember
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
@@ -215,6 +216,11 @@ class TestDeepSAD(unittest.TestCase):
             with assert_raises(ValueError):
                 DeepSAD(n_features=self.n_features, eta=bad_eta)
 
+    def test_eps_must_be_positive_finite(self):
+        for bad_eps in (0, -1e-6, float('nan'), float('inf')):
+            with assert_raises(ValueError):
+                DeepSAD(n_features=self.n_features, eps=bad_eps)
+
     def test_validation_size(self):
         X, y = self.X_train[:600, :8], self.semi_y[:600]
         original_init_c = InnerDeepSAD._init_c
@@ -318,6 +324,121 @@ class TestDeepSAD(unittest.TestCase):
                 assert torch.equal(snapshot, live[key]), key
                 assert not torch.any(snapshot == 100.0), key
             assert np.all(np.isfinite(clf.decision_scores_))
+
+    def test_validation_split_keeps_lone_labeled_anomaly(self):
+        # a single labeled anomaly can never be held out, so whatever the
+        # permutation it must reach the training targets; the 600 unlabeled
+        # samples are still split in half.
+        X = self.X_train[:601, :8]
+        y = np.zeros(601, dtype=int)
+        y[7] = 1
+        for random_state in (0, 1, 2021):
+            clf = DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                          validation_size=0.5, verbose=0,
+                          random_state=random_state)
+            with mock.patch('pyod.models.deep_sad.TensorDataset',
+                            wraps=TensorDataset) as dataset:
+                clf.fit(X, y)
+            X_fit, semi_fit = dataset.call_args[0]
+            assert_equal(X_fit.shape, (301, 8))
+            assert_equal(int((semi_fit == -1).sum()), 1)
+            assert_equal(len(clf.decision_scores_), 601)
+
+    def test_validation_split_is_stratified(self):
+        # 0.2 of the 10 labeled anomalies and 0.2 of the 590 unlabeled
+        # samples are held out separately: 480 samples with 8 anomalies
+        # train and 120 samples with 2 anomalies are held out.
+        X = self.X_train[:600, :8]
+        y = np.zeros(600, dtype=int)
+        y[:10] = 1
+        original_loss = DeepSAD._deep_sad_loss
+        semi_val = []
+
+        def spy_loss(clf, outputs, semi_targets):
+            if not clf.model_.training:
+                semi_val.append(semi_targets)
+            return original_loss(clf, outputs, semi_targets)
+
+        clf = DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                      validation_size=0.2, verbose=0, random_state=2021)
+        with mock.patch('pyod.models.deep_sad.TensorDataset',
+                        wraps=TensorDataset) as dataset, \
+                mock.patch.object(DeepSAD, '_deep_sad_loss', spy_loss):
+            clf.fit(X, y)
+        X_fit, semi_fit = dataset.call_args[0]
+        assert_equal(X_fit.shape, (480, 8))
+        assert_equal(int((semi_fit == -1).sum()), 8)
+        assert_equal(len(semi_val), 1)
+        assert_equal(len(semi_val[0]), 120)
+        assert_equal(int((semi_val[0] == -1).sum()), 2)
+        assert_equal(len(clf.decision_scores_), 600)
+
+    def test_scaler_is_fitted_on_training_split(self):
+        X = self.X_train[:600, :8]
+        original_split = DeepSAD._split_validation
+        folds = []
+
+        def spy_split(clf, semi_targets):
+            fit_idx, val_idx = original_split(clf, semi_targets)
+            folds.append((fit_idx, val_idx))
+            return fit_idx, val_idx
+
+        for validation_size, n_fit in ((0.2, 480), (0, 600)):
+            clf = DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                          validation_size=validation_size, verbose=0,
+                          random_state=2021)
+            with mock.patch.object(DeepSAD, '_split_validation', spy_split):
+                clf.fit(X)
+            fit_idx, val_idx = folds[-1]
+            assert_equal(len(fit_idx), n_fit)
+            assert_equal(np.sort(np.concatenate([fit_idx, val_idx])),
+                         np.arange(600))
+            assert_equal(clf.scaler_.n_samples_seen_, n_fit)
+            assert np.allclose(clf.scaler_.mean_, X[fit_idx].mean(axis=0))
+            assert np.allclose(clf.scaler_.var_, X[fit_idx].var(axis=0))
+
+    def test_epoch_loss_is_mean_per_sample(self):
+        # 600 samples in batches of 256 leave an undersized last batch of
+        # 88; the reported epoch loss weights every batch by its size.
+        X = self.X_train[:600, :8]
+        original_loss = DeepSAD._deep_sad_loss
+        batches = []
+
+        def spy_loss(clf, outputs, semi_targets):
+            loss = original_loss(clf, outputs, semi_targets)
+            batches.append((loss.item(), len(semi_targets)))
+            return loss
+
+        clf = DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                      batch_size=256, validation_size=0, verbose=1,
+                      random_state=2021)
+        with mock.patch.object(DeepSAD, '_deep_sad_loss', spy_loss), \
+                mock.patch('builtins.print') as mock_print:
+            clf.fit(X)
+        assert_equal([n for _, n in batches], [256, 256, 88])
+        expected = sum(loss * n for loss, n in batches) / 600
+        message = mock_print.call_args[0][0]
+        self.assertAlmostEqual(float(message.split('Loss: ')[1]), expected,
+                               places=5)
+
+    def test_single_hidden_layer(self):
+        # hidden_neurons=[k] is one bias-free linear layer straight into
+        # the representation space: no extra k -> k layer, activation or
+        # dropout.
+        X = self.X_train[:600, :8]
+        clf = DeepSAD(n_features=8, epochs=2, hidden_neurons=[16], verbose=0,
+                      contamination=self.contamination)
+        clf.fit(X)
+        modules = list(clf.model_.model)
+        assert_equal(len(modules), 1)
+        assert isinstance(modules[0], nn.Linear)
+        assert_equal((modules[0].in_features, modules[0].out_features),
+                     (8, 16))
+        assert modules[0].bias is None
+        assert_equal(tuple(clf.c_.shape), (16,))
+        scores = clf.decision_function(self.X_test[:, :8])
+        assert_equal(scores.shape[0], self.X_test.shape[0])
+        assert np.all(np.isfinite(scores))
 
     def tearDown(self):
         pass

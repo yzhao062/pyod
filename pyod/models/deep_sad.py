@@ -60,7 +60,9 @@ class InnerDeepSAD(nn.Module):
 
     hidden_neurons : list, optional (default=[64, 32])
         The number of neurons per hidden layers. The last entry is the
-        dimensionality of the representation space.
+        dimensionality of the representation space. A single entry
+        ``[k]`` maps the input straight to the representation space
+        with one bias-free linear layer.
 
     hidden_activation : str, optional (default='relu')
         Activation function to use for hidden layers.
@@ -102,6 +104,11 @@ class InnerDeepSAD(nn.Module):
 
     def _build_model(self):
         layers = nn.Sequential()
+        if len(self.hidden_neurons) == 1:
+            layers.add_module('net_output',
+                              nn.Linear(self.n_features,
+                                        self.hidden_neurons[0], bias=False))
+            return layers
         layers.add_module('input_layer',
                           nn.Linear(self.n_features, self.hidden_neurons[0],
                                     bias=False))
@@ -160,7 +167,9 @@ class DeepSAD(BaseDetector):
 
     hidden_neurons : list, optional (default=[64, 32])
         The number of neurons per hidden layers. The last entry is the
-        dimensionality of the representation space, e.g. [64, 32].
+        dimensionality of the representation space, e.g. [64, 32]. A
+        single entry, e.g. [32], maps the input straight to the
+        representation space with one bias-free linear layer.
 
     hidden_activation : str, optional (default='relu')
         Activation function to use for hidden layers.
@@ -189,19 +198,25 @@ class DeepSAD(BaseDetector):
 
     validation_size : float in [0., 1), optional (default=0.1)
         The fraction of the training samples (and their labels) held out
-        as a validation set, drawn with ``random_state``. The center is
-        initialized from and the network is trained on the remaining
-        samples; after every epoch the Deep SAD loss is computed on the
-        held-out samples and the weights of the epoch with the lowest
-        validation loss are restored at the end of training. Set to 0 to
-        train on every sample and select the best epoch by training loss.
+        as a validation set, drawn with ``random_state`` and stratified
+        on the semi-supervised targets: the unlabeled samples and the
+        labeled anomalies are split separately, each holding out
+        ``round(n * validation_size)`` of its ``n`` members but never all
+        of them, so a lone labeled anomaly always stays in the training
+        split. The scaler is fitted on, the center is initialized from and the
+        network is trained on the remaining samples; after every epoch
+        the Deep SAD loss is computed on the held-out samples and the
+        weights of the epoch with the lowest validation loss are restored
+        at the end of training. Set to 0 to train on every sample and
+        select the best epoch by training loss.
 
     preprocessing : bool, optional (default=True)
         If True, apply standardization on the data.
 
     eps : float, optional (default=1e-6)
         A small value added to the distance of labeled anomalies for
-        numerical stability in the inverse-distance term.
+        numerical stability in the inverse-distance term. Must be a
+        positive finite float.
 
     verbose : int, optional (default=1)
         Verbosity mode.
@@ -285,6 +300,11 @@ class DeepSAD(BaseDetector):
         check_parameter(eta, 0, np.inf, param_name='eta')
         check_parameter(validation_size, 0, 1, param_name='validation_size',
                         include_left=True)
+        check_parameter(eps, 0, np.inf, param_name='eps')
+        if not np.isfinite(eps):
+            raise ValueError(
+                'eps is set to {}. Must be a positive finite float.'.format(
+                    eps))
 
     def _process_semi_targets(self, y, n_samples):
         """Turn the optional labels ``y`` into Deep SAD semi-supervised
@@ -305,6 +325,29 @@ class DeepSAD(BaseDetector):
             y = np.asarray(y).ravel()
             semi_targets[y == 1] = -1
         return semi_targets
+
+    def _split_validation(self, semi_targets):
+        """Split the sample indices into the training and the validation
+        fold, stratified on the semi-supervised targets. ``round(n *
+        validation_size)`` samples of each target class are held out,
+        but never all of them, so a lone labeled anomaly always stays in
+        the training fold.
+        """
+        n_samples = len(semi_targets)
+        if self.validation_size == 0:
+            return np.arange(n_samples), np.arange(0)
+        random_state = check_random_state(self.random_state)
+        fit_idx, val_idx = [], []
+        for target in np.unique(semi_targets):
+            idx = np.flatnonzero(semi_targets == target)
+            idx = idx[random_state.permutation(len(idx))]
+            n_val = min(int(round(len(idx) * self.validation_size)),
+                        len(idx) - 1)
+            val_idx.append(idx[:n_val])
+            fit_idx.append(idx[n_val:])
+        fit_idx = np.sort(np.concatenate(fit_idx))
+        val_idx = np.sort(np.concatenate(val_idx))
+        return fit_idx, val_idx
 
     def _deep_sad_loss(self, outputs, semi_targets):
         """Deep SAD loss: unlabeled/normal points (target ``0``) minimize
@@ -346,12 +389,22 @@ class DeepSAD(BaseDetector):
 
         semi_targets = self._process_semi_targets(y, self.n_samples_)
 
+        # Hold out the validation split used for best-epoch selection; the
+        # scaler, the center and the training batches only see the
+        # remaining samples.
+        fit_idx, val_idx = self._split_validation(semi_targets)
+        X_fit, semi_fit = X[fit_idx], semi_targets[fit_idx]
+        if len(val_idx) > 0:
+            X_val, semi_val = X[val_idx], semi_targets[val_idx]
+        else:
+            X_val, semi_val = None, None
+
         # Standardize data for better performance
         if self.preprocessing:
             self.scaler_ = StandardScaler()
-            X_norm = self.scaler_.fit_transform(X)
-        else:
-            X_norm = np.copy(X)
+            X_fit = self.scaler_.fit_transform(X_fit)
+            if X_val is not None:
+                X_val = self.scaler_.transform(X_val)
 
         # Build Deep SAD model & fit with X. Unlike Deep SVDD (which
         # reverses the encoder in an optional autoencoder), Deep SAD uses
@@ -362,20 +415,11 @@ class DeepSAD(BaseDetector):
                                    dropout_rate=self.dropout_rate,
                                    l2_regularizer=self.l2_regularizer)
 
-        X_norm = torch.tensor(X_norm, dtype=torch.float32)
-        semi_targets = torch.tensor(semi_targets, dtype=torch.float32)
-
-        # Hold out the validation split used for best-epoch selection; the
-        # center and the training batches only see the remaining samples.
-        n_val = int(self.n_samples_ * self.validation_size)
-        if n_val > 0:
-            perm = check_random_state(self.random_state).permutation(
-                self.n_samples_)
-            X_val, semi_val = X_norm[perm[:n_val]], semi_targets[perm[:n_val]]
-            X_fit, semi_fit = X_norm[perm[n_val:]], semi_targets[perm[n_val:]]
-        else:
-            X_val, semi_val = None, None
-            X_fit, semi_fit = X_norm, semi_targets
+        X_fit = torch.tensor(X_fit, dtype=torch.float32)
+        semi_fit = torch.tensor(semi_fit, dtype=torch.float32)
+        if X_val is not None:
+            X_val = torch.tensor(X_val, dtype=torch.float32)
+            semi_val = torch.tensor(semi_val, dtype=torch.float32)
 
         # Initialize the hypersphere center from a first forward pass, or
         # validate the user-supplied center against the representation
@@ -384,8 +428,8 @@ class DeepSAD(BaseDetector):
         if self.c is None:
             center = self.model_._init_c(X_fit)
         else:
-            center = torch.as_tensor(self.c, dtype=X_norm.dtype,
-                                     device=X_norm.device)
+            center = torch.as_tensor(self.c, dtype=X_fit.dtype,
+                                     device=X_fit.device)
         if center.ndim == 0:
             center = center.repeat(rep_dim)
         elif center.ndim != 1 or center.numel() != rep_dim:
@@ -421,7 +465,8 @@ class DeepSAD(BaseDetector):
                 loss = self._deep_sad_loss(self.model_(batch_x), batch_semi)
                 loss.backward()
                 optimizer.step()
-                epoch_loss += loss.item()
+                epoch_loss += loss.item() * len(batch_x)
+            epoch_loss /= len(dataset)
             if X_val is not None:
                 self.model_.eval()
                 with torch.no_grad():
