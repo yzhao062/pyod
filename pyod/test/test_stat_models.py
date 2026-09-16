@@ -63,11 +63,13 @@ class TestStatModels(unittest.TestCase):
 
         pear_mat = pearsonr_mat(self.mat, self.w_mat)
         assert_equal(pear_mat.shape, (10, 10))
+        assert (np.min(pear_mat) >= -1)
+        assert (np.max(pear_mat) <= 1)
 
     def test_pearsonr_mat_fewer_features_than_samples(self):
         # Every pair of rows must be correlated, including when the matrix has
         # fewer columns than rows.
-        mat = np.random.rand(8, 3)
+        mat = np.random.RandomState(42).rand(8, 3)
         pear_mat = pearsonr_mat(mat)
 
         assert_equal(pear_mat.shape, (8, 8))

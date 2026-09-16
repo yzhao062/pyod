@@ -107,8 +107,9 @@ class LOCI(BaseDetector):
         should be considered "local".
     
     k: int, default = 3
-        An outlier cutoff threshold for determine whether or not a point 
-        should be considered an outlier.
+        Sensitivity of the radius-scan early stop. Scanning stops when MDEF
+        exceeds k times sigma_MDEF. Binary labels use the threshold derived
+        from ``contamination``, not k.
 
     Attributes
     ----------
