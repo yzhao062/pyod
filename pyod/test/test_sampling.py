@@ -190,6 +190,39 @@ class TestSamplingSubsetBound(unittest.TestCase):
         with assert_raises(ValueError):
             self.clf_int_lower.fit(self.X_train)
 
+    def test_fractional_subset_size_not_mutated(self):
+        # fit() used to overwrite self.subset_size with the absolute count,
+        # so a refit on a differently sized dataset reused the stale value
+        # and get_params() stopped returning what the user passed.
+        clf = Sampling(
+            subset_size=0.2, contamination=self.contamination, random_state=42
+        )
+
+        clf.fit(self.X_train)
+        assert_equal(clf.get_params()["subset_size"], 0.2)
+        assert_equal(len(clf.subset), int(0.2 * len(self.X_train)))
+
+        bigger = np.repeat(self.X_train, 2, axis=0)
+        clf.fit(bigger)
+        assert_equal(clf.get_params()["subset_size"], 0.2)
+        assert_equal(len(clf.subset), int(0.2 * len(bigger)))
+
+    def test_integer_subset_size_not_mutated(self):
+        clf = Sampling(
+            subset_size=25, contamination=self.contamination, random_state=42
+        )
+        clf.fit(self.X_train)
+        assert_equal(clf.get_params()["subset_size"], 25)
+        assert_equal(len(clf.subset), 25)
+
+    def test_invalid_fractional_subset_size_reports_the_value(self):
+        # the message used to contain a literal "%r" - the value was never
+        # interpolated into it.
+        clf = Sampling(subset_size=1.5, contamination=self.contamination)
+        with self.assertRaises(ValueError) as ctx:
+            clf.fit(self.X_train)
+        assert "1.5" in str(ctx.exception)
+
     def tearDown(self):
         pass
 
