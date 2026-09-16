@@ -170,6 +170,18 @@ class TestBaseDL(unittest.TestCase):
         # dummy_clf.fit(self.X_train)
         # self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
+    def test_fit_returns_self(self):
+        # BaseDetector.fit documents "Returns: self : object", but the deep
+        # learning base returned None, so `clf.fit(X).predict(X)` raised
+        # AttributeError for every detector built on it.
+        dummy_clf = DummyDetector()
+        returned = dummy_clf.fit(self.X_train)
+
+        self.assertIs(returned, dummy_clf)
+        # the chained form users expect from an sklearn-style estimator
+        labels = DummyDetector().fit(self.X_train).predict(self.X_test)
+        self.assertEqual(labels.shape, (self.n_test,))
+
     def test_fit_with_y_is_ignored(self):
         zero_scores = np.zeros(self.n_train)
 

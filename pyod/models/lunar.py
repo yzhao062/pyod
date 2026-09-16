@@ -110,7 +110,7 @@ class WEIGHT_MODEL(nn.Module):
 
 class LUNAR(BaseDetector):
     """
-    LUNAR class for outlier detection. See https://www.aaai.org/AAAI22Papers/AAAI-51.GoodgeA.pdf for details.
+    LUNAR class for outlier detection. See https://ojs.aaai.org/index.php/AAAI/article/view/20629 for details.
     For an observation, its ordered list of distances to its k nearest neighbours is input to a neural network, 
     with one of the following outputs:
 

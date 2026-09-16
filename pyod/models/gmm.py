@@ -158,10 +158,6 @@ class GMM(BaseDetector):
         y : Ignored
             Not used, present for API consistency by convention.
 
-        sample_weight : array-like, shape (n_samples,)
-            Per-sample weights. Rescale C per sample. Higher weights
-            force the classifier to put more emphasis on these points.
-
         Returns
         -------
         self : object

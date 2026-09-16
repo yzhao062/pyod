@@ -111,8 +111,11 @@ def generate_hierarchical_detectors(self_samples, bounds, rng, n_detectors,
     minus ``self_radius``. By the Euclidean triangle inequality, every
     resulting detector excludes all self balls. Coarse balls deliberately
     protect additional space; finer levels recover some of that space.
-    Detector and candidate budgets are shared across the remaining levels,
-    so an early coarse level cannot consume the complete detector quota.
+    Detector slots and candidate draws are divided across remaining levels,
+    rounding down and carrying unused capacity to finer levels. A level with
+    no detector slot consumes no draws. Thus even a single remaining slot
+    or draw is reserved for the finest level instead of spent at a coarse
+    level. Diagnostics include levels skipped by this allocation.
     """
     if (isinstance(n_levels, bool)
             or not isinstance(n_levels, (int, np.integer)) or n_levels < 1):
@@ -139,10 +142,10 @@ def generate_hierarchical_detectors(self_samples, bounds, rng, n_detectors,
                 boxes.append(np.vstack([lower, upper]))
             boxes = np.asarray(boxes)
         levels_left = len(levels) - level_index
-        candidate_budget = int(np.ceil(
-            (max_candidates - n_candidates) / levels_left))
-        detector_quota = int(np.ceil(
-            (n_detectors - len(centers)) / levels_left))
+        detector_quota = (n_detectors - len(centers)) // levels_left
+        candidate_budget = (max_candidates - n_candidates) // levels_left
+        if detector_quota == 0:
+            candidate_budget = 0
         level_candidates = 0
         level_detectors = 0
         for _ in range(candidate_budget):

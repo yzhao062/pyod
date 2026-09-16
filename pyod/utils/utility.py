@@ -171,7 +171,7 @@ def standardizer(X, X_t=None, keep_scalar=False):
 
 
 def score_to_label(pred_scores, outliers_fraction=0.1):
-    """Turn raw outlier outlier scores to binary labels (0 or 1).
+    """Turn raw outlier scores to binary labels (0 or 1).
 
     Parameters
     ----------
@@ -186,8 +186,7 @@ def score_to_label(pred_scores, outliers_fraction=0.1):
     outlier_labels : numpy array of shape (n_samples,)
         For each observation, tells whether or not
         it should be considered as an outlier according to the
-        fitted model. Return the outlier probability, ranging
-        in [0,1].
+        fitted model. Returns 0 for inliers and 1 for outliers.
     """
     # check input values
     pred_scores = column_or_1d(pred_scores)

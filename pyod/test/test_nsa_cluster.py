@@ -115,6 +115,57 @@ def test_small_budgets_and_quotas_never_overrun(samples, budget):
     assert len(radii) == len(centers)
     assert count <= budget
     assert count == sum(diagnostic['level_candidate_counts'])
+    assert len(diagnostic['cluster_counts']) == 4
+    assert diagnostic['level_candidate_counts'][-1] > 0
+
+
+@pytest.mark.parametrize('limit, skipped', [(1, 3), (2, 2), (3, 1), (5, 0)])
+def test_small_detector_populations_reserve_slots_for_finer_levels(
+        samples, limit, skipped):
+    centers, radii, count, diagnostic = generate(samples, n_detectors=limit)
+    assert len(centers) == limit
+    assert len(diagnostic['cluster_counts']) == 4
+    assert diagnostic['level_detector_counts'][-1] > 0
+    assert diagnostic['level_detector_counts'][:skipped] == [0] * skipped
+    assert diagnostic['level_candidate_counts'][:skipped] == [0] * skipped
+    assert sum(diagnostic['level_detector_counts']) == limit
+    assert sum(diagnostic['level_candidate_counts']) == count
+    assert np.all(cdist(centers, samples).min(axis=1)
+                  >= radii + 0.02 - 1e-14)
+
+
+@pytest.mark.parametrize('limit', [1, 5])
+def test_one_draw_is_reserved_for_a_fine_detector_inside_coarse_self_cover(
+        samples, limit):
+    class UpperCorner:
+        def randint(self, size):
+            return 0
+
+        def uniform(self, low, high):
+            return high.copy()
+
+    centers, radii, count, diagnostic = generate(
+        samples, n_detectors=limit, max_candidates=1, rng=UpperCorner())
+    assert count == 1
+    assert diagnostic['level_candidate_counts'] == [0, 0, 0, 1]
+    assert diagnostic['level_detector_counts'] == [0, 0, 0, 1]
+    assert len(centers) == 1
+    # The single retained center lies in space the coarse ball would reject,
+    # but finer self covers permit a sphere without weakening self exclusion.
+    coarse_centers, coarse_radii = diagnostic['clusters'][0]
+    assert cdist(centers, coarse_centers)[0, 0] < coarse_radii[0]
+    assert np.all(cdist(centers, samples).min(axis=1) >= radii + 0.02)
+    final_box = diagnostic['sampling_boxes'][-1][0]
+    assert_array_equal(centers[0], final_box[1])
+
+
+def test_slot_reservation_uses_actual_refinement_depth():
+    X = np.array([[0., 0.], [1., 1.]])
+    centers, _, _, diagnostic = generate(X, n_detectors=1, n_levels=100)
+    assert diagnostic['cluster_counts'] == [1, 2]
+    assert diagnostic['level_detector_counts'] == [0, 1]
+    assert diagnostic['level_candidate_counts'][0] == 0
+    assert len(centers) == 1
 
 
 @pytest.mark.parametrize('X', [
