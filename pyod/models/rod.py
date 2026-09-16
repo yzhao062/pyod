@@ -54,6 +54,9 @@ def angle(v1, v2):
     """
     v1 = np.asarray(v1)
     v2 = np.asarray(v2)
+    dtype = np.result_type(v1.dtype, v2.dtype, np.float64)
+    v1 = v1.astype(dtype, copy=False)
+    v2 = v2.astype(dtype, copy=False)
     v1_scale = np.max(np.abs(v1))
     v2_scale = np.max(np.abs(v2))
     if v1_scale == 0 or v2_scale == 0:
