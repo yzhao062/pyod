@@ -52,8 +52,19 @@ def angle(v1, v2):
     -------
     angle : float, the angle
     """
-    return np.arccos(np.dot(v1, v2) /
-                     (np.linalg.norm(v1) * np.linalg.norm(v2)))
+    v1 = np.asarray(v1)
+    v2 = np.asarray(v2)
+    dtype = np.result_type(v1.dtype, v2.dtype, np.float64)
+    v1 = v1.astype(dtype, copy=False)
+    v2 = v2.astype(dtype, copy=False)
+    v1_scale = np.max(np.abs(v1))
+    v2_scale = np.max(np.abs(v2))
+    if v1_scale == 0 or v2_scale == 0:
+        return np.nan
+    v1 = v1 / v1_scale
+    v2 = v2 / v2_scale
+    cosine = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+    return np.arccos(np.clip(cosine, -1, 1))
 
 
 def geometric_median(x, eps=1e-5):
