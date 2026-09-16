@@ -457,7 +457,7 @@ PyOD is organized into two functional groups: **(i) Detection Algorithms**, with
      - [#Zhao2021SUOD]_
    * - Immune-Inspired
      - NSA
-     - Negative-selection-inspired novelty detection with binary, fixed-radius and variable-radius strategies; fit on known normal data (`example <https://github.com/yzhao062/pyod/blob/development/examples/nsa_example.py>`__)
+     - Negative-selection-inspired novelty detection with eleven distinct generation strategies; fit on known normal data (`example <https://github.com/yzhao062/pyod/blob/development/examples/nsa_example.py>`__)
      - 1994/2003/2004
      - [#Forrest1994Self]_ [#Gonzalez2003Anomaly]_ [#Ji2004Real]_
    * - Neural Networks

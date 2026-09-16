@@ -44,46 +44,155 @@ All Tabular Examples
 Negative Selection for Novelty Detection
 ----------------------------------------
 
-:class:`~pyod.models.nsa.NSA` is a negative-selection-inspired detector with
-three strategies: ``binary``, ``fixed`` and ``variable``. They share one
-estimator API and have separate detector generation and matching behavior.
-The binary strategy supports ``hamming``, ``rcontiguous`` and ``rchunk``
-matching after per-feature median quantization. The real-valued strategies
-fit a min-max transformation on the training data and sample candidate
-detectors from an expanded box around that transformed data.
+:class:`~pyod.models.nsa.NSA` is one negative-selection-inspired estimator
+with distinct generation strategies. Binary matching has three rules, giving
+13 configurations across eleven strategies. The public API uses mechanism
+names, with no aliases claiming unimplemented published algorithms.
 
-The foundations are the negative-selection principle of
-:cite:`forrest1994self`, real-valued negative selection
-:cite:`gonzalez2003anomaly`, and variable-radius detection
-:cite:`ji2004real`. These are explicitly **NSA-inspired adaptations**, with
-continuous scores for the PyOD API; they are not complete reproductions of
-the named methods in those papers.
+.. list-table:: Implemented generation mechanisms
+   :header-rows: 1
+   :widths: 16 44 40
+
+   * - Strategy
+     - Mechanism and source
+     - Explicit adaptation or limit
+   * - ``binary``
+     - Hamming, contiguous-run, or fixed-position chunk matching;
+       :cite:`forrest1994self`
+     - Median bit per feature; signed score instead of a binary alarm.
+   * - ``fixed``
+     - Random fixed-radius spheres censored against self balls;
+       :cite:`gonzalez2003anomaly`
+     - No adaptive population or auxiliary classifier.
+   * - ``variable``
+     - Radius equals nearest-self distance minus self radius;
+       :cite:`ji2004real`
+     - Bounded draws and center suppression; no coverage certificate.
+   * - ``coverage``
+     - Frozen detector sets tested on fresh uniform non-self probes;
+       :cite:`ji2009vdetector`
+     - Exact binomial lower bounds with alpha spending replace the original
+       normal approximation. Budgets can end fitting without certification.
+   * - ``grid``
+     - Sparse orthant index, radius-ordered filtering, contained-sphere
+       removal; :cite:`zhang2013grid`
+     - Exact nearest search replaces neighbor-only search; bounded depth and
+       count stopping replace the paper's coverage stopping.
+   * - ``hierarchical``
+     - Refined self-cluster balls and restricted candidate boxes;
+       :cite:`chen2011hierarchical`
+     - Deterministic Euclidean covers and level budgets; no fractional metric,
+       built-in PCA, or published coverage termination.
+   * - ``voronoi``
+     - Shared vertices of Voronoi cells clipped to the domain;
+       :cite:`zhu2017quick`
+     - Two or three features; rectangular domain, finite vertex budget,
+       optional detector truncation; no distributed Map/Reduce classifier.
+   * - ``deterministic``
+     - Regular lattice, censored-column boundary selection, decaying
+       repulsion; :cite:`barontini2019deterministic`
+     - Two features; 30 movement steps, safe rejection of failures, optional
+       thinning. No complete-coverage claim after censoring or thinning.
+   * - ``suppressed``
+     - Distance-based self partition, boundary identification, reverse
+       self detectors that veto negative matches; :cite:`li2010suppression`
+     - Clean-self interpretation retains outlier selves as reverse detectors;
+       bounded draws replace published statistical termination.
+
+   * - ``dual``
+     - Adjusted KMeans self envelopes plus negative detectors inside them;
+       :cite:`zheng2013dual`
+     - Bounded cluster-count search reports infeasible radius targets;
+       enclosing radii are expanded by self_radius for self-ball protection.
+
+   * - ``annealed``
+     - Monte Carlo population sizing and overlap-energy minimization by
+       Metropolis moves; :cite:`gonzalez2003randomized`
+     - Fixed finite cooling schedule and strict self-ball censoring replace
+       unspecified initialization and soft-only constraints; no optimality
+       or asymptotic convergence claim.
+
+These are **NSA-inspired adaptations** with explicit implementation choices,
+not complete reproductions or claimed replications of the papers' results.
 
 Fit on **known normal/self observations only**. An anomalous training
 observation is also treated as self and can suppress detection around it.
 The ``contamination`` parameter sets PyOD's threshold on training scores;
 it does not remove contaminated observations or define the geometric
-detector-matching boundary. Larger scores mean a stronger detector match.
+matching boundary. Larger scores mean stronger evidence of non-self.
+All real strategies fit a min-max transformation using training data only.
+Their bounded domain expands the transformed training bounds by
+``sampling_margin``. Geometry strategies require positive domain widths.
 
-Finite sampled coverage leaves gaps, especially in high dimensions.
-Real-valued scores can decrease for points far outside the sampling box;
-this detector does not guarantee increasingly large scores with distance
-from the training set. Binary quantization discards magnitudes. Sampling
-can produce fewer than ``n_detectors`` detectors, and fitting raises an
-error if no valid detector can be generated. There is no ``partial_fit``.
+For ordinary real strategies, scores are the maximum signed distance inside
+any detector sphere. ``suppressed`` additionally takes the minimum with the
+signed distance outside the nearest reverse self ball. Thus positive scores
+mean a negative match surviving suppression. The ``dual`` strategy takes
+the maximum with the signed distance outside all enclosing self balls, so
+it also recognizes points far outside the learned envelopes. Binary scores use signed
+matching margins. Scores do not depend on other rows in an inference batch.
+
+``coverage`` exposes ``coverage_reached_``, ``coverage_lower_bound_`` and
+``coverage_test_count_``. It freezes the population during each complete
+``coverage_samples``-probe test and draws fresh probes, rejecting self points.
+The one-sided exact binomial bound in round t spends
+``(1 - coverage_confidence) / (t * (t + 1))``. The sum of those error budgets
+is bounded by ``1 - coverage_confidence``. This controls erroneous coverage
+certificates across adaptive rounds under the bounded uniform sampling model.
+It does **not** certify anomaly recall, generalization, or coverage outside
+the domain. An incomplete round cannot certify coverage. If either budget
+prevents certification, fitting warns and ``coverage_reached_`` is false.
+
+``annealed`` first uses at most 256 Monte Carlo probes (at most a quarter
+of its candidate budget, with a one-probe minimum) to estimate non-self
+volume and an initial detector target capped by ``n_detectors``. It minimizes
+Gaussian pair-overlap energy plus a self-affinity penalty of weight one.
+Temperature starts at one, proposal neighborhoods start at twice the detector
+radius, and both shrink by 0.9 per sweep. Each sweep makes at most twice the
+population size in attempts and stops after population-size acceptances.
+The best visited population is returned. These finite, documented choices
+are adaptations; volume-based sizing is a heuristic without a confidence
+certificate. All probes, initialization draws and optimization attempts
+share ``max_candidates``. Diagnostics report the target, initial/best energy,
+and accepted moves. Strict self-ball censoring applies to every accepted move.
+
+``max_candidates`` counts random draws for sampled strategies, unique cell
+vertices for ``voronoi``, and initial lattice sites for ``deterministic``.
+The deterministic movement limit is separate: at most 30 steps per selected
+boundary site. ``voronoi`` fails explicitly when vertex enumeration exceeds
+its budget; it never returns a falsely complete partial tessellation.
+``n_detectors`` caps retained negative detectors. Geometry truncation warns.
+``generation_diagnostics_`` exposes the mechanism-specific details.
+
+Finite coverage leaves gaps, especially in high dimensions. Real-valued
+scores can decrease far outside the domain. Binary quantization discards
+magnitudes. Fitting raises if no valid detector can be generated. No
+incremental or labeled-feedback API is provided. Voronoi cell enumeration
+solves one linear program per unique self sample, so use modest training
+sets in two or three dimensions; no speedup over random generation is claimed.
 
 .. code-block:: python
 
     from pyod.models.nsa import NSA
 
-    clf = NSA(strategy='variable', n_detectors=100, random_state=42)
+    clf = NSA(strategy='coverage', n_detectors=200,
+              target_coverage=0.9, max_candidates=20000, random_state=42)
     clf.fit(X_normal_train)
     novelty_scores = clf.decision_function(X_test)
+    print(clf.coverage_reached_, clf.coverage_lower_bound_)
 
-See the runnable `nsa_example.py <https://github.com/yzhao062/pyod/blob/development/examples/nsa_example.py>`__
-for all three strategies. The detector is registered with ``ADEngine`` for
-explicit construction; no benchmark rank or automatic routing rule is
-assigned to it.
+The runnable `nsa_example.py <https://github.com/yzhao062/pyod/blob/development/examples/nsa_example.py>`__
+retains the original raw-feature real-data demonstration and IForest baseline.
+`nsa_researched_example.py <https://github.com/yzhao062/pyod/blob/development/examples/nsa_researched_example.py>`__
+compares all ten real strategies and IForest on a fixed two-component PCA
+representation, fitted only on normal training data. Two components are
+chosen before evaluation to include the two-dimensional geometry methods.
+This is a separate representation; its scores must not be compared directly
+with the raw-feature example to claim an algorithm improvement.
+Both examples print held-out AUROC and average precision without test tuning.
+
+The estimator is registered with ``ADEngine`` for explicit construction;
+no benchmark rank or automatic routing rule is assigned to it.
 
 ----
 

@@ -17,17 +17,25 @@ from .base import BaseDetector
 
 
 class NSA(BaseDetector):
-    """Negative-selection-inspired detector with three sampling strategies.
+    """Negative-selection-inspired detector with distinct generation methods.
 
-    Negative selection retains random detectors only when they do not match
+    Negative selection retains candidate detectors when they do not match
     the training (self) samples. This estimator implements binary matching,
     fixed-radius hyperspheres, and variable-radius hyperspheres. The sources
     of these ideas are :cite:`forrest1994self,gonzalez2003anomaly,ji2004real`.
     These are NSA-inspired PyOD adaptations, not reproductions of every step
-    of those papers. In particular, this implementation uses bounded random
-    sampling and signed matching margins instead of a binary alarm, does not
-    implement an adaptive population or an auxiliary classifier, and does
-    not estimate a target coverage probability.
+    of those papers. The three basic strategies use bounded random sampling
+    and signed matching margins. In particular, ``fixed`` omits the original
+    adaptive population and auxiliary classification stage.
+    Additional real strategies use coverage testing, sparse grids,
+    hierarchical self clusters, bounded Voronoi geometry, deterministic
+    lattices, reverse-detector suppression, dual self envelopes, and
+    annealing. Their sources are
+    :cite:`ji2009vdetector,zhang2013grid,chen2011hierarchical`,
+    :cite:`zhu2017quick,barontini2019deterministic,li2010suppression`, and
+    :cite:`zheng2013dual,gonzalez2003randomized`.
+    Their precise mechanisms and adaptations are described in the NSA
+    example guide; paper acronyms are not exported as estimator aliases.
 
     Fit on representative normal samples for novelty detection. Every row
     passed to :meth:`fit` is treated as self, including any outliers. The
@@ -41,27 +49,44 @@ class NSA(BaseDetector):
         Proportion used by PyOD to calibrate ``threshold_`` from training
         scores. Tied scores can yield fewer outlier labels than this fraction.
 
-    strategy : {'binary', 'fixed', 'variable'}, optional (default='variable')
+    strategy : str, optional (default='variable')
         Detector representation and generation strategy. ``fixed`` retains
         hyperspheres with ``detector_radius``; ``variable`` sets each radius
         to its center's nearest-self distance minus ``self_radius``.
         ``binary`` uses one median-threshold bit for every input feature.
+        ``coverage`` adds exact statistical stopping to variable spheres.
+        ``grid`` uses sparse spatial indexing and radius-ordered filtering.
+        ``hierarchical`` samples around successively refined self clusters.
+        ``voronoi`` generates centers from bounded Voronoi geometry in two
+        or three dimensions. ``deterministic`` uses a regular lattice and
+        boundary repulsion in two dimensions. These names describe
+        implemented mechanisms.
+        ``suppressed`` combines negative spheres with reverse self detectors.
+        ``dual`` combines an enclosing cluster-ball population with negative
+        detectors sampled inside that population's region.
+        ``annealed`` estimates population size by Monte Carlo sampling and
+        optimizes fixed-radius detector positions by simulated annealing.
 
     n_detectors : int, optional (default=100)
         Maximum number of distinct detectors to retain. Fewer may be found
-        within ``max_candidates``; in that case fitting emits a UserWarning.
+        within ``max_candidates``; in that case fitting emits a UserWarning,
+        unless a coverage target is certified or finite geometry is exhausted.
 
     self_radius : float, optional (default=0.1)
         Nonnegative radius around each self sample in scaled real space.
-        Used by the ``fixed`` and ``variable`` strategies.
+        Used by all real strategies.
 
     detector_radius : float, optional (default=0.1)
-        Positive detector radius in scaled space for ``strategy='fixed'``.
+        Positive radius in scaled space for ``fixed`` and ``annealed``.
         Candidate spheres must be separated from all self spheres.
 
     max_candidates : int, optional (default=10000)
         Positive limit on random candidate draws, including rejected and
         duplicate candidates. If none is valid, fitting raises ValueError.
+        For ``voronoi`` this limits distinct geometric vertices, with an
+        error on incomplete enumeration. For ``deterministic`` it bounds
+        initial lattice sites; at most 30 movements per boundary site are
+        allowed separately. See ``generation_diagnostics_``.
 
     sampling_margin : float, optional (default=0.5)
         Nonnegative expansion of each scaled training feature's bounds for
@@ -80,6 +105,47 @@ class NSA(BaseDetector):
     match_threshold : int, optional (default=1)
         Hamming mismatch limit (0 to n_features - 1), or required contiguous
         run/chunk length (1 to n_features). Only used for binary matching.
+
+    target_coverage : float in (0, 1), optional (default=0.9)
+        Desired covered fraction of the bounded non-self region, used only
+        for ``coverage``. This is geometric coverage, not anomaly recall.
+
+    coverage_samples : int, optional (default=256)
+        Non-self probes per statistical test for ``coverage``. Rejected self
+        probes count toward ``max_candidates`` but not the test sample size.
+
+    coverage_confidence : float in (0, 1), optional (default=0.95)
+        Simultaneous confidence for the coverage lower bounds. Fresh tests
+        spend alpha/(t*(t+1)) in round t, with alpha=1-confidence.
+
+    grid_depth : int, optional (default=4)
+        Maximum sparse spatial-tree depth for ``grid`` (1 to 20). For
+        ``deterministic``, use 2**grid_depth subdivisions per axis; the
+        resulting 4**grid_depth lattice must fit ``max_candidates``.
+
+    hierarchy_levels : int, optional (default=4)
+        Number of coarse-to-fine cluster levels for ``hierarchical``.
+
+    outlier_fraction : float in (0, 1), optional (default=0.95)
+        For ``suppressed``, flag a self sample when at least this fraction
+        of training points are farther away than the distance below. Flagged
+        selves become reverse detectors and remain protected as normal.
+
+    outlier_radius : float, optional (default=0.5)
+        Positive distance multiplier for ``suppressed``. The outlier-distance
+        cutoff is outlier_radius * sqrt(n_features) in scaled feature space.
+        Reverse-detector radii use ``self_radius``.
+
+    dual_clusters : int, optional (default=3)
+        Initial number of self clusters for ``dual``. Bounded cluster-count
+        adjustment seeks radii from two to five times ``self_radius``;
+        diagnostics report when this target is infeasible or not reached.
+
+    annealing_steps : int, optional (default=20)
+        Maximum optimization sweeps for ``annealed``, also bounded by the
+        shared candidate budget. The method returns its best encountered
+        energy state. Temperature and neighborhood cooling are documented
+        fixed implementation choices, not paper convergence guarantees.
 
     random_state : int, RandomState instance or None, optional (default=None)
         Controls candidate generation. An integer gives reproducible fits.
@@ -119,6 +185,32 @@ class NSA(BaseDetector):
     binary_thresholds_ : numpy array of shape (n_features,)
         Fitted feature medians, available for the binary strategy.
 
+    generation_diagnostics_ : dict
+        Strategy-specific generation statistics for the added real
+        strategies, including budget termination and geometry diagnostics.
+
+    coverage_reached_ : bool
+        Whether ``coverage`` certified its target before reaching a budget.
+
+    coverage_lower_bound_ : float
+        Last complete exact-test lower bound for ``coverage``; zero if no
+        complete test was possible. It remains valid after adding spheres.
+
+    coverage_test_count_ : int
+        Number of completed independent coverage tests for ``coverage``.
+
+    reverse_detectors_ : numpy array of shape (n_reverse, n_features)
+        Self detectors used to suppress negative matches for ``suppressed``.
+
+    reverse_radius_ : float
+        Radius of each reverse detector for ``suppressed``.
+
+    apc_centers_ : numpy array of shape (n_clusters, n_features)
+        Enclosing self-cluster centers for ``dual``.
+
+    apc_radii_ : numpy array of shape (n_clusters,)
+        Enclosing cluster radii expanded by self_radius for ``dual``.
+
     decision_scores_ : numpy array of shape (n_samples,)
         Training scores, identical to ``decision_function(X_train)``.
         Larger scores mean stronger evidence of non-self.
@@ -132,7 +224,12 @@ class NSA(BaseDetector):
     Notes
     -----
     Real scores are ``max_j(radius_j - distance(x, center_j))``. Positive
-    values mean the sample is inside at least one negative detector. Signed
+    values mean the sample is inside at least one negative detector. For
+    ``suppressed``, take the minimum of that score and the distance to the
+    nearest reverse detector minus its radius; a positive score then also
+    requires being outside every reverse self ball.
+    ``dual`` scores instead take the maximum with the signed distance
+    outside all enclosing self-cluster balls. Signed
     scores retain ordering outside the detector union instead of collapsing
     all self scores to zero. Binary scores are matching margins with a half
     unit offset so that positive scores mean a match. For tied training
@@ -142,16 +239,22 @@ class NSA(BaseDetector):
     at fit time and do not depend on other samples in an inference batch.
 
     A finite detector set can leave non-self regions uncovered, especially
-    in high dimensions. Far outside the sampling domain, real scores can
-    decrease again; this method is intended for a bounded feature domain.
+    in high dimensions. Except for ``dual``, far outside the sampling domain
+    real scores can decrease again; those strategies require a bounded
+    feature domain. The ``dual`` strategy instead treats the entire
+    complement of its learned self envelopes as anomalous, an explicit
+    extrapolation assumption that may also produce false alarms.
     Binary quantization loses within-bin information, and contiguous/chunk
-    rules depend on feature order. It is not a general extrapolation method.
+    rules depend on feature order.
     """
 
     def __init__(self, contamination=0.1, strategy='variable', n_detectors=100,
                  self_radius=0.1, detector_radius=0.1, max_candidates=10000,
                  sampling_margin=0.5, binary_match='hamming',
-                 match_threshold=1, random_state=None):
+                 match_threshold=1, random_state=None, target_coverage=0.9,
+                 coverage_samples=256, coverage_confidence=0.95,
+                 grid_depth=4, hierarchy_levels=4, outlier_fraction=0.95,
+                 outlier_radius=0.5, dual_clusters=3, annealing_steps=20):
         self.contamination = contamination
         self.strategy = strategy
         self.n_detectors = n_detectors
@@ -162,6 +265,15 @@ class NSA(BaseDetector):
         self.binary_match = binary_match
         self.match_threshold = match_threshold
         self.random_state = random_state
+        self.target_coverage = target_coverage
+        self.coverage_samples = coverage_samples
+        self.coverage_confidence = coverage_confidence
+        self.grid_depth = grid_depth
+        self.hierarchy_levels = hierarchy_levels
+        self.outlier_fraction = outlier_fraction
+        self.outlier_radius = outlier_radius
+        self.dual_clusters = dual_clusters
+        self.annealing_steps = annealing_steps
 
     def fit(self, X, y=None):
         """Generate detectors that exclude all supplied self samples.
@@ -178,12 +290,21 @@ class NSA(BaseDetector):
         self : object
             Fitted estimator.
         """
-        # A failed refit must not expose a detector set from an earlier fit.
-        for name in ('detectors_', 'detector_radii_', 'detector_starts_',
-                     'scaler_', 'sampling_bounds_', 'binary_thresholds_',
-                     'decision_scores_', 'threshold_', 'labels_'):
-            if hasattr(self, name):
+        self._clear_fitted_state()
+        try:
+            return self._fit(X)
+        except Exception:
+            # Late failures (geometry, scoring, thresholding) are also
+            # unfitted, including sklearn's attribute-free fitted check.
+            self._clear_fitted_state()
+            raise
+
+    def _clear_fitted_state(self):
+        for name in list(vars(self)):
+            if name.endswith('_') or name in ('_mu', '_sigma', '_classes'):
                 delattr(self, name)
+
+    def _fit(self, X):
         BaseDetector.__init__(self, contamination=self.contamination)
         X = check_array(X, dtype=float)
         self._validate_parameters(X.shape[1])
@@ -207,9 +328,12 @@ class NSA(BaseDetector):
             self.sampling_bounds_ = np.vstack((
                 self.self_samples_.min(axis=0) - self.sampling_margin,
                 self.self_samples_.max(axis=0) + self.sampling_margin))
-            centers, extra = self._generate_real(rng)
+            if self.strategy_ in ('fixed', 'variable'):
+                centers, extra = self._generate_real(rng)
+            else:
+                centers, extra = self._generate_advanced(rng)
 
-        if not centers:
+        if len(centers) == 0:
             raise ValueError(
                 'No valid negative detectors were found within '
                 'max_candidates; '
@@ -220,12 +344,34 @@ class NSA(BaseDetector):
             self.detector_starts_ = np.asarray(extra, dtype=int)
         else:
             self.detector_radii_ = np.asarray(extra)
-        if self.n_detectors_ < self.n_detectors:
+        target = (self.generation_diagnostics_['target_detectors']
+                  if self.strategy_ == 'annealed' else self.n_detectors)
+        if (self.n_detectors_ < target
+                and not getattr(self, 'coverage_reached_', False)
+                and self.strategy_ not in ('voronoi', 'deterministic')):
             warnings.warn(
                 'Only %d of %d negative detectors were found within '
-                'max_candidates. The retained detectors still exclude self.'
-                % (self.n_detectors_, self.n_detectors),
-                UserWarning, stacklevel=2)
+                'max_candidates. Training samples remain treated as self.'
+                % (self.n_detectors_, target),
+                UserWarning, stacklevel=3)
+        if self.strategy_ == 'coverage' and not self.coverage_reached_:
+            warnings.warn(
+                'Coverage target was not certified within the generation '
+                'budgets; inspect coverage_lower_bound_ and '
+                'generation_diagnostics_.', UserWarning, stacklevel=3)
+        if (self.strategy_ in ('voronoi', 'deterministic')
+                and self.generation_diagnostics_.get('truncated', False)):
+            warnings.warn(
+                'n_detectors truncated the finite geometric detector set; '
+                'no complete domain coverage is claimed.',
+                UserWarning, stacklevel=3)
+        if (self.strategy_ == 'dual' and not self.generation_diagnostics_[
+                'apc_radius_criterion_met']):
+            warnings.warn(
+                'APC radius interval was not achieved by the bounded '
+                'cluster search; using the best enclosing self cover. '
+                'Inspect generation_diagnostics_.',
+                UserWarning, stacklevel=3)
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
         # Tied binary/self scores are legitimate. Keep the inherited 'unify'
@@ -270,25 +416,61 @@ class NSA(BaseDetector):
                 self.detector_radii_ - distances, axis=1)
             if not np.all(np.isfinite(scores[start:stop])):
                 raise ValueError('Distances overflowed; rescale X.')
+        if self.strategy_ == 'suppressed':
+            block_size = max(1, 1048576 // len(self.reverse_detectors_))
+            for start in range(0, X.shape[0], block_size):
+                stop = min(start + block_size, X.shape[0])
+                reverse_margin = np.min(cdist(
+                    transformed[start:stop], self.reverse_detectors_),
+                    axis=1) - self.reverse_radius_
+                if not np.all(np.isfinite(reverse_margin)):
+                    raise ValueError('Distances overflowed; rescale X.')
+                scores[start:stop] = np.minimum(scores[start:stop],
+                                                reverse_margin)
+        if self.strategy_ == 'dual':
+            block_size = max(1, 1048576 // len(self.apc_centers_))
+            for start in range(0, X.shape[0], block_size):
+                stop = min(start + block_size, X.shape[0])
+                outside = np.min(cdist(transformed[start:stop],
+                                       self.apc_centers_) - self.apc_radii_,
+                                 axis=1)
+                if not np.all(np.isfinite(outside)):
+                    raise ValueError('Distances overflowed; rescale X.')
+                scores[start:stop] = np.maximum(scores[start:stop], outside)
         return scores
 
     def _validate_parameters(self, n_features):
-        if self.strategy not in ('binary', 'fixed', 'variable'):
-            raise ValueError("strategy must be 'binary', 'fixed', "
-                             "or 'variable'")
-        for name in ('n_detectors', 'max_candidates'):
+        if self.strategy not in ('binary', 'fixed', 'variable', 'coverage',
+                                 'grid', 'hierarchical', 'voronoi',
+                                 'deterministic', 'suppressed', 'dual',
+                                 'annealed'):
+            raise ValueError('Unknown strategy: %s' % self.strategy)
+        for name in ('n_detectors', 'max_candidates', 'coverage_samples',
+                     'grid_depth', 'hierarchy_levels', 'dual_clusters',
+                     'annealing_steps'):
             value = getattr(self, name)
             if (isinstance(value, bool) or not isinstance(value, Integral)
                     or value < 1):
                 raise ValueError('%s must be a positive integer' % name)
-        for name in ('self_radius', 'detector_radius', 'sampling_margin'):
+        if self.grid_depth > 20:
+            raise ValueError('grid_depth must be an integer in [1, 20]')
+        for name in ('target_coverage', 'coverage_confidence',
+                     'outlier_fraction'):
+            value = getattr(self, name)
+            if (isinstance(value, bool) or not isinstance(value, Real)
+                    or not np.isfinite(value) or not 0 < value < 1):
+                raise ValueError('%s must be finite and in (0, 1)' % name)
+        for name in ('self_radius', 'detector_radius', 'sampling_margin',
+                     'outlier_radius'):
             value = getattr(self, name)
             if (isinstance(value, bool) or not isinstance(value, Real)
                     or not np.isfinite(value)
                     or value < 0
-                    or (name == 'detector_radius' and value == 0)):
+                    or (name in ('detector_radius', 'outlier_radius')
+                        and value == 0)):
                 raise ValueError('%s must be finite and %s' % (
-                    name, 'positive' if name == 'detector_radius'
+                    name, 'positive' if name in ('detector_radius',
+                                                 'outlier_radius')
                     else 'nonnegative'))
         if self.binary_match not in ('hamming', 'rcontiguous', 'rchunk'):
             raise ValueError('binary_match must be hamming, rcontiguous, '
@@ -303,6 +485,57 @@ class NSA(BaseDetector):
                 raise ValueError('match_threshold must be an integer in '
                                  '[%d, %d] for this matching rule and feature '
                                  'count' % (lower, upper))
+
+    def _generate_advanced(self, rng):
+        args = (self.self_samples_, self.sampling_bounds_, rng,
+                self.n_detectors, self.self_radius, self.max_candidates)
+        if self.strategy_ == 'coverage':
+            from ._nsa_coverage import generate_coverage_detectors
+            result = generate_coverage_detectors(
+                *args, target_coverage=self.target_coverage,
+                coverage_samples=self.coverage_samples,
+                coverage_confidence=self.coverage_confidence)
+        elif self.strategy_ == 'grid':
+            from ._nsa_grid import generate_grid_detectors
+            result = generate_grid_detectors(*args, grid_depth=self.grid_depth)
+        elif self.strategy_ == 'hierarchical':
+            from ._nsa_cluster import generate_hierarchical_detectors
+            result = generate_hierarchical_detectors(
+                *args, n_levels=self.hierarchy_levels)
+        elif self.strategy_ == 'deterministic':
+            from ._nsa_grid import generate_deterministic_detectors
+            result = generate_deterministic_detectors(
+                *args, grid_depth=self.grid_depth)
+        elif self.strategy_ == 'suppressed':
+            from ._nsa_optimization import generate_suppressed_detectors
+            result = generate_suppressed_detectors(
+                *args, outlier_fraction=self.outlier_fraction,
+                outlier_radius=self.outlier_radius)
+        elif self.strategy_ == 'dual':
+            from ._nsa_cluster import generate_dual_detectors
+            result = generate_dual_detectors(
+                *args, dual_clusters=self.dual_clusters)
+        elif self.strategy_ == 'annealed':
+            from ._nsa_optimization import generate_annealed_detectors
+            result = generate_annealed_detectors(
+                *args, detector_radius=self.detector_radius,
+                annealing_steps=self.annealing_steps)
+        else:
+            from ._nsa_optimization import generate_voronoi_detectors
+            result = generate_voronoi_detectors(*args)
+        centers, radii, self.n_candidates_, diagnostics = result
+        self.generation_diagnostics_ = diagnostics
+        if self.strategy_ == 'coverage':
+            self.coverage_reached_ = diagnostics['coverage_reached']
+            self.coverage_lower_bound_ = diagnostics['coverage_lower_bound']
+            self.coverage_test_count_ = diagnostics['coverage_test_count']
+        if self.strategy_ == 'suppressed':
+            self.reverse_detectors_ = diagnostics['reverse_centers']
+            self.reverse_radius_ = diagnostics['reverse_radius']
+        if self.strategy_ == 'dual':
+            self.apc_centers_ = diagnostics['apc_centers']
+            self.apc_radii_ = diagnostics['apc_radii']
+        return centers, radii
 
     def _generate_real(self, rng):
         centers, radii = [], []

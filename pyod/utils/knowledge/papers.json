@@ -1,4 +1,52 @@
 {
+  "gonzalez2003randomized": {
+    "title": "A Randomized Real-Valued Negative Selection Algorithm",
+    "authors": "Gonzalez, Dasgupta, Nino",
+    "venue": "ICARIS 2003",
+    "url": "https://doi.org/10.1007/978-3-540-45192-1_25"
+  },
+  "zheng2013dual": {
+    "title": "The Dual Negative Selection Algorithm Based on Pattern Recognition Receptor Theory and Its Application in Two-class Data Classification",
+    "authors": "Zheng, Zhou, Fang",
+    "venue": "Journal of Computers 2013",
+    "url": "https://doi.org/10.4304/jcp.8.8.1951-1959"
+  },
+  "ji2009vdetector": {
+    "title": "V-detector: An efficient negative selection algorithm with probably adequate detector coverage",
+    "authors": "Ji, Dasgupta",
+    "venue": "Information Sciences 2009",
+    "url": "https://doi.org/10.1016/j.ins.2008.12.015"
+  },
+  "zhang2013grid": {
+    "title": "A Real-Valued Negative Selection Algorithm Based on Grid for Anomaly Detection",
+    "authors": "Zhang, Li, Xiao",
+    "venue": "Abstract and Applied Analysis 2013",
+    "url": "https://doi.org/10.1155/2013/268639"
+  },
+  "chen2011hierarchical": {
+    "title": "A Negative Selection Algorithm Based on Hierarchical Clustering of Self Set and its Application in Anomaly Detection",
+    "authors": "Chen, Liu, Li, Shi, Zheng, Zhao",
+    "venue": "International Journal of Computational Intelligence Systems 2011",
+    "url": "https://doi.org/10.2991/ijcis.2011.4.4.1"
+  },
+  "zhu2017quick": {
+    "title": "A Quick Negative Selection Algorithm for One-Class Classification in Big Data Era",
+    "authors": "Zhu, Chen, Yang, Li, Yang, Zhang",
+    "venue": "Mathematical Problems in Engineering 2017",
+    "url": "https://doi.org/10.1155/2017/3956415"
+  },
+  "barontini2019deterministic": {
+    "title": "Deterministically generated negative selection algorithm for damage detection in civil engineering systems",
+    "authors": "Barontini, Perera, Masciotta, Amado-Mendes, Ramos, Lourenço",
+    "venue": "Engineering Structures 2019",
+    "url": "https://doi.org/10.1016/j.engstruct.2019.109444"
+  },
+  "li2010suppression": {
+    "title": "An Outlier Robust Negative Selection Algorithm Inspired by Immune Suppression",
+    "authors": "Li, Li, Zeng, Li",
+    "venue": "Journal of Computers 2010",
+    "url": "https://doi.org/10.4304/jcp.5.9.1348-1355"
+  },
   "forrest1994self": {
     "title": "Self-nonself discrimination in a computer",
     "authors": "Forrest, Perelson, Allen, Cherukuri",
