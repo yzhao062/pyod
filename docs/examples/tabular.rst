@@ -1,7 +1,7 @@
 Layer 1: Tabular Anomaly Detection
 ====================================
 
-PyOD has 43 tabular detectors covering probabilistic, linear, proximity, ensemble, and deep learning approaches. All use the same ``fit``/``predict``/``decision_function`` API.
+PyOD has 44 tabular detectors covering probabilistic, linear, proximity, ensemble, immune-inspired, and deep learning approaches. All use the same ``fit``/``predict``/``decision_function`` API.
 
 .. code-block:: python
 
@@ -38,6 +38,52 @@ All Tabular Examples
 **Outlier Ensembles:** `IForest <https://github.com/yzhao062/pyod/blob/master/examples/iforest_example.py>`__, `INNE <https://github.com/yzhao062/pyod/blob/master/examples/inne_example.py>`__, `DIF <https://github.com/yzhao062/pyod/blob/master/examples/dif_example.py>`__, `Feature Bagging <https://github.com/yzhao062/pyod/blob/master/examples/feature_bagging_example.py>`__, `LSCP <https://github.com/yzhao062/pyod/blob/master/examples/lscp_example.py>`__, `XGBOD <https://github.com/yzhao062/pyod/blob/master/examples/xgbod_example.py>`__, `LODA <https://github.com/yzhao062/pyod/blob/master/examples/loda_example.py>`__, `SUOD <https://github.com/yzhao062/pyod/blob/master/examples/suod_example.py>`__
 
 **Neural Networks:** `AutoEncoder <https://github.com/yzhao062/pyod/blob/master/examples/auto_encoder_example.py>`__, `VAE <https://github.com/yzhao062/pyod/blob/master/examples/vae_example.py>`__, `DeepSVDD <https://github.com/yzhao062/pyod/blob/master/examples/deepsvdd_example.py>`__, `SO_GAAL <https://github.com/yzhao062/pyod/blob/master/examples/so_gaal_example.py>`__, `MO_GAAL <https://github.com/yzhao062/pyod/blob/master/examples/mo_gaal_example.py>`__, AnoGAN, `ALAD <https://github.com/yzhao062/pyod/blob/master/examples/alad_example.py>`__, `AE1SVM <https://github.com/yzhao062/pyod/blob/master/examples/ae1svm_example.py>`__, `DevNet <https://github.com/yzhao062/pyod/blob/master/examples/devnet_example.py>`__
+
+----
+
+Negative Selection for Novelty Detection
+----------------------------------------
+
+:class:`~pyod.models.nsa.NSA` is a negative-selection-inspired detector with
+three strategies: ``binary``, ``fixed`` and ``variable``. They share one
+estimator API and have separate detector generation and matching behavior.
+The binary strategy supports ``hamming``, ``rcontiguous`` and ``rchunk``
+matching after per-feature median quantization. The real-valued strategies
+fit a min-max transformation on the training data and sample candidate
+detectors from an expanded box around that transformed data.
+
+The foundations are the negative-selection principle of
+:cite:`forrest1994self`, real-valued negative selection
+:cite:`gonzalez2003anomaly`, and variable-radius detection
+:cite:`ji2004real`. These are explicitly **NSA-inspired adaptations**, with
+continuous scores for the PyOD API; they are not complete reproductions of
+the named methods in those papers.
+
+Fit on **known normal/self observations only**. An anomalous training
+observation is also treated as self and can suppress detection around it.
+The ``contamination`` parameter sets PyOD's threshold on training scores;
+it does not remove contaminated observations or define the geometric
+detector-matching boundary. Larger scores mean a stronger detector match.
+
+Finite sampled coverage leaves gaps, especially in high dimensions.
+Real-valued scores can decrease for points far outside the sampling box;
+this detector does not guarantee increasingly large scores with distance
+from the training set. Binary quantization discards magnitudes. Sampling
+can produce fewer than ``n_detectors`` detectors, and fitting raises an
+error if no valid detector can be generated. There is no ``partial_fit``.
+
+.. code-block:: python
+
+    from pyod.models.nsa import NSA
+
+    clf = NSA(strategy='variable', n_detectors=100, random_state=42)
+    clf.fit(X_normal_train)
+    novelty_scores = clf.decision_function(X_test)
+
+See the runnable `nsa_example.py <https://github.com/yzhao062/pyod/blob/development/examples/nsa_example.py>`__
+for all three strategies. The detector is registered with ``ADEngine`` for
+explicit construction; no benchmark rank or automatic routing rule is
+assigned to it.
 
 ----
 

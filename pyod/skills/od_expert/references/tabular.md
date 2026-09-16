@@ -1,6 +1,6 @@
 # Tabular anomaly detection reference
 
-PyOD's largest modality (43 of 61 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
+PyOD's largest modality (44 of 62 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
 
 ## Decision table by data shape (expert heuristics)
 
@@ -50,6 +50,7 @@ These are rules of thumb for reasoning about which detectors a non-expert would 
 - **MAD** (Median Absolute Deviation) — complexity: time O(n * log(n)), space O(n); best for: Univariate outlier detection with a robust central tendency measure; avoid when: Data is multivariate or relationships between features are important; paper: Iglewicz and Hoaglin, 1993
 - **MCD** (Minimum Covariance Determinant) — complexity: time O(n * d^2), space O(d^2); best for: Multivariate Gaussian-like data requiring robust covariance estimation; avoid when: Data is non-Gaussian, very high-dimensional, or strongly nonlinear; paper: Rousseeuw and Driessen, 1999
 - **MO_GAAL** (Multiple-Objective Generative Adversarial Active Learning) — complexity: time O(k * n * d * h * epochs) where k is number of generators, space O(k * d * h); best for: Complex datasets where diverse generated outlier references improve detection; avoid when: Computational resources are limited or simpler GAN approaches suffice; requires: pyod[torch]; paper: Liu et al., 2019
+- **NSA** (Negative-Selection-Inspired Novelty Detection) — complexity: time Fit O(c * (n + m) * d), score O(q * m * d); c <= max_candidates, m <= n_detectors, space O((n + c) * d) for training and candidate bookkeeping, plus batched matching distances; best for: Explicitly selected novelty detection on clean normal training data in modest-dimensional bounded domains; avoid when: Training data may contain unknown anomalies, high dimensionality prevents coverage, or detection must extrapolate beyond the sampled domain; paper: Foundations: Forrest et al. 1994; Gonzalez and Dasgupta 2003; Ji and Dasgupta 2004; NSA-inspired adaptations
 - **OCSVM** (One-Class Support Vector Machine) — complexity: time O(n^2 * d) to O(n^3), space O(n * d); best for: Medium-sized datasets where a flexible decision boundary is needed; avoid when: Dataset is very large or real-time training is required; paper: Scholkopf et al., 2001
 - **PCA** (Principal Component Analysis) — complexity: time O(n * d^2), space O(d^2); best for: Datasets with linear structure where outliers deviate from main variance directions; avoid when: Data has strong nonlinear structure or outliers align with principal components; paper: Shyu et al., 2003
 - **QMCD** (Quasi-Monte Carlo Discrepancy) — complexity: time O(n^2 * d), space O(n * d); best for: Detecting anomalies as deviations from uniform space-filling in moderate-dimensional data; avoid when: Dataset is very large or high-dimensional; paper: Fang et al., 2001

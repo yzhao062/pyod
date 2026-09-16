@@ -71,7 +71,7 @@ PyOD 3 is the most comprehensive Python library for anomaly detection. Four pill
 ===========================  ========================================================================================
 Pillar                       What it means
 ===========================  ========================================================================================
-Multi-Modal                  61 detectors across **tabular, time series, graph, text, image, and audio** data, one API
+Multi-Modal                  62 detectors across **tabular, time series, graph, text, image, and audio** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      ``od-expert`` turns natural-language requests into ADEngine workflows; MCP exposes structured tools for other agents
 Most Used                    46+ million downloads; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
@@ -455,6 +455,11 @@ PyOD is organized into two functional groups: **(i) Detection Algorithms**, with
      - SUOD: Accelerating Large-scale Unsupervised Heterogeneous OD **(Acceleration)** (`example <https://github.com/yzhao062/pyod/blob/development/examples/suod_example.py>`__)
      - 2021
      - [#Zhao2021SUOD]_
+   * - Immune-Inspired
+     - NSA
+     - Negative-selection-inspired novelty detection with binary, fixed-radius and variable-radius strategies; fit on known normal data (`example <https://github.com/yzhao062/pyod/blob/development/examples/nsa_example.py>`__)
+     - 1994/2003/2004
+     - [#Forrest1994Self]_ [#Gonzalez2003Anomaly]_ [#Ji2004Real]_
    * - Neural Networks
      - AutoEncoder
      - Fully connected AutoEncoder (reconstruction error as outlier score) (`example <https://github.com/yzhao062/pyod/blob/development/examples/auto_encoder_example.py>`__)
@@ -953,3 +958,9 @@ Reference
 .. [#Liu2024TSB] Liu, Q., Boniol, P., Palpanas, T. and Paparrizos, J., 2024. TSB-AD: Towards A Reliable Time-Series Anomaly Detection Benchmark. In *Advances in Neural Information Processing Systems (NeurIPS)*.
 
 .. [#Liu2022BOND] Liu, K., Dou, Y., Zhao, Y., Ding, X., Hu, X., Zhang, R., Ding, K., Chen, C., Peng, H., Shu, K., Sun, L., Li, J., Chen, G.H., Jia, Z. and Yu, P.S., 2022. BOND: Benchmarking Unsupervised Outlier Node Detection on Static Attributed Graphs. In *Advances in Neural Information Processing Systems (NeurIPS)*.
+
+.. [#Forrest1994Self] Forrest, S., Perelson, A.S., Allen, L. and Cherukuri, R., 1994. Self-nonself discrimination in a computer. In *Proceedings of 1994 IEEE Computer Society Symposium on Research in Security and Privacy*, pp.202-212. doi:10.1109/RISP.1994.296580.
+
+.. [#Gonzalez2003Anomaly] Gonzalez, F.A. and Dasgupta, D., 2003. Anomaly Detection Using Real-Valued Negative Selection. *Genetic Programming and Evolvable Machines*, 4(4), pp.383-403. doi:10.1023/A:1026195112518.
+
+.. [#Ji2004Real] Ji, Z. and Dasgupta, D., 2004. Real-Valued Negative Selection Algorithm with Variable-Sized Detectors. In *Genetic and Evolutionary Computation - GECCO 2004*, LNCS 3102, pp.287-298. doi:10.1007/978-3-540-24854-5_30.

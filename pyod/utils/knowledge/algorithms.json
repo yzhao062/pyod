@@ -1,4 +1,32 @@
 {
+  "NSA": {
+    "class_path": "pyod.models.nsa.NSA",
+    "full_name": "Negative-Selection-Inspired Novelty Detection",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "immune-inspired",
+    "complexity": {"time": "Fit O(c * (n + m) * d), score O(q * m * d); c <= max_candidates, m <= n_detectors", "space": "O((n + c) * d) for training and candidate bookkeeping, plus batched matching distances"},
+    "strengths": [
+      "Explicit rejection of detector candidates that match known self samples",
+      "Binary matching and fixed-radius or variable-radius Euclidean strategies in one estimator",
+      "Reproducible detector sampling with an integer random_state"
+    ],
+    "weaknesses": [
+      "Requires clean normal/self training data; contaminated training points are also learned as self",
+      "Finite random coverage can miss anomalies and scales poorly with dimensionality",
+      "Real-valued scores can decrease outside the sampled domain; not a general distance-to-normal detector",
+      "Binary quantization loses numeric information and may leave no valid detector candidates",
+      "No incremental fitting or claim of complete published-method reproduction"
+    ],
+    "best_for": "Explicitly selected novelty detection on clean normal training data in modest-dimensional bounded domains",
+    "avoid_when": "Training data may contain unknown anomalies, high dimensionality prevents coverage, or detection must extrapolate beyond the sampled domain",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "forrest1994self", "short": "Foundations: Forrest et al. 1994; Gonzalez and Dasgupta 2003; Ji and Dasgupta 2004; NSA-inspired adaptations"},
+    "default_params": {"contamination": 0.1, "strategy": "variable", "n_detectors": 100, "self_radius": 0.1, "detector_radius": 0.1, "max_candidates": 10000, "sampling_margin": 0.5, "binary_match": "hamming", "match_threshold": 1},
+    "preprocessing_mode": "internal",
+    "requires": []
+  },
   "ECOD": {
     "class_path": "pyod.models.ecod.ECOD",
     "full_name": "Empirical Cumulative Distribution Functions",

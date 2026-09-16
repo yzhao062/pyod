@@ -1,4 +1,22 @@
 {
+  "forrest1994self": {
+    "title": "Self-nonself discrimination in a computer",
+    "authors": "Forrest, Perelson, Allen, Cherukuri",
+    "venue": "IEEE Symposium on Research in Security and Privacy 1994",
+    "url": "https://doi.org/10.1109/RISP.1994.296580"
+  },
+  "gonzalez2003anomaly": {
+    "title": "Anomaly Detection Using Real-Valued Negative Selection",
+    "authors": "Gonzalez, Dasgupta",
+    "venue": "Genetic Programming and Evolvable Machines 2003",
+    "url": "https://doi.org/10.1023/A:1026195112518"
+  },
+  "ji2004real": {
+    "title": "Real-Valued Negative Selection Algorithm with Variable-Sized Detectors",
+    "authors": "Ji, Dasgupta",
+    "venue": "GECCO 2004",
+    "url": "https://doi.org/10.1007/978-3-540-24854-5_30"
+  },
   "pyod": {
     "title": "PyOD: A Python Toolbox for Scalable Outlier Detection",
     "authors": "Zhao, Nasrullah, Li",
