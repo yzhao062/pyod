@@ -17,6 +17,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.utils.stat_models import pairwise_distances_no_broadcast
 from pyod.utils.stat_models import wpearsonr
+from scipy.stats import pearsonr
 from pyod.utils.stat_models import pearsonr_mat
 from pyod.utils.stat_models import column_ecdf
 import statsmodels.distributions
@@ -62,6 +63,18 @@ class TestStatModels(unittest.TestCase):
 
         pear_mat = pearsonr_mat(self.mat, self.w_mat)
         assert_equal(pear_mat.shape, (10, 10))
+
+    def test_pearsonr_mat_fewer_features_than_samples(self):
+        # Every pair of rows must be correlated, including when the matrix has
+        # fewer columns than rows.
+        mat = np.random.rand(8, 3)
+        pear_mat = pearsonr_mat(mat)
+
+        assert_equal(pear_mat.shape, (8, 8))
+        for i in range(8):
+            for j in range(8):
+                expected = 1.0 if i == j else pearsonr(mat[i, :], mat[j, :])[0]
+                assert_allclose(pear_mat[i, j], expected)
 
         assert (np.min(pear_mat) >= -1)
         assert (np.max(pear_mat) <= 1)
