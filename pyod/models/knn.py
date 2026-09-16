@@ -108,7 +108,7 @@ class KNN(BaseDetector):
         sklearn.metrics.pairwise.pairwise_distances. When p = 1, this is
         equivalent to using manhattan_distance (l1), and euclidean_distance
         (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
-        See http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances
+        See https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise_distances.html
 
     metric_params : dict, optional (default = None)
         Additional keyword arguments for the metric function.
