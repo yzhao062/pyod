@@ -210,6 +210,12 @@ class TestKPCAComponentsBound(unittest.TestCase):
             n_components=10, n_selected_components=0, random_state=42
         )
 
+    def test_n_components_is_forwarded(self):
+        clf = KPCA(n_components=5, random_state=42)
+        clf.fit(self.X_train)
+        assert clf.kpca.n_components == 5
+        assert clf.kpca.eigenvectors_.shape[1] == 5
+
     def test_bound(self):
         self.clf.fit(self.X_train)
         with assert_raises(ValueError):
