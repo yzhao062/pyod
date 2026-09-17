@@ -15,6 +15,7 @@ from numpy.testing import assert_raises
 from scipy.stats import rankdata
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
+from sklearn.neighbors import NearestNeighbors
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -371,6 +372,28 @@ class TestKnnNearestNeighborsConfig(unittest.TestCase):
             mocked_kneighbors.assert_called_once()
 
         assert_equal(scores.shape[0], self.X_test.shape[0])
+
+    def test_cosine_metric_uses_brute_backend(self):
+        X_train = np.array([
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 1.0],
+            [1.0, -1.0],
+        ])
+        X_test = np.array([[2.0, 1.0], [-1.0, 1.0]])
+
+        clf = KNN(n_neighbors=2, metric='cosine')
+        clf.fit(X_train)
+
+        reference = NearestNeighbors(
+            n_neighbors=2, algorithm='auto', metric='cosine')
+        reference.fit(X_train)
+        train_distances, _ = reference.kneighbors(n_neighbors=2)
+        test_distances, _ = reference.kneighbors(X_test, n_neighbors=2)
+
+        assert_allclose(clf.decision_scores_, train_distances[:, -1])
+        assert_allclose(clf.decision_function(X_test),
+                        test_distances[:, -1])
 
 
 class TestKNNKwargsRejection(unittest.TestCase):

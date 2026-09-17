@@ -35,6 +35,7 @@ class PyODKernelPCA(KernelPCA):
             random_state=None,
     ):
         super().__init__(
+            n_components=n_components,
             kernel=kernel,
             gamma=gamma,
             degree=degree,

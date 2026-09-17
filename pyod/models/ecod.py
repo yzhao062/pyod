@@ -51,11 +51,19 @@ def _parallel_ecdf(n_dims, X):
 
 
 class ECOD(BaseDetector):
-    """ECOD class for Unsupervised Outlier Detection Using Empirical
-    Cumulative Distribution Functions (ECOD)
-    ECOD is a parameter-free, highly interpretable outlier detection algorithm
+    """ECOD is a parameter-free, highly interpretable outlier detection algorithm
     based on empirical CDF functions.
     See :cite:`li2021ecod` for details.
+
+    .. note::
+        ECOD is an extended, renamed version of :class:`~pyod.models.copod.COPOD`,
+        developed by the same authors with a more refined presentation (see
+        the discussion in `GitHub issue #655
+        <https://github.com/yzhao062/pyod/issues/655>`_). ECOD is the
+        recommended choice of the two; COPOD is kept in the library mainly
+        for availability and backward compatibility.
+
+    
 
     Parameters
     ----------

@@ -140,13 +140,18 @@ class Sampling(BaseDetector):
             )
         if isinstance(self.subset_size, float) is True:
             if 0.0 < self.subset_size <= 1.0:
-                self.subset_size = int(self.subset_size * n_samples)
+                subset_size = int(self.subset_size * n_samples)
             else:
-                raise ValueError("subset_size=%r must be between 0.0 and 1.0")
+                raise ValueError(
+                    "subset_size=%r must be between 0.0 and 1.0"
+                    % self.subset_size
+                )
+        else:
+            subset_size = self.subset_size
 
         random_indices = self.random_state.choice(
             n_samples,
-            size=self.subset_size,
+            size=subset_size,
             replace=False,
         )
         self.subset = X[random_indices, :]

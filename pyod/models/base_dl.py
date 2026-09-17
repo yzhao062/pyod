@@ -174,6 +174,11 @@ class BaseDeepLearningDetector(BaseDetector):
 
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of input samples. Not used in unsupervised methods.
+
+        Returns
+        -------
+        self : object
+            Fitted estimator.
         """
         # validate inputs X and y (optional)
         X = check_array(X)
@@ -201,6 +206,8 @@ class BaseDeepLearningDetector(BaseDetector):
 
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
+
+        return self
 
     def training_prepare(self):
         self.model = self.model.to(self.device)

@@ -18,6 +18,7 @@ backward-compat alias. It shares the same ``_run_install`` helper as
 from __future__ import annotations
 
 import argparse
+import shutil
 import importlib.util
 import sys
 from collections import Counter
@@ -101,7 +102,7 @@ def _cmd_info(args: argparse.Namespace) -> int:
     user_installed = user_skill_path.is_file()
     project_installed = project_skill_path.is_file()
     agents_detected: list[str] = []
-    if claude_dir.is_dir():
+    if shutil.which("claude") is not None or (Path.home() / ".claude.json").exists():
         agents_detected.append("Claude Code")
     if codex_dir.is_dir():
         agents_detected.append("Codex")

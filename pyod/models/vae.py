@@ -251,9 +251,14 @@ class VAE(BaseDeepLearningDetector):
         self.output_activation_name = output_activation_name
         self.batch_norm = batch_norm
         self.dropout_rate = dropout_rate
-        self.logvar_clip = self._validate_logvar_clip(logvar_clip)
+        # Validate eagerly, but keep the argument exactly as it was given:
+        # sklearn's clone() requires __init__ to store its parameters
+        # unmodified.
+        self._validate_logvar_clip(logvar_clip)
+        self.logvar_clip = logvar_clip
 
     def build_model(self):
+        self.logvar_clip_ = self._validate_logvar_clip(self.logvar_clip)
         self.model = VAEModel(self.feature_size,
                               encoder_neuron_list=self.encoder_neuron_list,
                               decoder_neuron_list=self.decoder_neuron_list,
@@ -262,7 +267,7 @@ class VAE(BaseDeepLearningDetector):
                               output_activation_name=self.output_activation_name,
                               batch_norm=self.batch_norm,
                               dropout_rate=self.dropout_rate,
-                              logvar_clip=self.logvar_clip)
+                              logvar_clip=self.logvar_clip_)
 
     def training_forward(self, batch_data):
         x = batch_data
@@ -271,7 +276,7 @@ class VAE(BaseDeepLearningDetector):
         x_recon, z_mu, z_logvar = self.model(x)
         loss = self.criterion(x, x_recon, z_mu, z_logvar,
                               beta=self.beta, capacity=self.capacity,
-                              logvar_clip=self.logvar_clip)
+                              logvar_clip=self.logvar_clip_)
         loss.backward()
         self.optimizer.step()
         return loss.item()
