@@ -105,7 +105,7 @@ class Sampling(BaseDetector):
         self.subset_size = subset_size
         self.metric = metric
         self.metric_params = metric_params
-        self.random_state = check_random_state(random_state)
+        self.random_state = random_state
         self.dist = None
         self.subset = None
         self.decision_scores_ = None
@@ -149,7 +149,8 @@ class Sampling(BaseDetector):
         else:
             subset_size = self.subset_size
 
-        random_indices = self.random_state.choice(
+        random_state = check_random_state(self.random_state)
+        random_indices = random_state.choice(
             n_samples,
             size=subset_size,
             replace=False,
