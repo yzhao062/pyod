@@ -668,6 +668,44 @@
     "requires": [],
     "version_added": "0.5.0"
   },
+  "EIF": {
+    "class_path": "pyod.models.eif.EIF",
+    "full_name": "Extended Isolation Forest",
+    "status": "shipped",
+    "data_types": [
+      "tabular"
+    ],
+    "category": "ensemble",
+    "complexity": {
+      "time": "O(n * t * d * log(n)) where t is n_estimators, d is n_features",
+      "space": "O(t * n * d)"
+    },
+    "strengths": [
+      "Random hyperplane splits remove the axis-aligned score artifacts of Isolation Forest",
+      "Same isolation principle and path-length normalization as Isolation Forest",
+      "extension_level=0 recovers the standard axis-parallel Isolation Forest",
+      "Numpy-only implementation with no extra dependency"
+    ],
+    "weaknesses": [
+      "Slower than the scikit-learn backed Isolation Forest",
+      "May struggle with local anomalies in dense regions"
+    ],
+    "best_for": "Tabular data with correlated features where axis-parallel Isolation Forest splits leave score artifacts",
+    "avoid_when": "Anomalies are local density deviations or the standard Isolation Forest already works well",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {
+      "id": "eif",
+      "short": "Hariri et al., TKDE 2021"
+    },
+    "default_params": {
+      "contamination": 0.1,
+      "n_estimators": 100
+    },
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "unreleased"
+  },
   "INNE": {
     "class_path": "pyod.models.inne.INNE",
     "full_name": "Isolation-based Anomaly Detection Using Nearest-Neighbor Ensembles",
