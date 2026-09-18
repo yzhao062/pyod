@@ -240,7 +240,7 @@ class KPCA(BaseDetector):
         self.n_jobs = n_jobs
         self.sampling = sampling
         self.subset_size = subset_size
-        self.random_state = check_random_state(random_state)
+        self.random_state = random_state
         self.decision_scores_ = None
         self.n_selected_components_ = None
 
@@ -288,7 +288,8 @@ class KPCA(BaseDetector):
         # perform subsampling to reduce time complexity
         if self.sampling is True:
             subset_size = self._check_subset_size(X)
-            random_indices = self.random_state.choice(
+            random_state = check_random_state(self.random_state)
+            random_indices = random_state.choice(
                 X.shape[0],
                 size=subset_size,
                 replace=False,
