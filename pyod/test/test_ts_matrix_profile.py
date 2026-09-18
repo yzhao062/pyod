@@ -20,10 +20,10 @@ class TestMatrixProfile(unittest.TestCase):
     def setUp(self):
         self.X_train, self.X_test, self.y_train, self.y_test = \
             generate_ts_data(n_train=300, n_test=100, contamination=0.05,
-                             random_state=42)
+                             anomaly_type='both', random_state=42)
 
     def test_fit(self):
-        clf = MatrixProfile(window_size=20, contamination=0.1)
+        clf = MatrixProfile(window_size=10, contamination=0.1)
         clf.fit(self.X_train)
         assert len(clf.decision_scores_) == 300
         assert hasattr(clf, 'labels_')
