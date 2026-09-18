@@ -6,6 +6,7 @@ from .stat_models import pearsonr_mat
 from .stat_models import wpearsonr
 from .utility import argmaxn
 from .utility import check_parameter
+from .utility import detection_lift
 from .utility import get_label_n
 from .utility import get_optimal_n_bins
 from .utility import invert_order
@@ -16,6 +17,7 @@ from .utility import standardizer
 __all__ = ['check_parameter',
            'standardizer',
            'score_to_label',
+           'detection_lift',
            'precision_n_scores',
            'get_label_n',
            'argmaxn',

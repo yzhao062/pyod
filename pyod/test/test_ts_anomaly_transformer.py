@@ -12,6 +12,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.utils.data import generate_ts_data
+from pyod.test._time_series_assertions import assert_scores_separate_labels
 
 
 def _torch_available():
@@ -35,6 +36,7 @@ class TestAnomalyTransformer(unittest.TestCase):
                                   n_layers=1, epochs=2, contamination=0.1)
         clf.fit(self.X_train)
         assert len(clf.decision_scores_) == 300
+        assert_scores_separate_labels(self.y_train, clf.decision_scores_)
 
     @unittest.skipUnless(_torch_available(), "torch not installed")
     def test_decision_function(self):
