@@ -70,19 +70,19 @@ def geometric_median(x, eps=1e-5):
     -------
     gm : array, Geometric L1-median
     """
-    points = np.unique(x, axis=0)
-    gm_ = np.mean(points, 0)  # initialize geometric median
+    points, counts = np.unique(x, axis=0, return_counts=True)
+    gm_ = np.average(points, axis=0, weights=counts)
     while True:
         D = euclidean(points, gm_, c=True)
         non_zeros = (D != 0)[:, 0]
-        Dinv = 1 / D[non_zeros]
+        Dinv = counts[non_zeros, None] / D[non_zeros]
         Dinvs = np.sum(Dinv)
         W = Dinv / Dinvs
         T = np.sum(W * points[non_zeros], 0)
-        num_zeros = len(points) - np.sum(non_zeros)
+        num_zeros = np.sum(counts[~non_zeros])
         if num_zeros == 0:
             gm1 = T
-        elif num_zeros == len(points):
+        elif num_zeros == np.sum(counts):
             return gm_
         else:
             R = (T - gm_) * Dinvs
