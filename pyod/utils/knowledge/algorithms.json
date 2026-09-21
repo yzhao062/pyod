@@ -1551,5 +1551,32 @@
     "preprocessing_mode": "external",
     "requires": ["torch_geometric"],
     "version_added": "2.2.0"
-  }
+  },
+  "SmallN": {
+    "class_path": "pyod.models.small_n.SmallN",
+    "full_name": "Small-N Mahalanobis Distance (Ledoit-Wolf Shrinkage)",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "linear",
+    "complexity": {"time": "O(n * d^2)", "space": "O(d^2)"},
+    "strengths": [
+      "Stable Mahalanobis distance estimation down to n=3 reference samples",
+      "Ledoit-Wolf shrinkage avoids singular covariance at low n",
+      "Simple, interpretable distance-based scoring"
+    ],
+    "weaknesses": [
+      "Assumes reference data is roughly unimodal",
+      "Rejection statistics (predict_with_rejection) are not supported for very small n with low contamination",
+      "Not designed for high-dimensional data relative to n"
+    ],
+    "best_for": "Small trusted reference sets, calibration runs, per-unit baselines, or pilot batches with only a handful of known-good observations",
+    "avoid_when": "Large reference sets are available, standard MCD or covariance-based detectors are more appropriate",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "ledoit_wolf_2004", "short": "Ledoit and Wolf, 2004"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": [],
+    "version_added": "unreleased"
+  } 
 }
