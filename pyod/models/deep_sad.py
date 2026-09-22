@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Deep Semi-Supervised Anomaly Detection (Deep SAD) for outlier detection
 """
-# Author: Jayesh Suryavanshi <jayeshsuryavanshi808@gmail.com>
+# Author: Jayesh Suryavanshi <jayeshksuryavanshi@gmail.com>
 # License: BSD 2 clause
 #
 # The Deep SAD objective and the hypersphere-center initialization are

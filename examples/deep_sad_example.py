@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Example of using Deep SAD for semi-supervised outlier detection
 """
-# Author: Jayesh Suryavanshi <jayeshsuryavanshi808@gmail.com>
+# Author: Jayesh Suryavanshi <jayeshksuryavanshi@gmail.com>
 # License: BSD 2 clause
 
 from __future__ import division
