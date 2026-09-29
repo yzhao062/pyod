@@ -12,7 +12,6 @@ import numbers
 import numpy as np
 import sklearn
 from numpy import percentile
-from sklearn.metrics import precision_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils import check_consistent_length
@@ -200,6 +199,8 @@ def score_to_label(pred_scores, outliers_fraction=0.1):
 def precision_n_scores(y, y_pred, n=None):
     """Utility function to calculate precision @ rank n.
 
+    Scores tied at the cutoff share the remaining rank positions equally.
+
     Parameters
     ----------
     y : list or numpy array of shape (n_samples,)
@@ -218,19 +219,29 @@ def precision_n_scores(y, y_pred, n=None):
 
     """
 
-    # turn raw prediction decision scores into binary labels
-    y_pred = get_label_n(y, y_pred, n)
-
-    # enforce formats of y and labels_
+    # enforce formats before selecting the cutoff score
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
+    check_consistent_length(y, y_pred)
 
-    return precision_score(y, y_pred)
+    n = int(np.count_nonzero(y)) if n is None else int(n)
+    if n < 0 or n > len(y):
+        raise ValueError('n must be between 0 and the number of samples')
+    if n == 0:
+        return 0.0
+
+    cutoff = np.sort(y_pred)[-n]
+    above = y_pred > cutoff
+    tied = y_pred == cutoff
+    remaining = n - np.count_nonzero(above)
+    hits = np.sum(y[above]) + remaining * np.mean(y[tied])
+    return float(hits / n)
 
 
 def get_label_n(y, y_pred, n=None):
     """Function to turn raw outlier scores into binary labels by assign 1
-    to top n outlier scores.
+    to scores above the rank-n percentile. Ties at the cutoff are all
+    excluded, so fewer than n samples may be labeled as outliers.
 
     Parameters
     ----------

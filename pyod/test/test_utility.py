@@ -182,6 +182,14 @@ class TestMetrics(unittest.TestCase):
         assert_equal(precision_score(self.y, self.manual_labels),
                      precision_n_scores(self.y, self.labels_))
 
+    def test_precision_n_scores_tie_at_cutoff(self):
+        labels = [1, 1, 0, 0, 0, 0]
+        scores = [2, 1, 1, 1, 0, 0]
+        # The second rank is shared by three samples, one of them positive.
+        assert_allclose(precision_n_scores(labels, scores), 2 / 3)
+        assert_allclose(precision_n_scores(labels, scores, n=3), 5 / 9)
+        assert_allclose(precision_n_scores(labels, [1] * 6), 1 / 3)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))
