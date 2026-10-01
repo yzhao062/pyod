@@ -20,6 +20,9 @@ from ..utils.stat_models import column_ecdf
 
 
 def skew(X, axis=0):
+    X = np.asarray(X)
+    if X.dtype == np.bool_:
+        X = X.astype(float)  # Older SciPy rejects boolean subtraction in moments.
     return np.nan_to_num(skew_sp(X, axis=axis))
 
 

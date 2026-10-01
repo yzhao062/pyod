@@ -22,7 +22,9 @@ from sklearn.metrics import roc_auc_score
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.ecod import ECOD
+from pyod.models.ecod import skew as ecod_skew
 from pyod.models.copod import COPOD
+from pyod.models.copod import skew as copod_skew
 from pyod.utils.data import generate_data
 
 
@@ -310,6 +312,20 @@ def test_empirical_detector_right_tail_dtype(detector, n_jobs, dtype):
         assert_allclose(model.U_r, -np.log(right))
         assert np.isfinite(scores).all()
         assert_equal(matrix, original)
+
+
+@pytest.mark.parametrize('skew_function', [ecod_skew, copod_skew])
+@pytest.mark.parametrize('axis', [0, 1])
+@pytest.mark.parametrize('true_count', [0, 1, 3, 4])
+def test_boolean_skew_bernoulli_reference(skew_function, axis, true_count):
+    values = np.array([True] * true_count + [False] * (4 - true_count))
+    matrix = values.reshape(-1, 1) if axis == 0 else values.reshape(1, -1)
+    original = matrix.copy()
+    probability = true_count / 4
+    expected = ((1 - 2 * probability) / np.sqrt(probability * (1 - probability))
+                if 0 < probability < 1 else 0.)
+    assert_allclose(skew_function(matrix, axis=axis), [expected])
+    assert_equal(matrix, original)
 
 
 if __name__ == '__main__':
