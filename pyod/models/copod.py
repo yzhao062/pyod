@@ -45,7 +45,7 @@ def _parallel_ecdf(n_dims, X):
 
     for i in range(n_dims):
         U_l_mat[:, i: i + 1] = column_ecdf(X[:, i: i + 1])
-        U_r_mat[:, i: i + 1] = column_ecdf(X[:, i: i + 1] * -1)
+        U_r_mat[:, i: i + 1] = column_ecdf(X[:, i: i + 1], descending=True)
     return U_l_mat, U_r_mat
 
 
@@ -137,7 +137,7 @@ class COPOD(BaseDetector):
             original_size = X.shape[0]
             X = np.concatenate((self.X_train, X), axis=0)
         self.U_l = -1 * np.log(column_ecdf(X))
-        self.U_r = -1 * np.log(column_ecdf(-X))
+        self.U_r = -1 * np.log(column_ecdf(X, descending=True))
 
         skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(

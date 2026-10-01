@@ -5,6 +5,9 @@ import os
 import sys
 import unittest
 
+import numpy as np
+import pytest
+
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
@@ -19,6 +22,7 @@ from sklearn.metrics import roc_auc_score
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.ecod import ECOD
+from pyod.models.copod import COPOD
 from pyod.utils.data import generate_data
 
 
@@ -279,6 +283,33 @@ class TestECODParallel(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+@pytest.mark.parametrize('detector', [ECOD, COPOD])
+@pytest.mark.parametrize('n_jobs', [1, 2])
+@pytest.mark.parametrize('dtype', [np.bool_, np.uint8, np.int8, np.uint64,
+                                   np.int64, np.float32, np.float64])
+def test_empirical_detector_right_tail_dtype(detector, n_jobs, dtype):
+    matrix = np.array([[0, 8], [1, 3], [1, 1], [3, 1], [8, 0]], dtype=dtype)
+    if np.issubdtype(dtype, np.integer):
+        limits = np.iinfo(dtype)
+        matrix[:, 0] = [limits.min, limits.min + 1, 0,
+                        limits.max - 1, limits.max]
+    original = matrix.copy()
+    model = detector(n_jobs=n_jobs).fit(matrix)
+    for queries in (None, matrix[[3, 0]]):
+        if queries is None:
+            combined = matrix
+            scores = model.decision_scores_
+        else:
+            combined = np.concatenate((matrix, queries))
+            scores = model.decision_function(queries)
+        left = np.mean(combined[:, None, :] <= combined[None, :, :], axis=0)
+        right = np.mean(combined[:, None, :] >= combined[None, :, :], axis=0)
+        assert_allclose(model.U_l, -np.log(left))
+        assert_allclose(model.U_r, -np.log(right))
+        assert np.isfinite(scores).all()
+        assert_equal(matrix, original)
 
 
 if __name__ == '__main__':
