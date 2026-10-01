@@ -169,7 +169,32 @@ class TestXGBOD(unittest.TestCase):
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
+        assert_equal(clone_clf.get_params(), self.clf.get_params())
 
+    def test_estimator_list_not_mutated_by_fit(self):
+        clf = XGBOD(random_state=42)
+        assert (clf.get_params(deep=False)['estimator_list'] is None)
+        assert (clf.get_params(deep=False)['standardization_flag_list'] is
+                None)
+
+        clf.fit(self.X_train, self.y_train)
+
+        # constructor arguments must stay untouched after fit
+        assert (clf.get_params(deep=False)['estimator_list'] is None)
+        assert (clf.get_params(deep=False)['standardization_flag_list'] is
+                None)
+
+        # the resolved values live on the trailing-underscore attributes
+        assert (clf.estimator_list_ is not None)
+        assert (clf.standardization_flag_list_ is not None)
+        assert_equal(len(clf.estimator_list_),
+                     len(clf.standardization_flag_list_))
+
+        # a refit on a different subset should not reuse stale detectors
+        clf2 = XGBOD(random_state=42)
+        clf2.fit(self.X_test, self.y_test)
+        assert_equal(len(clf2.estimator_list_), len(clf.estimator_list_))
+        
     def tearDown(self):
         pass
 

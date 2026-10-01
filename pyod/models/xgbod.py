@@ -243,30 +243,34 @@ class XGBOD(BaseDetector):
 
     def _validate_estimator(self, X):
         if self.estimator_list is None:
-            self.estimator_list, \
-                self.standardization_flag_list = self._init_detectors(X)
+            self.estimator_list_, \
+                self.standardization_flag_list_ = self._init_detectors(X)
+        else:
+            self.estimator_list_ = self.estimator_list
+            self.standardization_flag_list_ = self.standardization_flag_list
 
         # perform standardization for all detectors by default
-        if self.standardization_flag_list is None:
-            self.standardization_flag_list = [True] * len(self.estimator_list)
+        if self.standardization_flag_list_ is None:
+            self.standardization_flag_list_ = [True] * len(
+                self.estimator_list_)
 
         # validate two lists length
-        if len(self.estimator_list) != len(self.standardization_flag_list):
+        if len(self.estimator_list_) != len(self.standardization_flag_list_):
             raise ValueError(
                 "estimator_list length ({0}) is not equal "
                 "to standardization_flag_list length ({1})".format(
-                    len(self.estimator_list),
-                    len(self.standardization_flag_list)))
+                    len(self.estimator_list_),
+                    len(self.standardization_flag_list_)))
 
         # validate the estimator list is not empty
-        check_parameter(len(self.estimator_list), low=1,
+        check_parameter(len(self.estimator_list_), low=1,
                         param_name='number of estimators',
                         include_left=True, include_right=True)
 
-        for estimator in self.estimator_list:
+        for estimator in self.estimator_list_:
             check_detector(estimator)
 
-        return len(self.estimator_list)
+        return len(self.estimator_list_)
 
     def _generate_new_features(self, X):
         X_add = np.zeros([X.shape[0], self.n_detector_])
@@ -274,8 +278,8 @@ class XGBOD(BaseDetector):
         # keep the standardization scalar for test conversion
         X_norm = self._scalar.transform(X)
 
-        for ind, estimator in enumerate(self.estimator_list):
-            if self.standardization_flag_list[ind]:
+        for ind, estimator in enumerate(self.estimator_list_):
+            if self.standardization_flag_list_[ind]:
                 X_add[:, ind] = estimator.decision_function(X_norm)
 
             else:
@@ -311,8 +315,8 @@ class XGBOD(BaseDetector):
         # keep the standardization scalar for test conversion
         X_norm, self._scalar = standardizer(X, keep_scalar=True)
 
-        for ind, estimator in enumerate(self.estimator_list):
-            if self.standardization_flag_list[ind]:
+        for ind, estimator in enumerate(self.estimator_list_):
+            if self.standardization_flag_list_[ind]:
                 estimator.fit(X_norm)
                 self.X_train_add_[:, ind] = estimator.decision_scores_
 
