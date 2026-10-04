@@ -65,6 +65,7 @@ except (ImportError, OSError) as _torch_exc:
         # Deep learning detectors (torch-based)
         "test_auto_encoder.py",
         "test_vae.py",
+        "test_deep_sad.py",
         "test_deepsvdd.py",
         "test_so_gaal.py",
         "test_so_gaal_new.py",

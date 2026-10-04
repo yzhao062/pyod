@@ -486,6 +486,11 @@ PyOD is organized into two functional groups: **(i) Detection Algorithms**, with
      - 2018
      - [#Ruff2018Deep]_
    * - Neural Networks
+     - DeepSAD
+     - Deep Semi-Supervised Anomaly Detection (`example <https://github.com/yzhao062/pyod/blob/development/examples/deep_sad_example.py>`__)
+     - 2020
+     - [#Ruff2020Deep]_
+   * - Neural Networks
      - AnoGAN
      - Anomaly Detection with Generative Adversarial Networks
      - 2017
@@ -895,6 +900,8 @@ Reference
 .. [#Rousseeuw1999A] Rousseeuw, P.J. and Driessen, K.V., 1999. A fast algorithm for the minimum covariance determinant estimator. *Technometrics*\ , 41(3), pp.212-223.
 
 .. [#Ruff2018Deep] Ruff, L., Vandermeulen, R., Goernitz, N., Deecke, L., Siddiqui, S.A., Binder, A., Müller, E. and Kloft, M., 2018, July. Deep one-class classification. In *International conference on machine learning* (pp. 4393-4402). PMLR.
+
+.. [#Ruff2020Deep] Ruff, L., Vandermeulen, R.A., Görnitz, N., Binder, A., Müller, E., Müller, K.R. and Kloft, M., 2020. Deep semi-supervised anomaly detection. In *International Conference on Learning Representations (ICLR)*.
 
 .. [#Schlegl2017Unsupervised] Schlegl, T., Seeböck, P., Waldstein, S.M., Schmidt-Erfurth, U. and Langs, G., 2017, June. Unsupervised anomaly detection with generative adversarial networks to guide marker discovery. In International conference on information processing in medical imaging (pp. 146-157). Springer, Cham.
 
