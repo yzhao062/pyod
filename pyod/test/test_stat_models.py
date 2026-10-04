@@ -5,6 +5,8 @@ import os
 import sys
 import unittest
 
+import pytest
+
 import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
@@ -131,6 +133,31 @@ class TestStatModels(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+@pytest.mark.parametrize('dtype', [np.bool_, np.uint8, np.int8, np.uint64,
+                                   np.int64, np.float32, np.float64])
+@pytest.mark.parametrize('descending', [False, True])
+@pytest.mark.parametrize('strided', [False, True])
+def test_column_ecdf_tail_order(dtype, descending, strided):
+    matrix = np.array([[0, 8], [1, 3], [1, 1], [3, 1], [8, 0]], dtype=dtype)
+    if np.issubdtype(dtype, np.integer):
+        limits = np.iinfo(dtype)
+        matrix[:, 0] = [limits.min, limits.min + 1, 0,
+                        limits.max - 1, limits.max]
+    if strided:
+        matrix = matrix[::-1, ::-1]
+    original = matrix.copy()
+    if descending:
+        expected = np.mean(matrix[:, None, :] >= matrix[None, :, :], axis=0)
+    else:
+        expected = np.mean(matrix[:, None, :] <= matrix[None, :, :], axis=0)
+    actual = (column_ecdf(matrix, descending=True) if descending
+              else column_ecdf(matrix))
+    assert_allclose(actual, expected)
+    assert_equal(matrix, original)
+    if not descending:
+        assert_allclose(column_ecdf(matrix), expected)
 
 
 if __name__ == '__main__':

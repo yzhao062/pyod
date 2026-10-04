@@ -184,7 +184,7 @@ def pearsonr_mat(mat, w=None):
     return pear_mat
 
 
-def column_ecdf(matrix: np.ndarray) -> np.ndarray:
+def column_ecdf(matrix: np.ndarray, descending=False) -> np.ndarray:
     """
     Utility function to compute the column wise empirical cumulative distribution of a 2D feature matrix,
     where the rows are samples and the columns are features per sample. The accumulation is done in the positive
@@ -198,8 +198,29 @@ def column_ecdf(matrix: np.ndarray) -> np.ndarray:
     Similar to and tested against:
     https://www.statsmodels.org/stable/generated/statsmodels.distributions.empirical_distribution.ECDF.html
 
+    Parameters
+    ----------
+    matrix : numpy array of shape (n_samples, n_features)
+        Feature values, with samples along the first axis.
+
+    descending : bool, optional (default=False)
+        If True, compute the inclusive right-tail probability P(X >= x).
+        Reversing the sort order avoids negating unsigned, minimum signed
+        integer, or boolean values, and preserves their exact ordering.
+
     Returns
     -------
+    probabilities : numpy array of shape (n_samples, n_features)
+        The empirical probability for each observed feature value.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from pyod.utils.stat_models import column_ecdf
+    >>> matrix = np.array([[0], [2]], dtype=np.uint64)
+    >>> column_ecdf(matrix, descending=True)
+    array([[1. ],
+           [0.5]])
 
     """
     # check the matrix dimensions
@@ -211,6 +232,8 @@ def column_ecdf(matrix: np.ndarray) -> np.ndarray:
 
     # get the sorting indices for a numpy array
     sort_idx = np.argsort(matrix, axis=0)
+    if descending:
+        sort_idx = sort_idx[::-1]
 
     # sort the numpy array, as we need to look for duplicates in the feature values (that would have different
     # probabilities if we would just resort the probabilities array)
