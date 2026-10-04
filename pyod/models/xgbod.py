@@ -43,7 +43,11 @@ class XGBOD(BaseDetector):
     Parameters
     ----------
     estimator_list : list, optional (default=None)
-        The list of pyod detectors passed in for unsupervised learning
+        The list of pyod detectors passed in for unsupervised learning.
+        If None, a default list is built at fit time and stored in
+        ``estimator_list_``; the parameter itself is left unchanged.
+        Detector objects passed in are fitted in place, so do not share
+        them across XGBOD instances.
 
     standardization_flag_list : list, optional (default=None)
         The list of boolean flags for indicating whether to perform

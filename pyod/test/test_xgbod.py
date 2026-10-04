@@ -6,6 +6,7 @@ import sys
 import unittest
 from os import path
 
+import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
@@ -194,7 +195,27 @@ class TestXGBOD(unittest.TestCase):
         clf2 = XGBOD(random_state=42)
         clf2.fit(self.X_test, self.y_test)
         assert_equal(len(clf2.estimator_list_), len(clf.estimator_list_))
-        
+
+    def test_refit_with_fewer_samples(self):
+        # Initial fit on >= 51 rows instantiates detectors with n_neighbors up to 50
+        X_large, y_large = generate_data(
+            n_train=60, n_features=2, contamination=0.1, random_state=42,
+            train_only=True)
+        # Refit on < 51 rows (e.g. 35) must re-resolve valid detectors without error
+        X_small, y_small = generate_data(
+            n_train=35, n_features=2, contamination=0.1, random_state=42,
+            train_only=True)
+
+        clf = XGBOD(random_state=42)
+        clf.fit(X_large, y_large)
+
+        clf.fit(X_small, y_small)
+        assert (clf.get_params(deep=False)['estimator_list'] is None)
+
+        pred_scores = clf.decision_function(X_small)
+        assert_equal(pred_scores.shape[0], X_small.shape[0])
+        assert (np.isfinite(pred_scores).all())
+
     def tearDown(self):
         pass
 

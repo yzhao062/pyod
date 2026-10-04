@@ -5,6 +5,7 @@ import os
 import sys
 import unittest
 
+import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import (assert_allclose,
                            assert_equal,
@@ -143,10 +144,20 @@ class TestKPCA(unittest.TestCase):
     def test_refit_with_sampling_is_deterministic(self):
         # With the RandomState created in __init__, every fit advanced the
         # same generator, so the subsample drawn on a refit differed.
-        clf = KPCA(sampling=True, subset_size=50, random_state=42)
-        first = clf.fit(self.X_train).decision_scores_.copy()
-        second = clf.fit(self.X_train).decision_scores_
-        assert_allclose(first, second)
+        clf = KPCA(sampling=True, subset_size=50, n_components=3,
+                   random_state=42)
+        first_train = clf.fit(self.X_train).decision_scores_.copy()
+        first_test = clf.decision_function(self.X_test)
+
+        # Scores should be non-trivial (not near-zero numerical noise)
+        assert np.max(np.abs(first_train)) > 1e-3
+        assert np.max(np.abs(first_test)) > 1e-3
+
+        second_train = clf.fit(self.X_train).decision_scores_.copy()
+        second_test = clf.decision_function(self.X_test)
+
+        assert_allclose(first_test, second_test)
+        assert_allclose(first_train, second_train)
 
     def tearDown(self):
         pass

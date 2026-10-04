@@ -77,6 +77,44 @@ class TestKShape(unittest.TestCase):
         aligned = _shift_align(x, -shift, m)
         assert np.allclose(aligned, y), f"Alignment did not match: {aligned}"
 
+    def test_kshape_centroid_alignment_recovers_shape(self):
+        """_kshape centroid refinement must shift-align members onto the centroid.
+
+        If the shift sign is inverted, members are shifted away from the centroid,
+        resulting in a smeared centroid with high SBD to the underlying pattern.
+        """
+        from pyod.models.ts_kshape import _kshape, _znormalize, _sbd
+
+        m = 50
+        t = np.linspace(-1, 1, 20)
+        pulse = np.exp(-(t ** 2) / 0.1) - 0.5 * np.exp(-((t - 0.3) ** 2) / 0.05)
+        base = np.zeros(m)
+        base[15:35] = pulse
+        base = _znormalize(base)
+
+        shifts = [-8, -4, -2, 0, 2, 4, 8]
+        rng = np.random.RandomState(42)
+        subsequences = []
+        for s in shifts:
+            shifted = np.zeros(m)
+            if s >= 0:
+                shifted[s:] = base[:m - s]
+            else:
+                shifted[:m + s] = base[-s:]
+            noisy = _znormalize(shifted + 0.02 * rng.randn(m))
+            subsequences.append(noisy)
+        subsequences = np.array(subsequences)
+
+        for seed in (0, 42):
+            centroids, _, _ = _kshape(
+                subsequences, n_clusters=1, max_iter=10,
+                random_state=np.random.RandomState(seed)
+            )
+            dist, _ = _sbd(base, centroids[0])
+            assert dist < 0.1, (
+                f"Centroid SBD to underlying shape too high ({dist:.4f}) for seed {seed}"
+            )
+
     def test_kshape_too_few_subsequences_raises(self):
         with self.assertRaises(ValueError):
             clf = KShape(n_clusters=10, window_size=20)
