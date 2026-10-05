@@ -29,3 +29,13 @@
 #            'MCD',
 #            'OCSVM',
 #            'PCA']
+
+__all__ = ['NSA']
+
+
+def __getattr__(name):
+    """Load explicitly exported estimators without eager model imports."""
+    if name == 'NSA':
+        from .nsa import NSA
+        return NSA
+    raise AttributeError("module %r has no attribute %r" % (__name__, name))
