@@ -197,9 +197,13 @@ class BaseDeepLearningDetector(BaseDetector):
             train_set = TorchDataset(X=X, y=None)
 
         # create data loader
+        # Keep the final partial batch when it is the only one. With
+        # drop_last=True a dataset smaller than batch_size yields no batches
+        # at all, so train() iterates zero times and then reads a `loss` that
+        # was never assigned. dif.py builds its loader with drop_last=False.
         train_loader = torch.utils.data.DataLoader(
             dataset=train_set, batch_size=self.batch_size,
-            shuffle=True, drop_last=True)
+            shuffle=True, drop_last=self.data_num >= self.batch_size)
 
         # train the model
         self.train(train_loader)

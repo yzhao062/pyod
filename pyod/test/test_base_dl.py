@@ -170,6 +170,21 @@ class TestBaseDL(unittest.TestCase):
         # dummy_clf.fit(self.X_train)
         # self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
+    def test_fit_with_fewer_samples_than_batch_size(self):
+        """A dataset smaller than one batch must still train.
+
+        The training loader used drop_last=True, so a dataset shorter than
+        batch_size produced no batches: train() iterated zero times and then
+        read a `loss` that was never assigned, raising UnboundLocalError.
+        """
+        X_small = self.X_train[:5]
+        self.assertLess(len(X_small), DummyDetector().batch_size)
+
+        for dummy_clf in (DummyDetector(verbose=0), DummyDetector2(verbose=0)):
+            dummy_clf.fit(X_small)
+            self.assertHasAttr(dummy_clf, 'decision_scores_')
+            self.assertEqual(len(dummy_clf.decision_scores_), len(X_small))
+
     def test_fit_returns_self(self):
         # BaseDetector.fit documents "Returns: self : object", but the deep
         # learning base returned None, so `clf.fit(X).predict(X)` raised
