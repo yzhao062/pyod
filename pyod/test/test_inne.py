@@ -23,6 +23,12 @@ from pyod.utils.data import generate_data
 
 
 class TestINNE(unittest.TestCase):
+    def test_rejects_invalid_contamination(self):
+        for contamination in (0.0, 0.9):
+            with self.subTest(contamination=contamination):
+                with self.assertRaisesRegex(ValueError, "contamination must be in"):
+                    INNE(contamination=contamination)
+
     def setUp(self):
         self.n_train = 200
         self.n_test = 100

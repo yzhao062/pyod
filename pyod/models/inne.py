@@ -84,10 +84,10 @@ class INNE(BaseDetector):
                  max_samples="auto",
                  contamination=0.1,
                  random_state=None):
+        super().__init__(contamination=contamination)
         self.n_estimators = n_estimators
         self.max_samples = max_samples
         self.random_state = random_state
-        self.contamination = contamination
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
