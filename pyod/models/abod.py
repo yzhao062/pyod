@@ -250,8 +250,9 @@ class ABOD(BaseDetector):
                                        n_jobs=self.n_jobs)
         self.neigh_.fit(self.X_train_)
         self.tree_ = self.neigh_
-        ind_arr = self.neigh_.kneighbors(self.X_train_,
-                                         n_neighbors=self.n_neighbors,
+        # query without X so that each training point is not counted as
+        # its own neighbor, as for the test points in decision_function
+        ind_arr = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                          return_distance=False)
 
         for i in range(self.n_train_):
