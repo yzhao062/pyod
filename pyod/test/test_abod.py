@@ -338,9 +338,9 @@ def _numpy_abod_scores(model, queries=None):
     training = model.X_train_.astype(np.float64)
     points = training if queries is None else np.asarray(queries, dtype=float)
     if model.method == 'fast':
+        # training points are not their own neighbors
         indices = model.neigh_.kneighbors(
-            training if queries is None else queries,
-            n_neighbors=model.n_neighbors, return_distance=False)
+            queries, n_neighbors=model.n_neighbors, return_distance=False)
     else:
         indices = [range(len(training))] * len(points)
     result = []
