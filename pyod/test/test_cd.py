@@ -4,10 +4,13 @@ import os
 import sys
 import unittest
 
+import numpy as np
 # noinspection PyProtectedMember
+from numpy.testing import assert_allclose
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from sklearn.base import clone
+from sklearn.linear_model import LinearRegression
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -15,6 +18,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 
 from pyod.models.cd import CD
+from pyod.models.cd import _Cooks_dist
 from pyod.utils.data import generate_data
 
 
@@ -182,6 +186,29 @@ class TestCD(unittest.TestCase):
     def tearDown(self):
         pass
 
+
+
+def _reference_cooks_distance(X, y, intercept):
+    design = np.column_stack([np.ones(len(X)), X]) if intercept else X
+    beta, _, _, _ = np.linalg.lstsq(design, y, rcond=None)
+    residuals = y - design @ beta
+    n_obs, n_params = design.shape
+    mse = residuals @ residuals / (n_obs - n_params)
+    leverage = np.diag(design @ np.linalg.pinv(design.T @ design) @ design.T)
+    distance = (residuals ** 2 * leverage
+                / (n_params * mse * (1 - leverage) ** 2))
+    return (distance - distance.min()) / (distance.max() - distance.min())
+
+
+def test_cooks_distance_includes_the_intercept():
+    rng = np.random.default_rng(0)
+    X = rng.normal(5, 1, (50, 2))
+    y = X @ np.array([1.0, 2.0]) + rng.normal(size=50)
+    y[3] += 6
+    for intercept in (True, False):
+        model = LinearRegression(fit_intercept=intercept).fit(X, y)
+        assert_allclose(_Cooks_dist(X, y, model),
+                        _reference_cooks_distance(X, y, intercept))
 
 if __name__ == '__main__':
     unittest.main()
