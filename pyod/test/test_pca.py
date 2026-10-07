@@ -5,6 +5,8 @@ import os
 import sys
 import unittest
 
+import numpy as np
+
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
@@ -155,6 +157,37 @@ class TestPCA(unittest.TestCase):
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
+
+    def test_weighted_scores_reject_constant_feature(self):
+        rng = np.random.RandomState(0)
+        X = np.vstack([rng.rand(50, 3), rng.rand(5, 3) + 8])
+        X[:, 2] = 0
+
+        with self.assertRaisesRegex(ValueError, "numerically zero variance"):
+            PCA(contamination=0.1).fit(X)
+        with self.assertRaisesRegex(ValueError, "numerically zero variance"):
+            PCA(n_selected_components=1).fit(X)
+
+        nondegenerate = PCA(n_components=2).fit(X)
+        assert np.isfinite(nondegenerate.decision_scores_).all()
+
+    def test_weighted_scores_reject_numerically_zero_variance(self):
+        rng = np.random.RandomState(1)
+        first = rng.randn(60)
+        X = np.column_stack([first, first + 1e-10 * rng.randn(60),
+                             rng.randn(60)])
+
+        with self.assertRaisesRegex(ValueError, "numerically zero variance"):
+            PCA().fit(X)
+
+    def test_unweighted_scores_allow_constant_feature(self):
+        rng = np.random.RandomState(0)
+        X = rng.rand(30, 3)
+        X[:, 2] = 0
+
+        unweighted = PCA(weighted=False).fit(X)
+        assert_equal(len(unweighted.selected_w_components_), 3)
+        assert np.isfinite(unweighted.decision_scores_).all()
 
     def tearDown(self):
         pass

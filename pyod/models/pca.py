@@ -57,7 +57,8 @@ class PCA(BaseDetector):
         Number of selected principal components
         for calculating the outlier scores. It is not necessarily equal to
         the total number of the principal components. If not set, use
-        all principal components.
+        all principal components. Weighted scoring raises a ValueError if a
+        selected component has numerically zero explained variance.
 
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
@@ -262,6 +263,18 @@ class PCA(BaseDetector):
                                     -1 * self.n_selected_components_:, :]
         self.selected_w_components_ = self.w_components_[
                                       -1 * self.n_selected_components_:]
+
+        if self.weighted:
+            # An inverse variance weight is undefined for a rank-deficient
+            # component. Treat ratios at machine precision as numerical zeros.
+            variance_floor = (np.finfo(self.w_components_.dtype).eps *
+                              self.n_components_ * np.max(self.w_components_))
+            if np.any(~np.isfinite(self.selected_w_components_) |
+                      (self.selected_w_components_ <= variance_floor)):
+                raise ValueError(
+                    'Weighted PCA cannot score a selected component with '
+                    'numerically zero variance. Remove constant or collinear '
+                    'features, or set weighted=False.')
 
         self.decision_scores_ = np.sum(
             cdist(X, self.selected_components_) / self.selected_w_components_,
