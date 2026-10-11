@@ -303,5 +303,159 @@ class TestDeepSVDD(unittest.TestCase):
         pass
 
 
+class TestDeepSVDDValidationSplit(unittest.TestCase):
+    """The ``validation_size`` contract introduced by fixing #757.
+
+    Before the fix the parameter was stored but never read: DeepSVDD
+    trained on 100% of the data and ``DeepSVDD(validation_size=0.5)``
+    behaved exactly like ``DeepSVDD(validation_size=0.0)``.
+    """
+
+    def _detector(self, validation_size, X_rows=60, n_features=10,
+                  epochs=5, **kwargs):
+        X = np.random.RandomState(42).randn(X_rows, n_features)
+        return DeepSVDD(n_features=n_features, epochs=epochs,
+                       hidden_neurons=[8, 4],
+                       validation_size=validation_size,
+                       random_state=2021, **kwargs).fit(X), X
+
+    @staticmethod
+    def _mean_embedding(clf, rows):
+        """Replicate ``_init_c``: mean embedding of ``rows`` (float32)
+        through ``clf.model_`` in eval mode, with the same eps clamping.
+        Call with a detector fitted with ``epochs=0`` so ``model_`` still
+        holds the initial weights the center was computed from.
+        """
+        clf.model_.eval()
+        with torch.no_grad():
+            mean = torch.mean(clf.model_(
+                torch.tensor(rows, dtype=torch.float32)), dim=0)
+        eps = 0.1
+        mean[(torch.abs(mean) < eps) & (mean < 0)] = -eps
+        mean[(torch.abs(mean) < eps) & (mean > 0)] = eps
+        return mean
+
+    def test_validation_size_changes_scores(self):
+        # The core regression: on the unfixed code both detectors train on
+        # identical data (the split never happened), so with the same
+        # seed their scores were identical. Holding rows out must change
+        # the fitted model on this data.
+        scores_full, _ = self._detector(0.0)
+        scores_split, _ = self._detector(0.5)
+        msg = ('validation_size has no effect on the fitted model; '
+               'the split is not happening')
+        assert not np.allclose(scores_full.decision_scores_,
+                               scores_split.decision_scores_), msg
+
+    def test_split_is_deterministic_under_seed(self):
+        # The hold-out selection is driven by random_state, so the same
+        # seed must reproduce the same split and the same scores. This
+        # pins the seeded shuffle: an unseeded np.random.shuffle (the
+        # pre-fix code) makes two same-seed fits diverge.
+        first, _ = self._detector(0.3)
+        second, _ = self._detector(0.3)
+        assert_equal(first.decision_scores_, second.decision_scores_)
+        assert torch.equal(first.c_, second.c_)
+
+    def test_held_out_rows_never_train_the_center(self):
+        # With the split active, the center is initialized from the
+        # training rows only. Fit twice on overlapping but differently
+        # sized data where the held-out rows differ; more directly, pin
+        # the invariant: the center equals the mean embedding of the
+        # training head of the SAME seeded permutation. Any leak of the
+        # held-out tail into _init_c breaks this.
+        X = np.random.RandomState(42).randn(60, 10)
+        # epochs=0 keeps model_ at the initial weights _init_c saw
+        clf = DeepSVDD(n_features=10, epochs=0, hidden_neurons=[8, 4],
+                       validation_size=0.5, random_state=2021,
+                       preprocessing=False).fit(X)
+        # reproduce the split without the estimator
+        perm = np.random.RandomState(2021)
+        X_shuffled = X.copy()
+        perm.shuffle(X_shuffled)
+        X_train_head = X_shuffled[:30]
+        head_mean = self._mean_embedding(clf, X_train_head)
+        assert torch.allclose(head_mean, clf.c_, atol=1e-6), (
+            'center was not computed from the training head only')
+        # and the full-data mean (what a leaking implementation would
+        # produce) must be a DIFFERENT vector on this data
+        full_mean = self._mean_embedding(clf, X)
+        assert not torch.allclose(full_mean, clf.c_, atol=1e-6), (
+            'center matches the full-data mean: held-out rows leaked')
+
+    def test_custom_center_with_split_works(self):
+        # The user-supplied-center branch must survive the split refactor:
+        # X_norm is no longer a tensor at that point on the fixed code.
+        # Pre-fix this path referenced the numpy array's .dtype/.device
+        # members only through the tensor; the regression is a crash.
+        c = np.ones(4, dtype=np.float32)
+        clf, X = self._detector(0.25, c=c)
+        assert clf.c_.numel() == 4
+        assert torch.allclose(
+            torch.as_tensor(c, dtype=torch.float32), clf.c_), (
+            'the fitted center must be the validated user-supplied center')
+
+    def test_clone_round_trips_validation_size(self):
+        # sklearn contract: the constructor parameter must survive
+        # get_params/clone, and the clone must produce the same fit.
+        clf, X = self._detector(0.2)
+        cloned = clone(clf)
+        assert cloned.get_params()['validation_size'] == 0.2
+        cloned.fit(X)
+        assert_equal(clf.decision_scores_, cloned.decision_scores_)
+
+    def test_zero_validation_size_matches_legacy_behavior(self):
+        # validation_size=0.0 disables the split: every row trains. The
+        # seeded shuffle then only permutes, and a permutation does not
+        # change the training set. Scores must match the legacy code's
+        # scores for the same seed (the legacy code shuffled with the
+        # global RNG; the fixed code uses the seeded RandomState, so the
+        # equivalence claim is on the SET of training rows, pinned via
+        # the center: it must equal the full-data mean embedding).
+        X = np.random.RandomState(42).randn(60, 10)
+        # epochs=0 keeps model_ at the initial weights _init_c saw
+        clf = DeepSVDD(n_features=10, epochs=0, hidden_neurons=[8, 4],
+                       validation_size=0.0, random_state=2021,
+                       preprocessing=False).fit(X)
+        full_mean = self._mean_embedding(clf, X)
+        assert torch.allclose(full_mean, clf.c_, atol=1e-6), (
+            'with validation_size=0.0 the center must be the full-data mean')
+
+    def test_invalid_validation_size_rejected(self):
+        # out-of-range values must raise at construction, in line with
+        # the dropout_rate check in the same __init__
+        for bad in (-0.1, 1.0, 1.5):
+            with assert_raises(ValueError):
+                DeepSVDD(n_features=10, epochs=1, hidden_neurons=[8, 4],
+                         validation_size=bad)
+
+    def test_verbose_reports_validation_loss(self):
+        # With a split active and verbose on, each epoch line must carry
+        # a finite Val Loss; with the split disabled the legacy line must
+        # be unchanged (no Val Loss field).
+        X = np.random.RandomState(42).randn(60, 10)
+
+        def epoch_text(validation_size):
+            buffer = StringIO()
+            with redirect_stdout(buffer):
+                DeepSVDD(n_features=10, epochs=3, hidden_neurons=[8, 4],
+                         validation_size=validation_size,
+                         verbose=1, random_state=2021).fit(X)
+            return [line for line in buffer.getvalue().splitlines()
+                    if line.startswith('Epoch')]
+
+        split_lines = epoch_text(0.25)
+        assert_equal(len(split_lines), 3)
+        for line in split_lines:
+            assert 'Val Loss:' in line, f'missing Val Loss in {line!r}'
+            val = float(line.split('Val Loss:')[1].strip())
+            assert np.isfinite(val)
+
+        plain_lines = epoch_text(0.0)
+        assert_equal(len(plain_lines), 3)
+        for line in plain_lines:
+            assert 'Val Loss' not in line, f'unexpected Val Loss in {line!r}'
+
+
 if __name__ == '__main__':
     unittest.main()
