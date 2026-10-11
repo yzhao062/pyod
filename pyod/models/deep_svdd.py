@@ -20,7 +20,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.utils import check_array
+from sklearn.utils import check_array, check_random_state
 from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
@@ -214,8 +214,17 @@ class DeepSVDD(BaseDetector):
             implementation; larger values push the weights toward zero and
             can collapse the hypersphere.
 
-        validation_size : float in (0., 1), optional (default=0.1)
-            The percentage of data to be used for validation.
+        validation_size : float in [0., 1), optional (default=0.1)
+            The fraction of the training data held out for validation.
+            The held-out rows never contribute to the training objective
+            nor to the hypersphere center initialization; they are only
+            scored (under ``no_grad``) to report a per-epoch validation
+            loss next to the training loss when ``verbose`` is enabled.
+            Set to 0.0 to train on the full data set with no validation
+            split, which is what earlier releases effectively did (the
+            parameter was stored but never used). On small training sets
+            the held-out count ``int(n_samples * validation_size)`` can
+            round down to zero, which also disables the split.
 
         preprocessing : bool, optional (default=True)
             If True, apply standardization on the data.
@@ -295,6 +304,8 @@ class DeepSVDD(BaseDetector):
             torch.manual_seed(self.random_state)
         check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
                         include_left=True)
+        check_parameter(self.validation_size, 0, 1,
+                        param_name='validation_size', include_left=True)
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -326,9 +337,34 @@ class DeepSVDD(BaseDetector):
         else:
             X_norm = np.copy(X)
 
-        # Shuffle the data for validation as Keras do not shuffling for
-        # Validation Split
-        np.random.shuffle(X_norm)
+        # Shuffle the data so the rows held out for validation below are
+        # a random sample rather than the tail of the input order. This
+        # mirrors Keras ``validation_split``, which the ``validation_size``
+        # parameter was ported from (Keras takes the last fraction of the
+        # array and does not shuffle for the split, so the port had to
+        # shuffle first). The permutation itself has no effect on the
+        # training batches or on the center (a mean is
+        # permutation-invariant): it only selects WHICH rows are held out.
+        # Seeding via ``random_state`` keeps the split reproducible and
+        # leaves the numpy global RNG untouched.
+        rng = check_random_state(self.random_state)
+        rng.shuffle(X_norm)
+
+        # Hold out the last ``validation_size`` fraction of the shuffled
+        # data for validation. The held-out rows are never passed to the
+        # training objective, the DataLoader, or ``_init_c``. With
+        # ``validation_size=0.0`` (or a held-out count that rounds down to
+        # zero on a small data set) the split is disabled and every row is
+        # used for training, matching the behavior of earlier releases.
+        n_samples = X_norm.shape[0]
+        n_val = int(n_samples * self.validation_size)
+        if n_val > 0:
+            X_val = torch.tensor(X_norm[n_samples - n_val:],
+                                 dtype=torch.float32)
+            X_train_norm = X_norm[:n_samples - n_val]
+        else:
+            X_val = None
+            X_train_norm = X_norm
 
         # Validate and complete the number of hidden neurons
         if np.min(self.hidden_neurons) > self.n_features_ and self.use_ae:
@@ -342,15 +378,18 @@ class DeepSVDD(BaseDetector):
                                     output_activation=self.output_activation,
                                     dropout_rate=self.dropout_rate,
                                     l2_regularizer=self.l2_regularizer)
-        X_norm = torch.tensor(X_norm, dtype=torch.float32)
+        X_train_norm = torch.tensor(X_train_norm, dtype=torch.float32)
         # ``c`` is a constructor parameter and must stay untouched so that
         # get_params/clone round-trip and a refit re-initializes the center
         # for the freshly built network. The fitted center lives in ``c_``.
+        # Initialize from the training rows only: the held-out validation
+        # rows must stay unseen by the objective, and a center computed
+        # over the full data set would leak them in through the mean.
         if self.c is None:
-            center = self.model_._init_c(X_norm)
+            center = self.model_._init_c(X_train_norm)
         else:
-            center = torch.as_tensor(self.c, dtype=X_norm.dtype,
-                                     device=X_norm.device)
+            center = torch.as_tensor(self.c, dtype=X_train_norm.dtype,
+                                     device=X_train_norm.device)
 
         # The center must match the width of whatever ``forward()`` returns:
         # the decoder reconstruction under use_ae, else the final embedding.
@@ -378,15 +417,25 @@ class DeepSVDD(BaseDetector):
         # later mutate) the fitted center.
         self.c_ = center.detach().clone()
 
-        # Predict on X itself and calculate the reconstruction error as
-        # the outlier scores. Noted X_norm was shuffled has to recreate
+        # Train on the retained (1 - validation_size) fraction of the
+        # shuffled data. The training rows are re-derived here from the
+        # original X: the head of the shuffled X_norm was consumed as a
+        # torch tensor above, and applying the same seeded permutation
+        # again to the fresh copy keeps the DataLoader fed with exactly
+        # the rows that were NOT held out. The held-out tail lives in
+        # X_val and is only read under no_grad for monitoring.
         if self.preprocessing:
-            X_norm = self.scaler_.transform(X)
+            X_train_norm = self.scaler_.transform(X)
         else:
-            X_norm = np.copy(X)
+            X_train_norm = np.copy(X)
+        if n_val > 0:
+            perm_rng = check_random_state(self.random_state)
+            X_train_norm = np.asarray(X_train_norm).copy()
+            perm_rng.shuffle(X_train_norm)
+            X_train_norm = X_train_norm[:n_samples - n_val]
 
-        X_norm = torch.tensor(X_norm, dtype=torch.float32)
-        dataset = TensorDataset(X_norm, X_norm)
+        X_train_norm = torch.tensor(X_train_norm, dtype=torch.float32)
+        dataset = TensorDataset(X_train_norm, X_train_norm)
         dataloader = DataLoader(dataset, batch_size=self.batch_size,
                                 shuffle=True)
 
@@ -427,7 +476,18 @@ class DeepSVDD(BaseDetector):
                 # ones. Copy it.
                 best_model_dict = copy.deepcopy(self.model_.state_dict())
             if self.verbose >= 1:
-                print(f"Epoch {epoch + 1}/{self.epochs}, Loss: {epoch_loss}")
+                if X_val is not None:
+                    self.model_.eval()
+                    with torch.no_grad():
+                        val_outputs = self.model_(X_val)
+                        val_dist = torch.sum(
+                            (val_outputs - self.c_) ** 2, dim=-1)
+                        val_loss = torch.mean(val_dist).item()
+                    self.model_.train()
+                    print(f"Epoch {epoch + 1}/{self.epochs}, "
+                          f"Loss: {epoch_loss}, Val Loss: {val_loss}")
+                else:
+                    print(f"Epoch {epoch + 1}/{self.epochs}, Loss: {epoch_loss}")
         self.best_model_dict = best_model_dict
         if self.best_model_dict is not None:
             self.model_.load_state_dict(self.best_model_dict)
