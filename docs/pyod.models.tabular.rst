@@ -15,6 +15,18 @@ pyod.models.base module
     :show-inheritance:
 
 
+pyod.models.fastlof module
+-------------------------
+
+.. automodule:: pyod.models.fastlof
+    :members:
+    :exclude-members: get_params, set_params
+    :undoc-members:
+    :show-inheritance:
+
+See :doc:`fastlof_validation` for numerical validation and timing evidence.
+
+
 pyod.models.abod module
 -----------------------
 

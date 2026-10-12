@@ -5,11 +5,12 @@
 # License: BSD 2 clause
 
 import math
+from numbers import Integral, Real
 import numpy as np
 from numba import njit, prange
-from scipy.spatial.distance import cdist
 from sklearn.neighbors import NearestNeighbors
-from sklearn.utils.validation import check_array
+from sklearn.utils import check_random_state
+from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.metrics import pairwise_distances
 
 from .base import BaseDetector
@@ -64,7 +65,7 @@ def _update_neighbors(neighbors, neighbor_dists, qpos_active, tpos, M, k):
         neighbors[q_idx] = heap_neighbors
 
 
-@njit(parallel=True, cache=True, fastmath=True)
+@njit(parallel=True, cache=True)
 def _compute_distances_numba(X, Y, metric_type, p, is_symmetric):
     """
     Unified distance computation function.
@@ -147,19 +148,21 @@ class FastLOF(BaseDetector):
 
     algorithm : {'auto', 'brute'}, optional (default='auto')
         Algorithm to use for nearest neighbor search. Currently only 'brute'
-        is fully implemented. 'auto' defaults to 'brute'.
+        is used for chunked training. The novelty index follows scikit-learn's
+        selection when 'auto' is specified.
 
     leaf_size : int, optional (default=30)
-        Leaf size passed to tree-based neighbors. Currently not used
-        (reserved for future enhancement).
+        Leaf size passed to the novelty neighbor index.
 
     metric : str, optional (default='euclidean')
         Metric to use for distance computation. Supported metrics include:
         'euclidean', 'minkowski', 'manhattan', 'l1', 'l2', 'cosine', 'cityblock',
-        and any metric supported by scikit-learn's pairwise_distances.
+        and metrics supported by both pairwise_distances and NearestNeighbors.
+        Precomputed distances and sparse inputs are not supported.
 
-    p : int, optional (default=2)
-        Parameter for Minkowski metric. When p=1, equivalent to Manhattan distance.
+    p : float, optional (default=2)
+        Parameter for Minkowski metric, at least 1. When p=1, equivalent to
+        Manhattan distance.
         When p=2, equivalent to Euclidean distance.
 
     metric_params : dict, optional (default=None)
@@ -172,8 +175,8 @@ class FastLOF(BaseDetector):
         threshold on the decision function.
 
     n_jobs : int, optional (default=None)
-        Number of parallel jobs for computation. Currently validated but not
-        implemented (reserved for future enhancement).
+        Number of jobs for general distance computations and novelty queries.
+        Numba kernels use Numba's thread configuration instead.
 
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
@@ -184,16 +187,23 @@ class FastLOF(BaseDetector):
     chunk_size : int, optional (default=None)
         Size of data chunks for processing. If None, automatically calculated.
 
-    threshold : float, optional (default=1.01)
+    threshold : float, optional (default=1.1)
         LOF threshold for considering points as potential outliers during
         iterative refinement. Points with LOF > threshold are processed
-        in subsequent iterations. Default 1.01 means points slightly above
-        normal density are considered.
+        in subsequent iterations. Zero disables pruning. Pruned points remain
+        neighbor candidates, but their neighborhoods are approximate.
 
     Attributes
     ----------
     n_neighbors_ : int
         The actual number of neighbors used for computation.
+
+    kdist_ : numpy array of shape (n_samples,)
+        Training k-distances in original row order and actual distance units.
+        These are approximate when pruning is enabled.
+
+    lrd_ : numpy array of shape (n_samples,)
+        Training local reachability densities in original row order.
 
     decision_scores_ : numpy array of shape (n_samples,)
         The outlier scores of the training data.
@@ -246,35 +256,67 @@ class FastLOF(BaseDetector):
             Fitted estimator.
         """
         # Validate inputs
-        X = check_array(X)
+        X = check_array(X, dtype=[np.float64, np.float32],
+                        ensure_min_samples=2)
         self._set_n_classes(y)
 
         n_samples = X.shape[0]
 
-        # Validate and adjust n_neighbors (match scikit-learn behavior)
-        if self.n_neighbors >= n_samples:
-            self.n_neighbors_ = n_samples - 1
-        else:
-            self.n_neighbors_ = self.n_neighbors
-
-        # Validate algorithm
+        for name in ['n_neighbors', 'leaf_size']:
+            value = getattr(self, name)
+            if (isinstance(value, bool) or
+                    not isinstance(value, Integral) or value < 1):
+                raise ValueError(f'{name} must be a positive integer')
+        if self.chunk_size is not None and (
+                isinstance(self.chunk_size, bool) or
+                not isinstance(self.chunk_size, Integral) or self.chunk_size < 1):
+            raise ValueError('chunk_size must be None or a positive integer')
+        if self.n_jobs is not None and (
+                isinstance(self.n_jobs, bool) or
+                not isinstance(self.n_jobs, Integral) or self.n_jobs == 0):
+            raise ValueError('n_jobs must be None or a nonzero integer')
+        if (not isinstance(self.threshold, Real) or
+                not np.isfinite(self.threshold) or self.threshold < 0):
+            raise ValueError('threshold must be finite and nonnegative')
+        if (not isinstance(self.p, Real) or
+                not np.isfinite(self.p) or self.p < 1):
+            raise ValueError('p must be finite and at least 1')
         if self.algorithm not in ['auto', 'brute']:
-            raise ValueError(f"algorithm must be 'auto' or 'brute', got {self.algorithm}")
-
-        # Validate p parameter
-        if self.p <= 0:
-            raise ValueError(f"p must be positive, got {self.p}")
-
-        # Validate leaf_size (for future tree support)
-        if self.leaf_size <= 0:
-            raise ValueError(f"leaf_size must be positive, got {self.leaf_size}")
-
-        # Validate n_jobs
-        if self.n_jobs is not None and self.n_jobs < -1:
-            raise ValueError(f"n_jobs must be None, -1, or positive, got {self.n_jobs}")
+            raise ValueError("algorithm must be 'auto' or 'brute'")
+        if self.metric == 'precomputed':
+            raise ValueError('FastLOF does not support precomputed distances')
+        self.n_neighbors_ = min(self.n_neighbors, n_samples - 1)
+        self.metric_ = {'l1': 'manhattan', 'cityblock': 'manhattan',
+                        'l2': 'euclidean'}.get(self.metric, self.metric)
+        self.metric_params_ = dict(self.metric_params or {})
+        if self.metric_ == 'minkowski':
+            self.metric_params_.setdefault('p', self.p)
+            p = self.metric_params_['p']
+            if not isinstance(p, Real) or not np.isfinite(p) or p < 1:
+                raise ValueError('Minkowski p must be finite and at least 1')
+        elif self.metric_ == 'seuclidean':
+            self.metric_params_.setdefault('V', np.var(X, axis=0, ddof=1))
+        elif self.metric_ == 'mahalanobis' and 'VI' not in self.metric_params_:
+            try:
+                covariance = np.atleast_2d(np.cov(X.T))
+                self.metric_params_['VI'] = np.linalg.inv(covariance)
+            except np.linalg.LinAlgError as exc:
+                raise ValueError(
+                    'Singular covariance; supply metric_params with VI'
+                ) from exc
 
         # Store training data for novelty detection
         self.X_train_ = X.copy()
+        self.n_features_in_ = X.shape[1]
+
+        # Replace the index on every fit, including after previous queries.
+        params = dict(self.metric_params_)
+        p = params.pop('p', self.p)
+        self.nbrs_ = NearestNeighbors(
+            n_neighbors=self.n_neighbors_, algorithm=self.algorithm,
+            leaf_size=self.leaf_size, metric=self.metric_, p=p,
+            metric_params=params or None, n_jobs=self.n_jobs
+        ).fit(self.X_train_)
 
         # Run FastLOF algorithm
         self.decision_scores_ = self._fastlof_compute(X)
@@ -285,7 +327,7 @@ class FastLOF(BaseDetector):
         return self
 
     def _calculate_chunk_size(self, n_samples, k):
-        """Calculate chunk size to aim for log2(n_samples) chunks.
+        """Calculate a bounded heuristic chunk size, at least k + 1.
 
         Parameters
         ----------
@@ -297,7 +339,7 @@ class FastLOF(BaseDetector):
         Returns
         -------
         chunk_size : int
-            Chunk size for processing, aiming for log2(n_samples) chunks.
+            Chunk size for processing.
         """
         if self.chunk_size is not None:
             return int(max(self.chunk_size, k + 1))
@@ -328,33 +370,30 @@ class FastLOF(BaseDetector):
         distances : ndarray of shape (n_samples_X, n_samples_Y)
             Distance matrix between X and Y.
         """
-        X = np.ascontiguousarray(X, dtype=np.float32)
-        Y = np.ascontiguousarray(Y, dtype=np.float32)
-        # Determine metric type for numba function
-        if self.metric == 'euclidean' or (self.metric == 'minkowski' and self.p == 2):
-            metric_type = 0  # squared euclidean
-        elif self.metric == 'manhattan' or self.metric == 'cityblock' or (self.metric == 'minkowski' and self.p == 1):
-            metric_type = 1  # manhattan
-        elif self.metric == 'minkowski':
-            metric_type = 2  # minkowski
-        else:
-            metric_type = -1  # fall back to scipy/sklearn
-
-        # Use optimized numba function for supported metrics
+        X = np.ascontiguousarray(X)
+        Y = np.ascontiguousarray(Y)
+        params = self.metric_params_
+        p = params.get('p', self.p)
+        metric = self.metric_
+        metric_type = -1
+        if not (set(params) - {'p'}):
+            if metric == 'euclidean' or (metric == 'minkowski' and p == 2):
+                metric_type = 0
+            elif metric == 'manhattan' or (metric == 'minkowski' and p == 1):
+                metric_type = 1
+            elif metric == 'minkowski':
+                metric_type = 2
         if metric_type >= 0:
-            return _compute_distances_numba(X, Y, metric_type, self.p, is_symmetric)
-
-        # Fall back to scipy/sklearn for unsupported metrics
-        try:
-            params = self.metric_params or {}
-            if self.metric == 'minkowski':
-                params['p'] = self.p
-            return cdist(X, Y, metric=self.metric, **params)
-        except (ValueError, ImportError, TypeError):
-            params = self.metric_params or {}
-            if self.metric == 'minkowski':
-                params['p'] = self.p
-            return pairwise_distances(X, Y, metric=self.metric, **params)
+            distances = _compute_distances_numba(
+                X, Y, metric_type, p, is_symmetric)
+            if metric_type == 0:
+                np.sqrt(distances, out=distances)
+        else:
+            distances = pairwise_distances(
+                X, Y, metric=metric, n_jobs=self.n_jobs, **params)
+        if not np.isfinite(distances).all():
+            raise ValueError('The distance metric produced nonfinite distances')
+        return distances
 
     def decision_function(self, X):
         """Predict raw anomaly scores of X using the fitted detector.
@@ -373,10 +412,11 @@ class FastLOF(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        if not hasattr(self, 'decision_scores_'):
-            raise ValueError("FastLOF must be fitted before decision_function")
-
-        # Compute LOF scores using the training data structure
+        check_is_fitted(self, ['decision_scores_', 'threshold_', 'labels_',
+                               'nbrs_', 'lrd_', 'kdist_'])
+        X = check_array(X, dtype=[np.float64, np.float32])
+        if X.shape[1] != self.n_features_in_:
+            raise ValueError('Query feature count differs from training data')
         return self._compute_lof_scores(X)
 
     def _fastlof_compute(self, X):
@@ -395,20 +435,11 @@ class FastLOF(BaseDetector):
         # Get number of samples and number of neighbors
         n_samples = X.shape[0]
         k = self.n_neighbors_
-        epsilon = 1e-10  # For convergence check
 
         # Set chunk size dynamically
         chunk_size = self._calculate_chunk_size(n_samples, k)
 
-        # Random state for reproducibility
-        if self.random_state is None:
-            rng = np.random.RandomState()
-        else:
-            # Handle both integer and RandomState objects
-            if hasattr(self.random_state, 'get_state'):
-                rng = self.random_state
-            else:
-                rng = np.random.RandomState(self.random_state)
+        rng = check_random_state(self.random_state)
         # Get a random permutation of the data
         perm = rng.permutation(n_samples)
 
@@ -435,7 +466,7 @@ class FastLOF(BaseDetector):
         # Initialize neighbor storage to -1 for all points
         neighbors = np.full((n_samples, k), -1, dtype=np.int32)
         # Initialize neighbor distances to infinity for all points
-        neighbor_dists = np.full((n_samples, k), np.inf, dtype=np.float32)
+        neighbor_dists = np.full((n_samples, k), np.inf, dtype=X.dtype)
 
         # Initialize all points as active to 1
         active = np.ones(n_samples, dtype=bool)
@@ -444,9 +475,6 @@ class FastLOF(BaseDetector):
 
         # ===== MAIN CHUNK PROCESSING LOOP =====
         for offset in range(n_chunks):
-            # Store old k-distances before this diagonal pass
-            old_kdist = neighbor_dists[:, 0].copy()
-
             # Process all chunk pairs at this offset distance
             for i in range(n_chunks - offset):
                 j = i + offset
@@ -454,47 +482,43 @@ class FastLOF(BaseDetector):
                 qpos = chunk_positions[i]
                 tpos = chunk_positions[j]
 
-                # Get active mask for chunk i
-                active_mask = active[qpos]
-                # If there are no more active points, stop
-                if not np.any(active_mask) or len(tpos) == 0:
-                    continue
-
-                # Get active points in chunk i
-                qpos_active = qpos[active_mask]
-
-                # Get indices of active points in chunk i and all points in chunk j
-                q_indices = chunks[i][active_mask]
-                t_indices = chunks[j]
-                M = self._compute_distances(X[q_indices], X[t_indices], is_symmetric=(i == j))
-
-                # Handle self-distances
+                mask_i = active[qpos]
+                mask_j = active[tpos]
                 if i == j:
-                    # Set self-distances to infinity
+                    # Intra-chunk initialization runs before pruning starts.
+                    M = self._compute_distances(
+                        X[chunks[i]], X[chunks[j]], is_symmetric=True)
                     np.fill_diagonal(M, np.inf)
-
-                # Update neighbors for chunk i (active points only)
-                # Use the neighbor indices, neighbor distances, active points in chunk i, and all points in chunk j,
-                # and the distance matrix, and the number of neighbors to update the neighbors and neighbor distances
-                _update_neighbors(neighbors, neighbor_dists, qpos_active, tpos, M, k)
-
-                # Symmetric update for chunk j (if different chunks)
-                if i != j:
-                    _update_neighbors(neighbors, neighbor_dists, tpos, qpos_active, M.T, k)
+                    _update_neighbors(neighbors, neighbor_dists,
+                                      qpos, tpos, M, k)
+                elif mask_i.all() and mask_j.all():
+                    M = self._compute_distances(X[chunks[i]], X[chunks[j]])
+                    _update_neighbors(neighbors, neighbor_dists,
+                                      qpos, tpos, M, k)
+                    _update_neighbors(neighbors, neighbor_dists,
+                                      tpos, qpos, M.T, k)
+                else:
+                    # Pruning skips queries; every point remains a candidate.
+                    if mask_i.any():
+                        M = self._compute_distances(
+                            X[chunks[i][mask_i]], X[chunks[j]])
+                        _update_neighbors(neighbors, neighbor_dists,
+                                          qpos[mask_i], tpos, M, k)
+                    if mask_j.any():
+                        M = self._compute_distances(
+                            X[chunks[j][mask_j]], X[chunks[i]])
+                        _update_neighbors(neighbors, neighbor_dists,
+                                          tpos[mask_j], qpos, M, k)
 
             # Compute LOF scores after processing this diagonal
-            lof, lrd = self._compute_lof(neighbors, neighbor_dists, k)
+            lof, lrd, kdist = self._compute_lof(neighbors, neighbor_dists, k)
 
             # Update active set
             if offset >= 1:
                 active = lof > self.threshold
 
-            # Check for improvements (smart convergence)
-            new_kdist = neighbor_dists[:, 0]
-            improvements = np.sum(new_kdist < old_kdist - epsilon)
-
-            # Early stopping if no improvements
-            if improvements == 0:
+            # Chunk offsets do not bound distances in later chunk pairs.
+            if not active.any():
                 break
 
         # ===== FINALIZATION =====
@@ -505,6 +529,8 @@ class FastLOF(BaseDetector):
         lrd_orig[perm] = lrd
 
         self.lrd_ = lrd_orig
+        self.kdist_ = np.empty_like(kdist)
+        self.kdist_[perm] = kdist
         return lof_orig
 
     def _compute_lof(self, neighbors, neighbor_dists, k):
@@ -516,7 +542,7 @@ class FastLOF(BaseDetector):
             Neighbor indices for each point.
 
         neighbor_dists : numpy array of shape (n_samples, k)
-            Distances to neighbors (squared for euclidean/metric='minkowski' with p=2).
+            Distances to neighbors in actual distance units.
 
         k : int
             Number of neighbors.
@@ -525,11 +551,13 @@ class FastLOF(BaseDetector):
         -------
         lof : numpy array of shape (n_samples,)
             LOF scores for all points.
-        """
-        # Convert squared distances to actual distances for euclidean metrics
-        if self.metric == 'euclidean' or (self.metric == 'minkowski' and self.p == 2):
-            neighbor_dists = np.sqrt(neighbor_dists)
 
+        lrd : numpy array of shape (n_samples,)
+            Local reachability densities in permutation order.
+
+        kdist : numpy array of shape (n_samples,)
+            K-distances in permutation order and actual distance units.
+        """
         # Get k-distances (distance to k-th nearest neighbor)
         kdist = neighbor_dists[:, 0].copy()
 
@@ -550,15 +578,14 @@ class FastLOF(BaseDetector):
         # LOF computation
         lof = mean_neighbor_lrd / lrd
 
-        return lof, lrd
+        return lof, lrd, kdist
 
     def _compute_lof_scores(self, X):
         """Compute LOF scores for new data using the training data structure.
 
         This method implements novelty detection by computing LOF scores
         for new data points using the existing training data. It employs
-        lazy initialization for the nearest neighbor searcher to ensure
-        memory efficiency.
+        the nearest neighbor index rebuilt during each fit.
 
         Parameters
         ----------
@@ -570,16 +597,6 @@ class FastLOF(BaseDetector):
         lof_scores : numpy array of shape (n_samples,)
             LOF scores for the new data points.
         """
-        # Lazy initialization: Initialize the neighbor searcher only if needed
-        if not hasattr(self, 'nbrs_'):
-            self.nbrs_ = NearestNeighbors(n_neighbors=self.n_neighbors_,
-                                          algorithm=self.algorithm,
-                                          metric=self.metric,
-                                          p=self.p,
-                                          metric_params=self.metric_params,
-                                          n_jobs=self.n_jobs)
-            self.nbrs_.fit(self.X_train_)
-
         # Find k nearest neighbors in training data
         # dists: Distances to the k nearest neighbors
         # indices: Indices of the k nearest neighbors in X_train
@@ -587,12 +604,7 @@ class FastLOF(BaseDetector):
 
         # Compute reachability distances for new points
         # rd_new_to_train = max(k_distance, distance)
-        k_distances_new = dists[:, -1]  # k-distance of each new point
-
-        rd_new_to_train = np.maximum(
-            k_distances_new[:, np.newaxis],  # Broadcast k-distance to match distances shape
-            dists
-        )
+        rd_new_to_train = np.maximum(self.kdist_[indices], dists)
 
         # Compute local reachability density (LRD) for new points
         # Add small epsilon to avoid division by zero
