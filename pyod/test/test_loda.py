@@ -5,8 +5,9 @@ import os
 import sys
 import unittest
 
+import numpy as np
 # noinspection PyProtectedMember
-from numpy.testing import assert_equal
+from numpy.testing import assert_allclose, assert_equal
 from numpy.testing import assert_raises
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
@@ -254,6 +255,56 @@ class TestLODARandomState(unittest.TestCase):
         clf = LODA()
         clf.fit(self.X)
         assert clf.decision_scores_.shape == (self.X.shape[0],)
+
+
+class TestLODAHistogramLookup(unittest.TestCase):
+    def test_bin_interiors(self):
+        X = np.array([0., .1, .2, 1.1, 2.1, 3.]).reshape(-1, 1)
+        clf = LODA(n_bins=3, n_random_cuts=1, random_state=0).fit(X)
+        probabilities = (np.array([3., 1., 2.]) + 1e-12) / (6 + 3e-12)
+        expected = -np.log(probabilities[[0, 0, 0, 1, 2, 2]])
+        assert_allclose(clf.decision_scores_, expected)
+        assert_allclose(clf.decision_function(X), expected)
+        assert_allclose(clf.decision_function([[.5], [1.5], [2.5]]),
+                        -np.log(probabilities))
+
+    def test_boundaries_and_outside_support(self):
+        X = np.array([0., .1, .2, 1.1, 2.1, 3.]).reshape(-1, 1)
+        clf = LODA(n_bins=3, n_random_cuts=1, random_state=0).fit(X)
+        probabilities = (np.array([3., 1., 2.]) + 1e-12) / (6 + 3e-12)
+        assert_allclose(clf.decision_function([[-1.], [0.], [1.],
+                                              [2.], [3.], [4.]]),
+                        -np.log(probabilities[[0, 0, 1, 2, 2, 2]]))
+
+    def test_histogram_counts_for_multiple_cuts(self):
+        rng = np.random.RandomState(7)
+        X = rng.lognormal(size=(80, 4))
+        queries = np.vstack([X, rng.lognormal(size=(20, 4))])
+        for n_bins in (1, 5, 'auto'):
+            with self.subTest(n_bins=n_bins):
+                clf = LODA(n_bins=n_bins, n_random_cuts=7,
+                           random_state=42).fit(X)
+                expected = np.zeros(len(queries))
+                for cut, projection in enumerate(clf.projections_):
+                    edges = clf.limits_[cut]
+                    training_values = projection.dot(X.T)
+                    counts = []
+                    for j, (lo, hi) in enumerate(zip(edges[:-1], edges[1:])):
+                        below_hi = (training_values <= hi if j == len(edges)-2
+                                    else training_values < hi)
+                        counts.append(np.count_nonzero(
+                            (training_values >= lo) & below_hi))
+                    probabilities = np.array(counts, dtype=float) + 1e-12
+                    probabilities /= probabilities.sum()
+                    for i, value in enumerate(projection.dot(queries.T)):
+                        # Interior edges delimit left-closed bins; outer values
+                        # retain the density of the nearest edge bin.
+                        bin_index = sum(value >= edge for edge in edges[1:-1])
+                        expected[i] -= (clf.weights[cut]
+                                        * np.log(probabilities[bin_index]))
+                expected /= clf.n_random_cuts
+                assert_allclose(clf.decision_scores_, expected[:len(X)])
+                assert_allclose(clf.decision_function(queries), expected)
 
 
 if __name__ == '__main__':

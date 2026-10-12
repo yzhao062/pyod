@@ -138,8 +138,8 @@ class LODA(BaseDetector):
                 self.limits_.append(limits)
 
                 # calculate the scores for the training samples
-                inds = np.searchsorted(limits[:n_bins - 1],
-                                       projected_data, side='left')
+                inds = np.searchsorted(limits[1:-1],
+                                       projected_data, side='right')
                 pred_scores[:, 0] += -self.weights[i] * np.log(
                     histogram[inds])
 
@@ -158,8 +158,8 @@ class LODA(BaseDetector):
                 self.histograms_[i, :] /= np.sum(self.histograms_[i, :])
 
                 # calculate the scores for the training samples
-                inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                       projected_data, side='left')
+                inds = np.searchsorted(self.limits_[i, 1:-1],
+                                       projected_data, side='right')
                 pred_scores[:, 0] += -self.weights[i] * np.log(
                     self.histograms_[i, inds])
 
@@ -201,8 +201,8 @@ class LODA(BaseDetector):
             for i in range(self.n_random_cuts):
                 projected_data = self.projections_[i, :].dot(X.T)
 
-                inds = np.searchsorted(self.limits_[i][:self.n_bins_[i] - 1],
-                                       projected_data, side='left')
+                inds = np.searchsorted(self.limits_[i][1:-1],
+                                       projected_data, side='right')
                 pred_scores[:, 0] += -self.weights[i] * np.log(
                     self.histograms_[i][inds])
 
@@ -211,8 +211,8 @@ class LODA(BaseDetector):
             for i in range(self.n_random_cuts):
                 projected_data = self.projections_[i, :].dot(X.T)
 
-                inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                       projected_data, side='left')
+                inds = np.searchsorted(self.limits_[i, 1:-1],
+                                       projected_data, side='right')
                 pred_scores[:, 0] += -self.weights[i] * np.log(
                     self.histograms_[i, inds])
         else:
