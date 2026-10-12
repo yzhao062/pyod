@@ -34,11 +34,18 @@ def _Cooks_dist(X, y, model):
         Cook's distance
     """
 
-    # Leverage is computed as the diagonal of the projection matrix of X
-    leverage = (X * np.linalg.pinv(X).T).sum(1)
+    # Design matrix of the regression, with the intercept column when the
+    # model fits one (as LinearRegression does by default)
+    design = X
+    if getattr(model, 'fit_intercept', False):
+        design = np.column_stack([np.ones(X.shape[0]), X])
+
+    # Leverage is computed as the diagonal of the projection matrix of
+    # the design matrix
+    leverage = (design * np.linalg.pinv(design).T).sum(1)
 
     # Compute the rank and the degrees of freedom of the model
-    rank = np.linalg.matrix_rank(X)
+    rank = np.linalg.matrix_rank(design)
     df = X.shape[0] - rank
 
     # Compute the MSE from the residuals
@@ -49,7 +56,7 @@ def _Cooks_dist(X, y, model):
     if (mse != 0) and not np.isnan(mse):
         residuals_studentized = residuals / np.sqrt(mse) / np.sqrt(
             1 - leverage)
-        distance_ = residuals_studentized ** 2 / X.shape[1]
+        distance_ = residuals_studentized ** 2 / design.shape[1]
         distance_ *= leverage / (1 - leverage)
         distance_ = ((distance_ - distance_.min())
                      / (distance_.max() - distance_.min()))
