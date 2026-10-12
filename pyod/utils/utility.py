@@ -282,16 +282,16 @@ def get_intersection(lst1, lst2):
 
     Parameters
     ----------
-    li1 : list or numpy array
+    lst1 : list or numpy array
         Input list 1.
 
-    li2 : list or numpy array
+    lst2 : list or numpy array
         Input list 2.
 
     Returns
     -------
-    difference : list
-        The overlapping between li1 and li2.
+    intersection : list
+        The overlapping between lst1 and lst2.
     """
     return list(set(lst1) & set(lst2))
 
