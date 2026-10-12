@@ -23,3 +23,6 @@ build/
 /.claude/
 /agents/
 /skills/
+/agents/codex.md
+todo/*
+!todo/README.md

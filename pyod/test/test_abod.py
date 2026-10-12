@@ -4,6 +4,12 @@ import os
 import sys
 import unittest
 
+from itertools import combinations
+
+import numpy as np
+import pandas as pd
+import pytest
+
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
@@ -308,6 +314,66 @@ class TestABODKwargsRejection(unittest.TestCase):
 
     def test_default_construction_works(self):
         ABOD()
+
+
+def _numpy_abod_scores(model, queries=None):
+    training = model.X_train_.astype(np.float64)
+    points = training if queries is None else np.asarray(queries, dtype=float)
+    if model.method == 'fast':
+        indices = model.neigh_.kneighbors(
+            training if queries is None else queries,
+            n_neighbors=model.n_neighbors, return_distance=False)
+    else:
+        indices = [range(len(training))] * len(points)
+    result = []
+    for point, neighbors in zip(points, indices):
+        angles = []
+        for first, second in combinations(neighbors, 2):
+            a, b = training[first] - point, training[second] - point
+            if np.any(a) and np.any(b):
+                angles.append(np.dot(a, b) / (np.dot(a, a) * np.dot(b, b)))
+        result.append(-np.var(angles))
+    return np.array(result)
+
+
+@pytest.mark.parametrize('method', ['fast', 'default'])
+@pytest.mark.parametrize('dtype', [np.bool_, np.uint8, np.int64, np.uint64,
+                                   np.float16, np.float32, np.float64])
+def test_abod_numeric_dtypes(method, dtype):
+    matrix = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 1],
+                       [0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=dtype)
+    original = matrix.copy()
+    model = ABOD(method=method, n_neighbors=3).fit(matrix)
+    expected_dtype = dtype if dtype in (np.float32, np.float64) else np.float64
+    assert model.X_train_.dtype == expected_dtype
+    assert_allclose(model.decision_scores_, _numpy_abod_scores(model),
+                    rtol=1e-5, atol=1e-10)
+    queries = np.array([[0, 0, 1], [0, 0, 0]], dtype=dtype)
+    assert_allclose(model.decision_function(queries),
+                    _numpy_abod_scores(model, queries),
+                    rtol=1e-5, atol=1e-10)
+    assert_equal(matrix, original)
+
+
+@pytest.mark.parametrize('method', ['fast', 'default'])
+@pytest.mark.parametrize('train_dtype', [np.float32, np.float64])
+def test_abod_half_prediction(method, train_dtype):
+    training = np.array([[0, 0], [1, 3], [4, 1], [7, 8], [11, 2], [13, 17]],
+                        dtype=train_dtype)
+    model = ABOD(method=method, n_neighbors=3).fit(training)
+    queries = np.array([[2, 1], [6, 5]], dtype=np.float16)
+    expected = _numpy_abod_scores(model, queries)
+    assert_allclose(model.decision_function(queries), expected,
+                    rtol=1e-5, atol=1e-10)
+
+
+@pytest.mark.parametrize('method', ['fast', 'default'])
+@pytest.mark.parametrize('input_type', [list, pd.DataFrame])
+def test_abod_integer_input_forms(method, input_type):
+    matrix = [[0, 0], [1, 3], [4, 1], [7, 8], [11, 2], [13, 17]]
+    model = ABOD(method=method, n_neighbors=3).fit(input_type(matrix))
+    assert model.X_train_.dtype == np.float64
+    assert_allclose(model.decision_scores_, _numpy_abod_scores(model))
 
 
 if __name__ == '__main__':

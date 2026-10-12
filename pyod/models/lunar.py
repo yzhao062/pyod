@@ -110,7 +110,7 @@ class WEIGHT_MODEL(nn.Module):
 
 class LUNAR(BaseDetector):
     """
-    LUNAR class for outlier detection. See https://www.aaai.org/AAAI22Papers/AAAI-51.GoodgeA.pdf for details.
+    LUNAR class for outlier detection. See https://ojs.aaai.org/index.php/AAAI/article/view/20629 for details.
     For an observation, its ordered list of distances to its k nearest neighbours is input to a neural network, 
     with one of the following outputs:
 
@@ -125,12 +125,12 @@ class LUNAR(BaseDetector):
     model_type: str in ['WEIGHT', 'SCORE'], optional (default = 'WEIGHT')
         Whether to use WEIGHT_MODEL or SCORE_MODEL for anomaly scoring.
 
-    n_neighbors: int, optional (default = 5)
+    n_neighbours: int, optional (default = 5)
         Number of neighbors to use by default for k neighbors queries.
-        In the implementation, the constructor argument name is
-        ``n_neighbours`` for backward compatibility.
+        The American spelling ``n_neighbors`` is not a constructor keyword.
 
-    negative_sampling: str in ['UNIFORM', 'SUBSPACE', MIXED'], optional (default = 'MIXED)
+    negative_sampling: str in ['UNIFORM', 'SUBSPACE', 'MIXED'], optional
+        (default = 'MIXED')
         Type of negative samples to use between:
 
         - 'UNIFORM': uniformly distributed samples
@@ -165,8 +165,12 @@ class LUNAR(BaseDetector):
     wd: float, optional (default = 0.1)
         Weight decay.
     
-    verbose: int in {0,1}, optional (default = 0):
+    verbose: int in {0,1}, optional (default = 0)
         To view or hide training progress
+
+    contamination: float in (0., 0.5), optional (default = 0.1)
+        The amount of contamination of the data set, i.e. the proportion of
+        outliers in the data set.
 
     algorithm : {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
         Algorithm used to compute nearest neighbors.

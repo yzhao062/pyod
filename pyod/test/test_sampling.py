@@ -154,6 +154,24 @@ class TestSampling(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_random_state_stored_as_given(self):
+        # __init__ used to store check_random_state(random_state), so
+        # get_params() returned a RandomState object instead of the seed.
+        clf = Sampling(random_state=42)
+        assert clf.random_state == 42
+        assert clf.get_params()["random_state"] == 42
+        assert clone(clf).random_state == 42
+        assert Sampling().random_state is None
+
+    def test_refit_is_deterministic(self):
+        # With the RandomState created in __init__, every fit advanced the
+        # same generator, so refitting the same instance drew a different
+        # subset and produced different scores.
+        clf = Sampling(contamination=self.contamination, random_state=42)
+        first = clf.fit(self.X_train).decision_scores_.copy()
+        second = clf.fit(self.X_train).decision_scores_
+        assert_allclose(first, second)
+
     def tearDown(self):
         pass
 
@@ -189,6 +207,39 @@ class TestSamplingSubsetBound(unittest.TestCase):
             self.clf_int_upper.fit(self.X_train)
         with assert_raises(ValueError):
             self.clf_int_lower.fit(self.X_train)
+
+    def test_fractional_subset_size_not_mutated(self):
+        # fit() used to overwrite self.subset_size with the absolute count,
+        # so a refit on a differently sized dataset reused the stale value
+        # and get_params() stopped returning what the user passed.
+        clf = Sampling(
+            subset_size=0.2, contamination=self.contamination, random_state=42
+        )
+
+        clf.fit(self.X_train)
+        assert_equal(clf.get_params()["subset_size"], 0.2)
+        assert_equal(len(clf.subset), int(0.2 * len(self.X_train)))
+
+        bigger = np.repeat(self.X_train, 2, axis=0)
+        clf.fit(bigger)
+        assert_equal(clf.get_params()["subset_size"], 0.2)
+        assert_equal(len(clf.subset), int(0.2 * len(bigger)))
+
+    def test_integer_subset_size_not_mutated(self):
+        clf = Sampling(
+            subset_size=25, contamination=self.contamination, random_state=42
+        )
+        clf.fit(self.X_train)
+        assert_equal(clf.get_params()["subset_size"], 25)
+        assert_equal(len(clf.subset), 25)
+
+    def test_invalid_fractional_subset_size_reports_the_value(self):
+        # the message used to contain a literal "%r" - the value was never
+        # interpolated into it.
+        clf = Sampling(subset_size=1.5, contamination=self.contamination)
+        with self.assertRaises(ValueError) as ctx:
+            clf.fit(self.X_train)
+        assert "1.5" in str(ctx.exception)
 
     def tearDown(self):
         pass

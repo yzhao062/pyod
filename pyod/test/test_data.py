@@ -10,6 +10,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
+from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -83,6 +84,105 @@ class TestData(unittest.TestCase):
         assert_allclose(X_test, X_test2)
         assert_allclose(y_train, y_train2)
         assert_allclose(y_test, y_test2)
+
+    def test_data_generate_outliers_have_spread(self):
+        # Regression test for GH #141: for certain seeds the internal offset
+        # was drawn as 0, which collapsed every outlier onto the origin
+        # (uniform(-0, 0) == 0) and produced zero-variance outliers. Sweep a
+        # range of seeds (41, 48 and 50 previously triggered the collapse)
+        # and confirm outliers always keep a non-zero spread.
+        for seed in range(60):
+            X, y = generate_data(
+                n_features=2,
+                contamination=0.05,
+                train_only=True,
+                random_state=seed,
+            )
+            outliers = X[y == 1]
+            assert outliers.var(axis=0).min() > 0, \
+                "outliers collapsed to zero variance for random_state=%d" % seed
+
+    def test_data_generate_float_offset(self):
+        # A float offset in (1, 2) used to raise ValueError, because randint
+        # truncates its bounds and the redraw got low == high. It is now drawn
+        # continuously with a floor of 1.0. Assert separation, not merely a
+        # non-zero variance: a spread test alone would pass on data whose
+        # labelled outliers sit inside the inlier cloud.
+        for offset in (1.1, 1.5, np.nextafter(2.0, 1.0)):
+            with self.subTest(offset=offset):
+                for seed in range(5):
+                    X, y = generate_data(
+                        n_features=2,
+                        contamination=0.05,
+                        train_only=True,
+                        offset=offset,
+                        random_state=seed,
+                    )
+                    outliers = X[y == 1]
+                    assert outliers.var(axis=0).min() > 0
+                    centrality = np.linalg.norm(X - X.mean(axis=0), axis=1)
+                    assert roc_auc_score(y, centrality) > 0.7, \
+                        "outliers are not separated for offset=%r seed=%d" % (
+                            offset, seed)
+
+    def test_data_generate_redraw_branches_stable(self):
+        # The other golden test pins three default-offset seeds whose first
+        # draw is non-zero, so it exercises neither branch the GH #141 fix
+        # actually touches. Both seeds below take the zero-then-redraw path
+        # (the first randint returns 0): offset=1 hits the fixed offset_=1
+        # branch, and offset=2 hits the integer redraw.
+        #
+        # Pin an array-wide sum alongside the first and last rows, with a
+        # tolerance, rather than hashing the raw bytes. A byte-exact pin is
+        # not portable: randn draws Gaussians by the polar method, whose log
+        # is not required to be correctly rounded, so libm implementations
+        # disagree in the last ulp and the same seed yields different low bits
+        # on macOS than on Linux or Windows. The sum still covers every element,
+        # so an inserted or reordered RNG draw, which moves values by O(1),
+        # cannot hide inside this tolerance.
+        golden = {
+            (1, 0): (1888.646949950,
+                     [1.407737153, 1.853812935], [0.716955137, -0.505085628]),
+            (2, 0): (1907.119693504,
+                     [1.070368485, 1.067679162], [-0.467865797, 0.251365755]),
+        }
+        for (offset, seed), (total, first, last) in golden.items():
+            with self.subTest(offset=offset, seed=seed):
+                X, _ = generate_data(n_features=2, contamination=0.05,
+                                     train_only=True, offset=offset,
+                                     random_state=seed)[:2]
+                assert_equal(X.shape, (1000, 2))
+                assert_allclose(X.sum(), total, rtol=0, atol=1e-6)
+                assert_allclose(X[0], first, rtol=0, atol=1e-9)
+                assert_allclose(X[-1], last, rtol=0, atol=1e-9)
+
+    def test_data_generate_offset_below_one_rejected(self):
+        # An offset below 1 must keep raising. coef_, the inlier spread, is
+        # drawn from [0.001, 1.001) independently of offset, so an outlier box
+        # of half-width < 1 lands inside an O(1) inlier cloud and the labelled
+        # outliers become the densest points in the sample.
+        for offset in (0.01, 0.5, np.nextafter(1.0, 0.0)):
+            with self.subTest(offset=offset):
+                with self.assertRaises(ValueError):
+                    generate_data(train_only=True, offset=offset,
+                                  random_state=0)
+
+    def test_data_generate_reproducibility(self):
+        # Golden values pinned from the pre-fix implementation for seeds whose
+        # offset was already non-zero. Redrawing only when the offset comes out
+        # as 0 leaves these untouched, so this guards against a future change
+        # silently altering long-standing fixed-seed output.
+        golden = {
+            0: ([5.059894904, 5.061739412], [-0.263919547, 3.009107520]),
+            1: ([3.401186423, 3.524852969], [0.181525489, 3.650202520]),
+            42: ([6.433658544, 5.509168303], [-3.206743915, -4.912722786]),
+        }
+        for seed, (first, last) in golden.items():
+            X, _ = generate_data(n_train=10, n_test=5, n_features=2,
+                                 contamination=0.2, train_only=True,
+                                 random_state=seed)
+            assert_allclose(X[0], first, rtol=0, atol=1e-9)
+            assert_allclose(X[-1], last, rtol=0, atol=1e-9)
 
     def test_data_generate_cluster(self):
         X_train, X_test, y_train, y_test = \

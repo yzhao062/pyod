@@ -4,6 +4,10 @@ FastLOF validation
 Scope and baseline
 ------------------
 
+The revision was synchronized with development commit
+``01300361021f8aeb07ed8e0521ee5cc6256c86c8`` and the affected-module
+suite was rerun against its current base and utility code.
+
 This revision corrects novelty reachability, refitting, candidate pruning,
 premature stopping, metric consistency, and precision. Pruning remains a
 heuristic approximation; threshold=0 processes all chunk pairs.

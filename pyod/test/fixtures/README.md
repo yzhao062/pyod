@@ -33,7 +33,8 @@ automatically on the same error.
 - raw `joblib.load(path)` raises a `ValueError` whose message starts with
   the documented dtype-mismatch prefix (so the fall-through trigger is
   observed end-to-end, not just hypothetical),
-- `compat_load(path)` returns an `IsolationForest`,
+- the trusted compat path (equivalent to `compat_load(path, trusted=True)`)
+  returns an `IsolationForest`,
 - the loaded model's `estimators_[0].tree_.__getstate__()['nodes'].dtype`
   equals the running sklearn's `NODE_DTYPE` (the dtype was actually repaired,
   not just silently accepted),

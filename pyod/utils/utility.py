@@ -171,7 +171,7 @@ def standardizer(X, X_t=None, keep_scalar=False):
 
 
 def score_to_label(pred_scores, outliers_fraction=0.1):
-    """Turn raw outlier outlier scores to binary labels (0 or 1).
+    """Turn raw outlier scores to binary labels (0 or 1).
 
     Parameters
     ----------
@@ -186,8 +186,7 @@ def score_to_label(pred_scores, outliers_fraction=0.1):
     outlier_labels : numpy array of shape (n_samples,)
         For each observation, tells whether or not
         it should be considered as an outlier according to the
-        fitted model. Return the outlier probability, ranging
-        in [0,1].
+        fitted model. Returns 0 for inliers and 1 for outliers.
     """
     # check input values
     pred_scores = column_or_1d(pred_scores)
@@ -562,7 +561,8 @@ def get_optimal_n_bins(X, upper_bound=None, epsilon=1):
          
     upper_bound :  int, default=None 
         The maximum value of n_bins to be considered. 
-        If set to None, np.sqrt(X.shape[0]) will be used as upper bound. 
+        If set to None, np.sqrt(X.shape[0]) will be used as upper bound,
+        with a minimum of 2 so that one bin is considered for small samples.
          
     epsilon : float, default = 1 
         A stabilizing term added to the logarithm to prevent division by zero. 
@@ -572,10 +572,13 @@ def get_optimal_n_bins(X, upper_bound=None, epsilon=1):
     optimal_n_bins : int 
         The optimal value of n_bins according to the Birge Rozenblac method 
     """
-    if upper_bound is None:
-        upper_bound = int(np.sqrt(X.shape[0]))
-
     n = X.shape[0]
+    if n == 0:
+        raise ValueError('X must contain at least one sample')
+    if upper_bound is None:
+        # The candidate range excludes upper_bound, so it must include 1.
+        upper_bound = max(2, int(np.sqrt(n)))
+
     maximum_likelihood = np.zeros((upper_bound - 1, 1))
 
     for i, b in enumerate(range(1, upper_bound)):

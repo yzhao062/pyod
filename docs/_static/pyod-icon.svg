@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PyOD">
+  <title>PyOD</title>
+  <rect width="64" height="64" rx="15" fill="#fdf7f5"/>
+  <circle cx="26" cy="39" r="16.5" fill="none" stroke="#2b5597" stroke-width="4"/>
+  <circle cx="47" cy="18" r="7.5" fill="#990000"/>
+</svg>

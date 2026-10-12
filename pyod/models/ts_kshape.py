@@ -207,12 +207,15 @@ def _kshape(subsequences, n_clusters, max_iter, random_state):
                 centroids[k] = _znormalize(subsequences[idx])
                 continue
 
-            # Shift-align each member to the current centroid
+            # Shift-align each member to the current centroid. _sbd returns the
+            # lag with the opposite sign to what _shift_align expects (positive
+            # shifts x right), so negate it to actually move the member onto the
+            # centroid instead of away from it.
             aligned = np.empty((len(members_idx), m))
             for j, idx in enumerate(members_idx):
                 _, shift = _sbd(subsequences[idx], centroids[k])
                 aligned[j] = _znormalize(
-                    _shift_align(subsequences[idx], shift, m))
+                    _shift_align(subsequences[idx], -shift, m))
 
             centroids[k] = _compute_centroid(aligned)
 

@@ -148,6 +148,32 @@ class TestLOCI(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_k_is_stored_as_parameter(self):
+        # `k` must survive as a constructor attribute so that get_params /
+        # clone round-trip it (issue #194).
+        clf = LOCI(contamination=self.contamination, k=5)
+        assert_equal(clf.k, 5)
+        assert_equal(clone(clf).k, 5)
+
+    def test_contamination_controls_labels(self):
+        # `threshold_` is documented as being derived from `contamination`,
+        # so a larger contamination must flag at least as many outliers
+        # (issue #194).
+        fractions = []
+        for contamination in (0.05, 0.25, 0.45):
+            clf = LOCI(contamination=contamination)
+            clf.fit(self.X_train)
+            fractions.append(clf.labels_.mean())
+        assert_array_less(fractions[0], fractions[1])
+        assert_array_less(fractions[1], fractions[2])
+
+    def test_threshold_matches_contamination(self):
+        # labels_ must select ~contamination of the training samples.
+        contamination = 0.25
+        clf = LOCI(contamination=contamination)
+        clf.fit(self.X_train)
+        assert_allclose(clf.labels_.mean(), contamination, atol=0.02)
+
     def tearDown(self):
         pass
 

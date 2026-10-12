@@ -8,6 +8,7 @@ import unittest
 import numpy as np
 
 # noinspection PyProtectedMember
+from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
@@ -32,6 +33,26 @@ class TestVAEConfig(unittest.TestCase):
     def test_custom_logvar_clip(self):
         clf = VAE(epoch_num=1, logvar_clip=(-10, 5))
         self.assertEqual(clf.logvar_clip, (-10.0, 5.0))
+
+    def test_clone(self):
+        # __init__ used to store the validator's rebuilt tuple, so sklearn's
+        # identity check failed and VAE could not be used with any estimator
+        # that clones (GridSearchCV, cross_val_score, ...).
+        for logvar_clip in [(-30.0, 20.0), (-10, 5), None]:
+            clf = VAE(epoch_num=1, logvar_clip=logvar_clip)
+            cloned = clone(clf)
+            self.assertEqual(cloned.get_params()['logvar_clip'], logvar_clip)
+            self.assertIs(clf.get_params()['logvar_clip'], logvar_clip)
+
+    def test_logvar_clip_normalised_at_fit(self):
+        X = np.random.RandomState(42).randn(64, 5)
+        clf = VAE(epoch_num=1, logvar_clip=(-10, 5), contamination=0.1,
+                  verbose=0)
+        clf.fit(X)
+        # the argument is untouched, the normalised floats live on the
+        # trailing-underscore attribute
+        self.assertEqual(clf.logvar_clip, (-10, 5))
+        self.assertEqual(clf.logvar_clip_, (-10.0, 5.0))
 
     def test_invalid_logvar_clip(self):
         self.assertRaises(ValueError, VAE, epoch_num=1, logvar_clip=(1,))
