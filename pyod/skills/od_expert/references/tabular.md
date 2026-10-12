@@ -1,6 +1,6 @@
 # Tabular anomaly detection reference
 
-PyOD's largest modality (43 of 61 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
+PyOD's largest modality (44 of 62 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
 
 ## Decision table by data shape (expert heuristics)
 
@@ -32,6 +32,7 @@ These are rules of thumb for reasoning about which detectors a non-expert would 
 - **DeepSVDD** (Deep Support Vector Data Description) — complexity: time O(n * d * h * epochs), space O(d * h); best for: One-class anomaly detection where a compact normal data description is desired; avoid when: Normal data is multi-modal or simpler one-class methods are sufficient; requires: pyod[torch]; paper: Ruff et al., ICML 2018
 - **DevNet** (Deep Anomaly Detection with Deviation Networks) — complexity: time O(n * d * h * epochs), space O(d * h); best for: Semi-supervised anomaly detection where a small number of labeled anomalies are available; avoid when: No labeled anomalies are available or dataset is too small for deep learning; requires: pyod[torch]; paper: Pang et al., KDD 2019
 - **ECOD** (Empirical Cumulative Distribution Functions) — complexity: time O(n * d * log(n)), space O(n * d); best for: General-purpose outlier detection when speed and interpretability are priorities; avoid when: Features are heavily correlated and outliers only manifest in joint distributions; paper: Li et al., TKDE 2022
+- **EIF** (Extended Isolation Forest) — complexity: time O(n * t * d * log(n)) where t is n_estimators, d is n_features, space O(t * n * d); best for: Tabular data with correlated features where axis-parallel Isolation Forest splits leave score artifacts; avoid when: Anomalies are local density deviations or the standard Isolation Forest already works well; paper: Hariri et al., TKDE 2021
 - **FeatureBagging** (Feature Bagging Outlier Detection) — complexity: time O(n_estimators * base_detector_time), space O(n_estimators * base_detector_space); best for: High-dimensional data with potentially irrelevant features; avoid when: All features are relevant or a single strong detector suffices; requires: pyod[combo]; paper: Lazarevic and Kumar, KDD 2005
 - **GMM** (Gaussian Mixture Model) — complexity: time O(n * k * d^2) per EM iteration, space O(k * d^2); best for: Data with multi-modal distributions that can be approximated by Gaussian mixtures; avoid when: Data does not follow mixture-of-Gaussians assumption or is very high-dimensional; paper: Aggarwal, 2017
 - **HBOS** (Histogram-Based Outlier Score) — complexity: time O(n * d), space O(n_bins * d); best for: Large-scale datasets where speed is critical and features are roughly independent; avoid when: Outliers only manifest through feature interactions or correlations; paper: Goldstein and Dengel, KI 2012
