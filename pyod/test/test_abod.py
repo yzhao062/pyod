@@ -24,6 +24,7 @@ from sklearn.metrics import roc_auc_score
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.abod import ABOD
+from pyod.models.abod import _calculate_wocs
 from pyod.utils.data import generate_data
 
 
@@ -154,6 +155,23 @@ class TestFastABOD(unittest.TestCase):
             assert_equal(clf.neigh_.n_jobs, -1)
             pred_scores = clf.decision_function(self.X_test)
             assert_equal(pred_scores.shape[0], self.X_test.shape[0])
+
+    def test_fast_mode_train_scores_use_k_other_points(self):
+        # each training point is scored on its n_neighbors nearest other
+        # training points, like a test point in decision_function
+        X = self.X_train[:40]
+        clf = ABOD(n_neighbors=5, method='fast').fit(X)
+        dist = ((X[:, None, :] - X[None, :, :]) ** 2).sum(axis=-1)
+        for i in range(X.shape[0]):
+            others = [j for j in dist[i].argsort() if j != i][:5]
+            assert_allclose(clf.decision_scores_[i],
+                            -_calculate_wocs(X[i], X, others))
+
+    def test_fast_mode_with_all_neighbors_matches_default(self):
+        X = self.X_train[:30]
+        fast = ABOD(n_neighbors=X.shape[0] - 1, method='fast').fit(X)
+        default = ABOD(method='default').fit(X)
+        assert_allclose(fast.decision_scores_, default.decision_scores_)
 
     def tearDown(self):
         pass
@@ -320,9 +338,9 @@ def _numpy_abod_scores(model, queries=None):
     training = model.X_train_.astype(np.float64)
     points = training if queries is None else np.asarray(queries, dtype=float)
     if model.method == 'fast':
+        # training points are not their own neighbors
         indices = model.neigh_.kneighbors(
-            training if queries is None else queries,
-            n_neighbors=model.n_neighbors, return_distance=False)
+            queries, n_neighbors=model.n_neighbors, return_distance=False)
     else:
         indices = [range(len(training))] * len(points)
     result = []
