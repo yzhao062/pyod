@@ -214,6 +214,56 @@ class TestKPCASubsetBound(unittest.TestCase):
         pass
 
 
+class TestKPCASamplingScores(unittest.TestCase):
+    def test_scores_and_threshold_use_all_training_rows(self):
+        X = np.random.RandomState(7).normal(size=(80, 4))
+        X[-8:] += 3
+        for kernel in ("linear", "rbf"):
+            for subset_size in (12, 0.25, len(X)):
+                with self.subTest(kernel=kernel, subset_size=subset_size):
+                    size = (int(len(X) * subset_size)
+                            if isinstance(subset_size, float)
+                            else subset_size)
+                    indices = np.random.RandomState(42).choice(
+                        len(X), size=size, replace=False)
+                    basis = X[indices]
+                    if kernel == "linear":
+                        K = basis @ basis.T
+                        cross = X @ basis.T
+                        diagonal = np.sum(X ** 2, axis=1)
+                    else:
+                        K = np.exp(-0.25 * np.sum(
+                            (basis[:, None] - basis[None, :]) ** 2, axis=2))
+                        cross = np.exp(-0.25 * np.sum(
+                            (X[:, None] - basis[None, :]) ** 2, axis=2))
+                        diagonal = np.ones(len(X))
+
+                    # Independent centered-kernel eigendecomposition.
+                    row_mean = K.mean(axis=0)
+                    K_centered = (K - row_mean[None, :]
+                                  - row_mean[:, None] + K.mean())
+                    eigenvalues, eigenvectors = np.linalg.eigh(K_centered)
+                    projection = ((cross - cross.mean(axis=1, keepdims=True)
+                                   - row_mean + K.mean())
+                                  @ eigenvectors[:, -2:]
+                                  / np.sqrt(eigenvalues[-2:]))
+                    expected = (diagonal - 2 * cross.mean(axis=1) + K.mean()
+                                - np.sum(projection ** 2, axis=1))
+
+                    clf = KPCA(sampling=True, subset_size=subset_size,
+                               n_components=3, n_selected_components=2,
+                               kernel=kernel, gamma=0.25, eigen_solver="dense",
+                               contamination=0.1, random_state=42).fit(X)
+                    assert_equal(clf.kpca.X_fit_, basis)
+                    assert_allclose(clf.decision_scores_, expected, atol=1e-12)
+                    assert_allclose(clf.decision_scores_,
+                                    clf.decision_function(X), atol=1e-12)
+                    assert_allclose(clf.threshold_,
+                                    np.percentile(expected, 90), atol=1e-12)
+                    assert_equal(clf.labels_, expected > clf.threshold_)
+                    assert_equal(clf.labels_, clf.predict(X))
+
+
 class TestKPCAComponentsBound(unittest.TestCase):
     def setUp(self):
         self.n_train = 200

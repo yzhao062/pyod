@@ -172,6 +172,8 @@ class KPCA(BaseDetector):
     sampling : bool, optional (default=False)
         If True, sampling subset from the dataset is performed only once,
         in order to reduce time complexity while keeping detection performance.
+        The kernel PCA model is fitted on the subset, but training scores and
+        the outlier threshold are computed from all training samples.
 
     subset_size : float in (0., 1.0) or int (0, n_samples), optional (default=20)
         If sampling is True, the size of subset is specified.
@@ -286,6 +288,7 @@ class KPCA(BaseDetector):
         self._set_n_classes(y)
 
         # perform subsampling to reduce time complexity
+        X_fit = X
         if self.sampling is True:
             subset_size = self._check_subset_size(X)
             random_state = check_random_state(self.random_state)
@@ -294,17 +297,17 @@ class KPCA(BaseDetector):
                 size=subset_size,
                 replace=False,
             )
-            X = X[random_indices, :]
+            X_fit = X[random_indices, :]
 
         # copy the attributes from the sklearn Kernel PCA object
         if self.n_components is None:
-            n_components = X.shape[0]  # use all dimensions
+            n_components = X_fit.shape[0]  # use all dimensions
         else:
             if self.n_components < 1:
                 raise ValueError(
                     f"`n_components` should be >= 1, got: {self.n_components}"
                 )
-            n_components = min(X.shape[0], self.n_components)
+            n_components = min(X_fit.shape[0], self.n_components)
 
         # validate the number of components to be used for outlier detection
         if self.n_selected_components is None:
@@ -337,18 +340,24 @@ class KPCA(BaseDetector):
             n_jobs=self.n_jobs,
             random_state=self.random_state,
         )
-        x_transformed = self.kpca.fit_transform(X)
+        x_transformed = self.kpca.fit_transform(X_fit)
+        if self.sampling is True:
+            x_transformed = self.kpca.transform(X)
         x_transformed = x_transformed[:, : self.n_selected_components_]
 
         centerer = self.kpca.get_centerer
         kernel = self.kpca.get_kernel
+        if self.sampling is True:
+            gram_fit_rows = np.mean(kernel(X, X_fit), axis=1)
+        else:
+            gram_fit_rows = centerer.K_fit_rows_
 
         potential = []
         for i in range(X.shape[0]):
             sample = X[i, :].reshape(1, -1)
             potential.append(kernel(sample))
         potential = np.array(potential).squeeze()
-        potential = potential - 2 * centerer.K_fit_rows_ + centerer.K_fit_all_
+        potential = potential - 2 * gram_fit_rows + centerer.K_fit_all_
 
         # reconstruction error
         self.decision_scores_ = potential - np.sum(np.square(x_transformed),
