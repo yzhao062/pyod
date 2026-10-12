@@ -5,6 +5,18 @@ PyOD ships 40+ detectors for tabular data, spanning probabilistic, linear, proxi
 
 See :doc:`examples/tabular` for usage examples and :doc:`api_cc` for the shared API reference.
 
+pyod.models.fastlof module
+-------------------------
+
+.. automodule:: pyod.models.fastlof
+    :members:
+    :exclude-members: get_params, set_params
+    :undoc-members:
+    :show-inheritance:
+
+See :doc:`fastlof_validation` for numerical validation and timing evidence.
+
+
 pyod.models.abod module
 -----------------------
 
