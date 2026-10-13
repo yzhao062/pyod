@@ -220,6 +220,20 @@ class TestMetrics(unittest.TestCase):
             with self.subTest(n=rank):
                 assert_equal(precision_n_scores([0, 1], [0, 1], n=rank), 1.0)
 
+    def test_precision_n_scores_object_scores(self):
+        for scores in ([0, 1], [0.1, 0.9]):
+            with self.subTest(scores=scores):
+                assert_equal(precision_n_scores(
+                    [0, 1], np.array(scores, dtype=object)), 1.0)
+
+    def test_precision_n_scores_object_nonfinite(self):
+        for score in (np.nan, np.inf, -np.inf):
+            for n in (None, 0, 1, 2):
+                with self.subTest(score=score, n=n):
+                    with self.assertRaisesRegex(ValueError, 'finite'):
+                        precision_n_scores(
+                            [0, 1], np.array([0, score], dtype=object), n=n)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))

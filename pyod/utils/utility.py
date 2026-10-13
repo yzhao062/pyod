@@ -227,6 +227,8 @@ def precision_n_scores(y, y_pred, n=None):
 
     if not np.all(np.isin(y, [0, 1])):
         raise ValueError('y must contain only binary labels 0 and 1')
+    if y_pred.dtype.kind == 'O':
+        y_pred = y_pred.astype(np.float64)
     if not np.all(np.isfinite(y_pred)):
         raise ValueError('y_pred must contain only finite scores')
 
