@@ -420,7 +420,7 @@ Data                 :func:`~pyod.utils.data.generate_data`           Synthesize
 Data                 :func:`~pyod.utils.data.generate_data_clusters`  Synthesized data generation in clusters for more complex patterns
 Data                 :func:`~pyod.utils.data.generate_ts_data`        Synthesized time series data with point and subsequence anomalies
 Evaluation           :func:`~pyod.utils.data.evaluate_print`          Print ROC-AUC and Precision @ Rank n for a detector
-Evaluation           :func:`~pyod.utils.utility.precision_n_scores`   Calculate Precision @ Rank n
+Evaluation           :func:`~pyod.utils.utility.precision_n_scores`   Calculate Precision @ Rank n, sharing tied cutoff scores equally across the remaining ranks
 Utility              :func:`~pyod.utils.utility.get_label_n`          Turn raw outlier scores into binary labels by assigning 1 to the top n scores
 Stat                 :func:`~pyod.utils.stat_models.wpearsonr`        Calculate the weighted Pearson correlation of two samples
 Encoding             :func:`~pyod.utils.encoders.resolve_encoder`     Resolve an encoder from a string, BaseEncoder instance, or callable

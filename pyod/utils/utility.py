@@ -200,6 +200,7 @@ def precision_n_scores(y, y_pred, n=None):
     """Utility function to calculate precision @ rank n.
 
     Scores tied at the cutoff share the remaining rank positions equally.
+    Non-finite scores raise a ValueError.
 
     Parameters
     ----------
@@ -223,6 +224,9 @@ def precision_n_scores(y, y_pred, n=None):
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
     check_consistent_length(y, y_pred)
+
+    if not np.all(np.isfinite(y_pred)):
+        raise ValueError('y_pred must contain only finite scores')
 
     n = int(np.count_nonzero(y)) if n is None else int(n)
     if n < 0 or n > len(y):
@@ -572,7 +576,8 @@ def get_optimal_n_bins(X, upper_bound=None, epsilon=1):
          
     upper_bound :  int, default=None 
         The maximum value of n_bins to be considered. 
-        If set to None, np.sqrt(X.shape[0]) will be used as upper bound. 
+        If set to None, np.sqrt(X.shape[0]) will be used as upper bound,
+        with a minimum of 2 so that one bin is considered for small samples.
          
     epsilon : float, default = 1 
         A stabilizing term added to the logarithm to prevent division by zero. 
@@ -582,10 +587,13 @@ def get_optimal_n_bins(X, upper_bound=None, epsilon=1):
     optimal_n_bins : int 
         The optimal value of n_bins according to the Birge Rozenblac method 
     """
-    if upper_bound is None:
-        upper_bound = int(np.sqrt(X.shape[0]))
-
     n = X.shape[0]
+    if n == 0:
+        raise ValueError('X must contain at least one sample')
+    if upper_bound is None:
+        # The candidate range excludes upper_bound, so it must include 1.
+        upper_bound = max(2, int(np.sqrt(n)))
+
     maximum_likelihood = np.zeros((upper_bound - 1, 1))
 
     for i, b in enumerate(range(1, upper_bound)):

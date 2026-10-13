@@ -190,6 +190,13 @@ class TestMetrics(unittest.TestCase):
         assert_allclose(precision_n_scores(labels, scores, n=3), 5 / 9)
         assert_allclose(precision_n_scores(labels, [1] * 6), 1 / 3)
 
+    def test_precision_n_scores_nonfinite(self):
+        for invalid_score in (np.nan, np.inf, -np.inf):
+            for n in (None, 0, 1, 2):
+                with self.subTest(score=invalid_score, n=n):
+                    with self.assertRaisesRegex(ValueError, 'finite'):
+                        precision_n_scores([0, 1], [0, invalid_score], n=n)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))

@@ -5,8 +5,10 @@ import os
 import sys
 import unittest
 
+import numpy as np
 # noinspection PyProtectedMember
-from numpy.testing import (assert_equal,
+from numpy.testing import (assert_allclose,
+                           assert_equal,
                            assert_raises)
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
@@ -129,6 +131,33 @@ class TestKPCA(unittest.TestCase):
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
+
+    def test_random_state_stored_as_given(self):
+        # __init__ used to store check_random_state(random_state), so
+        # get_params() returned a RandomState object instead of the seed.
+        clf = KPCA(random_state=42)
+        assert clf.random_state == 42
+        assert clf.get_params()["random_state"] == 42
+        assert clone(clf).random_state == 42
+        assert KPCA().random_state is None
+
+    def test_refit_with_sampling_is_deterministic(self):
+        # With the RandomState created in __init__, every fit advanced the
+        # same generator, so the subsample drawn on a refit differed.
+        clf = KPCA(sampling=True, subset_size=50, n_components=3,
+                   random_state=42)
+        first_train = clf.fit(self.X_train).decision_scores_.copy()
+        first_test = clf.decision_function(self.X_test)
+
+        # Scores should be non-trivial (not near-zero numerical noise)
+        assert np.max(np.abs(first_train)) > 1e-3
+        assert np.max(np.abs(first_test)) > 1e-3
+
+        second_train = clf.fit(self.X_train).decision_scores_.copy()
+        second_test = clf.decision_function(self.X_test)
+
+        assert_allclose(first_test, second_test)
+        assert_allclose(first_train, second_train)
 
     def tearDown(self):
         pass
