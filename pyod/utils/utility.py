@@ -230,6 +230,13 @@ def precision_n_scores(y, y_pred, n=None):
     if not np.all(np.isfinite(y_pred)):
         raise ValueError('y_pred must contain only finite scores')
 
+    if n is not None:
+        try:
+            is_integer_n = isinstance(n, numbers.Real) and n == int(n)
+        except (OverflowError, ValueError):
+            is_integer_n = False
+        if not is_integer_n:
+            raise ValueError('n must be an integer')
     n = int(np.count_nonzero(y)) if n is None else int(n)
     if n < 0 or n > len(y):
         raise ValueError('n must be between 0 and the number of samples')

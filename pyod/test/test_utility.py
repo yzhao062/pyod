@@ -209,6 +209,17 @@ class TestMetrics(unittest.TestCase):
             with self.subTest(labels=labels):
                 assert_equal(precision_n_scores(labels, [0, 1]), 1.0)
 
+    def test_precision_n_scores_rejects_invalid_ranks(self):
+        for rank in (-0.5, 1.9, np.float64(2.2), np.nan, np.inf, -np.inf, '1'):
+            with self.subTest(n=rank):
+                with self.assertRaises(ValueError):
+                    precision_n_scores([0, 1, 1], [0, 1, 2], n=rank)
+
+    def test_precision_n_scores_integer_valued_ranks(self):
+        for rank in (1, np.int64(1), 1.0, np.float64(1.0)):
+            with self.subTest(n=rank):
+                assert_equal(precision_n_scores([0, 1], [0, 1], n=rank), 1.0)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))
