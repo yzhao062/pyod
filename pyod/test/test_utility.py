@@ -234,6 +234,17 @@ class TestMetrics(unittest.TestCase):
                         precision_n_scores(
                             [0, 1], np.array([0, score], dtype=object), n=n)
 
+    def test_precision_n_scores_object_ordering(self):
+        for scores in ([2 ** 53, 2 ** 53 + 1], [10 ** 400, 10 ** 400 + 1]):
+            with self.subTest(scores=scores):
+                assert_equal(precision_n_scores(
+                    [0, 1], np.array(scores, dtype=object)), 1.0)
+
+    def test_precision_n_scores_float16_labels(self):
+        labels = np.ones(70000, dtype=np.float16)
+        assert_equal(precision_n_scores(labels, np.arange(70000)), 1.0)
+        assert_equal(precision_n_scores(labels, np.zeros(70000)), 1.0)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))
