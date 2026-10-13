@@ -197,6 +197,18 @@ class TestMetrics(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, 'finite'):
                         precision_n_scores([0, 1], [0, invalid_score], n=n)
 
+    def test_precision_n_scores_nonbinary_labels(self):
+        for invalid_label in (2, -1, 0.5, np.nan, np.inf, -np.inf):
+            for n in (None, 0, 1, 2):
+                with self.subTest(label=invalid_label, n=n):
+                    with self.assertRaises(ValueError):
+                        precision_n_scores([0, invalid_label], [0, 1], n=n)
+
+    def test_precision_n_scores_binary_label_types(self):
+        for labels in ([0, 1], [0.0, 1.0], [False, True]):
+            with self.subTest(labels=labels):
+                assert_equal(precision_n_scores(labels, [0, 1]), 1.0)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))

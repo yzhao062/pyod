@@ -225,6 +225,8 @@ def precision_n_scores(y, y_pred, n=None):
     y_pred = column_or_1d(y_pred)
     check_consistent_length(y, y_pred)
 
+    if not np.all(np.isin(y, [0, 1])):
+        raise ValueError('y must contain only binary labels 0 and 1')
     if not np.all(np.isfinite(y_pred)):
         raise ValueError('y_pred must contain only finite scores')
 
