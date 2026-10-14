@@ -225,10 +225,12 @@ def precision_n_scores(y, y_pred, n=None):
     y_pred = column_or_1d(y_pred)
     check_consistent_length(y, y_pred)
 
+    if len(y) == 0:
+        raise ValueError('precision requires at least one sample')
     if not np.all(np.isin(y, [0, 1])):
         raise ValueError('y must contain only binary labels 0 and 1')
     if y_pred.dtype.kind == 'O':
-        finite_scores = all(isinstance(score, numbers.Integral)
+        finite_scores = all(isinstance(score, numbers.Rational)
                             or np.isfinite(score) for score in y_pred)
     else:
         finite_scores = np.all(np.isfinite(y_pred))
@@ -248,7 +250,7 @@ def precision_n_scores(y, y_pred, n=None):
     if n == 0:
         return 0.0
 
-    cutoff = np.sort(y_pred)[-n]
+    cutoff = np.partition(y_pred, len(y_pred) - n)[-n]
     above = y_pred > cutoff
     tied = y_pred == cutoff
     remaining = n - np.count_nonzero(above)

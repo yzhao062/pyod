@@ -245,6 +245,20 @@ class TestMetrics(unittest.TestCase):
         assert_equal(precision_n_scores(labels, np.arange(70000)), 1.0)
         assert_equal(precision_n_scores(labels, np.zeros(70000)), 1.0)
 
+    def test_precision_n_scores_empty(self):
+        for n in (None, 0, 1):
+            with self.subTest(n=n):
+                with self.assertRaises(ValueError):
+                    precision_n_scores([], [], n=n)
+
+    def test_precision_n_scores_rational_scores(self):
+        from fractions import Fraction
+        for scores in ([Fraction(0), Fraction(1)],
+                       [Fraction(2 ** 53), Fraction(2 ** 53) + Fraction(1, 2)]):
+            with self.subTest(scores=scores):
+                assert_equal(precision_n_scores(
+                    [0, 1], np.array(scores, dtype=object)), 1.0)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))
