@@ -11,15 +11,16 @@ from pyod.models.nsa import NSA
 from pyod.utils.ad_engine import ADEngine
 
 
-def test_package_export_is_lazy():
-    """Importing the package must not load the newly exported detector."""
+def test_explicit_module_import():
+    """NSA follows PyOD module imports without a package-level export."""
     code = (
         "import sys\n"
         "import pyod.models\n"
         "assert 'pyod.models.nsa' not in sys.modules\n"
-        "from pyod.models import NSA\n"
-        "from pyod.models.nsa import NSA as DirectNSA\n"
-        "assert NSA is DirectNSA\n"
+        "assert not hasattr(pyod.models, 'NSA')\n"
+        "from pyod.models.nsa import NSA\n"
+        "assert NSA.__module__ == 'pyod.models.nsa'\n"
+        "assert not hasattr(pyod.models, 'NSA')\n"
     )
     subprocess.run([sys.executable, '-c', code], check=True)
 
