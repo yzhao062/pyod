@@ -5,16 +5,6 @@ PyOD ships 40+ detectors for tabular data, spanning probabilistic, linear, proxi
 
 See :doc:`examples/tabular` for usage examples and :doc:`api_cc` for the shared API reference.
 
-pyod.models.base module
------------------------
-
-.. automodule:: pyod.models.base
-    :members:
-    :exclude-members: get_params, set_params
-    :undoc-members:
-    :show-inheritance:
-
-
 pyod.models.abod module
 -----------------------
 
@@ -62,16 +52,6 @@ pyod.models.auto\_encoder module
     :members:
     :exclude-members: get_params, set_params, decision_function_update, epoch_update, evaluating_prepare, evaluating_forward, AutoEncoderModel, load
     :undoc-members:
-    :show-inheritance:
-
-
-pyod.models.auto\_encoder\_torch module
----------------------------------------
-
-.. automodule:: pyod.models.auto_encoder_torch
-    :members:
-    :exclude-members: get_params, set_params, InnerAutoencoder
-    :exclude-members:
     :show-inheritance:
 
 

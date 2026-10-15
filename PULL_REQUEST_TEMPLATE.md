@@ -1,22 +1,40 @@
-### All Submissions Basics:
+<!--
+Read CONTRIBUTING.md first. A pull request must link an open issue labelled
+`accepted` and assigned to its author, and target the `development` branch.
+Other pull requests may be closed without review.
+-->
 
-* [ ] Have you followed the guidelines in our Contributing document?
-* [ ] Have you checked to ensure there aren't other open [Pull Requests](../../pulls) for the same update/change?
-* [ ] Have you checked all [Issues](../../issues) to tie the PR to a specific one?
+## Linked Issue
 
-### All Submissions Cores:
+Fixes #
 
-* [ ] Have you added an explanation of what your changes do and why you'd like us to include them?
-* [ ] Have you written new tests for your core changes, as applicable?
-* [ ] Have you successfully ran tests with your changes locally?
-* [ ] Does your submission pass tests, including CircleCI, Travis CI, and AppVeyor?
-* [ ] Does your submission have appropriate code coverage? The cutoff threshold is 95% by Coversall.
+## What Changes
 
-<!-- You can erase any parts of this template not applicable to your Pull Request. -->
+<!-- The public call whose output or exception changes, and how it changes. -->
 
-### New Model Submissions:
+## Evidence
 
-* [ ] Have you created a <NewModel>.py in ~/pyod/models/?
-* [ ] Have you created a <NewModel>_example.py in ~/examples/?
-* [ ] Have you created a test_<NewModel>.py in ~/pyod/test/?
-* [ ] Have you lint your code locally prior to submission?
+- Reproducer:
+- Still fails on `development` at commit:
+- Regression test command, with results before and after the change:
+- Default score change (ROC AUC and average precision before and after, or "none"):
+
+## Checklist
+
+- [ ] The linked issue is labelled `accepted` and assigned to me.
+- [ ] I searched issues, open pull requests, and pull requests merged into `development` and `master` for the same fix.
+- [ ] This pull request targets `development` and makes one change.
+- [ ] New or changed behavior has tests, and the tests for the touched modules pass locally.
+
+## AI Disclosure
+
+- Tools that contributed (or "none"):
+- Checks that actually ran:
+- Did a person read the full diff? (yes / no)
+
+<!-- AI agents: fill these fields from what actually ran. Leave a field blank rather than guess. -->
+
+## New Detector (Delete If Not Applicable)
+
+- [ ] Detector in `pyod/models/`, example in `examples/`, tests in `pyod/test/`.
+- [ ] The issue states which inclusion criterion the detector meets, or the maintenance commitment.

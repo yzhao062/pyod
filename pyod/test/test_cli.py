@@ -84,6 +84,18 @@ def test_pyod_info_does_not_exit_without_mcp():
 _REPO_ROOT = str(Path(__file__).resolve().parents[2])
 
 
+def _isolated_info_command(claude_executable=None):
+    # Parent-process mocks do not affect executable discovery in a child.
+    code = (
+        "from unittest.mock import patch\n"
+        "from pyod.cli import main\n"
+        "with patch('pyod.cli.shutil.which', "
+        f"return_value={claude_executable!r}):\n"
+        "    raise SystemExit(main(['info']))\n"
+    )
+    return [sys.executable, "-c", code]
+
+
 def _isolated_home_env(home: Path) -> dict:
     """Return an env dict with HOME/USERPROFILE pointing at a clean directory.
 
@@ -126,7 +138,7 @@ def test_pyod_info_project_local_only(tmp_path):
     fake_home.mkdir()
 
     result = subprocess.run(
-        [sys.executable, "-m", "pyod.cli", "info"],
+        _isolated_info_command(),
         capture_output=True, text=True,
         cwd=str(tmp_path),
         env=_isolated_home_env(fake_home),
@@ -154,7 +166,7 @@ def test_pyod_info_codex_detected_no_skill(tmp_path):
     work.mkdir()
 
     result = subprocess.run(
-        [sys.executable, "-m", "pyod.cli", "info"],
+        _isolated_info_command(),
         capture_output=True, text=True,
         cwd=str(work),
         env=_isolated_home_env(fake_home),
@@ -169,20 +181,21 @@ def test_pyod_info_codex_detected_no_skill(tmp_path):
 
 
 def test_pyod_info_codex_and_claude_both_detected(tmp_path):
-    """Both ~/.claude/ and ~/.codex/ present, neither skill installed.
+    """Both ~/.claude.json and ~/.codex/ present, neither skill installed.
 
     Output must list both agents and show both install commands so the
     user knows which option fits their workflow.
     """
     fake_home = tmp_path / "fake_home"
-    (fake_home / ".claude").mkdir(parents=True)
+    fake_home.mkdir(parents=True, exist_ok=True)
+    (fake_home / ".claude.json").touch()
     (fake_home / ".codex").mkdir(parents=True)
 
     work = tmp_path / "work"
     work.mkdir()
 
     result = subprocess.run(
-        [sys.executable, "-m", "pyod.cli", "info"],
+        _isolated_info_command(),
         capture_output=True, text=True,
         cwd=str(work),
         env=_isolated_home_env(fake_home),
@@ -195,6 +208,38 @@ def test_pyod_info_codex_and_claude_both_detected(tmp_path):
     assert "Claude Code (user-global): run `pyod install skill`" in result.stdout
     assert "Codex (project-local):" in result.stdout
     assert "`pyod install skill --project`" in result.stdout
+
+
+def test_pyod_info_detects_claude_executable(tmp_path):
+    """A Claude executable is sufficient without a user configuration file."""
+    fake_home = tmp_path / "fake_home"
+    fake_home.mkdir()
+    result = subprocess.run(
+        _isolated_info_command(claude_executable="mock-claude"),
+        capture_output=True, text=True,
+        cwd=str(tmp_path),
+        env=_isolated_home_env(fake_home),
+    )
+    assert result.returncode == 0, f"stderr={result.stderr}"
+    assert "Claude Code (user-global): run `pyod install skill`" in result.stdout
+    assert "Codex (project-local):" not in result.stdout
+
+
+def test_pyod_info_claude_dir_alone_is_not_detection(tmp_path):
+    """A skill-created Claude directory is not evidence of an installation."""
+    fake_home = tmp_path / "fake_home"
+    (fake_home / ".claude" / "skills").mkdir(parents=True)
+    work = tmp_path / "work"
+    work.mkdir()
+    result = subprocess.run(
+        _isolated_info_command(),
+        capture_output=True, text=True,
+        cwd=str(work),
+        env=_isolated_home_env(fake_home),
+    )
+    assert result.returncode == 0, f"stderr={result.stderr}"
+    assert "NOT INSTALLED (no agent stacks detected)" in result.stdout
+    assert "Claude Code" not in result.stdout
 
 
 def test_pyod_info_user_global_claude_plus_codex_detected(tmp_path):
@@ -217,7 +262,7 @@ def test_pyod_info_user_global_claude_plus_codex_detected(tmp_path):
     work.mkdir()
 
     result = subprocess.run(
-        [sys.executable, "-m", "pyod.cli", "info"],
+        _isolated_info_command(),
         capture_output=True, text=True,
         cwd=str(work),
         env=_isolated_home_env(fake_home),

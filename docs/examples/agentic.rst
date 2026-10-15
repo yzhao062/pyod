@@ -57,7 +57,7 @@ Activation Paths
 
 PyOD 3 reaches agents through three paths. Pick whichever matches your stack:
 
-**Claude Code / Claude Desktop / Codex**
+**Claude Code / Codex**
     The ``od-expert`` skill ships as package data inside the pyod wheel.
     Two install modes are supported:
 
@@ -65,7 +65,7 @@ PyOD 3 reaches agents through three paths. Pick whichever matches your stack:
 
         pip install pyod
 
-        # Claude Code / Claude Desktop: user-global install
+        # Claude Code: user-global install
         pyod install skill              # installs to ~/.claude/skills/od-expert/
 
         # Codex: project-local install (Codex reads ./skills/, has no user-global dir)

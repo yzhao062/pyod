@@ -166,7 +166,6 @@ def pearsonr_mat(mat, w=None):
     """
     mat = check_array(mat)
     n_row = mat.shape[0]
-    n_col = mat.shape[1]
     pear_mat = np.full([n_row, n_row], 1).astype(float)
 
     if w is not None:
@@ -176,7 +175,7 @@ def pearsonr_mat(mat, w=None):
                 pear_mat[cx, cy] = curr_pear
                 pear_mat[cy, cx] = curr_pear
     else:
-        for cx in range(n_col):
+        for cx in range(n_row):
             for cy in range(cx + 1, n_row):
                 curr_pear = pearsonr(mat[cx, :], mat[cy, :])[0]
                 pear_mat[cx, cy] = curr_pear

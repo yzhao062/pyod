@@ -4,6 +4,8 @@
 import os
 import sys
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 
 import numpy as np
 import torch
@@ -278,6 +280,24 @@ class TestDeepSVDD(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
         clone_clf = clone(self.clf_ae)
+
+    def test_verbose_controls_epoch_logging(self):
+        # verbose was documented and stored but never consulted, so the
+        # per-epoch loss was printed even with verbose=0.
+        X = np.random.RandomState(42).randn(50, 10)
+
+        def epoch_lines(verbose):
+            buffer = StringIO()
+            with redirect_stdout(buffer):
+                DeepSVDD(n_features=10, epochs=3, hidden_neurons=[8, 4],
+                         verbose=verbose, random_state=2021).fit(X)
+            return [line for line in buffer.getvalue().splitlines()
+                    if line.startswith('Epoch')]
+
+        assert_equal(len(epoch_lines(0)), 0)
+        assert_equal(len(epoch_lines(1)), 3)
+        # a higher verbosity must not be quieter than a lower one
+        assert_equal(len(epoch_lines(2)), 3)
 
     def tearDown(self):
         pass

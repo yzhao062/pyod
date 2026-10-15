@@ -3,9 +3,11 @@
 import os
 import sys
 import unittest
+import warnings
 
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
+from numpy.testing import assert_array_equal
 from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
@@ -165,6 +167,60 @@ class TestCBLOF(unittest.TestCase):
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
+
+    def test_n_jobs_stored(self):
+        # n_jobs must be stored so get_params() and clone() carry it over
+        clf = CBLOF(n_jobs=4)
+        assert clf.n_jobs == 4
+        assert clf.get_params()['n_jobs'] == 4
+
+    def test_n_jobs_clone(self):
+        clf = CBLOF(n_jobs=4)
+        cloned = clone(clf)
+        assert cloned.n_jobs == 4
+
+    def test_n_jobs_fit(self):
+        # CBLOF(n_jobs=4) must fit and produce results identical to n_jobs=1
+        clf_single = CBLOF(contamination=self.contamination,
+                           random_state=42, n_jobs=1)
+        clf_multi = CBLOF(contamination=self.contamination,
+                          random_state=42, n_jobs=4)
+        clf_single.fit(self.X_train)
+        # Match the stable clause, not the removal version, so bumping the
+        # announced removal release does not require touching this test.
+        with self.assertWarnsRegex(
+                FutureWarning, r"'n_jobs' parameter is deprecated"):
+            clf_multi.fit(self.X_train)
+        assert clf_multi.n_jobs == 4
+        assert_equal(len(clf_multi.decision_scores_), self.X_train.shape[0])
+        # Exact, not allclose: CHANGES.txt claims bit identity, and n_jobs
+        # reaches nothing, so any drift at all would be a real defect.
+        assert_array_equal(clf_multi.decision_scores_,
+                           clf_single.decision_scores_)
+
+    def test_n_jobs_default_no_warning(self):
+        # Match only CBLOF's own message. Promoting every FutureWarning would
+        # turn an unrelated future scikit-learn deprecation surfacing from
+        # KMeans.fit into a red test whose failure names nothing about n_jobs.
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'error', message="The 'n_jobs' parameter is deprecated",
+                category=FutureWarning)
+            clf = CBLOF(contamination=self.contamination,
+                        random_state=42, n_jobs=1)
+            clf.fit(self.X_train)
+
+    def test_n_jobs_init_does_not_warn(self):
+        # scikit-learn requires __init__ to only store its arguments, so the
+        # deprecation must come from fit(). Without this, moving the warn into
+        # __init__ leaves every other test green while breaking clone().
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'error', message="The 'n_jobs' parameter is deprecated",
+                category=FutureWarning)
+            clf = CBLOF(contamination=self.contamination,
+                        random_state=42, n_jobs=4)
+            clone(clf)
 
     def tearDown(self):
         pass

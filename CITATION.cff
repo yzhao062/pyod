@@ -1,0 +1,79 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper in preferred-citation below."
+title: "PyOD"
+abstract: "A Python library for anomaly detection across tabular, time series, graph, text, image, and audio data."
+type: software
+authors:
+  - family-names: "Zhao"
+    given-names: "Yue"
+    orcid: "https://orcid.org/0000-0003-3401-4921"
+  - family-names: "Nasrullah"
+    given-names: "Zain"
+  - family-names: "Li"
+    given-names: "Zheng"
+repository-code: "https://github.com/yzhao062/pyod"
+url: "https://pyod.dev/"
+license: BSD-2-Clause
+keywords:
+  - "anomaly-detection"
+  - "outlier-detection"
+  - "outlier-ensembles"
+  - "novelty-detection"
+  - "out-of-distribution-detection"
+  - "machine-learning"
+  - "data-mining"
+  - "unsupervised-learning"
+  - "python"
+preferred-citation:
+  type: article
+  title: "PyOD: A Python Toolbox for Scalable Outlier Detection"
+  authors:
+    - family-names: "Zhao"
+      given-names: "Yue"
+      orcid: "https://orcid.org/0000-0003-3401-4921"
+    - family-names: "Nasrullah"
+      given-names: "Zain"
+    - family-names: "Li"
+      given-names: "Zheng"
+  journal: "Journal of Machine Learning Research"
+  year: 2019
+  volume: 20
+  issue: 96
+  start: 1
+  end: 7
+  url: "https://www.jmlr.org/papers/v20/19-011.html"
+references:
+  -
+    type: conference-paper
+    title: "PyOD 2: A Python Library for Outlier Detection with LLM-powered Model Selection"
+    authors:
+      - family-names: "Chen"
+        given-names: "Sihan"
+      - family-names: "Qian"
+        given-names: "Zhuangzhuang"
+      - family-names: "Siu"
+        given-names: "Michael"
+      - family-names: "Hu"
+        given-names: "Xingcan"
+      - family-names: "Li"
+        given-names: "Jiaqi"
+      - family-names: "Li"
+        given-names: "Shawn"
+      - family-names: "Qin"
+        given-names: "Yuehan"
+      - family-names: "Yang"
+        given-names: "Tiankai"
+      - family-names: "Xiao"
+        given-names: "Zhuo"
+      - family-names: "Ye"
+        given-names: "Wanghao"
+      - family-names: "Zhang"
+        given-names: "Yichi"
+      - family-names: "Dong"
+        given-names: "Yushun"
+      - family-names: "Zhao"
+        given-names: "Yue"
+        orcid: "https://orcid.org/0000-0003-3401-4921"
+    collection-title: "Companion Proceedings of the ACM Web Conference 2025 (Demo Track)"
+    year: 2025
+    url: "https://arxiv.org/abs/2412.12154"

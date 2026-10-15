@@ -4,6 +4,7 @@
 import os
 import sys
 import unittest
+import warnings
 
 import numpy as np
 # noinspection PyProtectedMember
@@ -19,7 +20,7 @@ from sklearn.base import clone
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.rod import ROD, rod_3D, rod_nD, angle, sigmoid, process_sub, \
-    mad
+    mad, scale_angles
 from pyod.utils.data import generate_data
 
 
@@ -161,11 +162,17 @@ class TestROD(unittest.TestCase):
         assert_equal(0.5, sigmoid(np.array([0.0])))
 
     def test_process_sub(self):
-        subspace = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
-        assert_equal([0.5, 0.5, 0.5],
-                     process_sub(subspace, self.gm, self.median,
-                                 self.angles_scalers1, self.angles_scalers2)[
-                         0])
+        subspace = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]], dtype=float)
+        result = process_sub(subspace, self.gm, self.median,
+                             self.angles_scalers1, self.angles_scalers2)[0]
+        # Middle point coincides with the geometric median (v_norm=0).
+        # Before the issue-#523 fix, the NaN it produced infected the MAD
+        # computation and collapsed all three scores to sigmoid(0)=0.5.
+        # The corrected output assigns the zero-norm point cost 0 directly.
+        # These values are sigmoid-transformed MAD scores: 0.5 is sigmoid(0),
+        # 0.6625 is sigmoid(0.6745), and 1.0 is sigmoid saturating on a huge
+        # z-score from a MAD denominator of approximately 5.196e-06.
+        assert_allclose(result, [1.0, 0.5, 0.6625], atol=1e-3)
 
     def test_parallel_vs_non_parallel(self):
         assert_equal(rod_nD(self.X_train, False, self.gm, self.data_scaler,
@@ -176,6 +183,117 @@ class TestROD(unittest.TestCase):
     def test_mad(self):
         gm, _ = mad(np.array([1, 2, 3]))
         assert_equal([0.6745, 0.0, 0.6745], gm)
+
+    def test_rod_3D_no_nan_when_point_at_geometric_median(self):
+        # Regression test for issue #523: rod_3D emitted
+        # "RuntimeWarning: invalid value encountered in divide" when a data
+        # point coincided exactly with the geometric median (v_norm = 0).
+        # Symmetric data centred on a non-zero point has its geometric median
+        # at that centre, so the first row triggers v_norm = 0 while
+        # norm_ = ||gm|| > 0 (the two conditions in the original bug).
+        center = np.array([2.0, 3.0, 1.0])
+        X = np.vstack([
+            center,                  # coincides with geometric median
+            center + [1, 0, 0],
+            center + [-1, 0, 0],
+            center + [0, 1, 0],
+            center + [0, -1, 0],
+            center + [0, 0, 1],
+            center + [0, 0, -1],
+        ])
+        with warnings.catch_warnings():
+            # Stay strict. numpy raises "invalid value encountered in divide"
+            # only for 0/0; a non-zero over zero raises "divide by zero
+            # encountered in divide" instead, and narrowing to one message
+            # would let that sibling failure through. This fixture uses
+            # center=[2, 3, 1], so norm_ > 0 and the library's own
+            # origin-median RuntimeWarning is unreachable here.
+            warnings.simplefilter("error", RuntimeWarning)
+            scores, _, _, _, _ = rod_3D(X)
+        self.assertFalse(np.any(np.isnan(scores)),
+                         "rod_3D must not produce NaN when a data point "
+                         "coincides with the geometric median (issue #523)")
+
+    def test_zero_radius_row_excluded_from_angle_scaling(self):
+        center = np.array([2.0, 3.0, 1.0])
+        X = np.array([
+            center,
+            center + [1, 0, 0],
+            center + [-1, 0, 0],
+            center + [0, 2, 0],
+            center + [0, -2, 0],
+            center + [0, 0, 3],
+            center + [0, 0, -3],
+        ])
+        scores, gm, _, _, _ = rod_3D(X)
+
+        # Compute the score-level reference with only defined angles entering
+        # the scaler. The center row still contributes its true zero cost to
+        # MAD, but it cannot change the other rows through scaler fitting.
+        centered = X - gm
+        radii = np.linalg.norm(centered, axis=1)
+        valid = radii > 0
+        angles = np.arccos(np.clip(
+            np.dot(centered[valid], gm) /
+            (radii[valid] * np.linalg.norm(gm)), -1, 1))
+        scaled_angles, _, _ = scale_angles(angles)
+        costs = np.zeros(X.shape[0])
+        costs[valid] = (radii[valid] ** 3 * np.cos(scaled_angles) *
+                        np.sin(scaled_angles) ** 2)
+        expected_scores, _ = mad(costs)
+        assert_allclose(scores, expected_scores, rtol=0, atol=1e-12)
+
+    def test_origin_median_costs_reduce_to_scaled_distance(self):
+        # When the geometric median sits exactly at the coordinate origin the
+        # rotation angle is undefined for every row, so rod_3D applies one
+        # constant angle. Its trigonometric factor is then a constant and the
+        # cost reduces to a constant times v_norm ** 3. Note the final score is
+        # still MAD of those costs, i.e. how far each cost sits from the median
+        # cost, so this is not a plain ordering by distance.
+        X = np.array([
+            [0., 0., 0.],
+            [1., 0., 0.],
+            [-1., 0., 0.],
+            [0., 2., 0.],
+            [0., -2., 0.],
+            [0., 0., 3.],
+            [0., 0., -3.],
+        ])
+        with self.assertWarnsRegex(
+                RuntimeWarning,
+                r"norm_ == 0.*distance from the geometric median"):
+            scores, gm, _, _, _ = rod_3D(X)
+
+        assert_array_equal(gm, np.zeros(3))
+        distance_scores, _ = mad(np.linalg.norm(X, axis=1) ** 3)
+        assert_allclose(scores, distance_scores, rtol=0, atol=1e-12)
+
+    def test_degenerate_paths_accept_list_input(self):
+        # rod_3D documents x as array-like and a plain list works on the
+        # ordinary path. Both degenerate branches read the row count, so
+        # sizing it from x rather than from v_norm would break list callers
+        # on exactly the inputs those branches exist to serve.
+        center = np.array([2.0, 3.0, 1.0])
+        on_median = np.array([
+            center,
+            center + [1, 0, 0], center + [-1, 0, 0],
+            center + [0, 2, 0], center + [0, -2, 0],
+            center + [0, 0, 3], center + [0, 0, -3],
+        ])
+        scores, _, _, _, _ = rod_3D(on_median.tolist())
+        assert_allclose(scores, rod_3D(on_median)[0])
+        self.assertFalse(np.any(np.isnan(scores)))
+
+        at_origin = np.array([
+            [1., 0., 0.], [-1., 0., 0.],
+            [0., 2., 0.], [0., -2., 0.],
+            [0., 0., 3.], [0., 0., -3.],
+        ])
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            scores, _, _, _, _ = rod_3D(at_origin.tolist())
+            assert_allclose(scores, rod_3D(at_origin)[0])
+        self.assertFalse(np.any(np.isnan(scores)))
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)

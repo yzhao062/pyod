@@ -30,7 +30,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = \
         generate_data(n_train=n_train,
                       n_test=n_test,
-                      n_features=2,
+                      n_features=1,
                       contamination=contamination,
                       random_state=42)
 
