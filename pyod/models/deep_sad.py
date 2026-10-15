@@ -27,6 +27,7 @@ import torch.optim as optim
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array, check_random_state
+from sklearn.utils.validation import check_is_fitted
 from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
@@ -229,7 +230,9 @@ class DeepSAD(BaseDetector):
         number generator; If RandomState instance, an integer seed is
         drawn from it (advancing it) to seed torch; If None, the random
         number generator is the RandomState instance used by
-        `np.random`.
+        `np.random`. The seed is applied when ``fit`` starts, so
+        building other estimators beforehand does not change the
+        result.
 
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
@@ -287,14 +290,6 @@ class DeepSAD(BaseDetector):
         self.model_ = None
         self.best_model_dict = None
 
-        if self.random_state is not None:
-            if isinstance(self.random_state, (int, np.integer)):
-                torch_seed = self.random_state
-            else:
-                torch_seed = int(
-                    check_random_state(self.random_state).randint(
-                        0, np.iinfo(np.int32).max))
-            torch.manual_seed(torch_seed)
         check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
                         include_left=True)
         check_parameter(eta, 0, np.inf, param_name='eta')
@@ -381,6 +376,18 @@ class DeepSAD(BaseDetector):
         """
         # validate inputs X and y (optional)
         X = check_array(X)
+
+        # Seed torch here rather than in __init__, so that building other
+        # estimators before this fit cannot change its result.
+        if self.random_state is not None:
+            if isinstance(self.random_state, (int, np.integer)):
+                torch_seed = self.random_state
+            else:
+                torch_seed = int(
+                    check_random_state(self.random_state).randint(
+                        0, np.iinfo(np.int32).max))
+            torch.manual_seed(torch_seed)
+
         # Deep SAD is semi-supervised, so y carries partial supervision and
         # is expected; treat this as a binary anomaly-detection problem.
         self._classes = 2
@@ -509,6 +516,7 @@ class DeepSAD(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
+        check_is_fitted(self, ['c_'])
         X = check_array(X)
 
         if self.preprocessing:

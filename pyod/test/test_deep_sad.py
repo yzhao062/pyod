@@ -14,6 +14,7 @@ from torch.utils.data import TensorDataset
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from sklearn.base import clone
+from sklearn.exceptions import NotFittedError
 from sklearn.metrics import roc_auc_score
 
 # temporary solution for relative imports in case pyod is not installed
@@ -439,6 +440,28 @@ class TestDeepSAD(unittest.TestCase):
         scores = clf.decision_function(self.X_test[:, :8])
         assert_equal(scores.shape[0], self.X_test.shape[0])
         assert np.all(np.isfinite(scores))
+
+    def test_decision_function_requires_fit(self):
+        clf = DeepSAD(n_features=8, hidden_neurons=[16, 8], verbose=0)
+        with assert_raises(NotFittedError):
+            clf.decision_function(self.X_test[:, :8])
+
+    def test_seed_is_applied_at_fit_time(self):
+        # Building a second seeded estimator before the first one is
+        # fitted must not change either result.
+        X = self.X_train[:600, :8]
+
+        def build(seed):
+            return DeepSAD(n_features=8, epochs=2, hidden_neurons=[16, 8],
+                           verbose=0, random_state=seed)
+
+        first, second = build(0), build(1)
+        first.fit(X)
+        second.fit(X)
+        assert np.array_equal(first.decision_scores_,
+                              build(0).fit(X).decision_scores_)
+        assert np.array_equal(second.decision_scores_,
+                              build(1).fit(X).decision_scores_)
 
     def tearDown(self):
         pass
