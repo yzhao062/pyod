@@ -71,7 +71,7 @@ PyOD 3 is the most comprehensive Python library for anomaly detection. Four pill
 ===========================  ========================================================================================
 Pillar                       What it means
 ===========================  ========================================================================================
-Multi-Modal                  61 detectors across **tabular, time series, graph, text, image, and audio** data, one API
+Multi-Modal                  62 detectors across **tabular, time series, graph, text, image, and audio** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      ``od-expert`` turns natural-language requests into ADEngine workflows; MCP exposes structured tools for other agents
 Most Used                    46+ million downloads; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)

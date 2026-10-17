@@ -1,6 +1,6 @@
 # Tabular anomaly detection reference
 
-PyOD's largest modality (43 of 61 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
+PyOD's largest modality (44 of 62 buildable detectors). The agent loads this file when the master decision tree (in SKILL.md) routes to tabular.
 
 ## Decision table by data shape (expert heuristics)
 
@@ -29,6 +29,7 @@ These are rules of thumb for reasoning about which detectors a non-expert would 
 - **COF** (Connectivity-Based Outlier Factor) — complexity: time O(n^2 * d), space O(n^2); best for: Datasets where outliers lie along sparse connectivity paths between clusters; avoid when: Dataset is large or simpler methods like LOF already perform well; paper: Tang et al., 2002
 - **COPOD** (Copula-Based Outlier Detection) — complexity: time O(n * d * log(n)), space O(n * d); best for: Large-scale datasets where speed and interpretability matter and features are roughly independent; avoid when: Outliers only appear in joint distributions with strong feature dependencies; paper: Li et al., ICDM 2020
 - **DIF** (Deep Isolation Forest) — complexity: time O(n * t * d * log(n)), space O(t * n); best for: Complex datasets where standard Isolation Forest misses anomalies due to axis-aligned splits; avoid when: Standard Isolation Forest performs well or dataset is small and simple; paper: Xu et al., TKDE 2023
+- **DeepSAD** (Deep Semi-Supervised Anomaly Detection) — complexity: time O(n * d * h * epochs), space O(d * h); best for: Semi-supervised detection where a few labeled anomalies are available; avoid when: No labeled anomalies are available; ADEngine passes no labels, so it does not route this detector; requires: pyod[torch]; paper: Ruff et al., ICLR 2020
 - **DeepSVDD** (Deep Support Vector Data Description) — complexity: time O(n * d * h * epochs), space O(d * h); best for: One-class anomaly detection where a compact normal data description is desired; avoid when: Normal data is multi-modal or simpler one-class methods are sufficient; requires: pyod[torch]; paper: Ruff et al., ICML 2018
 - **DevNet** (Deep Anomaly Detection with Deviation Networks) — complexity: time O(n * d * h * epochs), space O(d * h); best for: Semi-supervised anomaly detection where a small number of labeled anomalies are available; avoid when: No labeled anomalies are available or dataset is too small for deep learning; requires: pyod[torch]; paper: Pang et al., KDD 2019
 - **ECOD** (Empirical Cumulative Distribution Functions) — complexity: time O(n * d * log(n)), space O(n * d); best for: General-purpose outlier detection when speed and interpretability are priorities; avoid when: Features are heavily correlated and outliers only manifest in joint distributions; paper: Li et al., TKDE 2022

@@ -306,6 +306,18 @@ class TestKnowledgeQueries(unittest.TestCase):
         benchmarks = self.engine.get_benchmarks()
         assert 'ADBench' in benchmarks
 
+    def test_deep_sad_is_listed_but_not_routed(self):
+        # DeepSAD needs labeled anomalies and ADEngine passes no labels,
+        # so it is listed as experimental and no routing path selects it.
+        info = self.engine.explain_detector('DeepSAD')
+        assert info['status'] == 'experimental'
+        profile = self.engine.profile_data(np.random.randn(500, 10))
+        routing = self.engine.get_kb_for_routing(profile)
+        names = [d['name'] for d in routing['available_detectors']]
+        assert 'DeepSAD' not in names
+        with self.assertRaises(ValueError):
+            self.engine.make_plan(['DeepSAD'])
+
 
 class TestRunDetection(unittest.TestCase):
     def setUp(self):
