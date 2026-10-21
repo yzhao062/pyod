@@ -177,6 +177,17 @@ class TestVAE(unittest.TestCase):
         self.assertTrue(np.isfinite(clf.decision_scores_).all())
         self.assertTrue(np.isfinite(clf.decision_function(X[:32])).all())
 
+    def test_fit_small_dataset(self):
+        # Issue #768: dataset smaller than batch_size should fit without error
+        X_small = self.X_train[:10]
+        clf = VAE(epoch_num=2, batch_size=32,
+                  contamination=self.contamination, verbose=0)
+        clf.fit(X_small)
+        self.assertEqual(len(clf.decision_scores_), 10)
+        self.assertEqual(len(clf.labels_), 10)
+        pred_scores = clf.decision_function(X_small)
+        self.assertEqual(len(pred_scores), 10)
+
     def tearDown(self):
         pass
 
