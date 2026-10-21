@@ -197,9 +197,10 @@ class BaseDeepLearningDetector(BaseDetector):
             train_set = TorchDataset(X=X, y=None)
 
         # create data loader
+        batch_size = min(self.batch_size, self.data_num)
         train_loader = torch.utils.data.DataLoader(
-            dataset=train_set, batch_size=self.batch_size,
-            shuffle=True, drop_last=True)
+            dataset=train_set, batch_size=batch_size,
+            shuffle=True, drop_last=(self.data_num >= self.batch_size))
 
         # train the model
         self.train(train_loader)
@@ -238,14 +239,17 @@ class BaseDeepLearningDetector(BaseDetector):
                                  disable=not self.verbose == 1):
             start_time = time.time()
             overall_loss = []
+            loss = 0.0
             for batch_data in train_loader:
                 loss = self.training_forward(batch_data)
                 overall_loss.append(loss)
             # loss could be a tuple or a single value
-            if isinstance(loss, (tuple, list)):
-                overall_loss = np.mean([l for l in overall_loss])
-            else:
+            if len(overall_loss) > 0 and isinstance(loss, (tuple, list)):
+                overall_loss = np.mean([loss_val for loss_val in overall_loss])
+            elif len(overall_loss) > 0:
                 overall_loss = np.mean(overall_loss)
+            else:
+                overall_loss = 0.0
 
             # loss could be a tuple or a single value
             if self.verbose == 2:

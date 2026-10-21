@@ -189,6 +189,16 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.fit(self.X_train, self.y_train)
         self.assertEqual(dummy_clf.decision_scores_.all(), zero_scores.all())
 
+    def test_fit_small_dataset(self):
+        # Issue #768: dataset smaller than batch_size should fit without error
+        X_small = self.X_train[:10]
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.batch_size = 32
+        dummy_clf.fit(X_small)
+        self.assertEqual(len(dummy_clf.decision_scores_), 10)
+        pred_scores = dummy_clf.decision_function(X_small)
+        self.assertEqual(len(pred_scores), 10)
+
     def test_save_load(self):
         zero_scores = np.zeros(self.n_train)
 
