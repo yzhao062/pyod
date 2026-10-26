@@ -132,6 +132,7 @@ class TestBaseDL(unittest.TestCase):
 
         dummy_clf = DummyDetector(criterion_name='mae')
         self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
+        self.assertEqual(dummy_clf.criterion_name, 'mae')
 
         self.assertRaises(ValueError, DummyDetector, contamination=0)
         self.assertRaises(ValueError, DummyDetector, contamination=0.51)
@@ -205,6 +206,14 @@ class TestBaseDL(unittest.TestCase):
             zero_scores.all())
 
         os.remove('dummy_clf.txt')
+
+    def test_model_clone(self):
+        from sklearn.base import clone
+
+        dummy_clf = DummyDetector(criterion_name='mae')
+        cloned = clone(dummy_clf)
+        self.assertEqual(cloned.criterion_name, 'mae')
+        self.assertEqual(cloned.get_params()['criterion_name'], 'mae')
 
     def tearDown(self):
         pass

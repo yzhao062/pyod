@@ -113,6 +113,7 @@ class SO_GAAL(BaseDeepLearningDetector):
                                       use_compile=use_compile,
                                       compile_mode=compile_mode,
                                       verbose=verbose)
+        self.criterion_name = criterion_name
         self.lr_d = lr_d
         self.lr_g = lr_g
         self.momentum = momentum

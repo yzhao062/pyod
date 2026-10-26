@@ -125,6 +125,8 @@ class BaseDeepLearningDetector(BaseDetector):
         self.verbose = verbose
         self.optimizer_params = optimizer_params
         self.criterion_params = criterion_params
+        self.loss_func = loss_func
+        self.criterion_name = criterion_name
 
         self.X_mean = None
         self.X_std = None
