@@ -215,6 +215,15 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(cloned.criterion_name, 'mae')
         self.assertEqual(cloned.get_params()['criterion_name'], 'mae')
 
+    def test_set_params_rebuilds_criterion(self):
+        dummy_clf = DummyDetector(criterion_name='mse')
+        self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
+        dummy_clf.set_params(criterion_name='mae')
+        self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
+
+        dummy_clf.set_params(loss_func=loss_function)
+        self.assertEqual(dummy_clf.criterion, loss_function)
+
     def tearDown(self):
         pass
 
