@@ -198,6 +198,32 @@ class BaseDeepLearningDetector(BaseDetector):
 
         return self
 
+    @property
+    def criterion(self):
+        """Loss function or criterion module.
+
+        Returns the user-supplied criterion if a callable module was passed
+        and no loss_func overrides it; otherwise falls back to the runtime
+        criterion_ for backward compatibility with subclasses calling
+        self.criterion(output, x).
+        """
+        raw = getattr(self, '_criterion', None)
+        if callable(raw) and getattr(self, 'loss_func', None) is None:
+            return raw
+        return getattr(self, 'criterion_', None)
+
+    @criterion.setter
+    def criterion(self, value):
+        self._criterion = value
+        if value is not None and callable(value):
+            self.criterion_ = value
+
+    def get_params(self, deep=True):
+        params = super(BaseDeepLearningDetector, self).get_params(deep=deep)
+        if 'criterion' in params:
+            params['criterion'] = getattr(self, '_criterion', None)
+        return params
+
     def _setup_criterion(self):
         """Set runtime loss function or criterion based on loss_func, criterion, or criterion_name."""
         if isfunction(self.loss_func):
@@ -205,9 +231,10 @@ class BaseDeepLearningDetector(BaseDetector):
         elif self.loss_func is not None:
             raise ValueError('Invalid loss function.')
         else:
-            if isinstance(self.criterion, torch.nn.Module):
-                self.criterion_ = self.criterion
-            elif self.criterion is not None:
+            criterion_user = getattr(self, '_criterion', None)
+            if isinstance(criterion_user, torch.nn.Module):
+                self.criterion_ = criterion_user
+            elif criterion_user is not None:
                 raise ValueError('Invalid criterion class.')
             else:
                 if isinstance(self.criterion_name, str):

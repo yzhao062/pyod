@@ -61,7 +61,7 @@ class DummyDetector(BaseDeepLearningDetector):
         x = x.to(self.device)
         self.optimizer.zero_grad()
         output = self.model(x)
-        loss = self.criterion_(output, x)
+        loss = self.criterion(output, x)
         loss.backward()
         self.optimizer.step()
         return loss.item()
@@ -92,7 +92,7 @@ class DummyDetector2(DummyDetector):
         x = x.to(self.device)
         self.optimizer.zero_grad()
         output = self.model(x)
-        loss = self.criterion_(output, x)
+        loss = self.criterion(output, x)
         loss.backward()
         self.optimizer.step()
         return loss.item(), loss.item()
@@ -118,7 +118,8 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.contamination, 0.1)
         self.assertIsInstance(dummy_clf.optimizer, torch.optim.Adam)
-        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsNone(dummy_clf.get_params()['criterion'])
+        self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
         self.assertIsInstance(dummy_clf.criterion_, nn.MSELoss)
 
         dummy_clf = DummyDetector(contamination=0.2, optimizer_name='sgd',
@@ -127,16 +128,18 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(dummy_clf.contamination, 0.2)
         self.assertIsInstance(dummy_clf.optimizer, torch.optim.SGD)
         self.assertEqual(dummy_clf.loss_func, loss_function)
-        self.assertEqual(dummy_clf.criterion, 'mae')
+        self.assertEqual(dummy_clf.criterion, loss_function)
         self.assertEqual(dummy_clf.criterion_, loss_function)
 
         dummy_loss = DummyLoss()
         dummy_clf = DummyDetector(criterion=dummy_loss)
         self.assertIs(dummy_clf.criterion, dummy_loss)
         self.assertIs(dummy_clf.criterion_, dummy_loss)
+        self.assertIs(dummy_clf.get_params()['criterion'], dummy_loss)
 
         dummy_clf = DummyDetector(criterion_name='mae')
-        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsNone(dummy_clf.get_params()['criterion'])
+        self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
         self.assertIsInstance(dummy_clf.criterion_, nn.L1Loss)
         self.assertEqual(dummy_clf.criterion_name, 'mae')
 
@@ -218,16 +221,18 @@ class TestBaseDL(unittest.TestCase):
 
         dummy_clf = DummyDetector(criterion_name='mae')
         cloned = clone(dummy_clf)
-        self.assertIsNone(cloned.criterion)
+        self.assertIsNone(cloned.get_params()['criterion'])
         self.assertEqual(cloned.criterion_name, 'mae')
         self.assertEqual(cloned.get_params()['criterion_name'], 'mae')
+        self.assertIsInstance(cloned.criterion, nn.L1Loss)
         self.assertIsInstance(cloned.criterion_, nn.L1Loss)
 
         # Confirm that GridSearchCV setting criterion_name on a cloned
         # estimator is not masked by a materialized module on self.criterion
         cloned.set_params(criterion_name='mse')
-        self.assertIsNone(cloned.criterion)
+        self.assertIsNone(cloned.get_params()['criterion'])
         self.assertEqual(cloned.criterion_name, 'mse')
+        self.assertIsInstance(cloned.criterion, nn.MSELoss)
         self.assertIsInstance(cloned.criterion_, nn.MSELoss)
 
         # When custom criterion is passed, clone preserves it
@@ -236,18 +241,51 @@ class TestBaseDL(unittest.TestCase):
         cloned_custom = clone(custom_clf)
         self.assertIsInstance(cloned_custom.criterion, DummyLoss)
         self.assertIsInstance(cloned_custom.criterion_, DummyLoss)
+        self.assertIsInstance(cloned_custom.get_params()['criterion'], DummyLoss)
 
     def test_set_params_rebuilds_criterion(self):
         dummy_clf = DummyDetector(criterion_name='mse')
-        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsNone(dummy_clf.get_params()['criterion'])
+        self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
         self.assertIsInstance(dummy_clf.criterion_, nn.MSELoss)
         dummy_clf.set_params(criterion_name='mae')
-        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsNone(dummy_clf.get_params()['criterion'])
+        self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
         self.assertIsInstance(dummy_clf.criterion_, nn.L1Loss)
 
         dummy_clf.set_params(loss_func=loss_function)
         self.assertEqual(dummy_clf.loss_func, loss_function)
+        self.assertEqual(dummy_clf.criterion, loss_function)
         self.assertEqual(dummy_clf.criterion_, loss_function)
+
+    def test_downstream_subclass_criterion_callable(self):
+        # Downstream subclasses calling documented self.criterion(output, x)
+        class DownstreamDetector(BaseDeepLearningDetector):
+            def build_model(self):
+                self.model = DummyUnchangeModel(self.feature_size)
+
+            def training_forward(self, batch_data):
+                x = batch_data.to(self.device)
+                self.optimizer.zero_grad()
+                output = self.model(x)
+                loss = self.criterion(output, x)
+                loss.backward()
+                self.optimizer.step()
+                return loss.item()
+
+            def evaluating_forward(self, batch_data):
+                return np.zeros(batch_data.shape[0])
+
+        det = DownstreamDetector(epoch_num=1, criterion_name='mse')
+        det.fit(self.X_train)
+        self.assertIsInstance(det.criterion, nn.MSELoss)
+
+        # Cloned downstream detector with criterion_name set also trains
+        from sklearn.base import clone
+        cloned_det = clone(det)
+        cloned_det.set_params(criterion_name='mae')
+        cloned_det.fit(self.X_train)
+        self.assertIsInstance(cloned_det.criterion, nn.L1Loss)
 
     def tearDown(self):
         pass
