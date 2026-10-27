@@ -61,7 +61,7 @@ class DummyDetector(BaseDeepLearningDetector):
         x = x.to(self.device)
         self.optimizer.zero_grad()
         output = self.model(x)
-        loss = self.criterion(output, x)
+        loss = self.criterion_(output, x)
         loss.backward()
         self.optimizer.step()
         return loss.item()
@@ -92,7 +92,7 @@ class DummyDetector2(DummyDetector):
         x = x.to(self.device)
         self.optimizer.zero_grad()
         output = self.model(x)
-        loss = self.criterion(output, x)
+        loss = self.criterion_(output, x)
         loss.backward()
         self.optimizer.step()
         return loss.item(), loss.item()
@@ -118,20 +118,26 @@ class TestBaseDL(unittest.TestCase):
         dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.contamination, 0.1)
         self.assertIsInstance(dummy_clf.optimizer, torch.optim.Adam)
-        self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
+        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsInstance(dummy_clf.criterion_, nn.MSELoss)
 
         dummy_clf = DummyDetector(contamination=0.2, optimizer_name='sgd',
                                   loss_func=loss_function, criterion='mae')
         dummy_clf.fit(self.X_train)
         self.assertEqual(dummy_clf.contamination, 0.2)
         self.assertIsInstance(dummy_clf.optimizer, torch.optim.SGD)
-        self.assertEqual(dummy_clf.criterion, loss_function)
+        self.assertEqual(dummy_clf.loss_func, loss_function)
+        self.assertEqual(dummy_clf.criterion, 'mae')
+        self.assertEqual(dummy_clf.criterion_, loss_function)
 
-        dummy_clf = DummyDetector(criterion=DummyLoss())
-        self.assertIsInstance(dummy_clf.criterion, DummyLoss)
+        dummy_loss = DummyLoss()
+        dummy_clf = DummyDetector(criterion=dummy_loss)
+        self.assertIs(dummy_clf.criterion, dummy_loss)
+        self.assertIs(dummy_clf.criterion_, dummy_loss)
 
         dummy_clf = DummyDetector(criterion_name='mae')
-        self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
+        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsInstance(dummy_clf.criterion_, nn.L1Loss)
         self.assertEqual(dummy_clf.criterion_name, 'mae')
 
         self.assertRaises(ValueError, DummyDetector, contamination=0)
@@ -212,17 +218,36 @@ class TestBaseDL(unittest.TestCase):
 
         dummy_clf = DummyDetector(criterion_name='mae')
         cloned = clone(dummy_clf)
+        self.assertIsNone(cloned.criterion)
         self.assertEqual(cloned.criterion_name, 'mae')
         self.assertEqual(cloned.get_params()['criterion_name'], 'mae')
+        self.assertIsInstance(cloned.criterion_, nn.L1Loss)
+
+        # Confirm that GridSearchCV setting criterion_name on a cloned
+        # estimator is not masked by a materialized module on self.criterion
+        cloned.set_params(criterion_name='mse')
+        self.assertIsNone(cloned.criterion)
+        self.assertEqual(cloned.criterion_name, 'mse')
+        self.assertIsInstance(cloned.criterion_, nn.MSELoss)
+
+        # When custom criterion is passed, clone preserves it
+        custom_loss = DummyLoss()
+        custom_clf = DummyDetector(criterion=custom_loss)
+        cloned_custom = clone(custom_clf)
+        self.assertIsInstance(cloned_custom.criterion, DummyLoss)
+        self.assertIsInstance(cloned_custom.criterion_, DummyLoss)
 
     def test_set_params_rebuilds_criterion(self):
         dummy_clf = DummyDetector(criterion_name='mse')
-        self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
+        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsInstance(dummy_clf.criterion_, nn.MSELoss)
         dummy_clf.set_params(criterion_name='mae')
-        self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
+        self.assertIsNone(dummy_clf.criterion)
+        self.assertIsInstance(dummy_clf.criterion_, nn.L1Loss)
 
         dummy_clf.set_params(loss_func=loss_function)
-        self.assertEqual(dummy_clf.criterion, loss_function)
+        self.assertEqual(dummy_clf.loss_func, loss_function)
+        self.assertEqual(dummy_clf.criterion_, loss_function)
 
     def tearDown(self):
         pass

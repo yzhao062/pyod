@@ -126,8 +126,8 @@ class BaseDeepLearningDetector(BaseDetector):
         self.optimizer_params = optimizer_params
         self.criterion_params = criterion_params
         self.loss_func = loss_func
+        self.criterion = criterion
         self.criterion_name = criterion_name
-        self._criterion_user = criterion
 
         self.X_mean = None
         self.X_std = None
@@ -199,26 +199,24 @@ class BaseDeepLearningDetector(BaseDetector):
         return self
 
     def _setup_criterion(self):
-        """Set loss function or criterion based on loss_func, criterion, or criterion_name."""
+        """Set runtime loss function or criterion based on loss_func, criterion, or criterion_name."""
         if isfunction(self.loss_func):
-            self.criterion = self.loss_func
+            self.criterion_ = self.loss_func
         elif self.loss_func is not None:
             raise ValueError('Invalid loss function.')
         else:
-            if isinstance(getattr(self, '_criterion_user', None), torch.nn.Module):
-                self.criterion = self._criterion_user
-            elif getattr(self, '_criterion_user', None) is not None:
+            if isinstance(self.criterion, torch.nn.Module):
+                self.criterion_ = self.criterion
+            elif self.criterion is not None:
                 raise ValueError('Invalid criterion class.')
             else:
                 if isinstance(self.criterion_name, str):
-                    self.criterion = get_criterion_by_name(name=self.criterion_name,
-                                                           **self.criterion_params)
+                    self.criterion_ = get_criterion_by_name(name=self.criterion_name,
+                                                            **self.criterion_params)
                 else:
                     raise ValueError('Invalid criterion name.')
 
     def set_params(self, **params):
-        if 'criterion' in params:
-            self._criterion_user = params['criterion']
         super(BaseDeepLearningDetector, self).set_params(**params)
         loss_keys = {'criterion_name', 'loss_func', 'criterion', 'criterion_params'}
         if loss_keys.intersection(params):

@@ -196,7 +196,7 @@ class VAE(BaseDeepLearningDetector):
     optimizer : torch.optim
         The optimizer used to train the model.
 
-    criterion : python function
+    criterion_ : python function
         The loss function used to train the model.
 
     decision_scores_ : numpy array of shape (n_samples,)
@@ -274,7 +274,7 @@ class VAE(BaseDeepLearningDetector):
         x = x.to(self.device)
         self.optimizer.zero_grad()
         x_recon, z_mu, z_logvar = self.model(x)
-        loss = self.criterion(x, x_recon, z_mu, z_logvar,
+        loss = self.criterion_(x, x_recon, z_mu, z_logvar,
                               beta=self.beta, capacity=self.capacity,
                               logvar_clip=self.logvar_clip_)
         loss.backward()

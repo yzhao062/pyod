@@ -145,11 +145,14 @@ class TestSO_GAAL(unittest.TestCase):
         from torch import nn
 
         clf = SO_GAAL(criterion_name='bce')
-        self.assertIsInstance(clf.criterion, nn.BCELoss)
+        self.assertIsNone(clf.criterion)
+        self.assertIsInstance(clf.criterion_, nn.BCELoss)
         clf.set_params(criterion_name='mse')
-        self.assertIsInstance(clf.criterion, nn.MSELoss)
+        self.assertIsNone(clf.criterion)
+        self.assertIsInstance(clf.criterion_, nn.MSELoss)
         clf.set_params(criterion_name='bce')
-        self.assertIsInstance(clf.criterion, nn.BCELoss)
+        self.assertIsNone(clf.criterion)
+        self.assertIsInstance(clf.criterion_, nn.BCELoss)
 
     def tearDown(self):
         pass
