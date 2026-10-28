@@ -139,8 +139,8 @@ class BaseDeepLearningDetector(BaseDetector):
                 raise ValueError(f"contamination must be in (0., 0.5], "
                                  f"got {contamination}")
 
-        # set loss function or criterion
-        self._setup_criterion()
+        # validate loss settings; criterion_ itself is only set at fit time
+        self._resolve_criterion()
 
         # set random seed for reproducibility
         self._set_seed(self.random_state)
@@ -175,6 +175,8 @@ class BaseDeepLearningDetector(BaseDetector):
 
         self.data_num, self.feature_size = X.shape
         self.build_model()
+        # set here rather than in training_prepare, which subclasses override
+        self._setup_criterion()
         self.training_prepare()
 
         if self.preprocessing:
@@ -210,13 +212,16 @@ class BaseDeepLearningDetector(BaseDetector):
         raw = getattr(self, '_criterion', None)
         if callable(raw) and getattr(self, 'loss_func', None) is None:
             return raw
-        return getattr(self, 'criterion_', None)
+        if 'criterion_' in self.__dict__:
+            return self.criterion_
+        try:
+            return self._resolve_criterion()
+        except ValueError:
+            return None
 
     @criterion.setter
     def criterion(self, value):
         self._criterion = value
-        if value is not None and callable(value):
-            self.criterion_ = value
 
     @classmethod
     def _default_criterion_name(cls):
@@ -244,6 +249,16 @@ class BaseDeepLearningDetector(BaseDetector):
             return weight is None and rebuilt_weight is None
         return torch.equal(weight, rebuilt_weight)
 
+    @classmethod
+    def _infer_criterion_name(cls, module, criterion_params):
+        """Built-in criterion_name that rebuilds module exactly, or None."""
+        default = cls._default_criterion_name()
+        for name in [default] + [n for n in ('mse', 'mae', 'bce')
+                                 if n != default]:
+            if cls._matches_named_criterion(module, name, criterion_params):
+                return name
+        return None
+
     def __setstate__(self, state):
         """Restore instance state and migrate legacy saved detector artifacts.
 
@@ -254,22 +269,35 @@ class BaseDeepLearningDetector(BaseDetector):
         weights, subclasses, custom modules) is kept as the explicit
         criterion so refitting trains with the same loss.
         """
+        # legacy pickles never stored criterion_name, so the constructor
+        # default may not be what produced the saved module
+        name_known = 'criterion_name' in state
         state.setdefault('criterion_name', self._default_criterion_name())
         state.setdefault('criterion_params', {})
         if 'criterion' in state and '_criterion' not in state:
             legacy_criterion = state.pop('criterion')
+            fitted = 'decision_scores_' in state
             if isfunction(legacy_criterion):
                 state.setdefault('loss_func', legacy_criterion)
                 state['_criterion'] = None
-                state['criterion_'] = legacy_criterion
+                if fitted:
+                    state['criterion_'] = legacy_criterion
             elif isinstance(legacy_criterion, torch.nn.Module):
-                if self._matches_named_criterion(legacy_criterion,
-                                                 state['criterion_name'],
-                                                 state['criterion_params']):
+                inferred = None
+                if not name_known:
+                    inferred = self._infer_criterion_name(
+                        legacy_criterion, state['criterion_params'])
+                if inferred is not None:
+                    state['criterion_name'] = inferred
+                    state['_criterion'] = None
+                elif self._matches_named_criterion(legacy_criterion,
+                                                   state['criterion_name'],
+                                                   state['criterion_params']):
                     state['_criterion'] = None
                 else:
                     state['_criterion'] = legacy_criterion
-                state['criterion_'] = legacy_criterion
+                if fitted:
+                    state['criterion_'] = legacy_criterion
             else:
                 state['_criterion'] = legacy_criterion
 
@@ -287,26 +315,27 @@ class BaseDeepLearningDetector(BaseDetector):
             params['criterion'] = getattr(self, '_criterion', None)
         return params
 
-    def _setup_criterion(self):
-        """Set runtime loss function or criterion based on loss_func, criterion, or criterion_name."""
+    def _resolve_criterion(self):
+        """Return the loss function or criterion from loss_func, criterion, or criterion_name."""
         if isfunction(getattr(self, 'loss_func', None)):
-            self.criterion_ = self.loss_func
+            return self.loss_func
         elif getattr(self, 'loss_func', None) is not None:
             raise ValueError('Invalid loss function.')
-        else:
-            criterion_user = getattr(self, '_criterion', None)
-            if isinstance(criterion_user, torch.nn.Module):
-                self.criterion_ = criterion_user
-            elif criterion_user is not None:
-                raise ValueError('Invalid criterion class.')
-            else:
-                criterion_name = getattr(self, 'criterion_name', 'mse')
-                criterion_params = getattr(self, 'criterion_params', {})
-                if isinstance(criterion_name, str):
-                    self.criterion_ = get_criterion_by_name(name=criterion_name,
-                                                            **criterion_params)
-                else:
-                    raise ValueError('Invalid criterion name.')
+        criterion_user = getattr(self, '_criterion', None)
+        if isinstance(criterion_user, torch.nn.Module):
+            return criterion_user
+        elif criterion_user is not None:
+            raise ValueError('Invalid criterion class.')
+        criterion_name = getattr(self, 'criterion_name', 'mse')
+        criterion_params = getattr(self, 'criterion_params', {})
+        if isinstance(criterion_name, str):
+            return get_criterion_by_name(name=criterion_name,
+                                         **criterion_params)
+        raise ValueError('Invalid criterion name.')
+
+    def _setup_criterion(self):
+        """Set the runtime criterion_ used for training."""
+        self.criterion_ = self._resolve_criterion()
 
     def set_params(self, **params):
         super(BaseDeepLearningDetector, self).set_params(**params)
@@ -316,11 +345,15 @@ class BaseDeepLearningDetector(BaseDetector):
             # migrated from a legacy pickle; drop it so new loss params apply.
             if 'criterion' not in self._get_param_names():
                 self._criterion = None
-            self._setup_criterion()
+            # only refresh criterion_ on a fitted estimator so set_params
+            # never creates a fitted marker (check_is_fitted)
+            if 'criterion_' in self.__dict__:
+                self._setup_criterion()
+            else:
+                self._resolve_criterion()
         return self
 
     def training_prepare(self):
-        self._setup_criterion()
         self.model = self.model.to(self.device)
 
         # set optimizer

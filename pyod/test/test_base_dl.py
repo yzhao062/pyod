@@ -138,14 +138,16 @@ class TestBaseDL(unittest.TestCase):
         dummy_loss = DummyLoss()
         dummy_clf = DummyDetector(criterion=dummy_loss)
         self.assertIs(dummy_clf.criterion, dummy_loss)
-        self.assertIs(dummy_clf.criterion_, dummy_loss)
         self.assertIs(dummy_clf.get_params()['criterion'], dummy_loss)
+        dummy_clf.fit(self.X_train)
+        self.assertIs(dummy_clf.criterion_, dummy_loss)
 
         dummy_clf = DummyDetector(criterion_name='mae')
         self.assertIsNone(dummy_clf.get_params()['criterion'])
         self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
-        self.assertIsInstance(dummy_clf.criterion_, nn.L1Loss)
         self.assertEqual(dummy_clf.criterion_name, 'mae')
+        dummy_clf.fit(self.X_train)
+        self.assertIsInstance(dummy_clf.criterion_, nn.L1Loss)
 
         self.assertRaises(ValueError, DummyDetector, contamination=0)
         self.assertRaises(ValueError, DummyDetector, contamination=0.51)
@@ -314,9 +316,40 @@ class TestBaseDL(unittest.TestCase):
 
         # a migrated custom loss must not mask a later criterion_name change
         loaded = self._load_legacy(SO_GAAL, nn.BCELoss(reduction='sum'))
-        self.assertEqual(loaded.criterion_.reduction, 'sum')
+        self.assertEqual(loaded.criterion.reduction, 'sum')
         loaded.set_params(criterion_name='mse')
-        self.assertIsInstance(loaded.criterion_, nn.MSELoss)
+        self.assertIsInstance(loaded.criterion, nn.MSELoss)
+
+    def test_legacy_unpickling_so_gaal_non_default_name(self):
+        from sklearn.base import clone
+        from pyod.models.so_gaal_new import SO_GAAL
+
+        # pre-change SO_GAAL(criterion_name='mse') saved only the MSELoss
+        loaded = self._load_legacy(SO_GAAL, nn.MSELoss())
+        self.assertEqual(loaded.criterion_name, 'mse')
+        self.assertIsNone(loaded._criterion)
+        cloned = clone(loaded)
+        self.assertEqual(cloned.criterion_name, 'mse')
+        self.assertIsInstance(cloned.criterion, nn.MSELoss)
+
+    def test_unfitted_not_marked_fitted(self):
+        from sklearn.exceptions import NotFittedError
+        from sklearn.utils.validation import check_is_fitted
+
+        for kwargs in ({}, {'criterion': DummyLoss()},
+                       {'loss_func': loss_function}):
+            dummy_clf = DummyDetector(**kwargs)
+            self.assertNotIn('criterion_', vars(dummy_clf))
+            dummy_clf.set_params(criterion_name='mae')
+            self.assertRaises(NotFittedError, check_is_fitted, dummy_clf)
+
+        # an unfitted legacy pickle stays unfitted after migration
+        loaded = self._load_legacy(DummyDetector, nn.MSELoss())
+        self.assertRaises(NotFittedError, check_is_fitted, loaded)
+
+        dummy_clf = DummyDetector()
+        dummy_clf.fit(self.X_train)
+        check_is_fitted(dummy_clf)
 
     def test_model_clone(self):
         from sklearn.base import clone
@@ -327,7 +360,6 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(cloned.criterion_name, 'mae')
         self.assertEqual(cloned.get_params()['criterion_name'], 'mae')
         self.assertIsInstance(cloned.criterion, nn.L1Loss)
-        self.assertIsInstance(cloned.criterion_, nn.L1Loss)
 
         # Confirm that GridSearchCV setting criterion_name on a cloned
         # estimator is not masked by a materialized module on self.criterion
@@ -335,6 +367,7 @@ class TestBaseDL(unittest.TestCase):
         self.assertIsNone(cloned.get_params()['criterion'])
         self.assertEqual(cloned.criterion_name, 'mse')
         self.assertIsInstance(cloned.criterion, nn.MSELoss)
+        cloned.fit(self.X_train)
         self.assertIsInstance(cloned.criterion_, nn.MSELoss)
 
         # When custom criterion is passed, clone preserves it
@@ -342,19 +375,19 @@ class TestBaseDL(unittest.TestCase):
         custom_clf = DummyDetector(criterion=custom_loss)
         cloned_custom = clone(custom_clf)
         self.assertIsInstance(cloned_custom.criterion, DummyLoss)
-        self.assertIsInstance(cloned_custom.criterion_, DummyLoss)
         self.assertIsInstance(cloned_custom.get_params()['criterion'], DummyLoss)
 
     def test_set_params_rebuilds_criterion(self):
         dummy_clf = DummyDetector(criterion_name='mse')
         self.assertIsNone(dummy_clf.get_params()['criterion'])
         self.assertIsInstance(dummy_clf.criterion, nn.MSELoss)
-        self.assertIsInstance(dummy_clf.criterion_, nn.MSELoss)
         dummy_clf.set_params(criterion_name='mae')
         self.assertIsNone(dummy_clf.get_params()['criterion'])
         self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
+        dummy_clf.fit(self.X_train)
         self.assertIsInstance(dummy_clf.criterion_, nn.L1Loss)
 
+        # a fitted estimator keeps criterion_ in sync with its params
         dummy_clf.set_params(loss_func=loss_function)
         self.assertEqual(dummy_clf.loss_func, loss_function)
         self.assertEqual(dummy_clf.criterion, loss_function)

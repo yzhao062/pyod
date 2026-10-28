@@ -141,17 +141,15 @@ class TestSO_GAAL(unittest.TestCase):
         self.assertEqual(clone_clf_mse.get_params(), clf_mse.get_params())
 
     def test_set_params_rebuilds_criterion(self):
-        import torch
         from torch import nn
 
         clf = SO_GAAL(criterion_name='bce')
         self.assertIsInstance(clf.criterion, nn.BCELoss)
-        self.assertIsInstance(clf.criterion_, nn.BCELoss)
         clf.set_params(criterion_name='mse')
         self.assertIsInstance(clf.criterion, nn.MSELoss)
-        self.assertIsInstance(clf.criterion_, nn.MSELoss)
         clf.set_params(criterion_name='bce')
         self.assertIsInstance(clf.criterion, nn.BCELoss)
+        clf.fit(self.X_train)
         self.assertIsInstance(clf.criterion_, nn.BCELoss)
 
     def tearDown(self):
