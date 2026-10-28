@@ -393,6 +393,32 @@ class TestBaseDL(unittest.TestCase):
         self.assertEqual(dummy_clf.criterion, loss_function)
         self.assertEqual(dummy_clf.criterion_, loss_function)
 
+    def test_prefit_criterion_customization_reaches_fit(self):
+        import pickle
+
+        dummy_clf = DummyDetector(criterion_name='mse')
+        self.assertIs(dummy_clf.criterion, dummy_clf.criterion)
+        dummy_clf.criterion.reduction = 'sum'
+        restored = pickle.loads(pickle.dumps(dummy_clf))
+        self.assertEqual(restored.criterion.reduction, 'sum')
+
+        calls = []
+        dummy_clf.criterion.register_forward_hook(
+            lambda *args: calls.append(1))
+
+        dummy_clf.fit(self.X_train)
+        self.assertIs(dummy_clf.criterion_, dummy_clf.criterion)
+        self.assertEqual(dummy_clf.criterion_.reduction, 'sum')
+        self.assertTrue(calls)
+
+        # changing the loss settings drops the cached module
+        dummy_clf = DummyDetector(criterion_name='mse')
+        cached = dummy_clf.criterion
+        dummy_clf.set_params(criterion_name='mae')
+        self.assertIsInstance(dummy_clf.criterion, nn.L1Loss)
+        dummy_clf.set_params(criterion_name='mse')
+        self.assertIsNot(dummy_clf.criterion, cached)
+
     def test_downstream_subclass_criterion_callable(self):
         # Downstream subclasses calling documented self.criterion(output, x)
         class DownstreamDetector(BaseDeepLearningDetector):

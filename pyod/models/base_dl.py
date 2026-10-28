@@ -140,7 +140,7 @@ class BaseDeepLearningDetector(BaseDetector):
                                  f"got {contamination}")
 
         # validate loss settings; criterion_ itself is only set at fit time
-        self._resolve_criterion()
+        self._cached_criterion()
 
         # set random seed for reproducibility
         self._set_seed(self.random_state)
@@ -212,10 +212,8 @@ class BaseDeepLearningDetector(BaseDetector):
         raw = getattr(self, '_criterion', None)
         if callable(raw) and getattr(self, 'loss_func', None) is None:
             return raw
-        if 'criterion_' in self.__dict__:
-            return self.criterion_
         try:
-            return self._resolve_criterion()
+            return self._cached_criterion()
         except ValueError:
             return None
 
@@ -272,6 +270,7 @@ class BaseDeepLearningDetector(BaseDetector):
         # legacy pickles never stored criterion_name, so the constructor
         # default may not be what produced the saved module
         name_known = 'criterion_name' in state
+        legacy_criterion = None
         state.setdefault('criterion_name', self._default_criterion_name())
         state.setdefault('criterion_params', {})
         if 'criterion' in state and '_criterion' not in state:
@@ -309,6 +308,14 @@ class BaseDeepLearningDetector(BaseDetector):
         except AttributeError:
             self.__dict__.update(state)
 
+        # whichever way it migrated, the legacy object is equivalent to what
+        # the restored settings resolve to, so keep that same instance
+        if legacy_criterion is not None and (
+                isfunction(legacy_criterion) or
+                isinstance(legacy_criterion, torch.nn.Module)):
+            self._criterion_cache = (self._criterion_config(),
+                                     legacy_criterion)
+
     def get_params(self, deep=True):
         params = super(BaseDeepLearningDetector, self).get_params(deep=deep)
         if 'criterion' in params:
@@ -333,9 +340,45 @@ class BaseDeepLearningDetector(BaseDetector):
                                          **criterion_params)
         raise ValueError('Invalid criterion name.')
 
+    def _criterion_config(self):
+        """Settings the resolved criterion depends on, held by reference."""
+        params = getattr(self, 'criterion_params', None)
+        if isinstance(params, dict):
+            params = tuple(sorted(params.items(), key=lambda kv: str(kv[0])))
+        return (getattr(self, 'loss_func', None),
+                getattr(self, '_criterion', None),
+                getattr(self, 'criterion_name', 'mse'),
+                params)
+
+    @staticmethod
+    def _same_criterion_config(a, b):
+        if a[0] is not b[0] or a[1] is not b[1] or a[2] != b[2]:
+            return False
+        # compare values by identity; tensors (e.g. bce_weight) have no
+        # usable equality
+        pa, pb = a[3], b[3]
+        if not (isinstance(pa, tuple) and isinstance(pb, tuple)):
+            return pa is pb
+        return len(pa) == len(pb) and all(
+            ka == kb and va is vb for (ka, va), (kb, vb) in zip(pa, pb))
+
+    def _cached_criterion(self):
+        """Resolved loss, rebuilt only when the loss settings change.
+
+        Returning the same instance until then keeps pre-fit customization,
+        such as det.criterion.reduction = 'sum', in effect for training.
+        """
+        config = self._criterion_config()
+        cached = self.__dict__.get('_criterion_cache')
+        if cached is None or not self._same_criterion_config(cached[0],
+                                                             config):
+            cached = (config, self._resolve_criterion())
+            self._criterion_cache = cached
+        return cached[1]
+
     def _setup_criterion(self):
         """Set the runtime criterion_ used for training."""
-        self.criterion_ = self._resolve_criterion()
+        self.criterion_ = self._cached_criterion()
 
     def set_params(self, **params):
         super(BaseDeepLearningDetector, self).set_params(**params)
@@ -350,7 +393,7 @@ class BaseDeepLearningDetector(BaseDetector):
             if 'criterion_' in self.__dict__:
                 self._setup_criterion()
             else:
-                self._resolve_criterion()
+                self._cached_criterion()
         return self
 
     def training_prepare(self):
