@@ -10,7 +10,7 @@ import pickle
 import random
 import time
 from abc import abstractmethod
-from inspect import isfunction
+from inspect import isfunction, signature
 
 import numpy as np
 
@@ -210,12 +210,7 @@ class BaseDeepLearningDetector(BaseDetector):
         raw = getattr(self, '_criterion', None)
         if callable(raw) and getattr(self, 'loss_func', None) is None:
             return raw
-        if hasattr(self, 'criterion_'):
-            return self.criterion_
-        legacy = self.__dict__.get('criterion', None)
-        if callable(legacy):
-            return legacy
-        return None
+        return getattr(self, 'criterion_', None)
 
     @criterion.setter
     def criterion(self, value):
@@ -223,36 +218,63 @@ class BaseDeepLearningDetector(BaseDetector):
         if value is not None and callable(value):
             self.criterion_ = value
 
+    @classmethod
+    def _default_criterion_name(cls):
+        """Constructor default for criterion_name, or 'mse' if not exposed."""
+        param = signature(cls.__init__).parameters.get('criterion_name')
+        if param is None or not isinstance(param.default, str):
+            return 'mse'
+        return param.default
+
+    @staticmethod
+    def _matches_named_criterion(module, criterion_name, criterion_params):
+        """Whether module is exactly what criterion_name would rebuild."""
+        try:
+            rebuilt = get_criterion_by_name(name=criterion_name,
+                                            **criterion_params)
+        except (TypeError, ValueError):
+            return False
+        if type(module) is not type(rebuilt):
+            return False
+        if getattr(module, 'reduction', None) != rebuilt.reduction:
+            return False
+        weight = getattr(module, 'weight', None)
+        rebuilt_weight = getattr(rebuilt, 'weight', None)
+        if weight is None or rebuilt_weight is None:
+            return weight is None and rebuilt_weight is None
+        return torch.equal(weight, rebuilt_weight)
+
     def __setstate__(self, state):
-        """Restore instance state and migrate legacy saved detector artifacts."""
+        """Restore instance state and migrate legacy saved detector artifacts.
+
+        Detectors pickled before criterion_ existed store the resolved loss
+        under 'criterion'. A loss function is moved to loss_func. A module is
+        only treated as name-generated when it is identical to what
+        criterion_name would rebuild; anything else (custom reduction,
+        weights, subclasses, custom modules) is kept as the explicit
+        criterion so refitting trains with the same loss.
+        """
+        state.setdefault('criterion_name', self._default_criterion_name())
+        state.setdefault('criterion_params', {})
         if 'criterion' in state and '_criterion' not in state:
             legacy_criterion = state.pop('criterion')
             if isfunction(legacy_criterion):
-                state['loss_func'] = legacy_criterion
-                state['_criterion'] = None
-                state['criterion_'] = legacy_criterion
-            elif isinstance(legacy_criterion, torch.nn.BCELoss):
-                state['criterion_name'] = 'bce'
-                state['_criterion'] = None
-                state['criterion_'] = legacy_criterion
-            elif isinstance(legacy_criterion, torch.nn.L1Loss):
-                state['criterion_name'] = 'mae'
-                state['_criterion'] = None
-                state['criterion_'] = legacy_criterion
-            elif isinstance(legacy_criterion, torch.nn.MSELoss):
-                state['criterion_name'] = 'mse'
+                state.setdefault('loss_func', legacy_criterion)
                 state['_criterion'] = None
                 state['criterion_'] = legacy_criterion
             elif isinstance(legacy_criterion, torch.nn.Module):
-                state['_criterion'] = legacy_criterion
+                if self._matches_named_criterion(legacy_criterion,
+                                                 state['criterion_name'],
+                                                 state['criterion_params']):
+                    state['_criterion'] = None
+                else:
+                    state['_criterion'] = legacy_criterion
                 state['criterion_'] = legacy_criterion
-            elif legacy_criterion is not None:
+            else:
                 state['_criterion'] = legacy_criterion
 
         state.setdefault('_criterion', None)
         state.setdefault('loss_func', None)
-        state.setdefault('criterion_name', 'mse')
-        state.setdefault('criterion_params', {})
 
         try:
             super(BaseDeepLearningDetector, self).__setstate__(state)
@@ -290,6 +312,10 @@ class BaseDeepLearningDetector(BaseDetector):
         super(BaseDeepLearningDetector, self).set_params(**params)
         loss_keys = {'criterion_name', 'loss_func', 'criterion', 'criterion_params'}
         if loss_keys.intersection(params):
+            # Subclasses that do not expose criterion can only carry one
+            # migrated from a legacy pickle; drop it so new loss params apply.
+            if 'criterion' not in self._get_param_names():
+                self._criterion = None
             self._setup_criterion()
         return self
 

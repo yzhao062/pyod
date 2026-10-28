@@ -30,6 +30,10 @@ class DummyLoss(nn.Module):
         return torch.mean((output - target) ** 2)
 
 
+class ScaledMSE(nn.MSELoss):
+    pass
+
+
 class DummyUnchangeModel(nn.Module):
     def __init__(self, feature_size):
         super(DummyUnchangeModel, self).__init__()
@@ -257,6 +261,62 @@ class TestBaseDL(unittest.TestCase):
         # Refitting the unpickled model succeeds without AttributeError / TypeError
         loaded.fit(self.X_train)
         self.assertIsNotNone(loaded.decision_scores_)
+
+    def _load_legacy(self, cls, criterion):
+        import copyreg
+        import pickle
+
+        state = {
+            'contamination': 0.1, 'preprocessing': True, 'lr': 0.001,
+            'epoch_num': 1, 'batch_size': 32, 'optimizer_name': 'adam',
+            'device': torch.device('cpu'), 'random_state': 42,
+            'use_compile': False, 'compile_mode': 'default', 'verbose': 0,
+            'optimizer_params': {}, 'criterion_params': {},
+            'criterion': criterion,
+        }
+
+        class LegacyMock:
+            def __reduce_ex__(self, proto):
+                return (copyreg._reconstructor, (cls, object, None), state)
+
+        return pickle.loads(pickle.dumps(LegacyMock()))
+
+    def test_legacy_unpickling_keeps_explicit_builtin_loss(self):
+        # an explicit built-in loss with non-default config must survive refit
+        loaded = self._load_legacy(DummyDetector, nn.MSELoss(reduction='sum'))
+        self.assertIsInstance(loaded.get_params()['criterion'], nn.MSELoss)
+        loaded.fit(self.X_train)
+        self.assertIsInstance(loaded.criterion_, nn.MSELoss)
+        self.assertEqual(loaded.criterion_.reduction, 'sum')
+
+        # subclasses of built-in losses are preserved too
+        loaded = self._load_legacy(DummyDetector, ScaledMSE())
+        loaded.fit(self.X_train)
+        self.assertIsInstance(loaded.criterion_, ScaledMSE)
+
+        # a module identical to the name-generated one maps back to the name
+        loaded = self._load_legacy(DummyDetector, nn.MSELoss())
+        self.assertIsNone(loaded.get_params()['criterion'])
+        loaded.fit(self.X_train)
+        self.assertIsInstance(loaded.criterion_, nn.MSELoss)
+
+        # a built-in loss other than the default name is kept as explicit
+        loaded = self._load_legacy(DummyDetector, nn.L1Loss())
+        loaded.fit(self.X_train)
+        self.assertIsInstance(loaded.criterion_, nn.L1Loss)
+
+    def test_legacy_unpickling_so_gaal_defaults(self):
+        from pyod.models.so_gaal_new import SO_GAAL
+
+        loaded = self._load_legacy(SO_GAAL, nn.BCELoss())
+        self.assertEqual(loaded.criterion_name, 'bce')
+        self.assertIsNone(loaded._criterion)
+
+        # a migrated custom loss must not mask a later criterion_name change
+        loaded = self._load_legacy(SO_GAAL, nn.BCELoss(reduction='sum'))
+        self.assertEqual(loaded.criterion_.reduction, 'sum')
+        loaded.set_params(criterion_name='mse')
+        self.assertIsInstance(loaded.criterion_, nn.MSELoss)
 
     def test_model_clone(self):
         from sklearn.base import clone
