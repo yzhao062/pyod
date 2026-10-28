@@ -113,6 +113,7 @@ class SO_GAAL(BaseDeepLearningDetector):
                                       use_compile=use_compile,
                                       compile_mode=compile_mode,
                                       verbose=verbose)
+        self.criterion_name = criterion_name
         self.lr_d = lr_d
         self.lr_g = lr_g
         self.momentum = momentum
@@ -172,8 +173,8 @@ class SO_GAAL(BaseDeepLearningDetector):
         real_outputs = self.discriminator(batch_data)
         fake_outputs = self.discriminator(generated_data)
 
-        loss_d_real = self.criterion(real_outputs, real_labels)
-        loss_d_fake = self.criterion(fake_outputs, fake_labels)
+        loss_d_real = self.criterion_(real_outputs, real_labels)
+        loss_d_fake = self.criterion_(fake_outputs, fake_labels)
 
         loss_d = loss_d_real + loss_d_fake
         loss_d.backward()
@@ -183,7 +184,7 @@ class SO_GAAL(BaseDeepLearningDetector):
         if not self.stop_flag:
             self.optimizer_g.zero_grad()
             trick_labels = torch.ones(batch_data_num, 1, device=self.device)
-            loss_g = self.criterion(self.discriminator(noise), trick_labels)
+            loss_g = self.criterion_(self.discriminator(noise), trick_labels)
             loss_g.backward()
             self.optimizer_g.step()
         else:

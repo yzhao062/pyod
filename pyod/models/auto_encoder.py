@@ -97,7 +97,7 @@ class AutoEncoder(BaseDeepLearningDetector):
     optimizer : torch.optim
         The optimizer used to train the model.
 
-    criterion : torch.nn.modules
+    criterion_ : torch.nn.modules
         The loss function used to train the model.
 
     decision_scores_ : numpy array of shape (n_samples,)
@@ -158,7 +158,7 @@ class AutoEncoder(BaseDeepLearningDetector):
         x = x.to(self.device)
         self.optimizer.zero_grad()
         x_recon = self.model(x)
-        loss = self.criterion(x_recon, x)
+        loss = self.criterion_(x_recon, x)
         loss.backward()
         self.optimizer.step()
         return loss.item()

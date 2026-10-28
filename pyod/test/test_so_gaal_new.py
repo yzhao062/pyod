@@ -11,6 +11,8 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 sys.path.append(os.path.abspath(os.path.dirname("__file__")))
 
+from sklearn.base import clone
+
 from pyod.models.so_gaal_new import SO_GAAL
 from pyod.utils.data import generate_data
 
@@ -127,6 +129,28 @@ class TestSO_GAAL(unittest.TestCase):
                                    scoring='prc_n_score')
         self.assertRaises(NotImplementedError, self.clf.fit_predict_score,
                           self.X_test, self.y_test, scoring='something')
+
+    def test_model_clone(self):
+        clone_clf = clone(self.clf)
+        self.assertEqual(clone_clf.get_params()['criterion_name'], 'bce')
+        self.assertEqual(clone_clf.get_params(), self.clf.get_params())
+
+        clf_mse = SO_GAAL(criterion_name='mse')
+        clone_clf_mse = clone(clf_mse)
+        self.assertEqual(clone_clf_mse.get_params()['criterion_name'], 'mse')
+        self.assertEqual(clone_clf_mse.get_params(), clf_mse.get_params())
+
+    def test_set_params_rebuilds_criterion(self):
+        from torch import nn
+
+        clf = SO_GAAL(criterion_name='bce')
+        self.assertIsInstance(clf.criterion, nn.BCELoss)
+        clf.set_params(criterion_name='mse')
+        self.assertIsInstance(clf.criterion, nn.MSELoss)
+        clf.set_params(criterion_name='bce')
+        self.assertIsInstance(clf.criterion, nn.BCELoss)
+        clf.fit(self.X_train)
+        self.assertIsInstance(clf.criterion_, nn.BCELoss)
 
     def tearDown(self):
         pass

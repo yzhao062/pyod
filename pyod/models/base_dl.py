@@ -10,7 +10,7 @@ import pickle
 import random
 import time
 from abc import abstractmethod
-from inspect import isfunction
+from inspect import isfunction, signature
 
 import numpy as np
 
@@ -125,6 +125,9 @@ class BaseDeepLearningDetector(BaseDetector):
         self.verbose = verbose
         self.optimizer_params = optimizer_params
         self.criterion_params = criterion_params
+        self.loss_func = loss_func
+        self.criterion = criterion
+        self.criterion_name = criterion_name
 
         self.X_mean = None
         self.X_std = None
@@ -136,22 +139,8 @@ class BaseDeepLearningDetector(BaseDetector):
                 raise ValueError(f"contamination must be in (0., 0.5], "
                                  f"got {contamination}")
 
-        # set loss function or criterion
-        if isfunction(loss_func):
-            self.criterion = loss_func
-        elif loss_func is not None:
-            raise ValueError('Invalid loss function.')
-        else:
-            if isinstance(criterion, torch.nn.Module):
-                self.criterion = criterion
-            elif criterion is not None:
-                raise ValueError('Invalid criterion class.')
-            else:
-                if isinstance(criterion_name, str):
-                    self.criterion = get_criterion_by_name(name=criterion_name,
-                                                           **self.criterion_params)
-                else:
-                    raise ValueError('Invalid criterion name.')
+        # validate loss settings; criterion_ itself is only set at fit time
+        self._cached_criterion()
 
         # set random seed for reproducibility
         self._set_seed(self.random_state)
@@ -186,6 +175,8 @@ class BaseDeepLearningDetector(BaseDetector):
 
         self.data_num, self.feature_size = X.shape
         self.build_model()
+        # set here rather than in training_prepare, which subclasses override
+        self._setup_criterion()
         self.training_prepare()
 
         if self.preprocessing:
@@ -207,6 +198,202 @@ class BaseDeepLearningDetector(BaseDetector):
         self.decision_scores_ = self.decision_function(X)
         self._process_decision_scores()
 
+        return self
+
+    @property
+    def criterion(self):
+        """Loss function or criterion module.
+
+        Returns the user-supplied criterion if a callable module was passed
+        and no loss_func overrides it; otherwise falls back to the runtime
+        criterion_ for backward compatibility with subclasses calling
+        self.criterion(output, x).
+        """
+        raw = getattr(self, '_criterion', None)
+        if callable(raw) and getattr(self, 'loss_func', None) is None:
+            return raw
+        try:
+            return self._cached_criterion()
+        except ValueError:
+            return None
+
+    @criterion.setter
+    def criterion(self, value):
+        self._criterion = value
+
+    @classmethod
+    def _default_criterion_name(cls):
+        """Constructor default for criterion_name, or 'mse' if not exposed."""
+        param = signature(cls.__init__).parameters.get('criterion_name')
+        if param is None or not isinstance(param.default, str):
+            return 'mse'
+        return param.default
+
+    @staticmethod
+    def _matches_named_criterion(module, criterion_name, criterion_params):
+        """Whether module is exactly what criterion_name would rebuild."""
+        try:
+            rebuilt = get_criterion_by_name(name=criterion_name,
+                                            **criterion_params)
+        except (TypeError, ValueError):
+            return False
+        if type(module) is not type(rebuilt):
+            return False
+        if getattr(module, 'reduction', None) != rebuilt.reduction:
+            return False
+        weight = getattr(module, 'weight', None)
+        rebuilt_weight = getattr(rebuilt, 'weight', None)
+        if weight is None or rebuilt_weight is None:
+            return weight is None and rebuilt_weight is None
+        return torch.equal(weight, rebuilt_weight)
+
+    @classmethod
+    def _infer_criterion_name(cls, module, criterion_params):
+        """Built-in criterion_name that rebuilds module exactly, or None."""
+        default = cls._default_criterion_name()
+        for name in [default] + [n for n in ('mse', 'mae', 'bce')
+                                 if n != default]:
+            if cls._matches_named_criterion(module, name, criterion_params):
+                return name
+        return None
+
+    def __setstate__(self, state):
+        """Restore instance state and migrate legacy saved detector artifacts.
+
+        Detectors pickled before criterion_ existed store the resolved loss
+        under 'criterion'. A loss function is moved to loss_func. A module is
+        only treated as name-generated when it is identical to what
+        criterion_name would rebuild; anything else (custom reduction,
+        weights, subclasses, custom modules) is kept as the explicit
+        criterion so refitting trains with the same loss.
+        """
+        # legacy pickles never stored criterion_name, so the constructor
+        # default may not be what produced the saved module
+        name_known = 'criterion_name' in state
+        legacy_criterion = None
+        state.setdefault('criterion_name', self._default_criterion_name())
+        state.setdefault('criterion_params', {})
+        if 'criterion' in state and '_criterion' not in state:
+            legacy_criterion = state.pop('criterion')
+            fitted = 'decision_scores_' in state
+            if isfunction(legacy_criterion):
+                state.setdefault('loss_func', legacy_criterion)
+                state['_criterion'] = None
+                if fitted:
+                    state['criterion_'] = legacy_criterion
+            elif isinstance(legacy_criterion, torch.nn.Module):
+                inferred = None
+                if not name_known:
+                    inferred = self._infer_criterion_name(
+                        legacy_criterion, state['criterion_params'])
+                if inferred is not None:
+                    state['criterion_name'] = inferred
+                    state['_criterion'] = None
+                elif self._matches_named_criterion(legacy_criterion,
+                                                   state['criterion_name'],
+                                                   state['criterion_params']):
+                    state['_criterion'] = None
+                else:
+                    state['_criterion'] = legacy_criterion
+                if fitted:
+                    state['criterion_'] = legacy_criterion
+            else:
+                state['_criterion'] = legacy_criterion
+
+        state.setdefault('_criterion', None)
+        state.setdefault('loss_func', None)
+
+        try:
+            super(BaseDeepLearningDetector, self).__setstate__(state)
+        except AttributeError:
+            self.__dict__.update(state)
+
+        # whichever way it migrated, the legacy object is equivalent to what
+        # the restored settings resolve to, so keep that same instance
+        if legacy_criterion is not None and (
+                isfunction(legacy_criterion) or
+                isinstance(legacy_criterion, torch.nn.Module)):
+            self._criterion_cache = (self._criterion_config(),
+                                     legacy_criterion)
+
+    def get_params(self, deep=True):
+        params = super(BaseDeepLearningDetector, self).get_params(deep=deep)
+        if 'criterion' in params:
+            params['criterion'] = getattr(self, '_criterion', None)
+        return params
+
+    def _resolve_criterion(self):
+        """Return the loss function or criterion from loss_func, criterion, or criterion_name."""
+        if isfunction(getattr(self, 'loss_func', None)):
+            return self.loss_func
+        elif getattr(self, 'loss_func', None) is not None:
+            raise ValueError('Invalid loss function.')
+        criterion_user = getattr(self, '_criterion', None)
+        if isinstance(criterion_user, torch.nn.Module):
+            return criterion_user
+        elif criterion_user is not None:
+            raise ValueError('Invalid criterion class.')
+        criterion_name = getattr(self, 'criterion_name', 'mse')
+        criterion_params = getattr(self, 'criterion_params', {})
+        if isinstance(criterion_name, str):
+            return get_criterion_by_name(name=criterion_name,
+                                         **criterion_params)
+        raise ValueError('Invalid criterion name.')
+
+    def _criterion_config(self):
+        """Settings the resolved criterion depends on, held by reference."""
+        params = getattr(self, 'criterion_params', None)
+        if isinstance(params, dict):
+            params = tuple(sorted(params.items(), key=lambda kv: str(kv[0])))
+        return (getattr(self, 'loss_func', None),
+                getattr(self, '_criterion', None),
+                getattr(self, 'criterion_name', 'mse'),
+                params)
+
+    @staticmethod
+    def _same_criterion_config(a, b):
+        if a[0] is not b[0] or a[1] is not b[1] or a[2] != b[2]:
+            return False
+        # compare values by identity; tensors (e.g. bce_weight) have no
+        # usable equality
+        pa, pb = a[3], b[3]
+        if not (isinstance(pa, tuple) and isinstance(pb, tuple)):
+            return pa is pb
+        return len(pa) == len(pb) and all(
+            ka == kb and va is vb for (ka, va), (kb, vb) in zip(pa, pb))
+
+    def _cached_criterion(self):
+        """Resolved loss, rebuilt only when the loss settings change.
+
+        Returning the same instance until then keeps pre-fit customization,
+        such as det.criterion.reduction = 'sum', in effect for training.
+        """
+        config = self._criterion_config()
+        cached = self.__dict__.get('_criterion_cache')
+        if cached is None or not self._same_criterion_config(cached[0],
+                                                             config):
+            cached = (config, self._resolve_criterion())
+            self._criterion_cache = cached
+        return cached[1]
+
+    def _setup_criterion(self):
+        """Set the runtime criterion_ used for training."""
+        self.criterion_ = self._cached_criterion()
+
+    def set_params(self, **params):
+        super(BaseDeepLearningDetector, self).set_params(**params)
+        loss_keys = {'criterion_name', 'loss_func', 'criterion', 'criterion_params'}
+        if loss_keys.intersection(params):
+            # Subclasses that do not expose criterion can only carry one
+            # migrated from a legacy pickle; drop it so new loss params apply.
+            if 'criterion' not in self._get_param_names():
+                self._criterion = None
+            # only refresh criterion_ on a fitted estimator so set_params
+            # never creates a fitted marker (check_is_fitted)
+            if 'criterion_' in self.__dict__:
+                self._setup_criterion()
+            else:
+                self._cached_criterion()
         return self
 
     def training_prepare(self):
