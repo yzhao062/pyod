@@ -142,9 +142,7 @@ omit that field, and loading them on 1.3 or later raises
 :func:`~pyod.utils.persistence.compat_load` is the supported escape
 hatch for this case. It is allowlist-driven and conservative:
 
-* Missing fields in the saved dtype that PyOD has documented a safe
-  default for (currently only ``missing_go_to_left = 0``, the
-  pre-1.3 "do not route on missingness" behavior) are zero-filled.
+* Missing fields with documented defaults are restored: ``missing_go_to_left = 0``, an empty ``left_cat_bitset``, and numeric ``split_kind = 0`` (``-1`` for leaves). For older Tree constructors, ``compat_load`` also supplies ``n_categories = -1`` for each numeric feature when the running sklearn requires it.
 * Missing fields without a documented default raise ``ValueError``
   rather than silently inventing a value.
 * Field-level dtype changes beyond byte order (kind, signedness,

@@ -50,14 +50,19 @@ jobs:
         # than full per-version coverage.
         # TODO: re-enable 3.10-3.13 on macOS once the Apple Silicon slowness
         # is understood (profile via pytest --durations=20 first).
+        exclude:
+          - os: ubuntu-latest
+            python-version: "3.9"
         include:
+          - os: ubuntu-24.04
+            python-version: "3.9"
           - os: macos-latest
             python-version: "3.9"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -114,10 +119,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 

@@ -160,10 +160,10 @@ def _byteswap_field_in_nodes(
     return out
 
 
-def _build_tree_from_args(n_features, n_classes, n_outputs):
+def _build_tree_from_args(*args):
     """Module-level constructor used by ``_OldDtypeTree.__reduce__``.
     Must be importable so pickle can resolve it on load."""
-    return _SkTree(n_features, n_classes, n_outputs)
+    return _SkTree(*args)
 
 
 class _OldDtypeTree:
@@ -173,11 +173,7 @@ class _OldDtypeTree:
     the modified state - the same code path a legacy artifact takes."""
 
     def __init__(self, real_tree, *, transform):
-        self._args = (
-            real_tree.n_features,
-            real_tree.n_classes,
-            real_tree.n_outputs,
-        )
+        self._args = real_tree.__reduce__()[1]
         st = real_tree.__getstate__()
         new_nodes = transform(st['nodes'])
         self._state = dict(st)
@@ -185,6 +181,11 @@ class _OldDtypeTree:
 
     def __reduce__(self):
         return (_build_tree_from_args, self._args, self._state)
+
+
+class _NumericOnlyTree(_OldDtypeTree):
+    def __reduce__(self):
+        return (_SkTree, self._args[:3], self._state)
 
 
 def _make_aged_detector(
@@ -384,12 +385,13 @@ class TestCompatLoadCore(unittest.TestCase):
         fixture = FIXTURES_DIR / 'iforest_sklearn_1_2_x.joblib'
         self.assertTrue(fixture.is_file(),
                         f'fixture missing: {fixture}')
-        # Raw joblib.load on this real 1.2.2 artifact must trigger the
-        # documented dtype-mismatch error.
-        with self.assertRaises(ValueError) as cm:
+        # Raw loading fails on either the legacy constructor or node dtype.
+        with self.assertRaises((ValueError, TypeError)) as cm:
             joblib.load(fixture)
         self.assertTrue(
-            str(cm.exception).startswith(_DTYPE_MISMATCH_PREFIX))
+            str(cm.exception).startswith(_DTYPE_MISMATCH_PREFIX)
+            or "__cinit__() takes exactly 4 positional arguments"
+            in str(cm.exception))
         # compat_load succeeds and repairs the dtype. End-to-end
         # decision_function is NOT asserted because sklearn IsolationForest
         # introduced predict-side state (``_decision_path_lengths``,
@@ -409,6 +411,31 @@ class TestCompatLoadCore(unittest.TestCase):
                    if issubclass(w.category, UserWarning)
                    and 'realigned' in str(w.message).lower()]
         self.assertEqual(len(realign), 1)
+
+    @unittest.skipUnless('split_kind' in _current_node_dtype().names,
+                         'requires sklearn categorical Tree support')
+    def test_compat_load_numeric_tree_before_categorical_support(self):
+        clf, X = _fit_small_sklearn_iforest(n_estimators=3)
+        expected = clf.decision_function(X)
+
+        def strip_categorical_fields(nodes):
+            for field in ('left_cat_bitset', 'split_kind'):
+                nodes = _strip_field_from_nodes(nodes, field)
+            return nodes
+
+        for est in clf.estimators_:
+            est.tree_ = _NumericOnlyTree(
+                est.tree_, transform=strip_categorical_fields)
+        path = self._tmp()
+        joblib.dump(clf, path)
+        with self.assertWarnsRegex(UserWarning, 'realigned'):
+            out = compat_load(path)
+        assert_allclose(out.decision_function(X), expected, rtol=1e-12)
+        for est in out.estimators_:
+            nodes = est.tree_.__getstate__()['nodes']
+            leaves = nodes['left_child'] == -1
+            self.assertTrue(np.all(nodes['split_kind'][leaves] == -1))
+            self.assertTrue(np.all(nodes['split_kind'][~leaves] == 0))
 
     # ------------------------------------------------------------
     # Allowlist gate
