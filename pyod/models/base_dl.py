@@ -210,13 +210,54 @@ class BaseDeepLearningDetector(BaseDetector):
         raw = getattr(self, '_criterion', None)
         if callable(raw) and getattr(self, 'loss_func', None) is None:
             return raw
-        return getattr(self, 'criterion_', None)
+        if hasattr(self, 'criterion_'):
+            return self.criterion_
+        legacy = self.__dict__.get('criterion', None)
+        if callable(legacy):
+            return legacy
+        return None
 
     @criterion.setter
     def criterion(self, value):
         self._criterion = value
         if value is not None and callable(value):
             self.criterion_ = value
+
+    def __setstate__(self, state):
+        """Restore instance state and migrate legacy saved detector artifacts."""
+        if 'criterion' in state and '_criterion' not in state:
+            legacy_criterion = state.pop('criterion')
+            if isfunction(legacy_criterion):
+                state['loss_func'] = legacy_criterion
+                state['_criterion'] = None
+                state['criterion_'] = legacy_criterion
+            elif isinstance(legacy_criterion, torch.nn.BCELoss):
+                state['criterion_name'] = 'bce'
+                state['_criterion'] = None
+                state['criterion_'] = legacy_criterion
+            elif isinstance(legacy_criterion, torch.nn.L1Loss):
+                state['criterion_name'] = 'mae'
+                state['_criterion'] = None
+                state['criterion_'] = legacy_criterion
+            elif isinstance(legacy_criterion, torch.nn.MSELoss):
+                state['criterion_name'] = 'mse'
+                state['_criterion'] = None
+                state['criterion_'] = legacy_criterion
+            elif isinstance(legacy_criterion, torch.nn.Module):
+                state['_criterion'] = legacy_criterion
+                state['criterion_'] = legacy_criterion
+            elif legacy_criterion is not None:
+                state['_criterion'] = legacy_criterion
+
+        state.setdefault('_criterion', None)
+        state.setdefault('loss_func', None)
+        state.setdefault('criterion_name', 'mse')
+        state.setdefault('criterion_params', {})
+
+        try:
+            super(BaseDeepLearningDetector, self).__setstate__(state)
+        except AttributeError:
+            self.__dict__.update(state)
 
     def get_params(self, deep=True):
         params = super(BaseDeepLearningDetector, self).get_params(deep=deep)
@@ -226,9 +267,9 @@ class BaseDeepLearningDetector(BaseDetector):
 
     def _setup_criterion(self):
         """Set runtime loss function or criterion based on loss_func, criterion, or criterion_name."""
-        if isfunction(self.loss_func):
+        if isfunction(getattr(self, 'loss_func', None)):
             self.criterion_ = self.loss_func
-        elif self.loss_func is not None:
+        elif getattr(self, 'loss_func', None) is not None:
             raise ValueError('Invalid loss function.')
         else:
             criterion_user = getattr(self, '_criterion', None)
@@ -237,9 +278,11 @@ class BaseDeepLearningDetector(BaseDetector):
             elif criterion_user is not None:
                 raise ValueError('Invalid criterion class.')
             else:
-                if isinstance(self.criterion_name, str):
-                    self.criterion_ = get_criterion_by_name(name=self.criterion_name,
-                                                            **self.criterion_params)
+                criterion_name = getattr(self, 'criterion_name', 'mse')
+                criterion_params = getattr(self, 'criterion_params', {})
+                if isinstance(criterion_name, str):
+                    self.criterion_ = get_criterion_by_name(name=criterion_name,
+                                                            **criterion_params)
                 else:
                     raise ValueError('Invalid criterion name.')
 

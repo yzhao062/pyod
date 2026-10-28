@@ -216,6 +216,48 @@ class TestBaseDL(unittest.TestCase):
 
         os.remove('dummy_clf.txt')
 
+    def test_legacy_unpickling(self):
+        import copyreg
+        import pickle
+
+        # Simulate pre-PR saved state containing only 'criterion'
+        legacy_state = {
+            'contamination': 0.1,
+            'preprocessing': True,
+            'lr': 0.001,
+            'epoch_num': 1,
+            'batch_size': 32,
+            'optimizer_name': 'adam',
+            'device': torch.device('cpu'),
+            'random_state': 42,
+            'use_compile': False,
+            'compile_mode': 'default',
+            'verbose': 0,
+            'optimizer_params': {},
+            'criterion_params': {},
+            'criterion': nn.MSELoss(),
+            'threshold_': 0.5,
+            'decision_scores_': np.zeros(self.n_train),
+        }
+
+        class LegacyMock:
+            def __reduce_ex__(self, proto):
+                return (copyreg._reconstructor,
+                        (DummyDetector, object, None),
+                        legacy_state)
+
+        data = pickle.dumps(LegacyMock())
+        loaded = pickle.loads(data)
+
+        self.assertIsInstance(loaded.criterion, nn.MSELoss)
+        self.assertIsInstance(loaded.criterion_, nn.MSELoss)
+        self.assertEqual(loaded.criterion_name, 'mse')
+        self.assertIsNone(loaded.get_params()['criterion'])
+
+        # Refitting the unpickled model succeeds without AttributeError / TypeError
+        loaded.fit(self.X_train)
+        self.assertIsNotNone(loaded.decision_scores_)
+
     def test_model_clone(self):
         from sklearn.base import clone
 
