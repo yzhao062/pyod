@@ -161,7 +161,7 @@ class AutoEncoder(BaseDeepLearningDetector):
         x = x.to(self.device)
         self.optimizer.zero_grad()
         x_recon = self.model(x)
-        loss = self.criterion(x_recon, x)
+        loss = self.criterion_(x_recon, x)
         loss.backward()
         self.optimizer.step()
         return loss.item()

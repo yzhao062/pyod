@@ -131,6 +131,11 @@ class BaseDeepLearningDetector(BaseDetector):
         self.optimizer_params = optimizer_params
         self.criterion_params = criterion_params
 
+        # Store the original parameters for get_params()/clone() compatibility
+        self.loss_func = loss_func
+        self.criterion = criterion
+        self.criterion_name = criterion_name
+
         self.X_mean = None
         self.X_std = None
         self.data_num = None
@@ -141,19 +146,19 @@ class BaseDeepLearningDetector(BaseDetector):
                 raise ValueError(f"contamination must be in (0., 0.5], "
                                  f"got {contamination}")
 
-        # set loss function or criterion
+        # set loss function or criterion (resolve to callable)
         if isfunction(loss_func):
-            self.criterion = loss_func
+            self.criterion_ = loss_func
         elif loss_func is not None:
             raise ValueError('Invalid loss function.')
         else:
             if isinstance(criterion, torch.nn.Module):
-                self.criterion = criterion
+                self.criterion_ = criterion
             elif criterion is not None:
                 raise ValueError('Invalid criterion class.')
             else:
                 if isinstance(criterion_name, str):
-                    self.criterion = get_criterion_by_name(name=criterion_name,
+                    self.criterion_ = get_criterion_by_name(name=criterion_name,
                                                            **self.criterion_params)
                 else:
                     raise ValueError('Invalid criterion name.')
