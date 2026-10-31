@@ -44,6 +44,12 @@ class TestAE1SVM(unittest.TestCase):
         assert hasattr(self.clf, '_mu') and self.clf._mu is not None
         assert hasattr(self.clf, '_sigma') and self.clf._sigma is not None
         assert hasattr(self.clf, 'model') and self.clf.model is not None
+        assert (hasattr(self.clf, 'history_') and
+                self.clf.history_ is not None)
+
+    def test_history(self):
+        self.assertIn('loss', self.clf.history_)
+        self.assertEqual(len(self.clf.history_['loss']), self.clf.epochs)
 
     def test_train_scores(self):
         assert_equal(len(self.clf.decision_scores_), self.X_train.shape[0])

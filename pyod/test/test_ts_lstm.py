@@ -36,6 +36,14 @@ class TestLSTMAD(unittest.TestCase):
         assert len(clf.decision_scores_) == 300
 
     @unittest.skipUnless(_torch_available(), "torch not installed")
+    def test_history(self):
+        from pyod.models.ts_lstm import LSTMAD
+        clf = LSTMAD(window_size=20, epochs=2, contamination=0.1)
+        clf.fit(self.X_train)
+        assert 'loss' in clf.history_
+        assert len(clf.history_['loss']) == clf.epochs
+
+    @unittest.skipUnless(_torch_available(), "torch not installed")
     def test_decision_function(self):
         from pyod.models.ts_lstm import LSTMAD
         clf = LSTMAD(window_size=20, epochs=2)
