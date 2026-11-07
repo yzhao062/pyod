@@ -311,7 +311,12 @@ class FastLOF(BaseDetector):
 
         # Replace the index on every fit, including after previous queries.
         params = dict(self.metric_params_)
-        p = params.pop('p', self.p)
+        # Only Minkowski takes p as a constructor argument; for callables and
+        # other metrics a user-supplied p must stay in metric_params.
+        if self.metric_ == 'minkowski':
+            p = params.pop('p', self.p)
+        else:
+            p = self.p
         self.nbrs_ = NearestNeighbors(
             n_neighbors=self.n_neighbors_, algorithm=self.algorithm,
             leaf_size=self.leaf_size, metric=self.metric_, p=p,
@@ -513,9 +518,10 @@ class FastLOF(BaseDetector):
             # Compute LOF scores after processing this diagonal
             lof, lrd, kdist = self._compute_lof(neighbors, neighbor_dists, k)
 
-            # Update active set
+            # Update active set. Pruning is monotonic: a pruned point skipped
+            # chunk pairs, so reactivating it would leave its kNN incomplete.
             if offset >= 1:
-                active = lof > self.threshold
+                active &= lof > self.threshold
 
             # Chunk offsets do not bound distances in later chunk pairs.
             if not active.any():

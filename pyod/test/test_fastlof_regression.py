@@ -203,5 +203,59 @@ class TestFastLOFRegression(unittest.TestCase):
         self.assertTrue(np.isfinite(fast.fit(self.X).decision_function(self.Q)).all())
 
 
+    def test_pruned_points_are_never_reactivated(self):
+        """Pruning is monotonic: a point pruned after one diagonal is not
+        queried again even if its LOF later rises above the threshold."""
+        import pyod.models.fastlof as fastlof_module
+
+        class IdentityRandomState(np.random.RandomState):
+            def permutation(self, n):
+                return np.arange(n)
+
+        X = np.arange(12, dtype=float).reshape(-1, 1)  # 4 chunks of 3
+        fast = FastLOF(n_neighbors=1, chunk_size=3,
+                       random_state=IdentityRandomState(0))
+        compute = fast._compute_lof
+        lof_calls = []
+
+        def scripted_lof(*args):
+            lof, lrd, kdist = compute(*args)
+            lof_calls.append(None)
+            lof = np.full(12, 2.0)
+            if len(lof_calls) == 2:  # after offset 1: prune point 0 only
+                lof[0] = 0.0
+            return lof, lrd, kdist
+
+        queried = []
+        update = fastlof_module._update_neighbors
+
+        def recording_update(neighbors, neighbor_dists, qpos, *args):
+            queried.append((len(lof_calls), set(np.asarray(qpos).tolist())))
+            return update(neighbors, neighbor_dists, qpos, *args)
+
+        with patch.object(fast, '_compute_lof', side_effect=scripted_lof), \
+                patch.object(fastlof_module, '_update_neighbors',
+                             side_effect=recording_update):
+            fast.fit(X)
+
+        later = [q for n_done, q in queried if n_done >= 2]
+        self.assertTrue(later)
+        for q in later:
+            self.assertNotIn(0, q)
+
+    def test_callable_metric_keeps_p_in_metric_params(self):
+        def weighted_lp(a, b, p):
+            return np.sum(np.abs(a - b) ** p) ** (1.0 / p)
+
+        params = dict(n_neighbors=7, metric=weighted_lp,
+                      metric_params={'p': 3})
+        fast = FastLOF(threshold=0, random_state=42,
+                       chunk_size=len(self.X), **params).fit(self.X)
+        ref = LocalOutlierFactor(novelty=True, **params).fit(self.X)
+        assert_allclose(fast.decision_scores_,
+                        -ref.negative_outlier_factor_, rtol=2e-5)
+        assert_allclose(fast.decision_function(self.Q),
+                        -ref.score_samples(self.Q), rtol=2e-5)
+
 if __name__ == '__main__':
     unittest.main()
