@@ -153,8 +153,6 @@ class LOF(BaseDetector):
         self.metric_params = metric_params
         self.n_jobs = n_jobs
         self.novelty = novelty
-        self._cached_1d_lof_scores = {} 
-        self._cached_1d_k_distances = {} 
 
     # noinspection PyIncorrectDocstring
     def fit(self, X, y=None):
@@ -180,9 +178,11 @@ class LOF(BaseDetector):
         # Store training data for explainability
         self.X_train_ = X
 
-        # Clear caches when fitting new data
+        # Clear explainability caches so a refit never reuses neighbors
+        # or scores computed on a previous training set
         self._cached_1d_lof_scores = {}  # {dimension: lof_scores_array}
-        self._cached_1d_k_distances = {}  # {dimension: k_distances_array}
+        if hasattr(self, 'knn_neighbors_'):
+            del self.knn_neighbors_
 
         self.detector_ = LocalOutlierFactor(n_neighbors=self.n_neighbors,
                                             algorithm=self.algorithm,
@@ -241,188 +241,94 @@ class LOF(BaseDetector):
         return self.detector_.n_neighbors_
 
     def _ensure_overall_neighbors(self):
-        """Lazily compute and cache overall kNN neighbors used for explainability.
+        """Lazily compute and cache the kNN of every training sample.
 
-        This avoids doing the extra kneighbors computation during fit, and instead
-        performs it on first use by explanation routines. The neighbors are shared
-        across all dimensional explanations to ensure consistency with the overall
-        LOF model.
+        ``kneighbors()`` is called without ``X`` so that, exactly as in
+        scikit-learn's ``LocalOutlierFactor.fit``, a sample is not returned
+        as its own neighbor. The neighbors are therefore identical to the
+        ones behind ``decision_scores_`` and are shared across all
+        dimensional explanations. The cache is cleared by ``fit``.
         """
         check_is_fitted(self, ['detector_'])
         if not hasattr(self, 'knn_neighbors_'):
-            _, knn_inds = self.detector_.kneighbors(self.X_train_)
+            _, knn_inds = self.detector_.kneighbors()
             self.knn_neighbors_ = knn_inds  # shape: (n_samples, k)
-            
-    def _precompute_k_distances_1d(self, dimension):
-        """Pre-compute k-distances for all points in a 1D subspace.
-        
-        For each point, computes the maximum distance to its k-nearest neighbors
-        (from overall LOF) in the specified dimension. Computed once per dimension
-        and cached for reuse across all sample explanations.
-        
+
+    def _get_column(self, dimension):
+        """Return one training feature as a dense 1D float array."""
+        col = self.X_train_[:, [dimension]]
+        if hasattr(col, 'toarray'):  # scipy sparse input
+            col = col.toarray()
+        return np.asarray(col, dtype=float).ravel()
+
+    def _compute_lof_1d(self, dimension):
+        """1D LOF score of every training sample along one dimension.
+
+        Uses the overall (full-space) k nearest neighbors and computes
+        k-distance, reachability distance, local reachability density and
+        LOF along ``dimension`` only, with the same formulas as
+        scikit-learn. For one-dimensional data the result equals the
+        overall LOF score.
+
         Parameters
         ----------
         dimension : int
-            Single dimension index
-            
+            Feature index.
+
         Returns
         -------
-        k_distances_1d : numpy array of shape (n_samples,)
-            k-distance for each point in this dimension
+        lof_1d : numpy array of shape (n_samples,)
         """
-        # Ensure overall neighbors are available (lazy computation)
-        self._ensure_overall_neighbors()
+        if dimension not in self._cached_1d_lof_scores:
+            self._ensure_overall_neighbors()
+            neighbors = self.knn_neighbors_  # (n_samples, k)
+            x = self._get_column(dimension)  # (n_samples,)
 
-        subspace_data = self.X_train_[:, [dimension]]  # (n_samples, 1)
-        n_samples = self.X_train_.shape[0]
-        k_distances_1d = np.zeros(n_samples)
-        
-        # Vectorized computation: for each point, compute max distance to its k-neighbors
-        for point_idx in range(n_samples):
-            point = subspace_data[point_idx]  # (1,)
-            neighbor_indices = self.knn_neighbors_[point_idx]  # (k,)
-            neighbor_points = subspace_data[neighbor_indices]  # (k, 1)
-            
-            # Vectorized distance computation
-            dists = np.linalg.norm(neighbor_points - point, axis=1)  # (k,)
-            k_distances_1d[point_idx] = np.max(dists)
-        
-        return k_distances_1d
+            dists = np.abs(x[neighbors] - x[:, np.newaxis])  # (n_samples, k)
+            k_dist = dists.max(axis=1)  # k-distance in this dimension
+            reach_dists = np.maximum(dists, k_dist[neighbors])
+            # 1e-10 avoids division by zero for duplicated values, as in
+            # sklearn.neighbors.LocalOutlierFactor
+            lrd = 1.0 / (np.mean(reach_dists, axis=1) + 1e-10)
+            self._cached_1d_lof_scores[dimension] = (
+                np.mean(lrd[neighbors], axis=1) / lrd)
+        return self._cached_1d_lof_scores[dimension]
 
-    def _compute_lof_subspace_with_neighbors(self, sample_idx, dimensions, 
-                                             subspace_data, k_distances_1d):
-        """Compute LOF score for a sample in a subspace using overall LOF neighbors.
-        
-        Uses the same neighbors as the overall LOF model, but computes density metrics
-        in the subspace defined by the specified dimensions. k-distances must be 
-        pre-computed and passed in for efficiency.
-        
-        Parameters
-        ----------
-        sample_idx : int
-            Index of the sample
-        dimensions : list of int
-            List of dimension indices defining the subspace
-        subspace_data : numpy array of shape (n_samples, len(dimensions))
-            Subspace data points
-        k_distances_1d : numpy array of shape (n_samples,)
-            Pre-computed k-distances for all points in this subspace
-        
-        Returns
-        -------
-        lof_subspace : float
-            LOF score for this sample in this subspace
-        """
-        k = self.n_neighbors_
-        
-        # Get OVERALL LOF neighbors
-        neighbor_indices = self.knn_neighbors_[sample_idx]
-        
-        # Step 1: Vectorized distances from sample to neighbors in subspace
-        sample_point = subspace_data[sample_idx]  # (d,)
-        neighbor_points = subspace_data[neighbor_indices]  # (k, d)
-        dists_sample_to_neighbors = np.linalg.norm(
-            neighbor_points - sample_point, axis=1
-        )  # (k,)
-        
-        # Step 2: k-distances for neighbors (lookup from pre-computed cache)
-        k_dists_neighbors = k_distances_1d[neighbor_indices]  # (k,)
-        
-        # Step 3: Compute reachability distances
-        reach_dists = np.maximum(k_dists_neighbors, dists_sample_to_neighbors)
-        
-        # Handle edge case: if all reachability distances are zero (identical points)
-        if np.sum(reach_dists) == 0:
-            return 1.0
-        
-        # Step 4: Compute LRD for the sample
-        lrd_sample = k / np.sum(reach_dists)
-        
-        # Step 5: Vectorized LRD computation for neighbors
-        lrd_neighbors = np.zeros(len(neighbor_indices))
-        
-        for i, neighbor_idx in enumerate(neighbor_indices):
-            # Get neighbor's neighbors from overall LOF
-            neighbor_neighbor_indices = self.knn_neighbors_[neighbor_idx]
-            
-            # Vectorized distances from neighbor to its neighbors in subspace
-            neighbor_point = subspace_data[neighbor_idx]  # (d,)
-            neighbor_neighbor_points = subspace_data[neighbor_neighbor_indices]  # (k, d)
-            dists_neighbor_to_neighbors = np.linalg.norm(
-                neighbor_neighbor_points - neighbor_point, axis=1
-            )  # (k,)
-            
-            # k-distances for neighbor's neighbors (lookup from pre-computed cache)
-            k_dists_for_neighbor_neighbors = k_distances_1d[neighbor_neighbor_indices]  # (k,)
-            
-            # Compute reachability distances for neighbor
-            reach_dists_neighbor = np.maximum(
-                k_dists_for_neighbor_neighbors, dists_neighbor_to_neighbors
-            )
-            
-            # Handle edge case: if all reachability distances are zero
-            if np.sum(reach_dists_neighbor) == 0:
-                lrd_neighbors[i] = 1.0
-            else:
-                # Compute LRD for this neighbor
-                lrd_neighbors[i] = len(neighbor_neighbor_indices) / np.sum(reach_dists_neighbor)
-        
-        # Step 6: Compute LOF
-        if lrd_sample == 0:
-            return 1.0
-        
-        lof_subspace = np.mean(lrd_neighbors) / lrd_sample
-        
-        return lof_subspace
+    def _check_explain_args(self, ind, columns):
+        check_is_fitted(self, ['X_train_', 'detector_', 'decision_scores_'])
+        n_samples, n_features = self.X_train_.shape
+        if not -n_samples <= ind < n_samples:
+            raise IndexError(
+                "Sample index {} out of range [0, {})".format(ind, n_samples))
+        ind = int(ind) % n_samples
+        if columns is None:
+            columns = list(range(n_features))
+        else:
+            columns = list(columns)
+        return ind, columns
 
     def get_outlier_explainability_scores(self, ind, columns=None):
         """Compute per-feature LOF-based explainability scores for a training sample.
-        
+
         For each requested dimension, computes a 1D LOF score using the same
         k-nearest neighbors as the overall LOF model. This mirrors the API of
         ``KNN.get_outlier_explainability_scores`` and can be used independently
         of plotting.
-        
+
         Parameters
         ----------
         ind : int
             Index of the sample in the training data.
         columns : list, optional
             Specific feature indices. If None, use all features.
-        
+
         Returns
         -------
         scores : numpy array of shape (n_selected_features,)
             1D LOF score per selected dimension.
         """
-        check_is_fitted(self, ['X_train_', 'detector_'])
-        self._ensure_overall_neighbors()
-
-        # Validate ind parameter
-        if not 0 <= ind < self.X_train_.shape[0]:
-            raise IndexError(
-                f"Sample index {ind} out of range [0, {self.X_train_.shape[0]})"
-            )
-
-        if columns is None:
-            columns = list(range(self.X_train_.shape[1]))
-
-        scores = np.zeros(len(columns))
-
-        for idx, dim in enumerate(columns):
-            # Ensure k-distances cache for this dimension
-            if dim not in self._cached_1d_k_distances:
-                self._cached_1d_k_distances[dim] = self._precompute_k_distances_1d(dim)
-            k_distances_1d = self._cached_1d_k_distances[dim]
-
-            # Subspace is just this dimension
-            subspace_data = self.X_train_[:, [dim]]
-
-            scores[idx] = self._compute_lof_subspace_with_neighbors(
-                ind, [dim], subspace_data, k_distances_1d
-            )
-
-        return scores
+        ind, columns = self._check_explain_args(ind, columns)
+        return np.array([self._compute_lof_1d(dim)[ind] for dim in columns])
 
     def _get_bar_color(self, score, cutoff_bands, cutoffs, idx):
         """Determine bar color based on score and cutoff thresholds.
@@ -443,6 +349,9 @@ class LOF(BaseDetector):
         color : str
             Hex color code for the bar
         """
+        if not cutoff_bands:
+            return '#1f77b4'
+
         cutoff_99 = cutoff_bands[cutoffs[-1]][idx]
         
         if len(cutoffs) == 1:
@@ -515,6 +424,8 @@ class LOF(BaseDetector):
         for idx, (cutoff, style, color) in enumerate(zip(cutoffs, 
                                                           line_styles[:len(cutoffs)],
                                                           line_colors[:len(cutoffs)])):
+            if not chunk_cutoff_bands:
+                break
             cutoff_values = chunk_cutoff_bands[cutoff]
             # Plot individual cutoff values for each feature
             for i, val in enumerate(cutoff_values):
@@ -557,8 +468,9 @@ class LOF(BaseDetector):
         # Remove duplicate legend entries and add it
         handles, labels_legend = ax.get_legend_handles_labels()
         by_label = dict(zip(labels_legend, handles))
-        ax.legend(by_label.values(), by_label.keys(), 
-                 loc='best', framealpha=0.9)
+        if by_label:
+            ax.legend(by_label.values(), by_label.keys(),
+                      loc='best', framealpha=0.9)
 
         ax.grid(axis='x', alpha=0.3, linestyle=':')
         plt.tight_layout()
@@ -648,25 +560,15 @@ class LOF(BaseDetector):
         check_is_fitted(self, ['X_train_', 'detector_', 'decision_scores_',
                                'threshold_', 'labels_'])
 
-        # Validate ind parameter
-        if not 0 <= ind < self.X_train_.shape[0]:
-            raise IndexError(
-                f"Sample index {ind} out of range [0, {self.X_train_.shape[0]})"
-            )
-
-        # Ensure neighbors are available for dimensional LOF computations
-        self._ensure_overall_neighbors()
-
-        # Determine which columns to use
-        if columns is None:
-            columns = list(range(self.X_train_.shape[1]))
-            n_features = self.X_train_.shape[1]
-        else:
-            n_features = len(columns)
+        ind, columns = self._check_explain_args(ind, columns)
+        n_features = len(columns)
 
         # Set default cutoffs
         if cutoffs is None:
             cutoffs = [1 - self.contamination, 0.99]
+        cutoffs = sorted(cutoffs)
+
+        dim_scores = self.get_outlier_explainability_scores(ind, columns)
 
         if compute_cutoffs:
             # Check memory usage and warn if large
@@ -679,62 +581,16 @@ class LOF(BaseDetector):
                     ResourceWarning
                 )
 
-            # Compute dimensional LOF scores for ALL samples (for cutoff bands)
-            all_dim_scores = np.zeros((self.X_train_.shape[0], n_features))
-            
-            for dim_idx, dim in enumerate(columns):
-                # Check cache first
-                if dim in self._cached_1d_lof_scores:
-                    all_dim_scores[:, dim_idx] = self._cached_1d_lof_scores[dim]
-                else:
-                    # Pre-compute k-distances for this dimension (once, then reuse)
-                    if dim not in self._cached_1d_k_distances:
-                        self._cached_1d_k_distances[dim] = self._precompute_k_distances_1d(dim)
-                    k_distances_1d = self._cached_1d_k_distances[dim]
-                    
-                    # Extract subspace data once per dimension
-                    subspace_data = self.X_train_[:, [dim]]  # shape: (n_samples, 1)
-                    
-                    # Compute for all samples (reusing pre-computed k-distances)
-                    dim_scores_all = np.zeros(self.X_train_.shape[0])
-                    for sample_idx in range(self.X_train_.shape[0]):
-                        dim_scores_all[sample_idx] = self._compute_lof_subspace_with_neighbors(
-                            sample_idx, [dim], subspace_data, k_distances_1d
-                        )
-                    
-                    all_dim_scores[:, dim_idx] = dim_scores_all
-                    
-                    # Cache the results
-                    self._cached_1d_lof_scores[dim] = dim_scores_all.copy()
-            
-            # Extract scores for the target sample
-            dim_scores = all_dim_scores[ind, :]
-            
-            # Compute cutoff bands (quantiles across all samples per dimension)
-            cutoff_bands = {}
-            for cutoff in cutoffs:
-                cutoff_bands[cutoff] = np.quantile(all_dim_scores, q=cutoff, axis=0)
+            # Dimensional LOF scores of ALL samples (cached per dimension)
+            all_dim_scores = np.column_stack(
+                [self._compute_lof_1d(dim) for dim in columns])
+
+            # Cutoff bands: quantiles across all samples per dimension
+            cutoff_bands = {
+                cutoff: np.quantile(all_dim_scores, q=cutoff, axis=0)
+                for cutoff in cutoffs}
         else:
-            # Only compute for target sample (much faster, no cutoff bands)
-            dim_scores = np.zeros(n_features)
-            
-            for dim_idx, dim in enumerate(columns):
-                # Pre-compute k-distances for this dimension (once, then reuse)
-                if dim not in self._cached_1d_k_distances:
-                    self._cached_1d_k_distances[dim] = self._precompute_k_distances_1d(dim)
-                k_distances_1d = self._cached_1d_k_distances[dim]
-                
-                # Extract subspace data for this dimension
-                subspace_data = self.X_train_[:, [dim]]  # shape: (n_samples, 1)
-                
-                dim_scores[dim_idx] = self._compute_lof_subspace_with_neighbors(
-                    ind, [dim], subspace_data, k_distances_1d
-                )
-            
-            # No cutoff bands when compute_cutoffs=False
-            cutoff_bands = {}
-            for cutoff in cutoffs:
-                cutoff_bands[cutoff] = np.zeros(n_features)
+            cutoff_bands = None
 
         # Set up feature names with validation
         if feature_names is None:
@@ -767,9 +623,11 @@ class LOF(BaseDetector):
                 chunk_dim_scores_list.append(dim_scores[start_idx:end_idx])
                 
                 # Extract cutoff bands for this chunk
-                chunk_cutoff_bands = {}
-                for cutoff in cutoffs:
-                    chunk_cutoff_bands[cutoff] = cutoff_bands[cutoff][start_idx:end_idx]
+                chunk_cutoff_bands = None
+                if cutoff_bands:
+                    chunk_cutoff_bands = {
+                        cutoff: cutoff_bands[cutoff][start_idx:end_idx]
+                        for cutoff in cutoffs}
                 chunk_cutoff_bands_list.append(chunk_cutoff_bands)
                 
                 chunk_feature_names_list.append(feature_names[start_idx:end_idx])

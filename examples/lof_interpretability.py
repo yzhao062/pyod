@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # train LOF detector
     clf_name = 'LOF'
     clf = LOF(n_neighbors=10, novelty=False)
-    clf.fit(X_train)
+    clf.fit(X_train_norm)
 
     # get the prediction labels and outlier scores of the training data
     y_train_pred = clf.labels_  # binary labels (0: inliers, 1: outliers)
