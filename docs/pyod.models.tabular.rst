@@ -14,8 +14,6 @@ pyod.models.fastlof module
     :undoc-members:
     :show-inheritance:
 
-See :doc:`fastlof_validation` for numerical validation and timing evidence.
-
 
 pyod.models.abod module
 -----------------------
