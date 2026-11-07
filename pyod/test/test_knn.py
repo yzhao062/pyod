@@ -180,6 +180,53 @@ class TestKnn(unittest.TestCase):
         assert_equal(scores_multi.shape[0], 2)
         assert_array_less(-1e-10, scores_multi)
 
+    def test_explainability_matches_decision_scores(self):
+        """Per-feature scores use the same neighbors as fit().
+
+        With the Manhattan metric and method='mean', the per-feature mean
+        absolute distances sum exactly to the KNN outlier score.
+        """
+        clf = KNN(n_neighbors=5, method='mean', metric='manhattan')
+        clf.fit(self.X_train)
+        for ind in [0, 7, len(self.X_train) - 1]:
+            scores = clf.get_outlier_explainability_scores(ind)
+            assert_allclose(scores.sum(), clf.decision_scores_[ind])
+
+    def test_explainability_brute_force_backend(self):
+        """Explanations work when the fitted backend has no tree (#729)."""
+        clf = KNN(n_neighbors=5, metric='cosine')
+        clf.fit(self.X_train)
+        assert not hasattr(clf.tree_, 'query')
+        scores = clf.get_outlier_explainability_scores(3)
+        assert_equal(scores.shape, (self.X_train.shape[1],))
+        assert np.all(np.isfinite(scores))
+
+    def test_explainability_excludes_self(self):
+        """A sample is never its own neighbor in the explanation."""
+        X = np.array([[0., 0.], [1., 0.], [0., 1.], [1., 1.], [10., 0.]])
+        clf = KNN(n_neighbors=1, contamination=0.2).fit(X)
+        # nearest other point to [10, 0] is [1, 0]: distance 9 in dim 0
+        assert_allclose(clf.get_outlier_explainability_scores(4), [9., 0.])
+
+    def test_explainability_invalid_index(self):
+        clf = KNN(n_neighbors=3).fit(self.X_train)
+        with assert_raises(IndexError):
+            clf.get_outlier_explainability_scores(len(self.X_train))
+
+    def test_explainability_cache_reset_on_refit(self):
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+
+        clf = KNN(n_neighbors=3)
+        clf.fit(self.X_train)
+        clf.explain_outlier(0)
+        plt.close('all')
+        clf.fit(self.X_train[:, :1] * 10)
+        scores = clf.explain_outlier(0)
+        plt.close('all')
+        assert_equal(scores.shape, (1,))
+
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 

@@ -140,8 +140,7 @@ class KNN(BaseDetector):
 
     def __init__(self, contamination=0.1, n_neighbors=5, method='largest',
                  radius=1.0, algorithm='auto', leaf_size=30,
-                 metric='minkowski', p=2, metric_params=None, n_jobs=1,
-                 **kwargs):
+                 metric='minkowski', p=2, metric_params=None, n_jobs=1):
         super(KNN, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
         self.method = method
@@ -165,10 +164,7 @@ class KNN(BaseDetector):
                                        metric=self.metric,
                                        p=self.p,
                                        metric_params=self.metric_params,
-                                       n_jobs=self.n_jobs,
-                                       **kwargs)
-        # Cache for dimensional scores to avoid recomputation
-        self._cached_dimensional_scores = {}  # {columns_tuple: scores_array}
+                                       n_jobs=self.n_jobs)
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -274,38 +270,88 @@ class KNN(BaseDetector):
         elif self.method == 'median':
             return np.median(dist_arr, axis=1)
 
+    def _training_neighbor_indices(self, ind):
+        """Return the k nearest training neighbors of training sample ``ind``.
+
+        The sample itself is excluded, matching how ``fit`` computes
+        ``decision_scores_`` (``kneighbors`` with ``X=None``). The fitted
+        ``NearestNeighbors`` estimator is used directly so that tree-based
+        and brute-force backends (e.g. ``metric='cosine'``) both work.
+        """
+        _, indices = self.neigh_.kneighbors(
+            self.X_train_[ind:ind + 1], n_neighbors=self.n_neighbors + 1,
+            return_distance=True)
+        indices = indices[0]
+        self_mask = indices == ind
+        if self_mask.any():
+            # drop the (first) occurrence of the sample itself
+            indices = np.delete(indices, np.flatnonzero(self_mask)[0])
+        else:
+            # exact duplicates may push the sample out of the result set
+            indices = indices[:-1]
+        return indices
+
+    @staticmethod
+    def _dimensional_scores(X, ind, neighbor_indices, columns):
+        """Mean absolute per-dimension distance to the given neighbors."""
+        neighbors = X[neighbor_indices][:, columns]
+        return np.mean(np.abs(neighbors - X[ind, columns]), axis=0)
+
+    def _check_explain_args(self, ind, columns):
+        check_is_fitted(self, ['X_train_', 'neigh_', 'decision_scores_'])
+        n_samples, n_features = self.X_train_.shape
+        if not -n_samples <= ind < n_samples:
+            raise IndexError(
+                "ind={} is out of range for {} training samples".format(
+                    ind, n_samples))
+        ind = int(ind) % n_samples
+        if columns is None:
+            columns = list(range(n_features))
+        else:
+            columns = list(columns)
+        return ind, columns
+
     def get_outlier_explainability_scores(self, ind, columns=None):
         """Compute per-feature outlier explainability scores.
-        
-        Calculates the average absolute distance to k-nearest neighbors
-        for each feature dimension.
-        
+
+        Calculates the average absolute distance to the k nearest
+        neighbors (found in the full feature space, excluding the sample
+        itself) for each feature dimension.
+
         Parameters
         ----------
         ind : int
             Index of the sample in training data.
-            
+
         columns : list, optional (default=None)
             Specific feature indices. If None, use all features.
-            
+
         Returns
         -------
-        scores : numpy array of shape (n_features,)
+        scores : numpy array of shape (n_selected_features,)
             Average absolute distance to k-neighbors per dimension.
         """
-        check_is_fitted(self, ['X_train_', 'tree_'])
-        
-        sample = self.X_train_[ind:ind+1, :]
-        _, neighbor_indices = self.tree_.query(sample, k=self.n_neighbors)
-        neighbors = self.X_train_[neighbor_indices[0], :]
-        
-        if columns is None:
-            dim_distances = np.abs(neighbors - self.X_train_[ind, :])
-        else:
-            dim_distances = np.abs(neighbors[:, columns] - self.X_train_[ind, columns])
-        
-        return np.mean(dim_distances, axis=0)
+        ind, columns = self._check_explain_args(ind, columns)
+        neighbor_indices = self._training_neighbor_indices(ind)
+        return self._dimensional_scores(self.X_train_, ind, neighbor_indices,
+                                        columns)
 
+    def _all_dimensional_scores(self, columns):
+        """Dimensional scores of every training sample (cached per fit)."""
+        if not hasattr(self, '_cached_dimensional_scores'):
+            self._cached_dimensional_scores = {}
+        cache_key = tuple(columns)
+        if cache_key not in self._cached_dimensional_scores:
+            # same neighbors as fit(): kneighbors(X=None) excludes self
+            _, all_indices = self.neigh_.kneighbors(
+                n_neighbors=self.n_neighbors, return_distance=True)
+            X_sel = self.X_train_[:, columns]
+            all_scores = np.empty((X_sel.shape[0], len(columns)))
+            for i in range(X_sel.shape[0]):
+                all_scores[i] = np.mean(
+                    np.abs(X_sel[all_indices[i]] - X_sel[i]), axis=0)
+            self._cached_dimensional_scores[cache_key] = all_scores
+        return self._cached_dimensional_scores[cache_key]
 
     def explain_outlier(self, ind, columns=None, cutoffs=None,
                         feature_names=None, file_name=None,
@@ -348,11 +394,8 @@ class KNN(BaseDetector):
         scores : numpy array
             The per-feature outlier scores for the specified sample.
         """
-        check_is_fitted(self, ['X_train_', 'tree_', 'labels_'])
-        
-        if columns is None:
-            columns = list(range(self.X_train_.shape[1]))
-        
+        ind, columns = self._check_explain_args(ind, columns)
+
         cutoffs = [1 - self.contamination, 0.99] if cutoffs is None else cutoffs
         
         # Compute dimensional scores for target sample
@@ -360,15 +403,7 @@ class KNN(BaseDetector):
         
         # Compute cutoff bands if requested
         if compute_cutoffs:
-            cache_key = tuple(columns)
-            if cache_key in self._cached_dimensional_scores:
-                all_scores = self._cached_dimensional_scores[cache_key]
-            else:
-                all_scores = np.zeros((self.X_train_.shape[0], len(columns)))
-                for i in range(self.X_train_.shape[0]):
-                    all_scores[i, :] = self.get_outlier_explainability_scores(i, columns)
-                self._cached_dimensional_scores[cache_key] = all_scores
-            
+            all_scores = self._all_dimensional_scores(columns)
             cutoff_bands = {c: np.quantile(all_scores, q=c, axis=0) for c in cutoffs}
         else:
             cutoff_bands = None
