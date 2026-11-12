@@ -7,6 +7,8 @@
 
 
 import copy
+import numbers
+import warnings
 
 import numpy as np
 
@@ -21,6 +23,7 @@ import torch.optim as optim
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
+from sklearn.utils import check_random_state
 from torch.utils.data import DataLoader, TensorDataset
 
 from .base import BaseDetector
@@ -215,7 +218,9 @@ class DeepSVDD(BaseDetector):
             can collapse the hypersphere.
 
         validation_size : float in (0., 1), optional (default=0.1)
-            The percentage of data to be used for validation.
+            Not used. DeepSVDD trains on all of ``X``; the parameter is left
+            over from the Keras version. It is deprecated since 3.6.8 and
+            will be removed in a future release.
 
         preprocessing : bool, optional (default=True)
             If True, apply standardization on the data.
@@ -225,10 +230,9 @@ class DeepSVDD(BaseDetector):
 
         random_state : random_state: int, RandomState instance or None, optional
             (default=None)
-            If int, random_state is the seed used by the random
-            number generator; If RandomState instance, random_state is the random
-            number generator; If None, the random number generator is the
-            RandomState instance used by `np.random`.
+            Seeds torch at the start of each ``fit``. If int, it is the
+            torch seed; if a RandomState instance, a seed is drawn from it;
+            if None, torch is not seeded.
 
         contamination : float in (0., 0.5), optional (default=0.1)
             The amount of contamination of the data set, i.e.
@@ -291,8 +295,6 @@ class DeepSVDD(BaseDetector):
         self.model_ = None
         self.best_model_dict = None
 
-        if self.random_state is not None:
-            torch.manual_seed(self.random_state)
         check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
                         include_left=True)
 
@@ -316,6 +318,21 @@ class DeepSVDD(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
+        if self.validation_size != 0.1:
+            warnings.warn(
+                'validation_size is not used: DeepSVDD trains on all of X. '
+                'It is deprecated since 3.6.8 and will be removed in a '
+                'future release.', FutureWarning)
+
+        # Seed in fit rather than __init__ so that a refit repeats the run,
+        # and accept a RandomState, which torch.manual_seed rejects.
+        if self.random_state is not None:
+            seed = self.random_state
+            if not isinstance(seed, numbers.Integral):
+                seed = check_random_state(seed).randint(
+                    np.iinfo(np.int32).max)
+            torch.manual_seed(int(seed))
+
         # Verify and construct the hidden units
         self.n_samples_, self.n_features_ = X.shape[0], X.shape[1]
 
@@ -325,10 +342,6 @@ class DeepSVDD(BaseDetector):
             X_norm = self.scaler_.fit_transform(X)
         else:
             X_norm = np.copy(X)
-
-        # Shuffle the data for validation as Keras do not shuffling for
-        # Validation Split
-        np.random.shuffle(X_norm)
 
         # Validate and complete the number of hidden neurons
         if np.min(self.hidden_neurons) > self.n_features_ and self.use_ae:
@@ -378,14 +391,6 @@ class DeepSVDD(BaseDetector):
         # later mutate) the fitted center.
         self.c_ = center.detach().clone()
 
-        # Predict on X itself and calculate the reconstruction error as
-        # the outlier scores. Noted X_norm was shuffled has to recreate
-        if self.preprocessing:
-            X_norm = self.scaler_.transform(X)
-        else:
-            X_norm = np.copy(X)
-
-        X_norm = torch.tensor(X_norm, dtype=torch.float32)
         dataset = TensorDataset(X_norm, X_norm)
         dataloader = DataLoader(dataset, batch_size=self.batch_size,
                                 shuffle=True)
