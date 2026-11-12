@@ -168,6 +168,12 @@ class TestCOPODParallel(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_model_refit(self):
+        # A refit must score the new data alone, not against the data
+        # of an earlier fit.
+        clf = clone(self.clf).fit(self.X_test).fit(self.X_train)
+        assert_allclose(clf.decision_scores_, self.clf.decision_scores_)
+
     def tearDown(self):
         pass
 

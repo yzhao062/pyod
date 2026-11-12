@@ -182,6 +182,83 @@ class TestMetrics(unittest.TestCase):
         assert_equal(precision_score(self.y, self.manual_labels),
                      precision_n_scores(self.y, self.labels_))
 
+    def test_precision_n_scores_tie_at_cutoff(self):
+        labels = [1, 1, 0, 0, 0, 0]
+        scores = [2, 1, 1, 1, 0, 0]
+        # The second rank is shared by three samples, one of them positive.
+        assert_allclose(precision_n_scores(labels, scores), 2 / 3)
+        assert_allclose(precision_n_scores(labels, scores, n=3), 5 / 9)
+        assert_allclose(precision_n_scores(labels, [1] * 6), 1 / 3)
+
+    def test_precision_n_scores_nonfinite(self):
+        for invalid_score in (np.nan, np.inf, -np.inf):
+            for n in (None, 0, 1, 2):
+                with self.subTest(score=invalid_score, n=n):
+                    with self.assertRaisesRegex(ValueError, 'finite'):
+                        precision_n_scores([0, 1], [0, invalid_score], n=n)
+
+    def test_precision_n_scores_nonbinary_labels(self):
+        for invalid_label in (2, -1, 0.5, np.nan, np.inf, -np.inf):
+            for n in (None, 0, 1, 2):
+                with self.subTest(label=invalid_label, n=n):
+                    with self.assertRaises(ValueError):
+                        precision_n_scores([0, invalid_label], [0, 1], n=n)
+
+    def test_precision_n_scores_binary_label_types(self):
+        for labels in ([0, 1], [0.0, 1.0], [False, True]):
+            with self.subTest(labels=labels):
+                assert_equal(precision_n_scores(labels, [0, 1]), 1.0)
+
+    def test_precision_n_scores_rejects_invalid_ranks(self):
+        for rank in (-0.5, 1.9, np.float64(2.2), np.nan, np.inf, -np.inf, '1'):
+            with self.subTest(n=rank):
+                with self.assertRaises(ValueError):
+                    precision_n_scores([0, 1, 1], [0, 1, 2], n=rank)
+
+    def test_precision_n_scores_integer_valued_ranks(self):
+        for rank in (1, np.int64(1), 1.0, np.float64(1.0)):
+            with self.subTest(n=rank):
+                assert_equal(precision_n_scores([0, 1], [0, 1], n=rank), 1.0)
+
+    def test_precision_n_scores_object_scores(self):
+        for scores in ([0, 1], [0.1, 0.9]):
+            with self.subTest(scores=scores):
+                assert_equal(precision_n_scores(
+                    [0, 1], np.array(scores, dtype=object)), 1.0)
+
+    def test_precision_n_scores_object_nonfinite(self):
+        for score in (np.nan, np.inf, -np.inf):
+            for n in (None, 0, 1, 2):
+                with self.subTest(score=score, n=n):
+                    with self.assertRaisesRegex(ValueError, 'finite'):
+                        precision_n_scores(
+                            [0, 1], np.array([0, score], dtype=object), n=n)
+
+    def test_precision_n_scores_object_ordering(self):
+        for scores in ([2 ** 53, 2 ** 53 + 1], [10 ** 400, 10 ** 400 + 1]):
+            with self.subTest(scores=scores):
+                assert_equal(precision_n_scores(
+                    [0, 1], np.array(scores, dtype=object)), 1.0)
+
+    def test_precision_n_scores_float16_labels(self):
+        labels = np.ones(70000, dtype=np.float16)
+        assert_equal(precision_n_scores(labels, np.arange(70000)), 1.0)
+        assert_equal(precision_n_scores(labels, np.zeros(70000)), 1.0)
+
+    def test_precision_n_scores_empty(self):
+        for n in (None, 0, 1):
+            with self.subTest(n=n):
+                with self.assertRaises(ValueError):
+                    precision_n_scores([], [], n=n)
+
+    def test_precision_n_scores_rational_scores(self):
+        from fractions import Fraction
+        for scores in ([Fraction(0), Fraction(1)],
+                       [Fraction(2 ** 53), Fraction(2 ** 53) + Fraction(1, 2)]):
+            with self.subTest(scores=scores):
+                assert_equal(precision_n_scores(
+                    [0, 1], np.array(scores, dtype=object)), 1.0)
+
     def test_get_label_n(self):
         assert_allclose(self.manual_labels,
                         get_label_n(self.y, self.labels_))

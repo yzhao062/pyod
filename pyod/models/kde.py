@@ -119,14 +119,6 @@ class KDE(BaseDetector):
                 FutureWarning,
             )
 
-        self.kde_ = KernelDensity(
-            bandwidth=self.bandwidth,
-            algorithm=self.algorithm,
-            leaf_size=self.leaf_size,
-            metric=self.metric,
-            metric_params=self.metric_params,
-        )
-
         self.decision_scores_ = None
 
     def fit(self, X, y=None):
@@ -150,6 +142,14 @@ class KDE(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
+        # Build the estimator in fit so set_params() takes effect.
+        self.kde_ = KernelDensity(
+            bandwidth=self.bandwidth,
+            algorithm=self.algorithm,
+            leaf_size=self.leaf_size,
+            metric=self.metric,
+            metric_params=self.metric_params,
+        )
         self.kde_.fit(X)
 
         # invert decision_scores_. Outliers comes with higher outlier scores.
