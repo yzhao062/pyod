@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import io
 import os
+import pickle
+import shutil
 import sys
+import tempfile
 import unittest
 
 import numpy as np
@@ -287,6 +291,146 @@ class TestBaseDL(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+class TestBaseDLSaveLoadRealDetectors(unittest.TestCase):
+    """Save/load round trips on real subclasses rather than a dummy detector
+    that returns zeros, so the assertions show that learned scores survive.
+    """
+
+    def setUp(self):
+        self.X_train, self.X_test, _, _ = generate_data(
+            n_train=200, n_test=50, n_features=5, contamination=0.1,
+            random_state=42)
+        self.tmpdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _path(self, name):
+        return os.path.join(self.tmpdir, name)
+
+    def _fit_autoencoder(self):
+        from pyod.models.auto_encoder import AutoEncoder
+        clf = AutoEncoder(epoch_num=3, hidden_neuron_list=[8, 4],
+                          device='cpu', verbose=0, random_state=0)
+        clf.fit(self.X_train)
+        return clf
+
+    def _fit_so_gaal(self):
+        from pyod.models.so_gaal_new import SO_GAAL
+        clf = SO_GAAL(epoch_num=3, device='cpu', verbose=0, random_state=0)
+        clf.fit(self.X_train)
+        return clf
+
+    def test_autoencoder_scores_survive_save_load(self):
+        clf = self._fit_autoencoder()
+        expected = clf.decision_function(self.X_test)
+        path = self._path('ae.pt')
+        clf.save(path)
+
+        for map_location in (None, 'cpu', torch.device('cpu'),
+                             {'cpu': 'cpu'}, lambda storage, loc: storage):
+            loaded = BaseDeepLearningDetector.load(
+                path, map_location=map_location, trusted=True)
+            self.assertIsInstance(loaded, type(clf))
+            self.assertEqual(loaded.device, torch.device('cpu'))
+            self.assertFalse(loaded.model.training)
+            np.testing.assert_allclose(
+                loaded.decision_function(self.X_test), expected, rtol=1e-6)
+            np.testing.assert_allclose(
+                loaded.decision_scores_, clf.decision_scores_)
+            np.testing.assert_array_equal(
+                loaded.predict(self.X_test), clf.predict(self.X_test))
+
+    def test_so_gaal_device_inferred_from_non_model_modules(self):
+        # SO_GAAL keeps its networks in generator/discriminator, not
+        # self.model, so there is no model state dict to infer the device
+        # from.  Simulate a CUDA-trained artifact: the stored device attribute
+        # is stale and must be corrected from the loaded modules for every
+        # map_location form.
+        clf = self._fit_so_gaal()
+        self.assertIsNone(getattr(clf, 'model', None))
+        expected = clf.decision_function(self.X_test)
+        clf.device = torch.device('cuda:0')
+        path = self._path('so_gaal.pt')
+        clf.save(path)
+
+        for map_location in ('cpu', torch.device('cpu'),
+                             {'cuda:0': 'cpu'},
+                             lambda storage, loc: storage):
+            loaded = BaseDeepLearningDetector.load(
+                path, map_location=map_location, trusted=True)
+            self.assertEqual(loaded.device, torch.device('cpu'))
+            for module in (loaded.generator, loaded.discriminator):
+                self.assertEqual(next(module.parameters()).device,
+                                 torch.device('cpu'))
+            np.testing.assert_allclose(
+                loaded.decision_function(self.X_test), expected, rtol=1e-6)
+
+    def test_dict_map_location_without_tensors_maps_saved_device(self):
+        # With no weights to inspect, a dict map_location is applied to the
+        # saved device attribute so detector.device is still not stale.
+        clf = self._fit_autoencoder()
+        clf.model = None
+        clf.device = torch.device('cuda:0')
+        path = self._path('no_weights.pt')
+        clf.save(path)
+        loaded = BaseDeepLearningDetector.load(
+            path, map_location={'cuda:0': 'cpu'}, trusted=True)
+        self.assertEqual(loaded.device, torch.device('cpu'))
+
+    def test_legacy_pickle_artifact_still_loads(self):
+        clf = self._fit_autoencoder()
+        expected = clf.decision_function(self.X_test)
+        path = self._path('legacy.pkl')
+        with open(path, 'wb') as f:
+            pickle.dump(clf, f)
+        loaded = type(clf).load(path, map_location='cpu', trusted=True)
+        np.testing.assert_allclose(
+            loaded.decision_function(self.X_test), expected, rtol=1e-6)
+
+    def test_file_like_objects_supported(self):
+        clf = self._fit_autoencoder()
+        expected = clf.decision_function(self.X_test)
+
+        buf = io.BytesIO()
+        clf.save(buf)
+        buf.seek(0)
+        loaded = type(clf).load(buf, trusted=True)
+        np.testing.assert_allclose(
+            loaded.decision_function(self.X_test), expected, rtol=1e-6)
+
+        legacy = io.BytesIO(pickle.dumps(clf))
+        loaded = type(clf).load(legacy, trusted=True)
+        np.testing.assert_allclose(
+            loaded.decision_function(self.X_test), expected, rtol=1e-6)
+
+    def test_torch_load_error_not_masked_as_pickle_error(self):
+        # A truncated torch archive used to fall through the catch-all
+        # fallback into pickle.load, which reported a misleading
+        # UnpicklingError.  It must now surface torch.load's own error.
+        clf = self._fit_autoencoder()
+        path = self._path('truncated.pt')
+        clf.save(path)
+        with open(path, 'rb') as f:
+            data = f.read()
+        with open(path, 'wb') as f:
+            f.write(data[:len(data) // 2])
+        with self.assertRaises(Exception) as ctx:
+            type(clf).load(path, trusted=True)
+        # The exact type depends on the torch version (RuntimeError or
+        # OSError); what matters is that it is not the pickle fallback's.
+        self.assertNotIsInstance(ctx.exception, pickle.UnpicklingError)
+        self.assertNotIn('invalid load key', str(ctx.exception))
+
+    def test_invalid_map_location_error_not_masked(self):
+        clf = self._fit_autoencoder()
+        path = self._path('ae_bad_map.pt')
+        clf.save(path)
+        with self.assertRaises(Exception) as ctx:
+            type(clf).load(path, map_location='not_a_device', trusted=True)
+        self.assertNotIsInstance(ctx.exception, pickle.UnpicklingError)
 
 
 if __name__ == '__main__':
