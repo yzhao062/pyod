@@ -71,7 +71,7 @@ PyOD 3 is the most comprehensive Python library for anomaly detection. Four pill
 ===========================  ========================================================================================
 Pillar                       What it means
 ===========================  ========================================================================================
-Multi-Modal                  61 detectors across **tabular, time series, graph, text, image, and audio** data, one API
+Multi-Modal                  62 detectors across **tabular, time series, graph, text, image, and audio** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      ``od-expert`` turns natural-language requests into ADEngine workflows; MCP exposes structured tools for other agents
 Most Used                    46+ million downloads; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
@@ -420,6 +420,11 @@ PyOD is organized into two functional groups: **(i) Detection Algorithms**, with
      - Isolation Forest (`example <https://github.com/yzhao062/pyod/blob/development/examples/iforest_example.py>`__)
      - 2008
      - [#Liu2008Isolation]_
+   * - Outlier Ensembles
+     - EIF
+     - Extended Isolation Forest (`example <https://github.com/yzhao062/pyod/blob/development/examples/eif_example.py>`__)
+     - 2021
+     - [#Hariri2021Extended]_
    * - Outlier Ensembles
      - INNE
      - Isolation-based Anomaly Detection via Nearest-Neighbor Ensembles (`example <https://github.com/yzhao062/pyod/blob/development/examples/inne_example.py>`__)
@@ -875,6 +880,8 @@ Reference
 .. [#Li2021ECOD] Li, Z., Zhao, Y., Hu, X., Botta, N., Ionescu, C. and Chen, H. G. ECOD: Unsupervised Outlier Detection Using Empirical Cumulative Distribution Functions. *IEEE Transactions on Knowledge and Data Engineering (TKDE)*, 2022.
 
 .. [#Liu2008Isolation] Liu, F.T., Ting, K.M. and Zhou, Z.H., 2008, December. Isolation forest. In *International Conference on Data Mining*\ , pp. 413-422. IEEE.
+
+.. [#Hariri2021Extended] Hariri, S., Carrasco Kind, M. and Brunner, R.J., 2021. Extended isolation forest. *IEEE Transactions on Knowledge and Data Engineering*\ , 33(4), pp. 1479-1489.
 
 .. [#Liu2019Generative] Liu, Y., Li, Z., Zhou, C., Jiang, Y., Sun, J., Wang, M. and He, X., 2019. Generative adversarial active learning for unsupervised outlier detection. *IEEE Transactions on Knowledge and Data Engineering*.
 

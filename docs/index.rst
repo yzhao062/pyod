@@ -71,7 +71,7 @@ PyOD 3 is the most comprehensive Python library for anomaly detection. Four pill
 ===========================  ========================================================================================
 Pillar                       What it means
 ===========================  ========================================================================================
-Multi-Modal                  61 detectors across **tabular, time series, graph, text, image, and audio** data, one API
+Multi-Modal                  62 detectors across **tabular, time series, graph, text, image, and audio** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      Ask in plain English, and AI agents run the full detection workflow without OD expertise
 Most Used                    `46+ million downloads <https://pepy.tech/project/pyod>`_; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
@@ -244,6 +244,7 @@ Proximity-Based      MedKNN            Median kNN (use the median distance to k 
 Proximity-Based      SOD               Subspace Outlier Detection                                                                              2009   :class:`pyod.models.sod.SOD`                         :cite:`a-kriegel2009outlier`
 Proximity-Based      ROD               Rotation-based Outlier Detection                                                                        2020   :class:`pyod.models.rod.ROD`                         :cite:`a-almardeny2020novel`
 Outlier Ensembles    IForest           Isolation Forest                                                                                        2008   :class:`pyod.models.iforest.IForest`                 :cite:`a-liu2008isolation,a-liu2012isolation`
+Outlier Ensembles    EIF               Extended Isolation Forest                                                                               2021   :class:`pyod.models.eif.EIF`                         :cite:`a-hariri2021extended`
 Outlier Ensembles    INNE              Isolation-based Anomaly Detection Using Nearest-Neighbor Ensembles                                      2018   :class:`pyod.models.inne.INNE`                       :cite:`a-bandaragoda2018isolation`
 Outlier Ensembles    DIF               Deep Isolation Forest for Anomaly Detection                                                             2023   :class:`pyod.models.dif.DIF`                         :cite:`a-xu2023dif`
 Outlier Ensembles    FB                Feature Bagging                                                                                         2005   :class:`pyod.models.feature_bagging.FeatureBagging`  :cite:`a-lazarevic2005feature`
