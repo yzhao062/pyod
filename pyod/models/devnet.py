@@ -9,7 +9,6 @@ https://github.com/GuansongPang/deviation-network
 
 
 # Import necessary libraries
-import random
 import warnings
 
 import numpy as np
@@ -227,25 +226,27 @@ class DevNet(BaseDetector):
         Deprecated and unused.  Accepted for backwards compatibility only;
         passing a non-None value emits a ``DeprecationWarning``.
 
-    known_outliers : int, optional (default=30)
-        Maximum number of labeled anomalies to retain when building the
-        training set.  When the dataset contains more labeled anomalies, a
-        random subset of this size is drawn (seeded by ``random_seed``).
-        This mirrors the weakly-supervised setting described in the paper.
+    known_outliers : int or None, optional (default=None)
+        Maximum number of labeled anomalies used for training.  ``None``
+        uses all of them.  An int draws a random subset of that size when
+        more anomalies are labeled (seeded by ``random_seed``); the paper's
+        weakly-supervised experiments use 30.
 
     cont_rate : ignored
         Deprecated and unused.  Accepted for backwards compatibility only;
         passing a non-None value emits a ``DeprecationWarning``.
 
     data_format : int, optional (default=0)
-        Inference batching strategy.  ``0`` → score all samples in one
-        forward pass; ``1`` → iterate in chunks of 512, which is useful
-        when the test set is very large.
+        Inference batching.  ``decision_function`` scores ``X`` in batches
+        of ``batch_size`` rows.  ``0`` runs one forward pass per batch;
+        ``1`` splits each batch further into chunks of at most 512 rows,
+        which bounds memory when ``batch_size`` is large.
 
     random_seed : int or None, optional (default=42)
-        Seed for ``random``, ``numpy.random``, and ``torch`` so that
-        training is reproducible across calls to :meth:`fit`.
-        Pass ``None`` to skip deterministic seeding.
+        Seeds ``torch`` and the local random state that draws the
+        ``known_outliers`` subset, so training is reproducible across calls
+        to :meth:`fit`.  The global ``random`` and ``numpy.random`` streams
+        are left untouched.  Pass ``None`` to skip seeding.
 
     device : str or torch.device, optional (default=None)
         Torch device.  When ``None`` the first available CUDA device is
@@ -277,7 +278,7 @@ class DevNet(BaseDetector):
                  batch_size=512,
                  epochs=50,
                  nb_batch=None,
-                 known_outliers=30,
+                 known_outliers=None,
                  cont_rate=None,
                  data_format=0,
                  random_seed=42,
@@ -308,8 +309,6 @@ class DevNet(BaseDetector):
 
     def fit(self, X, y):
         if self.random_seed is not None:
-            random.seed(self.random_seed)
-            np.random.seed(self.random_seed)
             torch.manual_seed(self.random_seed)
 
         rng = np.random.RandomState(self.random_seed)
@@ -321,7 +320,8 @@ class DevNet(BaseDetector):
             X.shape[0], n_outliers))
 
         # Cap the labeled-anomaly set to self.known_outliers, as in the paper.
-        if n_outliers > self.known_outliers:
+        if (self.known_outliers is not None
+                and n_outliers > self.known_outliers):
             outlier_indices = rng.choice(
                 outlier_indices, self.known_outliers, replace=False)
 

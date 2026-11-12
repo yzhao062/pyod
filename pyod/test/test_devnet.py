@@ -3,11 +3,14 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import random
 import sys
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import torch
+from numpy.testing import assert_allclose
 from numpy.testing import assert_almost_equal
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
@@ -21,6 +24,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from sklearn.base import clone
 from numpy.testing import assert_array_equal
 
+from pyod.models import devnet
 from pyod.models.devnet import DevNet
 from pyod.utils.data import generate_data
 
@@ -171,10 +175,18 @@ class TestDevNet(unittest.TestCase):
         X_small, _, y_small, _ = generate_data(
             n_train=200, n_test=50, n_features=5,
             contamination=0.2, random_state=0)
-        # 40 outliers in training set; cap to 5
-        clf = DevNet(epochs=1, known_outliers=5, contamination=0.2)
-        clf.fit(X_small, y_small)
-        assert_equal(len(clf.decision_scores_), X_small.shape[0])
+        labeled = np.where(y_small == 1)[0]  # 40 labeled outliers
+        assert_equal(DevNet().known_outliers, None)
+        for known_outliers, expected in ((5, 5), (None, len(labeled))):
+            # The outlier indices passed to SupDataset are the ones training
+            # uses.
+            with patch('pyod.models.devnet.SupDataset',
+                       wraps=devnet.SupDataset) as dataset:
+                DevNet(epochs=1, known_outliers=known_outliers,
+                       contamination=0.2).fit(X_small, y_small)
+            used = np.asarray(dataset.call_args.args[1])
+            assert_equal(len(np.unique(used)), expected)
+            assert np.isin(used, labeled).all()
 
     def test_model_clone(self):
         cloned = clone(self.clf)
@@ -183,13 +195,37 @@ class TestDevNet(unittest.TestCase):
         assert cloned.data_format == self.clf.data_format
 
     def test_data_format_1_inference(self):
+        # 1300 rows in batches of 1200 split into chunks of 512, 512, 176
+        # and 100, so the chunked path crosses both boundaries and ends on
+        # a partial chunk. Its scores must match one pass per batch.
+        X_small, _, y_small, _ = generate_data(
+            n_train=1300, n_test=50, n_features=5,
+            contamination=0.1, random_state=0)
+        clf = DevNet(epochs=1, batch_size=1200, data_format=1,
+                     contamination=0.1)
+        with patch('pyod.models.devnet.load_model_weight_predict',
+                   wraps=devnet.load_model_weight_predict) as predict:
+            clf.fit(X_small, y_small)
+            chunked = clf.decision_function(X_small)
+        assert predict.call_count > 0
+        for call in predict.call_args_list:
+            assert_equal(call.args[2], 1)
+        clf.data_format = 0
+        assert_allclose(clf.decision_function(X_small), chunked, rtol=1e-5)
+
+    def test_fit_leaves_global_random_state(self):
+        # fit seeds torch and a local RandomState only, so the caller's
+        # Python and NumPy streams continue where they were.
         X_small, _, y_small, _ = generate_data(
             n_train=200, n_test=50, n_features=5,
             contamination=0.1, random_state=0)
-        clf = DevNet(epochs=1, data_format=1, contamination=0.1)
-        clf.fit(X_small, y_small)
-        scores = clf.decision_function(X_small)
-        assert_equal(scores.shape[0], X_small.shape[0])
+        random.seed(987)
+        np.random.seed(987)
+        expected = (random.random(), np.random.rand())
+        random.seed(987)
+        np.random.seed(987)
+        DevNet(epochs=1, random_seed=0).fit(X_small, y_small)
+        assert_equal((random.random(), np.random.rand()), expected)
 
     def test_random_seed_none_does_not_crash(self):
         X_small, _, y_small, _ = generate_data(
