@@ -20,14 +20,19 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         # See testing.yml for rationale: macOS is pinned to Python 3.9 only
         # until the Apple Silicon slowness on 3.10-3.13 is understood.
+        exclude:
+          - os: ubuntu-latest
+            python-version: "3.9"
         include:
+          - os: ubuntu-24.04
+            python-version: "3.9"
           - os: macos-latest
             python-version: "3.9"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 

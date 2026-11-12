@@ -11,6 +11,8 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname("__file__"), '..')))
 sys.path.append(os.path.abspath(os.path.dirname("__file__")))
 
+from sklearn.base import clone
+
 from pyod.models.so_gaal_new import SO_GAAL
 from pyod.utils.data import generate_data
 
@@ -130,6 +132,20 @@ class TestSO_GAAL(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+class TestSO_GAALClone(unittest.TestCase):
+    """Regression tests for #758: clone() must keep criterion_name."""
+
+    def test_clone_default(self):
+        cloned = clone(SO_GAAL())
+        self.assertEqual(cloned.get_params()['criterion_name'], 'bce')
+
+    def test_clone_keeps_params_and_criterion(self):
+        clf = SO_GAAL(criterion_name='mse', epoch_num=6, verbose=0)
+        cloned = clone(clf)
+        self.assertEqual(cloned.get_params(), clf.get_params())
+        self.assertIs(type(cloned.criterion), type(clf.criterion))
 
 
 if __name__ == '__main__':
