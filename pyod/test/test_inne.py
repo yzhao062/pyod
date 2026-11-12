@@ -153,6 +153,19 @@ class TestINNE(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_invalid_contamination(self):
+        # contamination must be validated at construction time by
+        # BaseDetector.__init__ (see issue #752)
+        for contamination in [0.9, 1.0, 0.0, -0.1]:
+            with assert_raises(ValueError):
+                INNE(contamination=contamination)
+
+    def test_valid_contamination(self):
+        clf = INNE(contamination=0.5, random_state=42)
+        assert_equal(clf.contamination, 0.5)
+        clf.fit(self.X_train)
+        assert_equal(len(clf.labels_), self.X_train.shape[0])
+
     def tearDown(self):
         pass
 

@@ -4,6 +4,7 @@
 import os
 import sys
 import unittest
+import warnings
 from contextlib import redirect_stdout
 from io import StringIO
 
@@ -298,6 +299,33 @@ class TestDeepSVDD(unittest.TestCase):
         assert_equal(len(epoch_lines(1)), 3)
         # a higher verbosity must not be quieter than a lower one
         assert_equal(len(epoch_lines(2)), 3)
+
+    def test_validation_size_is_deprecated(self):
+        # validation_size was documented but never used (#757).
+        X = np.random.RandomState(42).randn(50, 10)
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', FutureWarning)
+            DeepSVDD(n_features=10, epochs=1, hidden_neurons=[8, 4],
+                     verbose=0).fit(X)
+        with self.assertWarns(FutureWarning):
+            DeepSVDD(n_features=10, epochs=1, hidden_neurons=[8, 4],
+                     validation_size=0.3, verbose=0).fit(X)
+
+    def test_random_state_instance(self):
+        # torch.manual_seed rejects a RandomState, so construction raised
+        # TypeError before the seed moved into fit.
+        X = np.random.RandomState(42).randn(50, 10)
+        clf = DeepSVDD(n_features=10, epochs=1, hidden_neurons=[8, 4],
+                       verbose=0, random_state=np.random.RandomState(0))
+        clf.fit(X)
+        assert_equal(clf.decision_scores_.shape, (50,))
+
+    def test_refit_repeats_seeded_run(self):
+        X = np.random.RandomState(42).randn(50, 10)
+        clf = DeepSVDD(n_features=10, epochs=2, hidden_neurons=[8, 4],
+                       verbose=0, random_state=2021)
+        first = clf.fit(X).decision_scores_.copy()
+        assert_equal(clf.fit(X).decision_scores_, first)
 
     def tearDown(self):
         pass

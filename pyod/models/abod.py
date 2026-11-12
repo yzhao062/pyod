@@ -180,7 +180,8 @@ class ABOD(BaseDetector):
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
-            The input samples.
+            The input samples. Float32 and float64 inputs retain their dtype;
+            other numeric dtypes are converted to float64 for angle computation.
 
         y : Ignored
             Not used, present for API consistency by convention.
@@ -191,7 +192,7 @@ class ABOD(BaseDetector):
             Fitted estimator.
         """
         # validate inputs X and y (optional)
-        X = check_array(X)
+        X = check_array(X, dtype=[np.float64, np.float32])
         self._set_n_classes(y)
 
         self.X_train_ = X
@@ -249,8 +250,9 @@ class ABOD(BaseDetector):
                                        n_jobs=self.n_jobs)
         self.neigh_.fit(self.X_train_)
         self.tree_ = self.neigh_
-        ind_arr = self.neigh_.kneighbors(self.X_train_,
-                                         n_neighbors=self.n_neighbors,
+        # query without X so that each training point is not counted as
+        # its own neighbor, as for the test points in decision_function
+        ind_arr = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
                                          return_distance=False)
 
         for i in range(self.n_train_):
@@ -272,8 +274,8 @@ class ABOD(BaseDetector):
         Parameters
         ----------
         X : numpy array of shape (n_samples, n_features)
-            The training input samples. Sparse matrices are accepted only
-            if they are supported by the base estimator.
+            The input samples. Float32 and float64 inputs retain their dtype;
+            other numeric dtypes are converted to float64 for angle computation.
 
         Returns
         -------
@@ -283,7 +285,7 @@ class ABOD(BaseDetector):
 
         check_is_fitted(self, ['X_train_', 'n_train_', 'decision_scores_',
                                'threshold_', 'labels_'])
-        X = check_array(X)
+        X = check_array(X, dtype=[np.float64, np.float32])
 
         if self.method == 'fast':  # fast ABOD
             # outliers have higher outlier scores

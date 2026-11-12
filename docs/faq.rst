@@ -4,16 +4,15 @@ Frequently Asked Questions
 How to Contribute
 ^^^^^^^^^^^^^^^^^
 
-Contributions are welcome. The workflow is:
+PyOD accepts contributions through the issue-first process described in `CONTRIBUTING.md <https://github.com/yzhao062/pyod/blob/master/CONTRIBUTING.md>`_. In short:
 
-* Check the `GitHub issue tracker <https://github.com/yzhao062/pyod/issues>`_ for "help wanted" items and leave a comment on one you would like to take on so it can be assigned to you.
-* Fork the ``master`` branch and add your change on a feature branch.
-* Open a pull request against the ``development`` branch and follow the `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_.
-* CI will run the full test suite on your PR. New modules must ship with corresponding tests.
+* Open an issue, or comment on an existing one to ask to take it. The maintainer accepts and assigns the issue, declines it, or marks it for an in-house fix.
+* After the issue is labelled ``accepted`` and assigned to you, branch from ``development``. Open one pull request against ``development`` that follows the `PR template <https://github.com/yzhao062/pyod/blob/master/PULL_REQUEST_TEMPLATE.md>`_.
+* CI runs the full test suite on every pull request. New modules must ship with corresponding tests.
 
-For style conventions, refer to any of the well-established detector modules such as ``abod.py``, ``hbos.py``, or ``feature_bagging.py``.
+For style conventions, refer to established detector modules such as ``abod.py``, ``hbos.py``, or ``feature_bagging.py``.
 
-You are also welcome to open an issue to share ideas or reach the maintainer at zhaoy@cmu.edu.
+To share an idea, open an issue or start a `GitHub Discussion <https://github.com/yzhao062/pyod/discussions>`_.
 
 
 Inclusion Criteria

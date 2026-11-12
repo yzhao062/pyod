@@ -110,8 +110,14 @@ class COPOD(BaseDetector):
         self : object
             Fitted estimator.
         """
-        X = check_array(X)
+        # The right-tail ECDF negates X, which wraps unsigned integers and
+        # rejects booleans, so score in floating point.
+        X = check_array(X, dtype=[np.float64, np.float32])
         self._set_n_classes(y)
+        # decision_function scores against X_train when it exists, so drop
+        # the set from an earlier fit before scoring the new one.
+        if hasattr(self, 'X_train'):
+            del self.X_train
         self.decision_scores_ = self.decision_function(X)
         self.X_train = X
         self._process_decision_scores()
@@ -130,6 +136,7 @@ class COPOD(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
+        X = check_array(X, dtype=[np.float64, np.float32])
         # use multi-thread execution
         if self.n_jobs != 1:
             return self._decision_function_parallel(X)

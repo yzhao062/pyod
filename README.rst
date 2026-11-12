@@ -211,8 +211,8 @@ For a broader perspective on anomaly detection, see our NeurIPS papers on `ADBen
 * `Implemented Algorithms <#implemented-algorithms>`__ (Tabular, Time Series, Graph, Embedding)
 * `Additional Topics <#additional-topics>`__ (Model Save/Load, SUOD, Thresholding)
 * `Quick Start for Outlier Detection <#quick-start-for-outlier-detection>`__
-* `How to Contribute <#how-to-contribute>`__
-* `Inclusion Criteria <#inclusion-criteria>`__
+* `How to Contribute <https://github.com/yzhao062/pyod/blob/master/CONTRIBUTING.md>`__
+* `Inclusion Criteria <https://pyod.readthedocs.io/en/latest/faq.html#inclusion-criteria>`__
 
 ----
 

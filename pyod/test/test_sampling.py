@@ -154,6 +154,24 @@ class TestSampling(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_random_state_stored_as_given(self):
+        # __init__ used to store check_random_state(random_state), so
+        # get_params() returned a RandomState object instead of the seed.
+        clf = Sampling(random_state=42)
+        assert clf.random_state == 42
+        assert clf.get_params()["random_state"] == 42
+        assert clone(clf).random_state == 42
+        assert Sampling().random_state is None
+
+    def test_refit_is_deterministic(self):
+        # With the RandomState created in __init__, every fit advanced the
+        # same generator, so refitting the same instance drew a different
+        # subset and produced different scores.
+        clf = Sampling(contamination=self.contamination, random_state=42)
+        first = clf.fit(self.X_train).decision_scores_.copy()
+        second = clf.fit(self.X_train).decision_scores_
+        assert_allclose(first, second)
+
     def tearDown(self):
         pass
 

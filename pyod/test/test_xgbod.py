@@ -6,6 +6,7 @@ import sys
 import unittest
 from os import path
 
+import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
@@ -169,6 +170,51 @@ class TestXGBOD(unittest.TestCase):
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
+        assert_equal(clone_clf.get_params(), self.clf.get_params())
+
+    def test_estimator_list_not_mutated_by_fit(self):
+        clf = XGBOD(random_state=42)
+        assert (clf.get_params(deep=False)['estimator_list'] is None)
+        assert (clf.get_params(deep=False)['standardization_flag_list'] is
+                None)
+
+        clf.fit(self.X_train, self.y_train)
+
+        # constructor arguments must stay untouched after fit
+        assert (clf.get_params(deep=False)['estimator_list'] is None)
+        assert (clf.get_params(deep=False)['standardization_flag_list'] is
+                None)
+
+        # the resolved values live on the trailing-underscore attributes
+        assert (clf.estimator_list_ is not None)
+        assert (clf.standardization_flag_list_ is not None)
+        assert_equal(len(clf.estimator_list_),
+                     len(clf.standardization_flag_list_))
+
+        # a refit on a different subset should not reuse stale detectors
+        clf2 = XGBOD(random_state=42)
+        clf2.fit(self.X_test, self.y_test)
+        assert_equal(len(clf2.estimator_list_), len(clf.estimator_list_))
+
+    def test_refit_with_fewer_samples(self):
+        # Initial fit on >= 51 rows instantiates detectors with n_neighbors up to 50
+        X_large, y_large = generate_data(
+            n_train=60, n_features=2, contamination=0.1, random_state=42,
+            train_only=True)
+        # Refit on < 51 rows (e.g. 35) must re-resolve valid detectors without error
+        X_small, y_small = generate_data(
+            n_train=35, n_features=2, contamination=0.1, random_state=42,
+            train_only=True)
+
+        clf = XGBOD(random_state=42)
+        clf.fit(X_large, y_large)
+
+        clf.fit(X_small, y_small)
+        assert (clf.get_params(deep=False)['estimator_list'] is None)
+
+        pred_scores = clf.decision_function(X_small)
+        assert_equal(pred_scores.shape[0], X_small.shape[0])
+        assert (np.isfinite(pred_scores).all())
 
     def tearDown(self):
         pass
