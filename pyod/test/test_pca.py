@@ -158,27 +158,32 @@ class TestPCA(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
-    def test_weighted_scores_reject_constant_feature(self):
+    def test_weighted_scores_drop_constant_feature(self):
         rng = np.random.RandomState(0)
         X = np.vstack([rng.rand(50, 3), rng.rand(5, 3) + 8])
         X[:, 2] = 0
 
-        with self.assertRaisesRegex(ValueError, "numerically zero variance"):
-            PCA(contamination=0.1).fit(X)
-        with self.assertRaisesRegex(ValueError, "numerically zero variance"):
-            PCA(n_selected_components=1).fit(X)
+        with self.assertWarnsRegex(UserWarning, "numerically zero variance"):
+            model = PCA(contamination=0.1).fit(X)
+        with self.assertWarnsRegex(UserWarning, "numerically zero variance"):
+            smallest = PCA(n_selected_components=1).fit(X)
+        assert_equal(model.n_selected_components_, 2)
+        assert_equal(smallest.selected_components_[0], model.selected_components_[-1])
+        assert np.isfinite(model.decision_function(X)).all()
 
         nondegenerate = PCA(n_components=2).fit(X)
         assert np.isfinite(nondegenerate.decision_scores_).all()
 
-    def test_weighted_scores_reject_numerically_zero_variance(self):
+    def test_weighted_scores_drop_numerically_zero_variance(self):
         rng = np.random.RandomState(1)
         first = rng.randn(60)
         X = np.column_stack([first, first + 1e-10 * rng.randn(60),
                              rng.randn(60)])
 
-        with self.assertRaisesRegex(ValueError, "numerically zero variance"):
-            PCA().fit(X)
+        with self.assertWarnsRegex(UserWarning, "numerically zero variance"):
+            model = PCA().fit(X)
+        assert_equal(model.n_selected_components_, 2)
+        assert np.isfinite(model.decision_scores_).all()
 
     def test_unweighted_scores_allow_constant_feature(self):
         rng = np.random.RandomState(0)
