@@ -5,6 +5,7 @@
 # License: BSD 2 clause
 
 
+import itertools
 import os
 import pickle
 import random
@@ -26,6 +27,77 @@ from sklearn.utils import check_array
 from .base import BaseDetector
 from ..utils.torch_utility import TorchDataset, \
     get_optimizer_by_name, get_criterion_by_name
+
+
+_ZIP_MAGIC = b'PK\x03\x04'
+
+
+def _is_zip_archive(path):
+    """Return True if ``path`` starts with the zip signature torch.save writes.
+
+    Only the leading magic bytes are checked (not the central directory), so
+    a truncated torch archive is still routed to ``torch.load`` and reports
+    its own error.  File-like objects are rewound to their original position.
+    """
+    if hasattr(path, 'read'):
+        pos = path.tell()
+        try:
+            return path.read(len(_ZIP_MAGIC)) == _ZIP_MAGIC
+        finally:
+            path.seek(pos)
+    with open(path, 'rb') as f:
+        return f.read(len(_ZIP_MAGIC)) == _ZIP_MAGIC
+
+
+def _module_attrs(detector):
+    """Yield every ``torch.nn.Module`` stored as an attribute of the detector.
+
+    Covers ``self.model`` as well as networks kept under other names, such
+    as ``generator`` / ``discriminator`` in SO_GAAL, including
+    ``torch.compile`` wrappers (which are themselves ``nn.Module``).
+    """
+    for value in vars(detector).values():
+        if isinstance(value, torch.nn.Module):
+            yield value
+
+
+def _first_tensor_device(detector, state_dict=None):
+    """Device of the loaded weights, or None if the detector holds none."""
+    if state_dict:
+        for value in state_dict.values():
+            if isinstance(value, torch.Tensor):
+                return value.device
+    for module in _module_attrs(detector):
+        for tensor in itertools.chain(module.parameters(), module.buffers()):
+            return tensor.device
+    return None
+
+
+def _sync_device(detector, map_location, state_dict=None):
+    """Make ``detector.device`` agree with where the weights were loaded and
+    move every module attribute there.
+
+    ``state_dict`` is the saved ``model`` weights, already remapped by
+    ``torch.load``; it takes precedence because ``build_model()`` creates the
+    fresh ``model`` on CPU before the weights are copied in.
+    """
+    if map_location is None and state_dict is None:
+        # Nothing was remapped; trust the saved attributes, as before.
+        return
+    if isinstance(map_location, (str, torch.device)):
+        device = torch.device(map_location)
+    else:
+        device = _first_tensor_device(detector, state_dict)
+        if device is None and isinstance(map_location, dict):
+            saved = getattr(detector, 'device', None)
+            mapped = map_location.get(str(saved)) if saved is not None \
+                else None
+            device = torch.device(mapped) if mapped is not None else None
+    if device is None:
+        return
+    detector.device = device
+    for module in _module_attrs(detector):
+        module.to(device)
 
 
 class BaseDeepLearningDetector(BaseDetector):
@@ -329,33 +401,155 @@ class BaseDeepLearningDetector(BaseDetector):
         return anamoly_scores
 
     def save(self, path):
-        """Save the model to the specified path.
+        """Save the detector to the specified path.
+
+        Model weights are stored as a ``state_dict`` so that
+        :meth:`load` can remap them to a different device via its
+        ``map_location`` parameter.  All other detector attributes are
+        preserved alongside the weights in a single file.
+
+        Subclasses that store their network in an attribute other than
+        ``self.model`` (e.g. ``self.generator`` / ``self.discriminator``)
+        will have those modules persisted through ``detector_attrs`` as
+        ordinary pickle-serialised objects; their weights are not stored
+        as a separate state dict.
 
         Parameters
         ----------
         path : str
-            The path to save the model.
+            The path to save the detector.
         """
-        # save the class
-        with open(path, 'wb') as file:
-            pickle.dump(self, file)
+        model = getattr(self, 'model', None)
+        payload = {
+            '_pyod_save_version': 1,
+            'cls': type(self),
+            'detector_attrs': {k: v for k, v in self.__dict__.items()
+                               if k not in ('model', 'optimizer')},
+        }
+        if model is not None:
+            # Unwrap torch.compile wrapper before saving: compiled modules
+            # prefix every key with '_orig_mod.' which prevents loading into
+            # an uncompiled model built by build_model().
+            orig_mod = getattr(model, '_orig_mod', model)
+            payload['model_state_dict'] = orig_mod.state_dict()
+        torch.save(payload, path)
 
     @classmethod
-    def load(cls, path):
-        """Load the model from the specified path.
+    def load(cls, path, map_location=None, trusted: bool = False):
+        """Load a detector from the specified path.
+
+        .. warning::
+            ``torch.load`` (with ``weights_only=False``) and the pickle
+            fallback both execute arbitrary Python code during
+            deserialization.  Set ``trusted=True`` only for artifacts
+            produced by a trusted training pipeline, model registry, or
+            other trusted source.  ``trusted=False`` (the default) raises
+            before any deserialization begins.
+
+        .. versionchanged:: 3.6.9
+            ``trusted=True`` is now required.  Existing calls of the form
+            ``Detector.load(path)`` raise ``ValueError`` and must be updated
+            to ``Detector.load(path, trusted=True)`` for artifacts you
+            control.  This applies to artifacts written by the current
+            :meth:`save` and to legacy pickle files written by earlier
+            versions alike.
 
         Parameters
         ----------
-        path : str
-            The path to load the model.
+        path : str or file-like object
+            The path to load the detector from.
+
+        map_location : str, torch.device, dict, or callable, optional (default=None)
+            Passed to :func:`torch.load` to remap tensor storage locations.
+            Use ``'cpu'`` when loading a model that was trained on a GPU
+            onto a machine without one.
+
+            * ``str`` / ``torch.device``: ``detector.device`` is set to it
+              and every ``torch.nn.Module`` attribute of the detector (for
+              example ``model``, or ``generator`` and ``discriminator``) is
+              moved there.
+            * ``dict`` / callable: ``detector.device`` is inferred from the
+              loaded weights (the saved ``model`` state dict if present,
+              otherwise the first parameter or buffer of any module
+              attribute).  If the detector holds no tensors at all, a
+              ``dict`` is applied to the saved ``detector.device``; a
+              callable leaves it unchanged.
+
+            Legacy pickle files (written by ``save()`` before the
+            ``torch.save`` format) are read with :mod:`pickle`, which does
+            not remap tensor storage; ``map_location`` only updates
+            ``detector.device`` and moves modules after unpickling.
+
+        trusted : bool, default False
+            Required acknowledgement that the artifact comes from a trusted
+            source.  When ``False``, ``load()`` raises before invoking
+            ``torch.load`` so a malicious pickle cannot execute code before
+            any validation.  Set to ``True`` only for artifacts you control.
 
         Returns
         -------
-        model : BaseDeepLearningDetector
-            The loaded model.
+        detector : BaseDeepLearningDetector subclass
+            The loaded detector, ready for inference.
+
+        Raises
+        ------
+        ValueError
+            If ``trusted`` is not ``True``.
         """
-        with open(path, 'rb') as file:
-            detector = pickle.load(file)
+        if not trusted:
+            raise ValueError(
+                "load(): refusing to deserialize an untrusted artifact. "
+                "Pass trusted=True only for artifacts from a trusted source; "
+                "torch.load with weights_only=False can execute arbitrary "
+                "Python code during deserialization.")
+
+        # Dispatch on the file format instead of catching every torch.load
+        # error: torch.save writes a zip archive, the legacy API wrote a raw
+        # pickle.  A corrupt or truncated torch archive, a device error or a
+        # missing class therefore surfaces as torch.load's own exception
+        # rather than as a misleading pickle failure.
+        if not _is_zip_archive(path):
+            if hasattr(path, 'read'):
+                detector = pickle.load(path)
+            else:
+                with open(path, 'rb') as f:
+                    detector = pickle.load(f)
+            _sync_device(detector, map_location)
+            return detector
+
+        payload = torch.load(path, map_location=map_location,
+                             weights_only=False)
+
+        # Backward compatibility: raw pickled detector (no structured envelope)
+        if not isinstance(payload, dict) or '_pyod_save_version' not in payload:
+            _sync_device(payload, map_location)
+            return payload
+
+        # Restore the exact subclass that was saved so that callers using the
+        # base class directly (BaseDeepLearningDetector.load(...)) still get
+        # back the correct concrete type with a working build_model().
+        saved_cls = payload.get('cls')
+        if (isinstance(saved_cls, type)
+                and issubclass(saved_cls, BaseDeepLearningDetector)):
+            target_cls = saved_cls
+        else:
+            target_cls = cls
+
+        detector = object.__new__(target_cls)
+        detector.__dict__.update(payload['detector_attrs'])
+
+        state_dict = payload.get('model_state_dict')
+        if state_dict is not None:
+            # Rebuild model architecture (uses self.feature_size etc. which
+            # are restored from detector_attrs above) then load saved weights.
+            detector.build_model()
+            detector.model.load_state_dict(state_dict)
+
+        _sync_device(detector, map_location, state_dict=state_dict)
+
+        if state_dict is not None:
+            detector.model.eval()
+
         return detector
 
     @staticmethod
