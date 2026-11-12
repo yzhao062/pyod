@@ -340,8 +340,10 @@ class DevNet(BaseDetector):
                     data, labels = data.to(torch.float32), labels.to(
                         torch.float32)  # Ensure data types
                     optimizer.zero_grad()
-                    outputs = model(data)
-                    loss = deviation_loss(outputs, labels)
+                    # deviation_loss takes (y_true, y_pred); the network
+                    # returns shape (batch, 1), so flatten to match labels.
+                    outputs = model(data).flatten()
+                    loss = deviation_loss(labels, outputs)
                     loss.backward()
                     optimizer.step()
                 print(f'Epoch {epoch + 1}, Loss: {loss.item()}')

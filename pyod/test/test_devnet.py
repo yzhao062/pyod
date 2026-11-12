@@ -272,6 +272,24 @@ class TestDevNet(unittest.TestCase):
         assert clf.device is not None      # position 9 → device (None→cpu in __init__)
         assert clf.contamination == 0.1   # position 10 → contamination
 
+    def test_training_uses_labels(self):
+        # deviation_loss was called as (y_pred, y_true), so training ignored
+        # the labels. Outliers here differ only by a shift along feature 0;
+        # the other features are wide, so the norm does not separate them.
+        rng = np.random.RandomState(0)
+
+        def sample(n_in, n_out):
+            scale = np.array([1., 5., 5., 5., 5.])
+            X = rng.randn(n_in + n_out, 5) * scale
+            X[n_in:, 0] += 3.
+            return X, np.r_[np.zeros(n_in), np.ones(n_out)]
+
+        X_train, y_train = sample(450, 50)
+        X_test, y_test = sample(180, 20)
+        clf = DevNet(epochs=20, batch_size=64, random_seed=0)
+        clf.fit(X_train, y_train)
+        assert roc_auc_score(y_test, clf.decision_function(X_test)) >= 0.85
+
     def tearDown(self):
         pass
 
