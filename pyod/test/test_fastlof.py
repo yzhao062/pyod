@@ -145,46 +145,46 @@ class TestFastLOF(unittest.TestCase):
         clf = FastLOF(metric='manhattan')
         clf.fit(self.X_train)
         assert hasattr(clf, 'decision_scores_')
-        
+
         clf2 = FastLOF(metric='cosine')
         clf2.fit(self.X_train)
         assert hasattr(clf2, 'decision_scores_')
-    
+
     def test_p_validation(self):
         """Test that invalid p parameter raises error."""
         with assert_raises(ValueError):
             clf = FastLOF(p=0)
             clf.fit(self.X_train)
-    
+
     def test_leaf_size_validation(self):
         """Test that invalid leaf_size raises error."""
         with assert_raises(ValueError):
             clf = FastLOF(leaf_size=0)
             clf.fit(self.X_train)
-    
+
     def test_random_state_reproducibility(self):
         """Test that random_state ensures reproducible results."""
         clf1 = FastLOF(random_state=42)
         clf1.fit(self.X_train)
         scores1 = clf1.decision_scores_.copy()
-        
+
         clf2 = FastLOF(random_state=42)
         clf2.fit(self.X_train)
         scores2 = clf2.decision_scores_.copy()
-        
+
         # Results should be identical with same random_state
         assert_allclose(scores1, scores2, atol=1e-10)
-    
+
     def test_random_state_different_seeds(self):
         """Test that different random_state values give different results."""
         clf1 = FastLOF(random_state=42)
         clf1.fit(self.X_train)
         scores1 = clf1.decision_scores_.copy()
-        
+
         clf2 = FastLOF(random_state=123)
         clf2.fit(self.X_train)
         scores2 = clf2.decision_scores_.copy()
-        
+
         assert hasattr(clf1, 'random_state')
         assert hasattr(clf2, 'random_state')
 

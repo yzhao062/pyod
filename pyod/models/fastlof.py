@@ -136,9 +136,12 @@ class FastLOF(BaseDetector):
     """Fast Local Outlier Factor (FastLOF) for outlier detection.
 
     FastLOF uses a chunked, iterative approach to compute Local Outlier Factor
-    scores more efficiently than standard LOF for large datasets. It divides
-    the dataset into chunks and computes nearest neighbors incrementally,
-    with optional threshold-based filtering to focus computation on likely outliers.
+    scores. It divides the dataset into chunks and computes nearest neighbors
+    incrementally. With a positive ``threshold``, points whose current LOF
+    marks them as clear inliers are pruned, which can make FastLOF faster than
+    exact LOF on large datasets at the cost of approximate scores for the
+    pruned points. With ``threshold=0`` no point is pruned and the scores
+    equal exact LOF.
     See :cite:`breunig2000lof,goldstein2012fastlof` for details.
 
     Parameters
@@ -190,8 +193,10 @@ class FastLOF(BaseDetector):
     threshold : float, optional (default=1.1)
         LOF threshold for considering points as potential outliers during
         iterative refinement. Points with LOF > threshold are processed
-        in subsequent iterations. Zero disables pruning. Pruned points remain
-        neighbor candidates, but their neighborhoods are approximate.
+        in subsequent iterations. ``threshold=0`` disables pruning and gives
+        exact LOF scores. Any positive value, including the default, gives an
+        approximation: pruned points remain neighbor candidates, but their
+        neighborhoods and scores are approximate.
 
     Attributes
     ----------
