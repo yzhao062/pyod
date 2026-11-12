@@ -394,10 +394,10 @@ def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
         by `np.random`.
 
     return_in_clusters : bool, optional (default=False)
-        If True, the function returns x_train, y_train, x_test, y_test each as
-        a list of numpy arrays where each index represents a cluster.
-        If False, it returns x_train, y_train, x_test, y_test each as numpy
-        array after joining the sequence of clusters arrays,
+        If True, the function returns X and y as two lists with one numpy
+        array per cluster, without a train/test split.
+        If False, it returns X_train, X_test, y_train, y_test as numpy
+        arrays joined over the clusters.
 
     Returns
     -------
