@@ -429,5 +429,29 @@ class TestKNNKwargsRejection(unittest.TestCase):
         KNN()
 
 
+class TestKnnSetParams(unittest.TestCase):
+    """set_params must change the estimator that fit builds (#783)."""
+
+    def setUp(self):
+        self.X = np.array([[0., 0.], [1., 2.], [3., 1.], [6., 4.], [10., 10.]])
+        self.query = np.array([[12., 0.]])
+
+    def test_set_params_metric(self):
+        updated = KNN(n_neighbors=2).set_params(metric='manhattan').fit(self.X)
+        direct = KNN(n_neighbors=2, metric='manhattan').fit(self.X)
+        assert_equal(updated.neigh_.metric, 'manhattan')
+        assert_allclose(updated.decision_scores_, direct.decision_scores_)
+        assert_allclose(updated.decision_function(self.query),
+                        direct.decision_function(self.query))
+        assert_equal(updated.predict(self.query), direct.predict(self.query))
+
+    def test_refit_after_set_params(self):
+        clf = KNN(n_neighbors=2).fit(self.X)
+        clf.set_params(metric='manhattan', n_neighbors=3).fit(self.X)
+        direct = KNN(n_neighbors=3, metric='manhattan').fit(self.X)
+        assert_allclose(clf.decision_function(self.query),
+                        direct.decision_function(self.query))
+
+
 if __name__ == '__main__':
     unittest.main()
