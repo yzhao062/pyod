@@ -114,6 +114,10 @@ class COPOD(BaseDetector):
         # rejects booleans, so score in floating point.
         X = check_array(X, dtype=[np.float64, np.float32])
         self._set_n_classes(y)
+        # decision_function scores against X_train when it exists, so drop
+        # the set from an earlier fit before scoring the new one.
+        if hasattr(self, 'X_train'):
+            del self.X_train
         self.decision_scores_ = self.decision_function(X)
         self.X_train = X
         self._process_decision_scores()
