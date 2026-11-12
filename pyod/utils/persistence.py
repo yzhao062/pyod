@@ -65,6 +65,8 @@ _CURRENT_PERSISTENCE_VERSION = 1
 # documentation update.
 _TREE_NODE_FIELD_DEFAULTS: dict[str, Any] = {
     "missing_go_to_left": 0,
+    "left_cat_bitset": 0,
+    "split_kind": 0,
 }
 """Tree-node fields the loader may zero-fill when missing from the saved
 dtype. Defaults must match what sklearn's pre-existing behavior implied
@@ -463,6 +465,11 @@ def compat_load(
     class _CompatNumpyUnpickler(NumpyUnpickler):
         dispatch = NumpyUnpickler.dispatch.copy()
 
+        def find_class(self, module, name):
+            if module == "sklearn.tree._tree" and name == "Tree":
+                return _construct_compatible_tree
+            return super().find_class(module, name)
+
         def load_build(self):
             if len(self.stack) >= 2:
                 state = self.stack[-1]
@@ -554,6 +561,14 @@ def _is_sklearn_tree(inst: Any) -> bool:
     return isinstance(inst, Tree)
 
 
+def _construct_compatible_tree(*args):
+    from sklearn.tree import _tree
+    if len(args) == 3 and "split_kind" in _tree.NODE_DTYPE.names:
+        # Trees saved before categorical splits contain only numeric features.
+        args = (*args, np.full(args[0], -1, dtype=np.intp))
+    return _tree.Tree(*args)
+
+
 def _current_tree_node_dtype() -> np.dtype:
     """Discover the running sklearn's Tree node dtype dynamically.
 
@@ -637,6 +652,8 @@ def _maybe_realign_tree_state(state: dict) -> dict:
         new[new_name] = nodes[old_name]
     for name in added:
         new[name] = _TREE_NODE_FIELD_DEFAULTS[name]
+    if "split_kind" in added:
+        new["split_kind"][new["left_child"] == -1] = -1
     return {**state, "nodes": new}
 
 
