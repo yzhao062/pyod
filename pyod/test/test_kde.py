@@ -151,6 +151,18 @@ class TestKDE(unittest.TestCase):
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
+    def test_set_params(self):
+        # set_params must change the estimator that fit builds (#783).
+        updated = KDE(contamination=self.contamination)
+        updated.set_params(bandwidth=0.5, metric='manhattan')
+        updated.fit(self.X_train)
+        direct = KDE(contamination=self.contamination, bandwidth=0.5,
+                     metric='manhattan').fit(self.X_train)
+        assert_equal(updated.kde_.bandwidth, 0.5)
+        assert_allclose(updated.decision_scores_, direct.decision_scores_)
+        assert_allclose(updated.decision_function(self.X_test),
+                        direct.decision_function(self.X_test))
+
     def tearDown(self):
         pass
 
