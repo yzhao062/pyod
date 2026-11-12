@@ -1,7 +1,7 @@
 Tabular Detectors
 ==================
 
-PyOD ships 40+ detectors for tabular data, spanning probabilistic, linear, proximity, ensemble, and deep learning approaches. All inherit from :class:`pyod.models.base.BaseDetector` and use the same ``fit``/``predict``/``decision_function`` API.
+PyOD ships 40+ detectors for tabular data, spanning probabilistic, linear, proximity, ensemble, immune-inspired, and deep learning approaches. All inherit from :class:`pyod.models.base.BaseDetector` and use the same ``fit``/``predict``/``decision_function`` API.
 
 See :doc:`examples/tabular` for usage examples and :doc:`api_cc` for the shared API reference.
 
@@ -310,6 +310,16 @@ pyod.models.mo\_gaal module
 
 .. automodule:: pyod.models.mo_gaal
     :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+pyod.models.nsa module
+----------------------
+
+.. automodule:: pyod.models.nsa
+    :members:
+    :exclude-members: get_params, set_params
     :undoc-members:
     :show-inheritance:
 
