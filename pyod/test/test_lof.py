@@ -161,6 +161,115 @@ class TestLOF(unittest.TestCase):
         assert_array_less(pred_ranks, 1.01)
         assert_array_less(-0.1, pred_ranks)
 
+    def test_get_outlier_explainability_scores(self):
+        """Test get_outlier_explainability_scores() method.
+        
+        Validates that the method returns correct dimensional LOF scores
+        for known outlier and inlier samples.
+        """
+        import numpy as np
+        
+        # Create a simple 2D dataset where outliers are obvious
+        # Point [10, 0] is an outlier in Dimension 0 (X), but normal in Dimension 1 (Y)
+        X_train = np.array([[0, 0], [1, 0], [0, 1], [1, 1], [10, 0]])
+        
+        # Fit model
+        clf = LOF(n_neighbors=3, contamination=0.2)
+        clf.fit(X_train)
+        
+        # Test explaining the outlier (index 4: [10, 0])
+        scores = clf.get_outlier_explainability_scores(ind=4)
+        
+        # Check shape: should have 1 score per feature
+        assert_equal(scores.shape[0], X_train.shape[1])
+        
+        # Check that scores are non-negative (LOF scores are >= 0)
+        assert_array_less(-1e-10, scores)
+        
+        # For the outlier [10, 0], dimension 0 should have higher LOF score 
+        # than dimension 1 because it's far from neighbors in X but close in Y
+        assert (scores[0] > scores[1]), \
+            "Outlier in dimension 0 should have higher LOF score than dimension 1"
+        
+        # Test explaining an inlier (index 0: [0, 0])
+        scores_inlier = clf.get_outlier_explainability_scores(ind=0)
+        assert_equal(scores_inlier.shape[0], X_train.shape[1])
+        assert_array_less(-1e-10, scores_inlier)
+        
+        # Test with specific columns parameter
+        scores_cols = clf.get_outlier_explainability_scores(ind=4, columns=[0])
+        assert_equal(scores_cols.shape[0], 1)
+        assert_array_less(-1e-10, scores_cols)
+        
+        # Test with multiple columns
+        scores_multi = clf.get_outlier_explainability_scores(ind=4, columns=[0, 1])
+        assert_equal(scores_multi.shape[0], 2)
+        assert_array_less(-1e-10, scores_multi)
+
+    def test_explainability_matches_lof_on_1d_data(self):
+        """On one-dimensional data the 1D score is the overall LOF score."""
+        import numpy as np
+        rng = np.random.RandomState(42)
+        X = np.r_[rng.randn(60, 1), [[6.0], [-5.0]]]
+        clf = LOF(n_neighbors=7).fit(X)
+        scores = np.array([clf.get_outlier_explainability_scores(i)[0]
+                           for i in range(len(X))])
+        assert_allclose(scores, clf.decision_scores_, rtol=1e-6)
+
+    def test_explainability_uses_lof_neighbors(self):
+        """Explanations use the model's neighbors, which exclude self."""
+        import numpy as np
+        clf = LOF(n_neighbors=5).fit(self.X_train)
+        clf._ensure_overall_neighbors()
+        _, expected = clf.detector_.kneighbors()
+        assert_equal(clf.knn_neighbors_, expected)
+        own = np.arange(len(self.X_train))[:, None]
+        assert not np.any(clf.knn_neighbors_ == own)
+
+    def test_explainability_refit_resets_neighbors(self):
+        """Refitting on new data must not reuse cached neighbors/scores."""
+        import numpy as np
+        clf = LOF(n_neighbors=5)
+        clf.fit(self.X_train)
+        clf.get_outlier_explainability_scores(0)
+
+        rng = np.random.RandomState(0)
+        X_new = rng.randn(30, 1)
+        clf.fit(X_new)
+        assert_equal(clf.get_outlier_explainability_scores(0).shape, (1,))
+        assert_equal(clf.knn_neighbors_.shape, (30, 5))
+        fresh = LOF(n_neighbors=5).fit(X_new)
+        assert_allclose(clf.get_outlier_explainability_scores(3),
+                        fresh.get_outlier_explainability_scores(3))
+
+    def test_explainability_sparse_input(self):
+        import numpy as np
+        from scipy.sparse import csr_matrix
+        clf_dense = LOF(n_neighbors=5).fit(self.X_train)
+        clf_sparse = LOF(n_neighbors=5).fit(csr_matrix(self.X_train))
+        assert_allclose(clf_sparse.get_outlier_explainability_scores(2),
+                        clf_dense.get_outlier_explainability_scores(2))
+
+    def test_explainability_invalid_index(self):
+        clf = LOF(n_neighbors=5).fit(self.X_train)
+        with assert_raises(IndexError):
+            clf.get_outlier_explainability_scores(len(self.X_train))
+
+    def test_explain_outlier_plots(self):
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+
+        clf = LOF(n_neighbors=5).fit(self.X_train)
+        fig, ax = clf.explain_outlier(0)
+        assert len(ax.patches) == self.X_train.shape[1]
+        fig, ax = clf.explain_outlier(0, compute_cutoffs=False)
+        # no cutoff lines are drawn when cutoffs are not computed
+        assert len(ax.lines) == 0
+        figs = clf.explain_outlier(0, max_features_per_plot=1)
+        assert len(figs) == self.X_train.shape[1]
+        plt.close('all')
+
     def test_model_clone(self):
         clone_clf = clone(self.clf)
 
