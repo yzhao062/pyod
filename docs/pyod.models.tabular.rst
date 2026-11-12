@@ -145,6 +145,16 @@ pyod.models.ecod module
     :show-inheritance:
 
 
+pyod.models.fastlof module
+--------------------------
+
+.. automodule:: pyod.models.fastlof
+    :members:
+    :exclude-members: get_params, set_params
+    :undoc-members:
+    :show-inheritance:
+
+
 pyod.models.feature\_bagging module
 -----------------------------------
 
