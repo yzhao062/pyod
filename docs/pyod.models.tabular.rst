@@ -105,6 +105,16 @@ pyod.models.copod module
     :show-inheritance:
 
 
+pyod.models.deep\_sad module
+----------------------------
+
+.. automodule:: pyod.models.deep_sad
+    :members:
+    :exclude-members: InnerDeepSAD
+    :undoc-members:
+    :show-inheritance:
+
+
 pyod.models.deep\_svdd module
 -----------------------------
 

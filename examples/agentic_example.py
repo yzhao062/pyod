@@ -2,7 +2,7 @@
 """Example: Agent-driven anomaly detection with PyOD 3 (Layer 3).
 
 Demonstrates what makes PyOD distinctive in the agentic workflow:
-    - 61 detectors across 6 data modalities
+    - 62 detectors across 6 data modalities
     - Benchmark-backed detector selection (ADBench, TSB-AD, BOND)
     - Multi-detector consensus with per-detector scores
     - Result quality assessment
