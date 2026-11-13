@@ -5,6 +5,8 @@
 # License: BSD 2 clause
 
 
+import warnings
+
 import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA as sklearn_PCA
@@ -57,7 +59,8 @@ class PCA(BaseDetector):
         Number of selected principal components
         for calculating the outlier scores. It is not necessarily equal to
         the total number of the principal components. If not set, use
-        all principal components.
+        all principal components. Weighted scoring excludes components with
+        numerically zero explained variance and warns when it does so.
 
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
@@ -258,10 +261,24 @@ class PCA(BaseDetector):
         # Not all eigenvectors are used, only n_selected_components_ smallest
         # are used since they better reflect the variance change
 
-        self.selected_components_ = self.components_[
-                                    -1 * self.n_selected_components_:, :]
-        self.selected_w_components_ = self.w_components_[
-                                      -1 * self.n_selected_components_:]
+        components = self.components_
+        weights = self.w_components_
+        if self.weighted:
+            variance = self.detector_.explained_variance_
+            finite = np.isfinite(variance)
+            floor = np.finfo(np.float64).eps * np.max(variance[finite], initial=0)
+            usable = finite & (variance > floor) & np.isfinite(weights) & (weights > 0)
+            if not usable.all():
+                warnings.warn(
+                    'Weighted PCA dropped components with numerically zero variance.',
+                    UserWarning, stacklevel=2)
+                components = components[usable]
+                weights = weights[usable]
+                self.n_selected_components_ = min(self.n_selected_components_, len(weights))
+
+        start = len(weights) - self.n_selected_components_
+        self.selected_components_ = components[start:]
+        self.selected_w_components_ = weights[start:]
 
         self.decision_scores_ = np.sum(
             cdist(X, self.selected_components_) / self.selected_w_components_,
