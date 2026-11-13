@@ -74,7 +74,7 @@ class InnerDeepSAD(nn.Module):
         (``hidden_neurons[:-1]``). The final representation layer
         ``hidden_neurons[-1]`` has no activation and no dropout.
 
-    l2_regularizer : float in (0., 1), optional (default=0.1)
+    l2_regularizer : float in (0., 1), optional (default=0.5e-6)
         The regularization strength of activity_regularizer
         applied on each layer. By default, l2 regularizer is used.
     """
@@ -181,8 +181,12 @@ class DeepSAD(BaseDetector):
         Name of the optimizer. One of 'sgd', 'adam', 'rmsprop',
         'adagrad', 'adadelta', 'adamw', 'nadam' or 'asgd'.
 
+    learning_rate : float, optional (default=1e-4)
+        Learning rate of the optimizer. Must be a positive finite float.
+        The default matches Deep SVDD.
+
     epochs : int, optional (default=100)
-        Number of epochs to train the model.
+        Number of epochs to train the model. Must be at least 1.
 
     batch_size : int, optional (default=32)
         Number of samples per gradient update.
@@ -192,10 +196,10 @@ class DeepSAD(BaseDetector):
         (``hidden_neurons[:-1]``). The final representation layer
         ``hidden_neurons[-1]`` has no activation and no dropout.
 
-    l2_regularizer : float in (0., 1), optional (default=0.1)
-        The regularization strength of activity_regularizer
-        applied on each layer. By default, l2 regularizer is used. See
-        https://keras.io/regularizers/
+    l2_regularizer : float in (0., 1), optional (default=0.5e-6)
+        Weight decay passed to the optimizer. The default matches Deep
+        SVDD: a large decay pulls the weights toward zero and collapses
+        the representation onto the hypersphere center.
 
     validation_size : float in [0., 1), optional (default=0.1)
         The fraction of the training samples (and their labels) held out
@@ -267,9 +271,10 @@ class DeepSAD(BaseDetector):
 
     def __init__(self, n_features, c=None, eta=1.0, hidden_neurons=None,
                  hidden_activation='relu', optimizer='adam', epochs=100,
-                 batch_size=32, dropout_rate=0.2, l2_regularizer=0.1,
+                 batch_size=32, dropout_rate=0.2, l2_regularizer=0.5e-6,
                  validation_size=0.1, preprocessing=True, eps=1e-6,
-                 verbose=1, random_state=None, contamination=0.1):
+                 verbose=1, random_state=None, contamination=0.1,
+                 learning_rate=1e-4):
         super(DeepSAD, self).__init__(contamination=contamination)
 
         self.n_features = n_features
@@ -278,6 +283,7 @@ class DeepSAD(BaseDetector):
         self.hidden_neurons = hidden_neurons or [64, 32]
         self.hidden_activation = hidden_activation
         self.optimizer = optimizer
+        self.learning_rate = learning_rate
         self.epochs = epochs
         self.batch_size = batch_size
         self.dropout_rate = dropout_rate
@@ -293,6 +299,18 @@ class DeepSAD(BaseDetector):
         check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
                         include_left=True)
         check_parameter(eta, 0, np.inf, param_name='eta')
+        if not np.isfinite(eta):
+            raise ValueError(
+                'eta is set to {}. Must be a positive finite float.'.format(
+                    eta))
+        check_parameter(epochs, 1, np.inf, param_name='epochs',
+                        include_left=True)
+        check_parameter(learning_rate, 0, np.inf,
+                        param_name='learning_rate')
+        if not np.isfinite(learning_rate):
+            raise ValueError(
+                'learning_rate is set to {}. Must be a positive finite '
+                'float.'.format(learning_rate))
         check_parameter(validation_size, 0, 1, param_name='validation_size',
                         include_left=True)
         check_parameter(eps, 0, np.inf, param_name='eps')
@@ -317,7 +335,16 @@ class DeepSAD(BaseDetector):
         """
         semi_targets = np.zeros(n_samples, dtype=np.float32)
         if y is not None:
-            y = np.asarray(y).ravel()
+            y = np.asarray(y)
+            if y.ndim != 1 or y.shape[0] != n_samples:
+                raise ValueError(
+                    'y must be a 1-D array of length n_samples={}, got '
+                    'shape {}.'.format(n_samples, y.shape))
+            if not np.isin(y, (0, 1)).all():
+                raise ValueError(
+                    'y must contain only 0 (unlabeled or normal) and 1 '
+                    '(labeled anomaly), got values {}.'.format(
+                        np.unique(y)))
             semi_targets[y == 1] = -1
         return semi_targets
 
@@ -368,6 +395,9 @@ class DeepSAD(BaseDetector):
         y : numpy array of shape (n_samples,), optional (default=None)
             Optional labels, where 1 indicates a known anomaly and 0 marks
             an unlabeled/normal sample. If None, every sample is unlabeled.
+            Must be one-dimensional with ``n_samples`` entries and contain
+            only 0 and 1; any other shape or value raises ``ValueError``,
+            including the sklearn convention of -1 for outliers.
 
         Returns
         -------
@@ -462,7 +492,8 @@ class DeepSAD(BaseDetector):
         best_model_dict = None
 
         optimizer = optimizer_dict[self.optimizer](
-            self.model_.parameters(), weight_decay=self.l2_regularizer)
+            self.model_.parameters(), lr=self.learning_rate,
+            weight_decay=self.l2_regularizer)
 
         for epoch in range(self.epochs):
             self.model_.train()

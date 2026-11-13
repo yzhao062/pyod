@@ -212,10 +212,67 @@ class TestDeepSAD(unittest.TestCase):
         c[:] = 99.0
         assert torch.equal(before, clf.c_)
 
-    def test_eta_must_be_positive(self):
-        for bad_eta in (-1, 0):
+    def test_eta_must_be_positive_finite(self):
+        for bad_eta in (-1, 0, float('nan'), float('inf')):
             with assert_raises(ValueError):
                 DeepSAD(n_features=self.n_features, eta=bad_eta)
+
+    def test_epochs_must_be_positive(self):
+        for bad_epochs in (0, -1):
+            with assert_raises(ValueError):
+                DeepSAD(n_features=self.n_features, epochs=bad_epochs)
+
+    def test_learning_rate_must_be_positive_finite(self):
+        for bad_lr in (0, -1e-4, float('nan'), float('inf')):
+            with assert_raises(ValueError):
+                DeepSAD(n_features=self.n_features, learning_rate=bad_lr)
+
+    def test_optimizer_defaults_match_deep_svdd(self):
+        clf = DeepSAD(n_features=8)
+        assert_equal(clf.learning_rate, 1e-4)
+        assert_equal(clf.l2_regularizer, 0.5e-6)
+        seen = {}
+
+        class SpyAdam(torch.optim.Adam):
+            def __init__(self, params, **kwargs):
+                seen.update(kwargs)
+                super().__init__(params, **kwargs)
+
+        X = self.X_train[:600, :8]
+        with mock.patch.dict(optimizer_dict, {'adam': SpyAdam}):
+            DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                    verbose=0).fit(X)
+        assert_equal(seen, {'lr': 1e-4, 'weight_decay': 0.5e-6})
+        seen.clear()
+        with mock.patch.dict(optimizer_dict, {'adam': SpyAdam}):
+            DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                    learning_rate=1e-3, l2_regularizer=0.1,
+                    verbose=0).fit(X)
+        assert_equal(seen, {'lr': 1e-3, 'weight_decay': 0.1})
+        assert_equal(clone(clf).learning_rate, 1e-4)
+
+    def test_y_must_be_binary_and_one_dimensional(self):
+        X = self.X_train[:600, :8]
+        y = np.zeros(600, dtype=int)
+        y[:10] = 1
+        clf = DeepSAD(n_features=8, epochs=1, hidden_neurons=[16, 8],
+                      verbose=0)
+        for bad_y in (np.where(y == 1, -1, 1),  # sklearn +1 / -1 labels
+                      np.where(y == 1, -1, 0),  # -1 for anomalies
+                      np.where(y == 1, 2, 0),
+                      y + 0.5,
+                      np.full(600, np.nan),
+                      y.reshape(-1, 1),
+                      y[:-1]):
+            with assert_raises(ValueError):
+                clf.fit(X, bad_y)
+        for good_y in (y, y.astype(float), y.astype(bool), list(y)):
+            with mock.patch('pyod.models.deep_sad.TensorDataset',
+                            wraps=TensorDataset) as dataset:
+                clf.fit(X, good_y)
+            _, semi_fit = dataset.call_args[0]
+            assert_equal(int((semi_fit == -1).sum()), 9)
+            assert_equal(len(clf.decision_scores_), 600)
 
     def test_eps_must_be_positive_finite(self):
         for bad_eps in (0, -1e-6, float('nan'), float('inf')):
