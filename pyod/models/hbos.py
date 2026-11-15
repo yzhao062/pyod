@@ -167,6 +167,17 @@ class HBOS(BaseDetector):
         check_is_fitted(self, ['hist_', 'bin_edges_'])
         X = check_array(X)
 
+        # One histogram per training feature: a list in 'auto' mode, the
+        # columns of an array otherwise.
+        if isinstance(self.hist_, list):
+            n_features = len(self.hist_)
+        else:
+            n_features = self.hist_.shape[1]
+        if X.shape[1] != n_features:
+            raise ValueError(
+                "X has {0} features, but HBOS is expecting {1} features "
+                "as input.".format(X.shape[1], n_features))
+
         if isinstance(self.n_bins, str) and self.n_bins.lower() == "auto":
             outlier_scores = _calculate_outlier_scores_auto(X, self.bin_edges_,
                                                             self.hist_,
