@@ -5,6 +5,7 @@ import sys
 import unittest
 
 import numpy as np
+from numpy.testing import assert_allclose
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 
@@ -13,6 +14,7 @@ from numpy.testing import assert_raises
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pyod.models.base import BaseDetector
+from pyod.models.knn import KNN
 from pyod.utils.data import generate_data
 
 from sklearn.utils.validation import check_is_fitted
@@ -175,6 +177,17 @@ class TestBASE(unittest.TestCase):
     def test_predict_proba(self):
         # TODO: create uniform testcases
         pass
+
+    def test_predict_proba_list_input(self):
+        # predict_proba accepts the same array-likes as predict.
+        clf = KNN(contamination=self.contamination).fit(self.X_train)
+        X_list = self.X_test.tolist()
+        for method in ('linear', 'unify'):
+            assert_allclose(clf.predict_proba(X_list, method=method),
+                            clf.predict_proba(self.X_test, method=method))
+        probs, confidence = clf.predict_proba(X_list, return_confidence=True)
+        assert_equal(probs.shape, (self.n_test, 2))
+        assert_equal(confidence.shape, (self.n_test,))
 
     def test_predict_confidence(self):
         # TODO: create uniform testcases

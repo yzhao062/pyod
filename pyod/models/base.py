@@ -212,7 +212,7 @@ class BaseDetector(BaseEstimator, metaclass=abc.ABCMeta):
 
         test_scores = self.decision_function(X)
 
-        probs = np.zeros([X.shape[0], int(self._classes)])
+        probs = np.zeros([len(test_scores), int(self._classes)])
         if method == 'linear':
             scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
             probs[:, 1] = scaler.transform(
