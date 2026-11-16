@@ -3,10 +3,13 @@
 import os
 import sys
 import unittest
+import warnings
 
 import numpy as np
+from numpy.testing import assert_allclose
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
+from scipy.special import erf
 
 # temporary solution for relative imports in case pyod is not installed
 # if pyod is installed, no need to use the following line
@@ -128,6 +131,79 @@ class Dummy3(BaseDetector):
 
     def fit(self, X, y=None):
         self.labels_ = X
+
+
+class ScorePassthrough(BaseDetector):
+    """Uses the supplied values as decision scores.
+
+    ``fit`` stores ``X`` as the training scores. ``decision_function``
+    returns ``X`` unchanged, so ``predict_proba`` can be tested without a
+    real detector.
+    """
+
+    def __init__(self, contamination=0.1):
+        super(ScorePassthrough, self).__init__(contamination=contamination)
+
+    def fit(self, X, y=None):
+        self.decision_scores_ = np.asarray(X, dtype=float).ravel()
+        self._process_decision_scores()
+        return self._set_n_classes(y)
+
+    def decision_function(self, X):
+        return np.asarray(X, dtype=float).ravel()
+
+
+class TestPredictProbaUnify(unittest.TestCase):
+    def test_zero_training_std_is_finite_and_quiet(self):
+        # Issue #510: identical training scores make _sigma 0, and the
+        # unifying conversion divides by that standard deviation.
+        clf = ScorePassthrough().fit(np.ones(30))
+        assert_equal(clf._sigma, 0.0)
+        test_scores = np.array([1.0, 5.0, 0.0])
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", RuntimeWarning)
+            proba = clf.predict_proba(test_scores, method="unify")
+
+        runtime_warnings = [
+            item for item in caught
+            if issubclass(item.category, RuntimeWarning)
+        ]
+        assert_equal(len(runtime_warnings), 0)
+        assert_equal(np.isfinite(proba).all(), True)
+        # At the training score the Gaussian z-score is 0. Scores above it
+        # are infinitely high and scores below it are infinitely low.
+        assert_allclose(proba[:, 1], [0.0, 1.0, 0.0])
+        assert_allclose(proba.sum(axis=1), [1.0, 1.0, 1.0])
+
+    def test_zero_training_std_preserves_nan_scores(self):
+        clf = ScorePassthrough().fit(np.ones(30))
+        test_scores = np.array([1.0, np.nan, 5.0])
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", RuntimeWarning)
+            proba = clf.predict_proba(test_scores, method="unify")
+
+        runtime_warnings = [
+            item for item in caught
+            if issubclass(item.category, RuntimeWarning)
+        ]
+        assert_equal(len(runtime_warnings), 0)
+        assert_allclose(proba[0], [1.0, 0.0])
+        assert_equal(np.isnan(proba[1]).all(), True)
+        assert_allclose(proba[2], [0.0, 1.0])
+
+    def test_nonzero_training_std_matches_erf(self):
+        train_scores = np.array([0.0, 1.0, 2.0, 3.0])
+        clf = ScorePassthrough().fit(train_scores)
+        test_scores = np.array([1.0, 4.0, -1.0])
+
+        proba = clf.predict_proba(test_scores, method="unify")
+        expected = erf(
+            (test_scores - clf._mu) / (clf._sigma * np.sqrt(2))
+        ).clip(0, 1)
+        assert_allclose(proba[:, 1], expected)
+        assert_allclose(proba[:, 0], 1 - expected)
 
 
 class TestBASE(unittest.TestCase):
