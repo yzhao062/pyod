@@ -234,16 +234,18 @@ class Forte(BaseDetector):
                 "samples" % (n_samples, self.n_neighbors))
 
         self.reference_indices_ = ref_idx
-        self._ref = [X[ref_idx][:, sl] for sl in self._slices]
+        # index the rows once; the per-space references are views of it
+        X_ref, X_fit = X[ref_idx], X[fit_idx]
+        self._ref = [X_ref[:, sl] for sl in self._slices]
         self._ref_radii = [_knn_radii(ref, self.n_neighbors)
                            for ref in self._ref]
 
-        prdc_fit = self._prdc(X[fit_idx])
+        prdc_fit = self._prdc(X_fit)
         self.detector_ = self._fit_density(prdc_fit)
 
         # training scores of the reference half: swap the two halves
         prdc_ref = np.hstack([
-            per_point_prdc(X[fit_idx][:, sl], ref, self.n_neighbors)
+            per_point_prdc(X_fit[:, sl], ref, self.n_neighbors)
             for sl, ref in zip(self._slices, self._ref)])
 
         self.decision_scores_ = np.empty(n_samples, dtype=np.float64)
@@ -256,8 +258,11 @@ class Forte(BaseDetector):
         """Predict raw anomaly score of X using the fitted detector.
 
         X is treated as one evaluated sample: the score of a point
-        depends on the other points in X. For consistency, outliers are
-        assigned with larger anomaly scores.
+        depends on the other points in X. Recall and coverage also depend
+        on the number of points in X, and the density model is fitted on
+        statistics of a sample the size of the fit half, so X should be
+        of comparable size. For consistency, outliers are assigned with
+        larger anomaly scores.
 
         Parameters
         ----------
