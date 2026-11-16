@@ -176,6 +176,23 @@ class TestPredictProbaUnify(unittest.TestCase):
         assert_allclose(proba[:, 1], [0.0, 1.0, 0.0])
         assert_allclose(proba.sum(axis=1), [1.0, 1.0, 1.0])
 
+    def test_zero_training_std_preserves_nan_scores(self):
+        clf = ScorePassthrough().fit(np.ones(30))
+        test_scores = np.array([1.0, np.nan, 5.0])
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", RuntimeWarning)
+            proba = clf.predict_proba(test_scores, method="unify")
+
+        runtime_warnings = [
+            item for item in caught
+            if issubclass(item.category, RuntimeWarning)
+        ]
+        assert_equal(len(runtime_warnings), 0)
+        assert_allclose(proba[0], [1.0, 0.0])
+        assert_equal(np.isnan(proba[1]).all(), True)
+        assert_allclose(proba[2], [0.0, 1.0])
+
     def test_nonzero_training_std_matches_erf(self):
         train_scores = np.array([0.0, 1.0, 2.0, 3.0])
         clf = ScorePassthrough().fit(train_scores)

@@ -230,13 +230,15 @@ class BaseDetector(BaseEstimator, metaclass=abc.ABCMeta):
             # Identical training scores have zero variance (#510). Dividing
             # by that deviation warns and returns NaN. Points at the training
             # score stay at the Gaussian mean; points above or below it sit
-            # at +/- infinity, which erf then maps into [0, 1].
+            # at +/- infinity, which erf then maps into [0, 1]. A NaN test
+            # score is not comparable, so it stays NaN instead of becoming 0.
             scale = self._sigma * np.sqrt(2)
             if scale == 0:
                 centered = np.asarray(test_scores, dtype=float) - self._mu
                 pre_erf_score = np.zeros_like(centered, dtype=float)
                 pre_erf_score[centered > 0] = np.inf
                 pre_erf_score[centered < 0] = -np.inf
+                pre_erf_score[np.isnan(centered)] = np.nan
             else:
                 pre_erf_score = (test_scores - self._mu) / scale
             erf_score = erf(pre_erf_score)
