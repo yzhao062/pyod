@@ -520,6 +520,11 @@ PyOD is organized into two functional groups: **(i) Detection Algorithms**, with
      - Multi-modal anomaly detection via foundation model embeddings, text, image, and audio (`example <https://github.com/yzhao062/pyod/blob/development/examples/embedding_od_example.py>`__)
      - 2025
      - [#Li2024NLPADBench]_
+   * - Embedding-based
+     - Forte
+     - Forte: Finding Outliers with Representation Typicality Estimation, per-point PRDC on embeddings (`example <https://github.com/yzhao062/pyod/blob/development/examples/forte_example.py>`__)
+     - 2025
+     - [#Ganguly2025Forte]_
 
 
 Ensemble methods (IForest, INNE, DIF, FB, LSCP, LODA, SUOD, XGBOD) are included in the table above. Score combination functions (average, maximization, AOM, MOA, median, majority vote) are in ``pyod.models.combination``. See `API docs <https://pyod.readthedocs.io/en/latest/pyod.models.tabular.html>`__ for details.
@@ -837,6 +842,8 @@ Reference
 .. [#Chen2024PyOD] Chen, S., Qian, Z., Siu, W., Hu, X., Li, J., Li, S., Qin, Y., Yang, T., Xiao, Z., Ye, W. and Zhang, Y., 2024. PyOD 2: A Python Library for Outlier Detection with LLM-powered Model Selection. arXiv preprint arXiv:2412.12154.
 
 .. [#Fang2001Wrap] Fang, K.T. and Ma, C.X., 2001. Wrap-around L2-discrepancy of random sampling, Latin hypercube and uniform designs. Journal of complexity, 17(4), pp.608-624.
+
+.. [#Ganguly2025Forte] Ganguly, D., Morningstar, W.R., Yu, A.S. and Chaudhary, V., 2025. Forte: Finding Outliers with Representation Typicality Estimation. In *International Conference on Learning Representations (ICLR)*.
 
 .. [#Goldstein2012Histogram] Goldstein, M. and Dengel, A., 2012. Histogram-based outlier score (hbos): A fast unsupervised anomaly detection algorithm. In *KI-2012: Poster and Demo Track*\ , pp.59-63.
 
