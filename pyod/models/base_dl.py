@@ -474,6 +474,9 @@ class BaseDeepLearningDetector(BaseDetector):
             source.  When ``False``, ``load()`` raises before invoking
             ``torch.load`` so a malicious pickle cannot execute code before
             any validation.  Set to ``True`` only for artifacts you control.
+            Only the boolean ``True`` is accepted; any other value,
+            including truthy ones such as the string ``"false"`` or ``1``,
+            raises ``ValueError``.
 
         Returns
         -------
@@ -483,9 +486,11 @@ class BaseDeepLearningDetector(BaseDetector):
         Raises
         ------
         ValueError
-            If ``trusted`` is not ``True``.
+            If ``trusted`` is anything other than the boolean ``True``.
         """
-        if not trusted:
+        # Require the literal True, not truthiness: a forwarded config string
+        # such as trusted="false" must not count as approval.
+        if trusted is not True:
             raise ValueError(
                 "load(): refusing to deserialize an untrusted artifact. "
                 "Pass trusted=True only for artifacts from a trusted source; "

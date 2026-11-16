@@ -289,6 +289,32 @@ class TestBaseDL(unittest.TestCase):
 
         os.remove('dummy_clf_untrusted.pt')
 
+    def test_load_rejects_truthy_non_true_trusted(self):
+        # Only the literal True approves deserialization. A truthy value
+        # forwarded from configuration, such as the string "false", must be
+        # rejected before torch.load or pickle.load runs.
+        from unittest import mock
+        dummy_clf = DummyDetector(verbose=0)
+        dummy_clf.fit(self.X_train)
+        path = 'dummy_clf_truthy.pt'
+        dummy_clf.save(path)
+        try:
+            for value in ("false", "False", "true", "True", "0", "yes",
+                          1, 1.0, [True], {"trusted": True}, object()):
+                with self.subTest(trusted=value), \
+                        mock.patch('torch.load') as torch_load, \
+                        mock.patch('pickle.load') as pickle_load:
+                    with self.assertRaises(ValueError) as ctx:
+                        DummyDetector.load(path, trusted=value)
+                    self.assertIn('trusted=True', str(ctx.exception))
+                    torch_load.assert_not_called()
+                    pickle_load.assert_not_called()
+            # The literal True still loads.
+            loaded = DummyDetector.load(path, trusted=True)
+            self.assertIsInstance(loaded, DummyDetector)
+        finally:
+            os.remove(path)
+
     def tearDown(self):
         pass
 
