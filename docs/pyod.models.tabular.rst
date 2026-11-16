@@ -154,6 +154,15 @@ pyod.models.feature\_bagging module
     :show-inheritance:
 
 
+pyod.models.forte module
+------------------------
+
+.. automodule:: pyod.models.forte
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 pyod.models.gmm module
 ----------------------
 
