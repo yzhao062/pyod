@@ -48,6 +48,7 @@ _DETECTOR_SHORTCUTS = {
     'KDE': ('pyod.models.kde', 'KDE', {}),
     'LMDD': ('pyod.models.lmdd', 'LMDD', {}),
     'LOCI': ('pyod.models.loci', 'LOCI', {}),
+    'Forte': ('pyod.models.forte', 'Forte', {}),
 }
 
 

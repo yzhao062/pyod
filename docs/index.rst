@@ -274,6 +274,7 @@ Neural Networks      AE1SVM            Autoencoder-based One-class Support Vecto
 Graph-based          R-Graph           Outlier detection by R-graph                                                                            2017   :class:`pyod.models.rgraph.RGraph`                   :cite:`a-you2017provable`
 Graph-based          LUNAR             LUNAR: Unifying Local Outlier Detection Methods via Graph Neural Networks                               2022   :class:`pyod.models.lunar.LUNAR`                     :cite:`a-goodge2022lunar`
 Embedding-based      EmbeddingOD       Multi-modal anomaly detection via foundation model embeddings (text, image, audio)                      2025   :class:`pyod.models.embedding.EmbeddingOD`           :cite:`a-li2024nlp`
+Embedding-based      Forte             Forte: Finding Outliers with Representation Typicality Estimation (per-point PRDC on embeddings)        2025   :class:`pyod.models.forte.Forte`                     :cite:`a-ganguly2025forte`
 ===================  ================  ======================================================================================================  =====  ===================================================  ======================================================
 
 
