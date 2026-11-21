@@ -74,8 +74,22 @@ Pillar                       What it means
 Multi-Modal                  61 detectors across **tabular, time series, graph, text, image, and audio** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      ``od-expert`` turns natural-language requests into ADEngine workflows; MCP exposes structured tools for other agents
-Most Used                    46+ million downloads; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
+Most Used                    65+ million downloads; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
 ===========================  ========================================================================================
+
+Core Team
+^^^^^^^^^
+
+Two faculty members lead PyOD and build it with their students and long-time open-source contributors.
+
+=====================================================  ==========================================================================  ==========================================================================
+Lead                                                   Position                                                                    Role in PyOD
+=====================================================  ==========================================================================  ==========================================================================
+`Yue Zhao <https://viterbi-web.usc.edu/~yzhao010/>`__  Assistant Professor of Computer Science, University of Southern California  Started PyOD in 2017 and leads its development
+`Xiyang Hu <https://xiyanghu.github.io/>`__            Assistant Professor of Information Systems, Arizona State University        Co-author of ECOD, COPOD, SUOD, and ADBench, which PyOD ships or builds on
+=====================================================  ==========================================================================  ==========================================================================
+
+**Core contributors**: Zain Nasrullah and Winston (Zheng) Li co-authored PyOD 1 (JMLR 2019). Yahya Almardeny, Akira Tamamori, Michiel Bongaerts, Roel Bouman, Adam Goodge, Daniel Kulik, and Lorenzo Perini added detectors, tests, and features such as thresholding and prediction confidence. Sihan Chen, Yuehan Qin, Tiankai Yang, and Zhuo Xiao ported the deep learning detectors to PyTorch for PyOD 2. The `About page <https://pyod.readthedocs.io/en/latest/about.html>`__ lists the full core development team.
 
 Install
 ^^^^^^^
@@ -149,7 +163,7 @@ The figure above shows a real 5-turn agentic conversation on the UCI Cardiotocog
 About PyOD
 ^^^^^^^^^^
 
-PyOD, established in 2017, is the longest-running and most widely used Python library for anomaly detection. With `46+ million downloads <https://pepy.tech/project/pyod>`__, it serves both academic research (featured in `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`__, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`__, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`__) and commercial products.
+PyOD, established in 2017, is the longest-running and most widely used Python library for anomaly detection. With `65+ million downloads <https://pepy.tech/project/pyod>`__, it serves both academic research (featured in `Analytics Vidhya <https://www.analyticsvidhya.com/blog/2019/02/outlier-detection-python-pyod/>`__, `KDnuggets <https://www.kdnuggets.com/2019/02/outlier-detection-methods-cheat-sheet.html>`__, and `Towards Data Science <https://towardsdatascience.com/anomaly-detection-for-dummies-15f148e559c1>`__) and commercial products.
 
 V3 extends the library with ``ADEngine`` (lifecycle orchestration) and the ``od-expert`` skill (agentic workflow), while keeping the classic ``fit``/``predict`` API fully backward-compatible. V3 is built on SUOD [#Zhao2021SUOD]_ for fast parallel training and numba JIT for per-model speedups.
 

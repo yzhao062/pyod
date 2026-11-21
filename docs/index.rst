@@ -74,8 +74,22 @@ Pillar                       What it means
 Multi-Modal                  61 detectors across **tabular, time series, graph, text, image, and audio** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      Ask in plain English, and AI agents run the full detection workflow without OD expertise
-Most Used                    `46+ million downloads <https://pepy.tech/project/pyod>`_; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
+Most Used                    `65+ million downloads <https://pepy.tech/project/pyod>`_; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
 ===========================  ========================================================================================
+
+Core Team
+^^^^^^^^^
+
+Two faculty members lead PyOD and build it with their students and long-time open-source contributors.
+
+====================================================  ==========================================================================  ==========================================================================
+Lead                                                  Position                                                                    Role in PyOD
+====================================================  ==========================================================================  ==========================================================================
+`Yue Zhao <https://viterbi-web.usc.edu/~yzhao010/>`_  Assistant Professor of Computer Science, University of Southern California  Started PyOD in 2017 and leads its development
+`Xiyang Hu <https://xiyanghu.github.io/>`_            Assistant Professor of Information Systems, Arizona State University        Co-author of ECOD, COPOD, SUOD, and ADBench, which PyOD ships or builds on
+====================================================  ==========================================================================  ==========================================================================
+
+**Core contributors**: Zain Nasrullah and Winston (Zheng) Li co-authored PyOD 1 (JMLR 2019). Yahya Almardeny, Akira Tamamori, Michiel Bongaerts, Roel Bouman, Adam Goodge, Daniel Kulik, and Lorenzo Perini added detectors, tests, and features such as thresholding and prediction confidence. Sihan Chen, Yuehan Qin, Tiankai Yang, and Zhuo Xiao ported the deep learning detectors to PyTorch for PyOD 2. The :doc:`about` page lists the full core development team.
 
 Install
 ^^^^^^^
@@ -155,7 +169,7 @@ See the Install block above for setup instructions for all three activation path
 About PyOD
 ^^^^^^^^^^
 
-PyOD, established in 2017, is the longest-running and most widely used Python library for `anomaly detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_. With `46+ million downloads <https://pepy.tech/project/pyod>`_, it serves both academic research and commercial products worldwide.
+PyOD, established in 2017, is the longest-running and most widely used Python library for `anomaly detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_. With `65+ million downloads <https://pepy.tech/project/pyod>`_, it serves both academic research and commercial products worldwide.
 
 V3 extends the library with :class:`~pyod.utils.ad_engine.ADEngine` (lifecycle orchestration) and the ``od-expert`` skill (agentic workflow), while keeping the classic ``fit``/``predict`` API fully backward-compatible. V3 is built on SUOD :cite:`a-zhao2021suod` for fast parallel training and numba JIT for per-model speedups.
 

@@ -5,11 +5,16 @@ About us
 Core Development Team
 ---------------------
 
-Dr. Yue Zhao (Assistant Professor @ USC, Ph.D. @ CMU):
+Dr. Yue Zhao (Assistant Professor of Computer Science @ University of Southern California, Ph.D. @ CMU):
 
-- Initialized the project in 2017
-- `Homepage <https://viterbi-web.usc.edu/~yzhao010/>`_
+- Started the project in 2017 and leads its development
+- `Homepage (Yue Zhao) <https://viterbi-web.usc.edu/~yzhao010/>`_
 - `LinkedIn (Yue Zhao) <https://www.linkedin.com/in/yzhao062/>`_
+
+Dr. Xiyang Hu (Assistant Professor of Information Systems @ Arizona State University, Ph.D. @ CMU):
+
+- Co-leads the project; co-author of ECOD, COPOD, SUOD, and ADBench
+- `Homepage (Xiyang Hu) <https://xiyanghu.github.io/>`_
 
 Zain Nasrullah (Data Scientist at RBC; MSc in Computer Science from University of Toronto):
 
@@ -26,14 +31,14 @@ Yahya Almardeny (Senior AI/ML & Software Systems Engineer @ General Motors):
 - Joined in 2019
 - `LinkedIn (Yahya Almardeny) <https://www.linkedin.com/in/yahya-almardeny/>`_
 
-Antônio Pedro Camargo (DOE Joint Genome Institute)
+Antônio Pedro Camargo (DOE Joint Genome Institute):
 
 - Joined in 2020 (our Conda maintainer)
 - `GitHub (Antônio Pedro Camargo) <https://github.com/apcamargo>`_
 
-Dr. Andrij Vasylenko (Research Associate @ University of Liverpool)
+Dr. Andrij Vasylenko (Research Associate @ University of Liverpool):
 
-- Joined in 2020 (implemented the VAE and extend to Beta-VAE)
+- Joined in 2020 (implemented the VAE and extended it to Beta-VAE)
 - `Homepage (Dr Andrij Vasylenko) <https://www.liverpool.ac.uk/chemistry/staff/andrij-vasylenko/>`_
 
 Roel Bouman (Ph.D. Student @ Radboud University):
@@ -63,38 +68,38 @@ Adam Goodge (PhD Researcher @ National University of Singapore):
 
 Daniel Kulik (Machine Learning Developer; MSc Astrophysics @ University of the Free State):
 
-- Joined 2022 (implemented integration with PyThresh and more)
+- Joined in 2022 (implemented integration with PyThresh and more)
 - `LinkedIn (Daniel Kulik) <https://www.linkedin.com/in/daniel-kulik-148256223>`_
 
 Lorenzo Perini (Research Scientist, Meta):
 
-- Joined 2022 (implemented prediction confidence, rejection and more)
+- Joined in 2022 (implemented prediction confidence, rejection, and more)
 - `Homepage (Lorenzo Perini) <https://lorenzo-perini.github.io/>`_
 
 Tiankai Yang (PhD student @ USC):
 
-- Joined 2024 (implemented Pytorch version of algorithms)
-- `Homepage (Tiankai Yang) <https://www.linkedin.com/in/tiankai-yang/>`_
+- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- `LinkedIn (Tiankai Yang) <https://www.linkedin.com/in/tiankai-yang/>`_
 
 Yuehan Qin (PhD student @ USC):
 
-- Joined 2024 (implemented Pytorch version of algorithms)
-- `Homepage (Yuehan Qin) <https://github.com/yqin43>`_
+- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- `GitHub (Yuehan Qin) <https://github.com/yqin43>`_
 
 Sihan Chen (MS student @ USC):
 
-- Joined 2024 (implemented Pytorch version of algorithms)
-- `Homepage (Sihan Chen) <https://www.linkedin.com/in/chensihanlaura/>`_
+- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- `LinkedIn (Sihan Chen) <https://www.linkedin.com/in/chensihanlaura/>`_
 
 Zhuo Xiao (MS student @ USC):
 
-- Joined 2024 (implemented Pytorch version of algorithms)
-- `Homepage (Zhuo Xiao) <https://www.linkedin.com/in/zhuox5/>`_
+- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- `LinkedIn (Zhuo Xiao) <https://www.linkedin.com/in/zhuox5/>`_
 
 Bourne Li (MS student @ USC):
 
-- Joined 2024 (implemented Pytorch version of algorithms)
-- `Homepage (Bourne Li) <https://www.linkedin.com/in/bourne-li-a9a899231/>`_
+- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- `LinkedIn (Bourne Li) <https://www.linkedin.com/in/bourne-li-a9a899231/>`_
 
 
 Funding
