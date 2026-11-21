@@ -80,16 +80,12 @@ Most Used                    `65+ million downloads <https://pepy.tech/project/p
 Core Team
 ^^^^^^^^^
 
-Two faculty members lead PyOD and build it with their students and long-time open-source contributors.
+.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/brand/team/core-team.png
+   :width: 900px
+   :alt: PyOD core team (Yue Zhao, Xiyang Hu, Zain Nasrullah, and Winston (Zheng) Li) and the ten contributors with the most commits
 
-====================================================  ==========================================================================  ==========================================================================
-Lead                                                  Position                                                                    Role in PyOD
-====================================================  ==========================================================================  ==========================================================================
-`Yue Zhao <https://viterbi-web.usc.edu/~yzhao010/>`_  Assistant Professor of Computer Science, University of Southern California  Started PyOD in 2017 and leads its development
-`Xiyang Hu <https://xiyanghu.github.io/>`_            Assistant Professor of Information Systems, Arizona State University        Co-author of ECOD, COPOD, SUOD, and ADBench, which PyOD ships or builds on
-====================================================  ==========================================================================  ==========================================================================
+PyOD is led by `Yue Zhao <https://viterbi-web.usc.edu/~yzhao010/>`__ (University of Southern California), who started it in 2017, and `Xiyang Hu <https://xiyanghu.github.io/>`__ (Arizona State University), co-author of the ECOD, COPOD, SUOD, and ADBench work that PyOD ships or builds on. Zain Nasrullah and Winston (Zheng) Li co-authored PyOD 1 (JMLR 2019). Top contributors are ranked by commits, and the :doc:`about` page lists the full core development team.
 
-**Core contributors**: Zain Nasrullah and Winston (Zheng) Li co-authored PyOD 1 (JMLR 2019). Yahya Almardeny, Akira Tamamori, Michiel Bongaerts, Roel Bouman, Adam Goodge, Daniel Kulik, and Lorenzo Perini added detectors, tests, and features such as thresholding and prediction confidence. Sihan Chen, Yuehan Qin, Tiankai Yang, and Zhuo Xiao ported the deep learning detectors to PyTorch for PyOD 2. The :doc:`about` page lists the full core development team.
 
 Install
 ^^^^^^^
