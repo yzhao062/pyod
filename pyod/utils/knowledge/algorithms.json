@@ -399,6 +399,32 @@
     "requires": [],
     "version_added": "0.8.0"
   },
+  "FastLOF": {
+    "class_path": "pyod.models.fastlof.FastLOF",
+    "full_name": "Fast Local Outlier Factor",
+    "status": "shipped",
+    "data_types": ["tabular"],
+    "category": "proximity",
+    "complexity": {"time": "O(n^2 * d + n^2 * log(k)) worst case", "space": "O(n * d + n * k + m^2)"},
+    "strengths": [
+      "Chunked training bounds distance-block memory",
+      "Optional pruning focuses refinement on likely outliers",
+      "Numba kernels accelerate common distance metrics"
+    ],
+    "weaknesses": [
+      "Pruning approximates training neighborhoods and densities",
+      "Scores can depend on random chunking when pruning is enabled",
+      "Novelty queries still require a training neighbor search"
+    ],
+    "best_for": "Dense tabular data where approximate local density scores are acceptable",
+    "avoid_when": "Exact scores are required unless pruning is disabled; sparse or precomputed inputs",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "fastlof", "short": "Goldstein, ICPR 2012"},
+    "default_params": {"contamination": 0.1, "n_neighbors": 20, "threshold": 1.1, "algorithm": "auto"},
+    "preprocessing_mode": "external",
+    "requires": []
+  },
   "LOF": {
     "class_path": "pyod.models.lof.LOF",
     "full_name": "Local Outlier Factor",
