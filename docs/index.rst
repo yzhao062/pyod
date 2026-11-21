@@ -82,9 +82,9 @@ Core Team
 
 .. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/brand/team/core-team.png
    :width: 900px
-   :alt: PyOD core team (Yue Zhao, Xiyang Hu, Zain Nasrullah, and Winston (Zheng) Li) and the ten contributors with the most commits
+   :alt: PyOD core team: Yue Zhao, Xiyang Hu, Zain Nasrullah, and Winston (Zheng) Li. Top contributors by commits: Yahya Almardeny, Akira Tamamori, Daniel Kulik, Michiel Bongaerts, Zhuo Xiao, Sihan Chen, Roel Bouman, Yuehan Qin, Adam Goodge, and Tiankai Yang.
 
-PyOD is led by `Yue Zhao <https://viterbi-web.usc.edu/~yzhao010/>`__ (University of Southern California), who started it in 2017, and `Xiyang Hu <https://xiyanghu.github.io/>`__ (Arizona State University), co-author of the ECOD, COPOD, SUOD, and ADBench work that PyOD ships or builds on. Zain Nasrullah and Winston (Zheng) Li co-authored PyOD 1 (JMLR 2019). Top contributors are ranked by commits, and the :doc:`about` page lists the full core development team.
+`Yue Zhao <https://viterbi-web.usc.edu/~yzhao010/>`__ (University of Southern California) started PyOD in 2017 and leads it with `Xiyang Hu <https://xiyanghu.github.io/>`__ (Arizona State University), co-author of ECOD, COPOD, SUOD, and ADBench. Zain Nasrullah and Winston (Zheng) Li co-authored PyOD 1 (JMLR 2019). The top contributors are ranked by commits, and the :doc:`about` page lists the full core development team.
 
 
 Install

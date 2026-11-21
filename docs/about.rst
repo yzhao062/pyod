@@ -51,6 +51,11 @@ Rafał Bodziony (Data Scientist):
 - Joined in 2021 (implemented DeepSVDD)
 - `LinkedIn (Rafał Bodziony) <https://pl.linkedin.com/in/rafalbodziony>`_
 
+Lorenzo Perini (Research Scientist, Meta):
+
+- Joined in 2021 (implemented prediction confidence, then the rejection option in 2024)
+- `Homepage (Lorenzo Perini) <https://lorenzo-perini.github.io/>`_
+
 Dr. Akira Tamamori (Associate Professor @ Aichi Institute of Technology):
 
 - Joined in 2022 (implemented multiple OD algorithms such as KDE, sampling, and more)
@@ -68,37 +73,32 @@ Adam Goodge (PhD Researcher @ National University of Singapore):
 
 Daniel Kulik (Machine Learning Developer; MSc Astrophysics @ University of the Free State):
 
-- Joined in 2022 (implemented integration with PyThresh and more)
+- Joined in 2022 (implemented CD and QMCD, and integrated PyThresh)
 - `LinkedIn (Daniel Kulik) <https://www.linkedin.com/in/daniel-kulik-148256223>`_
-
-Lorenzo Perini (Research Scientist, Meta):
-
-- Joined in 2022 (implemented prediction confidence, rejection, and more)
-- `Homepage (Lorenzo Perini) <https://lorenzo-perini.github.io/>`_
 
 Tiankai Yang (PhD student @ USC):
 
-- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- Joined in 2024 (contributed PyTorch implementations)
 - `LinkedIn (Tiankai Yang) <https://www.linkedin.com/in/tiankai-yang/>`_
 
 Yuehan Qin (PhD student @ USC):
 
-- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- Joined in 2024 (contributed PyTorch implementations)
 - `GitHub (Yuehan Qin) <https://github.com/yqin43>`_
 
 Sihan Chen (MS student @ USC):
 
-- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- Joined in 2024 (contributed PyTorch implementations)
 - `LinkedIn (Sihan Chen) <https://www.linkedin.com/in/chensihanlaura/>`_
 
 Zhuo Xiao (MS student @ USC):
 
-- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- Joined in 2024 (contributed PyTorch implementations)
 - `LinkedIn (Zhuo Xiao) <https://www.linkedin.com/in/zhuox5/>`_
 
 Bourne Li (MS student @ USC):
 
-- Joined in 2024 (implemented the PyTorch versions of the algorithms)
+- Joined in 2024 (contributed PyTorch implementations)
 - `LinkedIn (Bourne Li) <https://www.linkedin.com/in/bourne-li-a9a899231/>`_
 
 
