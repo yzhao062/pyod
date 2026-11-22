@@ -5,6 +5,7 @@ import os
 import sys
 import unittest
 
+import numpy as np
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
 from numpy.testing import assert_array_less
@@ -274,6 +275,34 @@ class TestAutoHBOS(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+
+class TestHBOSFeatureCount(unittest.TestCase):
+    """Scoring X with a different number of features than the training
+    data must raise ValueError instead of returning scores."""
+
+    def setUp(self):
+        rng = np.random.RandomState(42)
+        self.X_train = rng.randn(200, 3)
+        self.X_fewer = rng.randn(5, 2)
+        self.X_more = rng.randn(5, 4)
+
+    def _check(self, n_bins):
+        clf = HBOS(n_bins=n_bins).fit(self.X_train)
+        for X in (self.X_fewer, self.X_more):
+            for method in (clf.decision_function, clf.predict,
+                           clf.predict_proba):
+                with self.assertRaisesRegex(
+                        ValueError, 'expecting 3 features'):
+                    method(X)
+        # X with the training width is still accepted.
+        assert_equal(clf.decision_function(self.X_train).shape, (200,))
+
+    def test_static_bins(self):
+        self._check(n_bins=10)
+
+    def test_auto_bins(self):
+        self._check(n_bins='auto')
 
 
 if __name__ == '__main__':

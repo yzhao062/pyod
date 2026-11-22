@@ -5,6 +5,8 @@
 # License: BSD 2 clause
 
 
+import warnings
+
 import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA as sklearn_PCA
@@ -57,7 +59,8 @@ class PCA(BaseDetector):
         Number of selected principal components
         for calculating the outlier scores. It is not necessarily equal to
         the total number of the principal components. If not set, use
-        all principal components.
+        all principal components. Weighted scoring excludes components with
+        numerically zero explained variance and warns when it does so.
 
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
@@ -113,7 +116,12 @@ class PCA(BaseDetector):
     weighted : bool, optional (default=True)
         If True, the eigenvalues are used in score computation.
         The eigenvectors with small eigenvalues comes with more importance
-        in outlier score calculation.
+        in outlier score calculation. Weighted scoring computes in float64.
+        Components whose explained variance is
+        at most ``16 * n_features * eps`` times the largest one (``eps`` is
+        float64 machine precision) are left out, with a warning, because
+        their weights would dominate every score. If every component is left
+        out, all scores are 0.
 
     standardization : bool, optional (default=True)
         If True, perform standardization first to convert
@@ -216,8 +224,10 @@ class PCA(BaseDetector):
         self : object
             Fitted estimator.
         """
-        # validate inputs X and y (optional)
-        X = check_array(X)
+        # validate inputs X and y (optional). Weighted scoring works in
+        # float64, the precision its variance floor assumes; in float32 the
+        # null direction of a duplicated column can stay above that floor.
+        X = check_array(X, dtype=np.float64 if self.weighted else "numeric")
         self._set_n_classes(y)
 
         # PCA is recommended to use on the standardized data (zero mean and
@@ -258,10 +268,31 @@ class PCA(BaseDetector):
         # Not all eigenvectors are used, only n_selected_components_ smallest
         # are used since they better reflect the variance change
 
-        self.selected_components_ = self.components_[
-                                    -1 * self.n_selected_components_:, :]
-        self.selected_w_components_ = self.w_components_[
-                                      -1 * self.n_selected_components_:]
+        components = self.components_
+        weights = self.w_components_
+        if self.weighted:
+            variance = self.detector_.explained_variance_
+            finite = np.isfinite(variance)
+            # Relative tolerance n_features * eps, as in scipy.linalg.pinvh,
+            # with a 16x margin: the covariance solver can leave the null
+            # direction of a duplicated column a few times above
+            # n_features * eps. Float64 eps keeps it independent of X.dtype.
+            floor = (16 * X.shape[1] * np.finfo(np.float64).eps
+                     * np.max(variance[finite], initial=0))
+            usable = (finite & (variance > floor) & np.isfinite(weights)
+                      & (weights > 0))
+            if not usable.all():
+                warnings.warn(
+                    'Weighted PCA dropped %d of %d components with numerically '
+                    'zero variance.' % (np.sum(~usable), len(usable)),
+                    UserWarning, stacklevel=2)
+                components = components[usable]
+                weights = weights[usable]
+                self.n_selected_components_ = min(self.n_selected_components_, len(weights))
+
+        start = len(weights) - self.n_selected_components_
+        self.selected_components_ = components[start:]
+        self.selected_w_components_ = weights[start:]
 
         self.decision_scores_ = np.sum(
             cdist(X, self.selected_components_) / self.selected_w_components_,
@@ -290,7 +321,7 @@ class PCA(BaseDetector):
         """
         check_is_fitted(self, ['components_', 'w_components_'])
 
-        X = check_array(X)
+        X = check_array(X, dtype=np.float64 if self.weighted else "numeric")
         if self.standardization:
             X = self.scaler_.transform(X)
 

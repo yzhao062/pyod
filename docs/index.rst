@@ -74,8 +74,18 @@ Pillar                       What it means
 Multi-Modal                  61 detectors across **tabular, time series, graph, text, image, and audio** data, one API
 Full Lifecycle               From raw data to explained anomalies and next-step guidance in a single call
 Agentic                      Ask in plain English, and AI agents run the full detection workflow without OD expertise
-Most Used                    `46+ million downloads <https://pepy.tech/project/pyod>`_; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
+Most Used                    `65+ million downloads <https://pepy.tech/project/pyod>`_; benchmark-backed routing (ADBench, TSB-AD, BOND, NLP-ADBench)
 ===========================  ========================================================================================
+
+Core Team
+^^^^^^^^^
+
+.. image:: https://raw.githubusercontent.com/yzhao062/pyod/master/brand/team/core-team.png
+   :width: 900px
+   :alt: PyOD core team: Yue Zhao, Xiyang Hu, Zain Nasrullah, and Winston (Zheng) Li. Top contributors by commits: Yahya Almardeny, Akira Tamamori, Daniel Kulik, Michiel Bongaerts, Zhuo Xiao, Sihan Chen, Roel Bouman, Yuehan Qin, Adam Goodge, and Tiankai Yang.
+
+`Yue Zhao <https://viterbi-web.usc.edu/~yzhao010/>`__ (University of Southern California) started PyOD in 2017 and leads it with `Xiyang Hu <https://xiyanghu.github.io/>`__ (Arizona State University), co-author of ECOD, COPOD, SUOD, and ADBench. Zain Nasrullah and Winston (Zheng) Li co-authored PyOD 1 (JMLR 2019). The top contributors are ranked by commits, and the :doc:`about` page lists the full core development team.
+
 
 Install
 ^^^^^^^
@@ -155,7 +165,7 @@ See the Install block above for setup instructions for all three activation path
 About PyOD
 ^^^^^^^^^^
 
-PyOD, established in 2017, is the longest-running and most widely used Python library for `anomaly detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_. With `46+ million downloads <https://pepy.tech/project/pyod>`_, it serves both academic research and commercial products worldwide.
+PyOD, established in 2017, is the longest-running and most widely used Python library for `anomaly detection <https://en.wikipedia.org/wiki/Anomaly_detection>`_. With `65+ million downloads <https://pepy.tech/project/pyod>`_, it serves both academic research and commercial products worldwide.
 
 V3 extends the library with :class:`~pyod.utils.ad_engine.ADEngine` (lifecycle orchestration) and the ``od-expert`` skill (agentic workflow), while keeping the classic ``fit``/``predict`` API fully backward-compatible. V3 is built on SUOD :cite:`a-zhao2021suod` for fast parallel training and numba JIT for per-model speedups.
 

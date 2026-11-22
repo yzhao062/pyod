@@ -115,4 +115,4 @@ Platforms
 Summary
 -------
 
-As of June 2026: **46+ million downloads** on `PyPI <https://pepy.tech/project/pyod>`_, **9K+ stars** on `GitHub <https://github.com/yzhao062/pyod>`_, one *Nature Scientific Data* citation (ESA OPS-SAT), 3+ dedicated books, 2 major podcasts, 4+ online courses, tutorials in 5 non-English languages, and 60+ third-party media articles. PyOD has also been cited in research from USC Viterbi, Amazon Science, Microsoft Research, and Lawrence Livermore National Laboratory.
+As of November 2026: **65+ million downloads** on `PyPI <https://pepy.tech/project/pyod>`_, **10K+ stars** on `GitHub <https://github.com/yzhao062/pyod>`_, one *Nature Scientific Data* citation (ESA OPS-SAT), 3+ dedicated books, 2 major podcasts, 4+ online courses, tutorials in 5 non-English languages, and 60+ third-party media articles. PyOD has also been cited in research from USC Viterbi, Amazon Science, Microsoft Research, and Lawrence Livermore National Laboratory.

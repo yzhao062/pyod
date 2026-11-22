@@ -2,8 +2,12 @@
 
 
 import os
+import re
 import sys
 import unittest
+import warnings
+
+import numpy as np
 
 # noinspection PyProtectedMember
 from numpy.testing import assert_allclose
@@ -11,6 +15,7 @@ from numpy.testing import assert_array_less
 from numpy.testing import assert_equal
 from numpy.testing import assert_raises
 from scipy.stats import rankdata
+from sklearn import __version__ as sklearn_version
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 
@@ -155,6 +160,84 @@ class TestPCA(unittest.TestCase):
 
     def test_model_clone(self):
         clone_clf = clone(self.clf)
+
+    def test_weighted_scores_drop_constant_feature(self):
+        rng = np.random.RandomState(0)
+        X = np.vstack([rng.rand(50, 3), rng.rand(5, 3) + 8])
+        X[:, 2] = 0
+
+        with self.assertWarnsRegex(UserWarning, "numerically zero variance"):
+            model = PCA(contamination=0.1).fit(X)
+        with self.assertWarnsRegex(UserWarning, "numerically zero variance"):
+            smallest = PCA(n_selected_components=1).fit(X)
+        assert_equal(model.n_selected_components_, 2)
+        assert_equal(smallest.selected_components_[0], model.selected_components_[-1])
+        assert np.isfinite(model.decision_function(X)).all()
+
+        assert_allclose(model.decision_scores_, model.decision_function(X))
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            nondegenerate = PCA(n_components=2).fit(X)
+        assert not [w for w in caught if "numerically zero" in str(w.message)]
+        assert np.isfinite(nondegenerate.decision_scores_).all()
+
+    def test_weighted_scores_drop_numerically_zero_variance(self):
+        rng = np.random.RandomState(1)
+        first = rng.randn(60)
+        X = np.column_stack([first, first + 1e-10 * rng.randn(60),
+                             rng.randn(60)])
+
+        # The full SVD leaves a small positive variance on the near-copy, so
+        # this checks the tolerance and not only exact zeros.
+        with self.assertWarnsRegex(UserWarning, "dropped 1 of 3 components"):
+            model = PCA(svd_solver="full").fit(X)
+        assert model.detector_.explained_variance_[-1] > 0
+        assert_equal(model.n_selected_components_, 2)
+        assert np.isfinite(model.decision_scores_).all()
+
+    def test_weighted_scores_drop_duplicate_column(self):
+        # A solver can leave the null direction of an exact duplicate
+        # slightly above n_features * eps of the largest variance, and far
+        # above it when the input is float32.
+        solvers = ["full"]
+        if tuple(map(int, re.match(r"(\d+)\.(\d+)",
+                                   sklearn_version).groups())) >= (1, 5):
+            solvers.append("covariance_eigh")
+        for solver in solvers:
+            for dtype in (np.float32, np.float64):
+                for seed in range(20):
+                    rng = np.random.RandomState(seed)
+                    base = rng.randn(80)
+                    X = np.column_stack(
+                        [base, base.copy(), rng.randn(80)]).astype(dtype)
+                    with self.assertWarnsRegex(UserWarning,
+                                               "numerically zero"):
+                        model = PCA(svd_solver=solver).fit(X)
+                    assert_equal(model.n_selected_components_, 2)
+                    assert model.decision_scores_.max() < 1e6
+                    assert_allclose(model.decision_scores_,
+                                    model.decision_function(X))
+
+    def test_weighted_scores_all_constant(self):
+        X = np.ones((20, 3))
+        with self.assertWarnsRegex(UserWarning, "dropped 3 of 3 components"):
+            model = PCA().fit(X)
+        assert_equal(model.n_selected_components_, 0)
+        assert_equal(model.decision_scores_, np.zeros(20))
+        assert_equal(model.decision_function(X + 5), np.zeros(20))
+
+    def test_unweighted_scores_allow_constant_feature(self):
+        rng = np.random.RandomState(0)
+        X = rng.rand(30, 3)
+        X[:, 2] = 0
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            unweighted = PCA(weighted=False).fit(X)
+        assert not [w for w in caught if "numerically zero" in str(w.message)]
+        assert_equal(len(unweighted.selected_w_components_), 3)
+        assert np.isfinite(unweighted.decision_scores_).all()
 
     def tearDown(self):
         pass
