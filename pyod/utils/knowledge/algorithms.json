@@ -990,6 +990,31 @@
     "requires": ["torch"],
     "version_added": "0.7.5"
   },
+  "DeepSAD": {
+    "class_path": "pyod.models.deep_sad.DeepSAD",
+    "full_name": "Deep Semi-Supervised Anomaly Detection",
+    "status": "experimental",
+    "data_types": ["tabular"],
+    "category": "deep_learning",
+    "complexity": {"time": "O(n * d * h * epochs)", "space": "O(d * h)"},
+    "strengths": [
+      "Learns from a few labeled anomalies by pushing them away from the hypersphere center",
+      "Works with partial labels and falls back to Deep SVDD when no labels are given"
+    ],
+    "weaknesses": [
+      "Needs labeled anomalies to improve on Deep SVDD",
+      "Sensitive to network architecture choices and the eta weight"
+    ],
+    "best_for": "Semi-supervised detection where a few labeled anomalies are available",
+    "avoid_when": "No labeled anomalies are available; ADEngine passes no labels, so it does not route this detector",
+    "benchmark_refs": [],
+    "benchmark_rank": {},
+    "paper": {"id": "deep_sad", "short": "Ruff et al., ICLR 2020"},
+    "default_params": {"contamination": 0.1},
+    "preprocessing_mode": "external",
+    "requires": ["torch"],
+    "version_added": "unreleased"
+  },
   "AnoGAN": {
     "class_path": "pyod.models.anogan.AnoGAN",
     "full_name": "Anomaly Detection with Generative Adversarial Networks",
