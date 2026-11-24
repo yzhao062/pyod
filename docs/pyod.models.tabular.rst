@@ -192,6 +192,15 @@ pyod.models.iforest module
     :show-inheritance:
 
 
+pyod.models.eif module
+----------------------
+
+.. automodule:: pyod.models.eif
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 pyod.models.inne module
 -----------------------
 
