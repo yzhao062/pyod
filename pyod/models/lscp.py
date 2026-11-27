@@ -68,11 +68,17 @@ class LSCP(BaseDetector):
         local region (1.0 by default).
 
     n_bins : int, optional (default=10)
-        Number of bins to use when selecting the local region
+        Number of bins to use when selecting the local region. The value is
+        kept as given after fit; when it exceeds the number of base
+        detectors, the effective bin count used for scoring is stored in
+        ``n_bins_`` and a warning is raised.
 
-    random_state : RandomState, optional (default=None)
-        A random number generator instance to define the state of the random
-        permutations generator.
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator;
+        if RandomState instance, random_state is the random number generator;
+        if None, the random number generator is the RandomState instance used
+        by ``np.random``. Kept as given after fit; the generator used for
+        feature subspace selection is stored in ``random_state_``.
 
     contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
@@ -153,8 +159,23 @@ class LSCP(BaseDetector):
         for detector in self.detector_list:
             check_detector(detector)
 
-        # check random state and input
-        self.random_state = check_random_state(self.random_state)
+        # A histogram needs at least one bin per classifier: the correlation
+        # score histogram has n_clf values, so more bins than that clamps to
+        # n_clf. The constructor parameter is kept as given (#754); the
+        # effective value is a fitted attribute, and the warning fires once
+        # per fit instead of once per test instance.
+        if self.n_bins > self.n_clf:
+            warnings.warn(
+                "The number of histogram bins is greater than the number of "
+                "classifiers, reducing n_bins to n_clf.")
+            self.n_bins_ = self.n_clf
+        else:
+            self.n_bins_ = self.n_bins
+
+        # check random state and input. The constructor parameter is kept
+        # as given so get_params()/clone() describe the estimator the user
+        # built (#754); the resolved generator is a fitted attribute.
+        self.random_state_ = check_random_state(self.random_state)
         X = check_array(X)
         self._set_n_classes(y)
         self.n_features_ = X.shape[1]
@@ -315,7 +336,7 @@ class LSCP(BaseDetector):
             else:
                 # randomly generate feature subspaces
                 features = generate_bagging_indices(
-                    self.random_state,
+                    self.random_state_,
                     bootstrap_features=False,
                     n_features=self.X_train_norm_.shape[1],
                     min_features=int(
@@ -376,12 +397,7 @@ class LSCP(BaseDetector):
         if np.isnan(scores).any():
             scores = np.nan_to_num(scores)
 
-        if self.n_bins > self.n_clf:
-            warnings.warn(
-                "The number of histogram bins is greater than the number of "
-                "classifiers, reducing n_bins to n_clf.")
-            self.n_bins = self.n_clf
-        hist, bin_edges = np.histogram(scores, bins=self.n_bins)
+        hist, bin_edges = np.histogram(scores, bins=self.n_bins_)
 
         # find n_selected largest bins
         max_bins = argmaxn(hist, n=self.n_selected)
