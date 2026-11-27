@@ -8,7 +8,6 @@
 import warnings
 
 import numpy as np
-from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA as sklearn_PCA
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -34,11 +33,13 @@ class PCA(BaseDetector):
     constructed by the eigenvectors with small eigenvalues.
 
     Therefore, outlier scores can be obtained as the sum of the projected
-    distance of a sample on all eigenvectors.
+    distance of a sample on all eigenvectors, normalized to the eigenvectors’ 
+    explained variance.
     See :cite:`shyu2003novel,aggarwal2015outlier` for details.
 
-    Score(X) = Sum of weighted euclidean distance between each sample to the
-    hyperplane constructed by the selected eigenvectors
+    Score(X) = Sum of weighted euclidean distance between each PCA-transformed sample to the
+    hyperplane constructed by the selected eigenvectors, normalized by the eigenvectors'
+    explained variance.
 
     Parameters
     ----------
@@ -295,7 +296,7 @@ class PCA(BaseDetector):
         self.selected_w_components_ = weights[start:]
 
         self.decision_scores_ = np.sum(
-            cdist(X, self.selected_components_) / self.selected_w_components_,
+            (((self.detector_.transform(X) - self.detector_.transform(X).mean(axis=0))/self.selected_w_components_))** 2,
             axis=1).ravel()
 
         self._process_decision_scores()
@@ -326,7 +327,7 @@ class PCA(BaseDetector):
             X = self.scaler_.transform(X)
 
         return np.sum(
-            cdist(X, self.selected_components_) / self.selected_w_components_,
+            (((self.detector_.transform(X) - self.detector_.transform(X).mean(axis=0))/self.selected_w_components_))** 2,
             axis=1).ravel()
 
     @property
